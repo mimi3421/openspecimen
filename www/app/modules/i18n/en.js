@@ -2442,5 +2442,9 @@
       "hundred": "100",
       "two_hundred": "200",
       "five_hundred": "500"
+    },
+
+    "jpc": {
+      "study_approved": "JPC Approved Study"
     }
 }

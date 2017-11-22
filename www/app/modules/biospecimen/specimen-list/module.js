@@ -8,6 +8,13 @@ angular.module('os.biospecimen.specimenlist',
 
   .config(function($stateProvider) {
     $stateProvider
+      .state('jpc-base-path', {
+        url: '/jpc-base-path',
+        templateUrl: 'modules/biospecimen/specimen-list/jpc-base-path.html',
+        controller: function($scope) {
+        },
+        parent: 'signed-in'
+      })
       .state('specimen-lists', {
         url: '/specimen-lists',
         templateUrl: 'modules/biospecimen/specimen-list/lists.html',

@@ -14,7 +14,7 @@ body {
 }
 
 .os-navbar {
-  height: 40px;
+  height: 48px;
   width: 100%;
   display: flex;
   flex-direction: row;
@@ -90,8 +90,8 @@ body {
 }
 
 .os-navbar-default {
-  background: #205081;
-  border-bottom: 1px solid #2e3d54;
+  background: #ffffff;
+  border-bottom: 11px solid #532E62;
   color: #fff;
   font-weight: bold;
 }
@@ -106,7 +106,7 @@ body {
 }
 
 .os-navbar-default > ul > li > a {
-  color: #fff;
+  color: #532E62;
 }
 
 .os-navbar-default > ul > li > a > span.fa {
@@ -114,7 +114,7 @@ body {
 }
 
 .os-navbar-default > ul > li:hover {
-  background: #2d67a3;
+  background: #fff;
 }
  
 .os-navbar > ul > li.form-input  {
@@ -1192,3 +1192,9 @@ h4.os-sub-section-title, h5.os-sub-section-title, h6.os-sub-section-title {
 .os-mw-200 {
   min-width: 200px;
 }
+
+.jpc button, .jpc-btn {
+  background: #532E62!important;
+  color: #ffffff!important;
+}
+

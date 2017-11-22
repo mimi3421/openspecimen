@@ -72,14 +72,6 @@
         <button class="btn default" ng-if="resultsCtx.selectAll" ng-click="unSelectAllRows()">
           <span class="fa fa-remove"></span>
             <span translate="queries.unselect_all">Unselect All</span>
-          </button>
-        </button>
-
-        <os-assign-to-spmn-list on-add-to-list="addSelectedSpecimensToSpecimenList(list)">
-        </os-assign-to-spmn-list>
-
-        <button class="btn default" ui-sref="specimen-lists">
-          <span translate="specimen_list.checkout">Checkout</span>
         </button>
       </span>
 
@@ -105,6 +97,16 @@
 
       <os-plugin-hooks view-name="'query-results'" sec-name="'page-header'">
       </os-plugin-hooks>
+    </div>
+    <div class="right jpc">
+      <span ng-if="showAddToSpecimenList">
+        <os-assign-to-spmn-list on-add-to-list="addSelectedSpecimensToSpecimenList(list)">
+        </os-assign-to-spmn-list>
+
+        <button class="btn default jpc-btn" ui-sref="specimen-lists">
+          <span translate="specimen_list.checkout">Checkout</span>
+        </button>
+      </span>
     </div>
   </div>
 
