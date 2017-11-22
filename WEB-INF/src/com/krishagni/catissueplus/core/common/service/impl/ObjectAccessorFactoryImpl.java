@@ -15,6 +15,11 @@ public class ObjectAccessorFactoryImpl implements ObjectAccessorFactory {
 		return accessors.get(objectName);
 	}
 
+	@Override
+	public void addAccessor(ObjectAccessor accessor) {
+		accessors.put(accessor.getObjectName(), accessor);
+	}
+
 	public void setAccessors(List<ObjectAccessor> accessors) {
 		accessors.forEach(accessor -> this.accessors.put(accessor.getObjectName(), accessor));
 	}
