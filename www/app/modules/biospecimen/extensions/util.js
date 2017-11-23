@@ -58,8 +58,12 @@ angular.module('os.biospecimen.extensions.util', [])
       };
 
       angular.forEach(extensionDetail.attrs, function(attr) {
-        if (attr.type == 'datePicker' && !isNaN(parseInt(attr.value))) {
-          attr.value = parseInt(attr.value);
+        if (attr.type == 'datePicker') {
+          if (!isNaN(attr.value) && !isNaN(parseInt(attr.value))) {
+            attr.value = parseInt(attr.value);
+          } else {
+            attr.value = new Date(attr.value);
+          }
         }
 
         extensionDetail.attrsMap[attr.name] = attr.type != 'subForm' ? attr.value : getSubformFieldMap(attr);
