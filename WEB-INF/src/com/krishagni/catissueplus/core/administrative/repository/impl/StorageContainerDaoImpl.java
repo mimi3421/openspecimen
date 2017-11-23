@@ -29,6 +29,7 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
 import org.hibernate.sql.JoinType;
 
+import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainer;
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainerPosition;
 import com.krishagni.catissueplus.core.administrative.events.StorageContainerSummary;
@@ -118,10 +119,23 @@ public class StorageContainerDaoImpl extends AbstractDao<StorageContainer> imple
 
 		if (isNotEmpty(crit.specimenTypes())) {
 			query.createAlias("d.compAllowedSpecimenTypes", "spmnType", JoinType.LEFT_OUTER_JOIN);
+
+			Junction notInTypes = Restrictions.conjunction();
+			notInTypes.add(Restrictions.not(Restrictions.in("spmnType.elements", crit.specimenTypes())));
+
+			if (isNotEmpty(crit.specimenClasses())) {
+				DetachedCriteria typesCrit = DetachedCriteria.forClass(PermissibleValue.class, "pv")
+					.createAlias("pv.parent", "ppv")
+					.add(Restrictions.eq("pv.attribute", "specimen_type"))
+					.add(Restrictions.in("ppv.value", crit.specimenClasses()))
+					.setProjection(Property.forName("pv.value"));
+				notInTypes.add(Subqueries.propertyNotIn("spmnType.elements", typesCrit));
+			}
+
 			restriction.add(
 				Restrictions.conjunction()
 					.add(Restrictions.isNotNull("spmnType.elements"))
-					.add(Restrictions.not(Restrictions.in("spmnType.elements", crit.specimenTypes())))
+					.add(notInTypes)
 			);
 		}
 
