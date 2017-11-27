@@ -150,10 +150,11 @@ angular.module('os.biospecimen.specimen',
               }
             ];
           },
-          viewOpts: function($window, $stateParams, LocationChangeListener) {
+          viewOpts: function($window, $stateParams, formDef, SpecimenEvent, LocationChangeListener) {
             return {
               goBackFn: ($stateParams.spe == 'true') ? LocationChangeListener.back : null,
-              showSaveNext: $stateParams.spe != 'true'
+              showSaveNext: $stateParams.spe != 'true',
+              showActionBtns: !SpecimenEvent.isSysEvent(formDef.name)
             };
           }
         },

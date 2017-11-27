@@ -16,7 +16,7 @@ angular.module('os.biospecimen.extensions.addedit-record', [])
       recordId: recId,
       formCtxtId: parseInt($stateParams.formCtxId),
       objectId: $scope.object.id,
-      showActionBtns: true,
+      showActionBtns: viewOpts.showActionBtns == false ? false : true,
       showSaveNext: viewOpts.showSaveNext,
 
       onSave: function(formData, next) {

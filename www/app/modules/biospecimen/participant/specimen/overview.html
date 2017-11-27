@@ -257,7 +257,7 @@
     <ul class="os-activity-list" ng-if="activities.length > 0">
       <li class="os-activity" ng-repeat="activity in activities">
         <div class="title">
-          <a ui-sref="specimen-detail.extensions.addedit({recordId: activity.id, formId: activity.formId, formCtxId: activity.formCtxtId})">
+          <a ui-sref="specimen-detail.extensions.addedit({recordId: activity.id, formId: activity.formId, formCtxId: activity.formCtxtId, spe: true})">
             <span ng-if="!!activity.user && !!activity.time">
               {{'specimens.activity_full_info' | translate: activity}} 
             </span>
