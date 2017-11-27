@@ -739,6 +739,7 @@ public class Specimen extends BaseExtensionEntity {
 				updateCreatedOn(Utility.chopSeconds(getReceivedEvent().getTime()));
 			} else {
 				updateCreatedOn(specimen.getCreatedOn());
+				getParentSpecimen().addToChildrenEvent(this);
 			}
 		} else {
 			updateCreatedOn(null);
@@ -823,10 +824,6 @@ public class Specimen extends BaseExtensionEntity {
 				setCollectionStatus(collectionStatus);
 				decAliquotedQtyFromParent();
 				addOrUpdateCollRecvEvents();
-
-				if (getParentSpecimen() != null) {
-					getParentSpecimen().addToChildrenEvent(this);
-				}
 			}
 		}
 		
@@ -1247,7 +1244,7 @@ public class Specimen extends BaseExtensionEntity {
 			currentEvent.setSpecimen(this);
 			currentEvent.setLineage(childSpmn.getLineage());
 			currentEvent.setUser(AuthUtil.getCurrentUser());
-			currentEvent.setTime(Calendar.getInstance().getTime());
+			currentEvent.setTime(childSpmn.getCreatedOn());
 			getChildrenEvents().add(currentEvent);
 		}
 
