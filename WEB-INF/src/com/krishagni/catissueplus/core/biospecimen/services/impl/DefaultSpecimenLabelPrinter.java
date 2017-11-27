@@ -31,7 +31,9 @@ import com.krishagni.catissueplus.core.common.domain.LabelTmplToken;
 import com.krishagni.catissueplus.core.common.domain.LabelTmplTokenRegistrar;
 import com.krishagni.catissueplus.core.common.domain.PrintItem;
 import com.krishagni.catissueplus.core.common.domain.PrintRuleConfig;
+import com.krishagni.catissueplus.core.common.domain.PrintRuleEvent;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
+import com.krishagni.catissueplus.core.common.events.EventCode;
 import com.krishagni.catissueplus.core.common.events.OpenSpecimenEvent;
 import com.krishagni.catissueplus.core.common.repository.PrintRuleConfigsListCriteria;
 import com.krishagni.catissueplus.core.common.service.ChangeLogService;
@@ -156,7 +158,10 @@ public class DefaultSpecimenLabelPrinter extends AbstractLabelPrinter<Specimen> 
 
 	@Override
 	public void onApplicationEvent(OpenSpecimenEvent event) {
-		loadRulesFromDb();
+		EventCode code = event.getEventCode();
+		if (code == PrintRuleEvent.CREATED || code == PrintRuleEvent.UPDATED || code == PrintRuleEvent.DELETED) {
+			loadRulesFromDb();
+		}
 	}
 
 	private boolean migrateRulesToDb() {
@@ -293,6 +298,7 @@ public class DefaultSpecimenLabelPrinter extends AbstractLabelPrinter<Specimen> 
 
 	private void loadRulesFromDb() {
 		try {
+			logger.info("Loading print rules from database ...");
 			this.rules = daoFactory.getPrintRuleConfigDao()
 				.getPrintRules(new PrintRuleConfigsListCriteria().objectType("SPECIMEN"))
 				.stream().map(pr -> (SpecimenLabelPrintRule)pr.getRule())
