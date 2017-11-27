@@ -107,9 +107,8 @@ public class ConsentResponsesFactoryImpl implements ConsentResponsesFactory {
 		Map<String, ConsentTierResponse> responsesMap = cpr.getConsentResponses().stream()
 				.collect(Collectors.toMap(ConsentTierResponse::getStatementCode, ConsentTierResponse::copy));
 
-		for (ConsentTierResponseDetail responseDetail : detail.getConsentTierResponses()) {
-			ConsentTierResponse response = createConsentTierResponse(
-					responseDetail, cpr, responsesMap.get(responseDetail.getStatement()), ose);
+		for (ConsentTierResponseDetail responseDetail : detail.getResponses()) {
+			ConsentTierResponse response = createResponse(responseDetail, cpr, responsesMap.get(responseDetail.getStatement()), ose);
 			if (response != null) {
 				responsesMap.put(response.getStatementCode(), response);
 			}
@@ -118,7 +117,7 @@ public class ConsentResponsesFactoryImpl implements ConsentResponsesFactory {
 		consentResponses.setConsentResponses(new HashSet<>(responsesMap.values()));
 	}
 
-	private ConsentTierResponse createConsentTierResponse(
+	private ConsentTierResponse createResponse(
 			ConsentTierResponseDetail detail,
 			CollectionProtocolRegistration cpr,
 			ConsentTierResponse response,

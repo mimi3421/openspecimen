@@ -495,6 +495,9 @@ angular.module('os.biospecimen.participant',
                 return setting.value == 'true';
               }
             );
+          },
+          consents: function(hasDict, hasFieldsFn, cpr) {
+            return (hasDict && hasFieldsFn(['consents'])) ? cpr.getConsents() : null;
           }
         },
         controller: 'ParticipantOverviewCtrl',

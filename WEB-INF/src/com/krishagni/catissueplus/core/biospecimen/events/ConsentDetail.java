@@ -39,7 +39,7 @@ public class ConsentDetail extends AttributeModifiedSupport implements Mergeable
 	
 	private String comments;
 	
-	private List<ConsentTierResponseDetail> consentTierResponses = new ArrayList<ConsentTierResponseDetail>();
+	private List<ConsentTierResponseDetail> responses = new ArrayList<>();
 	
 	private String consentDocumentName;
 
@@ -109,12 +109,12 @@ public class ConsentDetail extends AttributeModifiedSupport implements Mergeable
 		this.comments = comments;
 	}
 
-	public List<ConsentTierResponseDetail> getConsentTierResponses() {
-		return consentTierResponses;
+	public List<ConsentTierResponseDetail> getResponses() {
+		return responses;
 	}
 
-	public void setConsentTierResponses(List<ConsentTierResponseDetail> consenTierStatements) {
-		this.consentTierResponses = consenTierStatements;
+	public void setResponses(List<ConsentTierResponseDetail> responses) {
+		this.responses = responses;
 	}
 
 	public String getConsentDocumentName() {
@@ -179,7 +179,7 @@ public class ConsentDetail extends AttributeModifiedSupport implements Mergeable
 				response.setResponse(answer.getResponse());
 			}
 
-			consent.getConsentTierResponses().add(response);
+			consent.getResponses().add(response);
 		}
 
 		return consent;
@@ -201,6 +201,6 @@ public class ConsentDetail extends AttributeModifiedSupport implements Mergeable
 		response.setStatement(other.getStatement());
 		response.setResponse(other.getResponse());
 		
-		getConsentTierResponses().add(response);
+		getResponses().add(response);
 	}
 }

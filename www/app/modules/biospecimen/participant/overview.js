@@ -1,7 +1,7 @@
 
 angular.module('os.biospecimen.participant.overview', ['os.biospecimen.models'])
   .controller('ParticipantOverviewCtrl', function(
-    $scope, $state, $stateParams, hasFieldsFn, storePhi, cp, cpr, visits,
+    $scope, $state, $stateParams, hasFieldsFn, storePhi, cp, cpr, consents, visits,
     Visit, CollectSpecimensSvc, ExtensionsUtil, Util, Alerts) {
 
     function init() {
@@ -11,8 +11,8 @@ angular.module('os.biospecimen.participant.overview', ['os.biospecimen.models'])
 
       ExtensionsUtil.createExtensionFieldMap($scope.cpr.participant);
       $scope.partCtx = {
-        obj: {cpr: $scope.cpr},
-        inObjs: ['cpr'],
+        obj: {cpr: $scope.cpr, consents: createCodedResps(consents)},
+        inObjs: ['cpr', 'consents'],
         showEdit: hasFieldsFn(['cpr'], []),
         auditObjs: [
           {objectId: cpr.id, objectName: 'collection_protocol_registration'},
@@ -20,6 +20,18 @@ angular.module('os.biospecimen.participant.overview', ['os.biospecimen.models'])
         ],
         showAnonymize: storePhi
       }
+    }
+
+    function createCodedResps(consents) {
+      angular.forEach(consents && consents.responses,
+        function(resp) {
+          if (resp.code) {
+            consents[resp.code] = resp.response;
+          }
+        }
+      );
+
+      return consents;
     }
 
     $scope.isOtherProtocol = function(other) {

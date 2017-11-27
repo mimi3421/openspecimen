@@ -12,7 +12,7 @@ angular.module('os.biospecimen.participant.consents', [])
     }
 
     function loadPvs() {
-      $scope.consentResponses = PvManager.getPvs('consent_response');
+      $scope.allowedResponses = PvManager.getPvs('consent_response');
     }
 
     function deleteConsentForm() {
