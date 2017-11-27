@@ -53,7 +53,7 @@ class FormInfoCache implements FormContextProcessor, FormEventsListener {
 	@PostConstruct
 	public void registerListeners() {
 		FormEventsNotifier.getInstance().addListener(this);
-		formService.addFormContextProc("*", this);
+		getFormService().addFormContextProc("*", this);
 	}
 
 	public String getFormName(Long cpId, String entityType) {
@@ -63,7 +63,7 @@ class FormInfoCache implements FormContextProcessor, FormEventsListener {
 				String formName = null;
 				Long formCtxtId = null;
 
-				Pair<String, Long> formInfo = daoFactory.getFormDao().getFormNameContext(cpId, entityType);
+				Pair<String, Long> formInfo = getDaoFactory().getFormDao().getFormNameContext(cpId, entityType);
 				if (formInfo != null) {
 					formName = formInfo.first();
 					formCtxtId = formInfo.second();
@@ -83,7 +83,7 @@ class FormInfoCache implements FormContextProcessor, FormEventsListener {
 		if (!ctxtInfo.hasFormContext(entityType, formName)) {
 			Container form = getForm(formName);
 			synchronized (ctxtInfo) {
-				Long formCtx = daoFactory.getFormDao().getFormCtxtId(form.getId(), entityType, cpId);
+				Long formCtx = getDaoFactory().getFormDao().getFormCtxtId(form.getId(), entityType, cpId);
 				ctxtInfo.addFormContext(entityType, formName, formCtx);
 			}
 		}
@@ -164,6 +164,14 @@ class FormInfoCache implements FormContextProcessor, FormEventsListener {
 			contextInfo.removeFormName(formCtxt.getEntityType());
 			contextInfo.removeFormContext(formCtxt.getIdentifier());
 		}
+	}
+
+	private FormService getFormService() {
+		return formService;
+	}
+
+	private DaoFactory getDaoFactory() {
+		return daoFactory;
 	}
 
 	private ContextInfo getCpContextInfo(Long cpId) {

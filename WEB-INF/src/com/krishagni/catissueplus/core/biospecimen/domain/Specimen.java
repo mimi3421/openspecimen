@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -105,13 +106,23 @@ public class Specimen extends BaseExtensionEntity {
 
 	private Specimen parentSpecimen;
 
-	private Set<Specimen> childCollection = new HashSet<Specimen>();
+	private Set<Specimen> childCollection = new HashSet<>();
 
 	private Specimen pooledSpecimen;
 
-	private Set<Specimen> specimensPool = new HashSet<Specimen>();
+	private Set<Specimen> specimensPool = new HashSet<>();
 
-	private Set<ExternalIdentifier> externalIdentifierCollection = new HashSet<ExternalIdentifier>();
+	private Set<ExternalIdentifier> externalIdentifierCollection = new HashSet<>();
+
+	//
+	// records aliquot or derivative events that have occurred on this specimen
+	//
+	private Set<SpecimenChildrenEvent> childrenEvents = new LinkedHashSet<>();
+
+	//
+	// records the event through which this specimen got created
+	//
+	private SpecimenChildrenEvent parentEvent;
 
 	//
 	// collectionEvent and receivedEvent are valid only for primary specimens
@@ -140,6 +151,13 @@ public class Specimen extends BaseExtensionEntity {
 	private transient boolean printLabel;
 
 	private transient boolean freezeThawIncremented;
+
+	//
+	// Records the derivatives or aliquots created from this specimen in current action/transaction
+	//
+	private transient SpecimenChildrenEvent derivativeEvent;
+
+	private transient SpecimenChildrenEvent aliquotEvent;
 
 	public static String getEntityName() {
 		return ENTITY_NAME;
@@ -447,6 +465,24 @@ public class Specimen extends BaseExtensionEntity {
 	}
 
 	@NotAudited
+	public Set<SpecimenChildrenEvent> getChildrenEvents() {
+		return childrenEvents;
+	}
+
+	public void setChildrenEvents(Set<SpecimenChildrenEvent> childrenEvents) {
+		this.childrenEvents = childrenEvents;
+	}
+
+	@NotAudited
+	public SpecimenChildrenEvent getParentEvent() {
+		return parentEvent;
+	}
+
+	public void setParentEvent(SpecimenChildrenEvent parentEvent) {
+		this.parentEvent = parentEvent;
+	}
+
+	@NotAudited
 	public SpecimenCollectionEvent getCollectionEvent() {
 		if (isAliquot() || isDerivative()) {
 			return null;
@@ -524,6 +560,16 @@ public class Specimen extends BaseExtensionEntity {
 
 	public void setLabelGenerator(LabelGenerator labelGenerator) {
 		this.labelGenerator = labelGenerator;
+	}
+
+	@Override
+	public String getEntityType() {
+		return EXTN;
+	}
+
+	@Override
+	public Long getCpId() {
+		return getCollectionProtocol().getId();
 	}
 
 	public boolean isForceDelete() {
@@ -777,6 +823,10 @@ public class Specimen extends BaseExtensionEntity {
 				setCollectionStatus(collectionStatus);
 				decAliquotedQtyFromParent();
 				addOrUpdateCollRecvEvents();
+
+				if (getParentSpecimen() != null) {
+					getParentSpecimen().addToChildrenEvent(this);
+				}
 			}
 		}
 		
@@ -932,6 +982,7 @@ public class Specimen extends BaseExtensionEntity {
 
 		specimen.occupyPosition();
 		getChildCollection().add(specimen);
+		addToChildrenEvent(specimen);
 	}
 	
 	public void addPoolSpecimen(Specimen specimen) {
@@ -1064,7 +1115,7 @@ public class Specimen extends BaseExtensionEntity {
 
 		freezeThawIncremented = true;
 	}
-	
+
 	public static String getDesc(String specimenClass, String type) {
 		StringBuilder desc = new StringBuilder();
 		if (StringUtils.isNotBlank(specimenClass)) {
@@ -1082,16 +1133,6 @@ public class Specimen extends BaseExtensionEntity {
 		return desc.toString();		
 	}
 	
-	@Override
-	public String getEntityType() {
-		return EXTN;
-	}
-
-	@Override
-	public Long getCpId() {
-		return getCollectionProtocol().getId();
-	}
-
 	//
 	// Useful for sorting specimens at same level
 	//
@@ -1194,7 +1235,31 @@ public class Specimen extends BaseExtensionEntity {
 
 		return lineage.equals(NEW) || lineage.equals(DERIVED) || lineage.equals(ALIQUOT);
 	}
-	
+
+	private void addToChildrenEvent(Specimen childSpmn) {
+		if (!childSpmn.isCollected() || childSpmn.getParentSpecimen() == null) {
+			return;
+		}
+
+		SpecimenChildrenEvent currentEvent = childSpmn.isAliquot() ? aliquotEvent : derivativeEvent;
+		if (currentEvent == null) {
+			currentEvent = new SpecimenChildrenEvent();
+			currentEvent.setSpecimen(this);
+			currentEvent.setLineage(childSpmn.getLineage());
+			currentEvent.setUser(AuthUtil.getCurrentUser());
+			currentEvent.setTime(Calendar.getInstance().getTime());
+			getChildrenEvents().add(currentEvent);
+		}
+
+		currentEvent.addChild(childSpmn);
+
+		if (childSpmn.isAliquot()) {
+			aliquotEvent = currentEvent;
+		} else if (childSpmn.isDerivative()) {
+			derivativeEvent = currentEvent;
+		}
+	}
+
 	private void ensureNoActiveChildSpecimens() {
 		for (Specimen specimen : getChildCollection()) {
 			if (specimen.isActiveOrClosed() && specimen.isCollected()) {
@@ -1290,13 +1355,15 @@ public class Specimen extends BaseExtensionEntity {
 				getPosition().vacate();
 			}
 			setPosition(null);
+
+			if (getParentEvent() != null) {
+				getParentEvent().removeChild(this);
+			}
 				
 			deleteEvents();
 		}
-				
-		for (Specimen child : getChildCollection()) {
-			child.updateHierarchyStatus(status);
-		}
+
+		getChildCollection().forEach(child -> child.updateHierarchyStatus(status));
 	}
 
 	public void checkPoolStatusConstraints() {

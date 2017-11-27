@@ -226,4 +226,109 @@
       update rbac_operations set name = 'Export Import' where name = 'Bulk Import'
     </sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="Specimen children events">
+    <createTable tableName="OS_CHILD_SPMN_EVENTS">
+      <column name="IDENTIFIER" type="${int.type}" autoIncrement="${autoIncrement}">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="LINEAGE" type="${text.type}(16)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="SPECIMEN_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="USER_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CREATION_TIME" type="${timestamp.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="COMMENTS" type="${text.type}(255)"/>
+    </createTable>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Child specimens event ID generator" dbms="oracle">
+    <createSequence sequenceName="OS_CHILD_SPMN_EVENT_SEQ" startValue="1" incrementBy="1" ordered="true"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Foreign key on children events specimen">
+    <addForeignKeyConstraint constraintName="FK_CHILD_SPMN_EVENTS_SPMN_ID"
+      baseTableName="OS_CHILD_SPMN_EVENTS" baseColumnNames="SPECIMEN_ID"
+      referencedTableName="CATISSUE_SPECIMEN" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Foreign key on children events user">
+    <addForeignKeyConstraint constraintName="FK_CHILD_SPMN_EVENTS_USER_ID"
+      baseTableName="OS_CHILD_SPMN_EVENTS" baseColumnNames="USER_ID"
+      referencedTableName="CATISSUE_USER" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Parent specimen event ID">
+    <addColumn tableName="CATISSUE_SPECIMEN">
+      <column name="PARENT_EVENT_ID" type="${int.type}"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Foreign key on parent specimen event ID">
+    <addForeignKeyConstraint  constraintName="FK_PARENT_SPMN_EVENT_ID"
+      baseTableName="CATISSUE_SPECIMEN" baseColumnNames="PARENT_EVENT_ID"
+      referencedTableName="OS_CHILD_SPMN_EVENTS" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Trigger to add record entry for specimen children event" dbms="mysql" runOnChange="true">
+    <sql endDelimiter="//" >
+      drop trigger if exists os_trg_spmn_child_event_re //
+    </sql>
+    <sql endDelimiter="//" >
+      create trigger os_trg_spmn_child_event_re after insert on os_child_spmn_events
+      for each row
+      begin
+        select
+          fc.identifier into @fcId
+        from
+          catissue_form_context fc
+          inner join dyextn_containers c on c.identifier = fc.container_id
+        where
+          c.name = 'SpecimenChildrenEvent' and
+          c.deleted_on is null and
+          fc.deleted_on is null and
+          fc.entity_type = 'SpecimenEvent' and
+          fc.cp_id = -1;
+
+        insert into catissue_form_record_entry
+          (identifier, form_ctxt_id, object_id, record_id, updated_by, update_time, activity_status)
+        values
+          (default, @fcId, new.specimen_id, new.identifier, new.user_id, new.creation_time, 'ACTIVE');
+      end;
+      //
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Trigger to add record entry for specimen children event" dbms="oracle" runOnChange="true">
+    <sql splitStatements="false">
+      create or replace trigger os_trg_spmn_child_event_re after insert on os_child_spmn_events
+      for each row
+      declare
+        fcId catissue_form_context.identifier%type;
+      begin
+        select
+          fc.identifier into fcId
+        from
+          catissue_form_context fc
+          inner join dyextn_containers c on c.identifier = fc.container_id
+        where
+          c.name = 'SpecimenChildrenEvent' and
+          c.deleted_on is null and
+          fc.deleted_on is null and
+          fc.entity_type = 'SpecimenEvent' and
+          fc.cp_id = -1;
+
+        insert into catissue_form_record_entry
+          (identifier, form_ctxt_id, object_id, record_id, updated_by, update_time, activity_status)
+        values
+          (catissue_form_rec_entry_seq.nextval, fcId, :new.specimen_id, :new.identifier, :new.user_id, :new.creation_time, 'ACTIVE');
+      end;
+    </sql>
+  </changeSet>
 </databaseChangeLog>

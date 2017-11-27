@@ -6,7 +6,6 @@ import java.util.Map;
 public class SpecimenDisposalEvent extends SpecimenEvent {
 	private String reason;
 
-	
 	public SpecimenDisposalEvent(Specimen specimen) {
 		super(specimen);
 	}

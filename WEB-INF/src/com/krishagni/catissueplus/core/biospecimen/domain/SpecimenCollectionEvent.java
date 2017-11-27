@@ -48,7 +48,7 @@ public class SpecimenCollectionEvent extends SpecimenEvent {
 	
 	@Override
 	public Map<String, Object> getEventAttrs() {
-		Map<String, Object> attrs = new HashMap<String, Object>();
+		Map<String, Object> attrs = new HashMap<>();
 		attrs.put("procedure", procedure);
 		attrs.put("container", container);
 		return attrs;
