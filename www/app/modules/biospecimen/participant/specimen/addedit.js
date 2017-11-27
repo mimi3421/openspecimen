@@ -134,16 +134,16 @@ angular.module('os.biospecimen.specimen.addedit', [])
       return {state: $state.get('visit-detail.overview'), params: {visitId: visit.id}};
     };
 
-    function getFormData(formCtrl) {
-      if (formCtrl && formCtrl.validate()) {
-        return formCtrl.getFormData();
-      } else {
-        return undefined;
-      }
-    }
-
     $scope.save = function() {
-      $scope.currSpecimen.extensionDetail = getFormData($scope.deFormCtrl.ctrl);
+      var formCtrl = $scope.deFormCtrl.ctrl;
+      if (formCtrl && !formCtrl.validate()) {
+        return;
+      }
+
+      if (formCtrl) {
+        $scope.currSpecimen.extensionDetail = formCtrl.getFormData();
+      }
+
       var aliquotSpec = $scope.aliquotSpec;
 
       var specimensToCollect = [];
