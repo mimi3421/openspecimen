@@ -18,7 +18,7 @@ angular.module('os.administrative.order',
             createOpts: {resource: 'Order', operations: ['Create']},
             updateOpts: {resource: 'Order', operations: ['Update']},
             deleteOpts: {resource: 'Order', operations: ['Delete']},
-            importOpts: {resource: 'Order', operations: ['Bulk Import']}
+            importOpts: {resource: 'Order', operations: ['Export Import']}
           }
         },
         parent: 'signed-in'
@@ -98,6 +98,24 @@ angular.module('os.administrative.order',
         },
         parent: 'signed-in'
       })
+      .state('order-ret-spmns-import', {
+        url: '/return-specimens-import',
+        templateUrl: 'modules/common/import/add.html',
+        controller: 'ImportObjectCtrl',
+        resolve: {
+          importDetail: function() {
+            return {
+              breadcrumbs: [{state: 'order-list', title: 'orders.returned_specimens'}],
+              objectType: 'returnSpecimen',
+              showImportType: false,
+              importType: 'CREATE',
+              title: 'orders.bulk_import',
+              onSuccess: {state: 'order-list'}
+            };
+          }
+        },
+        parent: 'signed-in'
+      })
       .state('order-import-jobs', {
         url: '/orders-import-jobs',
         templateUrl: 'modules/common/import/list.html',
@@ -107,7 +125,7 @@ angular.module('os.administrative.order',
             return {
               breadcrumbs: [{state: 'order-list', title: 'orders.list'}],
               title: 'orders.bulk_import_jobs',
-              objectTypes: ['distributionOrder']
+              objectTypes: ['distributionOrder', 'returnSpecimen']
             };
           }
         },

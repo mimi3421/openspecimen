@@ -1764,9 +1764,10 @@
       "specimenDerivative": "Derived Specimens",
       "masterSpecimen": "Master Specimens",
       "specimenDisposal": "Specimen Disposal",
-      "shipment": "Specimen Shipments",
+      "shipment": "Shipments",
       "containerShipment": "Container Shipments",
-      "distributionOrder": "Order"
+      "distributionOrder": "Orders",
+      "returnSpecimen": "Returned Specimens"
     },
 
     "import_types": {
@@ -1932,6 +1933,7 @@
     "filters": "Filters",
 
     "return_specimens": "Return Specimens",
+    "returned_specimens": "Returned Specimens",
     "get_dist_details": "Get Details",
     "paste_return_specimen_labels": "Paste or scan labels or barcodes of specimens to be returned",
     "specimens_returned": "{{count}} specimens returned successfully",
