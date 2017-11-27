@@ -66,6 +66,18 @@
             <caption>#getMessage("children_event_barcode")</caption>
             <column>BARCODE</column>
           </textField>
+          <dropDown>
+            <name>type</name>
+            <udn>type</udn>
+            <caption>#getMessage("children_event_type")</caption>
+            <column>SPECIMEN_TYPE</column>
+            <options>
+              <sql>
+                select distinct specimen_type from catissue_specimen order by specimen_type
+              </sql>
+            </options>
+            <mandatory>true</mandatory>
+          </dropDown>
         </row>
       </subForm>
     </row>
