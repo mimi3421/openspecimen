@@ -27,6 +27,11 @@
     </field>  
 
     <field>
+      <caption>#getMessage("specimen_concentration")</caption>
+      <attribute>concentration</attribute>
+    </field>
+
+    <field>
       <caption>#getMessage("specimen_location_container")</caption>
       <attribute>containerName</attribute>
     </field>

@@ -624,10 +624,10 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 	
 	private void setConcentration(SpecimenDetail detail, Specimen specimen, OpenSpecimenException ose) {
 		Specimen parent = specimen.getParentSpecimen();
-		if (specimen.isAliquot() && parent != null) {
-			specimen.setConcentration(parent.getConcentration());
-		} else if (!specimen.isAliquot()) {
+		if (!specimen.isAliquot() || detail.getConcentration() != null) {
 			specimen.setConcentration(detail.getConcentration());
+		} else if (parent != null){
+			specimen.setConcentration(parent.getConcentration());
 		}
 	}
 	

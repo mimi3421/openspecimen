@@ -377,12 +377,13 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 				return ResponseEvent.userError(SpecimenErrorCode.INVALID_QTY_OR_CNT);
 			}
 
-			List<SpecimenDetail> aliquots = new ArrayList<SpecimenDetail>();
+			List<SpecimenDetail> aliquots = new ArrayList<>();
 			for (int i = 0; i < count; ++i) {
 				SpecimenDetail aliquot = new SpecimenDetail();
 				aliquot.setLineage(Specimen.ALIQUOT);
 				aliquot.setInitialQty(aliquotQty);
 				aliquot.setAvailableQty(aliquotQty);
+				aliquot.setConcentration(spec.getConcentration());
 				aliquot.setParentLabel(parentSpecimen.getLabel());
 				aliquot.setParentId(parentSpecimen.getId());
 				aliquot.setCreatedOn(spec.getCreatedOn());

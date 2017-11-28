@@ -47,12 +47,14 @@ angular.module('os.biospecimen.specimen')
         derived = getSpmnToSave(
           'Derived', spec, parent,
           Math.round(spec.qtyPerAliquot * spec.noOfAliquots),
+          spec.concentration,
           scope.cpr.derivativeLabelFmt);
       }
 
       var aliquot = getSpmnToSave(
         'Aliquot', spec, (derived ? derived : parent),
         spec.qtyPerAliquot,
+        spec.concentration,
         scope.cpr.aliquotLabelFmt);
 
       var aliquots = [];
@@ -338,13 +340,14 @@ angular.module('os.biospecimen.specimen')
       }, opts));
     }
 
-    function getSpmnToSave(lineage, spec, parent, qty, fmt) {
+    function getSpmnToSave(lineage, spec, parent, qty, concentration, fmt) {
       return new Specimen({
         lineage: lineage,
         specimenClass: spec.specimenClass,
         type: spec.type,
         parentId: parent.id,
         initialQty: qty,
+        concentration: concentration,
         storageLocation: {name: '', positionX:'', positionY: ''},
         status: 'Pending',
         children: [],

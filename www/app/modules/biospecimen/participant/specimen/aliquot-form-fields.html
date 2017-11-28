@@ -31,6 +31,16 @@
     </div>
   </div>
 
+  <div class="form-group">
+    <label class="col-xs-3 control-label" translate="specimens.concentration">Concentration</label>
+    <div class="col-xs-6">
+      <os-spmn-measure name="concentration" specimen="aliquotSpec" quantity="aliquotSpec.concentration"
+        measure="concentration" placeholder="{{'specimens.concentration' | translate}}">
+      </os-spmn-measure>
+      <div os-field-error field="sform.concentration"></div>
+    </div>
+  </div>
+
   <div ng-if="fieldsCtx.hasDict">
     <sde-form-fields base-fields="fieldsCtx.sysDict" fields="fieldsCtx.cpDict"
       obj="spmnCtx.aobj" in-objs="spmnCtx.ainObjs" ex-objs="spmnCtx.aexObjs">

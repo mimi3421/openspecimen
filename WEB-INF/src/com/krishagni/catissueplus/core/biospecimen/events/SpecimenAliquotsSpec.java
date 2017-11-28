@@ -15,6 +15,8 @@ public class SpecimenAliquotsSpec {
 	private Integer noOfAliquots;
 	
 	private BigDecimal qtyPerAliquot;
+
+	private BigDecimal concentration;
 	
 	private Date createdOn;
 
@@ -76,6 +78,14 @@ public class SpecimenAliquotsSpec {
 
 	public void setQtyPerAliquot(BigDecimal qtyPerAliquot) {
 		this.qtyPerAliquot = qtyPerAliquot;
+	}
+
+	public BigDecimal getConcentration() {
+		return concentration;
+	}
+
+	public void setConcentration(BigDecimal concentration) {
+		this.concentration = concentration;
 	}
 
 	public Date getCreatedOn() {

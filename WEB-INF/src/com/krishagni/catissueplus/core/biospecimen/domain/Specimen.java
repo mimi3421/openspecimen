@@ -14,6 +14,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
@@ -283,7 +284,7 @@ public class Specimen extends BaseExtensionEntity {
 
 			if (this.concentration == null || !this.concentration.equals(concentration)) {
 				for (Specimen child : getChildCollection()) {
-					if (child.isAliquot()) {
+					if (ObjectUtils.equals(this.concentration, child.getConcentration()) && child.isAliquot()) {
 						child.setConcentration(concentration);
 					}
 				}
@@ -728,6 +729,7 @@ public class Specimen extends BaseExtensionEntity {
 		setBarcode(specimen.getBarcode());
 		setInitialQuantity(specimen.getInitialQuantity());
 		setAvailableQuantity(specimen.getAvailableQuantity());
+		setConcentration((isPoolSpecimen() ? getPooledSpecimen() : specimen).getConcentration());
 
 		updateEvent(getCollectionEvent(), specimen.getCollectionEvent());
 		updateEvent(getReceivedEvent(), specimen.getReceivedEvent());
@@ -760,7 +762,6 @@ public class Specimen extends BaseExtensionEntity {
 		setSpecimenClass(spmnToUpdateFrom.getSpecimenClass());
 		setSpecimenType(spmnToUpdateFrom.getSpecimenType());
 		updateBiohazards(spmnToUpdateFrom.getBiohazards());
-		setConcentration(spmnToUpdateFrom.getConcentration());
 		setPathologicalStatus(spmnToUpdateFrom.getPathologicalStatus());
 
 		setComment(specimen.getComment());
