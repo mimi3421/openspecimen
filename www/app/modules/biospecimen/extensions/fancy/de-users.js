@@ -4,7 +4,7 @@ openspecimen.ui.fancy = openspecimen.ui.fancy || {};
 
 openspecimen.ui.fancy.Users = edu.common.de.LookupSvc.extend({
   getApiUrl: function() {
-    var userSvc = angular.element($("#de-form")).injector().get('User');
+    var userSvc = angular.element(document).injector().get('User');
     return userSvc.url();
   },
 
@@ -26,14 +26,14 @@ openspecimen.ui.fancy.Users = edu.common.de.LookupSvc.extend({
   },
 
   getDefaultValue: function() {
-    var currentUser = angular.element($("#de-form")).scope().currentUser;
+    var currentUser = angular.element(document).scope().currentUser;
     var deferred = $.Deferred();
     deferred.resolve(currentUser);
     return deferred.promise();
   },
 
   getHeaders: function() {
-    var $http = angular.element($("#de-form")).injector().get('$http');
+    var $http = angular.element(document).injector().get('$http');
     return {'X-OS-API-TOKEN': $http.defaults.headers.common['X-OS-API-TOKEN']};
   }
 });

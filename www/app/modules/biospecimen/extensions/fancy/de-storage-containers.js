@@ -4,7 +4,7 @@ openspecimen.ui.fancy = openspecimen.ui.fancy || {};
 
 openspecimen.ui.fancy.StorageContainers = edu.common.de.LookupSvc.extend({
   getApiUrl: function() {
-    var containerSvc = angular.element($("#de-form")).injector().get('Container');
+    var containerSvc = angular.element(document).injector().get('Container');
     return containerSvc.url();
   },
 
@@ -37,7 +37,7 @@ openspecimen.ui.fancy.StorageContainers = edu.common.de.LookupSvc.extend({
   },
 
   getHeaders: function() {
-    var $http = angular.element($("#de-form")).injector().get('$http');
+    var $http = angular.element(document).injector().get('$http');
     return {'X-OS-API-TOKEN': $http.defaults.headers.common['X-OS-API-TOKEN']};
   }
 });
