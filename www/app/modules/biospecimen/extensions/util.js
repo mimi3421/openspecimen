@@ -61,7 +61,7 @@ angular.module('os.biospecimen.extensions.util', [])
         if (attr.type == 'datePicker') {
           if (!isNaN(attr.value) && !isNaN(parseInt(attr.value))) {
             attr.value = parseInt(attr.value);
-          } else {
+          } else if (!!attr.value || attr.value == 0) {
             attr.value = new Date(attr.value);
           }
         }
