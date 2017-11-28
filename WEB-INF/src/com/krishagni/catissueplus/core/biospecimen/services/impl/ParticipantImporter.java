@@ -3,6 +3,7 @@ package com.krishagni.catissueplus.core.biospecimen.services.impl;
 import org.apache.commons.lang3.StringUtils;
 
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
+import com.krishagni.catissueplus.core.biospecimen.domain.Participant;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.CprErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.events.ParticipantDetail;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
@@ -32,15 +33,19 @@ public class ParticipantImporter implements ObjectImporter<ParticipantDetail, Pa
 		try {
 			AccessCtrlMgr.getInstance().ensureUserIsAdmin();
 
-			ImportObjectDetail<ParticipantDetail> detail = req.getPayload();		
-			RequestEvent<ParticipantDetail> partReq = new RequestEvent<ParticipantDetail>(detail.getObject());
-			
-			if (!detail.isCreate()) {
-				setParticipantId(detail.getObject());
-				return participantSvc.patchParticipant(partReq); 
+			ImportObjectDetail<ParticipantDetail> detail = req.getPayload();
+
+			ParticipantDetail participant = detail.getObject();
+			if (StringUtils.isBlank(participant.getSource())) {
+				participant.setSource(Participant.DEF_SOURCE);
 			}
-			
-			return null;
+
+			if (!detail.isCreate()) {
+				setParticipantId(participant);
+				return participantSvc.patchParticipant(new RequestEvent<>(participant));
+			} else {
+				return null;
+			}
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {

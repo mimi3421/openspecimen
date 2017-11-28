@@ -27,9 +27,9 @@ import com.krishagni.catissueplus.core.de.services.impl.FormUtil;
 
 @Audited
 public class Participant extends BaseExtensionEntity {
-	private static final String DEF_SOURCE = "OpenSpecimen";
-
 	private static final String ENTITY_NAME = "participant";
+
+	public static final String DEF_SOURCE = "OpenSpecimen";
 
 	public static final String EXTN = "ParticipantExtension";
 

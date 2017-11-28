@@ -60,7 +60,7 @@ public class ParticipantFactoryImpl implements ParticipantFactory {
 		existing.setCpId(detail.getCpId());
 
 		Participant participant = new Participant();
-		BeanUtils.copyProperties(existing, participant, new String[] {"cprs"});
+		BeanUtils.copyProperties(existing, participant, "cprs", "source");
 		
 		OpenSpecimenException ose = new OpenSpecimenException(ErrorType.USER_ERROR);
 		setParticipantAttrs(detail, participant, true, ose);
