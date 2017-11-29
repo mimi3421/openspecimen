@@ -92,7 +92,9 @@
       </div>
 
       <div ng-if="!currSpecimen.id && !currSpecimen.reqId">
-        <div ng-include="'modules/biospecimen/participant/specimen/add-aliquots-tmpl.html'"></div>
+        <div ng-form="aliquotForm">
+          <div ng-include="'modules/biospecimen/participant/specimen/add-aliquots-tmpl.html'"></div>
+        </div>
       </div>
 
       <div class="os-divider"></div>
