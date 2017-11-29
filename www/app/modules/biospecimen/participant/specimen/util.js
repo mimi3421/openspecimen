@@ -371,6 +371,7 @@ angular.module('os.biospecimen.specimen')
       var result = [];
       var unmatched = [].concat(specimens);
 
+      groups = groups || [];
       for (var i = 0; i < groups.length; ++i) {
         var group = groups[i];
         var selectedSpmns = [];
