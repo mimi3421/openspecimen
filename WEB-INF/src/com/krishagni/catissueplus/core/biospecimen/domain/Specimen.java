@@ -740,7 +740,7 @@ public class Specimen extends BaseExtensionEntity {
 			if (isPrimary()) {
 				updateCreatedOn(Utility.chopSeconds(getReceivedEvent().getTime()));
 			} else {
-				updateCreatedOn(specimen.getCreatedOn());
+				updateCreatedOn(specimen.getCreatedOn() != null ? specimen.getCreatedOn() : Calendar.getInstance().getTime());
 				getParentSpecimen().addToChildrenEvent(this);
 			}
 		} else {
