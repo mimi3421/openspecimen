@@ -8,11 +8,6 @@
   <span translate="cp.view_sop">View SOP</span>
 </a>
 
-<a ng-if="!!cp.catalogQuery" class="btn default" ui-sref="query-results({queryId: cp.catalogQuery.id, cpId: cp.id})">
-  <span class="fa fa-table"></span>
-  <span translate="participant.buttons.specimen_catalog">Specimen Catalog</span>
-</a>
-
 <div os-show-if-menu-items-present dropdown class="os-inline-btn">
   <button class="default dropdown-toggle">
     <span translate="common.buttons.more">More</span>
@@ -55,6 +50,13 @@
       <a ui-sref="specimen-kit-list">
         <span class="fa fa-medkit"></span>
         <span translate="specimen_kit.list">Specimen Kits</span>
+      </a>
+    </li>
+
+    <li ng-if="!!cp.catalogQuery">
+      <a ui-sref="query-results({queryId: cp.catalogQuery.id, cpId: cp.id})">
+        <span class="fa fa-table"></span>
+        <span translate="participant.buttons.specimen_catalog">Specimen Catalog</span>
       </a>
     </li>
 
