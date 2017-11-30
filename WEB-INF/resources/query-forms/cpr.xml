@@ -333,6 +333,13 @@
             <column>STATEMENT</column>
           </textField>
 
+          <textField>
+            <name>statementCode</name>
+            <udn>statementCode</udn>
+            <caption>#getMessage("participant_consent_tier_stmt_code")</caption>
+            <column>CODE</column>
+          </textField>
+
           <dropDown>
             <name>consentResponseStatement</name>
             <udn>consentResponseStatement</udn>

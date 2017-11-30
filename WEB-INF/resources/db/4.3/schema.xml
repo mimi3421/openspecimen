@@ -331,4 +331,19 @@
       end;
     </sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="Consent tier view with consent statement code" runOnChange="true">
+    <createView viewName="CONSENT_TIER_VIEW" replaceIfExists="true">
+      select
+        tier.identifier as identifier, resp.coll_prot_reg_id as cpr_id,
+        stmt.code as code, stmt.statement as statement, resp.response as response
+      from
+        catissue_consent_tier tier
+        inner join catissue_consent_tier_response resp on resp.consent_tier_id = tier.identifier
+        inner join os_consent_statements stmt on stmt.identifier =  tier.consent_stmt_id
+      where
+        tier.activity_status != 'Disabled' and
+        resp.coll_prot_reg_id is not null
+    </createView>
+  </changeSet>
 </databaseChangeLog>
