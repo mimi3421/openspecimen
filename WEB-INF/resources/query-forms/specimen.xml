@@ -363,6 +363,32 @@
 
     <row>
       <subForm>
+        <name>requirement</name>
+        <udn>requirement</udn>
+        <caption>#getMessage("specimen_requirement")</caption>
+        <table>CATISSUE_CP_REQ_SPECIMEN</table>
+        <primaryKey>IDENTIFIER</primaryKey>
+        <foreignKey>IDENTIFIER</foreignKey>
+        <parentKey>REQ_SPECIMEN_ID</parentKey>
+        <row>
+          <textField>
+            <name>name</name>
+            <udn>name</udn>
+            <caption>#getMessage("specimen_requirement_name")</caption>
+            <column>SPEC_REQ_LABEL</column>
+          </textField>
+          <textField>
+            <name>code</name>
+            <udn>code</udn>
+            <caption>#getMessage("specimen_requirement_code")</caption>
+            <column>CODE</column>
+          </textField>
+        </row>
+      </subForm>
+    </row>
+
+    <row>
+      <subForm>
         <name>spmnCollRecvDetails</name>
         <udn>spmnCollRecvDetails</udn>
         <caption>#getMessage("specimen_coll_recv_details")</caption>
