@@ -83,6 +83,28 @@
             <column>COLLECTION_POINT_LABEL</column>
           </textField>
         </row>
+        <row>
+          <numberField>
+            <name>eventPoint</name>
+            <udn>eventPoint</udn>
+            <caption>#getMessage("visit_cpe_event_point")</caption>
+            <column>STUDY_CALENDAR_EVENT_POINT</column>
+          </numberField>
+        </row>
+        <row>
+          <dropDown>
+            <name>eventPointUnit</name>
+            <udn>eventPointUnit</udn>
+            <caption>#getMessage("visit_cpe_event_point_unit")</caption>
+            <column>EVENT_POINT_UNIT</column>
+            <options>
+              <option><value>DAYS</value></option>
+              <option><value>MONTHS</value></option>
+              <option><value>WEEKS</value></option>
+              <option><value>YEARS</value></option>
+            </options>
+          </dropDown>
+        </row>
       </subForm>
     </row>
     <row>
