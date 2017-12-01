@@ -11,7 +11,7 @@
   "filters":[
     {
       "id":2,
-      "field":"Shipment.name",
+      "field":"Specimen.specimenShipments.name",
       "op":"EXISTS",
       "values":[null],
       "expr":null,

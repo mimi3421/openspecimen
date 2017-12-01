@@ -1548,6 +1548,7 @@
     "know_why_export_has_more_data": "Click here to know why exported file has more records",
     "error": "Error occurred. Please contact system administrator for further resolution",
     "export_initiated": "Query results export has been initiated. Export file download should start in few moments...",
+    "invalid_form_or_field": "Invalid form or field <b>{{field}}</b>. <a href=\"https://openspecimen.atlassian.net/wiki/x/MQD7BQ\" target=\"_blank\">Click here</a> for more details",
     "field": "Field",
     "downloading_data_file": "Downloading query results export data file",
     "data_file_will_be_emailed": "Export is taking longer time to finish. Link to download exported data will be sent to you by e-mail",

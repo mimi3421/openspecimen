@@ -693,7 +693,7 @@ public class ShipmentServiceImpl implements ShipmentService, ObjectAccessor {
 	
 	private QueryDataExportResult exportShipmentReport(final Shipment shipment, SavedQuery query) {
 		Filter filter = new Filter();
-		filter.setField("Shipment.id");
+		filter.setField("Specimen.specimenShipments.id");
 		filter.setOp(Op.EQ);
 		filter.setValues(new String[] { shipment.getId().toString() });
 		

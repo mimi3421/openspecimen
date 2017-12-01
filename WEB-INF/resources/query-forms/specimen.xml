@@ -554,11 +554,20 @@
       <subForm>
         <name>specimenOrders</name>
         <udn>specimenOrders</udn>
-        <caption>#getMessage("specimen_order_items")</caption>
+        <caption>#getMessage("specimen_order_items_order")</caption>
         <table>OS_SPECIMEN_DISTRIBUTION_VIEW</table>
         <foreignKey>SPECIMEN_ID</foreignKey>
         <parentKey>IDENTIFIER</parentKey>
-        
+
+        <row>
+          <numberField>
+            <name>id</name>
+            <udn>id</udn>
+            <caption>#getMessage("specimen_order_id")</caption>
+            <column>ORDER_ID</column>
+          </numberField>
+        </row>
+
         <row>
           <textField>
             <name>name</name>
@@ -567,6 +576,151 @@
             <column>NAME</column>
             <maxLength>255</maxLength>
           </textField>  
+        </row>
+
+        <row>
+          <subForm>
+            <name>dp</name>
+            <udn>dp</udn>
+            <caption>#getMessage("specimen_order_dp")</caption>
+            <table>CATISSUE_DISTRIBUTION_PROTOCOL</table>
+            <foreignKey>IDENTIFIER</foreignKey>
+            <parentKey>DP_ID</parentKey>
+
+            <row>
+              <textField>
+                <name>shortTitle</name>
+                <udn>shortTitle</udn>
+                <caption>#getMessage("specimen_order_dp_short_title")</caption>
+                <column>SHORT_TITLE</column>
+              </textField>
+
+              <textField>
+                <name>irbId</name>
+                <udn>irbId</udn>
+                <caption>#getMessage("specimen_order_dp_irb_id")</caption>
+                <column>IRB_IDENTIFIER</column>
+              </textField>
+
+              <subForm>
+                <name>pi</name>
+                <udn>pi</udn>
+                <caption>#getMessage("specimen_order_dp_pi")</caption>
+                <table>USER_VIEW</table>
+                <foreignKey>IDENTIFIER</foreignKey>
+                <parentKey>PRINCIPAL_INVESTIGATOR_ID</parentKey>
+                <row>
+                  <userField>
+                    <name>investigatorName</name>
+                    <udn>investigatorName</udn>
+                    <caption>#getMessage("specimen_order_dp_pi_name")</caption>
+                    <column>IDENTIFIER</column>
+                  </userField>
+                </row>
+
+                <row>
+                  <textField>
+                    <name>email</name>
+                    <udn>email</udn>
+                    <caption>#getMessage("specimen_order_dp_pi_email")</caption>
+                    <column>EMAIL_ADDRESS</column>
+                  </textField>
+                </row>
+
+                <row>
+                  <siteField>
+                    <name>primarySite</name>
+                    <udn>primarySite</udn>
+                    <caption>#getMessage("specimen_order_dp_pi_primary_site")</caption>
+                    <column>PRIMARY_SITE_ID</column>
+                    <recordUrl>#/object-state-params-resolver?stateName=site-detail.overview&amp;objectName=site&amp;key=name&amp;value={{$value}}</recordUrl>
+                  </siteField>
+                </row>
+
+                <row>
+                  <dropDown>
+                    <name>institute</name>
+                    <udn>institute</udn>
+                    <caption>#getMessage("specimen_order_dp_pi_institute")</caption>
+                    <column>INSTITUTE_NAME</column>
+                    <options>
+                      <sql>select distinct INSTITUTE_NAME from USER_VIEW</sql>
+                    </options>
+                  </dropDown>
+                </row>
+              </subForm>
+            </row>
+          </subForm>
+        </row>
+
+        <row>
+          <siteField>
+            <name>site</name>
+            <udn>site</udn>
+            <caption>#getMessage("specimen_order_site")</caption>
+            <column>SITE_ID</column>
+            <recordUrl>#/object-state-params-resolver?stateName=site-detail.overview&amp;objectName=site&amp;key=name&amp;value={{$value}}</recordUrl>
+          </siteField>
+        </row>
+
+        <row>
+          <textField>
+            <name>trackingUrl</name>
+            <udn>trackingUrl</udn>
+            <caption>#getMessage("specimen_order_tracking_url")</caption>
+            <column>TRACKING_URL</column>
+          </textField>
+        </row>
+
+        <row>
+          <textField>
+            <name>comments</name>
+            <udn>comments</udn>
+            <caption>#getMessage("specimen_order_comments")</caption>
+            <column>COMMENTS</column>
+          </textField>
+        </row>
+
+        <row>
+          <subForm>
+            <name>requester</name>
+            <udn>requester</udn>
+            <caption>#getMessage("specimen_order_requester")</caption>
+            <table>USER_VIEW</table>
+            <foreignKey>IDENTIFIER</foreignKey>
+            <parentKey>REQUESTER_ID</parentKey>
+            <row>
+              <userField>
+                <name>requesterName</name>
+                <udn>requesterName</udn>
+                <caption>#getMessage("specimen_order_requester_name")</caption>
+                <column>IDENTIFIER</column>
+              </userField>
+            </row>
+          </subForm>
+        </row>
+
+        <row>
+          <datePicker>
+            <name>executionDate</name>
+            <udn>executionDate</udn>
+            <caption>#getMessage("specimen_order_execution_date")</caption>
+            <column>EXECUTION_DATE</column>
+            <format>MM-dd-yyyy</format>
+          </datePicker>
+        </row>
+
+        <row>
+          <dropDown>
+            <name>orderStatus</name>
+            <udn>orderStatus</udn>
+            <caption>#getMessage("specimen_order_status")</caption>
+            <column>ORDER_STATUS</column>
+            <options>
+              <option><value>EXECUTED</value></option>
+              <option><value>PENDING</value></option>
+            </options>
+          </dropDown>
         </row>
 
         <row>
@@ -588,18 +742,6 @@
             <noOfDigitsAfterDecimal>2</noOfDigitsAfterDecimal>
           </numberField>
         </row>
- 
-        <row>
-          <subForm>
-            <name>order</name>
-            <udn>order</udn>
-            <caption>#getMessage("specimen_order_items_order")</caption>
-            <table>OS_ORDERS</table>
-            <foreignKey>IDENTIFIER</foreignKey>
-            <parentKey>ORDER_ID</parentKey>
-            <pathLink>true</pathLink>
-          </subForm>
-        </row>
       </subForm>
     </row>
     
@@ -607,20 +749,193 @@
       <subForm>
         <name>specimenShipments</name>
         <udn>specimenShipments</udn>
-        <caption>#getMessage("specimen_shipment_items")</caption>
-        <table>OS_SHIPMENT_SPECIMENS</table>
+        <caption>#getMessage("specimen_shipment_items_shipment")</caption>
+        <table>OS_SPECIMEN_SHIPMENTS_VIEW</table>
         <foreignKey>SPECIMEN_ID</foreignKey>
         <parentKey>IDENTIFIER</parentKey>
-       
+        <primaryKey>SHIPMENT_ID</primaryKey>
+
         <row>
-          <subForm>
-            <name>shipment</name>
-            <udn>shipment</udn>
-            <caption>#getMessage("specimen_shipment_items_shipment")</caption>
-            <table>OS_SHIPMENTS</table>
-            <foreignKey>IDENTIFIER</foreignKey>
-            <parentKey>SHIPMENT_ID</parentKey>
-          </subForm>
+          <numberField>
+            <name>id</name>
+            <udn>id</udn>
+            <caption>#getMessage("specimen_shipment_identifier")</caption>
+            <column>SHIPMENT_ID</column>
+            <recordUrl>#/shipments/{{$value}}/overview</recordUrl>
+          </numberField>
+        </row>
+
+        <row>
+          <textField>
+            <name>name</name>
+            <udn>name</udn>
+            <caption>#getMessage("specimen_shipment_name")</caption>
+            <column>SHIPMENT_NAME</column>
+            <recordUrl>#/object-state-params-resolver?stateName=shipment-detail.overview&amp;objectName=shipment&amp;key=name&amp;value={{$value}}</recordUrl>
+          </textField>
+        </row>
+
+        <row>
+          <dropDown>
+            <name>type</name>
+            <udn>type</udn>
+            <caption>#getMessage("specimen_shipment_type")</caption>
+            <column>SHIPMENT_TYPE</column>
+            <options>
+              <option><value>SPECIMEN</value></option>
+              <option><value>CONTAINER</value></option>
+            </options>
+          </dropDown>
+        </row>
+
+        <row>
+          <textField>
+            <name>courierName</name>
+            <udn>courierName</udn>
+            <caption>#getMessage("specimen_shipment_courier_name")</caption>
+            <column>COURIER_NAME</column>
+          </textField>
+        </row>
+
+        <row>
+          <textField>
+            <name>trackingNumber</name>
+            <udn>trackingNumber</udn>
+            <caption>#getMessage("specimen_shipment_tracking_number")</caption>
+            <column>TRACKING_NUMBER</column>
+          </textField>
+        </row>
+
+        <row>
+          <textField>
+            <name>trackingUrl</name>
+            <udn>trackingUrl</udn>
+            <caption>#getMessage("specimen_shipment_tracking_url")</caption>
+            <column>TRACKING_URL</column>
+          </textField>
+        </row>
+
+        <row>
+          <siteField>
+            <name>sendingSite</name>
+            <udn>sendingSite</udn>
+            <caption>#getMessage("specimen_shipment_sending_site")</caption>
+            <column>SENDING_SITE_ID</column>
+            <recordUrl>#/object-state-params-resolver?stateName=site-detail.overview&amp;objectName=site&amp;key=name&amp;value={{$value}}</recordUrl>
+          </siteField>
+        </row>
+
+        <row>
+          <userField>
+            <name>sender</name>
+            <udn>sender</udn>
+            <caption>#getMessage("specimen_shipment_sender")</caption>
+            <column>SENDER_ID</column>
+          </userField>
+        </row>
+
+        <row>
+          <datePicker>
+            <name>shippedDate</name>
+            <udn>shippedDate</udn>
+            <caption>#getMessage("specimen_shipment_shipped_date")</caption>
+            <column>SHIPPED_DATE</column>
+            <format>MM-dd-yyyy</format>
+          </datePicker>
+        </row>
+
+        <row>
+          <textField>
+            <name>senderComments</name>
+            <udn>senderComments</udn>
+            <caption>#getMessage("specimen_shipment_sender_comments")</caption>
+            <column>SENDER_COMMENTS</column>
+          </textField>
+        </row>
+
+        <row>
+          <siteField>
+            <name>receivingSite</name>
+            <udn>receivingSite</udn>
+            <caption>#getMessage("specimen_shipment_recv_site")</caption>
+            <column>RECEIVING_SITE_ID</column>
+            <recordUrl>#/object-state-params-resolver?stateName=site-detail.overview&amp;objectName=site&amp;key=name&amp;value={{$value}}</recordUrl>
+          </siteField>
+        </row>
+
+        <row>
+          <userField>
+            <name>receiver</name>
+            <udn>receiver</udn>
+            <caption>#getMessage("specimen_shipment_receiver")</caption>
+            <column>RECEIVER_ID</column>
+          </userField>
+        </row>
+
+        <row>
+          <datePicker>
+            <name>receivedDate</name>
+            <udn>receivedDate</udn>
+            <caption>#getMessage("specimen_shipment_received_date")</caption>
+            <column>RECEIVED_DATE</column>
+            <format>MM-dd-yyyy</format>
+          </datePicker>
+        </row>
+
+        <row>
+          <textField>
+            <name>receiverComments</name>
+            <udn>receiverComments</udn>
+            <caption>#getMessage("specimen_shipment_receiver_comments")</caption>
+            <column>RECEIVER_COMMENTS</column>
+          </textField>
+        </row>
+
+        <row>
+          <dropDown>
+            <name>receivedQuality</name>
+            <udn>receivedQuality</udn>
+            <caption>#getMessage("specimen_shipment_recv_quality")</caption>
+            <column>RECEIVED_QUALITY</column>
+            <options>
+              <option><value>Acceptable</value></option>
+              <option><value>Unacceptable</value></option>
+            </options>
+          </dropDown>
+        </row>
+
+        <row>
+          <dropDown>
+            <name>container</name>
+            <udn>container</udn>
+            <caption>#getMessage("specimen_shipment_container")</caption>
+            <column>CONTAINER_NAME</column>
+            <options>
+              <sql>
+                select
+                  distinct c.name
+                from
+                  os_storage_containers c
+                  inner join os_shipment_containers sc on sc.container_id = c.identifier
+                order by
+                  c.name
+              </sql>
+            </options>
+          </dropDown>
+        </row>
+
+        <row>
+          <dropDown>
+            <name>status</name>
+            <udn>status</udn>
+            <caption>#getMessage("specimen_shipment_status")</caption>
+            <column>STATUS</column>
+            <options>
+              <option><value>Pending</value></option>
+              <option><value>Shipped</value></option>
+              <option><value>Received</value></option>
+            </options>
+          </dropDown>
         </row>
       </subForm>
     </row>

@@ -186,6 +186,10 @@ angular.module('os.query.util', ['os.query.models', 'os.query.save'])
       if (filter.expr) {
         return filter.expr;
       }
+
+      if (!filter.form || !filter.field) {
+        return '';
+      }
           
       var expr = filter.form.name + "." + filter.field.name + " ";
       expr += filter.op.symbol + " ";

@@ -2,7 +2,7 @@
 angular.module('os.query.globaldata', ['os.query.models', 'os.biospecimen.models'])
   .factory('QueryGlobalData', function(
     $translate, $q, $http,
-    ApiUrls, CollectionProtocol, Form, SavedQuery, QueryFolder, QueryUtil, Util) {
+    ApiUrls, CollectionProtocol, Form, SavedQuery, QueryFolder, QueryUtil, Util, Alerts) {
 
     var QueryGlobalData = function() {
       this.cpsQ = undefined;
@@ -241,6 +241,10 @@ angular.module('os.query.globaldata', ['os.query.models', 'os.biospecimen.models
 
       angular.forEach(filters, function(filter) {
         var uiFilter = QueryUtil.getUiFilter(queryCtx.selectedCp, filter);
+        if (!uiFilter.expr && (!uiFilter.form || !uiFilter.fieldName)) {
+          Alerts.error('queries.invalid_form_or_field', filter);
+        }
+
         uiFilters.push(uiFilter);
         filtersMap[uiFilter.id] = uiFilter;
 
@@ -276,6 +280,10 @@ angular.module('os.query.globaldata', ['os.query.models', 'os.biospecimen.models
         }
 
         var form = filter.form;
+        if (!form) {
+          return;
+        }
+
         if (!loadedForms[form.name]) {
           promises.push(form.getFields());
           loadedForms[form.name] = true;
@@ -288,7 +296,7 @@ angular.module('os.query.globaldata', ['os.query.models', 'os.biospecimen.models
     function fleshOutFilterFields(queryCtx) {
       for (var i = 0; i < queryCtx.filters.length; ++i) {
         var filter = queryCtx.filters[i];
-        if (filter.expr) {
+        if (filter.expr || !filter.form) {
           continue;
         }
                   

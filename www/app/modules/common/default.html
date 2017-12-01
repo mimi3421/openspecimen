@@ -17,7 +17,9 @@
 
   <div os-content="os-navbar">
     <div class="os-alert-container" ng-class="{'show': alerts.length > 0}">
-      <alert type="{{alert.type}}" ng-repeat="alert in alerts" close="alert.close()">{{alert.text}}</alert>
+      <alert type="{{alert.type}}" ng-repeat="alert in alerts" close="alert.close()">
+        <span ng-bind-html="alert.text"></span>
+      </alert>
     </div>
     <div ui-view="app-body"></div>
     <div class="os-signin-footer">

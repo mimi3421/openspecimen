@@ -145,6 +145,8 @@ public class ImportDefaultQueries implements InitializingBean {
 			}
 			
 			savedQuery.setQueryDefJson(new String(queryContent), true);
+			savedQuery.setLastUpdated(new Date());
+			savedQuery.setLastUpdatedBy(sysUser);
 			daoFactory.getSavedQueryDao().saveOrUpdate(savedQuery);
 			insertChangeLog(filename, md5Digest, "UPDATED", queryId);
 		} catch (Exception e) {

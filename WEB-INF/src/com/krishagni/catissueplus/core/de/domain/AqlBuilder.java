@@ -7,10 +7,12 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.de.domain.Filter.Op;
 import com.krishagni.catissueplus.core.de.domain.QueryExpressionNode.LogicalOp;
 import com.krishagni.catissueplus.core.de.domain.QueryExpressionNode.Parenthesis;
 import com.krishagni.catissueplus.core.de.domain.SelectField.Function;
+import com.krishagni.catissueplus.core.de.services.SavedQueryErrorCode;
 
 import edu.common.dynamicextensions.domain.nui.Container;
 import edu.common.dynamicextensions.domain.nui.Control;
@@ -186,7 +188,7 @@ public class AqlBuilder {
 		String[] fieldParts = field.split("\\.");
 		
 		if (fieldParts.length <= 1) {
-			throw new RuntimeException("Invalid field name"); // need to replace with better exception type
+			throw OpenSpecimenException.userError(SavedQueryErrorCode.MALFORMED, "Invalid field: " + field);
 		}
 				
 		StringBuilder filterExpr = new StringBuilder();
@@ -208,6 +210,10 @@ public class AqlBuilder {
 		} else {
 			form = getContainer(fieldParts[0]);
 			ctrlName = StringUtils.join(fieldParts, ".", 1, fieldParts.length);
+		}
+
+		if (form == null) {
+			throw OpenSpecimenException.userError(SavedQueryErrorCode.MALFORMED, "Invalid field: " + field);
 		}
 		
 		ctrl = form.getControlByUdn(ctrlName, "\\.");				

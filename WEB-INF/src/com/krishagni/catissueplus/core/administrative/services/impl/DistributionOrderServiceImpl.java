@@ -661,7 +661,7 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 
 	private QueryDataExportResult exportReport(final DistributionOrder order, SavedQuery report) {
 		Filter filter = new Filter();
-		filter.setField("Order.id");
+		filter.setField("Specimen.specimenOrders.id");
 		filter.setOp(Op.EQ);
 		filter.setValues(new String[] { order.getId().toString() });
 		
