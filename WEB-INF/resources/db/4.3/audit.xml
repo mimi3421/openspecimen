@@ -87,4 +87,11 @@
       <column name="site_MOD" type="${bit.type}"/>
     </addColumn>
   </changeSet>
+
+  <changeSet author="vpawar" id="Audit and track changes to CP catalog setting">
+    <addColumn tableName="CAT_COLLECTION_PROTOCOL_AUD">
+      <column name="CATALOG_ID" type="${int.type}"/>
+      <column name="catalogId_MOD" type="${bit.type}"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

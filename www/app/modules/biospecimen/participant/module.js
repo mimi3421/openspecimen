@@ -145,18 +145,6 @@ angular.module('os.biospecimen.participant',
           }
         },
         resolve: {
-          catalogQuery: function(cp) {
-            if (cp.catalogQuery) {
-              return cp.catalogQuery;
-            }
-
-            return cp.getCatalogQuery().then(
-              function(query) {
-                cp.catalogQuery = query;
-              }
-            );
-          },
-
           defSopDoc: function(cp, SettingUtil) {
             if (!!cp.sopDocumentName || !!cp.sopDocumentUrl) {
               return null;

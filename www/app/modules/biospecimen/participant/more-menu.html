@@ -53,13 +53,6 @@
       </a>
     </li>
 
-    <li ng-if="!!cp.catalogQuery">
-      <a ui-sref="query-results({queryId: cp.catalogQuery.id, cpId: cp.id})">
-        <span class="fa fa-table"></span>
-        <span translate="participant.buttons.specimen_catalog">Specimen Catalog</span>
-      </a>
-    </li>
-
     <os-plugin-hooks view-name="'participant-list'" sec-name="'more-menu'"></os-plugin-hooks>
   </ul>
 </div>

@@ -5,6 +5,8 @@ import com.krishagni.catissueplus.core.common.errors.ErrorCode;
 public enum SpecimenRequestErrorCode implements ErrorCode {
 	NOT_FOUND,
 
+	NOT_APPROVED,
+
 	CLOSED,
 
 	SPECIMEN_DISTRIBUTED,
@@ -19,7 +21,9 @@ public enum SpecimenRequestErrorCode implements ErrorCode {
 
 	INVALID_ITEM_ID,
 
-	REQUESTOR_EMAIL_REQ;
+	REQUESTOR_EMAIL_REQ,
+
+	USED_IN_ORDER;
 
 	@Override
 	public String code() {

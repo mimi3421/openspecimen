@@ -399,6 +399,7 @@ public class CollectionProtocolDaoImpl extends AbstractDao<CollectionProtocol> i
 		projs.add(Projections.property("ppidFormat"));
 		projs.add(Projections.property("manualPpidEnabled"));
 		projs.add(Projections.property("specimenCentric"));
+		projs.add(Projections.property("catalogId"));
 
 		if (cpCriteria.includePi()) {
 			projs.add(Projections.property("pi.id"));
@@ -421,6 +422,7 @@ public class CollectionProtocolDaoImpl extends AbstractDao<CollectionProtocol> i
 		cp.setPpidFmt((String)fields[idx++]);
 		cp.setManualPpidEnabled((Boolean)fields[idx++]);
 		cp.setSpecimenCentric((Boolean)fields[idx++]);
+		cp.setCatalogId((Long)fields[idx++]);
 
 		if (includePi) {
 			UserSummary user = new UserSummary();

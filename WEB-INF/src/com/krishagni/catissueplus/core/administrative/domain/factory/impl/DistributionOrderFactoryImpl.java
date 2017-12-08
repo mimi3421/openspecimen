@@ -97,6 +97,11 @@ public class DistributionOrderFactoryImpl implements DistributionOrderFactory {
 			return;
 		}
 
+		if (!request.isApproved()) {
+			ose.addError(SpecimenRequestErrorCode.NOT_APPROVED, requestId);
+			return;
+		}
+
 		order.setRequest(request);
 	}
 
@@ -165,19 +170,7 @@ public class DistributionOrderFactoryImpl implements DistributionOrderFactory {
 	}
 
 	private void setRequesterAndReceivingSite(DistributionOrderDetail detail, DistributionOrder order, OpenSpecimenException ose) {
-		SpecimenRequest request = order.getRequest();
 		User requestor = null;
-
-//		TODO: Specimen request
-//		if (request != null) {
-//			requestor = request.getRequestor();
-//		} else if (detail.getRequester() != null) {
-//			requestor = getUser(detail.getRequester(), null, ose, DistributionOrderErrorCode.REQUESTER_NOT_FOUND);
-//			if (requestor == null) {
-//				return;
-//			}
-//		}
-
 		if (detail.getRequester() != null) {
 			requestor = getUser(detail.getRequester(), null, ose, DistributionOrderErrorCode.REQUESTER_NOT_FOUND);
 		} else {

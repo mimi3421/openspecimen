@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.krishagni.catissueplus.core.administrative.domain.SpecimenRequest;
+import com.krishagni.catissueplus.core.common.events.UserSummary;
 
 public class SpecimenRequestSummary {
 	private Long id;
@@ -21,6 +22,14 @@ public class SpecimenRequestSummary {
 	private String dpShortTitle;
 
 	private Date dateOfRequest;
+
+	private String screeningStatus;
+
+	private Date dateOfScreening;
+
+	private UserSummary screenedBy;
+
+	private String screeningComments;
 
 	private String activityStatus;
 
@@ -80,6 +89,38 @@ public class SpecimenRequestSummary {
 		this.dateOfRequest = dateOfRequest;
 	}
 
+	public String getScreeningStatus() {
+		return screeningStatus;
+	}
+
+	public void setScreeningStatus(String screeningStatus) {
+		this.screeningStatus = screeningStatus;
+	}
+
+	public Date getDateOfScreening() {
+		return dateOfScreening;
+	}
+
+	public void setDateOfScreening(Date dateOfScreening) {
+		this.dateOfScreening = dateOfScreening;
+	}
+
+	public UserSummary getScreenedBy() {
+		return screenedBy;
+	}
+
+	public void setScreenedBy(UserSummary screenedBy) {
+		this.screenedBy = screenedBy;
+	}
+
+	public String getScreeningComments() {
+		return screeningComments;
+	}
+
+	public void setScreeningComments(String screeningComments) {
+		this.screeningComments = screeningComments;
+	}
+
 	public String getActivityStatus() {
 		return activityStatus;
 	}
@@ -94,7 +135,14 @@ public class SpecimenRequestSummary {
 		summary.setRequestorEmailId(request.getRequestorEmailId());
 		summary.setIrbId(request.getIrbId());
 		summary.setDateOfRequest(request.getDateOfRequest());
+		summary.setScreeningStatus(request.getScreeningStatus().name());
+		summary.setDateOfScreening(request.getDateOfScreening());
+		summary.setScreeningComments(request.getScreeningComments());
 		summary.setActivityStatus(request.getActivityStatus());
+
+		if (request.getScreenedBy() != null) {
+			summary.setScreenedBy(UserSummary.from(request.getScreenedBy()));
+		}
 
 		if (request.getDp() != null) {
 			summary.setDpId(request.getDp().getId());

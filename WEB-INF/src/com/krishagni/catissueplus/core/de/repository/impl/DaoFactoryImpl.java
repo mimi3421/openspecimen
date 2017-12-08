@@ -2,7 +2,6 @@ package com.krishagni.catissueplus.core.de.repository.impl;
 
 import org.hibernate.SessionFactory;
 
-import com.krishagni.catissueplus.core.de.repository.CpCatalogSettingDao;
 import com.krishagni.catissueplus.core.de.repository.DaoFactory;
 import com.krishagni.catissueplus.core.de.repository.FormDao;
 import com.krishagni.catissueplus.core.de.repository.QueryAuditLogDao;
@@ -46,12 +45,5 @@ public class DaoFactoryImpl implements DaoFactory {
 		QueryAuditLogDaoImpl auditLogDao = new QueryAuditLogDaoImpl();
 		auditLogDao.setSessionFactory(sessionFactory);
 		return auditLogDao;
-	}
-
-	@Override
-	public CpCatalogSettingDao getCpCatalogSettingDao() {
-		CpCatalogSettingDaoImpl dao = new CpCatalogSettingDaoImpl();
-		dao.setSessionFactory(sessionFactory);
-		return dao;
 	}
 }

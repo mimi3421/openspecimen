@@ -406,4 +406,42 @@
       update dyextn_containers set deleted_on = current_timestamp where name in ('Order', 'Shipment')
     </sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="Track approval status of specimen request">
+    <addColumn tableName="OS_SPECIMEN_REQUESTS">
+      <column name="SCREENING_STATUS" type="${text.type}(16)"/>
+      <column name="SCREENED_BY" type="${int.type}"/>
+      <column name="SCREENING_DATE" type="${nullable.ts.type}"/>
+      <column name="SCREENING_COMMENTS" type="${text.type}(255)"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Foreign key on request screener">
+    <addForeignKeyConstraint constraintName="FK_SPMN_REQS_SCREENER"
+      baseTableName="OS_SPECIMEN_REQUESTS" baseColumnNames="SCREENED_BY"
+      referencedTableName="CATISSUE_USER" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Update approval status of existing specimen requests">
+    <sql>
+      update
+        os_specimen_requests
+      set
+        screening_status = 'PENDING'
+      where
+        identifier not in (
+          select distinct request_id from os_orders where request_id is not null
+          union
+          select distinct request_id from os_shipments where request_id is not null
+        )
+    </sql>
+
+    <sql>update os_specimen_requests set screening_status = 'APPROVED' where screening_status is null</sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="CP Catalog ID">
+    <addColumn tableName="CATISSUE_COLLECTION_PROTOCOL">
+      <column name="CATALOG_ID" type="${int.type}"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

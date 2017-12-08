@@ -69,6 +69,8 @@ public class CollectionProtocolDetail extends CollectionProtocolSummary {
 
 	private List<DistributionProtocolSummary> distributionProtocols;
 
+	private Long catalogId;
+
 	private String activityStatus;
 	
 	//
@@ -296,6 +298,14 @@ public class CollectionProtocolDetail extends CollectionProtocolSummary {
 		this.distributionProtocols = distributionProtocols;
 	}
 
+	public Long getCatalogId() {
+		return catalogId;
+	}
+
+	public void setCatalogId(Long catalogId) {
+		this.catalogId = catalogId;
+	}
+
 	public String getActivityStatus() {
 		return activityStatus;
 	}
@@ -363,6 +373,7 @@ public class CollectionProtocolDetail extends CollectionProtocolSummary {
 		result.setSpmnLabelPrePrintMode(cp.getSpmnLabelPrePrintMode().name());
 		result.setSpmnLabelPrintSettings(CpSpecimenLabelPrintSettingDetail.from(cp.getSpmnLabelPrintSettings()));
 		result.setDistributionProtocols(DistributionProtocolSummary.from(cp.getDistributionProtocols()));
+		result.setCatalogId(cp.getCatalogId());
 		result.setActivityStatus(cp.getActivityStatus());
 		result.setCpSites(CollectionProtocolSiteDetail.from(cp.getSites()));
 		result.setExtensionDetail(ExtensionDetail.from(cp.getExtension()));

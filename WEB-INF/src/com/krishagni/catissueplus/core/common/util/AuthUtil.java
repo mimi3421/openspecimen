@@ -27,6 +27,10 @@ public class AuthUtil {
 	public static Authentication getAuth() {
 		return SecurityContextHolder.getContext().getAuthentication();
 	}
+
+	public static boolean isSignedIn() {
+		return getCurrentUser() != null;
+	}
 	
 	public static User getCurrentUser() {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();

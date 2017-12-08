@@ -105,6 +105,24 @@
 
 .os-page-header .os-status-closed {
   background: #d9534f!important;
+}
+
+.os-page-header .os-status-collected {
+  background: #5cb85c!important;
+}
+
+.os-page-header .os-status-pending {
+  background: #f0ad4e!important;
+}
+
+.os-page-header .os-status-distributed {
+  background: #5bc0de!important;
+}
+
+.os-page-header .os-status-closed,
+.os-page-header .os-status-pending,
+.os-page-header .os-status-collected,
+.os-page-header .os-status-distributed {
   padding: 0px 4px;
   color: #fff;
   font-weight: bold;

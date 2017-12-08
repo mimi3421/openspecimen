@@ -1,6 +1,7 @@
 package com.krishagni.catissueplus.core.common.events;
 
 import java.util.Date;
+import java.util.List;
 
 public class EntityStatusDetail {
 	private Long id;
@@ -16,6 +17,8 @@ public class EntityStatusDetail {
 	private String reason;
 
 	private boolean forceUpdate;
+
+	private List<UserSummary> notifyUsers;
 
 	public Long getId() {
 		return id;
@@ -71,5 +74,13 @@ public class EntityStatusDetail {
 
 	public void setForceUpdate(boolean forceUpdate) {
 		this.forceUpdate = forceUpdate;
+	}
+
+	public List<UserSummary> getNotifyUsers() {
+		return notifyUsers;
+	}
+
+	public void setNotifyUsers(List<UserSummary> notifyUsers) {
+		this.notifyUsers = notifyUsers;
 	}
 }

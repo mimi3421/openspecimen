@@ -123,35 +123,6 @@ angular.module('os.biospecimen.models.cp', ['os.common.models'])
       return this.cpSites.map(function(cpSite) { return cpSite.siteName; });
     }
 
-    CollectionProtocol.prototype.getCatalogQuery = function() {
-      return $http.get(CollectionProtocol.url() + this.$id() + '/catalog-query').then(
-        function(resp) {
-          return resp.data;
-        }
-      );
-    }
-
-    CollectionProtocol.prototype.getCatalogSetting = function() {
-      return $http.get(CollectionProtocol.url() + this.$id() + '/catalog-settings').then(
-        function(resp) {
-          return resp.data;
-        }
-      );
-    }
-
-    CollectionProtocol.prototype.saveCatalogSetting = function(setting) {
-      var payload = angular.extend({cp: {id: this.$id()}}, setting);
-      return $http.put(CollectionProtocol.url() + this.$id() + '/catalog-settings', payload).then(
-        function(resp) {
-          return resp.data;
-        }
-      );
-    }
-
-    CollectionProtocol.prototype.deleteCatalogSetting = function() {
-      return $http.delete(CollectionProtocol.url() + this.$id() + '/catalog-settings');
-    }
-
     CollectionProtocol.prototype.getReportSettings = function() {
       return $http.get(CollectionProtocol.url() + this.$id() + '/report-settings').then(
         function(resp) {

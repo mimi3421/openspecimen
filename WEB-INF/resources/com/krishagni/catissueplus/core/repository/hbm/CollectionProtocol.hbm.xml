@@ -23,11 +23,7 @@
 
     <property name="activityStatus" column="ACTIVITY_STATUS"/>
 
-    <many-to-one 
-      name="principalInvestigator" 
-      cascade="none" 
-      class="com.krishagni.catissueplus.core.administrative.domain.User"
-      column="PRINCIPAL_INVESTIGATOR_ID"/>
+    <many-to-one name="principalInvestigator" column="PRINCIPAL_INVESTIGATOR_ID"/>
 
     <property name="irbIdentifier" column="IRB_IDENTIFIER"/>
 
@@ -104,7 +100,9 @@
       <key column="CP_ID"/>
       <one-to-many class="com.krishagni.catissueplus.core.biospecimen.domain.CpSpecimenLabelPrintSetting"/>
     </set>
-    
+
+    <property name="catalogId" column="CATALOG_ID"/>
+
     <property name="consentsWaived" column="CONSENTS_WAIVED"/>
 
     <set name="consentTier" table="CATISSUE_CONSENT_TIER" inverse="true" cascade="all-delete-orphan" order-by="id">
@@ -142,7 +140,7 @@
       </many-to-many>
     </set>
 
-    <set name="distributionProtocols" table="OS_CP_ALLOWED_DPS" inverse="false">
+    <set name="distributionProtocols" table="OS_CP_ALLOWED_DPS">
       <key column="CP_ID"/>
       <many-to-many class="com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol" column="DP_ID">
         <filter name="activeEntity"/>

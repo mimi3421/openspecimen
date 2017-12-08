@@ -31,6 +31,8 @@ public class CollectionProtocolSummary implements Comparable<CollectionProtocolS
 
 	private Boolean specimenCentric;
 
+	private Long catalogId;
+
 	public Long getId() {
 		return id;
 	}
@@ -127,6 +129,14 @@ public class CollectionProtocolSummary implements Comparable<CollectionProtocolS
 		this.specimenCentric = specimenCentric;
 	}
 
+	public Long getCatalogId() {
+		return catalogId;
+	}
+
+	public void setCatalogId(Long catalogId) {
+		this.catalogId = catalogId;
+	}
+
 	@Override
 	public int compareTo(CollectionProtocolSummary cpSummary) {
 		return this.shortTitle.toUpperCase().compareTo(cpSummary.getShortTitle().toUpperCase());
@@ -149,5 +159,6 @@ public class CollectionProtocolSummary implements Comparable<CollectionProtocolS
 		detail.setPpidFmt(cp.getPpidFormat());
 		detail.setManualPpidEnabled(cp.isManualPpidEnabled());
 		detail.setSpecimenCentric(cp.isSpecimenCentric());
+		detail.setCatalogId(cp.getCatalogId());
 	}
 }

@@ -135,17 +135,19 @@ public class CollectionProtocol extends BaseExtensionEntity {
 
 	private Set<CpConsentTier> consentTier = new HashSet<>();
 	
-	private Set<User> coordinators = new HashSet<User>();
+	private Set<User> coordinators = new HashSet<>();
 	
-	private Set<CollectionProtocolSite> sites = new HashSet<CollectionProtocolSite>();
+	private Set<CollectionProtocolSite> sites = new HashSet<>();
 	
-	private Set<CollectionProtocolEvent> collectionProtocolEvents = new HashSet<CollectionProtocolEvent>();
+	private Set<CollectionProtocolEvent> collectionProtocolEvents = new HashSet<>();
 
-	private Set<StorageContainer> storageContainers = new HashSet<StorageContainer>();
+	private Set<StorageContainer> storageContainers = new HashSet<>();
 	
-	private Set<CollectionProtocolRegistration> collectionProtocolRegistrations = new HashSet<CollectionProtocolRegistration>();
+	private Set<CollectionProtocolRegistration> collectionProtocolRegistrations = new HashSet<>();
 
 	private Set<DistributionProtocol> distributionProtocols = new HashSet<>();
+
+	private Long catalogId;
 
 	public static String getEntityName() {
 		return ENTITY_NAME;
@@ -519,6 +521,14 @@ public class CollectionProtocol extends BaseExtensionEntity {
 		this.distributionProtocols = distributionProtocols;
 	}
 
+	public Long getCatalogId() {
+		return catalogId;
+	}
+
+	public void setCatalogId(Long catalogId) {
+		this.catalogId = catalogId;
+	}
+
 	public void update(CollectionProtocol cp) {
 		setTitle(cp.getTitle()); 
 		setShortTitle(cp.getShortTitle());
@@ -551,6 +561,7 @@ public class CollectionProtocol extends BaseExtensionEntity {
 		setVisitNamePrintCopies(cp.getVisitNamePrintCopies());
 		setUnsignedConsentDocumentURL(cp.getUnsignedConsentDocumentURL());
 		setExtension(cp.getExtension());
+		setCatalogId(cp.getCatalogId());
 		
 		updateSites(cp.getSites());
 		updateSpecimenLabelPrintSettings(cp.getSpmnLabelPrintSettings());
@@ -592,6 +603,7 @@ public class CollectionProtocol extends BaseExtensionEntity {
 		cp.setVisitNamePrintMode(getVisitNamePrintMode());
 		cp.setVisitNamePrintCopies(getVisitNamePrintCopies());
 		cp.setSpmnLabelPrePrintMode(getSpmnLabelPrePrintMode());
+		cp.setCatalogId(getCatalogId());
 
 		copyLabelPrintSettingsTo(cp);
 		copyExtensionTo(cp);
