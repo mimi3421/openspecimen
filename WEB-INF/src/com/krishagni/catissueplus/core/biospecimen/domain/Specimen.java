@@ -153,6 +153,8 @@ public class Specimen extends BaseExtensionEntity {
 
 	private transient boolean freezeThawIncremented;
 
+	private transient String transferComments;
+
 	//
 	// Records the derivatives or aliquots created from this specimen in current action/transaction
 	//
@@ -580,7 +582,15 @@ public class Specimen extends BaseExtensionEntity {
 	public void setForceDelete(boolean forceDelete) {
 		this.forceDelete = forceDelete;
 	}
-	
+
+	public String getTransferComments() {
+		return transferComments;
+	}
+
+	public void setTransferComments(String transferComments) {
+		this.transferComments = transferComments;
+	}
+
 	public boolean isPrintLabel() {
 		return printLabel;
 	}
@@ -658,7 +668,7 @@ public class Specimen extends BaseExtensionEntity {
 			specimen.disable(checkChildSpecimens);
 		}
 
-		virtualize(null);
+		virtualize(null, "Specimen deleted");
 		setLabel(Utility.getDisabledValue(getLabel(), 255));
 		setBarcode(Utility.getDisabledValue(getBarcode(), 255));
 		setActivityStatus(Status.ACTIVITY_STATUS_DISABLED.getStatus());
@@ -687,7 +697,7 @@ public class Specimen extends BaseExtensionEntity {
 			return;
 		}
 		
-		virtualize(time);
+		virtualize(time, reason);
 		addDisposalEvent(user, time, reason);		
 		setActivityStatus(Status.ACTIVITY_STATUS_CLOSED.getStatus());
 	}
@@ -734,7 +744,7 @@ public class Specimen extends BaseExtensionEntity {
 		updateEvent(getCollectionEvent(), specimen.getCollectionEvent());
 		updateEvent(getReceivedEvent(), specimen.getReceivedEvent());
 		updateCollectionStatus(specimen.getCollectionStatus());
-		updatePosition(specimen.getPosition());
+		updatePosition(specimen.getPosition(), null, specimen.getTransferComments());
 
 		if (isCollected()) {
 			if (isPrimary()) {
@@ -906,7 +916,7 @@ public class Specimen extends BaseExtensionEntity {
 		StorageContainer container = item.getReturningContainer();
 		if (container != null) {
 			StorageContainerPosition position = container.createPosition(item.getReturningColumn(), item.getReturningRow());
-			transferTo(position, item.getReturnDate());
+			transferTo(position, item.getReturnDate(), "Specimen returned");
 		}
 
 		SpecimenReturnEvent.createForDistributionOrderItem(item).saveRecordEntry();
@@ -919,12 +929,27 @@ public class Specimen extends BaseExtensionEntity {
 		event.setTime(time);
 		event.saveOrUpdate();
 	}
-	
-	private void virtualize(Date time) {
-		transferTo(null, time);
+
+	private void updatePosition(StorageContainerPosition newPosition, Date time, String comments) {
+		if (!isCollected()) {
+			return;
+		}
+
+		if (newPosition != null) {
+			StorageContainer container = newPosition.getContainer();
+			if (container == null || (!container.isDimensionless() && !newPosition.isSpecified())) {
+				newPosition = null;
+			}
+		}
+
+		transferTo(newPosition, time, comments);
+	}
+
+	private void virtualize(Date time, String comments) {
+		transferTo(null, time, comments);
 	}
 	
-	private void transferTo(StorageContainerPosition newPosition, Date time) {
+	private void transferTo(StorageContainerPosition newPosition, Date time, String comments) {
 		StorageContainerPosition oldPosition = getPosition();
 		if (StorageContainerPosition.areSame(oldPosition, newPosition)) {
 			return;
@@ -941,6 +966,7 @@ public class Specimen extends BaseExtensionEntity {
 		SpecimenTransferEvent transferEvent = new SpecimenTransferEvent(this);
 		transferEvent.setUser(AuthUtil.getCurrentUser());
 		transferEvent.setTime(time == null ? Calendar.getInstance().getTime() : time);
+		transferEvent.setComments(comments);
 		
 		if (oldPosition != null && newPosition != null) {
 			oldPosition.getContainer().retrieveSpecimen(this);
@@ -1074,20 +1100,9 @@ public class Specimen extends BaseExtensionEntity {
 	}
 	
 	public void updatePosition(StorageContainerPosition newPosition, Date time) {
-		if (!isCollected()) {
-			return;
-		}
-
-		if (newPosition != null) {
-			StorageContainer container = newPosition.getContainer();
-			if (container == null || (!container.isDimensionless() && !newPosition.isSpecified())) {
-				newPosition = null;
-			}
-		}
-
-		transferTo(newPosition, time);
+		updatePosition(newPosition, time, null);
 	}
-	
+
 	public String getLabelOrDesc() {
 		if (StringUtils.isNotBlank(label)) {
 			return label;

@@ -790,7 +790,7 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 	}
 
 	private void setSpecimenPosition(SpecimenDetail detail, Specimen specimen, OpenSpecimenException ose) {
-		StorageContainer container = null;
+		specimen.setTransferComments(detail.getTransferComments());
 
 		StorageLocationSummary location = detail.getStorageLocation();
 		if (isVirtual(location) || !specimen.isCollected()) {
@@ -801,6 +801,7 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 			return;
 		}
 
+		StorageContainer container = null;
 		Object key = null;
 		if (location.getId() != null && location.getId() != -1) {
 			key = location.getId();

@@ -1,5 +1,5 @@
 angular.module('os.biospecimen.specimen')
-  .directive('osSpecimenOps', function($state, $injector, Specimen, SpecimensHolder, Alerts, DeleteUtil) {
+  .directive('osSpecimenOps', function($state, $injector, Specimen, SpecimensHolder, Alerts, CommentsUtil, DeleteUtil) {
 
     function initOpts(scope) {
       //
@@ -110,10 +110,23 @@ angular.module('os.biospecimen.specimen')
             return;
           }
 
-          var spmnsToUpdate = selectedSpmns.map(function(spmn) { return {id: spmn.id, storageLocation: {}}; });
-          Specimen.bulkUpdate(spmnsToUpdate).then(
-            function(updatedSpmns) {
-              scope.initList();
+          var ctx = {
+            header: 'specimen_list.retrieve_specimens', headerParams: {},
+            placeholder: 'specimen_list.retrieve_reason',
+            button: 'specimen_list.retrieve_specimens'
+          };
+          CommentsUtil.getComments(ctx,
+            function(comments) {
+              var spmnsToUpdate = selectedSpmns.map(
+                function(spmn) {
+                  return {id: spmn.id, storageLocation: {}, transferComments: comments};
+                }
+              );
+              Specimen.bulkUpdate(spmnsToUpdate).then(
+                function(updatedSpmns) {
+                  scope.initList();
+                }
+              );
             }
           );
         }

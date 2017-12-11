@@ -75,6 +75,8 @@ public class SpecimenDetail extends SpecimenInfo {
 
 	private Integer incrParentFreezeThaw;
 
+	private String transferComments;
+
 	public CollectionEventDetail getCollectionEvent() {
 		return collectionEvent;
 	}
@@ -254,6 +256,16 @@ public class SpecimenDetail extends SpecimenInfo {
 	@JsonProperty
 	public void setIncrParentFreezeThaw(Integer incrParentFreezeThaw) {
 		this.incrParentFreezeThaw = incrParentFreezeThaw;
+	}
+
+	@JsonIgnore
+	public String getTransferComments() {
+		return transferComments;
+	}
+
+	@JsonProperty
+	public void setTransferComments(String transferComments) {
+		this.transferComments = transferComments;
 	}
 
 	public static SpecimenDetail from(Specimen specimen) {

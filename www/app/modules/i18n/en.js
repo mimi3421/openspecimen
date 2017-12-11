@@ -803,6 +803,7 @@
       "title": "Bulk Transfer Specimens",
       "current_location": "Current Location",
       "new_location": "New Location",
+      "comments": "Comments",
       "success": "Successfully updated locations of {{spmnsCount}} specimens"
     }
   },
@@ -1874,6 +1875,7 @@
     "add_event": "Add/Edit Event",
     "transfer_specimens": "Transfer Specimens",
     "retrieve_specimens": "Retrieve",
+    "retrieve_reason": "Reason for retrieving specimens",
     "location": "Storage Location",
     "no_specimens_to_edit": "Please select at least one specimen to edit",
     "no_specimens_to_add_event": "Please select at least one specimen to add event",

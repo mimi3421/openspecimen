@@ -19,15 +19,22 @@ angular.module('os.biospecimen.specimen')
     $scope.copyFirstLocationToAll = function() {
       var location = $scope.specimens[0].storageLocation;
       location = !location ? {} : {name: location.name, mode: location.mode};
-      for(var i = 1; i < $scope.specimens.length; i++) {
+      for (var i = 1; i < $scope.specimens.length; i++) {
         $scope.specimens[i].storageLocation = angular.extend({}, location);
+      }
+    }
+
+    $scope.copyFirstCommentsToAll = function() {
+      var comments = $scope.specimens[0].transferComments;
+      for (var i = 1; i < $scope.specimens.length; ++i) {
+        $scope.specimens[i].transferComments = comments;
       }
     }
 
     $scope.transferSpecimens = function() {
       var specimens = $scope.specimens.map(
         function(spmn) {
-          return {id: spmn.id, storageLocation: spmn.storageLocation};
+          return {id: spmn.id, storageLocation: spmn.storageLocation, transferComments: spmn.transferComments};
         }
       );
 

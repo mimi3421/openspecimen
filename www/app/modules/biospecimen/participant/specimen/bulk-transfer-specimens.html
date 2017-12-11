@@ -14,7 +14,7 @@
           <table class="os-table bulk-edit">
             <thead class="os-table-head">
               <tr class="row">
-                <th class="col os-col-20">
+                <th class="col os-col-15">
                   <span translate="specimens.label">Label</span>
                 </th>
                 <th class="col os-col-15">
@@ -23,13 +23,19 @@
                 <th class="col os-col-15">
                   <span translate="specimens.type">Type</span>
                 </th>
-                <th class="col os-col-20">
+                <th class="col os-col-15">
                   <span translate="specimens.bulk_transfer.current_location">Current Location</span>
                 </th>
-                <th class="col os-col-25">
+                <th class="col os-col-20">
                   <span translate="specimens.bulk_transfer.new_location">New Location</span>
                   <a ng-click="copyFirstLocationToAll()" style="font-weight: normal">
                     (<span translate="common.copy_first_to_all">Copy first to all</span>)
+                  </a>
+                </th>
+                <th class="col os-col-15">
+                  <span translate="specimens.bulk_transfer.comments">Comments</span>
+                  <a ng-click="copyFirstCommentsToAll()" style="font-weight: normal">
+                    (<span ttranslate="common.copy_first_to_all">Copy first to all</span>)
                   </a>
                 </th>
                 <th class="col os-col-5">
@@ -56,6 +62,9 @@
                 <td class="col">
                   <os-storage-position os-md-input entity="spmn" cp-id="spmn.cpId" hide-placeholder>
                   </os-storage-position>
+                </td>
+                <td class="col">
+                  <input type="text" os-md-input ng-model="spmn.transferComments">
                 </td>
                 <td class="col">
                   <button class="btn btn-xs btn-default" ng-click="removeSpecimen($index)">
