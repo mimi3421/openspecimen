@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.Date;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,7 +24,11 @@ public class JsonDateDeserializer extends UntypedObjectDeserializer {
 
 		if (p.getCurrentToken() == JsonToken.VALUE_STRING) {
 			try {
-				ret = DateUtils.parseDate(p.getText(), "yyyy-MM-dd");
+				if (StringUtils.isBlank(p.getText())) {
+					ret = null;
+				} else {
+					ret = DateUtils.parseDate(p.getText(), "yyyy-MM-dd");
+				}
 			} catch (Exception e) {
 				try {
 					ret = Date.from(Instant.parse(p.getText()));
