@@ -305,7 +305,9 @@
       "CommonParticipant": "Participant",
       "Participant": "Registration",
       "SpecimenCollectionGroup": "Visit",
-      "Specimen": "Specimen"
+      "Specimen": "Specimen",
+      "none": "No forms",
+      "help": "Drag and drop items in below lists to reorder the form data entry sequence."
     },
 
     "catalog": {
