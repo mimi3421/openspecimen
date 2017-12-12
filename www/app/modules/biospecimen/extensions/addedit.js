@@ -5,72 +5,80 @@ angular.module('os.biospecimen.extensions.addedit-record', [])
     postSaveFilters, viewOpts,
     LocationChangeListener, ExtensionsUtil, Alerts) {
 
-    var recId = $stateParams.recordId;
-    if (!!recId) {
-      recId = parseInt(recId);
+    function init() {
+      var recId = $stateParams.recordId;
+      if (!!recId) {
+        recId = parseInt(recId);
+      }
+
+      var nextForm = undefined;
+      if (viewOpts.showSaveNext) {
+        nextForm = getNextForm();
+      }
+
+      $scope.formOpts = {
+        formId: $stateParams.formId,
+        formDef: formDef,
+        recordId: recId,
+        formCtxtId: parseInt($stateParams.formCtxId),
+        objectId: $scope.object.id,
+        showActionBtns: viewOpts.showActionBtns == false ? false : true,
+        showSaveNext: viewOpts.showSaveNext && !!nextForm,
+
+        onSave: function(formData, next) {
+          angular.forEach(postSaveFilters, function(filter) {
+            filter($scope.object, formDef.name, formData);
+          });
+
+          Alerts.success("extensions.record_saved");
+          if (nextForm) {
+            var params = angular.extend({}, $stateParams);
+            params.formCtxId = nextForm.formCtxtId;
+            params.formId = nextForm.formId;
+            params.recordId = undefined;
+            LocationChangeListener.allowChange();
+            $state.go($state.current.name, params);
+          } else {
+            gotoRecsList();
+          }
+        },
+
+        onError: function() {
+          alert("Error");
+        },
+
+        onCancel: function() {
+          gotoRecsList();
+        },
+
+        onPrint: function(html) {
+          alert(html);
+        },
+
+        onDelete: function() {
+          var record = {recordId: recId, formId: $stateParams.formId, formCaption: formDef.caption}
+          ExtensionsUtil.deleteRecord(record, gotoRecsList);
+        }
+      };
     }
 
-    $scope.formOpts = {
-      formId: $stateParams.formId,
-      formDef: formDef,
-      recordId: recId,
-      formCtxtId: parseInt($stateParams.formCtxId),
-      objectId: $scope.object.id,
-      showActionBtns: viewOpts.showActionBtns == false ? false : true,
-      showSaveNext: viewOpts.showSaveNext,
-
-      onSave: function(formData, next) {
-        angular.forEach(postSaveFilters, function(filter) {
-          filter($scope.object, formDef.name, formData);
-        });
-
-        Alerts.success("extensions.record_saved");
-
-        var nextForm = undefined;
-        if (next) {
-          var anyForm = false;
-          for (var i = 0; i < forms.length - 1; ++i) {
-            var f = forms[i], nf = forms[i + 1];
-            if (!anyForm && f.formId == $stateParams.formId) {
-              anyForm = true;
-            }
-
-            if (anyForm && (nf.multiRecord || nf.records.length == 0)) {
-              nextForm = nf;
-              break;
-            }
-          }
+    function getNextForm() {
+      var nextForm = undefined;
+      var anyForm = false;
+      for (var i = 0; i < forms.length - 1; ++i) {
+        var f = forms[i], nf = forms[i + 1];
+        if (!anyForm && f.formId == $stateParams.formId) {
+          anyForm = true;
         }
 
-        if (nextForm) {
-          var params = angular.extend({}, $stateParams);
-          params.formCtxId = nextForm.formCtxtId;
-          params.formId = nextForm.formId;
-          params.recordId = undefined;
-          LocationChangeListener.allowChange();
-          $state.go($state.current.name, params);
-        } else {
-          gotoRecsList();
+        if (anyForm && (nf.multiRecord || nf.records.length == 0)) {
+          nextForm = nf;
+          break;
         }
-      },
-
-      onError: function() {
-        alert("Error");
-      },
-
-      onCancel: function() {
-        gotoRecsList();
-      },
-
-      onPrint: function(html) {
-        alert(html);
-      },
-
-      onDelete: function() {
-        var record = {recordId: recId, formId: $stateParams.formId, formCaption: formDef.caption}
-        ExtensionsUtil.deleteRecord(record, gotoRecsList);
       }
-    };
+
+      return nextForm;
+    }
 
     function gotoRecsList() {
       if (typeof viewOpts.goBackFn == 'function') {
@@ -97,4 +105,6 @@ angular.module('os.biospecimen.extensions.addedit-record', [])
         }
       );
     }
+
+    init();
   });
