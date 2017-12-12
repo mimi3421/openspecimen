@@ -117,27 +117,26 @@ public class StorageContainerDaoImpl extends AbstractDao<StorageContainer> imple
 			);
 		}
 
+		query.createAlias("d.compAllowedSpecimenTypes", "spmnType", JoinType.LEFT_OUTER_JOIN);
+		Junction notInTypes = Restrictions.conjunction();
 		if (isNotEmpty(crit.specimenTypes())) {
-			query.createAlias("d.compAllowedSpecimenTypes", "spmnType", JoinType.LEFT_OUTER_JOIN);
-
-			Junction notInTypes = Restrictions.conjunction();
 			notInTypes.add(Restrictions.not(Restrictions.in("spmnType.elements", crit.specimenTypes())));
-
-			if (isNotEmpty(crit.specimenClasses())) {
-				DetachedCriteria typesCrit = DetachedCriteria.forClass(PermissibleValue.class, "pv")
-					.createAlias("pv.parent", "ppv")
-					.add(Restrictions.eq("pv.attribute", "specimen_type"))
-					.add(Restrictions.in("ppv.value", crit.specimenClasses()))
-					.setProjection(Property.forName("pv.value"));
-				notInTypes.add(Subqueries.propertyNotIn("spmnType.elements", typesCrit));
-			}
-
-			restriction.add(
-				Restrictions.conjunction()
-					.add(Restrictions.isNotNull("spmnType.elements"))
-					.add(notInTypes)
-			);
 		}
+
+		if (isNotEmpty(crit.specimenClasses())) {
+			DetachedCriteria typesCrit = DetachedCriteria.forClass(PermissibleValue.class, "pv")
+				.createAlias("pv.parent", "ppv")
+				.add(Restrictions.eq("pv.attribute", "specimen_type"))
+				.add(Restrictions.in("ppv.value", crit.specimenClasses()))
+				.setProjection(Property.forName("pv.value"));
+			notInTypes.add(Subqueries.propertyNotIn("spmnType.elements", typesCrit));
+		}
+
+		restriction.add(
+			Restrictions.conjunction()
+				.add(Restrictions.isNotNull("spmnType.elements"))
+				.add(notInTypes)
+		);
 
 		if (isNotEmpty(crit.collectionProtocols())) {
 			query.createAlias("d.compAllowedCps", "cp", JoinType.LEFT_OUTER_JOIN);
