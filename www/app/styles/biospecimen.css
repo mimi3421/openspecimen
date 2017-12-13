@@ -365,3 +365,9 @@
 .os-ctrl-padding-top {
   padding-top: 8px;
 }
+
+.os-cp-settings-popover {
+  max-height: 252px;
+  width: 275px;
+  overflow: auto
+}
