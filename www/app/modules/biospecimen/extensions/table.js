@@ -24,9 +24,10 @@ angular.module('os.biospecimen.extensions')
           });
           obj.ctrl = ctrl;
         }
-        
+
+        var onceRendered = false;
         scope.$watch(attrs.opts, function(opts) {
-          if (!opts) {
+          if (!opts || onceRendered) {
             return;
           }
           
@@ -55,6 +56,7 @@ angular.module('os.biospecimen.extensions')
           
           ctrl.table = new edu.common.de.DataTable(args);
           ctrl.table.render();
+          onceRendered = true;
         }, true);
       }
     }

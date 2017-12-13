@@ -234,17 +234,27 @@ angular.module('os.biospecimen.specimen.bulkaddevent', ['os.biospecimen.models']
         }
       );
 
+      ctx.noEvents = false; ctx.noEventsFor = [];
       $q.when(loadRecords()).then(
         function(records) {
           ctx.records = records;
           if (!records || records.length == 0) {
-            ctx.mode = 'TABLE';
+            ctx.noEvents = (ctx.op == 'EDIT');
+            ctx.op = 'ADD';
             setFormDefToUse();
+            ctx.opts.formId  = ctx.formId;
+            ctx.opts.formDef = ctx.formDefToUse;
+          } else if (ctx.op == 'EDIT' && records.length != ctx.specimens.length) {
+            var spmnIds = records.map(function(rec) { return rec.appData.objectId; });
+            ctx.noEventsFor = ctx.specimens.filter(function(spmn) { return spmnIds.indexOf(spmn.id) == -1 })
+              .map(function(spmn) { return spmn.label; }).join(', ');
           }
 
           if (ctx.mode == 'TABLE') {
             ctx.opts.tableData = getTableData();
           }
+
+          ctx.showForm = true;
         }
       );
     }

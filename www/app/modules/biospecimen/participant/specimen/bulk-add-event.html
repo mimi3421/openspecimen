@@ -26,10 +26,12 @@
 
 <script type="text/ng-template" id="participant/specimen/bulkevent-select-specimens.html">
   <form name="sform" class="form-horizontal" os-form-validator="sform" validator="sformValidator" novalidate>
-    <div class="alert alert-danger" ng-if="!ctx.specimens || ctx.specimens.length == 0">
-      <span translate="specimens.bulk_events.no_specimens_in_list">
-        No specimens in list to add event. Add at least one specimen
-      </span>
+    <div class="os-alert-container show inline" ng-if="!ctx.specimens || ctx.specimens.length == 0">
+      <div class="alert alert-danger">
+        <span translate="specimens.bulk_events.no_specimens_in_list">
+          No specimens in list to add event. Add at least one specimen
+        </span>
+      </div>
     </div>
 
     <os-add-specimens on-add="addSpecimens(specimens)"
@@ -121,7 +123,7 @@
           <input type="radio" name="op" ng-model="ctx.op" ng-value="'EDIT'" ng-change="onOpSelect()">
           <span translate="specimens.bulk_events.edit">Edit</span>
         </label>
-        <div os-field-error field="eventForm.op"></div>
+        <div os-field-error field="optForm.op"></div>
       </div>
     </div>
 
@@ -133,7 +135,7 @@
         <os-select name="eventName" list="ctx.events" display-prop="caption"
           select-prop="formId" ng-model="ctx.formId" on-select="onEventSelect()" required>
         </os-select>
-        <div os-field-error field="eventForm.eventName"></div>
+        <div os-field-error field="optForm.eventName"></div>
       </div>
     </div>
 
@@ -172,7 +174,23 @@
 </script>
 
 <script type="text/ng-template" id="participant/specimen/bulkevent-add-details.html">
-  <form name="eventForm" class="form-horizontal" os-form-validator="eventForm" validator="eventFormValidator" novalidate>
+  <form name="eventForm" class="form-horizontal" os-form-validator="eventForm" validator="eventFormValidator" novalidate
+    ng-if="ctx.showForm">
+
+    <span ng-if="ctx.mode == 'SINGLE'">
+      <div class="os-alert-container show inline" ng-if="ctx.noEvents">
+        <div class="alert alert-warning">
+          <span ng-bind-html="'specimens.bulk_events.no_events' | translate: ctx.opts.formDef"></span>
+        </div>
+      </div>
+
+      <div class="os-alert-container show inline" ng-if="ctx.noEventsFor.length > 0">
+        <div class="alert alert-warning">
+          <span ng-bind-html="'specimens.bulk_events.no_events_for' | translate: {caption: ctx.opts.formDef.caption, labels: ctx.noEventsFor}"></span>
+        </div>
+      </div>
+    </span>
+
     <div class="form-group" ng-if="ctx.mode == 'SINGLE' && !!ctx.opts.formDef">
       <div class="os-entity-extn-form-fields">
         <div id="de-form" class="os-extn-form" os-de-form ctrl="ctx.formCtrl" opts="ctx.opts">
@@ -199,7 +217,7 @@
         <button class="btn os-btn-text" ng-click="back()">
           <span translate="common.buttons.cancel">Cancel</span>
         </button>
-        <button class="btn os-btn-secondary" ng-click="eventWizard.previous()">
+        <button class="btn os-btn-secondary" ng-click="ctx.showForm = false; eventWizard.previous()">
           <span translate="common.buttons.previous">Previous</span>
         </button>
         <button class="btn btn-primary" os-form-submit="saveEvent()">

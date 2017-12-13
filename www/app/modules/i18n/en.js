@@ -799,7 +799,9 @@
       "enter_specimen_label": "To add specimens to list, enter labels or barcodes separated by a comma, tab or newline and click add",
       "details": "Event Details",
       "copy_first_to_all": "Copy First To All",
-      "events_saved": "Events saved successfully"
+      "events_saved": "Events saved successfully",
+      "no_events": "None of the selected specimens have <b>{{caption}}</b> records to edit. Automatically switching to <b>add</b> action.",
+      "no_events_for": "Following specimens will not be edited, as they do not have <b>{{caption}}</b> records to edit: <i>{{labels}}</i>."
     },
     "bulk_transfer": {
       "title": "Bulk Transfer Specimens",
