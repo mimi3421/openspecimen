@@ -296,8 +296,10 @@ public class StorageContainerFactoryImpl implements StorageContainerFactory {
 
 	private void setPositionLabelingMode(StorageContainerDetail detail, StorageContainer container, OpenSpecimenException ose) {
 		try {
-			if (StringUtils.isNotBlank(detail.getPositionLabelingMode())) {
-				container.setPositionLabelingMode(StorageContainer.PositionLabelingMode.valueOf(detail.getPositionLabelingMode()));
+			String mode = detail.getPositionLabelingMode();
+			if (StringUtils.isNotBlank(mode)) {
+				mode = mode.toUpperCase();
+				container.setPositionLabelingMode(StorageContainer.PositionLabelingMode.valueOf(mode));
 			} else if (container.getType() != null) {
 				container.setPositionLabelingMode(container.getType().getPositionLabelingMode());
 			}
