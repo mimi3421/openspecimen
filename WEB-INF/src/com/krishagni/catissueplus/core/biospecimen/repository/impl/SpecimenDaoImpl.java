@@ -91,6 +91,14 @@ public class SpecimenDaoImpl extends AbstractDao<Specimen> implements SpecimenDa
 	}
 
 	@Override
+	public Specimen getByVisitAndSrCode(Long visitId, String reqCode) {
+		return (Specimen) getCurrentSession().getNamedQuery(GET_BY_VISIT_N_SR_CODE)
+			.setParameter("visitId", visitId)
+			.setParameter("srCode", reqCode)
+			.uniqueResult();
+	}
+
+	@Override
 	public Specimen getParentSpecimenByVisitAndSr(Long visitId, Long srId) {
 		return getByVisitAndSrId(GET_PARENT_BY_VISIT_AND_SR, visitId, srId);
 	}
@@ -553,6 +561,8 @@ public class SpecimenDaoImpl extends AbstractDao<Specimen> implements SpecimenDa
 	private static final String GET_BY_BARCODE_AND_CP = FQN + ".getByBarcodeAndCp";
 	
 	private static final String GET_BY_VISIT_AND_SR = FQN + ".getByVisitAndReq";
+
+	private static final String GET_BY_VISIT_N_SR_CODE = FQN + ".getByVisitAndReqCode";
 
 	private static final String GET_PARENT_BY_VISIT_AND_SR = FQN + ".getParentByVisitAndReq";
 	

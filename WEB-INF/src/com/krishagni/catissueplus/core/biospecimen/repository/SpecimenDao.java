@@ -30,6 +30,8 @@ public interface SpecimenDao extends Dao<Specimen> {
 	
 	Specimen getSpecimenByVisitAndSr(Long visitId, Long srId);
 
+	Specimen getByVisitAndSrCode(Long visitId, String reqCode);
+
 	Specimen getParentSpecimenByVisitAndSr(Long visitId, Long srId);
 
 	Map<String, Object> getCprAndVisitIds(String key, Object value);

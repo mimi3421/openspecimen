@@ -140,6 +140,18 @@
         sr.id = :srId
     </query>
 
+    <query name="getByVisitAndReqCode">
+      select
+        s
+      from
+        com.krishagni.catissueplus.core.biospecimen.domain.Specimen s
+        join s.visit v
+        join s.specimenRequirement sr
+      where
+        v.id = :visitId and
+        sr.code = :srCode
+    </query>
+
     <query name="getParentByVisitAndReq">
       select
         s
