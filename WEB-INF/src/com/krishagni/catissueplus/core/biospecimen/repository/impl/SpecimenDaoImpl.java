@@ -2,6 +2,7 @@
 package com.krishagni.catissueplus.core.biospecimen.repository.impl;
 
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -90,12 +91,13 @@ public class SpecimenDaoImpl extends AbstractDao<Specimen> implements SpecimenDa
 		return getByVisitAndSrId(GET_BY_VISIT_AND_SR, visitId, srId);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public Specimen getByVisitAndSrCode(Long visitId, String reqCode) {
-		return (Specimen) getCurrentSession().getNamedQuery(GET_BY_VISIT_N_SR_CODE)
+	public List<Specimen> getByVisitAndSrCode(Long visitId, Collection<String> reqCodes) {
+		return getCurrentSession().getNamedQuery(GET_BY_VISIT_N_SR_CODE)
 			.setParameter("visitId", visitId)
-			.setParameter("srCode", reqCode)
-			.uniqueResult();
+			.setParameterList("srCodes", reqCodes)
+			.list();
 	}
 
 	@Override

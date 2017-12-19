@@ -1,6 +1,7 @@
 
 package com.krishagni.catissueplus.core.biospecimen.repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,7 +31,7 @@ public interface SpecimenDao extends Dao<Specimen> {
 	
 	Specimen getSpecimenByVisitAndSr(Long visitId, Long srId);
 
-	Specimen getByVisitAndSrCode(Long visitId, String reqCode);
+	List<Specimen> getByVisitAndSrCode(Long visitId, Collection<String> reqCodes);
 
 	Specimen getParentSpecimenByVisitAndSr(Long visitId, Long srId);
 

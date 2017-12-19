@@ -149,7 +149,7 @@
         join s.specimenRequirement sr
       where
         v.id = :visitId and
-        sr.code = :srCode
+        sr.code in (:srCodes)
     </query>
 
     <query name="getParentByVisitAndReq">
