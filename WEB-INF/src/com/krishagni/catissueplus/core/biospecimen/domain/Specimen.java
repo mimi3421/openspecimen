@@ -93,7 +93,7 @@ public class Specimen extends BaseExtensionEntity {
 
 	private String collectionStatus;
 	
-	private Set<String> biohazards = new HashSet<String>();
+	private Set<String> biohazards = new HashSet<>();
 
 	private Integer freezeThawCycles;
 
@@ -733,6 +733,8 @@ public class Specimen extends BaseExtensionEntity {
 	}
 
 	public void update(Specimen specimen) {
+		boolean wasCollected = isCollected();
+
 		setForceDelete(specimen.isForceDelete());
 		setAutoCollectParents(specimen.isAutoCollectParents());
 
@@ -762,7 +764,10 @@ public class Specimen extends BaseExtensionEntity {
 				updateCreatedOn(Utility.chopSeconds(getReceivedEvent().getTime()));
 			} else {
 				updateCreatedOn(specimen.getCreatedOn() != null ? specimen.getCreatedOn() : Calendar.getInstance().getTime());
-				getParentSpecimen().addToChildrenEvent(this);
+
+				if (!wasCollected) {
+					getParentSpecimen().addToChildrenEvent(this);
+				}
 			}
 		} else {
 			updateCreatedOn(null);
