@@ -128,6 +128,7 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 		specimen.setVisit(visit);
 		specimen.setForceDelete(detail.isForceDelete());
 		specimen.setPrintLabel(detail.isPrintLabel());
+		specimen.setAutoCollectParents(detail.isAutoCollectParents());
 
 		setCollectionStatus(detail, existing, specimen, ose);
 		setLineage(detail, existing, specimen, ose);

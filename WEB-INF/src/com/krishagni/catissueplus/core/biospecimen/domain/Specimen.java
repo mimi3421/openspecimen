@@ -155,6 +155,8 @@ public class Specimen extends BaseExtensionEntity {
 
 	private transient String transferComments;
 
+	private transient boolean autoCollectParents;
+
 	//
 	// Records the derivatives or aliquots created from this specimen in current action/transaction
 	//
@@ -591,6 +593,14 @@ public class Specimen extends BaseExtensionEntity {
 		this.transferComments = transferComments;
 	}
 
+	public boolean isAutoCollectParents() {
+		return autoCollectParents;
+	}
+
+	public void setAutoCollectParents(boolean autoCollectParents) {
+		this.autoCollectParents = autoCollectParents;
+	}
+
 	public boolean isPrintLabel() {
 		return printLabel;
 	}
@@ -724,6 +734,7 @@ public class Specimen extends BaseExtensionEntity {
 
 	public void update(Specimen specimen) {
 		setForceDelete(specimen.isForceDelete());
+		setAutoCollectParents(specimen.isAutoCollectParents());
 
 		String reason = null;
 		if (!StringUtils.equals(getComment(), specimen.getComment())) {
@@ -829,9 +840,15 @@ public class Specimen extends BaseExtensionEntity {
 		} else if (isCollected(collectionStatus)) {
 			if (!getVisit().isCompleted()) {
 				throw OpenSpecimenException.userError(VisitErrorCode.COMPL_VISIT_REQ);
-			} else if (getParentSpecimen() != null && !getParentSpecimen().isCollected()) {
-				throw OpenSpecimenException.userError(SpecimenErrorCode.COLL_PARENT_REQ);
 			} else {
+				if (getParentSpecimen() != null && !getParentSpecimen().isCollected()) {
+					if (!autoCollectParents) {
+						throw OpenSpecimenException.userError(SpecimenErrorCode.COLL_PARENT_REQ);
+					}
+
+					autoCollectParentSpecimens(this);
+				}
+
 				setCollectionStatus(collectionStatus);
 				decAliquotedQtyFromParent();
 				addOrUpdateCollRecvEvents();
@@ -995,7 +1012,16 @@ public class Specimen extends BaseExtensionEntity {
 	}
 
 	public void addChildSpecimen(Specimen specimen) {
-		specimen.setParentSpecimen(this);				
+		specimen.setParentSpecimen(this);
+
+		if (!isCollected() && specimen.isCollected()) {
+			if (!specimen.autoCollectParents) {
+				throw OpenSpecimenException.userError(SpecimenErrorCode.COLL_PARENT_REQ);
+			}
+
+			autoCollectParentSpecimens(specimen);
+		}
+
 		if (specimen.isAliquot()) {
 			specimen.decAliquotedQtyFromParent();
 		}
@@ -1417,8 +1443,7 @@ public class Specimen extends BaseExtensionEntity {
 			return;
 		}
 
-		Set<SpecimenRequirement> anticipated = 
-				new HashSet<SpecimenRequirement>(getSpecimenRequirement().getChildSpecimenRequirements());
+		Set<SpecimenRequirement> anticipated = new HashSet<>(getSpecimenRequirement().getChildSpecimenRequirements());
 		for (Specimen childSpecimen : getChildCollection()) {
 			if (childSpecimen.getSpecimenRequirement() != null) {
 				anticipated.remove(childSpecimen.getSpecimenRequirement());
@@ -1434,6 +1459,32 @@ public class Specimen extends BaseExtensionEntity {
 			getChildCollection().add(specimen);
 
 			specimen.createMissedChildSpecimens();
+		}
+	}
+
+	private void autoCollectParentSpecimens(Specimen childSpmn) {
+		Specimen parentSpmn = childSpmn.getParentSpecimen();
+		while (parentSpmn != null && parentSpmn.isPending()) {
+			parentSpmn.setCollectionStatus(COLLECTED);
+			if (parentSpmn.isPrimary()) {
+				parentSpmn.addOrUpdateCollRecvEvents();
+			} else {
+				parentSpmn.setCreatedOn(childSpmn.getCreatedOn());
+			}
+
+			parentSpmn.addToChildrenEvent(childSpmn);
+
+			childSpmn = parentSpmn;
+			parentSpmn = parentSpmn.getParentSpecimen();
+		}
+
+		if (parentSpmn != null) {
+			//
+			// this means the parent specimen was pre-collected.
+			// therefore need to add a processing event for its
+			// recently collected child specimen
+			//
+			parentSpmn.addToChildrenEvent(childSpmn);
 		}
 	}
 }

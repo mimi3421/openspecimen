@@ -77,6 +77,8 @@ public class SpecimenDetail extends SpecimenInfo {
 
 	private String transferComments;
 
+	private boolean autoCollectParents;
+
 	public CollectionEventDetail getCollectionEvent() {
 		return collectionEvent;
 	}
@@ -266,6 +268,16 @@ public class SpecimenDetail extends SpecimenInfo {
 	@JsonProperty
 	public void setTransferComments(String transferComments) {
 		this.transferComments = transferComments;
+	}
+
+	@JsonIgnore
+	public boolean isAutoCollectParents() {
+		return autoCollectParents;
+	}
+
+	@JsonProperty
+	public void setAutoCollectParents(boolean autoCollectParents) {
+		this.autoCollectParents = autoCollectParents;
 	}
 
 	public static SpecimenDetail from(Specimen specimen) {
