@@ -79,7 +79,8 @@ angular.module('os.query.lookup', [])
                   '<ui-select-match placeholder="{{$parent.placeholder}}">' +
                     '{{$select.selected}}' +
                   '</ui-select-match>' +
-                  '<ui-select-choices repeat="option in options" refresh="searchTerm($select.search)" refresh-delay="750">' +
+                  '<ui-select-choices repeat="option in options track by $index" ' +
+                    'refresh="searchTerm($select.search)" refresh-delay="750">' +
                     '<span ng-bind-html="option | highlight: $select.search"></span>' +
                   '</ui-select-choices>' + 
                 '</ui-select>' +
