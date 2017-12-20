@@ -29,6 +29,9 @@ angular.module('os.biospecimen.models.specimen', ['os.common.models', 'os.biospe
           );
         }
 
+        if (specimen.storageLocation) {
+          specimen.storageLocation = angular.extend({}, specimen.storageLocation);
+        }
         specimen.$$specimenCentricCp = isSpecimenCentric(specimen);
       }
     );
