@@ -131,7 +131,11 @@ angular.module('os.biospecimen.specimen.addedit', [])
     }
 
     function getState() {
-      return {state: $state.get('visit-detail.overview'), params: {visitId: visit.id}};
+      if (cp.specimenCentric) {
+        return {state: $state.get('cp-specimens'), params: {cpId: cp.id}};
+      } else {
+        return {state: $state.get('visit-detail.overview'), params: {visitId: visit.id}};
+      }
     };
 
     $scope.save = function() {

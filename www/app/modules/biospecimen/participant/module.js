@@ -526,11 +526,13 @@ angular.module('os.biospecimen.participant',
         templateUrl: 'modules/biospecimen/participant/collect-specimens.html',
         controller: 'CollectSpecimensCtrl',
         resolve: {
-          visit: function($stateParams, cpr, Visit) {
-            if (!!$stateParams.visitId) {
+          visit: function($stateParams, cp, cpr, Visit) {
+            if (!!$stateParams.visitId && $stateParams.visitId > 0) {
               return Visit.getById($stateParams.visitId);
             } else if (!!$stateParams.eventId) {
               return Visit.getAnticipatedVisit($stateParams.eventId, cpr.registrationDate);
+            } else if (cp.specimenCentric) {
+              return new Visit({cpId: cp.id});
             }
 
             return null;
@@ -539,7 +541,7 @@ angular.module('os.biospecimen.participant',
             //
             // required for lastest visit clinical diagnosis.
             //
-            return $stateParams.visitId ? null : cpr.getLatestVisit();
+            return ($stateParams.visitId || !cpr || !cpr.id) ? null : cpr.getLatestVisit();
           },
           spmnCollFields: function($stateParams, hasSde, cp, CpConfigSvc) {
             if (!hasSde) {

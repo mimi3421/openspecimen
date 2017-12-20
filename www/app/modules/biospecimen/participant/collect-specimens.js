@@ -253,7 +253,7 @@ angular.module('os.biospecimen.participant.collect-specimens',
           // visit.site = visit.site;
         } else if (latestVisit) {
           visit.site = latestVisit.site;
-        } else if (cpr.participant.pmis.length > 0) {
+        } else if (cpr.participant.pmis && cpr.participant.pmis.length > 0) {
           visit.site = cpr.participant.pmis[0].siteName;
         }
 
@@ -762,7 +762,7 @@ angular.module('os.biospecimen.participant.collect-specimens',
 
         var specimensToSave = getSpecimensToSave($scope.cp, $scope.specimens, []);
         var savedSpmnReqIds = getSpmnReqIds(specimensToSave);
-        if (!!$scope.visit.id && $scope.visit.status == 'Complete') {
+        if (cp.specimenCentric || (!!$scope.visit.id && $scope.visit.status == 'Complete')) {
           Specimen.save(specimensToSave).then(
             function(savedSpecimens) {
               $scope.specimens.length = 0;
@@ -880,6 +880,7 @@ angular.module('os.biospecimen.participant.collect-specimens',
           label: uiSpecimen.label,
           barcode: uiSpecimen.barcode,
           printLabel: uiSpecimen.printLabel,
+          cpId: cp.id,
           reqId: uiSpecimen.reqId,
           visitId: $scope.visit.id,
           storageLocation: uiSpecimen.storageLocation,
