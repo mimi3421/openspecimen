@@ -35,6 +35,7 @@ import com.krishagni.catissueplus.core.biospecimen.services.impl.SystemFormUpdat
 import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
+import com.krishagni.catissueplus.core.common.errors.CommonErrorCode;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.BulkDeleteEntityOp;
 import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
@@ -421,8 +422,6 @@ public class FormServiceImpl implements FormService, InitializingBean {
 			User user = AuthUtil.getCurrentUser();
 			FormData formData = saveOrUpdateFormData(user, detail.getRecordId(), detail.getFormData(), detail.isPartial());
 			return ResponseEvent.response(FormDataDetail.ok(formData.getContainer().getId(), formData.getRecordId(), formData));
-		} catch (ValidationErrors ve) {
-			return ResponseEvent.userError(FormErrorCode.INVALID_DATA, ve.getMessage());
 		} catch(IllegalArgumentException ex) {
 			return ResponseEvent.userError(FormErrorCode.INVALID_DATA, ex.getMessage());
 		} catch (OpenSpecimenException ose) {
@@ -435,18 +434,16 @@ public class FormServiceImpl implements FormService, InitializingBean {
 	@Override
 	@PlusTransactional
 	public ResponseEvent<List<FormData>> saveBulkFormData(RequestEvent<List<FormData>> req) {
-		try{ 
+		try{
 			User user = AuthUtil.getCurrentUser();
 			List<FormData> formDataList = req.getPayload();
 			List<FormData> savedFormDataList = new ArrayList<>();
 			for (FormData formData : formDataList) {
-				FormData savedFormData = saveOrUpdateFormData(user, formData.getRecordId(), formData, false);
+				FormData savedFormData = saveOrUpdateFormData(user, formData.getRecordId(), formData, true);
 				savedFormDataList.add(savedFormData);
 			}
 			
 			return ResponseEvent.response(savedFormDataList);
-		} catch (ValidationErrors ve) {
-			return ResponseEvent.userError(FormErrorCode.INVALID_DATA, ve.getMessage());
 		} catch(IllegalArgumentException ex) {
 			return ResponseEvent.userError(FormErrorCode.INVALID_DATA, ex.getMessage());
 		} catch (OpenSpecimenException ose) {
@@ -669,6 +666,10 @@ public class FormServiceImpl implements FormService, InitializingBean {
 			SelectControl selectControl = (SelectControl) control;
 			List<PermissibleValue> pvs = selectControl.getPvDataSource().getPermissibleValues(searchStr, maxResults);
 			return ResponseEvent.response(pvs);
+		} catch (IllegalArgumentException iae) {
+			return ResponseEvent.error(OpenSpecimenException.userError(CommonErrorCode.INVALID_INPUT, iae.getMessage()));
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
 		} catch (Exception e) {
 			return ResponseEvent.serverError(e);
 		}

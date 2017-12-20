@@ -1,6 +1,8 @@
 package com.krishagni.catissueplus.core.common.errors;
 
-public enum CommonErrorCode implements ErrorCode {	
+public enum CommonErrorCode implements ErrorCode {
+	INVALID_INPUT,
+
 	INVALID_REQUEST,
 
 	SQL_EXCEPTION,
