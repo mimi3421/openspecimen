@@ -38,9 +38,10 @@ angular.module('openspecimen')
   })
   .controller('LoginCtrl', function(
     $scope, $rootScope, $state, $stateParams, $q, $http, $location, $injector,
-    AuthDomain, AuthService) {
+    Alerts, AuthDomain, AuthService) {
 
     function init() {
+      $scope.errors = [];
       $scope.loginData = {};
       
       var logoutQ;
@@ -119,7 +120,14 @@ angular.module('openspecimen')
     };
 
     $scope.login = function() {
-      AuthService.authenticate($scope.loginData).then(onLogin);
+      $scope.errors = [];
+      AuthService.authenticate($scope.loginData).then(
+        onLogin,
+        function(resp) {
+          $scope.errors = (resp.data || []);
+          Alerts.clear();
+        }
+      );
     }
 
     $scope.logout = function() {

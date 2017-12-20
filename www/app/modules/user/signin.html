@@ -6,7 +6,14 @@
   </div>
 
   <div class="os-center-box">
-    <img class="os-rounded-img" src="images/profile-user.png" />
+    <img class="os-rounded-img" src="images/profile-user.png"/>
+    <div class="alert alert-danger" ng-if="errors.length > 0">
+      <ul class="os-signin-errors">
+        <li ng-repeat="error in errors">
+          <span>{{error.message}} ({{error.code}})</span>
+        </li>
+      </ul>
+    </div>
     <form name="signinForm" ng-submit="login()">
       <div class="os-group-controls">
         <input type="text" class="form-control" ng-model="loginData.loginName"

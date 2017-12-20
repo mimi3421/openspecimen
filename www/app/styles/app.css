@@ -199,8 +199,8 @@ body {
 }
 
 .os-center-box .os-rounded-img {
-  width: 96px;
-  height: 96px;
+  width: 80px;
+  height: 80px;
   margin: 0px auto 10px;
   display: block;
   border-radius: 50%;
@@ -1218,3 +1218,10 @@ h4.os-sub-section-title, h5.os-sub-section-title, h6.os-sub-section-title {
 .os-padding-5 {
   padding: 5px;
 }
+
+.os-signin-errors {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+ 
