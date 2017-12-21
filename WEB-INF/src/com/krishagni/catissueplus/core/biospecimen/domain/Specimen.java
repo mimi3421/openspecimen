@@ -994,19 +994,19 @@ public class Specimen extends BaseExtensionEntity {
 			oldPosition.getContainer().retrieveSpecimen(this);
 			newPosition.getContainer().storeSpecimen(this);
 
-			transferEvent.setFromPosition(oldPosition);
-			transferEvent.setToPosition(newPosition);
+			transferEvent.setFromLocation(oldPosition);
+			transferEvent.setToLocation(newPosition);
 
 			oldPosition.update(newPosition);			
 		} else if (oldPosition != null) {
 			oldPosition.getContainer().retrieveSpecimen(this);
-			transferEvent.setFromPosition(oldPosition);
+			transferEvent.setFromLocation(oldPosition);
 
 			oldPosition.vacate();
 			setPosition(null);
 		} else if (newPosition != null) {
 			newPosition.getContainer().storeSpecimen(this);
-			transferEvent.setToPosition(newPosition);
+			transferEvent.setToLocation(newPosition);
 			
 			newPosition.setOccupyingSpecimen(this);
 			newPosition.occupy();

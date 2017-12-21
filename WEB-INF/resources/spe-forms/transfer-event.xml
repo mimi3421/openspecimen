@@ -28,6 +28,13 @@
         <caption>#getMessage("transfer_event_dim_one")</caption>
         <column>FROM_POSITION_DIMENSION_ONE</column>
       </numberField>
+
+      <numberField>
+        <name>fromPosition</name>
+        <udn>fromPosition</udn>
+        <caption>#getMessage("transfer_event_position")</caption>
+        <column>FROM_POSITION</column>
+      </numberField>
     </row>
 
     <row>
@@ -51,6 +58,14 @@
         <caption>#getMessage("transfer_event_dim_one")</caption>
         <column>TO_POSITION_DIMENSION_ONE</column>
       </numberField>
+
+      <numberField>
+        <name>toPosition</name>
+        <udn>toPosition</udn>
+        <caption>#getMessage("transfer_event_position")</caption>
+        <column>TO_POSITION</column>
+      </numberField>
+
     </row>
 
     <row>

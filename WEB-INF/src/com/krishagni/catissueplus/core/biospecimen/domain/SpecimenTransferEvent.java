@@ -21,13 +21,17 @@ public class SpecimenTransferEvent extends SpecimenEvent {
 	private Integer fromDimensionOne;
 	
 	private Integer fromDimensionTwo;
-	
+
+	private Integer fromPosition;
+
 	private StorageContainer toContainer;
 	
 	private Integer toDimensionOne;
 	
 	private Integer toDimensionTwo;
-	
+
+	private Integer toPosition;
+
 	@Autowired
 	private DaoFactory daoFactory;
 
@@ -61,8 +65,16 @@ public class SpecimenTransferEvent extends SpecimenEvent {
 	public void setFromDimensionTwo(Integer fromDimensionTwo) {
 		this.fromDimensionTwo = fromDimensionTwo;
 	}
-	
-	public void setFromPosition(StorageContainerPosition from) {
+
+	public Integer getFromPosition() {
+		return fromPosition;
+	}
+
+	public void setFromPosition(Integer fromPosition) {
+		this.fromPosition = fromPosition;
+	}
+
+	public void setFromLocation(StorageContainerPosition from) {
 		setFromContainer(from.getContainer());
 		setFromDimensionOne(from.getPosOneOrdinal());
 		setFromDimensionTwo(from.getPosTwoOrdinal());
@@ -94,13 +106,21 @@ public class SpecimenTransferEvent extends SpecimenEvent {
 	public void setToDimensionTwo(Integer toDimensionTwo) {
 		this.toDimensionTwo = toDimensionTwo;
 	}
-	
-	public void setToPosition(StorageContainerPosition to) {
+
+	public Integer getToPosition() {
+		return toPosition;
+	}
+
+	public void setToPosition(Integer toPosition) {
+		this.toPosition = toPosition;
+	}
+
+	public void setToLocation(StorageContainerPosition to) {
 		setToContainer(to.getContainer());
 		setToDimensionOne(to.getPosOneOrdinal());
 		setToDimensionTwo(to.getPosTwoOrdinal());
 	}
-	
+
 	@Override
 	public Map<String, Object> getEventAttrs() {
 		Map<String, Object> eventAttrs = new HashMap<String, Object>();
@@ -108,12 +128,14 @@ public class SpecimenTransferEvent extends SpecimenEvent {
 			eventAttrs.put("fromContainer", fromContainer.getId());
 			eventAttrs.put("fromDimensionOne", fromDimensionOne);
 			eventAttrs.put("fromDimensionTwo", fromDimensionTwo);
+			eventAttrs.put("fromPosition", getPosition(fromContainer, fromDimensionOne, fromDimensionTwo));
 		}
 		
 		if (toContainer != null) {
 			eventAttrs.put("toContainer", toContainer.getId());
 			eventAttrs.put("toDimensionOne", toDimensionOne);
-			eventAttrs.put("toDimensionTwo", toDimensionTwo);			
+			eventAttrs.put("toDimensionTwo", toDimensionTwo);
+			eventAttrs.put("toPosition", getPosition(toContainer, toDimensionOne, toDimensionTwo));
 		}
 
 		return eventAttrs;
@@ -125,7 +147,8 @@ public class SpecimenTransferEvent extends SpecimenEvent {
 		if (fromContainerId != null) {
 			setFromContainer(getContainer(fromContainerId));
 			setFromDimensionOne(getInt(attrValues.get("fromDimensionOne")));
-			setFromDimensionTwo(getInt(attrValues.get("fromDimensionTwo"))); 
+			setFromDimensionTwo(getInt(attrValues.get("fromDimensionTwo")));
+			setFromPosition(getInt(attrValues.get("fromPosition")));
 		}
 		
 		Number toContainerId = (Number)attrValues.get("toContainer");
@@ -133,6 +156,7 @@ public class SpecimenTransferEvent extends SpecimenEvent {
 			setToContainer(getContainer(toContainerId));
 			setToDimensionOne(getInt(attrValues.get("toDimensionOne"))); 
 			setToDimensionTwo(getInt(attrValues.get("toDimensionTwo")));
+			setToPosition(getInt(attrValues.get("toPosition")));
 		}
 	}
 
@@ -163,5 +187,17 @@ public class SpecimenTransferEvent extends SpecimenEvent {
 	
 	private Integer getInt(Object number) {
 		return number instanceof Number ? ((Number) number).intValue() : null;
+	}
+
+	private Integer getPosition(StorageContainer container, Integer dimOne, Integer dimTwo) {
+		if (container.isDimensionless() || !isSpecified(dimOne, dimTwo)) {
+			return null;
+		}
+
+		return (dimTwo - 1) * container.getNoOfColumns() + dimOne;
+	}
+
+	private boolean isSpecified(Integer dimOne, Integer dimTwo) {
+		return dimOne != null && dimTwo != null && dimOne != 0 && dimTwo != 0;
 	}
 }

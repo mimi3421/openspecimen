@@ -221,6 +221,59 @@
     </createView>
   </changeSet>
 
+  <changeSet author="vgaikwad" id="Add position field to store position of to and from transferred container">
+    <addColumn tableName="CATISSUE_TRANSFER_EVENT_PARAM">
+      <column name="FROM_POSITION" type="${int.type}"/>
+      <column name="TO_POSITION" type="${int.type}"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="vgaikwad" id="Update to and from positions value" dbms="mysql">
+    <sql>
+      update
+        catissue_transfer_event_param te
+        inner join os_storage_containers c on c.identifier = te.to_storage_container_id
+      set
+        te.to_position = (te.to_position_dimension_two - 1) * c.no_of_cols + te.to_position_dimension_one;
+
+      update
+        catissue_transfer_event_param te
+        inner join os_storage_containers c on c.identifier = te.from_storage_container_id
+      set
+        te.from_position = (te.from_position_dimension_two - 1) * c.no_of_cols + te.from_position_dimension_one;
+    </sql>
+  </changeSet>
+
+  <changeSet author="vgaikwad" id="Update to and from positions value" dbms="oracle">
+    <sql>
+      merge into catissue_transfer_event_param te using (
+        select
+          te.identifier as eventId,
+          ((te.to_position_dimension_two - 1) * c.no_of_cols + te.to_position_dimension_one) as position
+        from
+          catissue_transfer_event_param te
+          inner join os_storage_containers c on c.identifier = te.to_storage_container_id
+      ) t0 on (t0.eventId = te.identifier)
+      when
+        matched
+      then
+        update set te.to_position = t0.position;
+
+      merge into catissue_transfer_event_param te using (
+        select
+          te.identifier as eventId,
+          ((te.from_position_dimension_two - 1) * c.no_of_cols + te.from_position_dimension_one) as position
+        from
+          catissue_transfer_event_param te
+          inner join os_storage_containers c on c.identifier = te.from_storage_container_id
+      ) t0 on (t0.eventId = te.identifier)
+      when
+        matched
+      then
+        update set te.from_position = t0.position;
+    </sql>
+  </changeSet>
+
   <changeSet author="vpawar" id="Rename bulk import operation to export import">
     <sql>
       update rbac_operations set name = 'Export Import' where name = 'Bulk Import'
