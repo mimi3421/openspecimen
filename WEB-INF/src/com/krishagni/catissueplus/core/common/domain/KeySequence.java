@@ -39,7 +39,7 @@ public class KeySequence {
 	}
 
 	public void setSequence(Long sequence) {
-		this.sequence = sequence;
+		this.sequence = (sequence == null) ? 0L : sequence;
 	}
 
 	public Long increment() {

@@ -337,6 +337,7 @@
         <bean class="com.krishagni.catissueplus.core.biospecimen.label.specimen.PpidUniqueIdLabelToken"/>
         <bean class="com.krishagni.catissueplus.core.biospecimen.label.specimen.CpPpidUniqueIdLabelToken"/>
         <bean class="com.krishagni.catissueplus.core.biospecimen.label.specimen.SpecimenCpUniqueIdToken"/>
+        <bean class="com.krishagni.catissueplus.core.biospecimen.label.specimen.ParentSpecimenCounterLabelToken"/>
         <ref bean="extnPvLabelToken"/>
       </list>
     </property>

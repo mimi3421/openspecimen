@@ -13,6 +13,12 @@ public class UniqueIdGeneratorImpl extends AbstractDao<KeySequence> implements U
 	@SuppressWarnings("unchecked")
 	@Override
 	public Long getUniqueId(String type, String id) {
+		return getUniqueId(type, id, 0L);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Long getUniqueId(String type, String id, Long defStartSeq) {
 		List<KeySequence> seqs = getCurrentSession()
 				.getNamedQuery(GET_BY_TYPE_AND_TYPE_ID)
 				.setLockMode("ks", LockMode.PESSIMISTIC_WRITE)
@@ -25,6 +31,7 @@ public class UniqueIdGeneratorImpl extends AbstractDao<KeySequence> implements U
 			seq = new KeySequence();
 			seq.setType(type);
 			seq.setTypeId(id);
+			seq.setSequence(defStartSeq);
 		} else {
 			seq = seqs.iterator().next();
 		}
@@ -33,7 +40,7 @@ public class UniqueIdGeneratorImpl extends AbstractDao<KeySequence> implements U
 		getCurrentSession().saveOrUpdate(seq);
 		return uniqueId;
 	}
-	
+
 	private static final String FQN = KeySequence.class.getName();
 	
 	private String GET_BY_TYPE_AND_TYPE_ID = FQN + ".getByTypeAndTypeId";
