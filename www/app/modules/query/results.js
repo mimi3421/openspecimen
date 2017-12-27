@@ -508,16 +508,6 @@ angular.module('os.query.results', ['os.query.models'])
       });
     };
 
-    function loadCpCatalog(cp) {
-      if (!cp.catalogQuery) {
-        Alerts.error("queries.no_catalog", cp);
-        return;
-      }
-
-      $state.go('query-results', {cpId: cp.id, queryId: cp.catalogQuery.id});
-    }
-
-
     var gridFilterPlugin = {
       init: function(scope, grid) {
         gridFilterPlugin.scope = scope;
@@ -784,19 +774,6 @@ angular.module('os.query.results', ['os.query.models'])
 
       facet.values = [{value: [min, max], selected: true}];
       $scope.toggleFacetValueSelection(facet);
-    }
-
-    $scope.switchCatalog = function(cp) {
-      if (!cp.catalogQuery) {
-        cp.getCatalogQuery().then(
-          function(query) {
-            cp.catalogQuery = query;
-            loadCpCatalog(cp);
-          }
-        );
-      } else {
-        loadCpCatalog(cp);
-      }
     }
 
     $scope.saveQuery = function() {
