@@ -588,12 +588,15 @@
             <parentKey>DP_ID</parentKey>
 
             <row>
-              <textField>
+              <dropDown>
                 <name>shortTitle</name>
                 <udn>shortTitle</udn>
                 <caption>#getMessage("specimen_order_dp_short_title")</caption>
                 <column>SHORT_TITLE</column>
-              </textField>
+                <options>
+                  <sql>select short_title from catissue_distribution_protocol where activity_status != 'Disabled' order by short_title</sql>
+                </options>
+              </dropDown>
 
               <textField>
                 <name>irbId</name>
@@ -724,13 +727,17 @@
         </row>
 
         <row>
-          <textField>
+          <dropDown>
             <name>status</name>
             <udn>status</udn>
             <caption>#getMessage("specimen_distribution_status")</caption>
             <column>STATUS</column>
-            <maxLength>255</maxLength>
-          </textField>  
+            <options>
+              <option><value>DISTRIBUTED</value></option>
+              <option><value>DISTRIBUTED_AND_CLOSED</value></option>
+              <option><value>RETURNED</value></option>
+            </options>
+          </dropDown>
         </row>
 
         <row>

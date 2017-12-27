@@ -81,12 +81,15 @@
       </textField>
     </row>
     <row>
-      <textField>
+      <dropDown>
         <name>vitalStatus</name>
         <udn>vitalStatus</udn>
         <caption>#getMessage("participant_vital_status")</caption>
         <column>VITAL_STATUS</column>
-      </textField>
+        <options>
+          <sql>select value from catissue_permissible_value where public_id = 'vital_status' order by value</sql>
+        </options>
+      </dropDown>
     </row>
     <row>
       <dropDown>

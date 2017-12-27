@@ -17,12 +17,15 @@
     </row>
 
     <row>
-      <textField>
+      <dropDown>
         <name>dpShortTitle</name>
         <udn>dpShortTitle</udn>
         <caption>#getMessage("order_dp_short_title")</caption>
         <column>DP_SHORT_TITLE</column>
-      </textField>
+        <options>
+          <sql>select short_title from catissue_distribution_protocol where activity_status != 'Disabled' order by short_title</sql>
+        </options>
+      </dropDown>
     </row>
 
     <row>
