@@ -28,6 +28,7 @@ import com.krishagni.catissueplus.core.common.errors.ErrorType;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.errors.PrintRuleConfigErrorCode;
 import com.krishagni.catissueplus.core.common.service.PvValidator;
+import com.krishagni.catissueplus.core.common.util.ConfigUtil;
 import com.krishagni.catissueplus.core.common.util.Utility;
 
 public class SpecimenLabelPrintRuleFactoryImpl implements LabelPrintRuleFactory {
@@ -90,6 +91,10 @@ public class SpecimenLabelPrintRuleFactoryImpl implements LabelPrintRuleFactory 
 			return;
 		}
 
+		if (dirPath.equals("*")) {
+			dirPath = getDefaultPrintLabelsDir();
+		}
+
 		File dir = new File(dirPath);
 		boolean dirCreated = true;
 		if (!dir.exists()) {
@@ -102,6 +107,10 @@ public class SpecimenLabelPrintRuleFactoryImpl implements LabelPrintRuleFactory 
 		}
 
 		rule.setCmdFilesDir(dirPath);
+	}
+
+	private String getDefaultPrintLabelsDir() {
+		return ConfigUtil.getInstance().getDataDir() + File.separator + "print-labels";
 	}
 
 	private void setCps(Map<String, String> input, SpecimenLabelPrintRule rule, OpenSpecimenException ose) {
