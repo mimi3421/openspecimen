@@ -497,4 +497,26 @@
       <column name="CATALOG_ID" type="${int.type}"/>
     </addColumn>
   </changeSet>
+
+  <changeSet author="vpawar" id="OPSMN-4136: Create an empty statistics table to prevent query errors">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="OS_SPECIMEN_STATS"/>
+      </not>
+    </preConditions>
+    <createTable tableName="OS_SPECIMEN_STATS">
+      <column name="SPECIMEN_ID" type="${int.type}"/>
+      <column name="COLLECTOR_ID" type="${int.type}"/>
+      <column name="COLLECTION_PROCEDURE" type="${text.type}(50)"/>
+      <column name="COLLECTION_CONTAINER" type="${text.type}(50)"/>
+      <column name="COLLECTION_TIME" type="${timestamp.type}"/>
+      <column name="RECEIVER_ID" type="${int.type}"/>
+      <column name="RECEIVED_QUALITY" type="${text.type}(255)"/>
+      <column name="RECEIVED_TIME" type="${timestamp.type}"/>
+      <column name="FROZEN_TIME" type="${timestamp.type}"/>
+      <column name="PROCESSING_TIME" type="${int.type}"/>
+      <column name="ISCHEMIA_TIME" type="${int.type}"/>
+      <column name="ALIQUOT_SEQ" type="${int.type}"/>
+    </createTable>
+  </changeSet>
 </databaseChangeLog>
