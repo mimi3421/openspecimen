@@ -450,20 +450,12 @@ public class AccessCtrlMgr {
 	
 	public boolean ensurePhiRights(CollectionProtocolRegistration cpr, Operation op) {
 		if (op == Operation.CREATE || op == Operation.UPDATE) {
-			return ensureUpdatePhiRights(cpr);
+			return ensureCprObjectRights(cpr, Operation.UPDATE);
 		} else {
-			return ensureReadCprRights(cpr);
+			return ensureCprObjectRights(cpr, Operation.READ);
 		}
 	}
 	
-	public boolean ensureUpdatePhiRights(CollectionProtocolRegistration cpr) {
-		try {
-			return ensureUpdateCprRights(cpr);
-		} catch (OpenSpecimenException ose) {
-			throw OpenSpecimenException.userError(ParticipantErrorCode.CANNOT_UPDATE_PHI, cpr.getCollectionProtocol().getShortTitle()); 
-		}
-	}
-
 	public boolean ensureReadParticipantRights(Long participantId) {
 		return ensureParticipantObjectRights(participantId, Operation.READ);
 	}
