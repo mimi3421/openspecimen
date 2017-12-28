@@ -521,6 +521,17 @@ angular.module('os.biospecimen.participant',
         },
         parent: 'participant-detail'
       })
+      .state('participant-detail.specimens', {
+        url: '/specimens',
+        templateUrl: 'modules/biospecimen/participant/reg-specimens.html',
+        controller: 'RegSpecimensCtrl',
+        resolve: {
+          specimens: function(cpr, Specimen) {
+            return Specimen.listFor(cpr.id);
+          }
+        },
+        parent: 'participant-detail'
+      })
       .state('participant-detail.collect-specimens', {
         url: '/collect-specimens?visitId&eventId',
         templateUrl: 'modules/biospecimen/participant/collect-specimens.html',

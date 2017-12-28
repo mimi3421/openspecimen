@@ -492,6 +492,7 @@
       "overview": "Overview",
       "consents": "Consents",
       "visits": "Visits",
+      "specimens": "Specimens",
       "extensions": "Forms"
     },
 
@@ -778,7 +779,8 @@
       "children_created_on_lt_parent": "Created on time of children less than that of parent specimen {{parentLabel}}",
       "children_created_on_gt_curr_time": "Created on time of {{parentLabel}}'s children greater than current time",
       "aliquot_label_mismatch": "There is a mismatch in number of specified labels and aliquots",
-      "visit_not_completed": "Please complete the visit before collecting unplanned specimen"
+      "visit_not_completed": "Please complete the visit before collecting unplanned specimen",
+      "select_same_visit_spmns": "Please select specimens of same visit"
     },
 
     "bulk_update": "Bulk Update Specimens",

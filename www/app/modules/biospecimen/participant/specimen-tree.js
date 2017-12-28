@@ -5,9 +5,9 @@ angular.module('os.biospecimen.participant.specimen-tree',
     'os.biospecimen.participant.collect-specimens',
   ])
   .directive('osSpecimenTree', function(
-    $state, $stateParams, $modal, $timeout, $rootScope, $q,
-    CollectSpecimensSvc, Specimen, SpecimenLabelPrinter, SpecimensHolder, DistributionOrder, DistributionProtocol,
-    Alerts, Util, DeleteUtil, SpecimenUtil) {
+    $state, $stateParams, $modal, $timeout, $rootScope, $q, $injector,
+    CpConfigSvc, CollectSpecimensSvc, Visit, Specimen, SpecimenLabelPrinter, SpecimensHolder,
+    DistributionOrder, DistributionProtocol, Alerts, Util, DeleteUtil, SpecimenUtil) {
 
     var allowedDps = undefined;
 
@@ -248,6 +248,49 @@ angular.module('os.biospecimen.participant.specimen-tree',
       );
     }
 
+    function initSdeTreeFields(scope) {
+      var fieldsSvc = $injector.get('sdeFieldsSvc');
+
+      var cpDictQ = CpConfigSvc.getDictionary(scope.cp.id, []);
+      var fieldsQ = CpConfigSvc.getWorkflowData(scope.cp.id, 'specimenTree', []);
+      $q.all([cpDictQ, fieldsQ]).then(
+        function(resps) {
+          scope.dispTree = true;
+
+          var cpDict = resps[0] || [];
+          var fields = (resps[1] && resps[1].fields) || [];
+          scope.fields = fieldsSvc.commonFns().overrideFields(cpDict, fields);
+          if (fields.length == 0) {
+            return;
+          }
+
+          angular.forEach(scope.specimens,
+            function(specimen) {
+              var obj = {specimen: specimen};
+              specimen.$$treeFields = fields.map(
+                function(field) {
+                  var result = {type: field.type, value: undefined};
+                  if (field.type == 'specimen-desc') {
+                    return result;
+                  }
+
+                  $q.when(fieldsSvc.commonFns().getValue({field: field}, obj)).then(
+                    function(value) {
+                      result.value = value;
+                    }
+                  );
+
+                  return result;
+                }
+              );
+            }
+          );
+
+          scope.hasDict = true;
+        }
+      );
+    }
+
     return {
       restrict: 'E',
 
@@ -265,6 +308,17 @@ angular.module('os.biospecimen.participant.specimen-tree',
       templateUrl: 'modules/biospecimen/participant/specimens.html',
 
       link: function(scope, element, attrs) {
+
+        scope.hasDict = false;
+        scope.dispTree = false;
+        scope.fields = [];
+
+        if ($injector.has('sdeFieldsSvc')) {
+          initSdeTreeFields(scope);
+        } else {
+          scope.dispTree = true;
+        }
+
         scope.view = 'list';
         scope.parentSpecimen = undefined;
 
@@ -272,7 +326,6 @@ angular.module('os.biospecimen.participant.specimen-tree',
         scope.onlyPendingSpmns = onlyPendingSpmns(scope.specimenTree);
         scope.anyPendingSpmns  = anyPendingSpmnsInTree(scope.specimenTree);
         initAllowDistribution(scope);
-
 
         scope.specimens = Specimen.flatten(scope.specimenTree);
         openSpecimenTree(scope.specimens);
@@ -343,7 +396,28 @@ angular.module('os.biospecimen.participant.specimen-tree',
             return;
           }
 
-          CollectSpecimensSvc.collect(getState(), scope.visit, specimensToCollect);
+          var visit = scope.visit;
+          if (!visit) {
+            var eventId = undefined, visitId = undefined, error = false;
+            for (var i = 0; i < specimensToCollect.length; ++i) {
+              if (i == 0) {
+                eventId = specimensToCollect[i].eventId;
+                visitId = specimensToCollect[i].visitId;
+              } else if (eventId != specimensToCollect[i].eventId || visitId != specimensToCollect[i].visitId) {
+                error = true;
+                break;
+              }
+            }
+
+            if (error) {
+              Alerts.error('specimens.errors.select_same_visit_spmns');
+              return;
+            }
+
+            visit = new Visit({id: visitId, eventId: eventId, cpId: scope.cp.id});
+          }
+
+          CollectSpecimensSvc.collect(getState(), visit, specimensToCollect);
         };
 
         scope.printSpecimenLabels = function() {
@@ -540,6 +614,10 @@ angular.module('os.biospecimen.participant.specimen-tree',
                     $timeout(function() {
                       scope.specimens = Specimen.flatten(scope.specimenTree);
                       openSpecimenTree(scope.specimens);
+
+                      if ($injector.has('sdeFieldsSvc')) {
+                        initSdeTreeFields(scope);
+                      }
                     });
                   }
                 );

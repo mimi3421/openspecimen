@@ -9,6 +9,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -476,8 +477,8 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 			AccessCtrlMgr.getInstance().ensureReadSpecimenRights(cpr, false);
 
 			List<SpecimenDetail> specimens = Collections.emptyList();			
-			if (crit.getVisitId() != null) {
-				specimens = getSpecimensByVisit(crit.getCprId(), crit.getVisitId());
+			if (crit.getVisitId() != null || crit.getEventId() == null) {
+				specimens = getSpecimensByVisit(cpr, crit.getVisitId());
 				checkDistributedSpecimens(specimens);
 			} else if (crit.getEventId() != null) {
 				specimens = getAnticipatedSpecimens(crit.getCprId(), crit.getEventId());
@@ -887,12 +888,44 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 		}
 	}
 		
-	private List<SpecimenDetail> getSpecimensByVisit(Long cprId, Long visitId) {
-		Visit visit = daoFactory.getVisitsDao().getById(visitId);
-		if (visit == null) {
-			throw OpenSpecimenException.userError(VisitErrorCode.NOT_FOUND);
+	private List<SpecimenDetail> getSpecimensByVisit(CollectionProtocolRegistration cpr, Long visitId) {
+		if (visitId != null) {
+			Visit visit = daoFactory.getVisitsDao().getById(visitId);
+			if (visit == null || !visit.getRegistration().equals(cpr)) {
+				throw OpenSpecimenException.userError(VisitErrorCode.NOT_FOUND);
+			}
+
+			return getSpecimensByVisit(visit);
+		} else {
+			return getSpecimensByCpr(cpr);
 		}
-		
+	}
+
+	private List<SpecimenDetail> getSpecimensByCpr(CollectionProtocolRegistration cpr) {
+		Map<Long, CollectionProtocolEvent> eventsMap = cpr.getCollectionProtocol().getOrderedCpeList().stream()
+			.collect(Collectors.toMap(
+				CollectionProtocolEvent::getId,
+				Function.identity(),
+				(u, v) -> { throw new IllegalStateException(String.format("Duplicate key %s", u)); },
+				LinkedHashMap::new));
+
+		List<SpecimenDetail> specimens = new ArrayList<>();
+		for (Visit visit : cpr.getOrderedVisits()) {
+			if (visit.isPlanned()) {
+				eventsMap.remove(visit.getCpEvent().getId());
+			}
+
+			specimens.addAll(getSpecimensByVisit(visit));
+		}
+
+		for (CollectionProtocolEvent cpe : eventsMap.values()) {
+			specimens.addAll(getAnticipatedSpecimens(cpe));
+		}
+
+		return specimens;
+	}
+
+	private List<SpecimenDetail> getSpecimensByVisit(Visit visit) {
 		Set<SpecimenRequirement> anticipatedSpecimens = visit.isUnplanned() ? Collections.EMPTY_SET : visit.getCpEvent().getTopLevelAnticipatedSpecimens();
 		Set<Specimen> specimens = visit.getTopLevelSpecimens();
 
@@ -904,9 +937,13 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 		if (cpe == null) {
 			throw OpenSpecimenException.userError(CpeErrorCode.NOT_FOUND, eventId, 1);
 		}
-		
+
+		return getAnticipatedSpecimens(cpe);
+	}
+
+	private List<SpecimenDetail> getAnticipatedSpecimens(CollectionProtocolEvent cpe) {
 		Set<SpecimenRequirement> anticipatedSpecimens = cpe.getTopLevelAnticipatedSpecimens();
-		return SpecimenDetail.getSpecimens(anticipatedSpecimens, Collections.<Specimen>emptySet());		
+		return SpecimenDetail.getSpecimens(anticipatedSpecimens, Collections.emptySet());
 	}
 	
 	private CollectionProtocolRegistration getCpr(Long cprId, Long cpId, String ppid) {
