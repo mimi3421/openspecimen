@@ -197,7 +197,7 @@ public class UserFactoryImpl implements UserFactory {
 	}
 
 	private void ensurePrimarySiteBelongsToInstitute(Site primarySite, Institute institute, OpenSpecimenException ose) {
-		if (!primarySite.getInstitute().equals(institute)) {
+		if (institute != null && !primarySite.getInstitute().equals(institute)) {
 			ose.addError(SiteErrorCode.INVALID_SITE_INSTITUTE, primarySite.getName(), institute.getName());
 		}
 	}
