@@ -3,6 +3,7 @@ package com.krishagni.catissueplus.core.biospecimen.label.specimen;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
@@ -26,16 +27,20 @@ public class ParentSpecimenCounterLabelToken extends AbstractSpecimenLabelToken 
 		String parentLabel = specimen.getParentSpecimen().getLabel();
 		Matcher matcher = LAST_DIGIT_PATTERN.matcher(parentLabel);
 
-		Long counter = 0L;
+		String counter = "0";
 		int matchIdx = parentLabel.length();
 		if (matcher.find()) {
-			counter = Long.parseLong(matcher.group(0));
+			counter = matcher.group(0);
 			matchIdx = matcher.start(0);
 		}
 
 		String pidStr = specimen.getParentSpecimen().getId().toString();
-		Long uniqueId = daoFactory.getUniqueIdGenerator().getUniqueId(name, pidStr, counter);
-		return parentLabel.substring(0, matchIdx) + uniqueId.toString();
+		String uniqueId = daoFactory.getUniqueIdGenerator().getUniqueId(name, pidStr, Long.parseLong(counter)).toString();
+		if (uniqueId.length() < counter.length()) {
+			uniqueId = StringUtils.leftPad(uniqueId, counter.length(), "0");
+		}
+
+		return parentLabel.substring(0, matchIdx) + uniqueId;
 	}
 
 	private final static Pattern LAST_DIGIT_PATTERN = Pattern.compile("([0-9]+)$");
