@@ -519,4 +519,26 @@
       <column name="ALIQUOT_SEQ" type="${int.type}"/>
     </createTable>
   </changeSet>
+
+  <changeSet author="vpawar" id="Increase the width of export job params value column" dbms="mysql">
+    <modifyDataType tableName="OS_EXPORT_JOB_PARAMS" columnName="VALUE" newDataType="${clob.type}"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Increase the width of export job params value column - 1" dbms="oracle">
+    <addColumn tableName="OS_EXPORT_JOB_PARAMS">
+      <column name="VALUE_TEMP" type="${clob.type}"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Increase the width of export job params value column - 2" dbms="oracle">
+    <sql>update os_export_job_params set value_temp = value, value = null;</sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Increase the width of export job params value column - 3" dbms="oracle">
+    <dropColumn tableName="OS_EXPORT_JOB_PARAMS" columnName="VALUE"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Increase the width of export job params value column - 4" dbms="oracle">
+    <renameColumn tableName="OS_EXPORT_JOB_PARAMS" oldColumnName="VALUE_TEMP" newColumnName="VALUE"/>
+  </changeSet>
 </databaseChangeLog>
