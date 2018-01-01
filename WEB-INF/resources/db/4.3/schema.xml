@@ -531,7 +531,7 @@
   </changeSet>
 
   <changeSet author="vpawar" id="Increase the width of export job params value column - 2" dbms="oracle">
-    <sql>update os_export_job_params set value_temp = value, value = null;</sql>
+    <sql>update os_export_job_params set value_temp = value;</sql>
   </changeSet>
 
   <changeSet author="vpawar" id="Increase the width of export job params value column - 3" dbms="oracle">

@@ -813,7 +813,7 @@ public class AccessCtrlMgr {
 
 	public void ensureSpecimenStoreRights(StorageContainer container, OpenSpecimenException result) {
 		try {
-			ensureReadContainerRights(container);
+			ensureStorageContainerObjectRights(container, Operation.READ);
 		} catch (OpenSpecimenException ose) {
 			boolean throwError = false;
 			if (result == null) {
