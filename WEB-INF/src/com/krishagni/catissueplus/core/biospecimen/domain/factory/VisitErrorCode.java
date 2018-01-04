@@ -48,7 +48,9 @@ public enum VisitErrorCode implements ErrorCode {
 
 	NO_VISITS_TO_PRINT,
 
-	PRINT_ERROR;
+	PRINT_ERROR,
+
+	INVALID_LOOKUP_FLOW;
 	
 	public String code() {
 		return "VISIT_" + this.name();

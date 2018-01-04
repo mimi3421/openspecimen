@@ -36,6 +36,14 @@ public class StagedParticipantDaoImpl extends AbstractDao<StagedParticipant> imp
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
+	public List<StagedParticipant> getByMrn(String mrn) {
+		return getCurrentSession().getNamedQuery(GET_BY_MRN)
+			.setParameter("mrn", mrn.toLowerCase())
+			.list();
+	}
+
+	@Override
 	public boolean cleanupOldParticipants(int olderThanDays) {
 		Date olderThanDt = Date.from(Instant.now().minus(Duration.ofDays(olderThanDays)));
 		int executed = getCurrentSession().getNamedQuery(DELETE_OLD_PARTICIPANTS)
@@ -68,6 +76,8 @@ public class StagedParticipantDaoImpl extends AbstractDao<StagedParticipant> imp
 	private static final String FQN = StagedParticipant.class.getName();
 
 	private static final String GET_BY_EMPI = FQN + ".getByEmpi";
+
+	private static final String GET_BY_MRN = FQN + ".getByMrn";
 
 	private static final String DELETE_OLD_PARTICIPANTS = FQN + ".deleteOldParticipants";
 }

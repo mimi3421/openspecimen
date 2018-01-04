@@ -150,6 +150,15 @@
     <property name="messageSource" ref="messageSource"/>
   </bean>
 
+  <bean id="defVisitsLookup" class="com.krishagni.catissueplus.core.biospecimen.matching.DefaultVisitsLookup">
+    <property name="daoFactory" ref="biospecimenDaoFactory"/>
+  </bean>
+
+  <bean id="stagedVisitsLookup" class="com.krishagni.catissueplus.core.biospecimen.matching.StagedVisitsDbLookup">
+    <property name="daoFactory" ref="biospecimenDaoFactory"/>
+    <property name="osVisitsLookup" ref="defVisitsLookup"/>
+  </bean>
+
   <bean id="visitService" class="com.krishagni.catissueplus.core.biospecimen.services.impl.VisitServiceImpl">
     <property name="daoFactory" ref="biospecimenDaoFactory"/>
     <property name="visitFactory" ref="visitFactory"/>
@@ -157,6 +166,7 @@
     <property name="cfgSvc" ref="cfgSvc"/>
     <property name="visitNameGenerator" ref="visitNameGenerator"/>
     <property name="sprText2PdfGenerator" ref="sprText2PdfGenerator"/>
+    <property name="defaultVisitsLookup" ref="defVisitsLookup"/>
     <property name="exportSvc" ref="exportSvc"/>
   </bean>
 

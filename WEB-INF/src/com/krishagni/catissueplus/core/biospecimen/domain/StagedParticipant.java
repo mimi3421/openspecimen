@@ -3,7 +3,6 @@ package com.krishagni.catissueplus.core.biospecimen.domain;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 public class StagedParticipant extends Participant {
@@ -11,6 +10,8 @@ public class StagedParticipant extends Participant {
 	private Date updatedTime;
 	
 	private Set<StagedParticipantMedicalIdentifier> pmiList = new HashSet<>();
+
+	private Set<StagedVisit> visits = new HashSet<>();
 
 	public Long getId() {
 		return id;
@@ -36,6 +37,14 @@ public class StagedParticipant extends Participant {
 		this.pmiList = pmiList;
 	}
 
+	public Set<StagedVisit> getVisits() {
+		return visits;
+	}
+
+	public void setVisits(Set<StagedVisit> visits) {
+		this.visits = visits;
+	}
+
 	public void update(StagedParticipant participant) {
 		super.update(participant);
 		setUpdatedTime(participant.getUpdatedTime());
@@ -56,25 +65,10 @@ public class StagedParticipant extends Participant {
 			}
 		}
 
-		Iterator<StagedParticipantMedicalIdentifier> iter = getPmiList().iterator();
-		while (iter.hasNext()) {
-			StagedParticipantMedicalIdentifier existing = iter.next();
-			if (getPmiBySite(participant.getPmiList(), existing.getSite()) == null) {
-				iter.remove();
-			}
-		}
+		getPmiList().removeIf(pmi -> (getPmiBySite(participant.getPmiList(), pmi.getSite()) == null));
 	}
 
 	private StagedParticipantMedicalIdentifier getPmiBySite(Collection<StagedParticipantMedicalIdentifier> pmis, String siteName) {
-		StagedParticipantMedicalIdentifier result = null;
-
-		for (StagedParticipantMedicalIdentifier pmi : pmis) {
-			if (pmi.getSite().equals(siteName)) {
-				result = pmi;
-				break;
-			}
-		}
-
-		return result;
+		return pmis.stream().filter(pmi -> pmi.getSite().equals(siteName)).findFirst().orElse(null);
 	}
 }

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+  http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+  <changeSet author="vpawar" id="Staged visits">
+    <createTable tableName="OS_STAGED_VISITS">
+      <column name="IDENTIFIER" type="${int.type}" autoIncrement="${autoIncrement}">
+        <constraints nullable="false" primaryKey="true"/>  
+      </column>
+      <column name="NAME" type="${text.type}(255)"/>
+      <column name="CLINICAL_STATUS" type="${text.type}(50)"/>
+      <column name="COLLECTION_STATUS" type="${text.type}(50)"/>
+      <column name="COLLECTION_TIMESTAMP" type="${nullable.ts.type}"/>
+      <column name="SURGICAL_PATHOLOGY_NUMBER" type="${text.type}(50)"/>
+      <column name="COMMENTS" type="${text.type}(1024)"/>
+      <column name="MISSED_REASON" type="${text.type}(255)"/>
+      <column name="EVENT_LABEL" type="${text.type}(255)"/>
+      <column name="COLLECTION_SITE" type="${text.type}(255)"/>
+      <column name="COHORT" type="${text.type}(64)"/>
+      <column name="ACTIVITY_STATUS" type="${text.type}(16)"/>
+      <column name="PARTICIPANT_ID" type="${int.type}"/>
+    </createTable>
+  </changeSet>
+    
+  <changeSet author="vpawar" id="Staged visits identifier sequence" dbms="oracle">
+    <createSequence sequenceName="OS_STAGED_VISITS_SEQ" startValue="1" incrementBy="1" ordered="true"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Foreign key on staged visit's participant ID">
+    <addForeignKeyConstraint constraintName="FK_STAGED_VISITS_PARTICIPANT"
+      baseTableName="OS_STAGED_VISITS" baseColumnNames="PARTICIPANT_ID"
+      referencedTableName="OS_STAGED_PARTICIPANTS" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Staged visits clinical diagnoses">
+    <createTable tableName="OS_STAGED_VISIT_DIAGNOSES">
+      <column name="VISIT_ID" type="${int.type}">
+        <constraints nullable="false"/>  
+      </column>
+        
+      <column name="CLINICAL_DIAGNOSIS" type="${text.type}(255)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Foreign key on staged diagnoses visit">
+    <addForeignKeyConstraint constraintName="FK_STAGED_VISITS_DIAG"
+      baseTableName="OS_STAGED_VISIT_DIAGNOSES" baseColumnNames="VISIT_ID"
+      referencedTableName="OS_STAGED_VISITS" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+</databaseChangeLog>

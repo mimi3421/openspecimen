@@ -44,6 +44,8 @@ public interface DaoFactory {
 
 	VisitsDao getVisitsDao();
 
+	StagedVisitDao getStagedVisitDao();
+
 	UserDao getUserDao();
 	
 	AuthDao getAuthDao();

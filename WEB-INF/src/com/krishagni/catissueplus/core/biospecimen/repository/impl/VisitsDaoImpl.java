@@ -202,6 +202,23 @@ public class VisitsDaoImpl extends AbstractDao<Visit> implements VisitsDao {
 		return visits.isEmpty() ? null :  visits.get(0);
 	}
 
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<Visit> getByEmpiOrMrn(Long cpId, String empiOrMrn) {
+		return getCurrentSession().getNamedQuery(GET_BY_EMPI_OR_MRN)
+			.setParameter("cpId", cpId)
+			.setParameter("empiOrMrn", empiOrMrn.toLowerCase())
+			.list();
+	}
+
+	@Override
+	public Visit getBySpr(Long cpId, String sprNumber) {
+		return (Visit) getCurrentSession().getNamedQuery(GET_BY_CP_SPR)
+			.setParameter("cpId", cpId)
+			.setParameter("sprNo", sprNumber.toLowerCase())
+			.uniqueResult();
+	}
+
 	@SuppressWarnings("unchecked")
 	private void loadCreatedVisitStats(Map<Long, VisitSummary> visitsMap) {
 		List<Object[]> rows = getCurrentSession().getNamedQuery(GET_VISIT_STATS)
@@ -298,5 +315,9 @@ public class VisitsDaoImpl extends AbstractDao<Visit> implements VisitsDao {
 	private static final String GET_VISIT_BY_SPR = FQN + ".getVisitBySpr";
 
 	private static final String GET_LATEST_VISIT_BY_CPR_ID = FQN + ".getLatestVisitByCprId";
+
+	private static final String GET_BY_EMPI_OR_MRN = FQN + ".getVisitsByEmpiOrMrn";
+
+	private static final String GET_BY_CP_SPR = FQN + ".getVisitByCpAndSprNo";
 }
 

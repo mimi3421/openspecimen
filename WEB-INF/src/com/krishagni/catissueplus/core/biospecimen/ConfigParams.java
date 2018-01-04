@@ -65,6 +65,8 @@ public class ConfigParams {
 
 	public static final String ENABLE_SPMN_BARCODING     = "enable_spmn_barcoding";
 
+	public static final String VISITS_LOOKUP_FLOW        = "visits_lookup_flow";
+
 	public static String getConsentsDirPath() {
 		String path = ConfigUtil.getInstance().getStrSetting(MODULE, CONSENTS_DIR, null);
 		if (StringUtils.isBlank(path)) {

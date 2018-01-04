@@ -52,12 +52,27 @@
       <key column="PARTICIPANT_ID" />
       <element column="ETHNICITY" type="string" />
     </set>
+
+    <set name="visits" table="OS_STAGED_VISITS" inverse="true" cascade="all-delete-orphan">
+      <key column="PARTICIPANT_ID"/>
+      <one-to-many class="com.krishagni.catissueplus.core.biospecimen.domain.StagedVisit"/>
+    </set>
     
     <query name="getByEmpi">
       from
         com.krishagni.catissueplus.core.biospecimen.domain.StagedParticipant p
       where
         lower(p.empi) = :empi
+    </query>
+
+    <query name="getByMrn">
+      select
+        p
+      from
+        com.krishagni.catissueplus.core.biospecimen.domain.StagedParticipant p
+        join p.pmiList pmi
+      where
+        lower(pmi.medicalRecordNumber) = :mrn
     </query>
 
     <query name="deleteOldParticipants">

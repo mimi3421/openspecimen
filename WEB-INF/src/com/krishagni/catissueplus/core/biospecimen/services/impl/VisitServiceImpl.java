@@ -15,6 +15,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.InitializingBean;
 
 import com.krishagni.catissueplus.core.biospecimen.ConfigParams;
@@ -28,12 +29,15 @@ import com.krishagni.catissueplus.core.biospecimen.events.CpEntityDeleteCriteria
 import com.krishagni.catissueplus.core.biospecimen.events.FileDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.FileDownloadDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.LabelPrintJobSummary;
+import com.krishagni.catissueplus.core.biospecimen.events.MatchedVisitDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.PrintVisitNameDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.SprDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.SprLockDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.VisitDetail;
+import com.krishagni.catissueplus.core.biospecimen.events.VisitSearchDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.VisitSpecimenDetail;
+import com.krishagni.catissueplus.core.biospecimen.matching.VisitsLookup;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.biospecimen.repository.SpecimenListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.repository.VisitsListCriteria;
@@ -65,7 +69,9 @@ import com.krishagni.catissueplus.core.exporter.services.ExportService;
 import com.krishagni.rbac.common.errors.RbacErrorCode;
 
 public class VisitServiceImpl implements VisitService, ObjectAccessor, InitializingBean {
-	private Log logger = LogFactory.getLog(VisitServiceImpl.class);
+	private static final Log logger = LogFactory.getLog(VisitServiceImpl.class);
+
+	private static String defaultVisitSprDir;
 
 	private DaoFactory daoFactory;
 
@@ -78,8 +84,10 @@ public class VisitServiceImpl implements VisitService, ObjectAccessor, Initializ
 	private LabelGenerator visitNameGenerator;
 	
 	private SprPdfGenerator sprText2PdfGenerator;
-	
-	private static String defaultVisitSprDir;
+
+	private VisitsLookup defaultVisitsLookup;
+
+	private VisitsLookup visitsLookup;
 
 	private ExportService exportSvc;
 
@@ -105,6 +113,10 @@ public class VisitServiceImpl implements VisitService, ObjectAccessor, Initializ
 	
 	public void setSprText2PdfGenerator(SprPdfGenerator sprText2PdfGenerator) {
 		this.sprText2PdfGenerator = sprText2PdfGenerator;
+	}
+
+	public void setDefaultVisitsLookup(VisitsLookup defaultVisitsLookup) {
+		this.defaultVisitsLookup = defaultVisitsLookup;
 	}
 
 	public void setExportSvc(ExportService exportSvc) {
@@ -440,7 +452,19 @@ public class VisitServiceImpl implements VisitService, ObjectAccessor, Initializ
 		visit.setSprLocked(detail.isLocked());
 		return ResponseEvent.response(detail);
 	}
-	
+
+	@Override
+	@PlusTransactional
+	public ResponseEvent<List<MatchedVisitDetail>> getMatchingVisits(RequestEvent<VisitSearchDetail> req) {
+		try {
+			return ResponseEvent.response(getVisitsLookup().getVisits(req.getPayload()));
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
+		} catch (Exception e) {
+			return ResponseEvent.serverError(e);
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public LabelPrinter<Visit> getLabelPrinter() {
@@ -513,6 +537,7 @@ public class VisitServiceImpl implements VisitService, ObjectAccessor, Initializ
 
 	@Override
 	public void afterPropertiesSet() {
+		cfgSvc.registerChangeListener(ConfigParams.MODULE, (name, value) -> { visitsLookup = null; });
 		exportSvc.registerObjectsGenerator("visit", this::getVisitsGenerator);
 	}
 
@@ -523,7 +548,7 @@ public class VisitServiceImpl implements VisitService, ObjectAccessor, Initializ
 			AccessCtrlMgr.getInstance().ensureCreateOrUpdateVisitRights(existing);
 		}
 
-		Visit visit = null;
+		Visit visit;
 		if (partial) {
 			visit = visitFactory.createVisit(existing, input);
 		} else {
@@ -776,6 +801,46 @@ public class VisitServiceImpl implements VisitService, ObjectAccessor, Initializ
 		if (visit.getCollectionProtocol().isSpecimenCentric()) {
 			throw OpenSpecimenException.userError(CpErrorCode.OP_NOT_ALLOWED_SC, visit.getCollectionProtocol().getShortTitle());
 		}
+	}
+
+	private VisitsLookup getVisitsLookup() {
+		if (visitsLookup == null) {
+			initVisitsLookup(ConfigUtil.getInstance().getStrSetting(ConfigParams.MODULE, ConfigParams.VISITS_LOOKUP_FLOW, null));
+		}
+
+		return visitsLookup;
+	}
+
+	private void initVisitsLookup(String lookupFlow) {
+		if (StringUtils.isBlank(lookupFlow)) {
+			visitsLookup = defaultVisitsLookup;
+			return;
+		}
+
+		VisitsLookup result = null;
+		try {
+			lookupFlow = lookupFlow.trim();
+			if (lookupFlow.startsWith("bean:")) {
+				result = OpenSpecimenAppCtxProvider.getBean(lookupFlow.substring("bean:".length()).trim());
+			} else {
+				String className = lookupFlow;
+				if (lookupFlow.startsWith("class:")) {
+					className = lookupFlow.substring("class:".length()).trim();
+				}
+
+
+				Class<VisitsLookup> klass = (Class<VisitsLookup>) Class.forName(className);
+				result = BeanUtils.instantiate(klass);
+			}
+		} catch (Exception e) {
+			logger.error("Invalid visits lookup flow configuration setting: " + lookupFlow, e);
+		}
+
+		if (result == null) {
+			throw OpenSpecimenException.userError(VisitErrorCode.INVALID_LOOKUP_FLOW, lookupFlow);
+		}
+
+		visitsLookup = result;
 	}
 
 	private Function<ExportJob, List<? extends Object>> getVisitsGenerator() {

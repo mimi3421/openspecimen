@@ -456,9 +456,9 @@ public class Visit extends BaseExtensionEntity {
 	}
 
 	public void createPendingSpecimens() {
-		if (CollectionUtils.isNotEmpty(getSpecimens())) {
+		if (CollectionUtils.isNotEmpty(getSpecimens()) || getCpEvent() == null) {
 			//
-			// We quit if there is at least one specimen object created for visit
+			// We quit if there is at least one specimen object created for visit or the visit is unplanned
 			//
 			return;
 		}

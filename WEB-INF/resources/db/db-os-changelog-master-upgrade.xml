@@ -86,4 +86,7 @@
   <include file="db/4.3/schema.xml"/>
   <include file="db/4.3/config.xml"/>
   <include file="db/4.3/audit.xml"/>
+
+  <include file="db/5.0/schema.xml"/>
+  <include file="db/5.0/config.xml"/>
 </databaseChangeLog>

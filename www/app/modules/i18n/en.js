@@ -2342,6 +2342,8 @@
         "extract_spr_text_desc": "Enable or disable extraction of text content from SPR PDF documents",
         "participant_lookup_flow": "Participants Lookup Workflow",
         "participant_lookup_flow_desc": "Spring bean name or fully qualified name of class implementing customised matching participants lookup workflow. For example: bean: customisedLookup or class: com.krishagni.openspecimen.plugins.CustomisedLookup",
+        "visits_lookup_flow": "Visits Lookup Workflow",
+        "visits_lookup_flow_desc": "Spring bean name or fully qualified name of class implementing customised visits lookup workflow. For example: bean: customisedVisitsLookup or class: com.krishagni.openspecimen.plugins.CustomisedVisitsLookup",
         "enable_spmn_barcoding": "Specimen Barcoding",
         "enable_spmn_barcoding_desc": "Enable or disable barcoding support for Specimen",
         "rel_sorting_max_spmns": "Specimens Sorting by Relationship Limit",

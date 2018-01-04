@@ -25,4 +25,8 @@ public interface VisitsDao extends Dao<Visit> {
 	Map<String, Object> getCprVisitIds(String key, Object value);
 
 	Visit getLatestVisit(Long cprId);
+
+	List<Visit> getByEmpiOrMrn(Long cpId, String empiOrMrn);
+
+	Visit getBySpr(Long cpId, String sprNumber);
 }
