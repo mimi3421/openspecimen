@@ -44,6 +44,12 @@ angular.module('os.administrative.form.entities', ['os.common'])
       allCps: true, multipleRecs: false
     });
 
+    list.addItem({
+      name: 'DpRequirementExtension',
+      caption: '', key: 'entities.dp_req_extension',
+      allCps: true, multipleRecs: false
+    });
+
     return {
       getEntities: list.getItems,
 

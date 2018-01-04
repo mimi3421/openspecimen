@@ -47,54 +47,74 @@ public class DistributionProtocolFactoryImpl implements DistributionProtocolFact
 
 	@Override
 	public DistributionProtocol createDistributionProtocol(DistributionProtocolDetail detail) {
-		DistributionProtocol distributionProtocol = new DistributionProtocol();
+		return createDistributionProtocol(null, detail);
+	}
+
+	@Override
+	public DistributionProtocol createDistributionProtocol(DistributionProtocol existing, DistributionProtocolDetail detail) {
+		DistributionProtocol dp = new DistributionProtocol();
 		OpenSpecimenException ose = new OpenSpecimenException(ErrorType.USER_ERROR);
-		
-		distributionProtocol.setId(detail.getId());
-		setTitle(detail, distributionProtocol, ose);
-		setShortTitle(detail, distributionProtocol, ose);
-		setInstitute(detail, distributionProtocol, ose);
-		setDefReceivingSite(detail, distributionProtocol, ose);
-		setPrincipalInvestigator(detail, distributionProtocol, ose);
-		setCoordinators(detail, distributionProtocol, ose);
-		setIrbId(detail, distributionProtocol, ose);
-		setStartDate(detail, distributionProtocol);
-		setEndDate(detail, distributionProtocol);
-		setActivityStatus(detail, distributionProtocol, ose);
-		setReport(detail, distributionProtocol, ose);
-		setDistributingSites(detail, distributionProtocol, ose);
-		setExtension(detail, distributionProtocol, ose);
+
+		dp.setId(detail.getId());
+		setTitle(detail, existing, dp, ose);
+		setShortTitle(detail, existing, dp, ose);
+		setInstitute(detail, existing, dp, ose);
+		setDefReceivingSite(detail, existing, dp, ose);
+		setPrincipalInvestigator(detail, existing, dp, ose);
+		setCoordinators(detail, existing, dp, ose);
+		setIrbId(detail, existing, dp, ose);
+		setStartDate(detail, existing, dp);
+		setEndDate(detail, existing, dp);
+		setActivityStatus(detail, existing, dp, ose);
+		setReport(detail, existing, dp, ose);
+		setDistributingSites(detail, existing, dp, ose);
+		setExtension(detail, existing, dp, ose);
 
 		ose.checkAndThrow();
-		return distributionProtocol;
+		return dp;
 	}
-	
-	private void setTitle(DistributionProtocolDetail detail, DistributionProtocol distributionProtocol, OpenSpecimenException ose) {
+
+	private void setTitle(DistributionProtocolDetail detail, DistributionProtocol existing, DistributionProtocol dp, OpenSpecimenException ose) {
+		if (existing == null || detail.isAttrModified("title")) {
+			setTitle(detail, dp, ose);
+		} else {
+			dp.setTitle(existing.getTitle());
+		}
+	}
+
+	private void setTitle(DistributionProtocolDetail detail, DistributionProtocol dp, OpenSpecimenException ose) {
 		if (StringUtils.isBlank(detail.getTitle())) {
 			ose.addError(DistributionProtocolErrorCode.TITLE_REQUIRED);
 			return;
 		}
-		distributionProtocol.setTitle(detail.getTitle());
-
+		dp.setTitle(detail.getTitle());
 	}
 
-	private void setShortTitle(DistributionProtocolDetail detail, DistributionProtocol distributionProtocol, OpenSpecimenException ose) {
+	private void setShortTitle(DistributionProtocolDetail detail, DistributionProtocol existing, DistributionProtocol dp, OpenSpecimenException ose) {
+		if (existing == null || detail.isAttrModified("shortTitle")) {
+			setShortTitle(detail, dp, ose);
+		} else {
+			dp.setShortTitle(existing.getShortTitle());
+		}
+	}
+
+	private void setShortTitle(DistributionProtocolDetail detail, DistributionProtocol dp, OpenSpecimenException ose) {
 		if (StringUtils.isBlank(detail.getShortTitle())) {
 			ose.addError(DistributionProtocolErrorCode.SHORT_TITLE_REQUIRED);
 			return;
 		}
-		distributionProtocol.setShortTitle(detail.getShortTitle());
+		dp.setShortTitle(detail.getShortTitle());
 	}
 	
-	private void setStartDate(DistributionProtocolDetail detail, DistributionProtocol distributionProtocol) {
-		distributionProtocol.setStartDate(detail.getStartDate());
-	}
-	
-	private void setEndDate(DistributionProtocolDetail detail, DistributionProtocol distributionProtocol) {
-		distributionProtocol.setEndDate(detail.getEndDate());
+	private void setInstitute(DistributionProtocolDetail detail, DistributionProtocol existing, DistributionProtocol dp, OpenSpecimenException ose) {
+		if (existing == null || detail.isAttrModified("instituteName")) {
+			setInstitute(detail, dp, ose);
+		} else {
+			dp.setInstitute(existing.getInstitute());
+		}
 	}
 
-	private void setInstitute(DistributionProtocolDetail detail, DistributionProtocol distributionProtocol, OpenSpecimenException ose) {
+	private void setInstitute(DistributionProtocolDetail detail, DistributionProtocol dp, OpenSpecimenException ose) {
 		String instituteName = detail.getInstituteName();
 		if (StringUtils.isBlank(instituteName)) {
 			ose.addError(DistributionProtocolErrorCode.INSTITUTE_REQUIRED);
@@ -107,7 +127,15 @@ public class DistributionProtocolFactoryImpl implements DistributionProtocolFact
 			return;
 		}
 		
-		distributionProtocol.setInstitute(institute);
+		dp.setInstitute(institute);
+	}
+
+	private void setDefReceivingSite(DistributionProtocolDetail detail, DistributionProtocol existing, DistributionProtocol dp, OpenSpecimenException ose) {
+		if (existing == null || detail.isAttrModified("defReceivingSiteName")) {
+			setDefReceivingSite(detail, dp, ose);
+		} else {
+			dp.setDefReceivingSite(existing.getDefReceivingSite());
+		}
 	}
 	
 	private void setDefReceivingSite(DistributionProtocolDetail detail, DistributionProtocol dp, OpenSpecimenException ose) {
@@ -129,30 +157,44 @@ public class DistributionProtocolFactoryImpl implements DistributionProtocolFact
 		
 		dp.setDefReceivingSite(defReceivingSite);
 	}
+
+	private void setPrincipalInvestigator(DistributionProtocolDetail detail, DistributionProtocol existing, DistributionProtocol dp, OpenSpecimenException ose) {
+		if (existing == null || detail.isAttrModified("principalInvestigator")) {
+			setPrincipalInvestigator(detail, dp, ose);
+		} else {
+			dp.setPrincipalInvestigator(existing.getPrincipalInvestigator());
+		}
+	}
 	
-	private void setPrincipalInvestigator(DistributionProtocolDetail detail, DistributionProtocol distributionProtocol, OpenSpecimenException ose) {
-		
-		if (detail.getPrincipalInvestigator() == null || detail.getPrincipalInvestigator().getId() == null) {
+	private void setPrincipalInvestigator(DistributionProtocolDetail detail, DistributionProtocol dp, OpenSpecimenException ose) {
+		UserSummary user = detail.getPrincipalInvestigator();
+		if (user == null) {
 			ose.addError(DistributionProtocolErrorCode.PI_REQUIRED);
 			return;
 		}
-		
-		Long piId = detail.getPrincipalInvestigator().getId();
-		User pi = daoFactory.getUserDao().getById(piId);
+
+		User pi = getUser(user, ose);
 		if (pi == null) {
-			ose.addError(DistributionProtocolErrorCode.PI_NOT_FOUND);
+			return;
+		}
+
+		if (!pi.getInstitute().equals(dp.getInstitute())) {
+			ose.addError(DistributionProtocolErrorCode.PI_DOES_NOT_BELONG_TO_INST, pi.formattedName(), dp.getInstitute().getName());
 			return;
 		}
 		
-		if (!pi.getInstitute().equals(distributionProtocol.getInstitute())) {
-			ose.addError(DistributionProtocolErrorCode.PI_DOES_NOT_BELONG_TO_INST, pi.formattedName(), distributionProtocol.getInstitute().getName());
-			return;
+		dp.setPrincipalInvestigator(pi);
+	}
+
+	private void setCoordinators(DistributionProtocolDetail detail, DistributionProtocol existing, DistributionProtocol dp, OpenSpecimenException ose) {
+		if (existing == null || detail.isAttrModified("coordinators")) {
+			setCoordinators(detail, dp, ose);
+		} else {
+			dp.setCoordinators(existing.getCoordinators());
 		}
-		
-		distributionProtocol.setPrincipalInvestigator(pi);
 	}
 	
-	private void setCoordinators(DistributionProtocolDetail input, DistributionProtocol result, OpenSpecimenException ose) {
+	private void setCoordinators(DistributionProtocolDetail input, DistributionProtocol dp, OpenSpecimenException ose) {
 		List<UserSummary> users = input.getCoordinators();
 		if (CollectionUtils.isEmpty(users)) {
 			return;
@@ -168,39 +210,54 @@ public class DistributionProtocolFactoryImpl implements DistributionProtocolFact
 			coordinators.add(coordinator);
 		}
 
-		result.setCoordinators(coordinators);
+		dp.setCoordinators(coordinators);
 	}
 
-	private User getUser(UserSummary detail, OpenSpecimenException ose) {
-		if (detail == null) {
-			return null;
+	private void setIrbId(DistributionProtocolDetail detail, DistributionProtocol existing, DistributionProtocol dp, OpenSpecimenException ose) {
+		if (existing == null || detail.isAttrModified("irbId")) {
+			setIrbId(detail, dp);
+		} else {
+			dp.setIrbId(existing.getIrbId());
 		}
-
-		User user = null;
-		Object key = null;
-		if (detail.getId() != null) {
-			user = daoFactory.getUserDao().getById(detail.getId());
-			key = detail.getId();
-		} else if (StringUtils.isNotBlank(detail.getLoginName()) && StringUtils.isNotBlank(detail.getDomain())) {
-			user = daoFactory.getUserDao().getUser(detail.getLoginName(), detail.getDomain());
-			key = detail.getLoginName() + ":" + detail.getDomain();
-		} else if (StringUtils.isNotBlank(detail.getEmailAddress())) {
-			user = daoFactory.getUserDao().getUserByEmailAddress(detail.getEmailAddress());
-			key = detail.getEmailAddress();
-		}
-
-		if (key != null && user == null) {
-			ose.addError(UserErrorCode.NOT_FOUND, key);
-		}
-
-		return user;
 	}
 
-	private void setIrbId(DistributionProtocolDetail detail, DistributionProtocol distributionProtocol, OpenSpecimenException ose) {
-		distributionProtocol.setIrbId(detail.getIrbId());
+	private void setIrbId(DistributionProtocolDetail detail, DistributionProtocol dp) {
+		dp.setIrbId(detail.getIrbId());
 	}
 
-	private void setActivityStatus(DistributionProtocolDetail detail, DistributionProtocol distributionProtocol, OpenSpecimenException ose) {
+	private void setStartDate(DistributionProtocolDetail detail, DistributionProtocol existing, DistributionProtocol dp) {
+		if (existing == null || detail.isAttrModified("startDate")) {
+			setStartDate(detail, dp);
+		} else {
+			dp.setStartDate(existing.getStartDate());
+		}
+	}
+
+	private void setStartDate(DistributionProtocolDetail detail, DistributionProtocol dp) {
+		dp.setStartDate(detail.getStartDate());
+	}
+
+	private void setEndDate(DistributionProtocolDetail detail, DistributionProtocol existing, DistributionProtocol dp) {
+		if (existing == null || detail.isAttrModified("endDate")) {
+			setEndDate(detail, dp);
+		} else {
+			dp.setEndDate(existing.getEndDate());
+		}
+	}
+
+	private void setEndDate(DistributionProtocolDetail detail, DistributionProtocol distributionProtocol) {
+		distributionProtocol.setEndDate(detail.getEndDate());
+	}
+
+	private void setActivityStatus(DistributionProtocolDetail detail, DistributionProtocol existing, DistributionProtocol dp, OpenSpecimenException ose) {
+		if (existing == null || detail.isAttrModified("activityStatus")) {
+			setActivityStatus(detail, dp, ose);
+		} else {
+			dp.setActivityStatus(existing.getActivityStatus());
+		}
+	}
+
+	private void setActivityStatus(DistributionProtocolDetail detail, DistributionProtocol dp, OpenSpecimenException ose) {
 		String activityStatus = detail.getActivityStatus();
 		if (StringUtils.isBlank(activityStatus)) {
 			activityStatus = Status.ACTIVITY_STATUS_ACTIVE.getStatus();
@@ -209,10 +266,18 @@ public class DistributionProtocolFactoryImpl implements DistributionProtocolFact
 			return;
 		}
 		
-		distributionProtocol.setActivityStatus(activityStatus);
+		dp.setActivityStatus(activityStatus);
 	}
 
-	private void setReport(DistributionProtocolDetail detail, DistributionProtocol distributionProtocol, OpenSpecimenException ose) {
+	private void setReport(DistributionProtocolDetail detail, DistributionProtocol existing, DistributionProtocol dp, OpenSpecimenException ose) {
+		if (existing == null || detail.isAttrModified("report")) {
+			setReport(detail, dp, ose);
+		} else {
+			dp.setReport(existing.getReport());
+		}
+	}
+
+	private void setReport(DistributionProtocolDetail detail, DistributionProtocol dp, OpenSpecimenException ose) {
 		if (detail.getReport() == null || detail.getReport().getId() == null) {
 			return;
 		}
@@ -223,9 +288,17 @@ public class DistributionProtocolFactoryImpl implements DistributionProtocolFact
 			return;
 		}
 
-		distributionProtocol.setReport(report);
+		dp.setReport(report);
 	}
-		
+
+	private void setDistributingSites(DistributionProtocolDetail detail, DistributionProtocol existing, DistributionProtocol dp, OpenSpecimenException ose) {
+		if (existing == null || detail.isAttrModified("distributingSites")) {
+			setDistributingSites(detail, dp, ose);
+		} else {
+			dp.setDistributingSites(existing.getDistributingSites());
+		}
+	}
+
 	private void setDistributingSites(DistributionProtocolDetail detail, DistributionProtocol dp, OpenSpecimenException ose) {
 		if (Utility.isEmpty(detail.getDistributingSites())) {
 			ose.addError(DistributionProtocolErrorCode.DISTRIBUTING_SITES_REQUIRED);
@@ -280,8 +353,41 @@ public class DistributionProtocolFactoryImpl implements DistributionProtocolFact
 		return distSite;
 	}
 
+	private void setExtension(DistributionProtocolDetail detail, DistributionProtocol existing, DistributionProtocol dp, OpenSpecimenException ose) {
+		if (existing == null || detail.isAttrModified("extensionDetail")) {
+			setExtension(detail, dp, ose);
+		} else {
+			dp.setExtension(existing.getExtension());
+		}
+	}
+
 	private void setExtension(DistributionProtocolDetail detail, DistributionProtocol dp, OpenSpecimenException ose) {
 		DeObject extension = DeObject.createExtension(detail.getExtensionDetail(), dp);
 		dp.setExtension(extension);
+	}
+
+	private User getUser(UserSummary detail, OpenSpecimenException ose) {
+		if (detail == null) {
+			return null;
+		}
+
+		User user = null;
+		Object key = null;
+		if (detail.getId() != null) {
+			user = daoFactory.getUserDao().getById(detail.getId());
+			key = detail.getId();
+		} else if (StringUtils.isNotBlank(detail.getLoginName()) && StringUtils.isNotBlank(detail.getDomain())) {
+			user = daoFactory.getUserDao().getUser(detail.getLoginName(), detail.getDomain());
+			key = detail.getLoginName() + ":" + detail.getDomain();
+		} else if (StringUtils.isNotBlank(detail.getEmailAddress())) {
+			user = daoFactory.getUserDao().getUserByEmailAddress(detail.getEmailAddress());
+			key = detail.getEmailAddress();
+		}
+
+		if (key != null && user == null) {
+			ose.addError(UserErrorCode.NOT_FOUND, key);
+		}
+
+		return user;
 	}
 }

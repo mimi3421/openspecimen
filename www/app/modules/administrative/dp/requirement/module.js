@@ -35,6 +35,10 @@ angular.module('os.administrative.dp.requirement',
               return DistributionProtocolRequirement.getById($stateParams.reqId);
             }
             return new DistributionProtocolRequirement();
+          },
+
+          extensionCtxt: function(DistributionProtocolRequirement) {
+            return DistributionProtocolRequirement.getExtensionCtxt();
           }
         }
       });

@@ -990,6 +990,10 @@
     "delete_consent_tier": "{{entityType}} {{entityName}} of {{entity.dpShortTitle}} will be deleted forever. Are you sure you want to proceed?",
     "select_dist_site": "Please select at least one distributing site",
 
+    "bulk_import": "Import Distribution Protocols",
+    "req_bulk_import": "Import Requirements",
+    "bulk_import_jobs": "Import Jobs List",
+
     "tooltip": {
       "view_details": "Click to view Distribution Protocol details",
       "add": "Click to add new Distribution Protocol",
@@ -1714,7 +1718,8 @@
     "specimen_extension": "Specimen Custom Fields",
     "site_extension": "Site Custom Fields",
     "cp_extension": "Collection Protocol Custom Fields",
-    "dp_extension": "Distribution Protocol Custom Fields"
+    "dp_extension": "Distribution Protocol Custom Fields",
+    "dp_req_extension": "DP Requirement Custom Fields"
   },
 
   "bulk_imports": {
@@ -1775,7 +1780,9 @@
       "shipment": "Shipments",
       "containerShipment": "Container Shipments",
       "distributionOrder": "Orders",
-      "returnSpecimen": "Returned Specimens"
+      "returnSpecimen": "Returned Specimens",
+      "distributionProtocol": "Distribution Protocols",
+      "dpRequirement": "Requirements"
     },
 
     "import_types": {

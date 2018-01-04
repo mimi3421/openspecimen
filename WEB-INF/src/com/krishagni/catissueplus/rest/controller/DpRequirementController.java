@@ -1,6 +1,7 @@
 package com.krishagni.catissueplus.rest.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -15,10 +16,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import com.krishagni.catissueplus.core.administrative.domain.DpRequirement;
 import com.krishagni.catissueplus.core.administrative.events.DpRequirementDetail;
 import com.krishagni.catissueplus.core.administrative.services.DistributionProtocolService;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
+import com.krishagni.catissueplus.core.de.services.FormService;
 
 @Controller
 @RequestMapping("/distribution-protocol-requirements")
@@ -28,6 +31,9 @@ public class DpRequirementController {
 	
 	@Autowired
 	private DistributionProtocolService dpSvc;
+
+	@Autowired
+	private FormService formSvc;
 	
 	@RequestMapping(method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
@@ -84,6 +90,13 @@ public class DpRequirementController {
 		ResponseEvent<DpRequirementDetail> resp = dpSvc.deleteRequirement(getRequest(dprId));
 		resp.throwErrorIfUnsuccessful();
 		return resp.getPayload();
+	}
+
+	@RequestMapping(method = RequestMethod.GET, value="/extension-form")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public Map<String, Object> getForm() {
+		return formSvc.getExtensionInfo(-1L, DpRequirement.EXTN);
 	}
 	
 	private <T> RequestEvent<T> getRequest(T payload) {

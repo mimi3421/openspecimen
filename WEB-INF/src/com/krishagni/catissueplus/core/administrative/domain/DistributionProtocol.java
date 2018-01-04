@@ -150,6 +150,7 @@ public class DistributionProtocol extends BaseExtensionEntity {
 		this.report = report;
 	}
 
+	@NotAudited
 	public Set<DistributionOrder> getDistributionOrders() {
 		return distributionOrders;
 	}
@@ -166,6 +167,7 @@ public class DistributionProtocol extends BaseExtensionEntity {
 		this.distributingSites = distributingSites;
 	}
 
+	@NotAudited
 	public Set<DpRequirement> getRequirements() {
 		return requirements;
 	}

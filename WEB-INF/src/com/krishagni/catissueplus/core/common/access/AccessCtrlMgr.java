@@ -215,6 +215,7 @@ public class AccessCtrlMgr {
 
 	public void ensureCreateUpdateDpRights(DistributionProtocol dp) {
 		ensureDpObjectRights(dp, new Operation[] {Operation.CREATE, Operation.UPDATE});
+		ensureDpEximRights(dp);
 	}
 
 	public void ensureDeleteDpRights(DistributionProtocol dp) {
@@ -239,6 +240,12 @@ public class AccessCtrlMgr {
 			if (CollectionUtils.intersection(allowedSites, dp.getAllDistributingSites()).isEmpty()) {
 				throw OpenSpecimenException.userError(RbacErrorCode.ACCESS_DENIED);
 			}
+		}
+	}
+
+	private void ensureDpEximRights(DistributionProtocol dp) {
+		if (isImportOp() || isExportOp()) {
+			ensureDpObjectRights(dp, new Operation[] {Operation.EXIM});
 		}
 	}
 

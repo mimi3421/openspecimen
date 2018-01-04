@@ -29,6 +29,7 @@ import com.krishagni.catissueplus.core.common.errors.ErrorType;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.util.NumUtil;
 import com.krishagni.catissueplus.core.common.util.Status;
+import com.krishagni.catissueplus.core.de.domain.DeObject;
 
 public class DpRequirementFactoryImpl implements DpRequirementFactory {
 	
@@ -37,26 +38,40 @@ public class DpRequirementFactoryImpl implements DpRequirementFactory {
 	public void setDaoFactory(DaoFactory daoFactory) {
 		this.daoFactory = daoFactory;
 	}
-	
-	public DpRequirement createDistributionProtocolRequirement(DpRequirementDetail detail) {
+
+	@Override
+	public DpRequirement createRequirement(DpRequirementDetail detail) {
+		return createRequirement(null, detail);
+	}
+
+	public DpRequirement createRequirement(DpRequirement existing, DpRequirementDetail detail) {
 		DpRequirement dpr = new DpRequirement();
 		OpenSpecimenException ose = new OpenSpecimenException(ErrorType.USER_ERROR);
 		
 		dpr.setId(detail.getId());
-		setDistributionProtocol(detail, dpr, ose);
-		setSpecimenType(detail, dpr, ose);
-		setAnatomicSite(detail, dpr, ose);
-		setPathologyStatuses(detail, dpr, ose);
-		setClinicalDiagnosis(detail, dpr, ose);
-		setSpecimenCount(detail, dpr, ose);
-		setQuantity(detail, dpr, ose);
-		setComments(detail, dpr, ose);
-		setActivityStatus(detail, dpr, ose);
+		setDistributionProtocol(detail, existing, dpr, ose);
+		setSpecimenType(detail, existing, dpr, ose);
+		setAnatomicSite(detail, existing, dpr, ose);
+		setPathologyStatuses(detail, existing, dpr, ose);
+		setClinicalDiagnosis(detail, existing, dpr, ose);
+		setSpecimenCount(detail, existing, dpr, ose);
+		setQuantity(detail, existing, dpr, ose);
+		setComments(detail, existing, dpr, ose);
+		setActivityStatus(detail, existing, dpr, ose);
+		setExtension(detail, existing, dpr, ose);
 		
 		ose.checkAndThrow();
 		return dpr;
 	}
-	
+
+	private void setDistributionProtocol(DpRequirementDetail detail, DpRequirement existing, DpRequirement dpr, OpenSpecimenException ose) {
+		if (existing == null || detail.isAttrModified("dp")) {
+			setDistributionProtocol(detail, dpr, ose);
+		} else {
+			dpr.setDistributionProtocol(existing.getDistributionProtocol());
+		}
+	}
+
 	private void setDistributionProtocol(DpRequirementDetail detail, DpRequirement dpr, OpenSpecimenException ose) {
 		DistributionProtocolSummary dps = detail.getDp();
 		Long dpId = dps != null ? dps.getId() : null;
@@ -84,6 +99,14 @@ public class DpRequirementFactoryImpl implements DpRequirementFactory {
 		
 		dpr.setDistributionProtocol(dp);
 	}
+
+	private void setSpecimenType(DpRequirementDetail detail, DpRequirement existing, DpRequirement dpr, OpenSpecimenException ose) {
+		if (existing == null || detail.isAttrModified("specimenType")) {
+			setSpecimenType(detail, dpr, ose);
+		} else {
+			dpr.setSpecimenType(existing.getSpecimenType());
+		}
+	}
 	
 	private void setSpecimenType(DpRequirementDetail detail, DpRequirement dpr, OpenSpecimenException ose) {
 		String specimenType = detail.getSpecimenType();
@@ -94,7 +117,15 @@ public class DpRequirementFactoryImpl implements DpRequirementFactory {
 		
 		dpr.setSpecimenType(specimenType);
 	}
-	
+
+	private void setAnatomicSite(DpRequirementDetail detail, DpRequirement existing, DpRequirement dpr, OpenSpecimenException ose) {
+		if (existing == null || detail.isAttrModified("anatomicSite")) {
+			setAnatomicSite(detail, dpr, ose);
+		} else {
+			dpr.setAnatomicSite(existing.getAnatomicSite());
+		}
+	}
+
 	private void setAnatomicSite(DpRequirementDetail detail, DpRequirement dpr, OpenSpecimenException ose) {
 		String anatomicSite = detail.getAnatomicSite();
 		if (!isValid(SPECIMEN_ANATOMIC_SITE, anatomicSite, true)) {
@@ -103,6 +134,14 @@ public class DpRequirementFactoryImpl implements DpRequirementFactory {
 		}
 		
 		dpr.setAnatomicSite(anatomicSite);
+	}
+
+	private void setPathologyStatuses(DpRequirementDetail detail, DpRequirement existing, DpRequirement dpr, OpenSpecimenException ose) {
+		if (existing == null || detail.isAttrModified("pathologyStatuses")) {
+			setPathologyStatuses(detail, dpr, ose);
+		} else {
+			dpr.setPathologyStatuses(existing.getPathologyStatuses());
+		}
 	}
 	
 	private void setPathologyStatuses(DpRequirementDetail detail, DpRequirement dpr, OpenSpecimenException ose) {
@@ -123,6 +162,14 @@ public class DpRequirementFactoryImpl implements DpRequirementFactory {
 		dpr.setPathologyStatuses(pathologyStatuses);
 	}
 
+	private void setClinicalDiagnosis(DpRequirementDetail detail, DpRequirement existing, DpRequirement dpr, OpenSpecimenException ose) {
+		if (existing == null || detail.isAttrModified("clinicalDiagnosis")) {
+			setClinicalDiagnosis(detail, dpr, ose);
+		} else {
+			dpr.setClinicalDiagnosis(existing.getClinicalDiagnosis());
+		}
+	}
+
 	private void setClinicalDiagnosis(DpRequirementDetail detail, DpRequirement dpr, OpenSpecimenException ose) {
 		String clinicalDiagnosis = detail.getClinicalDiagnosis();
 		if (!isValid(CLINICAL_DIAG, clinicalDiagnosis)) {
@@ -131,6 +178,15 @@ public class DpRequirementFactoryImpl implements DpRequirementFactory {
 		}
 
 		dpr.setClinicalDiagnosis(detail.getClinicalDiagnosis());
+	}
+
+
+	private void setSpecimenCount(DpRequirementDetail detail, DpRequirement existing, DpRequirement dpr, OpenSpecimenException ose) {
+		if (existing == null || detail.isAttrModified("specimenCount")) {
+			setSpecimenCount(detail, dpr, ose);
+		} else {
+			dpr.setSpecimenCount(existing.getSpecimenCount());
+		}
 	}
 	
 	private void setSpecimenCount(DpRequirementDetail detail, DpRequirement dpr, OpenSpecimenException ose) {
@@ -147,6 +203,14 @@ public class DpRequirementFactoryImpl implements DpRequirementFactory {
 		
 		dpr.setSpecimenCount(specimenCount);
 	}
+
+	private void setQuantity(DpRequirementDetail detail, DpRequirement existing, DpRequirement dpr, OpenSpecimenException ose) {
+		if (existing == null || detail.isAttrModified("quantity")) {
+			setQuantity(detail, dpr, ose);
+		} else {
+			dpr.setQuantity(existing.getQuantity());
+		}
+	}
 	
 	private void setQuantity(DpRequirementDetail detail, DpRequirement dpr, OpenSpecimenException ose) {
 		BigDecimal quantity = detail.getQuantity();
@@ -162,9 +226,25 @@ public class DpRequirementFactoryImpl implements DpRequirementFactory {
 		
 		dpr.setQuantity(quantity);
 	}
+
+	private void setComments(DpRequirementDetail detail, DpRequirement existing, DpRequirement dpr, OpenSpecimenException ose) {
+		if (existing == null || detail.isAttrModified("comments")) {
+			setComments(detail, dpr, ose);
+		} else {
+			dpr.setComments(existing.getComments());
+		}
+	}
 	
 	private void setComments(DpRequirementDetail detail, DpRequirement dpr, OpenSpecimenException ose) {
 		dpr.setComments(detail.getComments());
+	}
+
+	private void setActivityStatus(DpRequirementDetail detail, DpRequirement existing, DpRequirement dpr, OpenSpecimenException ose) {
+		if (existing == null || detail.isAttrModified("activityStatus")) {
+			setActivityStatus(detail, dpr, ose);
+		} else {
+			dpr.setActivityStatus(existing.getActivityStatus());
+		}
 	}
 	
 	private void setActivityStatus(DpRequirementDetail detail, DpRequirement dpr, OpenSpecimenException ose) {
@@ -180,5 +260,17 @@ public class DpRequirementFactoryImpl implements DpRequirementFactory {
 		
 		dpr.setActivityStatus(activityStatus);
 	}
-	
+
+	private void setExtension(DpRequirementDetail detail, DpRequirement existing, DpRequirement dpr, OpenSpecimenException ose) {
+		if (existing == null || detail.isAttrModified("extensionDetail")) {
+			setExtension(detail, dpr, ose);
+		} else {
+			dpr.setExtension(existing.getExtension());
+		}
+	}
+
+	private void setExtension(DpRequirementDetail detail, DpRequirement dpr, OpenSpecimenException ose) {
+		DeObject extension = DeObject.createExtension(detail.getExtensionDetail(), dpr);
+		dpr.setExtension(extension);
+	}
 }

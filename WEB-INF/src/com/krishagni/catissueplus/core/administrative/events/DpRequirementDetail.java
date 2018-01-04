@@ -8,8 +8,12 @@ import java.util.List;
 import java.util.Set;
 
 import com.krishagni.catissueplus.core.administrative.domain.DpRequirement;
+import com.krishagni.catissueplus.core.common.AttributeModifiedSupport;
+import com.krishagni.catissueplus.core.common.ListenAttributeChanges;
+import com.krishagni.catissueplus.core.de.events.ExtensionDetail;
 
-public class DpRequirementDetail {
+@ListenAttributeChanges
+public class DpRequirementDetail extends AttributeModifiedSupport {
 	private Long id;
 	
 	private DistributionProtocolSummary dp;
@@ -33,7 +37,9 @@ public class DpRequirementDetail {
 	private String comments;
 	
 	private String activityStatus;
-	
+
+	private ExtensionDetail extensionDetail;
+
 	public Long getId() {
 		return id;
 	}
@@ -129,7 +135,15 @@ public class DpRequirementDetail {
 	public void setActivityStatus(String activityStatus) {
 		this.activityStatus = activityStatus;
 	}
-	
+
+	public ExtensionDetail getExtensionDetail() {
+		return extensionDetail;
+	}
+
+	public void setExtensionDetail(ExtensionDetail extensionDetail) {
+		this.extensionDetail = extensionDetail;
+	}
+
 	public static DpRequirementDetail from(DpRequirement dpr) {
 		DpRequirementDetail detail = new DpRequirementDetail();
 		
@@ -143,6 +157,7 @@ public class DpRequirementDetail {
 		detail.setQuantity(dpr.getQuantity());
 		detail.setComments(dpr.getComments());
 		detail.setActivityStatus(dpr.getActivityStatus());
+		detail.setExtensionDetail(ExtensionDetail.from(dpr.getExtension()));
 		
 		return detail;
 	}

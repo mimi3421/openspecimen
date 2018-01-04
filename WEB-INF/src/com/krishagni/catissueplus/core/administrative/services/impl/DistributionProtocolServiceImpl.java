@@ -184,29 +184,15 @@ public class DistributionProtocolServiceImpl implements DistributionProtocolServ
 	@Override
 	@PlusTransactional
 	public ResponseEvent<DistributionProtocolDetail> updateDistributionProtocol(RequestEvent<DistributionProtocolDetail> req) {
-		try {
-			DistributionProtocolDetail reqDetail = req.getPayload();
-			DistributionProtocol existing = getDistributionProtocol(reqDetail.getId(), reqDetail.getShortTitle(), reqDetail.getTitle());
-			AccessCtrlMgr.getInstance().ensureCreateUpdateDpRights(existing);
-
-			DistributionProtocol dp = distributionProtocolFactory.createDistributionProtocol(reqDetail);
-			AccessCtrlMgr.getInstance().ensureCreateUpdateDpRights(dp);
-			ensureUniqueConstraints(dp, existing);
-			ensurePiCoordNotSame(dp);
-
-			notifyOnDpUpdate(existing, dp);
-			existing.update(dp);
-			daoFactory.getDistributionProtocolDao().saveOrUpdate(existing);
-
-			existing.addOrUpdateExtension();
-			return ResponseEvent.response(DistributionProtocolDetail.from(existing));
-		} catch (OpenSpecimenException ose) {
-			return ResponseEvent.error(ose);
-		} catch (Exception ex) {
-			return ResponseEvent.serverError(ex);
-		}
+		return updateProtocol(req, false);
 	}
-	
+
+	@Override
+	@PlusTransactional
+	public ResponseEvent<DistributionProtocolDetail> patchDistributionProtocol(RequestEvent<DistributionProtocolDetail> req) {
+		return updateProtocol(req, true);
+	}
+
 	@Override
 	@PlusTransactional
 	public ResponseEvent<List<DependentEntityDetail>> getDependentEntities(RequestEvent<Long> req) {
@@ -396,7 +382,7 @@ public class DistributionProtocolServiceImpl implements DistributionProtocolServ
 	@PlusTransactional
 	public ResponseEvent<DpRequirementDetail> createRequirement(RequestEvent<DpRequirementDetail> req) {
 		try {
-			DpRequirement dpr = dprFactory.createDistributionProtocolRequirement(req.getPayload());	
+			DpRequirement dpr = dprFactory.createRequirement(req.getPayload());
 			AccessCtrlMgr.getInstance().ensureCreateUpdateDpRights(dpr.getDistributionProtocol());
 
 			OpenSpecimenException ose = new OpenSpecimenException(ErrorType.USER_ERROR);
@@ -405,6 +391,7 @@ public class DistributionProtocolServiceImpl implements DistributionProtocolServ
 			ose.checkAndThrow();
 
 			getDprDao().saveOrUpdate(dpr);
+			dpr.addOrUpdateExtension();
 			return ResponseEvent.response(DpRequirementDetail.from(dpr));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
@@ -416,29 +403,13 @@ public class DistributionProtocolServiceImpl implements DistributionProtocolServ
 	@Override
 	@PlusTransactional
 	public ResponseEvent<DpRequirementDetail> updateRequirement(RequestEvent<DpRequirementDetail> req) {
-		try {
-			Long dpReqId = req.getPayload().getId();
-			DpRequirement existing = getDprDao().getById(dpReqId);
-			if (existing == null) {
-				return ResponseEvent.userError(DpRequirementErrorCode.NOT_FOUND);
-			}
+		return updateRequirement(req, false);
+	}
 
-			DpRequirement newDpr = dprFactory.createDistributionProtocolRequirement(req.getPayload());
-			AccessCtrlMgr.getInstance().ensureCreateUpdateDpRights(newDpr.getDistributionProtocol());
-			
-			OpenSpecimenException ose = new OpenSpecimenException(ErrorType.USER_ERROR);
-			ensureSpecimenPropertyPresent(newDpr, ose);
-			ensureUniqueReqConstraints(existing, newDpr, ose);
-			ose.checkAndThrow();
-
-			existing.update(newDpr);
-			getDprDao().saveOrUpdate(existing);
-			return ResponseEvent.response(DpRequirementDetail.from(existing));
-		} catch (OpenSpecimenException ose) {
-			return ResponseEvent.error(ose);
-		} catch (Exception e) {
-			return ResponseEvent.serverError(e);
-		}
+	@Override
+	@PlusTransactional
+	public ResponseEvent<DpRequirementDetail> patchRequirement(RequestEvent<DpRequirementDetail> req) {
+		return updateRequirement(req, true);
 	}
 
 	@Override
@@ -643,6 +614,58 @@ public class DistributionProtocolServiceImpl implements DistributionProtocolServ
 		for (Map.Entry<Long, Integer> count : countMap.entrySet()) {
 			dpMap.get(count.getKey()).setDistributedSpecimensCount(count.getValue());
 		}		
+	}
+
+	private ResponseEvent<DistributionProtocolDetail> updateProtocol(RequestEvent<DistributionProtocolDetail> req, boolean partial) {
+		try {
+			DistributionProtocolDetail reqDetail = req.getPayload();
+			DistributionProtocol existing = getDistributionProtocol(reqDetail.getId(), reqDetail.getShortTitle(), reqDetail.getTitle());
+			AccessCtrlMgr.getInstance().ensureCreateUpdateDpRights(existing);
+
+			reqDetail.setId(existing.getId());
+			DistributionProtocol dp = distributionProtocolFactory.createDistributionProtocol(partial ? existing : null, reqDetail);
+			AccessCtrlMgr.getInstance().ensureCreateUpdateDpRights(dp);
+			ensureUniqueConstraints(dp, existing);
+			ensurePiCoordNotSame(dp);
+
+			notifyOnDpUpdate(existing, dp);
+			existing.update(dp);
+			daoFactory.getDistributionProtocolDao().saveOrUpdate(existing);
+
+			existing.addOrUpdateExtension();
+			return ResponseEvent.response(DistributionProtocolDetail.from(existing));
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
+		} catch (Exception ex) {
+			return ResponseEvent.serverError(ex);
+		}
+	}
+
+	private ResponseEvent<DpRequirementDetail> updateRequirement(RequestEvent<DpRequirementDetail> req, boolean partial) {
+		try {
+			Long dpReqId = req.getPayload().getId();
+			DpRequirement existing = getDprDao().getById(dpReqId);
+			if (existing == null) {
+				return ResponseEvent.userError(DpRequirementErrorCode.NOT_FOUND);
+			}
+
+			DpRequirement newDpr = dprFactory.createRequirement(partial ? existing : null, req.getPayload());
+			AccessCtrlMgr.getInstance().ensureCreateUpdateDpRights(newDpr.getDistributionProtocol());
+
+			OpenSpecimenException ose = new OpenSpecimenException(ErrorType.USER_ERROR);
+			ensureSpecimenPropertyPresent(newDpr, ose);
+			ensureUniqueReqConstraints(existing, newDpr, ose);
+			ose.checkAndThrow();
+
+			existing.update(newDpr);
+			getDprDao().saveOrUpdate(existing);
+			existing.addOrUpdateExtension();
+			return ResponseEvent.response(DpRequirementDetail.from(existing));
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
+		} catch (Exception e) {
+			return ResponseEvent.serverError(e);
+		}
 	}
 	
 	private void ensureUniqueConstraints(DistributionProtocol newDp, DistributionProtocol existingDp) {

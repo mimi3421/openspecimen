@@ -7,20 +7,23 @@ import java.util.Set;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 
-import com.krishagni.catissueplus.core.biospecimen.domain.BaseEntity;
+import com.krishagni.catissueplus.core.biospecimen.domain.BaseExtensionEntity;
 import com.krishagni.catissueplus.core.common.CollectionUpdater;
 import com.krishagni.catissueplus.core.common.util.Status;
 
 @Audited
-public class DpRequirement extends BaseEntity {
+public class DpRequirement extends BaseExtensionEntity {
+	public static final String EXTN = "DpRequirementExtension";
+
 	private DistributionProtocol distributionProtocol;
 	
 	private String specimenType;
 	
 	private String anatomicSite;
 	
-	private Set<String> pathologyStatuses = new HashSet<String>();
+	private Set<String> pathologyStatuses = new HashSet<>();
 
 	private String clinicalDiagnosis;
 	
@@ -31,11 +34,11 @@ public class DpRequirement extends BaseEntity {
 	private String comments;
 	
 	private String activityStatus;
-	
+
 	public DistributionProtocol getDistributionProtocol() {
 		return distributionProtocol;
 	}
-	
+
 	public void setDistributionProtocol(DistributionProtocol distributionProtocol) {
 		this.distributionProtocol = distributionProtocol;
 	}
@@ -103,7 +106,12 @@ public class DpRequirement extends BaseEntity {
 	public void setActivityStatus(String activityStatus) {
 		this.activityStatus = activityStatus;
 	}
-	
+
+	@Override
+	public String getEntityType() {
+		return EXTN;
+	}
+
 	public void update(DpRequirement dpr) {
 		setDistributionProtocol(dpr.getDistributionProtocol());
 		setSpecimenType(dpr.getSpecimenType());
@@ -114,6 +122,7 @@ public class DpRequirement extends BaseEntity {
 		setQuantity(dpr.getQuantity());
 		setComments(dpr.getComments());
 		setActivityStatus(dpr.getActivityStatus());
+		setExtension(dpr.getExtension());
 	}
 	
 	public boolean equalsSpecimenGroup(DpRequirement dpr) {
@@ -146,5 +155,4 @@ public class DpRequirement extends BaseEntity {
 		return CollectionUtils.isSubCollection(pathologyStatuses, getPathologyStatuses()) ||
 				CollectionUtils.isSubCollection(getPathologyStatuses(), pathologyStatuses);
 	}
-	
 }

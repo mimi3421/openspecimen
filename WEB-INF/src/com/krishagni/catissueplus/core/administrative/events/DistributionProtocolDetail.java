@@ -9,10 +9,12 @@ import java.util.Set;
 
 import com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol;
 import com.krishagni.catissueplus.core.administrative.domain.DpDistributionSite;
+import com.krishagni.catissueplus.core.common.ListenAttributeChanges;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
 import com.krishagni.catissueplus.core.de.events.ExtensionDetail;
 import com.krishagni.catissueplus.core.de.events.SavedQuerySummary;
 
+@ListenAttributeChanges
 public class DistributionProtocolDetail extends DistributionProtocolSummary {
 
 	private List<UserSummary> coordinators;
@@ -72,9 +74,21 @@ public class DistributionProtocolDetail extends DistributionProtocolSummary {
 	public Map<String, List<String>> getDistributingSites() {
 		return distributingSites;
 	}
-	
+
 	public void setDistributingSites(Map<String, List<String>> distributingSites) {
 		this.distributingSites = distributingSites;
+	}
+
+	public void setDistributingSitesMapList(List<Map<String, Object>> input) {
+		Map<String, List<String>> distributingSites = new HashMap<>();
+
+		for (Map<String, Object> site : input) {
+			String institute = (String)site.get("institute");
+			List<String> sites = (List<String>)site.get("site");
+			distributingSites.put(institute, sites);
+		}
+
+		setDistributingSites(distributingSites);
 	}
 
 	public ExtensionDetail getExtensionDetail() {

@@ -6,9 +6,12 @@ import java.util.Date;
 import java.util.List;
 
 import com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol;
+import com.krishagni.catissueplus.core.common.AttributeModifiedSupport;
+import com.krishagni.catissueplus.core.common.ListenAttributeChanges;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
 
-public class DistributionProtocolSummary {
+@ListenAttributeChanges
+public class DistributionProtocolSummary extends AttributeModifiedSupport {
 	private Long id;
 	
 	private String title;

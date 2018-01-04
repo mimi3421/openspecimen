@@ -871,6 +871,18 @@
             <property name="schemaResource"  value="com/krishagni/catissueplus/core/biospecimen/schema/master-specimen.xml"/>
           </bean>
         </entry>
+        <entry key="distributionProtocol">
+          <bean class="com.krishagni.catissueplus.core.de.services.impl.CustomFieldsSchemaBuilder">
+            <property name="templateService" ref="templateService"/>
+            <property name="schemaResource"  value="com/krishagni/catissueplus/core/administrative/schema/distribution-protocol.xml"/>
+          </bean>
+        </entry>
+        <entry key="dpRequirement">
+          <bean class="com.krishagni.catissueplus.core.de.services.impl.CustomFieldsSchemaBuilder">
+            <property name="templateService" ref="templateService"/>
+            <property name="schemaResource"  value="com/krishagni/catissueplus/core/administrative/schema/dp-requirement.xml"/>
+          </bean>
+        </entry>
       </map>
     </property>
   </bean>
@@ -919,6 +931,18 @@
           <bean class="com.krishagni.catissueplus.core.administrative.services.impl.ShipmentImporter">
             <property name="shipmentSvc" ref="shipmentSvc"/>
             <property name="type" value="CONTAINER"/>
+          </bean>
+        </entry>
+
+        <entry key="distributionProtocol">
+          <bean class="com.krishagni.catissueplus.core.administrative.services.impl.DpImporter">
+            <property name="dpSvc" ref="distributionProtocolService"/>
+          </bean>
+        </entry>
+
+        <entry key="dpRequirement">
+          <bean class="com.krishagni.catissueplus.core.administrative.services.impl.DpRequirementImporter">
+            <property name="dpSvc" ref="distributionProtocolService"/>
           </bean>
         </entry>
 

@@ -28,6 +28,8 @@ public interface DistributionProtocolService {
 	public ResponseEvent<DistributionProtocolDetail> createDistributionProtocol(RequestEvent<DistributionProtocolDetail> req);
 
 	public ResponseEvent<DistributionProtocolDetail> updateDistributionProtocol(RequestEvent<DistributionProtocolDetail> req);
+
+	public ResponseEvent<DistributionProtocolDetail> patchDistributionProtocol(RequestEvent<DistributionProtocolDetail> req);
 	
 	public ResponseEvent<List<DependentEntityDetail>> getDependentEntities(RequestEvent<Long> req);
 	
@@ -44,6 +46,8 @@ public interface DistributionProtocolService {
 	public ResponseEvent<DpRequirementDetail> createRequirement(RequestEvent<DpRequirementDetail> req);
 	
 	public ResponseEvent<DpRequirementDetail> updateRequirement(RequestEvent<DpRequirementDetail> req);
+
+	public ResponseEvent<DpRequirementDetail> patchRequirement(RequestEvent<DpRequirementDetail> req);
 	
 	public ResponseEvent<DpRequirementDetail> deleteRequirement(RequestEvent<Long> req);
 	

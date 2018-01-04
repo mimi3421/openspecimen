@@ -18,7 +18,8 @@ angular.module('os.administrative.dp',
           // Distribution Protocol Authorization Options
           $scope.dpResource = {
             createOpts: {resource: 'DistributionProtocol', operations: ['Create']},
-            deleteOpts: {resource: 'DistributionProtocol', operations: ['Delete']}
+            deleteOpts: {resource: 'DistributionProtocol', operations: ['Delete']},
+            importOpts: {resource: 'DistributionProtocol', operations: ['Export Import']}
           }
         },
         parent: 'signed-in'
@@ -44,6 +45,53 @@ angular.module('os.administrative.dp',
           }
         },
         controller: 'DpAddEditCtrl',
+        parent: 'dp-root'
+      })
+      .state('dp-import', {
+        url: '/dp-import',
+        templateUrl: 'modules/common/import/add.html',
+        controller: 'ImportObjectCtrl',
+        resolve: {
+          importDetail: function() {
+            return {
+              breadcrumbs: [{state: 'dp-list', title: 'dp.list'}],
+              objectType: 'distributionProtocol',
+              title: 'dp.bulk_import',
+              onSuccess: {state: 'dp-list'}
+            };
+          }
+        },
+        parent: 'dp-root'
+      })
+      .state('dp-req-import', {
+        url: '/dp-req-import',
+        templateUrl: 'modules/common/import/add.html',
+        controller: 'ImportObjectCtrl',
+        resolve: {
+          importDetail: function() {
+            return {
+              breadcrumbs: [{state: 'dp-list', title: 'dp.list'}],
+              objectType: 'dpRequirement',
+              title: 'dp.req_bulk_import',
+              onSuccess: {state: 'dp-list'}
+            };
+          }
+        },
+        parent: 'dp-root'
+      })
+      .state('dp-import-jobs', {
+        url: '/dp-import-jobs',
+        templateUrl: 'modules/common/import/list.html',
+        controller: 'ImportJobsListCtrl',
+        resolve: {
+          importDetail: function() {
+            return {
+              breadcrumbs: [{state: 'dp-list', title: 'dp.list'}],
+              title: 'dp.bulk_import_jobs',
+              objectTypes: ['distributionProtocol', 'dpRequirement']
+            }
+          }
+        },
         parent: 'dp-root'
       })
       .state('dp-detail', {
