@@ -1,6 +1,7 @@
 
 package com.krishagni.catissueplus.core.init;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
@@ -140,14 +141,13 @@ public class ImportDefaultQueries implements InitializingBean {
 	private void updateQuery(Long queryId, String filename, byte[] queryContent, String md5Digest) {
 		try {
 			SavedQuery savedQuery = daoFactory.getSavedQueryDao().getQuery(queryId);
-			if(savedQuery == null){
-				savedQuery = new SavedQuery();
+			if(savedQuery != null){
+				savedQuery.setQueryDefJson(new String(queryContent), true);
+				savedQuery.setLastUpdated(Calendar.getInstance().getTime());
+				savedQuery.setLastUpdatedBy(sysUser);
+				daoFactory.getSavedQueryDao().saveOrUpdate(savedQuery);
 			}
 			
-			savedQuery.setQueryDefJson(new String(queryContent), true);
-			savedQuery.setLastUpdated(new Date());
-			savedQuery.setLastUpdatedBy(sysUser);
-			daoFactory.getSavedQueryDao().saveOrUpdate(savedQuery);
 			insertChangeLog(filename, md5Digest, "UPDATED", queryId);
 		} catch (Exception e) {
 			LOGGER.error("Error updating query " + queryId + " using definition from file: " + filename, e);
