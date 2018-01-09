@@ -102,6 +102,13 @@
             {{ctx.container.rowLabelingScheme}} x {{ctx.container.columnLabelingScheme}}
           </span>
         </li>
+
+        <li class="item" ng-if="ctx.container.positionLabelingMode != 'NONE'">
+          <strong class="key key-sm" translate="container.position_assignment">Position Assignment</strong>
+          <span class="value value-md">
+            {{'container.position_assignments.' + ctx.container.positionAssignment | translate}}
+          </span>
+        </li>
   
         <li class="item">
           <strong class="key key-sm" translate="container.stores_specimens">Stores Specimens</strong>

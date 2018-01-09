@@ -206,10 +206,18 @@
 .os-container-pos {
   min-width: 40px;
   text-align: center;
+  position: relative;
 }
 
 td.os-container-pos {
   cursor: pointer;
+}
+
+td.os-container-pos .coord {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  font-size: 10px;
 }
 
 td.os-container-pos .os-circle {

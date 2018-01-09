@@ -14,7 +14,13 @@ angular.module('os.administrative.container.addedit', ['os.administrative.models
 
       $scope.container = container;
 
-      $scope.ctx = {mode: 'single', view: '', capacityReq: !!container.capacity, barcodingEnabled: barcodingEnabled};
+      $scope.ctx = {
+        mode: 'single',
+        view: '',
+        capacityReq: !!container.capacity,
+        barcodingEnabled: barcodingEnabled,
+        positionAssignments: PvManager.getPvs('container-position-assignments')
+      };
       if ($stateParams.mode == 'createHierarchy') {
         $scope.ctx.mode = 'hierarchy';
       }
@@ -255,6 +261,7 @@ angular.module('os.administrative.container.addedit', ['os.administrative.models
       $scope.container.positionLabelingMode = containerType.positionLabelingMode;
       $scope.container.rowLabelingScheme = containerType.rowLabelingScheme;
       $scope.container.columnLabelingScheme = containerType.columnLabelingScheme;
+      $scope.container.positionAssignment = containerType.positionAssignment;
       $scope.container.temperature = containerType.temperature;
       $scope.container.storeSpecimensEnabled = containerType.storeSpecimenEnabled;
     };

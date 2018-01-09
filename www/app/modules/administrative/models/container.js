@@ -1,6 +1,6 @@
 
 angular.module('os.administrative.models.container', ['os.common.models'])
-  .factory('Container', function(osModel, $q, $http, $translate) {
+  .factory('Container', function(osModel, $q, $http, $translate, BoxLayoutUtil) {
     var Container = new osModel(
       'storage-containers',
       function(container) {
@@ -159,6 +159,10 @@ angular.module('os.administrative.models.container', ['os.common.models'])
           return resp.data;
         }
       );
+    }
+
+    Container.prototype.getPositionAssigner = function() {
+      return BoxLayoutUtil.getPositionAssigner(this.positionAssignment);
     }
 
     Container.list = function(opts) {

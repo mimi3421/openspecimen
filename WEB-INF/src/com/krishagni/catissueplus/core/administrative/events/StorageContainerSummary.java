@@ -42,6 +42,8 @@ public class StorageContainerSummary extends AttributeModifiedSupport {
 
 	private String positionLabelingMode;
 
+	private String positionAssignment;
+
 	private String columnLabelingScheme;
 
 	private String rowLabelingScheme;
@@ -156,6 +158,14 @@ public class StorageContainerSummary extends AttributeModifiedSupport {
 		this.positionLabelingMode = positionLabelingMode;
 	}
 
+	public String getPositionAssignment() {
+		return positionAssignment;
+	}
+
+	public void setPositionAssignment(String positionAssignment) {
+		this.positionAssignment = positionAssignment;
+	}
+
 	public String getColumnLabelingScheme() {
 		return columnLabelingScheme;
 	}
@@ -249,6 +259,7 @@ public class StorageContainerSummary extends AttributeModifiedSupport {
 		result.setNoOfRows(container.getNoOfRows());
 		result.setCapacity(container.getCapacity());
 		result.setPositionLabelingMode(container.getPositionLabelingMode().name());
+		result.setPositionAssignment(container.getPositionAssignment().name());
 		result.setColumnLabelingScheme(container.getColumnLabelingScheme());
 		result.setRowLabelingScheme(container.getRowLabelingScheme());
 		result.setFreePositions(container.freePositionsCount());
@@ -273,7 +284,7 @@ public class StorageContainerSummary extends AttributeModifiedSupport {
 		StorageContainerSummary result = new StorageContainerSummary();
 		transform(container, result);
 		if (includeChildren) {
-			result.setChildContainers(from(container.getChildContainers(), includeChildren));
+			result.setChildContainers(from(container.getChildContainers(), true));
 		}
 		return result;
 	}

@@ -45,7 +45,7 @@ public interface StorageContainerDao extends Dao<StorageContainer> {
 
 	StorageContainerSummary getAncestorsHierarchy(Long containerId);
 
-	List<StorageContainerSummary> getChildContainers(Long containerId, Integer noOfColumns);
+	List<StorageContainerSummary> getChildContainers(StorageContainer container);
 
 	List<StorageContainer> getDescendantContainers(StorageContainerListCriteria crit);
 

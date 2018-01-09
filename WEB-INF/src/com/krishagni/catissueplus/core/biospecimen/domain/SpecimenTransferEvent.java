@@ -194,7 +194,7 @@ public class SpecimenTransferEvent extends SpecimenEvent {
 			return null;
 		}
 
-		return (dimTwo - 1) * container.getNoOfColumns() + dimOne;
+		return container.getPositionAssigner().toPosition(container, dimTwo, dimOne);
 	}
 
 	private boolean isSpecified(Integer dimOne, Integer dimTwo) {

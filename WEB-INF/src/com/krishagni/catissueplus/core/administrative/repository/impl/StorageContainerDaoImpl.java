@@ -30,6 +30,7 @@ import org.hibernate.criterion.Subqueries;
 import org.hibernate.sql.JoinType;
 
 import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
+import com.krishagni.catissueplus.core.administrative.domain.PositionAssigner;
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainer;
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainerPosition;
 import com.krishagni.catissueplus.core.administrative.events.StorageContainerSummary;
@@ -288,7 +289,7 @@ public class StorageContainerDaoImpl extends AbstractDao<StorageContainer> imple
 
 		Map<Long, StorageContainerSummary> containersMap = new HashMap<>();
 		for (Object[] row : rows) {
-			StorageContainerSummary container = createContainer(row, 10000);
+			StorageContainerSummary container = createContainer(row);
 			containersMap.put(container.getId(), container);
 		}
 
@@ -298,13 +299,26 @@ public class StorageContainerDaoImpl extends AbstractDao<StorageContainer> imple
 
 	@Override
 	@SuppressWarnings(value = "unchecked")
-	public List<StorageContainerSummary> getChildContainers(Long containerId, Integer noOfColumns) {
+	public List<StorageContainerSummary> getChildContainers(StorageContainer container) {
 		List<Object[]> rows = getCurrentSession().getNamedQuery(GET_CHILD_CONTAINERS)
-			.setLong("parentId", containerId)
+			.setLong("parentId", container.getId())
 			.list();
 
-		return rows.stream().map(row -> createContainer(row, noOfColumns))
-			.sorted(this::comparePositions).collect(Collectors.toList());
+		PositionAssigner assigner = container.getPositionAssigner();
+		List<StorageContainerSummary> children = new ArrayList<>();
+		for (Object[] row : rows) {
+			StorageContainerSummary child = createContainer(row);
+			StorageLocationSummary location = child.getStorageLocation();
+			if (location != null && location.getPosition() != null) {
+				int rowNo = (location.getPosition() - 1) / 10000 + 1, colNo = (location.getPosition() - 1) % 10000 + 1;
+				location.setPosition(assigner.toPosition(container, rowNo, colNo));
+			}
+
+			children.add(child);
+		}
+
+		children.sort(this::comparePositions);
+		return children;
 	}
 
 	@Override
@@ -467,7 +481,7 @@ public class StorageContainerDaoImpl extends AbstractDao<StorageContainer> imple
 		return result;
 	}
 
-	private StorageContainerSummary createContainer(Object[] row, Integer noOfColumns) {
+	private StorageContainerSummary createContainer(Object[] row) {
 		int idx = 0;
 
 		StorageContainerSummary container = new StorageContainerSummary();
@@ -475,6 +489,7 @@ public class StorageContainerDaoImpl extends AbstractDao<StorageContainer> imple
 		container.setName((String)row[idx++]);
 		container.setNoOfRows((Integer)row[idx++]);
 		container.setNoOfColumns((Integer)row[idx++]);
+		container.setPositionAssignment((String)row[idx++]);
 
 		if (row[idx] != null) {
 			StorageLocationSummary location = new StorageLocationSummary();
@@ -486,7 +501,7 @@ public class StorageContainerDaoImpl extends AbstractDao<StorageContainer> imple
 				//
 				int rowNo = (Integer)row[idx++];
 				int colNo = (Integer)row[idx++];
-				location.setPosition((rowNo - 1) * noOfColumns + colNo);
+				location.setPosition((rowNo - 1) * 10000 + colNo);
 			}
 
 			container.setStorageLocation(location);
@@ -496,6 +511,8 @@ public class StorageContainerDaoImpl extends AbstractDao<StorageContainer> imple
 	}
 
 	private void linkParentChildContainers(Map<Long, StorageContainerSummary> containersMap) {
+		Map<Long, StorageContainer> objMap = new HashMap<>();
+
 		for (StorageContainerSummary container : containersMap.values()) {
 			StorageLocationSummary location = container.getStorageLocation();
 			if (location == null) {
@@ -504,13 +521,21 @@ public class StorageContainerDaoImpl extends AbstractDao<StorageContainer> imple
 			}
 
 			StorageContainerSummary parent = containersMap.get(location.getId());
+			StorageContainer pcObj = objMap.get(parent.getId());
+			if (pcObj == null) {
+				pcObj = new StorageContainer();
+				pcObj.setNoOfColumns(parent.getNoOfColumns());
+				pcObj.setNoOfRows(parent.getNoOfRows());
+				pcObj.setPositionAssignment(StorageContainer.PositionAssignment.valueOf(parent.getPositionAssignment()));
+				objMap.put(parent.getId(), pcObj);
+			}
 
 			//
 			// Get back actual position value based on parent container dimension
 			//
 			if (location.getPosition() != null) {
 				int rowNo = (location.getPosition() - 1) / 10000 + 1, colNo = (location.getPosition() - 1) % 10000 + 1;
-				location.setPosition((rowNo - 1) * parent.getNoOfColumns() + colNo);
+				location.setPosition(pcObj.getPositionAssigner().toPosition(pcObj, rowNo, colNo));
 			}
 
 			if (parent.getChildContainers() == null) {
