@@ -40,7 +40,7 @@ angular.module('os.biospecimen.cp',
           $scope.codingEnabled = $scope.global.appProps.cp_coding_enabled;
         },
         resolve: {
-          cpsCtx: function(currentUser, AuthorizationService) {
+          cpsCtx: function(currentUser, authInit, AuthorizationService) {
             var participantEximAllowed = AuthorizationService.isAllowed({
               resource: 'ParticipantPhi',
               operations: ['Export Import']
