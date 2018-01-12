@@ -167,8 +167,8 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 		List<Object[]> rows = query.setLong("formId", formId).list();
 		
 		List<FormContextDetail> formCtxts = new ArrayList<>();
-		int idx = -1;
 		for (Object[] row : rows) {
+			int idx = -1;
 			FormContextDetail formCtxt = new FormContextDetail();
 			formCtxt.setFormCtxtId((Long)row[++idx]);
 			formCtxt.setFormId((Long)row[++idx]);
