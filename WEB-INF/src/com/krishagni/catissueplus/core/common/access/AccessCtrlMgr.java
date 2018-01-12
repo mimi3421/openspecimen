@@ -467,6 +467,10 @@ public class AccessCtrlMgr {
 		return ensureParticipantObjectRights(participantId, Operation.READ);
 	}
 
+	public boolean ensureReadParticipantRights(Participant participant) {
+		return ensureParticipantObjectRights(participant, Operation.READ);
+	}
+
 	public boolean ensureUpdateParticipantRights(Participant participant) {
 		return ensureParticipantObjectRights(participant, Operation.UPDATE);
 	}

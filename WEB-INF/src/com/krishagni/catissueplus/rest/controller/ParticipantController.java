@@ -46,7 +46,7 @@ public class ParticipantController {
 		return response(participantSvc.getParticipant(request(participantId)));
 	}
 	
-	@RequestMapping(method = RequestMethod.POST)
+	/*@RequestMapping(method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
 	public ParticipantDetail createParticipant(@RequestBody ParticipantDetail participantDetail) {
@@ -66,7 +66,7 @@ public class ParticipantController {
 	@ResponseBody
 	public ParticipantDetail delete(@PathVariable Long id) {
 		return response(participantSvc.delete(request(id)));
-	}
+	}*/
 
 	@RequestMapping(method = RequestMethod.POST, value = "/match")
 	@ResponseStatus(HttpStatus.OK)

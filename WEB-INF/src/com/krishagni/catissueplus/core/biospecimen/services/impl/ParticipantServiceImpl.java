@@ -73,8 +73,9 @@ public class ParticipantServiceImpl implements ParticipantService, ObjectAccesso
 		if (participant == null) {
 			return ResponseEvent.userError(ParticipantErrorCode.NOT_FOUND);
 		}
-		
-		return ResponseEvent.response(ParticipantDetail.from(participant, false));
+
+		boolean phiAccess = AccessCtrlMgr.getInstance().ensureReadParticipantRights(participant);
+		return ResponseEvent.response(ParticipantDetail.from(participant, !phiAccess));
 	}
 
 	@Override
