@@ -5,6 +5,7 @@ angular.module('os.biospecimen.specimenlist')
 
     function init() { 
       $scope.specimenUpdateOpts = {resource: 'VisitAndSpecimen', operations: ['Update']};
+      $scope.orderCreateOpts    = {resource: 'Order', operations: ['Create']};
 
       $scope.ctx = {
         list: list,

@@ -26,7 +26,7 @@
     <div class="left">
       <os-specimen-ops specimens="getSelectedSpecimens()" init-list="loadSpecimens()"></os-specimen-ops>
 
-      <button class="default" ng-if="!ctx.reqBasedDistOrShip" ng-click="distributeCart()">
+      <button show-if-allowed="orderCreateOpts" ng-if="!ctx.reqBasedDistOrShip" class="default" ng-click="distributeCart()">
         <span class="fa fa-share"></span>
         <span translate="specimen_list.distribute_all">Distribute All</span>
       </button>
