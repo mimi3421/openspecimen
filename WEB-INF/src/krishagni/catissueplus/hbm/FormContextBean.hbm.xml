@@ -17,13 +17,17 @@
 
     <property name="cpId" column="CP_ID"/>
 
+    <property name="entityId" column="ENTITY_ID"/>
+
     <property name="sortOrder" column="SORT_ORDER"/>
 
     <property name="multiRecord" column="IS_MULTIRECORD"/>
         
     <property name="sysForm" column="IS_SYS_FORM" type="boolean"/>
 
-    <property name="deletedOn" column="DELETED_ON" type="timestamp"/>	
+    <property name="deletedOn" column="DELETED_ON" type="timestamp"/>
+
+    <many-to-one name="form" column="CONTAINER_ID" not-found="ignore" update="false" insert="false"/>
                 			
     <sql-query name="getFormsAttachedToAllProtocols">
       <return-scalar column="formId" type="long"/>
@@ -149,7 +153,8 @@
       <return-scalar column="ctxtId"        type="long"/>
       <return-scalar column="formId"        type="long"/>
       <return-scalar column="entityLevel"   type="string"/>
-      <return-scalar column="multirecord" type="boolean"/>
+      <return-scalar column="entityId"      type="long"/>
+      <return-scalar column="multirecord"   type="boolean"/>
       <return-scalar column="sysForm"       type="boolean"/>
       <return-scalar column="cpId"          type="long"/>
       <return-scalar column="shortTitle"    type="string"/>
@@ -157,7 +162,7 @@
             
       select
         fctxt.identifier as ctxtId, fctxt.container_id as formId, fctxt.entity_type as entityLevel, 
-        fctxt.is_multirecord as multirecord, fctxt.is_sys_form as sysForm,
+        fctxt.entity_id as entityId, fctxt.is_multirecord as multirecord, fctxt.is_sys_form as sysForm,
         cp.identifier as cpId, cp.short_title as shortTitle, cp.title as title
       from
         catissue_form_context fctxt
@@ -517,7 +522,7 @@
         c.deleted_on is null and
         fc.deleted_on is null and
         fc.entity_type = :entityType and
-        fc.cp_id = :cpId
+        ((:entityId is null and fc.cp_id = :cpId) or fc.entity_id = :entityId)
     </sql-query>
                          
     <sql-query name="getFormIds">

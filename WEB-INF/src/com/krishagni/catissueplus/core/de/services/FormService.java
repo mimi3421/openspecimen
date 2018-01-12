@@ -85,6 +85,8 @@ public interface FormService {
 
 	public Map<String, Object> getExtensionInfo(Long cpId, String entityType);
 
+	public Map<String, Object> getExtensionInfo(boolean cpBased, String entityType, Long entityId);
+
 	public List<FormSummary> getEntityForms(Long cpId, String[] entityTypes);
 
 	public void anonymizeRecord(Container form, Long recordId);

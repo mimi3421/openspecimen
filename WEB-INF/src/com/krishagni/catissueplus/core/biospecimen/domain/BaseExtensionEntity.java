@@ -57,7 +57,7 @@ public abstract class BaseExtensionEntity extends BaseEntity {
 			
 			@Override
 			public String getFormName() {
-				return getFormNameByEntityType(getCpId());
+				return getFormNameByEntityType();
 			}
 			
 			@Override
@@ -68,7 +68,17 @@ public abstract class BaseExtensionEntity extends BaseEntity {
 			@Override
 			public Long getCpId() {
 				return BaseExtensionEntity.this.getCpId();
-			} 
+			}
+
+			@Override
+			public boolean isCpBased() {
+				return BaseExtensionEntity.this.isCpBased();
+			}
+
+			@Override
+			public Long getEntityId() {
+				return BaseExtensionEntity.this.getEntityId();
+			}
 		};
 		
 		if (StringUtils.isBlank(extnObj.getFormName())) {
@@ -88,6 +98,14 @@ public abstract class BaseExtensionEntity extends BaseEntity {
 
 	protected Long getCpId() {
 		return -1L;
+	}
+
+	protected boolean isCpBased() {
+		return true;
+	}
+
+	protected Long getEntityId() {
+		return null;
 	}
 	
 	private Long getRecordId(DeObject extnObj) {

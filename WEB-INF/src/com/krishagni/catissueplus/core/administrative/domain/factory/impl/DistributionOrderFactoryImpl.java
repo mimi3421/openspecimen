@@ -38,6 +38,7 @@ import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.catissueplus.core.common.util.NumUtil;
 import com.krishagni.catissueplus.core.common.util.Status;
 import com.krishagni.catissueplus.core.common.util.Utility;
+import com.krishagni.catissueplus.core.de.domain.DeObject;
 
 public class DistributionOrderFactoryImpl implements DistributionOrderFactory {
 	private DaoFactory daoFactory;
@@ -70,6 +71,7 @@ public class DistributionOrderFactoryImpl implements DistributionOrderFactory {
 		setActivityStatus(detail, order, ose);
 		setTrackingUrl(detail, order, ose);
 		setComments(detail, order, ose);
+		setExtension(detail, order, ose);
 		
 		ose.checkAndThrow();
 		return order;
@@ -327,7 +329,12 @@ public class DistributionOrderFactoryImpl implements DistributionOrderFactory {
 	private void setComments(DistributionOrderDetail detail, DistributionOrder order, OpenSpecimenException ose) {
 		order.setComments(detail.getComments());
 	}
-		
+
+	private void setExtension(DistributionOrderDetail detail, DistributionOrder order, OpenSpecimenException ose) {
+		DeObject extension = DeObject.createExtension(detail.getExtensionDetail(), order);
+		order.setExtension(extension);
+	}
+
 	private User getUser(UserSummary userSummary, User defaultUser, OpenSpecimenException ose, ErrorCode error) {
 		if (userSummary == null) {
 			return defaultUser;

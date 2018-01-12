@@ -2,6 +2,8 @@ package krishagni.catissueplus.beans;
 
 import java.util.Date;
 
+import com.krishagni.catissueplus.core.de.domain.Form;
+
 public class FormContextBean {
 	
 	private Long identifier;
@@ -11,6 +13,8 @@ public class FormContextBean {
 	private String entityType;
 	
 	private Long cpId;
+
+	private Long entityId;
 	
 	private Integer sortOrder;
 	
@@ -19,6 +23,8 @@ public class FormContextBean {
 	private boolean sysForm;
 	
 	private Date deletedOn;
+
+	private Form form;
 
 	public Long getIdentifier() {
 		return identifier;
@@ -51,7 +57,15 @@ public class FormContextBean {
 	public void setCpId(Long cpId) {
 		this.cpId = cpId;
 	}
-	
+
+	public Long getEntityId() {
+		return entityId;
+	}
+
+	public void setEntityId(Long entityId) {
+		this.entityId = entityId;
+	}
+
 	public Integer getSortOrder() {
 		return sortOrder;
 	}
@@ -82,5 +96,13 @@ public class FormContextBean {
 
 	public void setDeletedOn(Date deletedOn) {
 		this.deletedOn = deletedOn;
+	}
+
+	public Form getForm() {
+		return form;
+	}
+
+	public void setForm(Form form) {
+		this.form = form;
 	}
 }

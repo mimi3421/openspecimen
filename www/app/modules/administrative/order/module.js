@@ -86,13 +86,23 @@ angular.module('os.administrative.order',
         templateUrl: 'modules/common/import/add.html',
         controller: 'ImportObjectCtrl',
         resolve: {
-          importDetail: function() {
+          importDetail: function(DistributionProtocol) {
             return {
               breadcrumbs: [{state: 'order-list', title: 'orders.list'}],
               objectType: 'distributionOrder',
               csvType: 'MULTIPLE_ROWS_PER_OBJ',
               title: 'orders.bulk_import',
-              onSuccess: {state: 'order-list'}
+              onSuccess: {state: 'order-list'},
+              entityLabel: 'orders.dp',
+              entitiesFn: function(searchTerm) {
+                var filterOpts = {activityStatus: 'Active', query: searchTerm, excludeExpiredDps: true};
+                return DistributionProtocol.query(filterOpts).then(
+                  function(dps) {
+                    return dps.map(function(dp) { return {id: dp.id, name: dp.shortTitle}; });
+                  }
+                );
+              },
+              entities: []
             };
           }
         },

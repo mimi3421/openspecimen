@@ -122,7 +122,17 @@ public abstract class SpecimenEvent extends DeObject {
 	public Long getCpId() {
 		return specimen.getVisit().getCollectionProtocol().getId();
 	}
-		
+
+	@Override
+	public boolean isCpBased() {
+		return true;
+	}
+
+	@Override
+	public Long getEntityId() {
+		return null;
+	}
+
 	protected abstract Map<String, Object> getEventAttrs();
 	
 	protected abstract void setEventAttrs(Map<String, Object> attrValues);

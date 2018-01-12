@@ -15,8 +15,20 @@
   </div>
 
   <div class="container">
-    <form class="form-horizontal" ng-if="importDetail.types.length > 0">
-      <div class="form-group">
+    <form class="form-horizontal">
+      <div class="form-group" ng-if="importDetail.entitiesFn">
+        <label class="col-xs-3 control-label">
+          <span translate="{{importDetail.entityLabel}}"></span>
+        </label>
+        <div class="col-xs-5">
+          <os-select ng-model="importDetail.objectParams.entityId" select-prop="id" display-prop="name"
+            list="importDetail.entities" refresh="searchEntities" on-select="onEntitySelect()"
+            placeholder="{{importDetail.entityLabel | translate}}">
+          </os-select>
+        </div>
+      </div>
+
+      <div class="form-group" ng-if="importDetail.types.length > 0">
         <label class="col-xs-3 control-label" translate="bulk_imports.select_record_type">
           Select Record Type
         </label>

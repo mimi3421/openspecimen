@@ -1250,17 +1250,26 @@ public class QueryServiceImpl implements QueryService {
 		String[] fieldParts = facet.split("\\.");
 		String rootForm = fieldParts[0];
 
-		String formName = null, fieldName = null;
-		if (fieldParts[1].equals("extensions") || fieldParts[1].equals("customFields")) {
-			if (fieldParts.length < 4) {
-				throw new IllegalArgumentException("Invalid facet: " + facet);
+		int idx = fieldParts.length - 1;
+		while (idx >= 0) {
+			if (fieldParts[idx].equals("extensions") || fieldParts[idx].equals("customFields")) {
+				break;
 			}
 
-			formName = fieldParts[2];
-			fieldName = StringUtils.join(fieldParts, ".", 3, fieldParts.length);
-		} else {
+			--idx;
+		}
+
+		if ((idx + 2) >= fieldParts.length) {
+			throw new IllegalArgumentException("Invalid facet: " + facet);
+		}
+
+		String formName = null, fieldName = null;
+		if (idx == -1) {
 			formName = fieldParts[0];
 			fieldName = StringUtils.join(fieldParts, ".", 1, fieldParts.length);
+		} else {
+			formName = fieldParts[idx + 1];
+			fieldName = StringUtils.join(fieldParts, ".", idx + 2, fieldParts.length);
 		}
 
 		Container form = Container.getContainer(formName);

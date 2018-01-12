@@ -39,12 +39,12 @@ class FormInfoCache implements FormContextProcessor, FormEventsListener {
 	//
 	// Key is CP ID. For non CP specific, key is -1L
 	//
-	private Map<Long, ContextInfo> contextInfoMap = new HashMap<>();
+	private final Map<Long, ContextInfo> contextInfoMap = new HashMap<>();
 
 	//
 	// Key is form name
 	//
-	private Map<String, Container> formsCache = new HashMap<>();
+	private final Map<String, Container> formsCache = new HashMap<>();
 
 	public FormInfoCache() {
 
@@ -57,38 +57,53 @@ class FormInfoCache implements FormContextProcessor, FormEventsListener {
 	}
 
 	public String getFormName(Long cpId, String entityType) {
+		return getFormName(true, entityType, cpId);
+	}
+
+	public String getFormName(boolean cpBased, String entityType, Long entityId) {
+		Long cpId = cpBased ? entityId : -1L;
+		String entityTypeKey = cpBased ? entityType : entityType + "-" + entityId;
+
 		ContextInfo ctxtInfo = getCpContextInfo(cpId);
-		if (!ctxtInfo.hasFormName(entityType)) {
+		if (!ctxtInfo.hasFormName(entityTypeKey)) {
 			synchronized (ctxtInfo) {
 				String formName = null;
 				Long formCtxtId = null;
 
-				Pair<String, Long> formInfo = getDaoFactory().getFormDao().getFormNameContext(cpId, entityType);
+				Pair<String, Long> formInfo = getDaoFactory().getFormDao().getFormNameContext(cpId, entityType, cpBased ? null : entityId);
 				if (formInfo != null) {
 					formName = formInfo.first();
 					formCtxtId = formInfo.second();
 				}
 
-				ctxtInfo.addFormName(entityType, formName);
-				ctxtInfo.addFormContext(entityType, formName, formCtxtId);
+				ctxtInfo.addFormName(entityTypeKey, formName);
+				ctxtInfo.addFormContext(entityTypeKey, formName, formCtxtId);
 			}
 		}
 
-		return ctxtInfo.getFormName(entityType);
-
+		return ctxtInfo.getFormName(entityTypeKey);
 	}
 
 	public Long getFormContext(Long cpId, String entityType, String formName) {
+		return getFormContext(true, entityType, cpId, formName);
+	}
+
+	public Long getFormContext(boolean cpBased, String entityType, Long entityId, String formName) {
+		Long cpId = cpBased ? entityId : -1L;
+		String entityTypeKey = cpBased ? entityType : entityType + "-" + entityId;
+
 		ContextInfo ctxtInfo = getCpContextInfo(cpId);
 		if (!ctxtInfo.hasFormContext(entityType, formName)) {
 			Container form = getForm(formName);
 			synchronized (ctxtInfo) {
-				Long formCtx = getDaoFactory().getFormDao().getFormCtxtId(form.getId(), entityType, cpId);
-				ctxtInfo.addFormContext(entityType, formName, formCtx);
+				FormContextBean formCtx = getDaoFactory().getFormDao().getFormContext(cpBased, entityType, entityId, form.getId());
+				if (formCtx != null) {
+					ctxtInfo.addFormContext(entityTypeKey, formName, formCtx.getIdentifier());
+				}
 			}
 		}
 
-		return ctxtInfo.getFormContext(entityType, formName);
+		return ctxtInfo.getFormContext(entityTypeKey, formName);
 	}
 
 	public Container getForm(String formName) {
@@ -104,10 +119,14 @@ class FormInfoCache implements FormContextProcessor, FormEventsListener {
 	}
 
 	public Map<String, Object> getFormInfo(Long cpId, String entity) {
-		String formName = getFormName(cpId, entity);
-		if (StringUtils.isBlank(formName) && cpId != -1L) {
-			cpId = -1L;
-			formName = getFormName(cpId, entity);
+		return getFormInfo(true, entity, cpId);
+	}
+
+	public Map<String, Object> getFormInfo(boolean cpBased, String entityType, Long entityId) {
+		String formName = getFormName(cpBased, entityType, entityId);
+		if (StringUtils.isBlank(formName) && entityId != -1L) {
+			entityId = -1L;
+			formName = getFormName(cpBased, entityType, entityId);
 		}
 
 		if (StringUtils.isBlank(formName)) {
@@ -116,7 +135,7 @@ class FormInfoCache implements FormContextProcessor, FormEventsListener {
 
 		Map<String, Object> formInfo = new HashMap<>();
 		formInfo.put("formId", getForm(formName).getId());
-		formInfo.put("formCtxtId", getFormContext(cpId, entity, formName));
+		formInfo.put("formCtxtId", getFormContext(cpBased, entityType, entityId, formName));
 		formInfo.put("formName", formName);
 		return formInfo;
 	}
@@ -161,7 +180,12 @@ class FormInfoCache implements FormContextProcessor, FormEventsListener {
 		}
 
 		synchronized (contextInfo) {
-			contextInfo.removeFormName(formCtxt.getEntityType());
+			String entityTypeKey = formCtxt.getEntityType();
+			if (formCtxt.getEntityId() != null) {
+				entityTypeKey += "-" + formCtxt.getEntityId();
+			}
+
+			contextInfo.removeFormName(entityTypeKey);
 			contextInfo.removeFormContext(formCtxt.getIdentifier());
 		}
 	}

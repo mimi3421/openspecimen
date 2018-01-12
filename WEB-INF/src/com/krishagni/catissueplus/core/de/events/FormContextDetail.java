@@ -8,6 +8,8 @@ public class FormContextDetail {
 	private CollectionProtocolSummary collectionProtocol;
 	
 	private String level;
+
+	private Long entityId;
 	
 	private Long formId;
 	
@@ -39,6 +41,14 @@ public class FormContextDetail {
 
 	public void setLevel(String level) {
 		this.level = level;
+	}
+
+	public Long getEntityId() {
+		return entityId;
+	}
+
+	public void setEntityId(Long entityId) {
+		this.entityId = entityId;
 	}
 
 	public Long getFormId() {

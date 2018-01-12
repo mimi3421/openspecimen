@@ -14,4 +14,14 @@
       );
     </sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="Settings to specify system level custom fields for order">
+    <sql>
+      call add_cfg_prop(
+        'administrative', 'order_custom_fields_form',
+        'order_custom_fields_form', 'order_custom_fields_form_desc',
+        'INT', ''
+      );
+    </sql>
+  </changeSet>
 </databaseChangeLog>

@@ -529,9 +529,11 @@
 
   <bean id="distributionProtocolService" class="com.krishagni.catissueplus.core.administrative.services.impl.DistributionProtocolServiceImpl">
     <property name="daoFactory" ref="biospecimenDaoFactory"/>
+    <property name="deDaoFactory" ref="deDaoFactory"/>
     <property name="distributionProtocolFactory" ref="distributionProtocolFactory" />
     <property name="dprFactory" ref="dpRequirementFactory"/>
     <property name="formSvc" ref="formSvc"/>
+    <property name="cfgSvc" ref="cfgSvc"/>
   </bean>
 	
   <bean id="distributionFactory" class="com.krishagni.catissueplus.core.administrative.domain.factory.impl.DistributionOrderFactoryImpl">
@@ -814,7 +816,6 @@
         <value>com/krishagni/catissueplus/core/administrative/schema/container.xml</value>
         <value>com/krishagni/catissueplus/core/administrative/schema/shipment.xml</value>
         <value>com/krishagni/catissueplus/core/administrative/schema/container-shipment.xml</value>
-        <value>com/krishagni/catissueplus/core/administrative/schema/distribution-order.xml</value>
         <value>com/krishagni/catissueplus/core/administrative/schema/return-specimen.xml</value>
         <value>com/krishagni/catissueplus/core/biospecimen/schema/cp.xml</value>
         <value>com/krishagni/catissueplus/core/biospecimen/schema/cpe.xml</value>
@@ -893,6 +894,13 @@
             <property name="schemaResource"  value="com/krishagni/catissueplus/core/administrative/schema/dp-requirement.xml"/>
           </bean>
         </entry>
+        <entry key="distributionOrder">
+          <bean class="com.krishagni.catissueplus.core.de.services.impl.CustomFieldsSchemaBuilder">
+            <property name="templateService" ref="templateService"/>
+            <property name="schemaResource" value="com/krishagni/catissueplus/core/administrative/schema/distribution-order.xml"/>
+          </bean>
+        </entry>
+
       </map>
     </property>
   </bean>

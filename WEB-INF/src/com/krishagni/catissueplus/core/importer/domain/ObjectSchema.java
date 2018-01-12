@@ -65,6 +65,7 @@ public class ObjectSchema {
 		
 		xstream.alias("record", Record.class);
 		xstream.aliasAttribute(Record.class, "type", "type");
+		xstream.aliasAttribute(Record.class, "cpBased", "cpBased");
 		xstream.aliasAttribute(Record.class, "entityType", "entityType");
 		xstream.addImplicitCollection(Record.class, "subRecords", "record", Record.class);
 		
@@ -82,6 +83,8 @@ public class ObjectSchema {
 		private String caption;
 		
 		private String type;
+
+		private boolean cpBased = true; // for backward compatibility, default value is true
 		
 		private String entityType;
 		
@@ -121,6 +124,14 @@ public class ObjectSchema {
 
 		public void setType(String type) {
 			this.type = type;
+		}
+
+		public boolean isCpBased() {
+			return cpBased;
+		}
+
+		public void setCpBased(boolean cpBased) {
+			this.cpBased = cpBased;
 		}
 
 		public String getEntityType() {

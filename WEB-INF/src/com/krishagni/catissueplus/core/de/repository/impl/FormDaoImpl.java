@@ -63,6 +63,14 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 			.uniqueResult();
 	}
 
+	@Override
+	public Form getFormByName(String name) {
+		return (Form) getCurrentSession().createCriteria(Form.class)
+			.add(Restrictions.eq("name", name))
+			.add(Restrictions.isNull("deletedOn"))
+			.uniqueResult();
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Form> getFormsByIds(Collection<Long> formIds) {
@@ -158,19 +166,21 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 		Query query = sessionFactory.getCurrentSession().getNamedQuery(GET_FORM_CTXTS);
 		List<Object[]> rows = query.setLong("formId", formId).list();
 		
-		List<FormContextDetail> formCtxts = new ArrayList<FormContextDetail>();
+		List<FormContextDetail> formCtxts = new ArrayList<>();
+		int idx = -1;
 		for (Object[] row : rows) {
 			FormContextDetail formCtxt = new FormContextDetail();
-			formCtxt.setFormCtxtId((Long)row[0]);
-			formCtxt.setFormId((Long)row[1]);
-			formCtxt.setLevel((String)row[2]);
-			formCtxt.setMultiRecord((Boolean)row[3]);
-			formCtxt.setSysForm((Boolean)row[4]);
+			formCtxt.setFormCtxtId((Long)row[++idx]);
+			formCtxt.setFormId((Long)row[++idx]);
+			formCtxt.setLevel((String)row[++idx]);
+			formCtxt.setEntityId((Long)row[++idx]);
+			formCtxt.setMultiRecord((Boolean)row[++idx]);
+			formCtxt.setSysForm((Boolean)row[++idx]);
 
 			CollectionProtocolSummary cp = new CollectionProtocolSummary();
-			cp.setId((Long)row[5]);
-			cp.setShortTitle((String)row[6]);
-			cp.setTitle((String)row[7]);
+			cp.setId((Long)row[++idx]);
+			cp.setShortTitle((String)row[++idx]);
+			cp.setTitle((String)row[++idx]);
 			formCtxt.setCollectionProtocol(cp);
 			
 			formCtxts.add(formCtxt);
@@ -304,7 +314,28 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 		List<FormContextBean> objs = query.list();
 		return objs != null && !objs.isEmpty() ? objs.iterator().next() : null;
 	}
-	
+
+	@Override
+	public FormContextBean getFormContext(boolean cpBased, String entityType, Long entityId, Long formId) {
+		entityId = entityId == null ? -1L : entityId;
+
+		Criteria query = getCurrentSession().createCriteria(FormContextBean.class)
+			.add(Restrictions.eq("entityType", entityType))
+			.add(Restrictions.isNull("deletedOn"));
+
+		if (cpBased) {
+			query.add(Restrictions.or(Restrictions.eq("cpId", -1L), Restrictions.eq("cpId", entityId)));
+		} else {
+			query.add(Restrictions.eq("entityId", entityId));
+		}
+
+		if (formId != null) {
+			query.add(Restrictions.eq("containerId", formId));
+		}
+
+		return (FormContextBean) query.uniqueResult();
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<FormContextBean> getFormContextsById(List<Long> formContextIds) {
@@ -327,12 +358,13 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 	}
 
 	@Override
-	public Pair<String, Long> getFormNameContext(Long cpId, String entityType) {
+	public Pair<String, Long> getFormNameContext(Long cpId, String entityType, Long entityId) {
 		List<Object[]> rows = getCurrentSession()
-				.getNamedQuery(GET_FORM_NAME_CTXT_ID)
-				.setLong("cpId", cpId)
-				.setString("entityType", entityType)
-				.list();
+			.getNamedQuery(GET_FORM_NAME_CTXT_ID)
+			.setParameter("cpId", cpId)
+			.setParameter("entityType", entityType)
+			.setParameter("entityId", entityId)
+			.list();
 
 		if (CollectionUtils.isEmpty(rows)) {
 			return null;

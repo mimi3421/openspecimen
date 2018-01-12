@@ -384,6 +384,7 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 			distributeOrder(order, siteCps, inputStatus);
 
 			DistributionOrder savedOrder = daoFactory.getDistributionOrderDao().getById(order.getId());
+			savedOrder.addOrUpdateExtension();
 			DistributionOrderDetail output = DistributionOrderDetail.from(savedOrder);
 			listeners.forEach(listener -> listener.onSave(input, output, savedOrder));
 
@@ -403,6 +404,8 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 		long t1 = System.currentTimeMillis();
 		try {
 			DistributionOrder existingOrder = getOrder(input.getId(), input.getName());
+			input.setId(existingOrder.getId());
+
 			if (existingOrder.isOrderExecuted()) {
 				return ResponseEvent.userError(DistributionOrderErrorCode.CANT_UPDATE_EXEC_ORDER, existingOrder.getName());
 			}
@@ -424,6 +427,8 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 			Status oldStatus = existingOrder.getStatus();
 			existingOrder.update(newOrder);
 			daoFactory.getDistributionOrderDao().saveOrUpdate(existingOrder, true);
+			existingOrder.addOrUpdateExtension();
+
 
 			ensureValidSpecimens(existingOrder, siteCps, ose);
 			ose.checkAndThrow();
@@ -704,6 +709,10 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 					DeObject extension = order.getDistributionProtocol().getExtension();
 					if (extension != null) {
 						putAll(extension.getLabelValueMap());
+					}
+
+					if (order.getExtension() != null) {
+						putAll(order.getExtension().getLabelValueMap());
 					}
 
 					put("", ""); // blank line

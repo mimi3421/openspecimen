@@ -5,6 +5,5 @@ import com.krishagni.catissueplus.core.administrative.domain.DistributionOrder.S
 import com.krishagni.catissueplus.core.administrative.events.DistributionOrderDetail;
 
 public interface DistributionOrderFactory {
-	public DistributionOrder createDistributionOrder(DistributionOrderDetail detail, Status status);
-	
+	DistributionOrder createDistributionOrder(DistributionOrderDetail detail, Status status);
 }

@@ -113,6 +113,8 @@ public class FormServiceImpl implements FormService, InitializingBean {
 	
 	private static Map<String, String> customFieldEntities = new HashMap<>();
 
+	private static Map<String, Function<Long, Boolean>> entityAccessCheckers = new HashMap<>();
+
 	static {
 		staticExtendedForms.add(PARTICIPANT_FORM);
 		staticExtendedForms.add(SCG_FORM);
@@ -245,7 +247,7 @@ public class FormServiceImpl implements FormService, InitializingBean {
 				fields.add(getExtensionField("customFields", "Custom Fields", Arrays.asList(extnFormId)));
 			}
 		}
-		
+
 		if (!staticExtendedForms.contains(formName)) {
 			return ResponseEvent.response(fields);
 		}
@@ -272,34 +274,33 @@ public class FormServiceImpl implements FormService, InitializingBean {
 	@PlusTransactional
 	public ResponseEvent<List<FormContextDetail>> addFormContexts(RequestEvent<List<FormContextDetail>> req) { // TODO: check form is deleted
 		try {
-			AccessCtrlMgr.getInstance().ensureFormUpdateRights();
-
-			Set<Long> allowedCpIds = new HashSet<Long>();
+			// AccessCtrlMgr.getInstance().ensureFormUpdateRights();
 			List<FormContextDetail> formCtxts = req.getPayload();
 			for (FormContextDetail formCtxtDetail : formCtxts) {
 				Long formId = formCtxtDetail.getFormId();
 				Long cpId = formCtxtDetail.getCollectionProtocol().getId();
+				String entity = formCtxtDetail.getLevel();
+				Long entityId = formCtxtDetail.getEntityId();
 
-				if (cpId == -1 && !AuthUtil.isAdmin()) {
+				if (entityId != null) {
+					Function<Long, Boolean> accessChecker = entityAccessCheckers.get(entity);
+					if (accessChecker != null && !accessChecker.apply(entityId)) {
+						throw OpenSpecimenException.userError(RbacErrorCode.ACCESS_DENIED);
+					}
+				} else if (cpId == -1L && !AuthUtil.isAdmin()) {
 					throw OpenSpecimenException.userError(RbacErrorCode.ACCESS_DENIED);
+				} else if (cpId != -1L) {
+					AccessCtrlMgr.getInstance().ensureUpdateCpRights(cpId);
 				}
 				
-				if (!allowedCpIds.contains(cpId)) {
-					if (cpId != -1) {
-						AccessCtrlMgr.getInstance().ensureUpdateCpRights(cpId);
-					}
-					
-					allowedCpIds.add(cpId);
-				}
 
-				String entity = formCtxtDetail.getLevel();
-
-				FormContextBean formCtxt = formDao.getFormContext(formId, cpId, entity);
+				FormContextBean formCtxt = formDao.getFormContext(entityId == null, entity, entityId == null ? cpId : entityId, formId);
 				if (formCtxt == null) {
 					formCtxt = new FormContextBean();
 					formCtxt.setContainerId(formId);
-					formCtxt.setCpId(entity == SPECIMEN_EVENT_FORM ? -1 : cpId);
+					formCtxt.setCpId(entity.equals(SPECIMEN_EVENT_FORM) ? -1 : cpId);
 					formCtxt.setEntityType(entity);
+					formCtxt.setEntityId(entityId);
 					formCtxt.setMultiRecord(formCtxtDetail.isMultiRecord());
 				}
 				formCtxt.setSortOrder(formCtxtDetail.getSortOrder());
@@ -528,11 +529,14 @@ public class FormServiceImpl implements FormService, InitializingBean {
 			AccessCtrlMgr.getInstance().ensureFormUpdateRights();
 
 			RemoveFormContextOp opDetail = req.getPayload();
+			Long cpId = opDetail.getCpId();
+			Long entityId = opDetail.getEntityId();
 			FormContextBean formCtx = formDao.getFormContext(
-					opDetail.getFormId(), 
-					opDetail.getCpId(), 
-					opDetail.getEntityType());
-			
+				entityId == null,
+				opDetail.getEntityType(),
+				entityId == null ? opDetail.getCpId() : entityId,
+				opDetail.getFormId());
+
 			if (formCtx == null) {
 				return ResponseEvent.userError(FormErrorCode.NO_ASSOCIATION);
 			}
@@ -540,13 +544,16 @@ public class FormServiceImpl implements FormService, InitializingBean {
 			if (formCtx.isSysForm()) {
 				return ResponseEvent.userError(FormErrorCode.SYS_FORM_DEL_NOT_ALLOWED);
 			}
-			
-			if (formCtx.getCpId() == -1 && !AuthUtil.isAdmin()) {
+
+			if (entityId != null) {
+				Function<Long, Boolean> accessChecker = entityAccessCheckers.get(opDetail.getEntityType());
+				if (accessChecker != null && !accessChecker.apply(entityId)) {
+					return ResponseEvent.userError(RbacErrorCode.ACCESS_DENIED);
+				}
+			} else if (cpId == -1L && !AuthUtil.isAdmin()) {
 				return ResponseEvent.userError(RbacErrorCode.ACCESS_DENIED);
-			}
-			
-			if (formCtx.getCpId() != -1) {
-				AccessCtrlMgr.getInstance().ensureUpdateCpRights(formCtx.getCpId());
+			} else if (cpId != -1L) {
+				AccessCtrlMgr.getInstance().ensureUpdateCpRights(cpId);
 			}
 
 			notifyContextRemoved(formCtx);
@@ -699,7 +706,13 @@ public class FormServiceImpl implements FormService, InitializingBean {
 	@Override
 	@PlusTransactional
 	public Map<String, Object> getExtensionInfo(Long cpId, String entityType) {
-		return DeObject.getFormInfo(cpId, entityType);
+		return getExtensionInfo(true, entityType, cpId);
+	}
+
+	@Override
+	@PlusTransactional
+	public Map<String, Object> getExtensionInfo(boolean cpBased, String entityType, Long entityId) {
+		return DeObject.getFormInfo(cpBased, entityType, entityId);
 	}
 
 	@Override
@@ -913,8 +926,15 @@ public class FormServiceImpl implements FormService, InitializingBean {
             	if (!sfCtrl.isPathLink()) {
                 	field.setType("SUBFORM");
                 	field.setSubFields(getFormFields(sfCtrl.getSubContainer()));
-                	fields.add(field);            		
-            	}
+                	fields.add(field);
+            	} else if (sfCtrl.getName().equals("customFields") && StringUtils.isNotBlank(sfCtrl.getCustomFieldsInfo())) {
+            		String[] info = sfCtrl.getCustomFieldsInfo().split(":");  // cpBased:entityType:entityId => false:OrderExtension:-1
+					Map<String, Object> extnInfo = getExtensionInfo(Boolean.parseBoolean(info[0]), info[1], Long.parseLong(info[2]));
+					if (extnInfo != null) {
+						Long extnFormId = (Long)extnInfo.get("formId");
+						fields.add(getExtensionField("customFields", "Custom Fields", Arrays.asList(extnFormId)));
+					}
+				}
             } else if (!(control instanceof Label || control instanceof PageBreak)) {
             	DataType dataType = getType(control);
             	field.setType(dataType.name());

@@ -752,6 +752,20 @@
             <noOfDigitsAfterDecimal>2</noOfDigitsAfterDecimal>
           </numberField>
         </row>
+
+        <row>
+          <subForm>
+            <name>customFields</name>
+            <udn>customFields</udn>
+            <caption>#getMessage("specimen_order_extensions")</caption>
+            <table>OS_ORDERS_CUSTOM_FIELDS_VIEW</table>
+            <foreignKey>ORDER_ID</foreignKey>
+            <parentKey>ORDER_ID</parentKey>
+            <customFieldsInfo>false:OrderExtension:-1</customFieldsInfo>
+            <pathLink>true</pathLink>
+            <extnFkCol>RECORD_ID</extnFkCol>
+          </subForm>
+        </row>
       </subForm>
     </row>
     

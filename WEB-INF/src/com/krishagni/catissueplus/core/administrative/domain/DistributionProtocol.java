@@ -19,6 +19,7 @@ import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.util.Status;
 import com.krishagni.catissueplus.core.common.util.Utility;
+import com.krishagni.catissueplus.core.de.domain.Form;
 import com.krishagni.catissueplus.core.de.domain.SavedQuery;
 
 @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
@@ -49,12 +50,14 @@ public class DistributionProtocol extends BaseExtensionEntity {
 	private String activityStatus;
 	
 	private SavedQuery report;
+
+	private Form orderExtnForm;
 	
-	private Set<DistributionOrder> distributionOrders = new HashSet<DistributionOrder>();
+	private Set<DistributionOrder> distributionOrders = new HashSet<>();
 	
-	private Set<DpDistributionSite> distributingSites = new HashSet<DpDistributionSite>();
+	private Set<DpDistributionSite> distributingSites = new HashSet<>();
 	
-	private Set<DpRequirement> requirements = new HashSet<DpRequirement>();
+	private Set<DpRequirement> requirements = new HashSet<>();
 	
 	private Set<DpConsentTier> consentTiers = new HashSet<>();
 	
@@ -150,6 +153,14 @@ public class DistributionProtocol extends BaseExtensionEntity {
 		this.report = report;
 	}
 
+	public Form getOrderExtnForm() {
+		return orderExtnForm;
+	}
+
+	public void setOrderExtnForm(Form orderExtnForm) {
+		this.orderExtnForm = orderExtnForm;
+	}
+
 	@NotAudited
 	public Set<DistributionOrder> getDistributionOrders() {
 		return distributionOrders;
@@ -193,6 +204,7 @@ public class DistributionProtocol extends BaseExtensionEntity {
 			setShortTitle(dp.getShortTitle());
 			setTitle(dp.getTitle());
 		}
+
 		setIrbId(dp.getIrbId());
 		setInstitute(dp.getInstitute());
 		setDefReceivingSite(dp.getDefReceivingSite());
@@ -201,6 +213,7 @@ public class DistributionProtocol extends BaseExtensionEntity {
 		setEndDate(dp.getEndDate());
 		setActivityStatus(dp.getActivityStatus());
 		setReport(dp.getReport());
+		setOrderExtnForm(dp.getOrderExtnForm());
 		CollectionUpdater.update(getCoordinators(), dp.getCoordinators());
 		CollectionUpdater.update(getDistributingSites(), dp.getDistributingSites());
 		setExtension(dp.getExtension());
@@ -208,7 +221,7 @@ public class DistributionProtocol extends BaseExtensionEntity {
 	
 	public List<DependentEntityDetail> getDependentEntities() {
 		return DependentEntityDetail
-				.singletonList(DistributionOrder.getEntityName(), getDistributionOrders().size());
+			.singletonList(DistributionOrder.getEntityName(), getDistributionOrders().size());
 	}
 	
 	public void delete() {
@@ -223,7 +236,7 @@ public class DistributionProtocol extends BaseExtensionEntity {
 	}
 	
 	public Set<Site> getAllDistributingSites() {
-		Set<Site> sites = new HashSet<Site>();
+		Set<Site> sites = new HashSet<>();
 		for (DpDistributionSite distSite : getDistributingSites()) {
 			if (distSite.getSite() != null) {
 				sites.add(distSite.getSite());
@@ -236,7 +249,7 @@ public class DistributionProtocol extends BaseExtensionEntity {
 	}
 
 	public Set<Institute> getDistributingInstitutes() {
-		return getDistributingSites().stream().map(dpSite -> dpSite.getInstitute()).collect(Collectors.toSet());
+		return getDistributingSites().stream().map(DpDistributionSite::getInstitute).collect(Collectors.toSet());
 	}
 	
 	public boolean hasRequirement(String specimenType, String anatomicSite, Set<String> pathologyStatuses, String clinicalDiagnosis) {

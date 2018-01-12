@@ -106,5 +106,18 @@ angular.module('os.common.import.addctrl', ['os.common.import.importjob'])
       $scope.inputFileTmplUrl  = getInputTmplUrl(importJob);
     };
 
+    $scope.onEntitySelect = function() {
+      $scope.importJob.objectParams.entityId = importDetail.objectParams.entityId;
+      $scope.inputFileTmplUrl = getInputTmplUrl($scope.importJob);
+    }
+
+    $scope.searchEntities = function(searchTerm) {
+      importDetail.entitiesFn(searchTerm).then(
+        function(entities) {
+          importDetail.entities = entities;
+        }
+      );
+    }
+
     init();
   });

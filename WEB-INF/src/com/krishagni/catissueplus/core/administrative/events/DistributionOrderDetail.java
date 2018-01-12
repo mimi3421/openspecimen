@@ -11,6 +11,7 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 import com.krishagni.catissueplus.core.administrative.domain.DistributionOrder;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenListSummary;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
+import com.krishagni.catissueplus.core.de.events.ExtensionDetail;
 
 public class DistributionOrderDetail extends DistributionOrderSummary implements Mergeable<String, DistributionOrderDetail>, Serializable {
 	private UserSummary distributor;
@@ -28,6 +29,8 @@ public class DistributionOrderDetail extends DistributionOrderSummary implements
 	private String activityStatus;
 
 	private Map<String, Object> extraAttrs;
+
+	private ExtensionDetail extensionDetail;
 
 	//
 	// For BO template
@@ -105,6 +108,14 @@ public class DistributionOrderDetail extends DistributionOrderSummary implements
 		this.extraAttrs = extraAttrs;
 	}
 
+	public ExtensionDetail getExtensionDetail() {
+		return extensionDetail;
+	}
+
+	public void setExtensionDetail(ExtensionDetail extensionDetail) {
+		this.extensionDetail = extensionDetail;
+	}
+
 	public DistributionOrderItemDetail getOrderItem() {
 		return orderItem;
 	}
@@ -151,6 +162,8 @@ public class DistributionOrderDetail extends DistributionOrderSummary implements
 		
 		detail.setTrackingUrl(order.getTrackingUrl());
 		detail.setComments(order.getComments());
+		detail.setExtensionDetail(ExtensionDetail.from(order.getExtension()));
+
 		if (includeOrderItems) {
 			detail.setOrderItems(DistributionOrderItemDetail.from(order.getOrderItems()));
 		}

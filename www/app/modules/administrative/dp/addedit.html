@@ -100,6 +100,16 @@
       </div>
 
       <div class="form-group">
+        <label class="control-label col-xs-3" translate="dp.custom_fields_form">Custom Fields Form</label>
+        <div class="col-xs-6">
+          <os-select name="extnForm" ng-model="distributionProtocol.orderExtnForm"
+            list="formsList" display-prop="caption" refresh="searchForms"
+            placeholder="{{'dp.custom_fields_form' | translate}}">
+          </os-select>
+        </div>
+      </div>
+
+      <div class="form-group">
         <label class="control-label col-xs-3" translate="dp.order_report_query">Order Report Query</label>
         <div class="col-xs-6">
           <os-select name="report" ng-model="distributionProtocol.report" 

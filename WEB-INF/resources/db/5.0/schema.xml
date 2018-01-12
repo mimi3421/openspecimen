@@ -52,4 +52,40 @@
       baseTableName="OS_STAGED_VISIT_DIAGNOSES" baseColumnNames="VISIT_ID"
       referencedTableName="OS_STAGED_VISITS" referencedColumnNames="IDENTIFIER"/>
   </changeSet>
+
+  <changeSet author="vpawar" id="DP level order custom fields form">
+    <addColumn tableName="CATISSUE_DISTRIBUTION_PROTOCOL">
+      <column name="ORDER_EXTN_FORM_ID" type="${int.type}"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Foreign key on order custom fields form">
+    <addForeignKeyConstraint constraintName="FK_ORDER_EXTN_FORM_ID"
+      baseTableName="CATISSUE_DISTRIBUTION_PROTOCOL" baseColumnNames="ORDER_EXTN_FORM_ID"
+      referencedTableName="DYEXTN_CONTAINERS" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Non CP based form context entity ID">
+    <addColumn tableName="CATISSUE_FORM_CONTEXT">
+      <column name="ENTITY_ID" type="${int.type}"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Order extension records view">
+    <createView viewName="OS_ORDERS_CUSTOM_FIELDS_VIEW" replaceIfExists="true">
+      select
+        re.object_id as order_id, re.record_id as record_id, fc.container_id as form_id
+      from
+        catissue_form_record_entry re
+        inner join catissue_form_context fc on fc.identifier = re.form_ctxt_id
+        inner join os_orders o on o.identifier = re.object_id
+        inner join catissue_distribution_protocol dp on dp.identifier = o.distribution_protocol_id
+      where
+        fc.entity_type = 'OrderExtension' and
+        fc.deleted_on is null and
+        re.activity_status = 'ACTIVE' and
+        o.activity_status != 'Disabled' and
+        (dp.order_extn_form_id is null or dp.order_extn_form_id = fc.container_id)
+    </createView>
+  </changeSet>
 </databaseChangeLog>

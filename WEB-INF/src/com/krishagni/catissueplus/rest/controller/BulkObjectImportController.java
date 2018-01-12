@@ -47,7 +47,7 @@ public class BulkObjectImportController {
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody		
 	public void getInputFileTemplate(
-			@RequestParam(value = "schema", required = true)
+			@RequestParam(value = "schema")
 			String schemaName,
 
 			@RequestParam

@@ -29,7 +29,10 @@ import com.krishagni.catissueplus.core.common.events.UserSummary;
 import com.krishagni.catissueplus.core.common.util.Status;
 import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.catissueplus.core.de.domain.DeObject;
+import com.krishagni.catissueplus.core.de.domain.Form;
+import com.krishagni.catissueplus.core.de.domain.FormErrorCode;
 import com.krishagni.catissueplus.core.de.domain.SavedQuery;
+import com.krishagni.catissueplus.core.de.events.FormSummary;
 import com.krishagni.catissueplus.core.de.services.SavedQueryErrorCode;
 
 public class DistributionProtocolFactoryImpl implements DistributionProtocolFactory {
@@ -67,6 +70,7 @@ public class DistributionProtocolFactoryImpl implements DistributionProtocolFact
 		setEndDate(detail, existing, dp);
 		setActivityStatus(detail, existing, dp, ose);
 		setReport(detail, existing, dp, ose);
+		setOrderExtnForm(detail, existing, dp, ose);
 		setDistributingSites(detail, existing, dp, ose);
 		setExtension(detail, existing, dp, ose);
 
@@ -289,6 +293,37 @@ public class DistributionProtocolFactoryImpl implements DistributionProtocolFact
 		}
 
 		dp.setReport(report);
+	}
+
+	private void setOrderExtnForm(DistributionProtocolDetail detail, DistributionProtocol existing, DistributionProtocol dp, OpenSpecimenException ose) {
+		if (existing == null || detail.isAttrModified("orderExtnForm")) {
+			setOrderExtnForm(detail, dp, ose);
+		} else {
+			dp.setOrderExtnForm(existing.getOrderExtnForm());
+		}
+	}
+
+	private void setOrderExtnForm(DistributionProtocolDetail detail, DistributionProtocol dp, OpenSpecimenException ose) {
+		if (detail.getOrderExtnForm() == null) {
+			return;
+		}
+
+		Form form = null;
+		Object key = null;
+		FormSummary formDetail = detail.getOrderExtnForm();
+		if (formDetail.getFormId() != null) {
+			form = deDaoFactory.getFormDao().getFormById(formDetail.getFormId());
+			key = formDetail.getFormId();
+		} else if (StringUtils.isNotBlank(formDetail.getName())) {
+			form = deDaoFactory.getFormDao().getFormByName(formDetail.getName());
+			key = formDetail.getName();
+		}
+
+		if (form != null) {
+			dp.setOrderExtnForm(form);
+		} else if (key != null) {
+			ose.addError(FormErrorCode.NOT_FOUND, key);
+		}
 	}
 
 	private void setDistributingSites(DistributionProtocolDetail detail, DistributionProtocol existing, DistributionProtocol dp, OpenSpecimenException ose) {

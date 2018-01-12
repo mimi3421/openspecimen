@@ -3,7 +3,7 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
   .controller('OrderAddEditCtrl', function(
     $scope, $state, $translate, order, spmnRequest, requestDp,
     Institute, Specimen, SpecimensHolder, Site, DistributionProtocol,
-    DistributionOrder, SpecimenList, Alerts, Util, SpecimenUtil) {
+    DistributionOrder, SpecimenList, Alerts, Util, SpecimenUtil, ExtensionsUtil) {
     
     var ignoreQtyWarning = false;
 
@@ -12,12 +12,18 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
       $scope.order = order;
       $scope.skipSpecimensTab = (!!order.specimenList && !!order.specimenList.id);
 
+      $scope.ctx = {
+        extnFormCtrl: {},
+        extnOpts: undefined
+      };
+
       order.request = spmnRequest;
       if (requestDp) {
         order.distributionProtocol = requestDp;
         $scope.onDpSelect();
       } else {
         loadDps();
+        setExtnFormCtxt(order);
       }
 
       $scope.dpList = [];
@@ -87,6 +93,19 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
     function setUserAndSiteList(order) {
       var instituteName = order.instituteName;
       setUserFilterOpts(instituteName);
+    }
+
+    function setExtnFormCtxt(order) {
+      if (!order.distributionProtocol) {
+        return;
+      }
+
+      $scope.ctx.extnOpts = undefined;
+      DistributionProtocol.getOrderExtnCtxt(order.distributionProtocol.id).then(
+        function(extnCtxt) {
+          $scope.ctx.extnOpts = ExtensionsUtil.getExtnOpts(order, extnCtxt);
+        }
+      );
     }
 
     function getOrderItems(specimens) {
@@ -201,6 +220,11 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
         orderClone.orderItems = items;
       }
 
+      var formCtrl = $scope.ctx.extnFormCtrl.ctrl;
+      if (formCtrl) {
+        orderClone.extensionDetail = formCtrl.getFormData();
+      }
+
       orderClone.$saveOrUpdate().then(
         function(savedOrder) {
           if (savedOrder.completed) {
@@ -271,6 +295,7 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
       $scope.order.siteName = $scope.order.distributionProtocol.defReceivingSiteName;
       $scope.order.requester = $scope.order.distributionProtocol.principalInvestigator;
       setUserAndSiteList($scope.order);
+      setExtnFormCtxt($scope.order);
     }
     
     $scope.onInstSelect = function () {
@@ -315,6 +340,11 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
     }
 
     $scope.passThrough = function() {
+      var formCtrl = $scope.ctx.extnFormCtrl.ctrl;
+      if (formCtrl && !formCtrl.validate()) {
+        return false;
+      }
+
       return true;
     }
 

@@ -25,7 +25,7 @@
 
   <div class="clearfix">
     <div class="col-xs-8">
-      <ul class="os-key-values os-one-col">
+      <ul class="os-key-values" ng-class="{true: 'os-one-col', false: 'os-two-cols'}[!order.extensionDetail]">
         <li class="item" ng-if="!!order.request">
           <strong class="key key-sm" translate="orders.request">Request</strong>
           <span class="value value-md">
@@ -93,6 +93,10 @@
           </span>
         </li>
       </ul>
+
+      <div ng-if="!!order.extensionDetail">
+        <div os-extension-overview ext-object="order.extensionDetail" show-column="2"></div>
+      </div>
     </div>
 
     <div class="col-xs-4">

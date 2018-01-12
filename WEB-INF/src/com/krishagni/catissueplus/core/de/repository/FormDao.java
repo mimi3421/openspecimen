@@ -22,6 +22,8 @@ import com.krishagni.catissueplus.core.de.events.ObjectCpDetail;
 public interface FormDao extends Dao<FormContextBean> {
 	public Form getFormById(Long formId);
 
+	public Form getFormByName(String name);
+
 	public List<Form> getFormsByIds(Collection<Long> formIds);
 
 	public List<FormSummary> getAllFormsSummary(FormListCriteria crit);
@@ -57,12 +59,14 @@ public interface FormDao extends Dao<FormContextBean> {
 	public FormSummary getFormByContext(Long formCtxtId);
 		
 	public FormContextBean getFormContext(Long formId, Long cpId, String entity);	
-	
+
+	public FormContextBean getFormContext(boolean cpBased, String entityType, Long entityId, Long formId);
+
 	public FormContextBean getQueryFormContext(Long formId);
 
 	public List<FormContextBean> getFormContexts(Collection<Long> cpIds, String entityType);
 
-	public Pair<String, Long> getFormNameContext(Long cpId, String entityType);
+	public Pair<String, Long> getFormNameContext(Long cpId, String entityType, Long entityId);
 	
 	public void saveOrUpdateRecordEntry(FormRecordEntryBean recordEntry);
 	

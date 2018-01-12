@@ -29,14 +29,16 @@
 
     <many-to-one name="principalInvestigator" column="PRINCIPAL_INVESTIGATOR_ID"/>
       
-    <set name="coordinators" table="OS_DP_COORDINATORS" inverse="false" cascade="none">
+    <set name="coordinators" table="OS_DP_COORDINATORS" cascade="none">
       <key column="DISTRIBUTION_PROTOCOL_ID"/>
       <many-to-many class="com.krishagni.catissueplus.core.administrative.domain.User" column="USER_ID"/>
     </set>
     
     <many-to-one name="report" column="REPORT_ID"/>
 
-    <set name="distributionOrders" inverse="false" cascade="none">
+    <many-to-one name="orderExtnForm" column="ORDER_EXTN_FORM_ID"/>
+
+    <set name="distributionOrders" cascade="none">
       <key column="DISTRIBUTION_PROTOCOL_ID"/>
       <one-to-many class="com.krishagni.catissueplus.core.administrative.domain.DistributionOrder"/>
       <filter name="activeEntity"/>

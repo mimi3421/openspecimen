@@ -54,6 +54,8 @@ public interface DistributionProtocolService {
 	public ResponseEvent<File> exportOrderStats(RequestEvent<DistributionOrderStatListCriteria> req);
 
 	public ResponseEvent<Map<String, Object>> getExtensionForm();
+
+	ResponseEvent<Map<String, Object>> getOrderExtensionForm(Long dpId);
 	
 	ResponseEvent<List<DpConsentTierDetail>> getConsentTiers(RequestEvent<EntityQueryCriteria> req);
 	

@@ -14,6 +14,7 @@ import org.hibernate.envers.NotAudited;
 import com.krishagni.catissueplus.core.administrative.domain.factory.DistributionOrderErrorCode;
 import com.krishagni.catissueplus.core.administrative.domain.factory.SpecimenRequestErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.BaseEntity;
+import com.krishagni.catissueplus.core.biospecimen.domain.BaseExtensionEntity;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenList;
 import com.krishagni.catissueplus.core.common.CollectionUpdater;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
@@ -21,13 +22,15 @@ import com.krishagni.catissueplus.core.common.util.Status;
 import com.krishagni.catissueplus.core.common.util.Utility;
 
 @Audited
-public class DistributionOrder extends BaseEntity {
+public class DistributionOrder extends BaseExtensionEntity {
 	public enum Status { 
 		PENDING,
 		EXECUTED
 	}
 	
 	private static final String ENTITY_NAME = "distribution_order";
+
+	private static final String EXTN = "OrderExtension";
 	
 	private String name;
 	
@@ -60,6 +63,8 @@ public class DistributionOrder extends BaseEntity {
 	public static String getEntityName() {
 		return ENTITY_NAME;
 	}
+
+	public static String getExtnEntityType() { return EXTN; }
 	
 	public String getName() {
 		return name;
@@ -192,6 +197,7 @@ public class DistributionOrder extends BaseEntity {
 		setExecutionDate(newOrder.getExecutionDate());
 		setTrackingUrl(newOrder.getTrackingUrl());
 		setComments(newOrder.getComments());
+		setExtension(newOrder.getExtension());
 		setSpecimenList(newOrder.getSpecimenList());
 
 		updateRequest(newOrder);
@@ -239,6 +245,21 @@ public class DistributionOrder extends BaseEntity {
 
 	public boolean isOrderExecuted() {
 		return Status.EXECUTED == status;
+	}
+
+	@Override
+	public String getEntityType() {
+		return getExtnEntityType();
+	}
+
+	@Override
+	public boolean isCpBased() {
+		return false;
+	}
+
+	@Override
+	public Long getEntityId() {
+		return getDistributionProtocol().getId();
 	}
 
 	private void updateRequest(DistributionOrder other) {

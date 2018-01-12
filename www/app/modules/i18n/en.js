@@ -976,6 +976,7 @@
     "receiving_institute": "Receiving Institute",
     "receiving_site": "Receiving Site",
     "distributing_sites": "Distributing Sites",
+    "custom_fields_form": "Order Custom Fields",
     "order_report_query": "Order Report Query",
     "closed": "Closed",
     "confirm_close_title": "Closing {{shortTitle}} confirmation",
@@ -2271,7 +2272,9 @@
         "system_lockdown": "System Lockdown",
         "system_lockdown_desc": "Stop all users from using OpenSpecimen except super administrators.",
         "user_sign_up": "User Sign Up",
-        "user_sign_up_desc": "Enable or disable users sign up feature."
+        "user_sign_up_desc": "Enable or disable users sign up feature.",
+        "order_custom_fields_form": "Order Custom Fields Form",
+        "order_custom_fields_form_desc": "Identifier of custom form to be used as default custom fields form for distribution orders."
       },
 
       "biospecimen": {

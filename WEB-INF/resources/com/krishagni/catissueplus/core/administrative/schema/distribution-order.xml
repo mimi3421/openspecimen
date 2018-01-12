@@ -72,6 +72,10 @@
       <attribute>status</attribute>
     </field>
 
+    <record type="customFields" cpBased="false" entityType="OrderExtension">
+      <attribute>extensionDetail</attribute>
+    </record>
+
     <record>
       <attribute>orderItem</attribute>
       <caption>#getMessage("order_item")</caption>

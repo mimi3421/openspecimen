@@ -5,26 +5,29 @@ import java.io.File;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
-import java.util.Collection;
 import java.util.function.Predicate;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 
-import com.krishagni.catissueplus.core.administrative.domain.Institute;
-import com.krishagni.catissueplus.core.administrative.domain.User;
-import com.krishagni.catissueplus.core.administrative.domain.DpDistributionSite;
+import com.krishagni.catissueplus.core.administrative.domain.DistributionOrder;
 import com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol;
 import com.krishagni.catissueplus.core.administrative.domain.DpConsentTier;
+import com.krishagni.catissueplus.core.administrative.domain.DpDistributionSite;
 import com.krishagni.catissueplus.core.administrative.domain.DpRequirement;
+import com.krishagni.catissueplus.core.administrative.domain.Institute;
 import com.krishagni.catissueplus.core.administrative.domain.Site;
+import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.administrative.domain.factory.DistributionProtocolErrorCode;
 import com.krishagni.catissueplus.core.administrative.domain.factory.DistributionProtocolFactory;
 import com.krishagni.catissueplus.core.administrative.domain.factory.DpRequirementErrorCode;
@@ -42,10 +45,11 @@ import com.krishagni.catissueplus.core.administrative.services.DistributionProto
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.ConsentStatement;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.ConsentStatementErrorCode;
+import com.krishagni.catissueplus.core.biospecimen.events.CollectionProtocolSummary;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
-import com.krishagni.catissueplus.core.common.domain.Notification;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
+import com.krishagni.catissueplus.core.common.domain.Notification;
 import com.krishagni.catissueplus.core.common.errors.ActivityStatusErrorCode;
 import com.krishagni.catissueplus.core.common.errors.ErrorType;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
@@ -54,18 +58,23 @@ import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.events.EntityQueryCriteria;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
+import com.krishagni.catissueplus.core.common.service.ConfigurationService;
 import com.krishagni.catissueplus.core.common.service.ObjectAccessor;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.catissueplus.core.common.util.CsvFileWriter;
 import com.krishagni.catissueplus.core.common.util.CsvWriter;
+import com.krishagni.catissueplus.core.common.util.EmailUtil;
 import com.krishagni.catissueplus.core.common.util.MessageUtil;
+import com.krishagni.catissueplus.core.common.util.NotifUtil;
 import com.krishagni.catissueplus.core.common.util.Status;
 import com.krishagni.catissueplus.core.common.util.Utility;
-import com.krishagni.catissueplus.core.common.util.EmailUtil;
-import com.krishagni.catissueplus.core.common.util.NotifUtil;
+import com.krishagni.catissueplus.core.de.domain.Form;
+import com.krishagni.catissueplus.core.de.events.FormContextDetail;
+import com.krishagni.catissueplus.core.de.events.RemoveFormContextOp;
 import com.krishagni.catissueplus.core.de.services.FormService;
 import com.krishagni.rbac.common.errors.RbacErrorCode;
-import org.springframework.beans.BeanUtils;
+
+import krishagni.catissueplus.beans.FormContextBean;
 
 public class DistributionProtocolServiceImpl implements DistributionProtocolService, ObjectAccessor {
 	
@@ -76,8 +85,12 @@ public class DistributionProtocolServiceImpl implements DistributionProtocolServ
 			put("pathologyStatus", "dist_pathology_status");
 		}
 	};
+
+	private static final String SYS_CUSTOM_FIELDS_FORM = "order_custom_fields_form";
 	
 	private DaoFactory daoFactory;
+
+	private com.krishagni.catissueplus.core.de.repository.DaoFactory deDaoFactory;
 
 	private DistributionProtocolFactory distributionProtocolFactory;
 	
@@ -85,8 +98,14 @@ public class DistributionProtocolServiceImpl implements DistributionProtocolServ
 
 	private FormService formSvc;
 
+	private ConfigurationService cfgSvc;
+
 	public void setDaoFactory(DaoFactory daoFactory) {
 		this.daoFactory = daoFactory;
+	}
+
+	public void setDeDaoFactory(com.krishagni.catissueplus.core.de.repository.DaoFactory deDaoFactory) {
+		this.deDaoFactory = deDaoFactory;
 	}
 
 	public void setDistributionProtocolFactory(DistributionProtocolFactory distributionProtocolFactory) {
@@ -99,6 +118,18 @@ public class DistributionProtocolServiceImpl implements DistributionProtocolServ
 
 	public void setFormSvc(FormService formSvc) {
 		this.formSvc = formSvc;
+	}
+
+	public void setCfgSvc(ConfigurationService cfgSvc) {
+		this.cfgSvc = cfgSvc;
+		cfgSvc.registerChangeListener("administrative", (name, value) -> {
+			if (!SYS_CUSTOM_FIELDS_FORM.equals(name)) {
+				return;
+			}
+
+			Long formId = StringUtils.isBlank(value) ? null : Long.parseLong(value);
+			updateSysOrderExtnFormContext(formId);
+		});
 	}
 
 	private DpRequirementDao getDprDao() {
@@ -172,6 +203,7 @@ public class DistributionProtocolServiceImpl implements DistributionProtocolServ
 			
 			daoFactory.getDistributionProtocolDao().saveOrUpdate(dp);
 			dp.addOrUpdateExtension();
+			updateOrderExtnFormContext(dp, null, dp.getOrderExtnForm());
 			notifyOnDpCreate(dp);
 			return ResponseEvent.response(DistributionProtocolDetail.from(dp));
 		} catch (OpenSpecimenException ose) {
@@ -329,6 +361,11 @@ public class DistributionProtocolServiceImpl implements DistributionProtocolServ
 	@PlusTransactional
 	public ResponseEvent<Map<String, Object>> getExtensionForm() {
 		return ResponseEvent.response(formSvc.getExtensionInfo(-1L, DistributionProtocol.EXTN));
+	}
+
+	@Override
+	public ResponseEvent<Map<String, Object>> getOrderExtensionForm(Long dpId) {
+		return ResponseEvent.response(formSvc.getExtensionInfo(false, DistributionOrder.getExtnEntityType(), dpId));
 	}
 
 	@Override
@@ -628,10 +665,11 @@ public class DistributionProtocolServiceImpl implements DistributionProtocolServ
 			ensureUniqueConstraints(dp, existing);
 			ensurePiCoordNotSame(dp);
 
+			Form oldOrderExtnForm = existing.getOrderExtnForm();
 			notifyOnDpUpdate(existing, dp);
 			existing.update(dp);
 			daoFactory.getDistributionProtocolDao().saveOrUpdate(existing);
-
+			updateOrderExtnFormContext(dp, oldOrderExtnForm, dp.getOrderExtnForm());
 			existing.addOrUpdateExtension();
 			return ResponseEvent.response(DistributionProtocolDetail.from(existing));
 		} catch (OpenSpecimenException ose) {
@@ -978,6 +1016,74 @@ public class DistributionProtocolServiceImpl implements DistributionProtocolServ
 				notifyDpRoleUpdated(distSite.getSite().getCoordinators(), dp, emailProps, distSite.getSite().getName(),
 					roleOp, dpOp, N_SITE_ADMIN, N_DP_DIST_SITE);
 			}
+		}
+	}
+
+	private void updateOrderExtnFormContext(DistributionProtocol dp, Form oldForm, Form newForm) {
+		if (Objects.equals(oldForm, newForm)) {
+			return;
+		}
+
+		if (oldForm != null) {
+			removeOrderExtnFormContext(dp, oldForm);
+		}
+
+		if (newForm != null) {
+			addOrderExtnFormContext(dp, newForm);
+		}
+	}
+
+	private void addOrderExtnFormContext(DistributionProtocol dp, Form form) {
+		addOrderExtnFormContext(dp.getId(), form.getId());
+	}
+
+	private void addOrderExtnFormContext(Long dpId, Long formId) {
+		CollectionProtocolSummary cp = new CollectionProtocolSummary();
+		cp.setId(-1L);
+
+		FormContextDetail detail = new FormContextDetail();
+		detail.setLevel(DistributionOrder.getExtnEntityType());
+		detail.setCollectionProtocol(cp);
+		detail.setEntityId(dpId);
+		detail.setFormId(formId);
+
+		RequestEvent<List<FormContextDetail>> req = new RequestEvent<>(Collections.singletonList(detail));
+		ResponseEvent<List<FormContextDetail>> resp = formSvc.addFormContexts(req);
+		resp.throwErrorIfUnsuccessful();
+	}
+
+	private void removeOrderExtnFormContext(DistributionProtocol dp, Form form) {
+		removeOrderExtnFormContext(dp.getId(), form.getId());
+	}
+
+	private void removeOrderExtnFormContext(Long dpId, Long formId) {
+		RemoveFormContextOp op = new RemoveFormContextOp();
+		op.setFormId(formId);
+		op.setCpId(-1L);
+		op.setEntityId(dpId);
+		op.setEntityType(DistributionOrder.getExtnEntityType());
+		op.setRemoveType(RemoveFormContextOp.RemoveType.SOFT_REMOVE);
+		ResponseEvent<Boolean> resp = formSvc.removeFormContext(new RequestEvent<>(op));
+		resp.throwErrorIfUnsuccessful();
+	}
+
+	private void updateSysOrderExtnFormContext(Long formId) {
+		FormContextBean formCtxt = deDaoFactory.getFormDao().getFormContext(
+			false,
+			DistributionOrder.getExtnEntityType(),
+			-1L,
+			null);
+
+		if (formCtxt != null) {
+			if (formCtxt.getContainerId().equals(formId)) {
+				return;
+			}
+
+			removeOrderExtnFormContext(-1L, formCtxt.getContainerId());
+		}
+
+		if (formId != null && formId != -1L) {
+			addOrderExtnFormContext(-1L, formId);
 		}
 	}
 

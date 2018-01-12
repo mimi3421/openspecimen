@@ -9,6 +9,8 @@ public class RemoveFormContextOp {
 	private String entityType;
 	
 	private Long cpId;
+
+	private Long entityId;
 	
 	private RemoveType removeType; 
 	
@@ -34,6 +36,14 @@ public class RemoveFormContextOp {
 
 	public void setCpId(Long cpId) {
 		this.cpId = cpId;
+	}
+
+	public Long getEntityId() {
+		return entityId;
+	}
+
+	public void setEntityId(Long entityId) {
+		this.entityId = entityId;
 	}
 
 	public RemoveType getRemoveType() {

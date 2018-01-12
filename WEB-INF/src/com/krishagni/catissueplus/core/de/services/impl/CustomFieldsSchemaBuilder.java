@@ -50,27 +50,30 @@ public class CustomFieldsSchemaBuilder extends ExtensionSchemaBuilder {
 			params = Collections.emptyMap();
 		}
 
-		String cpIdStr = params.get("cpId");
-		if (StringUtils.isBlank(cpIdStr)) {
-			cpIdStr = "-1";
-		}
-
-		Long cpId = null;
-		try {
-			cpId = Long.parseLong(cpIdStr);
-		} catch (Exception e) {
-			//
-			// TODO: Is this right idea to default to -1?
-			//
-			cpId = -1L;
-		}
+		Long cpId = strToLong(params.get("cpId"), -1L);
+		Long entityId = strToLong(params.get("entityId"), -1L);
 
 		CollectionProtocol cp = null;
 		if (cpId != -1L && daoFactory != null) {
 			cp = daoFactory.getCollectionProtocolDao().getById(cpId);
 		}
 
-		return addCustomFields(getSchema(cp), cpId);
+		return addCustomFields(getSchema(cp), cpId, entityId);
+	}
+
+	private Long strToLong(String input, Long defValue) {
+		if (StringUtils.isBlank(input)) {
+			input = "-1";
+		}
+
+		Long result = null;
+		try {
+			result = Long.parseLong(input);
+		} catch (Exception e) {
+			result = defValue;
+		}
+
+		return result;
 	}
 
 	private ObjectSchema getSchema(CollectionProtocol cp) {
@@ -90,21 +93,21 @@ public class CustomFieldsSchemaBuilder extends ExtensionSchemaBuilder {
 		return new ByteArrayInputStream( template.getBytes() );
 	}
 
-	private ObjectSchema addCustomFields(ObjectSchema schema, Long cpId) {
+	private ObjectSchema addCustomFields(ObjectSchema schema, Long cpId, Long entityId) {
 		for (Record record : getCustomFieldRecords(schema.getRecord())) {
-			addCustomFields(record, cpId);
+			addCustomFields(record, cpId, entityId);
 		}
 
 		return schema;
 	}
 
-	private void addCustomFields(Record record, Long cpId) {
+	private void addCustomFields(Record record, Long cpId, Long entityId) {
 		String entityType = record.getEntityType();
 		if (StringUtils.isBlank(entityType)) {
 			throw OpenSpecimenException.userError(FormErrorCode.ENTITY_TYPE_REQUIRED);
 		}
 
-		Map<String, Object> formInfo = DeObject.getFormInfo(cpId, entityType);
+		Map<String, Object> formInfo = DeObject.getFormInfo(record.isCpBased(), entityType, record.isCpBased() ? cpId : entityId);
 		if (formInfo == null) {
 			return;
 		}
@@ -120,7 +123,7 @@ public class CustomFieldsSchemaBuilder extends ExtensionSchemaBuilder {
 	}
 
 	private List<Record> getCustomFieldRecords(Record record) {
-		List<Record> customFieldRecs = new ArrayList<Record>();
+		List<Record> customFieldRecs = new ArrayList<>();
 		for (Record subRecord : record.getSubRecords()) {
 			if (subRecord.getType() != null && subRecord.getType().equals("customFields")) {
 				customFieldRecs.add(subRecord);
@@ -131,6 +134,4 @@ public class CustomFieldsSchemaBuilder extends ExtensionSchemaBuilder {
 
 		return customFieldRecs;
 	}
-
-
 }

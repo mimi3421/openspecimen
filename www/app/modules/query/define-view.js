@@ -582,12 +582,12 @@ angular.module('os.query.defineview', ['os.query.models'])
         var currLevel = level;
         var fieldParts;
         if (typeof selectedFields[i] == "string") {
-          fieldParts = selectedFields[i].split(".", 2);
+          fieldParts = selectedFields[i].split(".", currLevel + 1);
         } else {
-          fieldParts = selectedFields[i].name.split(".", 2);
+          fieldParts = selectedFields[i].name.split(".", currLevel + 1);
         }
 
-        if (Form.isExtendedField(fieldParts[1])) {
+        if (currLevel < fieldParts.length && Form.isExtendedField(fieldParts[currLevel])) {
           currLevel++;
         }
 

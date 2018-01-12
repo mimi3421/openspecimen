@@ -2,10 +2,11 @@
 angular.module('os.administrative.dp.addedit', ['os.administrative.models', 'os.query.models'])
   .controller('DpAddEditCtrl', function(
     $scope, $state, $translate, $q, currentUser, distributionProtocol, extensionCtxt,
-    DistributionProtocol, Institute, User, SavedQuery, ExtensionsUtil, Alerts) {
+    DistributionProtocol, Institute, User, SavedQuery, ExtensionsUtil, Form, Alerts) {
     
     var availableInstituteNames = [];
     var availableInstSites = {};
+    var defForms = undefined;
     
     function init() {
       $scope.distributionProtocol = distributionProtocol;
@@ -14,6 +15,7 @@ angular.module('os.administrative.dp.addedit', ['os.administrative.models', 'os.
       $scope.extnOpts = ExtensionsUtil.getExtnOpts(distributionProtocol, extensionCtxt);
       $scope.userFilterOpts = {institute: distributionProtocol.instituteName};
       $scope.queryList = [];
+      $scope.formsList = [];
       $scope.all_sites = $translate.instant('dp.all_sites');
       loadInstitutes();
     }
@@ -138,6 +140,27 @@ angular.module('os.administrative.dp.addedit', ['os.administrative.models', 'os.
 
       return true;
     }
+
+    function loadForms(searchTerm) {
+      if (defForms && defForms.length < 100) {
+        $scope.formsList = defForms;
+        return;
+      }
+
+      if (!searchTerm && defForms) {
+        $scope.formsList = defForms;
+        return;
+      }
+
+      Form.query({name: searchTerm, maxResults: 100}).then(
+        function(result) {
+          $scope.formsList = result;
+          if (!searchTerm) {
+            defForms = result;
+          }
+        }
+      );
+    }
     
     $scope.createDp = function() {
       var formCtrl = $scope.deFormCtrl.ctrl;
@@ -196,6 +219,8 @@ angular.module('os.administrative.dp.addedit', ['os.administrative.models', 'os.
     $scope.addDistSite = newDistSite;
 
     $scope.loadQueries = loadQueries;
-    
+
+    $scope.searchForms = loadForms;
+
     init();
   });

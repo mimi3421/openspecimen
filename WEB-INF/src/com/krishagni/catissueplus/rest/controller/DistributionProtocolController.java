@@ -255,6 +255,15 @@ public class DistributionProtocolController {
 		resp.throwErrorIfUnsuccessful();
 		return resp.getPayload();
 	}
+
+	@RequestMapping(method = RequestMethod.GET, value ="/{id}/order-extension-form")
+	@ResponseBody
+	@ResponseStatus(HttpStatus.OK)
+	public Map<String, Object> getOrderExtnForm(@PathVariable("id") Long dpId) {
+		ResponseEvent<Map<String, Object>> resp = dpSvc.getOrderExtensionForm(dpId);
+		resp.throwErrorIfUnsuccessful();
+		return resp.getPayload();
+	}
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/{dpId}/consent-tiers")
 	@ResponseStatus(HttpStatus.OK)
