@@ -363,7 +363,7 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 			.getNamedQuery(GET_FORM_NAME_CTXT_ID)
 			.setParameter("cpId", cpId)
 			.setParameter("entityType", entityType)
-			.setParameter("entityId", entityId)
+			.setParameter("entityId", entityId, LongType.INSTANCE)
 			.list();
 
 		if (CollectionUtils.isEmpty(rows)) {
