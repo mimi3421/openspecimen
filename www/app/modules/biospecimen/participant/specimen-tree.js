@@ -87,6 +87,10 @@ angular.module('os.biospecimen.participant.specimen-tree',
     };
 
     function showSelectSpecimens(msgCode) {
+      if (!msgCode) {
+        return;
+      }
+
       Alerts.error(msgCode);
     };
 
@@ -147,102 +151,6 @@ angular.module('os.biospecimen.participant.specimen-tree',
 
           if (!!spmn.specimensPool && anyPendingSpmnsInTree(spmn.specimensPool)) {
             return true;
-          }
-        }
-      );
-    }
-
-    function initAllowDistribution(scope) {
-      scope.orderCreateOpts = {resource: 'Order', operations: ['Create']};
-
-      if (!!scope.cp.distributionProtocols && scope.cp.distributionProtocols.length > 0) {
-        scope.allowDistribution = true;
-        allowedDps = scope.cp.distributionProtocols;
-      } else {
-        DistributionProtocol.query({cp: scope.cp.shortTitle}).then(
-          function(dps) {
-            if (!!dps && dps.length > 0) {
-              scope.allowDistribution = true;
-              allowedDps = dps;
-            } else {
-              scope.allowDistribution = false;
-            }
-          }
-        );
-      }
-    }
-
-    function getDp(scope) {
-      var dpQ;
-      if (scope.cp.distributionProtocols.length == 1) {
-        dpQ = $q.defer();
-        dpQ.resolve(scope.cp.distributionProtocols[0]);
-        dpQ = dpQ.promise;
-      } else {
-        dpQ = $modal.open({
-          templateUrl: 'modules/biospecimen/participant/specimen/distribute.html',
-          controller: function($scope, $modalInstance, distributionProtocols) {
-            function init() {
-              $scope.ctx = {dps: distributionProtocols};
-            }
-
-            $scope.cancel = function() {
-              $modalInstance.dismiss('cancel');
-            }
-
-            $scope.distribute = function() {
-              $modalInstance.close($scope.ctx.dp);
-            }
-
-            init();
-          },
-
-          resolve: {
-            distributionProtocols: function() {
-              return allowedDps;
-            }
-          }
-        }).result;
-      }
-
-      return dpQ;
-    }
-
-    function selectDpAndDistributeSpmns(scope, specimens) {
-      getDp(scope).then(function(selectedDp) { distributeSpmns(selectedDp, specimens); });
-    }
-
-    function distributeSpmns(dp, specimens) {
-      new DistributionOrder({
-        name: dp.shortTitle + '_' + new Date().toLocaleString(),
-        distributionProtocol: dp,
-        requester: dp.principalInvestigator,
-        siteName: dp.defReceivingSiteName,
-        orderItems: getOrderItems(specimens),
-        status: 'EXECUTED'
-      }).$saveOrUpdate().then(
-        function(createdOrder) {
-          Alerts.success('orders.creation_success', createdOrder);
-          angular.forEach(specimens,
-            function(specimen) {
-              specimen.distributionStatus = 'Distributed';
-              specimen.availableQty = 0;
-              specimen.activityStatus = 'Closed';
-              specimen.selected = false;
-              specimen.storageLocation = {};
-            }
-          );
-        }
-      );
-    }
-
-    function getOrderItems(specimens) {
-      return specimens.map(
-        function(specimen) {
-          return {
-            specimen: specimen,
-            quantity: specimen.availableQty,
-            status: 'DISTRIBUTED_AND_CLOSED'
           }
         }
       );
@@ -325,7 +233,6 @@ angular.module('os.biospecimen.participant.specimen-tree',
         scope.hidePendingSpmns = shouldHidePendingSpmns(scope.collectionDate, scope.pendingSpmnsDispInterval);
         scope.onlyPendingSpmns = onlyPendingSpmns(scope.specimenTree);
         scope.anyPendingSpmns  = anyPendingSpmnsInTree(scope.specimenTree);
-        initAllowDistribution(scope);
 
         scope.specimens = Specimen.flatten(scope.specimenTree);
         openSpecimenTree(scope.specimens);
@@ -426,81 +333,9 @@ angular.module('os.biospecimen.participant.specimen-tree',
             return;
           }
 
-          var specimenIds = getSpecimenIds(specimensToPrint);
+          var specimenIds = specimensToPrint.map(function(s) { return s.id; });
           SpecimenLabelPrinter.printLabels({specimenIds: specimenIds});
         };
-
-        scope.deleteSpecimens = function() {
-          var specimensToDelete = getSelectedSpecimens(scope, 'specimens.no_specimens_for_delete', true);
-          if (specimensToDelete.length == 0) {
-            return;
-          }
-
-          var specimenIds = getSpecimenIdsForDeletion(specimensToDelete); 
-          DeleteUtil.bulkDelete({bulkDelete: Specimen.bulkDelete}, specimenIds, getBulkDeleteOpts(specimensToDelete));
-          scope.selection.all = false;
-        }
-
-        scope.closeSpecimens = function() {
-          var specimensToClose = getSelectedSpecimens(scope, 'specimens.no_specimens_for_close', false);
-          if (specimensToClose.length == 0) {
-            return;
-          }
-
-          $modal.open({
-            templateUrl: 'modules/biospecimen/participant/specimen/close.html',
-            controller: 'SpecimenCloseCtrl',
-            resolve: {
-              specimens: function() {
-                return specimensToClose;
-              }
-            }
-          }).result.then(
-            function() {
-              angular.forEach(specimensToClose, function(specimen) {
-                specimen.activityStatus = 'Closed';
-                specimen.selected = false;
-                specimen.storageLocation = {};
-              });
-
-              scope.selection.all = false;
-            }
-          );
-        };
-
-        scope.distributeSpecimens = function() {
-          var specimens = getSelectedSpecimens(scope, 'specimens.no_specimens_for_distribution', false);
-          if (specimens.length == 0) {
-            return;
-          }
-
-          var spmnsToDistribute = specimens.filter(
-            function(spmn) {
-              return spmn.activityStatus == 'Active';
-            }
-          );
-
-          if (spmnsToDistribute.length == 0) {
-            return;
-          }
-
-          var noQtySpmns = spmnsToDistribute.filter(function(spmn) { return !spmn.availableQty; });
-          if (noQtySpmns.length == 0) {
-            selectDpAndDistributeSpmns(scope, spmnsToDistribute);
-          } else {
-            Util.showConfirm({
-              ok: function () {
-                selectDpAndDistributeSpmns(scope, spmnsToDistribute);
-              },
-              title: "common.warning",
-              isWarning: true,
-              confirmMsg: "orders.errors.no_qty_spmns_confirm",
-              input: {
-                spmnCount: noQtySpmns.length
-              }
-            });
-          }
-        }
 
         scope.addSpecimensToSpecimenList = function(list) {
           if (!scope.selection.any) {
@@ -558,82 +393,26 @@ angular.module('os.biospecimen.participant.specimen-tree',
           scope.hidePendingSpmns = !scope.hidePendingSpmns;
         }
 
-        function getSpecimenIds(specimens) {
-          return specimens.map(
-            function(s) {
-              return s.id;
+        scope.getSelectedSpecimens = function(anyStatus) {
+          return getSelectedSpecimens(scope, '', anyStatus);
+        }
+
+        scope.initTree = function() {
+          if (!scope.reload) {
+            return;
+          }
+
+          scope.reload().then(
+            function() {
+              $timeout(function() {
+                scope.specimens = Specimen.flatten(scope.specimenTree);
+                openSpecimenTree(scope.specimens);
+                if ($injector.has('sdeFieldsSvc')) {
+                  initSdeTreeFields(scope);
+                }
+              });
             }
           );
-        }
-
-        function getSpecimenIdsForDeletion(specimens) {
-          var specimenIds = [];
-          var idx = 0;
-
-          while (idx < specimens.length) {
-            specimenIds.push(specimens[idx].id);
-
-            //
-            // +1 for self
-            // + descendent count to exclude all of specimen descendants…
-            // 
-            idx += 1 + getSelectedDescendantCount(specimens[idx]);
-          }
-
-          return specimenIds;
-        }
-
-        function getSelectedDescendantCount(specimen) {
-          var count = 0;
-          angular.forEach(specimen.children, function(child) {
-            if (child.selected) {
-              count++;
-            }
-        
-            count += getSelectedDescendantCount(child);
-          });
-        
-          angular.forEach(specimen.specimensPool, function(poolSpmn) {
-            if (poolSpmn.selected) {
-              count++;
-            }
-          });
-        
-          return count;
-        }
-
-        function getBulkDeleteOpts(specimensToDelete) {
-          var hasChildren = childrenExists(specimensToDelete);
-          return {
-            confirmDelete : hasChildren ? 'specimens.delete_specimens_heirarchy' :'specimens.delete_specimens',
-            successMessage: hasChildren ? 'specimens.specimens_hierarchy_deleted' : 'specimens.specimens_deleted',
-            onBulkDeletion: function(result) {
-              if (typeof scope.reload == "function") {
-                scope.reload().then(
-                  function() {
-                    $timeout(function() {
-                      scope.specimens = Specimen.flatten(scope.specimenTree);
-                      openSpecimenTree(scope.specimens);
-
-                      if ($injector.has('sdeFieldsSvc')) {
-                        initSdeTreeFields(scope);
-                      }
-                    });
-                  }
-                );
-              }
-              scope.selection.any = false;
-            }
-          }
-        }
-
-        function childrenExists(specimens) {
-          for (var i = 0; i < specimens.length; ++i) {
-            if (specimens[i].children.length > 0) {
-              return true;
-            }
-          }
-          return false;
         }
       }
     }

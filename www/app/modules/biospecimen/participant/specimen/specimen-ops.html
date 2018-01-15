@@ -1,5 +1,5 @@
 <div os-show-if-menu-items-present dropdown class="os-inline-btn">
-  <button class="default dropdown-toggle">
+  <button class="btn btn-default default dropdown-toggle">
     <span translate="specimens.ops">Specimen Ops</span>
     <span class="fa fa-caret-down"></span>
   </button>
@@ -17,13 +17,19 @@
         <span translate="common.buttons.delete">Delete</span>
       </a>
     </li>
-    <li show-if-allowed="resourceOpts.orderCreateOpts" ng-if="!reqBasedDistOrShip.value">
+    <li show-if-allowed="resourceOpts.specimenUpdateOpts">
+      <a ng-click="closeSpecimens()">
+        <span class="fa fa-remove"></span>
+        <span translate="common.buttons.close"> Close </span>
+      </a>
+    </li>
+    <li show-if-allowed="resourceOpts.orderCreateOpts" ng-if="allowDistribution">
       <a ng-click="distributeSpecimens()">
         <span class="fa fa-share"></span>
         <span translate="specimen_list.distribute">Distribute</span>
       </a>
     </li>
-    <li show-if-allowed="resourceOpts.shipmentCreateOpts" ng-if="!reqBasedDistOrShip.value">
+    <li show-if-allowed="resourceOpts.shipmentCreateOpts">
       <a ng-click="shipSpecimens()">
         <span class="fa fa-paper-plane-o"></span>
         <span translate="specimen_list.ship">Ship</span>

@@ -1,27 +1,117 @@
 angular.module('os.biospecimen.specimen')
-  .directive('osSpecimenOps', function($state, $injector, Specimen, SpecimensHolder, Alerts, CommentsUtil, DeleteUtil) {
+  .directive('osSpecimenOps', function(
+    $state, $rootScope, $modal, DistributionProtocol, DistributionOrder, Specimen,
+    SpecimensHolder, Alerts, CommentsUtil, DeleteUtil) {
 
     function initOpts(scope) {
-      //
-      // TODO: idea is to take either CP or site or both as input and create resource opts
-      //
       if (!scope.resourceOpts) {
+        var cpShortTitle = scope.cp && scope.cp.shortTitle;
+        var sites = undefined;
+        if (scope.cp) {
+          sites = scope.cp.cpSites.map(function(cpSite) { return cpSite.siteName; });
+          if ($rootScope.global.appProps.mrn_restriction_enabled && scope.cpr) {
+            sites = sites.concat(scope.cpr.getMrnSites());
+          }
+        }
+
         scope.resourceOpts = {
           orderCreateOpts:    {resource: 'Order', operations: ['Create']},
           shipmentCreateOpts: {resource: 'ShippingAndTracking', operations: ['Create']},
-          specimenUpdateOpts: {resource: 'VisitAndSpecimen', operations: ['Update']},
-          specimenDeleteOpts: {resource: 'VisitAndSpecimen', operations: ['Delete']}
+          specimenUpdateOpts: {cp: cpShortTitle, sites: sites, resource: 'VisitAndSpecimen', operations: ['Update']},
+          specimenDeleteOpts: {cp: cpShortTitle, sites: sites, resource: 'VisitAndSpecimen', operations: ['Delete']}
         };
       }
 
-      scope.reqBasedDistOrShip = {value: false};
-      if ($injector.has('spmnReqCfgUtil')) {
-        $injector.get('spmnReqCfgUtil').isReqBasedDistOrShippingEnabled().then(
-          function(result) {
-            scope.reqBasedDistOrShip.value = (result.value == 'true');
+      initAllowDistribution(scope);
+    }
+
+    function initAllowDistribution(scope) {
+      if (!scope.cp) {
+        scope.allowDistribution = true;
+        return;
+      }
+
+      if (!!scope.cp.distributionProtocols && scope.cp.distributionProtocols.length > 0) {
+        scope.allowDistribution = true;
+      } else {
+        DistributionProtocol.getCount({cp: scope.cp.shortTitle, excludeExpiredDps: true}).then(
+          function(resp) {
+            scope.allowDistribution = (resp.count > 0);
           }
         );
       }
+    }
+
+    function getDp(scope) {
+      var dpQ;
+      if (scope.cp.distributionProtocols.length == 1) {
+        dpQ = $q.defer();
+        dpQ.resolve(scope.cp.distributionProtocols[0]);
+        dpQ = dpQ.promise;
+      } else {
+        dpQ = $modal.open({
+          templateUrl: 'modules/biospecimen/participant/specimen/distribute.html',
+          controller: function($scope, $modalInstance, distributionProtocols) {
+            function init() {
+              $scope.ctx = {dps: distributionProtocols};
+            }
+
+            $scope.cancel = function() {
+              $modalInstance.dismiss('cancel');
+            }
+
+            $scope.distribute = function() {
+              $modalInstance.close($scope.ctx.dp);
+            }
+
+            init();
+          },
+
+          resolve: {
+            distributionProtocols: function(DistributionProtocol) {
+              if (scope.cp.distributionProtocols && scope.cp.distributionProtocols.length > 0) {
+                return scope.cp.distributionProtocols;
+              }
+
+              return DistributionProtocol.query({cp: scope.cp.shortTitle, excludeExpiredDps: true});
+            }
+          }
+        }).result;
+      }
+
+      return dpQ;
+    }
+
+    function selectDpAndDistributeSpmns(scope, specimens) {
+      getDp(scope).then(function(selectedDp) { distributeSpmns(scope, selectedDp, specimens); });
+    }
+
+    function distributeSpmns(scope, dp, specimens) {
+      new DistributionOrder({
+        name: dp.shortTitle + '_' + new Date().toLocaleString(),
+        distributionProtocol: dp,
+        requester: dp.principalInvestigator,
+        siteName: dp.defReceivingSiteName,
+        orderItems: getOrderItems(specimens),
+        status: 'EXECUTED'
+      }).$saveOrUpdate().then(
+        function(createdOrder) {
+          Alerts.success('orders.creation_success', createdOrder);
+          scope.initList();
+        }
+      );
+    }
+
+    function getOrderItems(specimens) {
+      return specimens.map(
+        function(specimen) {
+          return {
+            specimen: specimen,
+            quantity: specimen.availableQty,
+            status: 'DISTRIBUTED_AND_CLOSED'
+          }
+        }
+      );
     }
 
     return {
@@ -30,6 +120,8 @@ angular.module('os.biospecimen.specimen')
       replace: true,
 
       scope: {
+        cp: '=?',
+        cpr: '=?',
         specimens: '&',
         initList: '&',
         resourceOpts: '=?'
@@ -40,8 +132,8 @@ angular.module('os.biospecimen.specimen')
       link: function(scope, element, attrs) {
         initOpts(scope);
 
-        function gotoView(state, params, msgCode) {
-          var selectedSpmns = scope.specimens();
+        function gotoView(state, params, msgCode, anyStatus) {
+          var selectedSpmns = scope.specimens({anyStatus: anyStatus});
           if (!selectedSpmns || selectedSpmns.length == 0) {
             Alerts.error('specimen_list.' + msgCode);
             return;
@@ -68,7 +160,7 @@ angular.module('os.biospecimen.specimen')
         }
 
         scope.deleteSpecimens = function() {
-          var spmns = scope.specimens();
+          var spmns = scope.specimens({anyStatus: true});
           if (!spmns || spmns.length == 0) {
             Alerts.error('specimens.no_specimens_for_delete');
             return;
@@ -83,8 +175,36 @@ angular.module('os.biospecimen.specimen')
           DeleteUtil.bulkDelete({bulkDelete: Specimen.bulkDelete}, specimenIds, opts);
         }
 
+        scope.closeSpecimens = function() {
+          var specimensToClose = scope.specimens({anyStatus: false});
+          if (specimensToClose.length == 0) {
+            Alerts.error('specimens.no_specimens_for_close');
+            return;
+          }
+
+          $modal.open({
+            templateUrl: 'modules/biospecimen/participant/specimen/close.html',
+            controller: 'SpecimenCloseCtrl',
+            resolve: {
+              specimens: function() {
+                return specimensToClose;
+              }
+            }
+          }).result.then(scope.initList);
+        };
+
         scope.distributeSpecimens = function() {
-          gotoView('order-addedit', {orderId: ''}, 'no_specimens_for_distribution');
+          if (!scope.cp) {
+            gotoView('order-addedit', {orderId: ''}, 'no_specimens_for_distribution', false);
+          } else {
+            var selectedSpmns = scope.specimens({anyStatus: false});
+            if (!selectedSpmns || selectedSpmns.length == 0) {
+              Alerts.error('specimen_list.no_specimens_for_distribution');
+              return;
+            }
+
+            selectDpAndDistributeSpmns(scope, selectedSpmns);
+          }
         }
 
         scope.shipSpecimens = function() {

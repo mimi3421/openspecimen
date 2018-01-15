@@ -10,6 +10,9 @@
       <os-assign-to-spmn-list on-add-to-list="addSpecimensToSpecimenList(list)">
       </os-assign-to-spmn-list>
 
+      <os-specimen-ops cp="cp" cpr="cpr" specimens="getSelectedSpecimens(anyStatus)" init-list="initTree()">
+      </os-specimen-ops>
+
       <div dropdown os-show-if-menu-items-present class="os-inline-btn">
         <button class="btn btn-default dropdown-toggle">
           <span translate="common.buttons.more">More</span>
@@ -22,29 +25,11 @@
               <span translate="specimens.buttons.print"> Print </span>
             </a>
           </li>
-          <li ng-if="!allowedOps || allowedOps.delete">
-            <a ng-click="deleteSpecimens()">
-              <span class="fa fa-trash"></span>
-              <span translate="common.buttons.delete"> Delete </span>
-            </a>
-          </li>
-          <li ng-if="!allowedOps || allowedOps.update">
-            <a ng-click="closeSpecimens()">
-              <span class="fa fa-remove"></span>
-              <span translate="common.buttons.close"> Close </span>
-            </a>
-          </li>
           <li ng-if="anyPendingSpmns">
             <a ng-click="toggleHidePendingSpmns()" ng-switch on="hidePendingSpmns">
               <span class="fa fa-circle os-status-pending"></span>
               <span ng-switch-when="false" translate="specimens.hide_pending">Hide Pending</span>
               <span ng-switch-when="true" translate="specimens.show_pending">Show Pending</span>
-            </a>
-          </li>
-          <li show-if-allowed="orderCreateOpts" ng-if="allowDistribution">
-            <a ng-click="distributeSpecimens()">
-              <span class="fa fa-share"></span>
-              <span translate="specimens.buttons.distribute">Distribute</span>
             </a>
           </li>
         </ul>

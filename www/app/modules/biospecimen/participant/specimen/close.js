@@ -2,18 +2,17 @@
 angular.module('os.biospecimen.specimen.close', ['os.biospecimen.models'])
   .controller('SpecimenCloseCtrl', function($scope, $modalInstance, Specimen, specimens, Alerts) {
     function init() {
-      $scope.specimen = specimens.length == 1 ? specimens[0] : null;
-      $scope.closeSpec = {
-        reason: ''
-      };
+      $scope.closeSpec = { reason: '' };
     }
 
     function bulkClose() {
       var statusSpecs = [];
-      angular.forEach(specimens, function(specimen) {
-        var statusSpec = {status: 'Closed', reason: $scope.closeSpec.reason, id: specimen.id};
-        statusSpecs.push(statusSpec);
-      });
+      angular.forEach(specimens,
+        function(specimen) {
+          var statusSpec = {status: 'Closed', reason: $scope.closeSpec.reason, id: specimen.id};
+          statusSpecs.push(statusSpec);
+        }
+      );
 
       Specimen.bulkStatusUpdate(statusSpecs).then(
         function(result) {
@@ -24,16 +23,7 @@ angular.module('os.biospecimen.specimen.close', ['os.biospecimen.models'])
     }
 
     $scope.close = function() {
-      if (specimens.length > 1) {
-        bulkClose();
-      } else {
-        $scope.specimen.close($scope.closeSpec.reason).then(
-          function(result) {
-            Alerts.success('specimens.specimen_closed');
-            $modalInstance.close(result);
-          }
-        );
-      }
+      bulkClose();
     }
 
     $scope.cancel = function() {
