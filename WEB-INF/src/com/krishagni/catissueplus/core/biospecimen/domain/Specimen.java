@@ -1272,6 +1272,12 @@ public class Specimen extends BaseExtensionEntity {
 		return result;
 	}
 
+	public static List<Specimen> sortByBarcodes(Collection<Specimen> specimens, final List<String> barcodes) {
+		List<Specimen> result = new ArrayList<>(specimens);
+		result.sort(Comparator.comparingInt((s) -> barcodes.indexOf(s.getBarcode())));
+		return result;
+	}
+
 	public static boolean isValidLineage(String lineage) {
 		if (StringUtils.isBlank(lineage)) {
 			return false;

@@ -147,6 +147,8 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 			List<Specimen> specimens = getSpecimens(crit);
 			if (CollectionUtils.isNotEmpty(crit.labels())) {
 				return ResponseEvent.response(SpecimenInfo.from(Specimen.sortByLabels(specimens, crit.labels())));
+			} else if (CollectionUtils.isNotEmpty(crit.barcodes())) {
+				return ResponseEvent.response(SpecimenInfo.from(Specimen.sortByBarcodes(specimens, crit.barcodes())));
 			}
 
 			return ResponseEvent.response(SpecimenInfo.from(specimens));
