@@ -7,7 +7,7 @@ angular.module('os.biospecimen.participant.specimen-tree',
   .directive('osSpecimenTree', function(
     $state, $stateParams, $modal, $timeout, $rootScope, $q, $injector,
     CpConfigSvc, CollectSpecimensSvc, Visit, Specimen, SpecimenLabelPrinter, SpecimensHolder,
-    DistributionOrder, DistributionProtocol, Alerts, Util, DeleteUtil, SpecimenUtil) {
+    ExtensionsUtil, DistributionOrder, DistributionProtocol, Alerts, Util, DeleteUtil, SpecimenUtil) {
 
     var allowedDps = undefined;
 
@@ -159,6 +159,12 @@ angular.module('os.biospecimen.participant.specimen-tree',
     function initSdeTreeFields(scope) {
       var fieldsSvc = $injector.get('sdeFieldsSvc');
 
+      angular.forEach(scope.specimens,
+        function(spmn) {
+          ExtensionsUtil.createExtensionFieldMap(spmn);
+        }
+      );
+
       var cpDictQ = CpConfigSvc.getDictionary(scope.cp.id, []);
       var fieldsQ = CpConfigSvc.getWorkflowData(scope.cp.id, 'specimenTree', []);
       $q.all([cpDictQ, fieldsQ]).then(
@@ -221,12 +227,6 @@ angular.module('os.biospecimen.participant.specimen-tree',
         scope.dispTree = false;
         scope.fields = [];
 
-        if ($injector.has('sdeFieldsSvc')) {
-          initSdeTreeFields(scope);
-        } else {
-          scope.dispTree = true;
-        }
-
         scope.view = 'list';
         scope.parentSpecimen = undefined;
 
@@ -236,6 +236,12 @@ angular.module('os.biospecimen.participant.specimen-tree',
 
         scope.specimens = Specimen.flatten(scope.specimenTree);
         openSpecimenTree(scope.specimens);
+        if ($injector.has('sdeFieldsSvc')) {
+          initSdeTreeFields(scope);
+        } else {
+          scope.dispTree = true;
+        }
+
 
         scope.openSpecimenNode = function(specimen) {
           specimen.isOpened = true;

@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -18,6 +19,7 @@ import com.krishagni.catissueplus.core.administrative.events.StorageLocationSumm
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenRequirement;
 import com.krishagni.catissueplus.core.common.ListenAttributeChanges;
+import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.catissueplus.core.de.events.ExtensionDetail;
 
 @JsonSerialize(include= JsonSerialize.Inclusion.NON_NULL)
@@ -300,11 +302,11 @@ public class SpecimenDetail extends SpecimenInfo {
 				result.setChildren(children);
 			} else {
 				if (sr.isPooledSpecimenReq()) {
-					result.setSpecimensPool(getSpecimens(sr.getSpecimenPoolReqs(), specimen.getSpecimensPool()));
+					result.setSpecimensPool(getSpecimens(sr.getSpecimenPoolReqs(), specimen.getSpecimensPool(), partial, excludePhi, excludeChildren));
 				}
 				result.setPoolSpecimen(sr.isSpecimenPoolReq());
 
-				result.setChildren(getSpecimens(sr.getChildSpecimenRequirements(), specimen.getChildCollection()));
+				result.setChildren(getSpecimens(sr.getChildSpecimenRequirements(), specimen.getChildCollection(), partial, excludePhi, excludeChildren));
 			}
 
 			if (specimen.getPooledSpecimen() != null) {
@@ -330,7 +332,7 @@ public class SpecimenDetail extends SpecimenInfo {
 	}
 	
 	public static List<SpecimenDetail> from(Collection<Specimen> specimens) {
-		List<SpecimenDetail> result = new ArrayList<SpecimenDetail>();
+		List<SpecimenDetail> result = new ArrayList<>();
 		
 		if (CollectionUtils.isEmpty(specimens)) {
 			return result;
@@ -386,12 +388,16 @@ public class SpecimenDetail extends SpecimenInfo {
 	}
 	
 	public static List<SpecimenDetail> getSpecimens(
-			Collection<SpecimenRequirement> anticipated, 
-			Collection<Specimen> specimens) {
-		
-		List<SpecimenDetail> result = SpecimenDetail.from(specimens);
-		merge(anticipated, result, null, getReqSpecimenMap(result));
+			Collection<SpecimenRequirement> anticipated,
+			Collection<Specimen> specimens,
+			boolean partial,
+			boolean excludePhi,
+			boolean excludeChildren) {
+		List<SpecimenDetail> result = Utility.stream(specimens)
+			.map(s -> SpecimenDetail.from(s, partial, excludePhi, excludeChildren))
+			.collect(Collectors.toList());
 
+		merge(anticipated, result, null, getReqSpecimenMap(result));
 		SpecimenDetail.sort(result);
 		return result;
 	}

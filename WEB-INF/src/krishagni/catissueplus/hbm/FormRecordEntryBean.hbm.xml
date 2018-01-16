@@ -202,5 +202,19 @@
         re.activity_status = 'ACTIVE' and
         re1.update_time is null
     </sql-query>
+
+    <sql-query name="getRecordIds">
+      <return-scalar column="objectId" type="long"/>
+      <return-scalar column="recordId" type="long"/>
+
+      select
+        re.object_id as objectId, re.record_id as recordId
+      from
+        catissue_form_record_entry re
+      where
+        re.form_ctxt_id = :formCtxtId and
+        re.object_id in (:objectIds) and
+        re.activity_status = 'ACTIVE'
+    </sql-query>
   </class>
 </hibernate-mapping>

@@ -732,6 +732,17 @@ public class Specimen extends BaseExtensionEntity {
 		return getVisit().getRegistration();
 	}
 
+	public List<Specimen> getDescendants() {
+		List<Specimen> result = new ArrayList<>();
+		result.add(this);
+
+		for (Specimen specimen : getChildCollection()) {
+			result.addAll(specimen.getDescendants());
+		}
+
+		return result;
+	}
+
 	public void update(Specimen specimen) {
 		boolean wasCollected = isCollected();
 

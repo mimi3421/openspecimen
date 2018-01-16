@@ -663,6 +663,23 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
+	public Map<Long, List<Long>> getRecordIds(Long formCtxtId, Collection<Long> objectIds) {
+		List<Object[]> rows = getCurrentSession().getNamedQuery(GET_RECORD_IDS)
+			.setParameter("formCtxtId", formCtxtId)
+			.setParameterList("objectIds", objectIds)
+			.list();
+
+		Map<Long, List<Long>> result = new HashMap<>();
+		for (Object[] row : rows) {
+			List<Long> recordIds = result.computeIfAbsent((Long)row[0], (u) -> new ArrayList<>());
+			recordIds.add((Long)row[1]);
+		}
+
+		return result;
+	}
+
+	@Override
 	public List<Map<String, Object>> getRegistrationRecords(Collection<Long> cpIds, Long formId, List<String> ppids, int startAt, int maxResults) {
 		return getEntityRecords(
 			cpIds, formId, GET_REG_FORM_RECORDS,
@@ -1065,6 +1082,8 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 	private static final String GET_REC_BY_FORM_N_REC_ID = RE_FQN + ".getRecordEntryByFormAndRecId";
 
 	private static final String GET_LATEST_RECORD_IDS = RE_FQN + ".getLatestRecordIds";
+
+	private static final String GET_RECORD_IDS = RE_FQN + ".getRecordIds";
 
 	private static final String GET_FORM_IDS = FQN + ".getFormIds";
 	

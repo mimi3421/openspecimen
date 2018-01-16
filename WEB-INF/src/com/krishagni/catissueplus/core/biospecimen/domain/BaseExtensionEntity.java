@@ -10,7 +10,11 @@ import com.krishagni.catissueplus.core.de.domain.DeObject;
 
 public abstract class BaseExtensionEntity extends BaseEntity {
 	private DeObject extension;
-	
+
+	public DeObject getExtensionIfPresent() {
+		return extension;
+	}
+
 	public DeObject getExtension() {
 		if (extension == null) {
 			extension = createExtension();
@@ -96,15 +100,15 @@ public abstract class BaseExtensionEntity extends BaseEntity {
 	
 	public abstract String getEntityType();
 
-	protected Long getCpId() {
+	public Long getCpId() {
 		return -1L;
 	}
 
-	protected boolean isCpBased() {
+	public boolean isCpBased() {
 		return true;
 	}
 
-	protected Long getEntityId() {
+	public Long getEntityId() {
 		return null;
 	}
 	

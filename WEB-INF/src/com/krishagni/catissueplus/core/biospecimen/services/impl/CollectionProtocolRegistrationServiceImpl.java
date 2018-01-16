@@ -81,6 +81,7 @@ import com.krishagni.catissueplus.core.common.service.impl.ConfigurationServiceI
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.catissueplus.core.common.util.Status;
 import com.krishagni.catissueplus.core.common.util.Utility;
+import com.krishagni.catissueplus.core.de.domain.DeObject;
 import com.krishagni.catissueplus.core.exporter.domain.ExportJob;
 import com.krishagni.catissueplus.core.exporter.services.ExportService;
 import com.krishagni.rbac.common.errors.RbacErrorCode;
@@ -474,11 +475,11 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 		
 		try {
 			CollectionProtocolRegistration cpr = getCpr(req.getPayload().getCprId(), null, null);
-			AccessCtrlMgr.getInstance().ensureReadSpecimenRights(cpr, false);
+			boolean phiAccess = AccessCtrlMgr.getInstance().ensureReadSpecimenRights(cpr, true);
 
 			List<SpecimenDetail> specimens = Collections.emptyList();			
 			if (crit.getVisitId() != null || crit.getEventId() == null) {
-				specimens = getSpecimensByVisit(cpr, crit.getVisitId());
+				specimens = getSpecimensByVisit(cpr, crit.getVisitId(), !phiAccess);
 				checkDistributedSpecimens(specimens);
 			} else if (crit.getEventId() != null) {
 				specimens = getAnticipatedSpecimens(crit.getCprId(), crit.getEventId());
@@ -888,20 +889,20 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 		}
 	}
 		
-	private List<SpecimenDetail> getSpecimensByVisit(CollectionProtocolRegistration cpr, Long visitId) {
+	private List<SpecimenDetail> getSpecimensByVisit(CollectionProtocolRegistration cpr, Long visitId, boolean excludePhi) {
 		if (visitId != null) {
 			Visit visit = daoFactory.getVisitsDao().getById(visitId);
 			if (visit == null || !visit.getRegistration().equals(cpr)) {
 				throw OpenSpecimenException.userError(VisitErrorCode.NOT_FOUND);
 			}
 
-			return getSpecimensByVisit(visit);
+			return getSpecimensByVisit(visit, excludePhi);
 		} else {
-			return getSpecimensByCpr(cpr);
+			return getSpecimensByCpr(cpr, excludePhi);
 		}
 	}
 
-	private List<SpecimenDetail> getSpecimensByCpr(CollectionProtocolRegistration cpr) {
+	private List<SpecimenDetail> getSpecimensByCpr(CollectionProtocolRegistration cpr, boolean excludePhi) {
 		Map<Long, CollectionProtocolEvent> eventsMap = cpr.getCollectionProtocol().getOrderedCpeList().stream()
 			.collect(Collectors.toMap(
 				CollectionProtocolEvent::getId,
@@ -915,7 +916,7 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 				eventsMap.remove(visit.getCpEvent().getId());
 			}
 
-			specimens.addAll(getSpecimensByVisit(visit));
+			specimens.addAll(getSpecimensByVisit(visit, excludePhi));
 		}
 
 		for (CollectionProtocolEvent cpe : eventsMap.values()) {
@@ -925,11 +926,17 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 		return specimens;
 	}
 
-	private List<SpecimenDetail> getSpecimensByVisit(Visit visit) {
+	private List<SpecimenDetail> getSpecimensByVisit(Visit visit, boolean excludePhi) {
 		Set<SpecimenRequirement> anticipatedSpecimens = visit.isUnplanned() ? Collections.EMPTY_SET : visit.getCpEvent().getTopLevelAnticipatedSpecimens();
 		Set<Specimen> specimens = visit.getTopLevelSpecimens();
 
-		return SpecimenDetail.getSpecimens(anticipatedSpecimens, specimens);
+		if (!specimens.isEmpty()) {
+			List<Specimen> allSpmns = specimens.stream().map(Specimen::getDescendants).flatMap(List::stream).collect(Collectors.toList());
+			Long cpId = allSpmns.iterator().next().getCpId();
+			DeObject.createExtensions(true, Specimen.EXTN, cpId, allSpmns);
+		}
+
+		return SpecimenDetail.getSpecimens(anticipatedSpecimens, specimens, false, excludePhi, false);
 	}
 
 	private List<SpecimenDetail> getAnticipatedSpecimens(Long cprId, Long eventId) {
@@ -943,7 +950,7 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 
 	private List<SpecimenDetail> getAnticipatedSpecimens(CollectionProtocolEvent cpe) {
 		Set<SpecimenRequirement> anticipatedSpecimens = cpe.getTopLevelAnticipatedSpecimens();
-		return SpecimenDetail.getSpecimens(anticipatedSpecimens, Collections.emptySet());
+		return SpecimenDetail.getSpecimens(anticipatedSpecimens, Collections.emptySet(), false, true, false);
 	}
 	
 	private CollectionProtocolRegistration getCpr(Long cprId, Long cpId, String ppid) {
