@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProvider;
 import com.thoughtworks.xstream.io.xml.Dom4JDriver;
 
 public class ObjectSchema {	
@@ -59,7 +60,7 @@ public class ObjectSchema {
 	}
 	
 	private static XStream getSchemaParser() {
-		XStream xstream = new XStream(new Dom4JDriver());
+		XStream xstream = new XStream(new PureJavaReflectionProvider(), new Dom4JDriver());
 		
 		xstream.alias("object-schema", ObjectSchema.class);
 		
