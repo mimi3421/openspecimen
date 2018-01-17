@@ -203,6 +203,19 @@
       </div>
     </div>
 
+    <div class="form-group" ng-if="!container.$$dimensionless">
+      <label class="col-xs-3 control-label">
+        <span translate="container.position_assignment">Position Assignment</span>
+      </label>
+      <div class="col-xs-6">
+        <os-select ng-model="container.positionAssignment" list="ctx.positionAssignments"
+          select-prop="name" display-prop="displayName" name="positionAssignment"
+          placeholder="{{'container.position_assignment' | translate}}" required>
+        </os-select>
+        <div os-field-error field="cform.positionAssignment"></div>
+      </div>
+    </div>
+
     <div class="form-group">
       <label class="col-xs-3 control-label">
         <span translate="container.temperature">Temperature (Celsius)</span>

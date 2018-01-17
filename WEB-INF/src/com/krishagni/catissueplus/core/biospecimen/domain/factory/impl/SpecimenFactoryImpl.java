@@ -43,6 +43,7 @@ import com.krishagni.catissueplus.core.biospecimen.events.SpecimenEventDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.VisitDetail;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.biospecimen.services.SpecimenResolver;
+import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.errors.ActivityStatusErrorCode;
 import com.krishagni.catissueplus.core.common.errors.ErrorType;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
@@ -835,8 +836,9 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 			posOne = location.getPositionX();
 			posTwo = location.getPositionY();
 			if (container.usesLinearLabelingMode() && location.getPosition() != null && location.getPosition() != 0) {
-				posTwo = String.valueOf((location.getPosition() - 1) / container.getNoOfColumns() + 1);
-				posOne = String.valueOf((location.getPosition() - 1) % container.getNoOfColumns() + 1);
+				Pair<Integer, Integer> coord = container.getPositionAssigner().fromPosition(container, location.getPosition());
+				posTwo = coord.first().toString();
+				posOne = coord.second().toString();
 			}
 		}
 

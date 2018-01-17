@@ -681,8 +681,7 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 		try {
 			StorageContainer container = getContainer(req.getPayload());
 			AccessCtrlMgr.getInstance().ensureReadContainerRights(container);
-			return ResponseEvent.response(daoFactory.getStorageContainerDao()
-					.getChildContainers(container.getId(), container.getNoOfColumns()));
+			return ResponseEvent.response(daoFactory.getStorageContainerDao().getChildContainers(container));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {
@@ -1267,6 +1266,8 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 		copy.setNoOfRows(source.getNoOfRows());
 		copy.setColumnLabelingScheme(source.getColumnLabelingScheme());
 		copy.setRowLabelingScheme(source.getRowLabelingScheme());
+		copy.setPositionLabelingMode(source.getPositionLabelingMode());
+		copy.setPositionAssignment(source.getPositionAssignment());
 		copy.setComments(source.getComments());
 		copy.setAllowedSpecimenClasses(new HashSet<>(source.getAllowedSpecimenClasses()));
 		copy.setAllowedSpecimenTypes(new HashSet<>(source.getAllowedSpecimenTypes()));

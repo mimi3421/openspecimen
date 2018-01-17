@@ -75,23 +75,173 @@ angular.module('os.common.box', [])
       element.append(table);
     }
 
-    function getMatrix(opts) {
-      var matrix = new Array(opts.box.numberOfRows());
-      for (var i = 0; i < opts.box.numberOfRows(); ++i) {
-        matrix[i] = new Array(opts.box.numberOfColumns());
+    var positionAssigners = {
+      'HZ_TOP_DOWN_LEFT_RIGHT': new function() {
+        this.row = function(ri, ci, nr, nc) { return ri + 1; }
 
-        for (var j = 0; j < opts.box.numberOfColumns(); ++j) {
-          matrix[i][j] = {row: i + 1, column: j + 1};
+        this.col = function(ri, ci, nr, nc) { return ci + 1; }
+
+        this.pos = function(row, col, nr, nc) { return (row - 1) * nc + col }
+
+        this.fromPos = function(pos, nr, nc) { return {row: Math.floor((pos - 1) / nc) + 1, column: (pos - 1) % nc + 1}; }
+
+        this.toMapRow = function(row, col, nr, nc) { return row - 1; }
+
+        this.toMapCol = function(row, col, nr, nc) { return col - 1; }
+
+        this.rowMajor = function() { return true; }
+      },
+
+      'HZ_TOP_DOWN_RIGHT_LEFT': new function() {
+        this.row = function(ri, ci, nr, nc) { return ri + 1; }
+
+        this.col = function(ri, ci, nr, nc) { return nc - ci; }
+
+        this.pos = function(row, col, nr, nc) { return (row - 1) * nc + col }
+
+        this.fromPos = function(pos, nr, nc) { return {row: Math.floor((pos - 1) / nc) + 1, column: (pos - 1) % nc + 1}; }
+
+        this.toMapRow = function(row, col, nr, nc) { return row - 1; }
+
+        this.toMapCol = function(row, col, nr, nc) { return nc - col; }
+
+        this.rowMajor = function() { return true; }
+      },
+
+      'HZ_BOTTOM_UP_LEFT_RIGHT': new function() {
+        this.row = function(ri, ci, nr, nc) { return nr - ri; }
+
+        this.col = function(ri, ci, nr, nc) { return ci + 1; }
+
+        this.pos = function(row, col, nr, nc) { return (row - 1) * nc + col }
+
+        this.fromPos = function(pos, nr, nc) { return {row: Math.floor((pos - 1) / nc) + 1, column: (pos - 1) % nc + 1}; }
+
+        this.toMapRow = function(row, col, nr, nc) { return nr - row; }
+
+        this.toMapCol = function(row, col, nr, nc) { return col - 1; }
+
+        this.rowMajor = function() { return true; }
+      },
+
+      'HZ_BOTTOM_UP_RIGHT_LEFT': new function() {
+        this.row = function(ri, ci, nr, nc) { return nr - ri; }
+
+        this.col = function(ri, ci, nr, nc) { return nc - ci; }
+
+        this.pos = function(row, col, nr, nc) { return (row - 1) * nc + col }
+
+        this.fromPos = function(pos, nr, nc) { return {row: Math.floor((pos - 1) / nc) + 1, column: (pos - 1) % nc + 1}; }
+
+        this.toMapRow = function(row, col, nr, nc) { return nr - row; }
+
+        this.toMapCol = function(row, col, nr, nc) { return nc - col; }
+
+        this.rowMajor = function() { return true; }
+      },
+
+      'VT_TOP_DOWN_LEFT_RIGHT': new function() {
+        this.row = function(ri, ci, nr, nc) { return ci + 1; }
+
+        this.col = function(ri, ci, nr, nc) { return ri + 1; }
+
+        this.pos = function(row, col, nr, nc) { return (row - 1) * nr + col }
+
+        this.fromPos = function(pos, nr, nc) { return {row: Math.floor((pos - 1) / nr) + 1, column: (pos - 1) % nr + 1}; }
+
+        this.toMapRow = function(row, col, nr, nc) { return col - 1; }
+
+        this.toMapCol = function(row, col, nr, nc) { return row - 1; }
+
+        this.rowMajor = function() { return false; }
+      },
+
+      'VT_TOP_DOWN_RIGHT_LEFT': new function() {
+        this.row = function(ri, ci, nr, nc) { return nc - ci; }
+
+        this.col = function(ri, ci, nr, nc) { return ri + 1; }
+
+        this.pos = function(row, col, nr, nc) { return (row - 1) * nr + col }
+
+        this.fromPos = function(pos, nr, nc) { return {row: Math.floor((pos - 1) / nr) + 1, column: (pos - 1) % nr + 1}; }
+
+        this.toMapRow = function(row, col, nr, nc) { return col - 1; }
+
+        this.toMapCol = function(row, col, nr, nc) { return nc - row; }
+
+        this.rowMajor = function() { return false; }
+      },
+
+      'VT_BOTTOM_UP_LEFT_RIGHT': new function() {
+        this.row = function(ri, ci, nr, nc) { return ci + 1; }
+
+        this.col = function(ri, ci, nr, nc) { return nr - ri; }
+
+        this.pos = function(row, col, nr, nc) { return (row - 1) * nr + col }
+
+        this.fromPos = function(pos, nr, nc) { return {row: Math.floor((pos - 1) / nr) + 1, column: (pos - 1) % nr + 1}; }
+
+        this.toMapRow = function(row, col, nr, nc) { return nr - col; }
+
+        this.toMapCol = function(row, col, nr, nc) { return row - 1; }
+
+        this.rowMajor = function() { return false; }
+      },
+
+      'VT_BOTTOM_UP_RIGHT_LEFT': new function() {
+        this.row = function(ri, ci, nr, nc) { return nc - ci; }
+
+        this.col = function(ri, ci, nr, nc) { return nr - ri; }
+
+        this.pos = function(row, col, nr, nc) { return (row - 1) * nr + col }
+
+        this.fromPos = function(pos, nr, nc) { return {row: Math.floor((pos - 1) / nr) + 1, column: (pos - 1) % nr + 1}; }
+
+        this.toMapRow = function(row, col, nr, nc) { return nr - col; }
+
+        this.toMapCol = function(row, col, nr, nc) { return nc - row; }
+
+        this.rowMajor = function() { return false; }
+      }
+    };
+
+    function getPositionAssigner(type) {
+      return positionAssigners[type];
+    }
+
+    function getPositionAssigner0(opts) {
+      var positionAssigner = getPositionAssigner('HZ_TOP_DOWN_LEFT_RIGHT');
+      if (typeof opts.box.instance.getPositionAssigner == 'function') {
+        positionAssigner = opts.box.instance.getPositionAssigner();
+      }
+
+      return positionAssigner;
+    }
+
+    function getMatrix(opts) {
+      var nr = opts.box.numberOfRows();
+      var nc = opts.box.numberOfColumns();
+      var pa = getPositionAssigner0(opts);
+
+      var matrix = new Array(nr);
+      for (var i = 0; i < nr; ++i) {
+        matrix[i] = new Array(nc);
+
+        for (var j = 0; j < nc; ++j) {
+          matrix[i][j] = {row: pa.row(i, j, nr, nc), column: pa.col(i, j, nr, nc)};
         }
       }
 
-      angular.forEach(opts.occupants, function(occupant) {
-        matrix[opts.box.row(occupant) - 1][opts.box.column(occupant) - 1].occupied = occupant;
-      });
+      angular.forEach(opts.occupants,
+        function(occupant) {
+          var row = opts.box.row(occupant), col = opts.box.column(occupant);
+          var ri = pa.toMapRow(row, col, nr, nc), ci = pa.toMapCol(row, col, nr, nc);
+          matrix[ri][ci].occupied = occupant;
+        }
+      );
 
       return matrix;
-    };
-
+    }
 
     function getCell(cell, opts) {
       return $("<div class='slot'/>")
@@ -100,7 +250,9 @@ angular.module('os.common.box', [])
     };
 
     function getCellEl(cell, opts) {
-      var pos = (cell.row - 1) * opts.box.numberOfColumns() + cell.column;
+      var pa = getPositionAssigner0(opts);
+      var pos = pa.pos(cell.row, cell.column, opts.box.numberOfRows(), opts.box.numberOfColumns());
+
       var row = NumberConverterUtil.fromNumber(opts.box.rowLabelingScheme(), cell.row);
       var column = NumberConverterUtil.fromNumber(opts.box.columnLabelingScheme(), cell.column);
 
@@ -161,6 +313,7 @@ angular.module('os.common.box', [])
     };
 
     function assignCells(opts, inputLabels, vacateOccupants) {
+      var pa = getPositionAssigner0(opts);
       var occupants = angular.copy(opts.occupants);
 
       //
@@ -190,8 +343,9 @@ angular.module('os.common.box', [])
           //
           var startCell = input[i].startCell.trim().split(',');
           if (opts.box.positionLabelingMode() == 'LINEAR') {
-            startRow    = Math.floor((+startCell - 1) / opts.box.numberOfColumns()) + 1;
-            startColumn = ((+startCell - 1) % opts.box.numberOfColumns()) + 1;
+            var rowCol = pa.fromPos(+startCell, opts.box.numberOfRows(), opts.box.numberOfColumns());
+            startRow    = rowCol.row;
+            startColumn = rowCol.column;
           } else {
             if (startCell.length != 2) {
               alert("Invalid start position: " + input[i].startCell);
@@ -215,9 +369,11 @@ angular.module('os.common.box', [])
           }
         }
 
+        var yLimit = pa.rowMajor() ? opts.box.numberOfRows() : opts.box.numberOfColumns();
+        var xLimit = pa.rowMajor() ? opts.box.numberOfColumns() : opts.box.numberOfRows();
         var done = false;
-        for (var y = startRow; y <= opts.box.numberOfRows(); ++y) {
-          for (var x = startColumn; x <= opts.box.numberOfColumns(); ++x) {
+        for (var y = startRow; y <= yLimit; ++y) {
+          for (var x = startColumn; x <= xLimit; ++x) {
             if (labelIdx >= labels.length) {
               //
               // we are done with probing/iterating through all input labels
@@ -300,7 +456,9 @@ angular.module('os.common.box', [])
     return {
       drawLayout: drawLayout,
 
-      assignCells: assignCells
+      assignCells: assignCells,
+
+      getPositionAssigner: getPositionAssigner
     }
   })
   .directive('osBoxLayout', function(BoxLayoutUtil, $compile) {

@@ -1265,6 +1265,17 @@
       "LINEAR": "Linear",
       "TWO_D" : "Row and Column"
     },
+    "position_assignment": "Position Assignment",
+    "position_assignments": {
+      "HZ_TOP_DOWN_LEFT_RIGHT": "Horizontal, top down, left to right",
+      "HZ_TOP_DOWN_RIGHT_LEFT": "Horizontal, top to down, right to left",
+      "HZ_BOTTOM_UP_LEFT_RIGHT": "Horizontal, bottom up, left to right",
+      "HZ_BOTTOM_UP_RIGHT_LEFT": "Horizontal, bottom up, right to left",
+      "VT_TOP_DOWN_LEFT_RIGHT": "Vertical, top down, left to right",
+      "VT_TOP_DOWN_RIGHT_LEFT": "Vertical, top to down, right to left",
+      "VT_BOTTOM_UP_LEFT_RIGHT": "Vertical, bottom up, left to right",
+      "VT_BOTTOM_UP_RIGHT_LEFT": "Vertical, bottom up, right to left"
+    },
     "block": "Block",
     "unblock": "Unblock",
     "cell_blocked": "Blocked",

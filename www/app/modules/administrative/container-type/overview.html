@@ -51,7 +51,14 @@
           <strong class="key key-sm" translate="container.labeling_scheme">Dimension Labeling Scheme</strong>
           <span class="value value-md">{{containerType.rowLabelingScheme}} x {{containerType.columnLabelingScheme}}</span>
         </li>
-  
+
+        <li class="item">
+          <strong class="key key-sm" translate="container.position_assignment">Position Assignment</strong>
+          <span class="value value-md">
+            {{'container.position_assignments.' + containerType.positionAssignment | translate}}
+          </span>
+        </li>
+
         <li class="item">
           <strong class="key key-sm" translate="container.stores_specimens">Stores Specimens</strong>
           <span class="value value-md" ng-switch on="containerType.storeSpecimenEnabled">

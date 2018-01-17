@@ -9,6 +9,7 @@ angular.module('os.administrative.containertype.addedit', ['os.administrative.mo
 
     function loadPvs() {
       $scope.positionLabelingSchemes = PvManager.getPvs('container-position-labeling-schemes');
+      $scope.positionAssignments = PvManager.getPvs('container-position-assignments');
 
       $scope.containerTypes = [];
       ContainerType.query().then(

@@ -541,4 +541,20 @@
   <changeSet author="vpawar" id="Increase the width of export job params value column - 4" dbms="oracle">
     <renameColumn tableName="OS_EXPORT_JOB_PARAMS" oldColumnName="VALUE_TEMP" newColumnName="VALUE"/>
   </changeSet>
+
+  <changeSet author="vpawar" id="Container position assignment">
+    <addColumn tableName="OS_STORAGE_CONTAINERS">
+      <column name="POS_ASSIGNMENT" type="${text.type}(32)" defaultValue="HZ_TOP_DOWN_LEFT_RIGHT">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Container type position assignment">
+    <addColumn tableName="OS_CONTAINER_TYPES">
+      <column name="POS_ASSIGNMENT" type="${text.type}(32)" defaultValue="HZ_TOP_DOWN_LEFT_RIGHT">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

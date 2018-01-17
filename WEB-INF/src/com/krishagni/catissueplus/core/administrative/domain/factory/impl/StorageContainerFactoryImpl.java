@@ -30,6 +30,7 @@ import com.krishagni.catissueplus.core.administrative.events.StorageLocationSumm
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.SpecimenErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
+import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.errors.ActivityStatusErrorCode;
 import com.krishagni.catissueplus.core.common.errors.ErrorType;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
@@ -69,6 +70,7 @@ public class StorageContainerFactoryImpl implements StorageContainerFactory {
 		setTemperature(detail, existing, container, ose);
 		setCapacity(detail, existing, container, ose);
 		setPositionLabelingMode(detail, existing, container, ose);
+		setPositionAssignment(detail, existing, container, ose);
 		setLabelingSchemes(detail, existing, container, ose);
 		setSiteAndParentContainer(detail, existing, container, ose);
 		setPosition(detail, existing, container, ose);
@@ -325,6 +327,33 @@ public class StorageContainerFactoryImpl implements StorageContainerFactory {
 		}
 	}
 
+	private void setPositionAssignment(StorageContainerDetail detail, StorageContainer container, OpenSpecimenException ose) {
+		try {
+			String assignment = detail.getPositionAssignment();
+			if (StringUtils.isNotBlank(assignment)) {
+				assignment = assignment.toUpperCase();
+				container.setPositionAssignment(StorageContainer.PositionAssignment.valueOf(assignment));
+			} else if (container.getType() != null) {
+				container.setPositionAssignment(container.getType().getPositionAssignment());
+			}
+		} catch (Exception e) {
+			ose.addError(StorageContainerErrorCode.INVALID_POSITION_ASSIGNMENT, detail.getPositionAssignment());
+		}
+	}
+
+	private void setPositionAssignment(StorageContainerDetail detail, StorageContainer existing, StorageContainer container, OpenSpecimenException ose) {
+		if (container.isDimensionless()) {
+			container.setPositionAssignment(StorageContainer.PositionAssignment.HZ_TOP_DOWN_LEFT_RIGHT);
+			return;
+		}
+
+		if (detail.isAttrModified("positionAssignment") || existing == null) {
+			setPositionAssignment(detail, container, ose);
+		} else {
+			container.setPositionAssignment(existing.getPositionAssignment());
+		}
+	}
+
 	private void setLabelingSchemes(StorageContainerDetail detail, StorageContainer existing, StorageContainer container, OpenSpecimenException ose) {
 		if (container.getPositionLabelingMode() != StorageContainer.PositionLabelingMode.TWO_D) {
 			container.setRowLabelingScheme(StorageContainer.NUMBER_LABELING_SCHEME);
@@ -486,8 +515,9 @@ public class StorageContainerFactoryImpl implements StorageContainerFactory {
 
 		String posOne = location.getPositionX(), posTwo = location.getPositionY();
 		if (!parentContainer.isDimensionless() && parentContainer.usesLinearLabelingMode() && location.getPosition() != null && location.getPosition() != 0) {
-			posTwo = String.valueOf((location.getPosition() - 1) / parentContainer.getNoOfColumns() + 1);
-			posOne = String.valueOf((location.getPosition() - 1) % parentContainer.getNoOfColumns() + 1);
+			Pair<Integer, Integer> coord = parentContainer.getPositionAssigner().fromPosition(parentContainer, location.getPosition());
+			posTwo = coord.first().toString();
+			posOne = coord.second().toString();
 		}
 
 		StorageContainerPosition position = null;
@@ -731,6 +761,7 @@ public class StorageContainerFactoryImpl implements StorageContainerFactory {
 		detail.setPositionLabelingMode(type.getPositionLabelingMode().name());
 		detail.setColumnLabelingScheme(type.getColumnLabelingScheme());
 		detail.setRowLabelingScheme(type.getRowLabelingScheme());
+		detail.setPositionAssignment(type.getPositionAssignment().name());
 		detail.setTemperature(type.getTemperature());
 		detail.setStoreSpecimensEnabled(type.isStoreSpecimenEnabled());
 		return detail;

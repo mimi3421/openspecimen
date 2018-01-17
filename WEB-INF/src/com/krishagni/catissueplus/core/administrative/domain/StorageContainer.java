@@ -6,10 +6,12 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -28,6 +30,7 @@ import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.common.OpenSpecimenAppCtxProvider;
+import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
@@ -38,20 +41,6 @@ import com.krishagni.catissueplus.core.common.util.Utility;
 
 @Audited
 public class StorageContainer extends BaseEntity {
-	private static final String ENTITY_NAME = "storage_container";
-
-	private static final String DEF_SITE_CONT_NAME = "storage_container_site_cont_name";
-
-	public static final String NUMBER_LABELING_SCHEME = "Numbers";
-	
-	public static final String UPPER_CASE_ALPHA_LABELING_SCHEME = "Alphabets Upper Case";
-	
-	public static final String LOWER_CASE_ALPHA_LABELING_SCHEME = "Alphabets Lower Case";
-	
-	public static final String UPPER_CASE_ROMAN_LABELING_SCHEME = "Roman Upper Case";
-	
-	public static final String LOWER_CASE_ROMAN_LABELING_SCHEME = "Roman Lower Case";
-
 	public enum PositionLabelingMode {
 		NONE,
 		LINEAR,
@@ -63,6 +52,44 @@ public class StorageContainer extends BaseEntity {
 		SPECIMEN_LABEL,
 		SPECIMEN_BARCODE
 	}
+
+	public enum PositionAssignment {
+		HZ_TOP_DOWN_LEFT_RIGHT,
+		HZ_TOP_DOWN_RIGHT_LEFT,
+		HZ_BOTTOM_UP_LEFT_RIGHT,
+		HZ_BOTTOM_UP_RIGHT_LEFT,
+		VT_TOP_DOWN_LEFT_RIGHT,
+		VT_TOP_DOWN_RIGHT_LEFT,
+		VT_BOTTOM_UP_LEFT_RIGHT,
+		VT_BOTTOM_UP_RIGHT_LEFT
+	}
+
+	private static final String ENTITY_NAME = "storage_container";
+
+	private static final String DEF_SITE_CONT_NAME = "storage_container_site_cont_name";
+
+	public static final String NUMBER_LABELING_SCHEME = "Numbers";
+
+	public static final String UPPER_CASE_ALPHA_LABELING_SCHEME = "Alphabets Upper Case";
+
+	public static final String LOWER_CASE_ALPHA_LABELING_SCHEME = "Alphabets Lower Case";
+
+	public static final String UPPER_CASE_ROMAN_LABELING_SCHEME = "Roman Upper Case";
+
+	public static final String LOWER_CASE_ROMAN_LABELING_SCHEME = "Roman Lower Case";
+
+	private static final Map<PositionAssignment, PositionAssigner> POS_ASSIGNERS = new HashMap<PositionAssignment, PositionAssigner>() {
+		{
+			put(PositionAssignment.HZ_TOP_DOWN_LEFT_RIGHT,  new HzTopDownLeftRightPosAssigner());
+			put(PositionAssignment.HZ_TOP_DOWN_RIGHT_LEFT,  new HzTopDownRightLeftPosAssigner());
+			put(PositionAssignment.HZ_BOTTOM_UP_LEFT_RIGHT, new HzBottomUpLeftRightPosAssigner());
+			put(PositionAssignment.HZ_BOTTOM_UP_RIGHT_LEFT, new HzBottomUpRightLeftPosAssigner());
+			put(PositionAssignment.VT_TOP_DOWN_LEFT_RIGHT,  new VtTopDownLeftRightPosAssigner());
+			put(PositionAssignment.VT_TOP_DOWN_RIGHT_LEFT,  new VtTopDownRightLeftPosAssigner());
+			put(PositionAssignment.VT_BOTTOM_UP_LEFT_RIGHT, new VtBottomUpLeftRightPosAssigner());
+			put(PositionAssignment.VT_BOTTOM_UP_RIGHT_LEFT, new VtBottomUpRightLeftPosAssigner());
+		}
+	};
 
 	private String name;
 
@@ -77,6 +104,8 @@ public class StorageContainer extends BaseEntity {
 	private Integer noOfRows;
 
 	private PositionLabelingMode positionLabelingMode = PositionLabelingMode.TWO_D;
+
+	private PositionAssignment positionAssignment = PositionAssignment.HZ_TOP_DOWN_LEFT_RIGHT;
 	
 	private String columnLabelingScheme = NUMBER_LABELING_SCHEME;
 	
@@ -200,6 +229,18 @@ public class StorageContainer extends BaseEntity {
 
 	public boolean usesLinearLabelingMode() {
 		return PositionLabelingMode.LINEAR.equals(getPositionLabelingMode());
+	}
+
+	public PositionAssignment getPositionAssignment() {
+		return positionAssignment;
+	}
+
+	public void setPositionAssignment(PositionAssignment positionAssignment) {
+		this.positionAssignment = positionAssignment;
+	}
+
+	public PositionAssigner getPositionAssigner() {
+		return POS_ASSIGNERS.get(getPositionAssignment());
 	}
 
 	public String getColumnLabelingScheme() {
@@ -467,6 +508,7 @@ public class StorageContainer extends BaseEntity {
 		updateCapacity(other);
 		setPositionLabelingMode(other.getPositionLabelingMode());
 		updateLabelingScheme(other);
+		updatePositionAssignment(other);
 		updateContainerLocation(other);
 		setComments(other.getComments());
 		updateAllowedSpecimenClassAndTypes(other, hasParentChanged);
@@ -509,8 +551,9 @@ public class StorageContainer extends BaseEntity {
 		if (isDimensionless()) {
 			return Collections.emptySet();
 		} else {
+			PositionAssigner assigner = getPositionAssigner();
 			return getOccupiedPositions().stream()
-				.map(pos -> (pos.getPosTwoOrdinal() - 1) * getNoOfColumns() + pos.getPosOneOrdinal())
+				.map(pos -> assigner.toPosition(this, pos.getPosTwoOrdinal(), pos.getPosOneOrdinal()))
 				.collect(Collectors.toSet());
 		}
 	}
@@ -530,7 +573,7 @@ public class StorageContainer extends BaseEntity {
 
 		int posOneOrdinal = toOrdinal(getColumnLabelingScheme(), posOne);
 		int posTwoOrdinal = toOrdinal(getRowLabelingScheme(), posTwo);
-		return areValidPositions(posOneOrdinal, posTwoOrdinal);
+		return getPositionAssigner().isValidPosition(this, posTwoOrdinal, posOneOrdinal);
 	}
 	
 	public boolean areValidPositions(int posOne, int posTwo) {
@@ -538,7 +581,7 @@ public class StorageContainer extends BaseEntity {
 			return true;
 		}
 
-		return posOne >= 1 && posOne <= getNoOfColumns() && posTwo >= 1 && posTwo <= getNoOfRows();
+		return getPositionAssigner().isValidPosition(this, posTwo, posOne);
 	}
 	
 	public StorageContainerPosition createPosition(String posOne, String posTwo) {
@@ -589,15 +632,9 @@ public class StorageContainer extends BaseEntity {
 	public StorageContainerPosition nextAvailablePosition(boolean fromLastAssignedPos) {
 		String row = null, col = null;
 		if (!isDimensionless() && fromLastAssignedPos && lastAssignedPos != null) {
-			int startRow = lastAssignedPos.getPosTwoOrdinal();
-			int startCol = lastAssignedPos.getPosOneOrdinal() + 1;
-			if (startCol > getNoOfColumns()) {
-				++startRow;
-				startCol = 1;
-			}
-			
-			row = fromOrdinal(getRowLabelingScheme(), startRow);
-			col = fromOrdinal(getColumnLabelingScheme(), startCol);
+			Pair<Integer, Integer> startPos = getPositionAssigner().nextPosition(this, lastAssignedPos.getPosTwoOrdinal(), lastAssignedPos.getPosOneOrdinal());
+			row = fromOrdinal(getRowLabelingScheme(), startPos.first());
+			col = fromOrdinal(getColumnLabelingScheme(), startPos.second());
 		}
 
 		return nextAvailablePosition(row, col);
@@ -606,8 +643,9 @@ public class StorageContainer extends BaseEntity {
 	public StorageContainerPosition nextAvailablePosition(int position) {
 		String row = null, column = null;
 		if (!isDimensionless() && position > 0) {
-			row    = fromOrdinal(getRowLabelingScheme(),    (position - 1) / getNoOfColumns() + 1);
-			column = fromOrdinal(getColumnLabelingScheme(), (position - 1) % getNoOfColumns() + 1);
+			Pair<Integer, Integer> coord = getPositionAssigner().fromPosition(this, position);
+			row    = fromOrdinal(getRowLabelingScheme(),    coord.first());
+			column = fromOrdinal(getColumnLabelingScheme(), coord.second());
 		}
 
 		return nextAvailablePosition(row, column);
@@ -620,25 +658,16 @@ public class StorageContainer extends BaseEntity {
 
 		int startRow = 1, startCol = 1;
 		boolean startPosSpecified = StringUtils.isNotBlank(row) && StringUtils.isNotBlank(col);
-		Set<Integer> occupiedPositionOrdinals = occupiedPositionsOrdinals();
-
 		if (startPosSpecified) {
 			startRow = toOrdinal(getRowLabelingScheme(), row);
 			startCol = toOrdinal(getColumnLabelingScheme(), col);
 		}
 
-		for (int y = startRow; y <= getNoOfRows(); ++y) {
-			for (int x = startCol; x <= getNoOfColumns(); ++x) {
-				int pos = (y - 1) * getNoOfColumns() + x;
-				if (!occupiedPositionOrdinals.contains(pos)) {
-					String posOne = fromOrdinal(getColumnLabelingScheme(), x);
-					String posTwo = fromOrdinal(getRowLabelingScheme(), y);
-
-					return (lastAssignedPos = createPosition(x, posOne, y, posTwo));
-				}
-			}
-
-			startCol = 1;
+		Pair<Integer, Integer> nextPos = getPositionAssigner().nextAvailablePosition(this, startRow, startCol);
+		if (nextPos != null) {
+			String posOne = fromOrdinal(getColumnLabelingScheme(), nextPos.second());
+			String posTwo = fromOrdinal(getRowLabelingScheme(), nextPos.first());
+			return (lastAssignedPos = createPosition(nextPos.second(), posOne, nextPos.first(), posTwo));
 		}
 
 		if (startPosSpecified) {
@@ -848,7 +877,7 @@ public class StorageContainer extends BaseEntity {
 	// case #2: Otherwise - Vacate occupant before assigning position to new occupant
 	//
 	public void assignPositions(Collection<StorageContainerPosition> positions, boolean vacateOccupant) {
-		vacateOccupant = isDimensionless() ? false : vacateOccupant;
+		vacateOccupant = !isDimensionless() && vacateOccupant;
 
 		Set<Long> specimenIds = Collections.emptySet();
 		if (vacateOccupant) {
@@ -966,6 +995,7 @@ public class StorageContainer extends BaseEntity {
 		copy.setPositionLabelingMode(getPositionLabelingMode());
 		copy.setColumnLabelingScheme(getColumnLabelingScheme());
 		copy.setRowLabelingScheme(getRowLabelingScheme());
+		copy.setPositionAssignment(getPositionAssignment());
 		copy.setTemperature(getTemperature());
 		copy.setStoreSpecimenEnabled(isStoreSpecimenEnabled());
 		copy.setCellDisplayProp(getCellDisplayProp());
@@ -1194,6 +1224,28 @@ public class StorageContainer extends BaseEntity {
 		setColumnLabelingScheme(other.getColumnLabelingScheme());
 		setRowLabelingScheme(other.getRowLabelingScheme());
 	}
+
+	private void updatePositionAssignment(StorageContainer other) {
+		if (isDimensionless()) {
+			return;
+		}
+
+		if (getPositionAssignment() == other.getPositionAssignment()) {
+			return;
+		}
+
+		for (StorageContainerPosition pos : getOccupiedPositions()) {
+			Pair<Integer, Integer> mapIdx = getPositionAssigner().getMapIdx(this, pos.getPosTwoOrdinal(), pos.getPosOneOrdinal());
+			Pair<Integer, Integer> rowCol = other.getPositionAssigner().fromMapIdx(other, mapIdx.first(), mapIdx.second());
+
+			pos.setPosTwoOrdinal(rowCol.first());
+			pos.setPosTwo(fromOrdinal(getRowLabelingScheme(), pos.getPosTwoOrdinal()));
+			pos.setPosOneOrdinal(rowCol.second());
+			pos.setPosOne(fromOrdinal(getColumnLabelingScheme(), pos.getPosOneOrdinal()));
+		}
+
+		setPositionAssignment(other.getPositionAssignment());
+	}
 	
 	private void updateContainerLocation(StorageContainer other) {
 		updateContainerLocation(other.getSite(), other.getParentContainer(), other.getPosition());
@@ -1335,13 +1387,10 @@ public class StorageContainer extends BaseEntity {
 		
 	private boolean arePositionsOccupiedBeyondCapacity(int noOfCols, int noOfRows) {
 		boolean result = false;
+
+		PositionAssigner assigner = getPositionAssigner();
 		for (StorageContainerPosition pos : getOccupiedPositions()) {
-			if (pos.getPosOneOrdinal() > noOfCols) {
-				result = true;
-				break;
-			}
-			
-			if (pos.getPosTwoOrdinal() > noOfRows) {
+			if (!assigner.isValidPosition(noOfRows, noOfCols, pos.getPosTwoOrdinal(), pos.getPosOneOrdinal())) {
 				result = true;
 				break;
 			}
@@ -1350,29 +1399,17 @@ public class StorageContainer extends BaseEntity {
 		return result;
 	}
 
-	private boolean hasSpecimen(StorageContainer container) {
-		for (StorageContainerPosition pos : getOccupiedPositions()) {
-			if (pos.getOccupyingSpecimen() != null) {
-				return true;
-			}
-		}
-		
-		for (StorageContainer child : getChildContainers()) {
-			if (hasSpecimen(child)) {
-				return true;
-			}
-		}
-		
-		return false;
-	}
-		
 	private boolean cycleExistsInHierarchy(StorageContainer parentContainer) {
-		if (parentContainer != null && getId().equals(parentContainer.getId())) {
+		if (parentContainer == null) {
+			return false;
+		}
+
+		if (getId().equals(parentContainer.getId())) {
 			return true;
 		}
 		
 		for (StorageContainer child : getChildContainers()) {
-			if (parentContainer.isDescendentOf(child)) {
+			if (parentContainer.isDescendantOf(child)) {
 				return true;
 			}
 		}
@@ -1380,7 +1417,7 @@ public class StorageContainer extends BaseEntity {
 		return false;
 	}
 	
-	private boolean isDescendentOf(StorageContainer other) {
+	private boolean isDescendantOf(StorageContainer other) {
 		if (getId() == null || other == null || other.getId() == null) {
 			return false;
 		}

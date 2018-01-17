@@ -96,6 +96,17 @@ angular.module('openspecimen')
       {name: 'YEARS',  displayKey: 'common.interval_units.YEARS'}
     ]
 
+    var positionAssignments = [
+      {name: 'HZ_TOP_DOWN_LEFT_RIGHT',  displayKey: 'container.position_assignments.HZ_TOP_DOWN_LEFT_RIGHT'},
+      {name: 'HZ_TOP_DOWN_RIGHT_LEFT',  displayKey: 'container.position_assignments.HZ_TOP_DOWN_RIGHT_LEFT'},
+      {name: 'HZ_BOTTOM_UP_LEFT_RIGHT', displayKey: 'container.position_assignments.HZ_BOTTOM_UP_LEFT_RIGHT'},
+      {name: 'HZ_BOTTOM_UP_RIGHT_LEFT', displayKey: 'container.position_assignments.HZ_BOTTOM_UP_RIGHT_LEFT'},
+      {name: 'VT_TOP_DOWN_LEFT_RIGHT',  displayKey: 'container.position_assignments.VT_TOP_DOWN_LEFT_RIGHT'},
+      {name: 'VT_TOP_DOWN_RIGHT_LEFT',  displayKey: 'container.position_assignments.VT_TOP_DOWN_RIGHT_LEFT'},
+      {name: 'VT_BOTTOM_UP_LEFT_RIGHT', displayKey: 'container.position_assignments.VT_BOTTOM_UP_LEFT_RIGHT'},
+      {name: 'VT_BOTTOM_UP_RIGHT_LEFT', displayKey: 'container.position_assignments.VT_BOTTOM_UP_RIGHT_LEFT'},
+    ]
+
     var pvMap = {
       anatomicSite: anatomicSites,
       'storage-type': storageTypes,
@@ -107,7 +118,8 @@ angular.module('openspecimen')
       'visit-name-print-modes': visitNamePrintModes,
       'specimen-label-pre-print-modes': spmnLabelPrePrintModes,
       'specimen-label-auto-print-modes': spmnLabelAutoPrintModes,
-      'interval-units': intervalUnits
+      'interval-units': intervalUnits,
+      'container-position-assignments': positionAssignments
     };
 
     var pvIdMap = {

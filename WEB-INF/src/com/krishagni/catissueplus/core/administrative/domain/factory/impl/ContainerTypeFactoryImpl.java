@@ -41,6 +41,7 @@ public class ContainerTypeFactoryImpl implements ContainerTypeFactory {
 		setNameFormat(detail, containerType, ose);
 		setDimension(detail, containerType, ose);
 		setPositionLabelingMode(detail, containerType, ose);
+		setPositionAssignment(detail, containerType, ose);
 		setLabelingSchemes(detail, containerType, ose);
 		setCanHold(detail, containerType, ose);
 		setActivityStatus(detail, containerType, ose);
@@ -104,6 +105,17 @@ public class ContainerTypeFactoryImpl implements ContainerTypeFactory {
 			}
 		} catch (Exception e) {
 			ose.addError(ContainerTypeErrorCode.INVALID_POSITION_LABELING_MODE, detail.getPositionLabelingMode());
+		}
+	}
+
+	private void setPositionAssignment(ContainerTypeDetail detail, ContainerType containerType, OpenSpecimenException ose) {
+		try {
+			String assignment = detail.getPositionAssignment();
+			if (StringUtils.isNotBlank(assignment)) {
+				containerType.setPositionAssignment(StorageContainer.PositionAssignment.valueOf(assignment.toUpperCase()));
+			}
+		} catch (Exception e) {
+			ose.addError(ContainerTypeErrorCode.INVALID_POSITION_ASSIGNMENT, detail.getPositionAssignment());
 		}
 	}
 

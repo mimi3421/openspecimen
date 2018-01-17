@@ -94,4 +94,18 @@
       <column name="catalogId_MOD" type="${bit.type}"/>
     </addColumn>
   </changeSet>
+
+  <changeSet author="vpawar" id="Audit and track changes to container position assignment">
+    <addColumn tableName="OS_STORAGE_CONTAINERS_AUD">
+      <column name="POS_ASSIGNMENT" type="${text.type}(32)"/>
+      <column name="positionAssignment_MOD" type="${bit.type}"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Audit and track changes to container type position assignment">
+    <addColumn tableName="OS_CONTAINER_TYPES_AUD">
+      <column name="POS_ASSIGNMENT" type="${text.type}(32)"/>
+      <column name="positionAssignment_MOD" type="${bit.type}"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

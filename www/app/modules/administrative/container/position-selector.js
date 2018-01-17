@@ -21,7 +21,7 @@ openspecimen.ui.container.ContainerPositionSelector = function(opts) {
       );
     }
 
-    thead.append(tr);
+    // thead.append(tr);
     return thead;
   }
 
@@ -58,15 +58,20 @@ openspecimen.ui.container.ContainerPositionSelector = function(opts) {
     var occupiedPosMap = getOccupiedPositionsMap(container.occupiedPositions);
     var assignedPosMap = getAssignedPositionsMap(container, opts.assignedPos || {});
 
-    var tbody = $("<tbody/>");
-    for (var i = 0; i < +container.noOfRows; ++i) {
-      var posY = Utility.fromOrdinal(container.rowLabelingScheme, i + 1);
-      var tr = $("<tr/>")
-        .append($("<th/>").addClass("os-container-pos").append(posY));
+    var nr = +container.noOfRows;
+    var nc = +container.noOfColumns;
+    var pa = container.getPositionAssigner();
 
-      for (var j = 0; j < +container.noOfColumns; ++j) {
-        var position = i * +container.noOfColumns + (j + 1);
-        var posX     = Utility.fromOrdinal(container.columnLabelingScheme, j + 1);
+    var tbody = $("<tbody/>");
+    for (var i = 0; i < nr; ++i) {
+      var tr = $("<tr/>");
+
+      for (var j = 0; j < nc; ++j) {
+        var row = pa.row(i, j, nr, nc);
+        var col = pa.col(i, j, nr, nc);
+        var position = pa.pos(row, col, nr, nc);
+        var posY = Utility.fromOrdinal(container.rowLabelingScheme, row);
+        var posX = Utility.fromOrdinal(container.columnLabelingScheme, col);
 
         var tooltip = position;
         if (container.positionLabelingMode == 'TWO_D') {
@@ -77,13 +82,13 @@ openspecimen.ui.container.ContainerPositionSelector = function(opts) {
           .addClass("os-container-pos")
           .attr({'data-pos-x': posX, 'data-pos-y': posY, 'data-pos': position, 'title': tooltip});
 
-        var pos = i * container.noOfColumns + j + 1;
-        if (occupiedPosMap[pos]) {
+        if (occupiedPosMap[position]) {
           td.addClass("occupied no-click");
-        } else if (assignedPosMap[pos]) {
+        } else if (assignedPosMap[position]) {
           td.addClass("assigned no-click");
         }
 
+        td.append($("<span/>").append(tooltip).addClass("coord"));
         td.append($("<span/>").addClass("os-circle"));
 
         if (selectedPos && selectedPos.posX == posX && selectedPos.posY == posY) {

@@ -30,6 +30,15 @@
       </type>
     </property>
 
+    <property name="positionAssignment" column="POS_ASSIGNMENT" not-null="true">
+      <type name="org.hibernate.type.EnumType">
+        <param name="enumClass">
+          com.krishagni.catissueplus.core.administrative.domain.StorageContainer$PositionAssignment
+        </param>
+        <param name="type">12</param>
+      </type>
+    </property>
+
     <property name="columnLabelingScheme" column="COLUMN_LABELING_SCHEME"/>
 
     <property name="rowLabelingScheme" column="ROW_LABELING_SCHEME"/>
@@ -40,20 +49,11 @@
 
     <many-to-one name="autoFreezerProvider" column="AUTO_FREEZER_PROVIDER_ID"/>
 
-    <many-to-one
-      name="type"
-      class="com.krishagni.catissueplus.core.administrative.domain.ContainerType"
-      column="TYPE_ID"/>
+    <many-to-one name="type" column="TYPE_ID"/>
 
-    <many-to-one
-      name="site"
-      class="com.krishagni.catissueplus.core.administrative.domain.Site"
-      column="SITE_ID"/>
+    <many-to-one name="site" column="SITE_ID"/>
 
-    <many-to-one
-      name="parentContainer"
-      class="com.krishagni.catissueplus.core.administrative.domain.StorageContainer"
-      column="PARENT_CONTAINER_ID"/>
+    <many-to-one name="parentContainer" column="PARENT_CONTAINER_ID"/>
 
     <property name="cellDisplayProp" column="CELL_DISPLAY_PROP">
       <type name="org.hibernate.type.EnumType">
@@ -64,10 +64,7 @@
       </type>
     </property>
 
-    <many-to-one
-      name="createdBy"
-      class="com.krishagni.catissueplus.core.administrative.domain.User"
-      column="CREATED_BY"/>
+    <many-to-one name="createdBy" column="CREATED_BY"/>
 
     <property name="activityStatus" column="ACTIVITY_STATUS"/>
 
@@ -221,13 +218,14 @@
       <return-scalar column="containerName" type="string"/>
       <return-scalar column="noOfRows"      type="int"/>
       <return-scalar column="noOfColumns"   type="int"/>
+      <return-scalar column="posAssignment" type="string"/>
       <return-scalar column="parentId"      type="long"/>
       <return-scalar column="rowNo"         type="int"/>
       <return-scalar column="colNo"         type="int"/>
 
       select
         s.identifier as containerId, s.name as containerName,
-        s.no_of_rows as noOfRows, s.no_of_cols as noOfColumns,
+        s.no_of_rows as noOfRows, s.no_of_cols as noOfColumns, s.pos_assignment as posAssignment,
         s.parent_container_id as parentId, p.pos_two as rowNo, p.pos_one as colNo
       from
         os_storage_containers s
@@ -239,7 +237,7 @@
 
       select
         s.identifier as containerId, s.name as containerName,
-        s.no_of_rows as noOfRows, s.no_of_cols as noOfColumns,
+        s.no_of_rows as noOfRows, s.no_of_cols as noOfColumns, s.pos_assignment as posAssignment,
         null as parentId, null as rowNo, null as colNo
       from
         os_storage_containers s
@@ -252,13 +250,14 @@
       <return-scalar column="containerName" type="string"/>
       <return-scalar column="noOfRows"      type="int"/>
       <return-scalar column="noOfColumns"   type="int"/>
+      <return-scalar column="posAssignment" type="string"/>
       <return-scalar column="parentId"      type="long"/>
       <return-scalar column="rowNo"         type="int"/>
       <return-scalar column="colNo"         type="int"/>
 
       select
         s.identifier as containerId, s.name as containerName,
-        s.no_of_rows as noOfRows, s.no_of_cols as noOfColumns,
+        s.no_of_rows as noOfRows, s.no_of_cols as noOfColumns, null as posAssignment,
         s.parent_container_id as parentId, p.pos_two as rowNo, p.pos_one as colNo
       from
         os_storage_containers s
