@@ -3,6 +3,7 @@ package com.krishagni.catissueplus.core.de.domain;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -350,26 +351,36 @@ public abstract class DeObject {
 		DeObject fakeDeObj = fakeObject();
 		Map<Long, BaseExtensionEntity> objectsMap = objects.stream().collect(Collectors.toMap(BaseExtensionEntity::getId, obj -> obj));
 
-		Map<String, Object> formInfo = DeObject.getFormInfo(cpBased, entityType, entityId);
-		Long formCtxtId = (Long) formInfo.get("formCtxtId");
-		String formName = (String) formInfo.get("formName");
-
-		Map<Long, List<Long>> objRecordIds = fakeDeObj.daoFactory.getFormDao().getRecordIds(formCtxtId, objectsMap.keySet());
-		Map<Long, Long> recObjIdMap = objRecordIds.entrySet().stream()
-			.collect(Collectors.toMap(re -> re.getValue().get(0), Map.Entry::getKey));
-
 		List<DeObject> result = new ArrayList<>();
-		List<FormData> formDataList = fakeDeObj.formDataMgr.getFormData(getForm(formName), new ArrayList<>(recObjIdMap.keySet()));
-		for (FormData formData : formDataList) {
-			Long objectId = recObjIdMap.get(formData.getRecordId());
-			BaseExtensionEntity object = objectsMap.remove(objectId);
+		String formName = null;
 
-			DeObject extn = newDeObject(formName, object);
-			extn.setId(formData.getRecordId());
-			extn.loadRecord(formData);
-			object.setExtension(extn);
+		Map<String, Object> formInfo = DeObject.getFormInfo(cpBased, entityType, entityId);
+		if (formInfo != null) {
+			Long formCtxtId = (Long) formInfo.get("formCtxtId");
+			formName = (String) formInfo.get("formName");
 
-			result.add(extn);
+			Map<Long, List<Long>> objRecordIds = fakeDeObj.daoFactory.getFormDao().getRecordIds(formCtxtId, objectsMap.keySet());
+			Map<Long, Long> recObjIdMap = objRecordIds.entrySet().stream()
+				.collect(Collectors.toMap(re -> re.getValue().get(0), Map.Entry::getKey));
+
+			List<FormData> formDataList = null;
+			if (recObjIdMap.isEmpty()) {
+				formDataList = Collections.emptyList();
+			} else {
+				formDataList = fakeDeObj.formDataMgr.getFormData(getForm(formName), new ArrayList<>(recObjIdMap.keySet()));
+			}
+
+			for (FormData formData : formDataList) {
+				Long objectId = recObjIdMap.get(formData.getRecordId());
+				BaseExtensionEntity object = objectsMap.remove(objectId);
+
+				DeObject extn = newDeObject(formName, object);
+				extn.setId(formData.getRecordId());
+				extn.loadRecord(formData);
+				object.setExtension(extn);
+
+				result.add(extn);
+			}
 		}
 
 		for (BaseExtensionEntity obj : objectsMap.values()) {
