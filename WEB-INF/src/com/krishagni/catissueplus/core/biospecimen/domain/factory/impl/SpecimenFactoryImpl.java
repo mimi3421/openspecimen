@@ -905,15 +905,12 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 		}
 
 		//
-		// rows = columns = 0 to allow their values to be picked from container type
-		// null is used for dimensionless containers
+		// row and columns will be picked from container type
 		//
 		StorageContainerDetail containerDetail = new StorageContainerDetail();
 		containerDetail.setName(detail.getStorageLocation().getName());
 		containerDetail.setTypeId(containerTypeId);
 		containerDetail.setTypeName(containerTypeName);
-		containerDetail.setNoOfRows(0);
-		containerDetail.setNoOfColumns(0);
 		containerDetail.setStorageLocation(containerLocation);
 		return containerSvc.createStorageContainer(null, containerDetail);
 	}
