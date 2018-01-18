@@ -73,22 +73,22 @@
                 <div ng-style="{'padding-left': (specimen.hasChildren ? specimen.depth * 20 : specimen.depth * 20 + 16) + 'px'}">
                   <span ng-include="'modules/participant/specimen-node-status.html'"></span>
 
-                  <a ui-sref="specimen-detail.overview(
-                    {eventId: visit.eventId, visitId: visit.id, specimenId: specimen.id, srId: specimen.reqId})">
+                  <a ui-sref="specimen-detail.overview({eventId: specimen.eventId, visitId: specimen.visitId,
+                     specimenId: specimen.id, srId: specimen.reqId})">
                     <os-specimen-desc specimen="specimen" show-req-label="true"></os-specimen-desc>
                   </a>
                 </div>
               </div>
             </div>
           </td>
-          <td class="col col-xs-3 text-wrap" ng-switch on="!!specimen.label">
+          <td class="col col-xs-3 os-word-break" ng-switch on="!!specimen.label">
             <span ng-switch-when="true">{{specimen.label}}</span>
             <span ng-switch-default>
               <span ng-if="!!specimen.reqLabel">{{specimen.reqLabel}}</span>
               <span ng-if="!specimen.reqLabel" translate="pvs.not_specified"></span>
             </span>
           </td>
-          <td class="col col-xs-3 text-wrap" ng-switch on="!!specimen.storageLocation.name">
+          <td class="col col-xs-3 os-word-break" ng-switch on="!!specimen.storageLocation.name">
             <span ng-switch-when="true">
               <os-disp-storage-position position="specimen.storageLocation"></os-disp-storage-position>
             </span>
@@ -136,7 +136,7 @@
         ng-repeat="specimen in specimens | openedTreeNodes">
         <tr class="row title" ng-class="{'selected': specimen.selected}"
           ng-if="(specimen.status && specimen.status != 'Pending') || !hidePendingSpmns">
-          <td class="col" ng-repeat="field in specimen.$$treeFields">
+          <td class="col os-word-break" ng-repeat="field in specimen.$$treeFields">
             <div class="clearfix" ng-if="$index == 0">
               <div class="os-select-specimen-cb" ng-hide="specimen.status == 'Missed Collection'">
                 <os-checkbox ng-change="toggleSpecimenSelect(specimen)" ng-model="specimen.selected"></os-checkbox>
@@ -149,7 +149,7 @@
                   </span>
 
                   <a style="display: table-cell;" ui-sref="specimen-detail.overview(
-                    {eventId: visit.eventId, visitId: visit.id, specimenId: specimen.id, srId: specimen.reqId})"
+                    {eventId: specimen.eventId, visitId: specimen.visitId, specimenId: specimen.id, srId: specimen.reqId})"
                     ng-switch on="field.type == 'specimen-description'">
                     <span ng-switch-when="true">
                       <os-specimen-desc specimen="specimen" show-req-label="true"></os-specimen-desc>
@@ -221,7 +221,7 @@
     <ul class="dropdown-menu dropdown-menu-right" role="menu">
       <li>
         <a ui-sref="specimen-detail.overview({
-          eventId: visit.eventId, visitId: visit.id,
+          eventId: specimen.eventId, visitId: specimen.visitId,
           specimenId: specimen.id, srId: specimen.reqId})">
           <i class="fa fa-eye"></i>
           <span translate="specimens.ctx_menu.view_specimen">View Specimen</span>
@@ -229,7 +229,7 @@
       </li>
       <li ng-if="(!allowedOps || allowedOps.update) && specimen.activityStatus == 'Active'">
         <a ui-sref="specimen-addedit({
-          eventId: visit.eventId, visitId: visit.id,
+          eventId: specimen.eventId, visitId: specimen.visitId,
           specimenId: specimen.id, srId: specimen.reqId})">
           <i class="fa fa-pencil"></i>
           <span translate="specimens.ctx_menu.edit_specimen">Edit Specimen</span>
@@ -239,7 +239,7 @@
       <li ng-if="(!allowedOps || allowedOps.update) && 
         specimen.activityStatus == 'Active' && !specimen.pooledSpecimen">
         <a ui-sref="specimen-create-aliquots({
-          eventId: visit.eventId, visitId: visit.id,
+          eventId: specimen.eventId, visitId: specimen.visitId,
           specimenId: specimen.id, srId: specimen.reqId})">
           <i class="fa fa-share-alt"></i>
           <span translate="specimens.ctx_menu.create_aliquots">Create Aliquots</span>
@@ -248,7 +248,7 @@
       <li ng-if="(!allowedOps || allowedOps.update) && 
         specimen.activityStatus == 'Active' && !specimen.pooledSpecimen">
         <a ui-sref="specimen-create-derivative({
-          eventId: visit.eventId, visitId: visit.id,
+          eventId: specimen.eventId, visitId: specimen.visitId,
           specimenId: specimen.id, srId: specimen.reqId})">
           <i class="fa fa-flask"></i>
           <span translate="specimens.ctx_menu.create_derivative">Create Derivative</span>
@@ -257,7 +257,7 @@
       <li class="divider"></li>
       <li ng-if="(!allowedOps || allowedOps.update) && specimen.activityStatus == 'Active'">
         <a ui-sref="specimen-detail.events({
-          eventId: visit.eventId, visitId: visit.id,
+          eventId: specimen.eventId, visitId: specimen.visitId,
           specimenId: specimen.id, srId: specimen.reqId})">
           <i class="fa fa-calendar-o"></i>
           <span translate="specimens.ctx_menu.add_event">Add Event</span>

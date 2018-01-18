@@ -18,6 +18,7 @@ import org.springframework.util.CollectionUtils;
 import com.krishagni.catissueplus.core.administrative.events.StorageLocationSummary;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenRequirement;
+import com.krishagni.catissueplus.core.biospecimen.domain.Visit;
 import com.krishagni.catissueplus.core.common.ListenAttributeChanges;
 import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.catissueplus.core.de.events.ExtensionDetail;
@@ -302,11 +303,11 @@ public class SpecimenDetail extends SpecimenInfo {
 				result.setChildren(children);
 			} else {
 				if (sr.isPooledSpecimenReq()) {
-					result.setSpecimensPool(getSpecimens(sr.getSpecimenPoolReqs(), specimen.getSpecimensPool(), partial, excludePhi, excludeChildren));
+					result.setSpecimensPool(getSpecimens(specimen.getVisit(), sr.getSpecimenPoolReqs(), specimen.getSpecimensPool(), partial, excludePhi, excludeChildren));
 				}
 				result.setPoolSpecimen(sr.isSpecimenPoolReq());
 
-				result.setChildren(getSpecimens(sr.getChildSpecimenRequirements(), specimen.getChildCollection(), partial, excludePhi, excludeChildren));
+				result.setChildren(getSpecimens(specimen.getVisit(), sr.getChildSpecimenRequirements(), specimen.getChildCollection(), partial, excludePhi, excludeChildren));
 			}
 
 			if (specimen.getPooledSpecimen() != null) {
@@ -388,6 +389,7 @@ public class SpecimenDetail extends SpecimenInfo {
 	}
 	
 	public static List<SpecimenDetail> getSpecimens(
+			Visit visit,
 			Collection<SpecimenRequirement> anticipated,
 			Collection<Specimen> specimens,
 			boolean partial,
@@ -397,7 +399,7 @@ public class SpecimenDetail extends SpecimenInfo {
 			.map(s -> SpecimenDetail.from(s, partial, excludePhi, excludeChildren))
 			.collect(Collectors.toList());
 
-		merge(anticipated, result, null, getReqSpecimenMap(result));
+		merge(visit, anticipated, result, null, getReqSpecimenMap(result));
 		SpecimenDetail.sort(result);
 		return result;
 	}
@@ -420,6 +422,7 @@ public class SpecimenDetail extends SpecimenInfo {
 	}
 	
 	private static void merge(
+			Visit visit,
 			Collection<SpecimenRequirement> anticipatedSpecimens, 
 			List<SpecimenDetail> result, 
 			SpecimenDetail currentParent,
@@ -428,9 +431,10 @@ public class SpecimenDetail extends SpecimenInfo {
 		for (SpecimenRequirement anticipated : anticipatedSpecimens) {
 			SpecimenDetail specimen = reqSpecimenMap.get(anticipated.getId());
 			if (specimen != null) {
-				merge(anticipated.getChildSpecimenRequirements(), result, specimen, reqSpecimenMap);
+				merge(visit, anticipated.getChildSpecimenRequirements(), result, specimen, reqSpecimenMap);
 			} else {
 				specimen = SpecimenDetail.from(anticipated);
+				specimen.setVisitId(visit != null ? visit.getId() : null);
 				
 				if (currentParent == null) {
 					result.add(specimen);

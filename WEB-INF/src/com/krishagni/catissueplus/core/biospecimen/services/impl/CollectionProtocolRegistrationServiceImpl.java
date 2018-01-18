@@ -936,7 +936,7 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 			DeObject.createExtensions(true, Specimen.EXTN, cpId, allSpmns);
 		}
 
-		return SpecimenDetail.getSpecimens(anticipatedSpecimens, specimens, false, excludePhi, false);
+		return SpecimenDetail.getSpecimens(visit, anticipatedSpecimens, specimens, false, excludePhi, false);
 	}
 
 	private List<SpecimenDetail> getAnticipatedSpecimens(Long cprId, Long eventId) {
@@ -950,7 +950,7 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 
 	private List<SpecimenDetail> getAnticipatedSpecimens(CollectionProtocolEvent cpe) {
 		Set<SpecimenRequirement> anticipatedSpecimens = cpe.getTopLevelAnticipatedSpecimens();
-		return SpecimenDetail.getSpecimens(anticipatedSpecimens, Collections.emptySet(), false, true, false);
+		return SpecimenDetail.getSpecimens(null, anticipatedSpecimens, Collections.emptySet(), false, true, false);
 	}
 	
 	private CollectionProtocolRegistration getCpr(Long cprId, Long cpId, String ppid) {

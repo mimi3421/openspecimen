@@ -1224,4 +1224,8 @@ h4.os-sub-section-title, h5.os-sub-section-title, h6.os-sub-section-title {
   padding: 0;
   margin: 0;
 }
+
+.os-word-break {
+  word-break: break-all;
+}
  
