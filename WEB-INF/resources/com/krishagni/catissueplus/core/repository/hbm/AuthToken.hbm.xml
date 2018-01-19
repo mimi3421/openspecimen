@@ -21,22 +21,26 @@
     </query>
     
     <sql-query name="deleteInactiveAuthTokens">
-      <![CDATA[ 
-        delete 
-        from 
-          os_auth_tokens 
-        where token in (
-          select
-            auth_token
-          from
-            os_user_api_calls_log l
-          where
-            l.auth_token = os_auth_tokens.token
-          group by
-            auth_token
-          having
-            max(call_start_time) < :latestCallTime
-        )
+      <![CDATA[
+        delete
+        from
+          os_auth_tokens
+        where
+          login_audit_log_id in (
+            select
+              login_audit_log_id
+            from (
+              select
+                cl.login_audit_log_id
+              from
+                os_user_api_calls_log cl
+                inner join os_auth_tokens t1 on t1.login_audit_log_id = cl.login_audit_log_id
+              group by
+                cl.login_audit_log_id
+              having
+                max(call_end_time) < :latestCallTime
+            ) td
+          )
       ]]>    
     </sql-query>
     
