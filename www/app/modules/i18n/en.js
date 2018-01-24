@@ -2286,7 +2286,11 @@
         "user_sign_up": "User Sign Up",
         "user_sign_up_desc": "Enable or disable users sign up feature.",
         "order_custom_fields_form": "Order Custom Fields Form",
-        "order_custom_fields_form_desc": "Identifier of custom form to be used as default custom fields form for distribution orders."
+        "order_custom_fields_form_desc": "Identifier of custom form to be used as default custom fields form for distribution orders.",
+        "store_list_retry_interval": "Store List Retry Interval",
+        "store_list_retry_interval_desc" : "Time interval in hours to elapse between retry of failed store list executions.",
+        "store_list_max_retries": "Store List Max Retries",
+        "store_list_max_retries_desc": "Maximum number of attempts to execute store list before marking the store list as permanently failed."
       },
 
       "biospecimen": {

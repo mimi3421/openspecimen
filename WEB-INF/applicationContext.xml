@@ -521,7 +521,7 @@
     <property name="daoFactory" ref="biospecimenDaoFactory"/>
     <property name="containerTypeFactory" ref="containerTypeFactory"/>
   </bean>
-  
+
   <bean id="distributionProtocolFactory" class="com.krishagni.catissueplus.core.administrative.domain.factory.impl.DistributionProtocolFactoryImpl">
     <property name="daoFactory"   ref="biospecimenDaoFactory"/>
     <property name="deDaoFactory" ref="deDaoFactory"/>

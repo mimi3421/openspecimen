@@ -1,5 +1,7 @@
 package com.krishagni.catissueplus.core.administrative.services;
 
+import java.io.File;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -92,6 +94,11 @@ public interface StorageContainerService {
 	ResponseEvent<List<StorageContainerSummary>> getDescendantContainers(RequestEvent<StorageContainerListCriteria> req);
 
 	ResponseEvent<List<StorageLocationSummary>> getVacantPositions(RequestEvent<VacantPositionsOp> req);
+
+	//
+	// Auto freezer APIs
+	//
+	ResponseEvent<File> generateAutoFreezerReport(RequestEvent<Date> req);
 
 	//
 	// Internal APIs

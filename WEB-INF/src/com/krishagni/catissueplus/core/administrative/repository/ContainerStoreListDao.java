@@ -1,10 +1,15 @@
 package com.krishagni.catissueplus.core.administrative.repository;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import com.krishagni.catissueplus.core.administrative.domain.ContainerStoreList;
 import com.krishagni.catissueplus.core.common.repository.Dao;
 
 public interface ContainerStoreListDao extends Dao<ContainerStoreList> {
-	List<ContainerStoreList> getPendingStoreLists(int startAt, int maxLists);
+
+	List<ContainerStoreList> getStoreLists(ContainerStoreListCriteria crit);
+
+	Map<ContainerStoreList.Op, Integer> getStoreListItemsCount(Date from, Date to);
 }

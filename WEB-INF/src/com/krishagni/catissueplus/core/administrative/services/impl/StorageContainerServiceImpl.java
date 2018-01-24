@@ -17,15 +17,20 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
 
+import com.krishagni.catissueplus.core.administrative.domain.ContainerStoreList;
+import com.krishagni.catissueplus.core.administrative.domain.ContainerStoreList.Op;
+import com.krishagni.catissueplus.core.administrative.domain.ContainerStoreListItem;
 import com.krishagni.catissueplus.core.administrative.domain.ContainerType;
 import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainer;
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainerPosition;
+import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.administrative.domain.factory.SiteErrorCode;
 import com.krishagni.catissueplus.core.administrative.domain.factory.StorageContainerErrorCode;
 import com.krishagni.catissueplus.core.administrative.domain.factory.StorageContainerFactory;
@@ -42,7 +47,9 @@ import com.krishagni.catissueplus.core.administrative.events.StorageContainerSum
 import com.krishagni.catissueplus.core.administrative.events.StorageLocationSummary;
 import com.krishagni.catissueplus.core.administrative.events.TenantDetail;
 import com.krishagni.catissueplus.core.administrative.events.VacantPositionsOp;
+import com.krishagni.catissueplus.core.administrative.repository.ContainerStoreListCriteria;
 import com.krishagni.catissueplus.core.administrative.repository.StorageContainerListCriteria;
+import com.krishagni.catissueplus.core.administrative.repository.UserListCriteria;
 import com.krishagni.catissueplus.core.administrative.services.ContainerMapExporter;
 import com.krishagni.catissueplus.core.administrative.services.ContainerSelectionRule;
 import com.krishagni.catissueplus.core.administrative.services.ContainerSelectionStrategy;
@@ -72,6 +79,9 @@ import com.krishagni.catissueplus.core.common.service.LabelGenerator;
 import com.krishagni.catissueplus.core.common.service.ObjectAccessor;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.catissueplus.core.common.util.ConfigUtil;
+import com.krishagni.catissueplus.core.common.util.CsvFileWriter;
+import com.krishagni.catissueplus.core.common.util.CsvWriter;
+import com.krishagni.catissueplus.core.common.util.EmailUtil;
 import com.krishagni.catissueplus.core.common.util.MessageUtil;
 import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.catissueplus.core.de.domain.Filter;
@@ -740,6 +750,70 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {
 			return ResponseEvent.serverError(e);
+		}
+	}
+
+	//
+	// Automated freezer related APIs
+	//
+	@Override
+	@PlusTransactional
+	public ResponseEvent<File> generateAutoFreezerReport(RequestEvent<Date> req) {
+		if (!AuthUtil.isAdmin()) {
+			return ResponseEvent.userError(RbacErrorCode.ADMIN_RIGHTS_REQUIRED);
+		}
+
+		Date inputDate = req.getPayload();
+		if (inputDate == null) {
+			inputDate = Calendar.getInstance().getTime();
+		}
+
+		Date fromDate = Utility.chopTime(inputDate);
+		Date toDate = Utility.getEndOfDay(inputDate);
+
+		CsvWriter csvWriter = null;
+		int failedLists  = 0, maxLists = 100;
+		int failedToStore = 0, failedToRetrieve = 0;
+		try {
+			File dataDir = new File(ConfigUtil.getInstance().getDataDir());
+			File file = File.createTempFile("auto-freezer-report-", ".csv", dataDir);
+			csvWriter = CsvFileWriter.createCsvFileWriter(file);
+			csvWriter.writeNext(getAutoFreezerReportHeader());
+
+			ContainerStoreListCriteria crit = new ContainerStoreListCriteria()
+				.statuses(Collections.singletonList(ContainerStoreList.Status.FAILED))
+				.fromDate(fromDate)
+				.toDate(toDate)
+				.maxResults(maxLists);
+
+			boolean endOfLists = false;
+			while (!endOfLists) {
+				crit.startAt(failedLists);
+				List<ContainerStoreList> storeLists = daoFactory.getContainerStoreListDao().getStoreLists(crit);
+				failedLists += storeLists.size();
+
+				for (ContainerStoreList storeList : storeLists) {
+					List<String[]> rows = getAutoFreezerReportRows(storeList);
+					csvWriter.writeAll(rows);
+
+					if (storeList.getOp() == ContainerStoreList.Op.PICK) {
+						failedToRetrieve += rows.size();
+					} else if (storeList.getOp() == ContainerStoreList.Op.PUT) {
+						failedToStore += rows.size();
+					}
+				}
+
+				endOfLists = storeLists.size() < maxLists;
+			}
+
+			Map<ContainerStoreList.Op, Integer> itemsCnt = daoFactory.getContainerStoreListDao().getStoreListItemsCount(fromDate, toDate);
+			sendAutoFreezerReport(file, itemsCnt, failedToRetrieve, failedToStore);
+			return ResponseEvent.response(failedLists > 0 ? file : null);
+		} catch (Exception e) {
+			logger.error("Error generating automated freezer report", e);
+			return ResponseEvent.serverError(e);
+		} finally {
+			IOUtils.closeQuietly(csvWriter);
 		}
 	}
 
@@ -1452,7 +1526,85 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 		};
 	}
 
+	private String[] getAutoFreezerReportHeader() {
+		return new String[] {
+			msg("auto_freezer_store_list_id"),
+			msg("auto_freezer_name"),
+			msg("auto_freezer_specimen_label"),
+			msg("auto_freezer_specimen_barcode"),
+			msg("auto_freezer_operation"),
+			msg("auto_freezer_execution_time"),
+			msg("auto_freezer_last_retried_time"),
+			msg("auto_freezer_no_of_retries"),
+			msg("auto_freezer_error_msg")
+		};
+	}
+
+	private List<String[]> getAutoFreezerReportRows(ContainerStoreList storeList) {
+		List<String[]> rows =  new ArrayList<>();
+
+		String storeListId = storeList.getId().toString();
+		String container = storeList.getContainer().getName();
+		String operation = storeList.getOp().toString();
+		String executionTime = Utility.getDateTimeString(storeList.getCreationTime());
+		String lastRetriedTime = Utility.getDateTimeString(storeList.getExecutionTime());
+		String noOfRetries = String.valueOf(storeList.getNoOfRetries());
+		String storeListError = StringUtils.isBlank(storeList.getError()) ? "" : storeList.getError();
+
+		for (ContainerStoreListItem item : storeList.getItems()) {
+			String label = item.getSpecimen().getLabel();
+			String barcode = item.getSpecimen().getBarcode();
+			StringBuilder error = new StringBuilder(storeListError);
+
+			if (StringUtils.isNotBlank(item.getError())) {
+				if (StringUtils.isNotBlank(storeListError)) {
+					error.append(System.lineSeparator());
+				}
+
+				error.append(item.getError());
+			}
+
+			rows.add(new String[] {storeListId, container, label, barcode, operation,
+					executionTime, lastRetriedTime, noOfRetries, error.toString()});
+		}
+
+		return rows;
+	}
+
+	private void sendAutoFreezerReport(File reportFile, Map<ContainerStoreList.Op, Integer> itemsCnt, int failedToRetrieve, int failedToStore) {
+		String date = Utility.getDateString(Calendar.getInstance().getTime());
+
+		Map<String, Object> emailProps = new HashMap<>();
+		emailProps.put("$subject", new String[] {date});
+		emailProps.put("date", date);
+		emailProps.put("ccAdmin", false);
+		emailProps.put("filename", reportFile.getName());
+		emailProps.put("storedSpmnsCnt", itemsCnt.get(Op.PUT) == null ? 0 : itemsCnt.get(Op.PUT));
+		emailProps.put("retrievedSpmnsCnt", itemsCnt.get(Op.PICK) == null ? 0 : itemsCnt.get(Op.PICK));
+		emailProps.put("failedToStore", failedToStore);
+		emailProps.put("failedToRetrieve", failedToRetrieve);
+
+		UserListCriteria rcptsCrit = new UserListCriteria().activityStatus("Active").type("SUPER");
+		List<User> rcpts = daoFactory.getUserDao().getUsers(rcptsCrit);
+
+		String itAdminEmailId = ConfigUtil.getInstance().getItAdminEmailId();
+		if (StringUtils.isNotBlank(itAdminEmailId)) {
+			User itAdmin = new User();
+			itAdmin.setFirstName("IT");
+			itAdmin.setLastName("Admin");
+			itAdmin.setEmailAddress(itAdminEmailId);
+			rcpts.add(itAdmin);
+		}
+
+		for (User user : rcpts) {
+			emailProps.put("rcpt", user);
+			EmailUtil.getInstance().sendEmail(REPORT_EMAIL_TMPL, new String[] {user.getEmailAddress()}, new File[] {reportFile}, emailProps);
+		}
+	}
+
 	private String msg(String code) {
 		return MessageUtil.getInstance().getMessage(code);
 	}
+
+	private final static String REPORT_EMAIL_TMPL = "automated_freezer_report";
 }

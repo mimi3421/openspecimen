@@ -20,6 +20,8 @@ public class ContainerStoreListItem extends BaseEntity {
 
 	private Date ackTime;
 
+	private String error;
+
 	public ContainerStoreList getStoreList() {
 		return storeList;
 	}
@@ -50,5 +52,13 @@ public class ContainerStoreListItem extends BaseEntity {
 
 	public void setAckTime(Date ackTime) {
 		this.ackTime = ackTime;
+	}
+
+	public String getError() {
+		return error;
+	}
+
+	public void setError(String error) {
+		this.error = error;
 	}
 }

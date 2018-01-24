@@ -35,20 +35,28 @@
 
     <property name="state" column="STATE"/>
 
+    <property name="noOfRetries" column="NO_OF_RETRIES"/>
+
+    <property name="error" column="ERROR"/>
+
     <set name="items" table="OS_CONT_STORE_LIST_ITEMS" inverse="true" cascade="all-delete-orphan">
       <key column="STORE_LIST_ID"/>
       <one-to-many class="com.krishagni.catissueplus.core.administrative.domain.ContainerStoreListItem"/>
     </set>
 
-    <query name="getPendingLists">
-      select
-        sl
-      from
-        com.krishagni.catissueplus.core.administrative.domain.ContainerStoreList sl
-      where
-        sl.status != 'SUCCESS'
-      order by
-        sl.id asc
+    <query name="getItemsCountByOp">
+      <![CDATA[
+        select
+          sl.op, count(item.id)
+        from
+          com.krishagni.catissueplus.core.administrative.domain.ContainerStoreList sl
+          join sl.items item
+        where
+          sl.executionTime >= :fromDate and
+          sl.executionTime <= :toDate
+        group by
+          sl.op
+      ]]>
     </query>
   </class>
 </hibernate-mapping>
