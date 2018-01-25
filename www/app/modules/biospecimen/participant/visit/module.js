@@ -11,6 +11,18 @@ angular.module('os.biospecimen.visit', [
   ])
   .config(function($stateProvider) {
     $stateProvider
+      .state('visit', {
+        url: '/visits/:visitId',
+        controller: function($state, params) {
+          $state.go('visit-detail.overview', params, {location: 'replace'});
+        },
+        resolve: {
+          params: function($stateParams, Visit) {
+            return Visit.getRouteIds($stateParams.visitId);
+          }
+        },
+        parent: 'signed-in'
+      })
       .state('visit-root', {
         url: '/visits?visitId&eventId',
         template: '<div ui-view></div>',
