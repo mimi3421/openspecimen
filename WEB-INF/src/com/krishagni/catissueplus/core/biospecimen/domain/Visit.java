@@ -33,6 +33,7 @@ import com.krishagni.catissueplus.core.common.domain.PrintItem;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.service.LabelGenerator;
+import com.krishagni.catissueplus.core.common.service.impl.EventPublisher;
 import com.krishagni.catissueplus.core.common.util.Status;
 import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.catissueplus.core.de.services.impl.FormUtil;
@@ -611,6 +612,7 @@ public class Visit extends BaseExtensionEntity {
 			specimen.addChildSpecimen(createPendingSpecimen(childSr, specimen));
 		}
 
+		EventPublisher.getInstance().publish(new SpecimenSavedEvent(specimen));
 		return specimen;
 	}
 
