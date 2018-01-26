@@ -52,6 +52,11 @@
       </li>
 
       <li class="item">
+        <strong class="key key-sm" translate="cp.specimen_barcode_fmt">Specimen Barcode Format</strong>
+        <span class="value value-md">{{settingCtx.cp.specimenBarcodeFmt | osNoValue}}</span>
+      </li>
+
+      <li class="item">
         <strong class="key key-sm" translate="cp.label_format.manual">User Inputs Allowed</strong>
         <span class="value value-md">{{settingCtx.userInputLabels | osNoValue}}</span>
       </li>
@@ -198,6 +203,17 @@
         <input name="aliquotLabelFmt" type="text" ng-model="settingCtx.cp.aliquotLabelFmt" class="form-control"
           placeholder="{{'cp.aliquot_label_fmt' | translate}}" ng-required="settingCtx.cp.barcodingEnabled">
         <div os-field-error field="lsForm.aliquotLabelFmt"></div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="control-label col-xs-3">
+        <span translate="cp.specimen_barcode_fmt">Specimen Barcode Format</span>
+      </label>
+      <div class="col-xs-6">
+        <input name="specimenBarcodeFmt" type="text" ng-model="settingCtx.cp.specimenBarcodeFmt" class="form-control"
+          placeholder="{{'cp.specimen_barcode_fmt' | translate}}">
+        <div os-field-error field="lsForm.specimenBarcodeFmt"></div>
       </div>
     </div>
 

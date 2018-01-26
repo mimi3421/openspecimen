@@ -92,11 +92,11 @@
             ng-repeat="specimen in specimens | openedTreeNodes" ng-form="sform" ng-if="specimen.showInTree">
             <td class="col os-col-30">
               <div ng-style="{'padding-left': (specimen.hasChildren ? specimen.depth * 20 : specimen.depth * 20 + 16) + 'px'}">
-                <a ng-if="specimen.hasChildren && specimen.isOpened" 
+                <a ng-if="specimen.hasChildren && specimen.isOpened"
                   class="fa fa-chevron-circle-down"
                   ng-click="closeSpecimenNode(specimen)">
                 </a>
-                <a ng-if="specimen.hasChildren && !specimen.isOpened" 
+                <a ng-if="specimen.hasChildren && !specimen.isOpened"
                   class="fa fa-chevron-circle-right"
                   ng-click="openSpecimenNode(specimen)">
                 </a>
@@ -130,19 +130,24 @@
               </div>
             </td>
             <td class="col os-col-15" ng-switch="barcodingEnabled">
-              <div ng-switch-when="true" os-unique-items>
-                <div ng-switch="!!specimen.aliquotGrp && !specimen.expanded">
-                  <span ng-switch-when="true">
-                    <textarea os-md-input rows="1" name="barcode"
-                      ng-model="specimen.aliquotBarcodes" edit-when="!specimen.pBarcode"
-                      ng-blur="assignBarcodes(specimen, specimen.aliquotBarcodes)">
-                    </textarea>
-                  </span>
+              <div ng-switch-when="true" ng-switch="spmnBarcodesAutoGen">
+                <div ng-switch-when="true">
+                  <span translate="specimens.auto">Auto</span>
+                </div>
+                <div ng-switch-default os-unique-items>
+                  <div ng-switch="!!specimen.aliquotGrp && !specimen.expanded">
+                    <span ng-switch-when="true">
+                      <textarea os-md-input rows="1" name="barcode"
+                        ng-model="specimen.aliquotBarcodes" edit-when="!specimen.pBarcode"
+                        ng-blur="assignBarcodes(specimen, specimen.aliquotBarcodes)">
+                      </textarea>
+                    </span>
 
-                  <span ng-switch-default>
-                    <input type="text" os-md-input edit-when="!specimen.pBarcode"
-                      name="barcode" ng-model="specimen.barcode" os-unique-item>
-                  </span>
+                    <span ng-switch-default>
+                      <input type="text" os-md-input edit-when="!specimen.pBarcode"
+                        name="barcode" ng-model="specimen.barcode" os-unique-item>
+                    </span>
+                  </div>
                 </div>
               </div>
               <div ng-switch-default ng-switch="!cp.manualSpecLabelEnabled && !specimen.label && !!specimen.labelFmt">

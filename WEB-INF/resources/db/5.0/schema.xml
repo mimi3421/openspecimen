@@ -101,4 +101,10 @@
       <column name="ERROR" type="${clob.type}"/>
     </addColumn>
   </changeSet>
+
+  <changeSet author="vgaikwad" id="CP level specimen barcode format">
+    <addColumn tableName="CATISSUE_COLLECTION_PROTOCOL">
+      <column name="SPECIMEN_BARCODE_FORMAT" type="${text.type}(255)"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

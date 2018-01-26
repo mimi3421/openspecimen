@@ -25,6 +25,8 @@ public enum SpecimenErrorCode implements ErrorCode {
 	INVALID_LABEL,
 	
 	MANUAL_LABEL_NOT_ALLOWED,
+
+	MANUAL_BARCODE_NOT_ALLOWED,
 	
 	DUP_BARCODE,
 

@@ -29,6 +29,7 @@ import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenSavedEvent;
 import com.krishagni.catissueplus.core.biospecimen.domain.Visit;
+import com.krishagni.catissueplus.core.biospecimen.domain.factory.CpErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.SpecimenErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.SpecimenFactory;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.VisitErrorCode;
@@ -90,6 +91,8 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 
 	private LabelGenerator labelGenerator;
 
+	private LabelGenerator specimenBarcodeGenerator;
+
 	private ExportService exportSvc;
 
 	private int precision = 6;
@@ -112,6 +115,10 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 
 	public void setLabelGenerator(LabelGenerator labelGenerator) {
 		this.labelGenerator = labelGenerator;
+	}
+
+	public void setSpecimenBarcodeGenerator(LabelGenerator specimenBarcodeGenerator) {
+		this.specimenBarcodeGenerator = specimenBarcodeGenerator;
 	}
 
 	public void setExportSvc(ExportService exportSvc) {
@@ -562,22 +569,18 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 
 	@Override
 	public void onConfigChange(String name, String value) {
-		if ("true".equalsIgnoreCase(value)) {
-			return;
-		}
-
-		boolean duplicates = false;
-		SpecimenErrorCode errorCode = null;
-		if (name.equals(ConfigParams.UNIQUE_SPMN_LABEL_PER_CP)) {
-			duplicates = daoFactory.getSpecimenDao().areDuplicateLabelsPresent();
-			errorCode = SpecimenErrorCode.UQ_LBL_CP_CHG_NA;
-		} else if (name.equals(ConfigParams.UNIQUE_SPMN_BARCODE_PER_CP)) {
-			duplicates = daoFactory.getSpecimenDao().areDuplicateBarcodesPresent();
-			errorCode = SpecimenErrorCode.UQ_BC_CP_CHG_NA;
-		}
-
-		if (duplicates) {
-			throw OpenSpecimenException.userError(errorCode);
+		if (StringUtils.equals(name, ConfigParams.SPMN_BARCODE_FORMAT)) {
+			if (StringUtils.isNotBlank(value) && !specimenBarcodeGenerator.isValidLabelTmpl(value)) {
+				throw OpenSpecimenException.userError(CpErrorCode.INVALID_SPECIMEN_BARCODE_FMT, value);
+			}
+		} else if (StringUtils.equals(name, ConfigParams.UNIQUE_SPMN_LABEL_PER_CP)) {
+			if (!StringUtils.equalsIgnoreCase(value, "true") && daoFactory.getSpecimenDao().areDuplicateLabelsPresent()) {
+				throw OpenSpecimenException.userError(SpecimenErrorCode.UQ_LBL_CP_CHG_NA);
+			}
+		} else if (StringUtils.equals(name, ConfigParams.UNIQUE_SPMN_BARCODE_PER_CP)) {
+			if (!StringUtils.equalsIgnoreCase(value, "true") && daoFactory.getSpecimenDao().areDuplicateBarcodesPresent()) {
+				throw OpenSpecimenException.userError(SpecimenErrorCode.UQ_BC_CP_CHG_NA);
+			}
 		}
 	}
 
@@ -701,6 +704,10 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 		}
 
 		CollectionProtocol cp = specimen.getCollectionProtocol();
+		if (StringUtils.isNotBlank(cp.getSpecimenBarcodeFormatToUse())) {
+			ose.addError(SpecimenErrorCode.MANUAL_BARCODE_NOT_ALLOWED);
+		}
+
 		if (getSpecimenByBarcode(cp.getShortTitle(), specimen.getBarcode()) != null) {
 			if (areBarcodesUniquePerCp()) {
 				ose.addError(SpecimenErrorCode.DUP_BARCODE_IN_CP, specimen.getBarcode(), cp.getShortTitle());
@@ -817,6 +824,7 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 			specimen.occupyPosition();
 		}
 
+		specimen.setBarcodeIfEmpty();
 		incrParentFreezeThawCycles(detail, specimen);
 
 		daoFactory.getSpecimenDao().saveOrUpdate(specimen);

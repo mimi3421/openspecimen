@@ -21,11 +21,13 @@ import com.krishagni.catissueplus.core.administrative.domain.DistributionProtoco
 import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainer;
 import com.krishagni.catissueplus.core.administrative.domain.User;
+import com.krishagni.catissueplus.core.biospecimen.ConfigParams;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.CpErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.CpeErrorCode;
 import com.krishagni.catissueplus.core.common.CollectionUpdater;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
+import com.krishagni.catissueplus.core.common.util.ConfigUtil;
 import com.krishagni.catissueplus.core.common.util.Status;
 import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.catissueplus.core.de.services.impl.FormUtil;
@@ -98,7 +100,9 @@ public class CollectionProtocol extends BaseExtensionEntity {
 	private String derivativeLabelFormat;
 	
 	private String aliquotLabelFormat;
-	
+
+	private String specimenBarcodeFormat;
+
 	private String ppidFormat;
 	
 	private String visitNameFormat;
@@ -287,6 +291,22 @@ public class CollectionProtocol extends BaseExtensionEntity {
 
 	public void setAliquotLabelFormat(String aliquotLabelFormat) {
 		this.aliquotLabelFormat = aliquotLabelFormat;
+	}
+
+	public String getSpecimenBarcodeFormat() {
+		return specimenBarcodeFormat;
+	}
+
+	public String getSpecimenBarcodeFormatToUse() {
+		if (StringUtils.isNotBlank(getSpecimenBarcodeFormat())) {
+			return getSpecimenBarcodeFormat();
+		} else {
+			return ConfigUtil.getInstance().getStrSetting(ConfigParams.MODULE, ConfigParams.SPMN_BARCODE_FORMAT, null);
+		}
+	}
+
+	public void setSpecimenBarcodeFormat(String specimenBarcodeFormat) {
+		this.specimenBarcodeFormat = specimenBarcodeFormat;
 	}
 
 	public String getPpidFormat() {
@@ -551,6 +571,7 @@ public class CollectionProtocol extends BaseExtensionEntity {
 		setSpecimenLabelFormat(cp.getSpecimenLabelFormat());
 		setDerivativeLabelFormat(cp.getDerivativeLabelFormat());
 		setAliquotLabelFormat(cp.getAliquotLabelFormat());
+		setSpecimenBarcodeFormat(cp.getSpecimenBarcodeFormat());
 		setManualSpecLabelEnabled(cp.isManualSpecLabelEnabled());
 		setBulkPartRegEnabled(cp.isBulkPartRegEnabled());
 		setBarcodingEnabled(cp.isBarcodingEnabled());
@@ -596,6 +617,7 @@ public class CollectionProtocol extends BaseExtensionEntity {
 		cp.setSpecimenLabelFormat(getSpecimenLabelFormat());
 		cp.setAliquotLabelFormat(getAliquotLabelFormat());
 		cp.setDerivativeLabelFormat(getDerivativeLabelFormat());
+		cp.setSpecimenBarcodeFormat(getSpecimenBarcodeFormat());
 		cp.setManualSpecLabelEnabled(isManualSpecLabelEnabled());
 		cp.setBulkPartRegEnabled(isBulkPartRegEnabled());
 		cp.setBarcodingEnabled(isBarcodingEnabled());

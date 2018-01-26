@@ -79,4 +79,14 @@
       //
     </sql>
   </changeSet>
+
+  <changeSet author="vgaikwad" id="Settings to specify system level specimen barcode format">
+    <sql>
+      call add_cfg_prop(
+        'biospecimen', 'specimen_barcode_format',
+        'specimen_barcode_format', 'specimen_barcode_format_desc',
+        'STRING', ''
+      );
+    </sql>
+  </changeSet>
 </databaseChangeLog>

@@ -146,7 +146,12 @@ public class Specimen extends BaseExtensionEntity {
 	@Autowired
 	@Qualifier("specimenLabelGenerator")
 	private LabelGenerator labelGenerator;
-	
+
+
+	@Autowired
+	@Qualifier("specimenBarcodeGenerator")
+	private LabelGenerator barcodeGenerator;
+
 	private transient boolean forceDelete;
 	
 	private transient boolean printLabel;
@@ -1123,7 +1128,18 @@ public class Specimen extends BaseExtensionEntity {
 		
 		setLabel(label);
 	}
-	
+
+	public void setBarcodeIfEmpty() {
+		if (StringUtils.isNotBlank(barcode) || isMissed()) {
+			return;
+		}
+
+		String barcodeTmpl = getCollectionProtocol().getSpecimenBarcodeFormatToUse();
+		if (StringUtils.isNotBlank(barcodeTmpl)) {
+			setBarcode(barcodeGenerator.generateLabel(barcodeTmpl, this));
+		}
+	}
+
 	public String getLabelTmpl() {
 		String labelTmpl = null;
 		

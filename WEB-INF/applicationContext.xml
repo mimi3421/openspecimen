@@ -176,6 +176,7 @@
     <property name="daoFactory" ref="biospecimenDaoFactory"/>
     <property name="ppidGenerator" ref="ppidGenerator"/>
     <property name="specimenLabelGenerator" ref="specimenLabelGenerator"/>
+    <property name="specimenBarcodeGenerator" ref="specimenBarcodeGenerator"/>
     <property name="visitNameGenerator" ref="visitNameGenerator"/>
     <property name="cpCopier" ref="cpCopier"/>
     <property name="containerSelFactory" ref="containerSelectionStrategyFactory"/>
@@ -316,6 +317,7 @@
     <property name="specimenResolver" ref="specimenResolver"/>
     <property name="cfgSvc" ref="cfgSvc"/>
     <property name="labelGenerator" ref="specimenLabelGenerator"/>
+    <property name="specimenBarcodeGenerator" ref="specimenBarcodeGenerator"/>
     <property name="exportSvc" ref="exportSvc"/>
   </bean>
 
@@ -355,6 +357,19 @@
 
   <bean id="specimenLabelGenerator" class="com.krishagni.catissueplus.core.common.service.impl.LabelGeneratorImpl">
     <property name="tokenRegistrar" ref="specimenTokenRegistrar"/>
+  </bean>
+
+  <bean id="specimenBarcodeTokenRegistrar" class="com.krishagni.catissueplus.core.common.domain.DefaultLabelTmplTokenRegistrar">
+    <property name="tokens">
+      <list>
+        <bean class="com.krishagni.catissueplus.core.biospecimen.barcode.specimen.UniqueBarcodeToken"/>
+        <bean class="com.krishagni.catissueplus.core.biospecimen.barcode.specimen.CpUniqueBarcodeToken"/>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="specimenBarcodeGenerator" class="com.krishagni.catissueplus.core.common.service.impl.LabelGeneratorImpl">
+    <property name="tokenRegistrar" ref="specimenBarcodeTokenRegistrar"/>
   </bean>
   
   <bean id="specimenListFactory" class="com.krishagni.catissueplus.core.biospecimen.domain.factory.impl.SpecimenListFactoryImpl">

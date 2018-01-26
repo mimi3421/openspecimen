@@ -390,6 +390,18 @@ angular.module('os.biospecimen.participant',
                 return setting.value.toLowerCase() == 'true';
               }
             );
+          },
+
+          spmnBarcodesAutoGen: function(cp, SettingUtil) {
+            if (!!cp.specimenBarcodeFmt) {
+              return true;
+            }
+
+            return SettingUtil.getSetting('biospecimen', 'specimen_barcode_format').then(
+              function(setting) {
+                return !!setting.value;
+              }
+            );
           }
         },
         controller: 'ParticipantRootCtrl',

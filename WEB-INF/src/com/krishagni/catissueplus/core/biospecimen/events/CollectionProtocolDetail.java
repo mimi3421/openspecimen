@@ -40,6 +40,8 @@ public class CollectionProtocolDetail extends CollectionProtocolSummary {
 	private String derivativeLabelFmt;
 
 	private String aliquotLabelFmt;
+
+	private String specimenBarcodeFmt;
 	
 	private String visitNameFmt;
 	
@@ -176,6 +178,14 @@ public class CollectionProtocolDetail extends CollectionProtocolSummary {
 
 	public void setDerivativeLabelFmt(String derivativeLabelFmt) {
 		this.derivativeLabelFmt = derivativeLabelFmt;
+	}
+
+	public String getSpecimenBarcodeFmt() {
+		return specimenBarcodeFmt;
+	}
+
+	public void setSpecimenBarcodeFmt(String specimenBarcodeFmt) {
+		this.specimenBarcodeFmt = specimenBarcodeFmt;
 	}
 
 	public String getAliquotLabelFmt() {
@@ -358,6 +368,7 @@ public class CollectionProtocolDetail extends CollectionProtocolSummary {
 		result.setSpecimenLabelFmt(cp.getSpecimenLabelFormat());
 		result.setDerivativeLabelFmt(cp.getDerivativeLabelFormat());
 		result.setAliquotLabelFmt(cp.getAliquotLabelFormat());
+		result.setSpecimenBarcodeFmt(cp.getSpecimenBarcodeFormat());
 		result.setVisitNameFmt(cp.getVisitNameFormat());
 		result.setManualPpidEnabled(cp.isManualPpidEnabled());
 		result.setManualVisitNameEnabled(cp.isManualVisitNameEnabled());

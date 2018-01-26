@@ -46,6 +46,8 @@ public class CollectionProtocolFactoryImpl implements CollectionProtocolFactory 
 	private LabelGenerator ppidGenerator;
 
 	private LabelGenerator specimenLabelGenerator;
+
+	private LabelGenerator specimenBarcodeGenerator;
 	
 	private LabelGenerator visitNameGenerator;
 
@@ -64,7 +66,11 @@ public class CollectionProtocolFactoryImpl implements CollectionProtocolFactory 
 	public void setSpecimenLabelGenerator(LabelGenerator specimenLabelGenerator) {
 		this.specimenLabelGenerator = specimenLabelGenerator;
 	}
-	
+
+	public void setSpecimenBarcodeGenerator(LabelGenerator specimenBarcodeGenerator) {
+		this.specimenBarcodeGenerator = specimenBarcodeGenerator;
+	}
+
 	public void setVisitNameGenerator(LabelGenerator visitNameGenerator) {
 		this.visitNameGenerator = visitNameGenerator;
 	}
@@ -108,6 +114,7 @@ public class CollectionProtocolFactoryImpl implements CollectionProtocolFactory 
 		setPpidFormat(input, cp, ose);
 		setVisitNameFmt(input, cp, ose);
 		setLabelFormats(input, cp, ose);
+		setSpecimenBarcodeFormat(input, cp, ose);
 		setBarcodeSetting(input, cp, ose);
 		setContainerSelectionStrategy(input, cp, ose);
 		setVisitCollectionMode(input, cp, ose);
@@ -326,6 +333,15 @@ public class CollectionProtocolFactoryImpl implements CollectionProtocolFactory 
 		}
 		
 		return labelFmt;
+	}
+
+	private void setSpecimenBarcodeFormat(CollectionProtocolDetail input, CollectionProtocol result, OpenSpecimenException ose) {
+		String barcodeFmt = input.getSpecimenBarcodeFmt();
+		if (StringUtils.isNotBlank(barcodeFmt) && !specimenBarcodeGenerator.isValidLabelTmpl(barcodeFmt)) {
+			ose.addError(CpErrorCode.INVALID_SPECIMEN_BARCODE_FMT, barcodeFmt);
+		}
+
+		result.setSpecimenBarcodeFormat(barcodeFmt);
 	}
 
 	private void setBarcodeSetting(CollectionProtocolDetail input, CollectionProtocol result, OpenSpecimenException ose) {

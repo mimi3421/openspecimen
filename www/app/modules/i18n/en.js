@@ -194,6 +194,7 @@
     "specimen_label_fmt": "Specimen Label Format",
     "derivative_label_fmt": "Derivative Label Format",
     "aliquot_label_fmt": "Aliquot Label Format",
+    "specimen_barcode_fmt": "Specimen Barcode Format",
     "store_all_aliquots_in_same_container": "Store all Aliquots in same Container",
     "visit_name_fmt": "Visit Name Format",
     "manual_enabled_for": "User Inputs Allowed For",
@@ -2372,7 +2373,9 @@
         "store_phi": "Anonymize Participants",
         "store_phi_desc": "Enable or disable feature to anonymize participant's PHI data.",
         "store_spr": "Surgical Pathology Reports",
-        "store_spr_desc": "Enable or disable uploading of surgical pathology reports for a visit."
+        "store_spr_desc": "Enable or disable uploading of surgical pathology reports for a visit.",
+        "specimen_barcode_format": "Specimen Barcode Format",
+        "specimen_barcode_format_desc": "The system-level format for auto-generation of specimen barcodes."
       },
 
       "common": {

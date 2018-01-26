@@ -11,4 +11,11 @@
       <column name="orderExtnForm_MOD" type="${bit.type}"/>
     </addColumn>
   </changeSet>
+
+  <changeSet author="vgaikwad" id="Audit and track changes to CP level specimen barcode format">
+    <addColumn tableName="CAT_COLLECTION_PROTOCOL_AUD">
+      <column name="SPECIMEN_BARCODE_FORMAT" type="${text.type}(255)"/>
+      <column name="specimenBarcodeFormat_MOD" type="${bit.type}"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>
