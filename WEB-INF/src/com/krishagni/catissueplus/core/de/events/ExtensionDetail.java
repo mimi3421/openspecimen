@@ -22,7 +22,9 @@ public class ExtensionDetail {
 
 	private String formCaption;
 	
-	private List<AttrDetail> attrs = new ArrayList<AttrDetail>();
+	private List<AttrDetail> attrs = new ArrayList<>();
+
+	private Map<String, Object> attrsMap;
 	
 	public Long getId() {
 		return id;
@@ -62,6 +64,7 @@ public class ExtensionDetail {
 
 	public void setAttrs(List<AttrDetail> attrs) {
 		this.attrs = attrs;
+		this.attrsMap = null;
 	}
 
 	@JsonProperty
@@ -74,11 +77,17 @@ public class ExtensionDetail {
 			attr.setValue(entry.getValue());
 			attrs.add(attr);
 		}
+
+		this.attrsMap = null;
 	}
 
 	@JsonIgnore
 	public Map<String, Object> getAttrsMap() {
-		return getAttrsMap(attrs);
+		if (attrsMap == null) {
+			attrsMap = getAttrsMap(attrs);
+		}
+
+		return attrsMap;
 	}
 	
 	public static ExtensionDetail from(DeObject extension) {
