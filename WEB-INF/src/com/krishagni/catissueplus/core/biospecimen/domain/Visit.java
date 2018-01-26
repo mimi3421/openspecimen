@@ -105,6 +105,8 @@ public class Visit extends BaseExtensionEntity {
 	private DaoFactory daoFactory;
 	
 	private transient boolean forceDelete;
+
+	private transient boolean updated;
 	
 	public static String getEntityName() {
 		return ENTITY_NAME;
@@ -294,6 +296,14 @@ public class Visit extends BaseExtensionEntity {
 		return Status.ACTIVITY_STATUS_ACTIVE.getStatus().equals(this.activityStatus);
 	}
 
+	public boolean isUpdated() {
+		return updated;
+	}
+
+	public void setUpdated(boolean updated) {
+		this.updated = updated;
+	}
+
 	public boolean isCompleted() {
 		return isCompleted(getStatus());
 	}
@@ -372,6 +382,7 @@ public class Visit extends BaseExtensionEntity {
 		setDefNameTmpl(visit.getDefNameTmpl());
 		setExtension(visit.getExtension());
 		CollectionUpdater.update(getClinicalDiagnoses(), visit.getClinicalDiagnoses());
+		setUpdated(true);
 	}
 
 	public void updateSprName(String sprName) {

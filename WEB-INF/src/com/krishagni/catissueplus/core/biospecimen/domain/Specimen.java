@@ -157,6 +157,8 @@ public class Specimen extends BaseExtensionEntity {
 
 	private transient boolean autoCollectParents;
 
+	private transient boolean updated;
+
 	//
 	// Records the derivatives or aliquots created from this specimen in current action/transaction
 	//
@@ -601,6 +603,14 @@ public class Specimen extends BaseExtensionEntity {
 		this.autoCollectParents = autoCollectParents;
 	}
 
+	public boolean isUpdated() {
+		return updated;
+	}
+
+	public void setUpdated(boolean updated) {
+		this.updated = updated;
+	}
+
 	public boolean isPrintLabel() {
 		return printLabel;
 	}
@@ -805,6 +815,7 @@ public class Specimen extends BaseExtensionEntity {
 		setExtension(specimen.getExtension());
 		setPrintLabel(specimen.isPrintLabel());
 		setFreezeThawCycles(specimen.getFreezeThawCycles());
+		setUpdated(true);
 	}
 	
 	public void updateStatus(String activityStatus, String reason){
