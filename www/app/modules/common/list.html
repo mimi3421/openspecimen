@@ -13,8 +13,8 @@
   </thead>
   <tbody class="os-table-body">
     <tr class="row" ng-repeat="row in data.rows track by $index" os-row-click="showItem({row: row})">
-      <td class="col" ng-if="enableSelection == 'true' || enableSelection == true">
-        <div class="os-select-specimen-cb os-click-esc">
+      <td class="col os-click-esc" ng-if="enableSelection == 'true' || enableSelection == true">
+        <div class="os-select-specimen-cb">
           <os-checkbox ng-change="checkList.toggleSelectItem()" ng-model="checkList.items[$index].selected">
           </os-checkbox>
         </div>
