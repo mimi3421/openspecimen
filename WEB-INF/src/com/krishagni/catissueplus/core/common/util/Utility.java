@@ -345,6 +345,10 @@ public class Utility {
 		return iterable == null ? Collections.emptyList() : iterable;
 	}
 
+	public static <T> Stream<T> nullSafeStream(Collection<T> collection) {
+		return collection != null ? collection.stream() : Stream.empty();
+	}
+
 	public static <T> boolean isEmptyOrSameAs(Collection<T> collection, T element) {
 		int size = collection.size();
 		if (size > 1) {

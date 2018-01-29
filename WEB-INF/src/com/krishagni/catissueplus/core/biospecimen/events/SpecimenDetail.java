@@ -298,7 +298,9 @@ public class SpecimenDetail extends SpecimenInfo {
 		SpecimenRequirement sr = specimen.getSpecimenRequirement();
 		if (!excludeChildren) {
 			if (sr == null) {
-				List<SpecimenDetail> children = from(specimen.getChildCollection());
+				List<SpecimenDetail> children = Utility.nullSafeStream(specimen.getChildCollection())
+					.map(child -> from(child, partial, excludePhi, excludeChildren))
+					.collect(Collectors.toList());
 				sort(children);
 				result.setChildren(children);
 			} else {
