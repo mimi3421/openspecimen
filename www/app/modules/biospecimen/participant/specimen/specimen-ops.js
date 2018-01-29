@@ -1,7 +1,7 @@
 angular.module('os.biospecimen.specimen')
   .directive('osSpecimenOps', function(
-    $state, $rootScope, $modal, DistributionProtocol, DistributionOrder, Specimen,
-    SpecimensHolder, Alerts, CommentsUtil, DeleteUtil) {
+    $state, $rootScope, $modal, $q, DistributionProtocol, DistributionOrder,
+    Specimen, SpecimensHolder, Alerts, CommentsUtil, DeleteUtil) {
 
     function initOpts(scope) {
       if (!scope.resourceOpts) {
@@ -149,7 +149,7 @@ angular.module('os.biospecimen.specimen')
         }
 
         scope.editSpecimens = function() {
-          var spmns = scope.specimens();
+          var spmns = scope.specimens({anyStatus: true});
           if (!spmns || spmns.length == 0) {
             Alerts.error('specimen_list.no_specimens_to_edit');
             return;

@@ -22,13 +22,13 @@
             <th class="col os-col-15">
               <span translate="specimens.parent_specimen">Parent Specimen</span>
             </th>
-            <th class="col os-col-10">
+            <th class="col" ng-class="ctx.inputLabels ? 'os-col-10' : 'os-col-15'">
               <span translate="specimens.parent_type">Parent Type</span>
             </th>
-            <th class="col os-col-10">
+            <th class="col os-col-10" ng-if="ctx.inputLabels">
               <span translate="specimens.label">Label</span>
             </th>
-            <th class="col os-col-10">
+            <th class="col" ng-class="ctx.inputLabels ? 'os-col-10' : 'os-col-15'">
               <span translate="specimens.type">Type</span>
             </th>
             <th class="col os-col-10">
@@ -59,7 +59,7 @@
             <td class="col">
               <span>{{derived.parentType}}</span>
             </td>
-            <td class="col">
+            <td class="col" ng-if="ctx.inputLabels">
               <input name="label" type="text" os-md-input ng-model="derived.label">
             </td>
             <td class="col">

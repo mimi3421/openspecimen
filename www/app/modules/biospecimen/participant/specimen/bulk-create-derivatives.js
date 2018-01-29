@@ -1,5 +1,5 @@
 angular.module('os.biospecimen.specimen')
-  .controller('BulkCreateDerivativesCtrl', function($scope, parentSpmns, Specimen, Alerts, Util, SpecimenUtil) {
+  .controller('BulkCreateDerivativesCtrl', function($scope, parentSpmns, cp, Specimen, Alerts, Util, SpecimenUtil) {
     function init() {
       var createdOn = new Date().getTime();
 
@@ -19,7 +19,10 @@ angular.module('os.biospecimen.specimen')
         }
       );
 
-      $scope.ctx = {derivedSpmns: derivedSpmns}
+      $scope.ctx = {
+        derivedSpmns: derivedSpmns,
+        inputLabels: !cp.derivativeLabelFmt || cp.manualSpecLabelEnabled
+      };
     }
 
     function isValidCreatedOn(spmn) {

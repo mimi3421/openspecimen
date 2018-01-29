@@ -271,6 +271,19 @@ angular.module('os.biospecimen.specimen',
             var specimens = SpecimensHolder.getSpecimens();
             SpecimensHolder.setSpecimens([]);
             return specimens || [];
+          },
+
+          cp: function(parentSpmns, CollectionProtocol) {
+            if (parentSpmns.length == 0) {
+              return {};
+            }
+
+            var cpId = parentSpmns[0].cpId;
+            if (parentSpmns.every(function(spmn) { return spmn.cpId == cpId })) {
+              return CollectionProtocol.getById(cpId);
+            } else {
+              return {};
+            }
           }
         },
         parent: 'signed-in'
