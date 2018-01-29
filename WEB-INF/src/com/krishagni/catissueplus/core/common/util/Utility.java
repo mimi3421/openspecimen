@@ -12,6 +12,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Calendar;
 import java.util.Collection;
@@ -136,11 +137,13 @@ public class Utility {
 		try {
 			reader = CsvFileReader.createCsvFileReader(new StringReader(value), false);
 
-			String[] row = new String[0];
-			if (reader.next()) {
-				row = reader.getRow();
+			List<String> result = new ArrayList<>();
+			while (reader.next()) {
+				String[] row = reader.getRow();
+				result.addAll(Stream.of(row).map(String::trim).collect(Collectors.toList()));
 			}
-			return Stream.of(row).map(String::trim).collect(Collectors.toList());
+
+			return result;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		} finally {
