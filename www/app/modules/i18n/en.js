@@ -256,6 +256,8 @@
     "show_site_coding": "Show Site Code Information",
     "hide_site_coding": "Hide Site Code Information",
 
+    "view_details": "View CP Details",
+
     "tab": {
       "overview": "Overview",
       "consents": "Consents",

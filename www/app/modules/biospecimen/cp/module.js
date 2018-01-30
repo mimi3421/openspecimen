@@ -73,9 +73,11 @@ angular.module('os.biospecimen.cp',
           },
           
           view: function($rootScope, $state, cpList) {
-            if ($rootScope.stateChangeInfo.fromState.name == 'login') {
+            if ($rootScope.stateChangeInfo.fromState.name == 'login' ||
+              $rootScope.stateChangeInfo.fromState.name == 'sc-catalog-dashboard' ||
+              $rootScope.stateChangeInfo.fromState.parent == 'sc-catalog-main')  {
               if (cpList.length == 1) {
-                $state.go('participant-list', {cpId: cpList[0].id});
+                $state.go('cp-summary-view', {cpId: cpList[0].id});
               } else if (cpList.length == 0) {
                 $state.go('home');
               }

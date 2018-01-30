@@ -46,6 +46,13 @@
       </a>
     </li>
 
+    <li show-if-allowed="cpUpdateOpts">
+      <a ui-sref="cp-detail.overview({cpId: cp.id})" >
+        <span class="fa fa-calendar"></span>
+        <span translate="cp.view_details">View CP Details</span>
+      </a>
+    </li>
+
     <li ng-if="!!cp.bulkPartRegEnabled">
       <a ui-sref="specimen-kit-list">
         <span class="fa fa-medkit"></span>

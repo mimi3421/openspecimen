@@ -38,6 +38,7 @@ angular.module('os.biospecimen.participant',
           $scope.shipmentCreateOpts = {cp: cp.shortTitle, sites: sites, resource: 'ShippingAndTracking', operations: ['Create']};
           $scope.specimenUpdateOpts = {cp: cp.shortTitle, sites: sites, resource: 'VisitAndSpecimen', operations: ['Update']};
           $scope.specimenDeleteOpts = {cp: cp.shortTitle, sites: sites, resource: 'VisitAndSpecimen', operations: ['Delete']};
+          $scope.cpUpdateOpts       = {resource: 'CollectionProtocol', operations: ['Update']};
         },
         resolve: {
           cp: function($stateParams, CollectionProtocol) {
