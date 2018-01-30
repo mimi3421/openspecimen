@@ -31,7 +31,7 @@ angular.module('os.biospecimen.extensions.addedit-record', [])
           });
 
           Alerts.success("extensions.record_saved");
-          if (nextForm) {
+          if (next && nextForm) {
             var params = angular.extend({}, $stateParams);
             params.formCtxId = nextForm.formCtxtId;
             params.formId = nextForm.formId;
