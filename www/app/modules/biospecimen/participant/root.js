@@ -1,7 +1,7 @@
 
 angular.module('os.biospecimen.participant.root', ['os.biospecimen.models'])
   .controller('ParticipantRootCtrl', function(
-    $scope, cpr, hasSde, hasDict, sysDict, cpDict, lookupFieldsCfg,
+    $scope, cpr, hasSde, hasDict, sysDict, cpDict, lookupFieldsCfg, participantHdrTmpl,
     pendingSpmnsDispInterval, barcodingEnabled, spmnBarcodesAutoGen, AuthorizationService) {
 
     function init() {
@@ -12,7 +12,8 @@ angular.module('os.biospecimen.participant.root', ['os.biospecimen.models'])
       $scope.fieldsCtx = {
         hasSde: hasSde, hasDict: hasDict,
         sysDict: sysDict, cpDict: cpDict,
-        lookupFields: lookupFieldsCfg.fields
+        lookupFields: lookupFieldsCfg.fields,
+        participantHdrTmpl: participantHdrTmpl
       };
 
       $scope.pendingSpmnsDispInterval = +pendingSpmnsDispInterval.value;

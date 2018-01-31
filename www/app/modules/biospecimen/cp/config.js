@@ -85,6 +85,22 @@ angular.module('openspecimen')
       );
     }
 
+    function getCommonCfg(cpId, propName) {
+      return getWorkflowData(cpId, 'common').then(
+        function(data) {
+          if (!!data[propName] || cpId == -1) {
+            return data[propName];
+          }
+
+          return getWorkflowData(-1, 'common').then(
+            function(data) {
+              return data[propName];
+            }
+          );
+        }
+      );
+    }
+
     return {
       getRegParticipantTmpl: function(cpId, cprId) {
         if (cprId != -1) { //edit case
@@ -183,6 +199,8 @@ angular.module('openspecimen')
         );
       },
 
-      saveWorkflow: saveWorkflow
+      saveWorkflow: saveWorkflow,
+
+      getCommonCfg: getCommonCfg
     }
   });

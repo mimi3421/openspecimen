@@ -14,10 +14,17 @@
         </li>
       </ul>
       <h3>
-        <span translate="{{cpr.ppid}}"></span>
-        <span ng-if="userCtx.hasPhiAccess && (cpr.participant.firstName || cpr.participant.lastName)">
-         ( {{cpr.participant.firstName}} {{cpr.participant.lastName}} )
-        </span>
+        <div ng-switch on="!!fieldsCtx.participantHdrTmpl">
+          <div ng-switch-when="true">
+            <os-html-template template="fieldsCtx.participantHdrTmpl"></os-html-template>
+          </div>
+          <div ng-switch-default>
+            <span translate="{{cpr.ppid}}"></span>
+            <span ng-if="userCtx.hasPhiAccess && (cpr.participant.firstName || cpr.participant.lastName)">
+              ( {{cpr.participant.firstName}} {{cpr.participant.lastName}} )
+            </span>
+          </div>
+        </div>
       </h3>
     </div>
 

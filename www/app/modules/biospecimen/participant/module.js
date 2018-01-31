@@ -403,6 +403,10 @@ angular.module('os.biospecimen.participant',
                 return !!setting.value;
               }
             );
+          },
+
+          participantHdrTmpl: function(cp, CpConfigSvc) {
+            return CpConfigSvc.getCommonCfg(cp.id, 'participantHeaderTmpl');
           }
         },
         controller: 'ParticipantRootCtrl',
