@@ -2,6 +2,7 @@ package com.krishagni.catissueplus.core.biospecimen.matching;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -95,8 +96,12 @@ public class StagedVisitsDbLookup implements VisitsLookup {
 
 			String empi = stagedVisit.getParticipant().getEmpi();
 			CollectionProtocolRegistrationDetail cpr = regsMap.computeIfAbsent(empi, (u) -> visitDetail.first());
-			if (cpr.getRegistrationDate().after(visitDetail.first().getRegistrationDate())) {
-				cpr.setRegistrationDate(visitDetail.first().getRegistrationDate());
+			if (cpr != visitDetail.first()) {
+				Date existingDt = cpr.getRegistrationDate();
+				Date newDt = visitDetail.first().getRegistrationDate();
+				if (existingDt != null && newDt != null && existingDt.after(newDt)) {
+					cpr.setRegistrationDate(newDt);
+				}
 			}
 
 			List<VisitDetail> visits = visitsMap.computeIfAbsent(empi, (u) -> new ArrayList<>());
