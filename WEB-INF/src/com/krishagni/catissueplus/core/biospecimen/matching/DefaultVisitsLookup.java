@@ -29,7 +29,7 @@ public class DefaultVisitsLookup implements VisitsLookup {
 				break;
 
 			case ACCESSION_NO:
-				Visit visit = daoFactory.getVisitsDao().getBySpr(input.getCpId(), input.getValue());
+				Visit visit = daoFactory.getVisitsDao().getByName(input.getValue());
 				if (visit != null) {
 					visits.add(visit);
 				}
