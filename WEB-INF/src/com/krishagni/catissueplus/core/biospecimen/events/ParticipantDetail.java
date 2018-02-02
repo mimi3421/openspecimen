@@ -63,7 +63,9 @@ public class ParticipantDetail extends AttributeModifiedSupport {
 	private Set<CprSummary> registeredCps;
 	
 	private ExtensionDetail extensionDetail;
-	
+
+	private Long stagedId;
+
 	// For Update participant through BO
 	private String cpShortTitle;
 	
@@ -82,6 +84,7 @@ public class ParticipantDetail extends AttributeModifiedSupport {
 	// transient variables specifying action to be performed
 	//
 	private boolean forceDelete;
+
 
 	public Long getId() {
 		return id;
@@ -247,7 +250,15 @@ public class ParticipantDetail extends AttributeModifiedSupport {
 	public void setExtensionDetail(ExtensionDetail extensionDetail) {
 		this.extensionDetail = extensionDetail;
 	}
-	
+
+	public Long getStagedId() {
+		return stagedId;
+	}
+
+	public void setStagedId(Long stagedId) {
+		this.stagedId = stagedId;
+	}
+
 	@JsonIgnore
 	public String getCpShortTitle() {
 		return cpShortTitle;
