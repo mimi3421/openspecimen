@@ -16,6 +16,8 @@ public class StagedParticipantDetail extends ParticipantDetail {
 
 	private String newEmpi;
 
+	private Long stagedId;
+
 	public Date getUpdatedTime() {
 		return updatedTime;
 	}
@@ -30,6 +32,14 @@ public class StagedParticipantDetail extends ParticipantDetail {
 
 	public void setNewEmpi(String newEmpi) {
 		this.newEmpi = newEmpi;
+	}
+
+	public Long getStagedId() {
+		return stagedId;
+	}
+
+	public void setStagedId(Long stagedId) {
+		this.stagedId = stagedId;
 	}
 
 	public static StagedParticipantDetail from(StagedParticipant participant) {
@@ -64,6 +74,7 @@ public class StagedParticipantDetail extends ParticipantDetail {
 
 		result.setUpdatedTime(participant.getUpdatedTime());
 		result.setSource(participant.getSource());
+		result.setStagedId(participant.getId());
 		return result;
 	}
 }

@@ -170,6 +170,10 @@
     <property name="exportSvc" ref="exportSvc"/>
   </bean>
 
+  <bean id="stagedVisitSvc" class="com.krishagni.catissueplus.core.biospecimen.services.impl.StagedVisitServiceImpl">
+    <property name="daoFactory" ref="biospecimenDaoFactory"/>
+  </bean>
+
   <bean id="cpCopier" class="com.krishagni.catissueplus.core.biospecimen.services.impl.CollectionProtocolCopier"/>
 
   <bean id="cpFactory" class="com.krishagni.catissueplus.core.biospecimen.domain.factory.impl.CollectionProtocolFactoryImpl">

@@ -8,9 +8,21 @@ import com.krishagni.catissueplus.core.common.repository.AbstractDao;
 
 public class StagedVisitDaoImpl extends AbstractDao<StagedVisit> implements StagedVisitDao {
 	@Override
+	public Class<StagedVisit> getType() {
+		return StagedVisit.class;
+	}
+
+	@Override
 	public StagedVisit getByAccessionNo(String accessionNo) {
 		return (StagedVisit) getCurrentSession().getNamedQuery(GET_BY_ACC_NO)
 			.setParameter("accessionNo", accessionNo.toLowerCase())
+			.uniqueResult();
+	}
+
+	@Override
+	public StagedVisit getBySprNo(String sprNo) {
+		return (StagedVisit) getCurrentSession().getNamedQuery(GET_BY_SPR_NO)
+			.setParameter("sprNo", sprNo)
 			.uniqueResult();
 	}
 
@@ -25,6 +37,8 @@ public class StagedVisitDaoImpl extends AbstractDao<StagedVisit> implements Stag
 	private static final String FQN = StagedVisit.class.getName();
 
 	private static final String GET_BY_ACC_NO = FQN + ".getByAccessionNo";
+
+	private static final String GET_BY_SPR_NO = FQN + ".getBySprNo";
 
 	private static final String GET_BY_EMPI_OR_MRN = FQN + ".getByEmpiOrMrn";
 }

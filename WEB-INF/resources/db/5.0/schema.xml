@@ -107,4 +107,10 @@
       <column name="SPECIMEN_BARCODE_FORMAT" type="${text.type}(255)"/>
     </addColumn>
   </changeSet>
+
+  <changeSet author="vpawar" id="Store additional info of staged visit in JSON format">
+    <addColumn tableName="OS_STAGED_VISITS">
+      <column name="ADDITIONAL_INFO_JSON" type="${clob.type}"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

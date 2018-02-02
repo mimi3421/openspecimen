@@ -2,6 +2,7 @@ package com.krishagni.catissueplus.core.biospecimen.events;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Map;
 
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
@@ -9,7 +10,19 @@ import com.krishagni.catissueplus.core.biospecimen.domain.StagedVisit;
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class StagedVisitDetail extends VisitDetail {
+	private Long stagedParticipantId;
+
 	private Date updatedTime;
+
+	private Map<String, Object> additionalInfo;
+
+	public Long getStagedParticipantId() {
+		return stagedParticipantId;
+	}
+
+	public void setStagedParticipantId(Long stagedParticipantId) {
+		this.stagedParticipantId = stagedParticipantId;
+	}
 
 	public Date getUpdatedTime() {
 		return updatedTime;
@@ -19,19 +32,31 @@ public class StagedVisitDetail extends VisitDetail {
 		this.updatedTime = updatedTime;
 	}
 
+	public Map<String, Object> getAdditionalInfo() {
+		return additionalInfo;
+	}
+
+	public void setAdditionalInfo(Map<String, Object> additionalInfo) {
+		this.additionalInfo = additionalInfo;
+	}
+
 	public static StagedVisitDetail from(StagedVisit visit) {
 		StagedVisitDetail detail = new StagedVisitDetail();
 		detail.setName(visit.getName());
 		detail.setSurgicalPathologyNumber(visit.getSurgicalPathologyNumber());
 		detail.setVisitDate(visit.getVisitDate());
-		detail.setClinicalDiagnoses(new HashSet<>(visit.getClinicalDiagnoses()));
+		detail.setClinicalDiagnoses(visit.getClinicalDiagnoses() != null ? new HashSet<>(visit.getClinicalDiagnoses()) : null);
 		detail.setClinicalStatus(visit.getClinicalStatus());
 		detail.setCohort(visit.getCohort());
 		detail.setSite(visit.getCollectionSite());
 		detail.setStatus(visit.getStatus());
 		detail.setMissedReason(visit.getMissedReason());
 		detail.setComments(visit.getComments());
+		detail.setStagedParticipantId(visit.getParticipant().getId());
 		detail.setUpdatedTime(visit.getUpdateTime());
+		detail.setAdditionalInfo(visit.getAdditionalInfo());
 		return detail;
 	}
+
+
 }

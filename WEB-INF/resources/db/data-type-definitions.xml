@@ -40,7 +40,7 @@
   <property name="nullable.ts.type" value="timestamp" dbms="oracle" />
 
   <property name="def_curr.ts.type" value="timestamp default current_timestamp" dbms="mysql"/>
-  <property name="def_curr.ts.type" value="timestamp" dbms="mysql"/>
+  <property name="def_curr.ts.type" value="timestamp" dbms="oracle"/>
 
   <property name="clob.type" value="text" dbms="mysql"/>
   <property name="clob.type" value="clob" dbms="oracle"/>

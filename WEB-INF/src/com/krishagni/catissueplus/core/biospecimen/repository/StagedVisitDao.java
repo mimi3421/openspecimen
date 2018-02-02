@@ -8,5 +8,7 @@ import com.krishagni.catissueplus.core.common.repository.Dao;
 public interface StagedVisitDao extends Dao<StagedVisit> {
 	StagedVisit getByAccessionNo(String accessionNo);
 
+	StagedVisit getBySprNo(String sprNo);
+
 	List<StagedVisit> getByEmpiOrMrn(String empiOrMrn);
 }

@@ -20,6 +20,11 @@ import com.krishagni.catissueplus.core.common.repository.AbstractDao;
 public class StagedParticipantDaoImpl extends AbstractDao<StagedParticipant> implements StagedParticipantDao {
 
 	@Override
+	public Class<StagedParticipant> getType() {
+		return StagedParticipant.class;
+	}
+
+	@Override
 	@SuppressWarnings("unchecked")	
 	public List<StagedParticipant> getByPmis(List<PmiDetail> pmis) {
 		Criteria query = getByPmisQuery(pmis);

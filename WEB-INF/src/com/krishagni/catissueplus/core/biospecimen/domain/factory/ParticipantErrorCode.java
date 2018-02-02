@@ -42,7 +42,11 @@ public enum ParticipantErrorCode implements ErrorCode {
 
 	LF_UPDATE_NOT_ALLOWED,
 
-	INVALID_LOOKUP_FLOW;
+	INVALID_LOOKUP_FLOW,
+
+	STAGED_ID_REQ,
+
+	STAGED_NOT_FOUND;
 
 	public String code() {
 		return "PARTICIPANT_" + this.name();

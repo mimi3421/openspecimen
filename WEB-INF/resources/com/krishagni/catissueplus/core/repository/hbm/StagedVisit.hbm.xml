@@ -36,6 +36,8 @@
 
     <property name="cohort" column="COHORT"/>
 
+    <property name="additionalInfoJson" column="ADDITIONAL_INFO_JSON"/>
+
     <property name="activityStatus" column="ACTIVITY_STATUS"/>
 
     <many-to-one name="participant" column="PARTICIPANT_ID"/>
@@ -46,7 +48,16 @@
       from
         com.krishagni.catissueplus.core.biospecimen.domain.StagedVisit v
       where
-        lower(v.surgicalPathologyNumber) = :accessionNo
+        lower(v.name) = :accessionNo
+    </query>
+
+    <query name="getBySprNo">
+      select
+        v
+      from
+        com.krishagni.catissueplus.core.biospecimen.domain.StagedVisit v
+      where
+        lower(v.surgicalPathologyNumber) = :sprNo
     </query>
 
     <query name="getByEmpiOrMrn">
