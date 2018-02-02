@@ -72,7 +72,7 @@ public class StagedVisitsDbLookup implements VisitsLookup {
 		for (MatchedVisitDetail osVisit : osVisits) {
 			regVisitsMap.put(osVisit.getCpr().getId(), osVisit);
 			osVisitAccNos.addAll(osVisit.getVisits().stream()
-				.map(VisitDetail::getSurgicalPathologyNumber)
+				.map(VisitDetail::getName)
 				.filter(StringUtils::isNotBlank)
 				.collect(Collectors.toSet()));
 		}
@@ -80,7 +80,7 @@ public class StagedVisitsDbLookup implements VisitsLookup {
 		Map<String, CollectionProtocolRegistrationDetail> regsMap = new LinkedHashMap<>();
 		Map<String, List<VisitDetail>> visitsMap = new LinkedHashMap<>();
 		for (StagedVisit stagedVisit : stagedVisits) {
-			if (osVisitAccNos.contains(stagedVisit.getSurgicalPathologyNumber())) {
+			if (osVisitAccNos.contains(stagedVisit.getName())) {
 				continue;
 			}
 
