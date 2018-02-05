@@ -81,6 +81,7 @@
     "error": "Error",
     "use_system_setting": "Use System Setting",
     "search_user_manual": "Search user manual",
+    "invalid_expr": "Invalid expression: {{expr}}",
 
     "interval_units": {
       "DAYS": "Days",

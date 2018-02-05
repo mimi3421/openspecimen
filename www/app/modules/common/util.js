@@ -461,6 +461,75 @@ angular.module('openspecimen')
       return success;
     }
 
+    /**
+     * List of in-built functions available in evaluation of expressions
+     */
+    var fns = {
+      ifnull: function(cond, truth, falsy) {
+        return (cond == null || cond == undefined) ? truth : falsy;
+      },
+
+      concatList: function(list, expr, separator) {
+        var parsedExpr = $parse(expr);
+
+        return (list || []).map(
+          function(e) {
+            return parsedExpr(e);
+          }
+        ).join(separator);
+      },
+
+      concat: function() {
+        var result = '';
+        for (var i = 0; i < arguments.length; ++i) {
+          if (!arguments[i]) {
+            continue;
+          }
+
+          if (i != 0) {
+            result += ' ';
+          }
+
+          result += arguments[i];
+        }
+
+        return result;
+      },
+
+      minValue: function(coll, expr) {
+        var parsedExpr = $parse(expr);
+
+        var minValue = null, minIdx = -1;
+        angular.forEach(coll,
+          function(e, idx) {
+            var value = parsedExpr(e);
+
+            if (idx == 0) {
+              minValue = value;
+              minIdx = idx;
+              return;
+            }
+
+            if (value != null && value != undefined && value < minValue) {
+              minValue = value;
+              minIdx = idx;
+            }
+          }
+        );
+
+        return minValue;
+      }
+    }
+
+    function evaluate(expr, inputCtx) {
+      try {
+        return $parse(expr)(angular.extend({fns: fns}, inputCtx));
+      } catch (e) {
+        Alerts.error('common.invalid_expr', {expr: expr});
+        throw e;
+      }
+    }
+
     return {
       clear: clear,
 
@@ -502,6 +571,8 @@ angular.module('openspecimen')
 
       showItemsValidationResult: showItemsValidationResult,
 
-      copyToClipboard: copyToClipboard
+      copyToClipboard: copyToClipboard,
+
+      evaluate: evaluate
     };
   });
