@@ -1238,3 +1238,7 @@ h4.os-sub-section-title, h5.os-sub-section-title, h6.os-sub-section-title {
   word-break: break-all;
 }
  
+.os-scrollable-container {
+  display: block;
+  overflow: auto;
+}
