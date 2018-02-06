@@ -1154,7 +1154,7 @@ public class Specimen extends BaseExtensionEntity {
 		
 		CollectionProtocol cp = getVisit().getCollectionProtocol();
 		if (isAliquot()) {
-			labelTmpl = cp.getAliquotLabelFormat();
+			labelTmpl = cp.getAliquotLabelFormatToUse();
 		} else if (isDerivative()) {
 			labelTmpl = cp.getDerivativeLabelFormat();
 		} else {
@@ -1163,7 +1163,7 @@ public class Specimen extends BaseExtensionEntity {
 		
 		return labelTmpl;		
 	}
-	
+
 	public void updatePosition(StorageContainerPosition newPosition) {
 		updatePosition(newPosition, null);
 	}

@@ -89,4 +89,14 @@
       );
     </sql>
   </changeSet>
+
+  <changeSet author="vgaikwad" id="Settings to specify system level aliquot label format">
+    <sql>
+      call add_cfg_prop(
+        'biospecimen', 'aliquot_label_format',
+        'aliquot_label_format', 'aliquot_label_format_desc',
+        'STRING', '%PSPEC_LABEL%_%PSPEC_UID%'
+      );
+    </sql>
+  </changeSet>
 </databaseChangeLog>

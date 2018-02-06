@@ -2378,7 +2378,9 @@
         "store_spr": "Surgical Pathology Reports",
         "store_spr_desc": "Enable or disable uploading of surgical pathology reports for a visit.",
         "specimen_barcode_format": "Specimen Barcode Format",
-        "specimen_barcode_format_desc": "The system-level format for auto-generation of specimen barcodes."
+        "specimen_barcode_format_desc": "The system-level format for auto-generation of specimen barcodes.",
+        "aliquot_label_format": "Aliquot Label Format",
+        "aliquot_label_format_desc": "The system-level format for aliquot labels."
       },
 
       "common": {

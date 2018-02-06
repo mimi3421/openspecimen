@@ -581,6 +581,10 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 			if (!StringUtils.equalsIgnoreCase(value, "true") && daoFactory.getSpecimenDao().areDuplicateBarcodesPresent()) {
 				throw OpenSpecimenException.userError(SpecimenErrorCode.UQ_BC_CP_CHG_NA);
 			}
+		} else if (StringUtils.equals(name, ConfigParams.ALIQUOT_LABEL_FORMAT)) {
+			if (StringUtils.isNotBlank(value) && !labelGenerator.isValidLabelTmpl(value)) {
+				throw OpenSpecimenException.userError(CpErrorCode.INVALID_ALIQUOT_LABEL_FMT, value);
+			}
 		}
 	}
 

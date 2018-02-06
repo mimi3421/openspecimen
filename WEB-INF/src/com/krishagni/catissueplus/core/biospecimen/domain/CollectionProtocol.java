@@ -289,6 +289,14 @@ public class CollectionProtocol extends BaseExtensionEntity {
 		return aliquotLabelFormat;
 	}
 
+	public String getAliquotLabelFormatToUse() {
+		if (StringUtils.isNotBlank(getAliquotLabelFormat())) {
+			return getAliquotLabelFormat();
+		} else {
+			return ConfigUtil.getInstance().getStrSetting(ConfigParams.MODULE, ConfigParams.ALIQUOT_LABEL_FORMAT, null);
+		}
+	}
+
 	public void setAliquotLabelFormat(String aliquotLabelFormat) {
 		this.aliquotLabelFormat = aliquotLabelFormat;
 	}

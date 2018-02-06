@@ -458,7 +458,7 @@ public class SpecimenRequirement extends BaseEntity implements Comparable<Specim
 		
 		CollectionProtocol cp = getCollectionProtocolEvent().getCollectionProtocol();
 		if (isAliquot()) {
-			return cp.getAliquotLabelFormat();
+			return cp.getAliquotLabelFormatToUse();
 		} else if (isDerivative()) {
 			return cp.getDerivativeLabelFormat();
 		} else {
