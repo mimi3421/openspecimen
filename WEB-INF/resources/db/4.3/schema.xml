@@ -557,4 +557,35 @@
       </column>
     </addColumn>
   </changeSet>
+
+  <changeSet author="vgaikwad" id="Column to keep track of store list execution retries and errors">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <changeSetExecuted
+        changeLogFile="db/5.0/schema.xml"
+        author="vgaikwad"
+        id="Column to keep track of store list execution retries and errors"/>
+      </not>
+    </preConditions>
+
+    <addColumn tableName="OS_CONTAINER_STORE_LISTS">
+      <column name="NO_OF_RETRIES" type="${int.type}" defaultValueNumeric="0"/>
+      <column name="ERROR" type="${clob.type}"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="vgaikwad" id="Column to store error encountered for item in automated freezer op">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <changeSetExecuted
+          changeLogFile="db/5.0/schema.xml"
+          author="vgaikwad"
+          id="Column to store error encountered for item in automated freezer op"/>
+      </not>
+    </preConditions>
+
+    <addColumn tableName="OS_CONTAINER_STORE_LIST_ITEMS">
+      <column name="ERROR" type="${clob.type}"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

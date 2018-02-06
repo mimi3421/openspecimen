@@ -89,19 +89,6 @@
     </createView>
   </changeSet>
 
-  <changeSet author="vgaikwad" id="Column to keep track of store list execution retries and errors">
-    <addColumn tableName="OS_CONTAINER_STORE_LISTS">
-      <column name="NO_OF_RETRIES" type="${int.type}" defaultValueNumeric="0"/>
-      <column name="ERROR" type="${clob.type}"/>
-    </addColumn>
-  </changeSet>
-
-  <changeSet author="vgaikwad" id="Column to store error encountered for item in automated freezer op">
-    <addColumn tableName="OS_CONTAINER_STORE_LIST_ITEMS">
-      <column name="ERROR" type="${clob.type}"/>
-    </addColumn>
-  </changeSet>
-
   <changeSet author="vgaikwad" id="CP level specimen barcode format">
     <addColumn tableName="CATISSUE_COLLECTION_PROTOCOL">
       <column name="SPECIMEN_BARCODE_FORMAT" type="${text.type}(255)"/>

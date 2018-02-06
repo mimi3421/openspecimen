@@ -25,61 +25,6 @@
     </sql>
   </changeSet>
 
-  <changeSet author="vgaikwad" id="Settings to specify time interval between execution of failed store lists">
-    <sql>
-      call add_cfg_prop(
-        'administrative', 'store_list_retry_interval',
-        'store_list_retry_interval', 'store_list_retry_interval_desc',
-        'INT', '24'
-      );
-    </sql>
-  </changeSet>
-
-  <changeSet author="vgaikwad" id="Settings to specify max retries to execute failed store lists">
-    <sql>
-      call add_cfg_prop(
-        'administrative', 'store_list_max_retries',
-        'store_list_max_retries', 'store_list_max_retries_desc',
-        'INT', '5'
-      );
-    </sql>
-  </changeSet>
-
-  <changeSet author="vgaikwad" id="Automated freezers report generator" dbms="mysql">
-    <sql>
-      select identifier into @userId from catissue_user where login_name = '$system';
-
-      insert into os_scheduled_jobs
-        (identifier, name, created_by, start_date, end_date, scheduled_minute, scheduled_hour, scheduled_day_of_week,
-        scheduled_day_of_month, activity_status, repeat_schedule, type, command,
-        task_impl_fqn, rt_args_provided, rt_args_help_text)
-      values
-        (default, "Automated freezers report", @userId, now(), null, 50, 23, null,
-        null, 'Active', 'DAILY', 'INTERNAL', null,
-        'com.krishagni.catissueplus.core.administrative.services.impl.AutomatedFreezerReportGenerator', 0, null);
-    </sql>
-  </changeSet>
-
-  <changeSet author="vgaikwad" id="Automated freezers report generator" dbms="oracle">
-    <sql endDelimiter="//">
-      declare
-        userId number;
-      begin
-        select identifier into userId from catissue_user where login_name like '$system';
-
-        insert into os_scheduled_jobs
-          (identifier, name, created_by, start_date, end_date, scheduled_minute, scheduled_hour, scheduled_day_of_week,
-          scheduled_day_of_month, activity_status, repeat_schedule, type, command,
-          task_impl_fqn, rt_args_provided, rt_args_help_text)
-        values
-          (OS_SCHEDULED_JOBS_SEQ.nextVal, 'Automated freezers report', userId, SYSDATE, null, 50, 23, null,
-          null, 'Active', 'DAILY', 'INTERNAL', null,
-          'com.krishagni.catissueplus.core.administrative.services.impl.AutomatedFreezerReportGenerator', 0, null);
-      end;
-      //
-    </sql>
-  </changeSet>
-
   <changeSet author="vgaikwad" id="Settings to specify system level specimen barcode format">
     <sql>
       call add_cfg_prop(
