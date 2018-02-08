@@ -113,7 +113,7 @@ public class ExtensionsImporter implements ObjectImporter<Map<String, Object>, M
 			String visitName = (String)extnObj.get("visitName");
 			Visit visit = daoFactory.getVisitsDao().getByName(visitName);
 			if (visit == null) {
-				return ResponseEvent.userError(VisitErrorCode.NOT_FOUND);
+				return ResponseEvent.userError(VisitErrorCode.NOT_FOUND, visitName);
 			}
 			
 			objectId = visit.getId();

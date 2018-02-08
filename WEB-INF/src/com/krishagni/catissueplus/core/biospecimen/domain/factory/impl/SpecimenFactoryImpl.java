@@ -217,12 +217,15 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 	private Visit getVisit(SpecimenDetail detail, Specimen existing, Specimen parent, OpenSpecimenException ose) {
 		Long visitId = detail.getVisitId();
 		String visitName = detail.getVisitName();
-		
+
+		Object key = null;
 		Visit visit = null;
 		if (visitId != null) {
 			visit = daoFactory.getVisitsDao().getById(visitId);
+			key = visitId;
 		} else if (StringUtils.isNotBlank(visitName)) {
 			visit = daoFactory.getVisitsDao().getByName(visitName);
+			key = visitName;
 		} else if (existing != null) {
 			visit = existing.getVisit();
 		} else if (parent != null) {
@@ -247,7 +250,7 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 		}
 		
 		if (visit == null) {
-			ose.addError(VisitErrorCode.NOT_FOUND);
+			ose.addError(VisitErrorCode.NOT_FOUND, key);
 			return null;
 		}
 		

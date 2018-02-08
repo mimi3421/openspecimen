@@ -524,7 +524,12 @@ public class VisitServiceImpl implements VisitService, ObjectAccessor, Initializ
 			value = Long.valueOf(value.toString());
 		}
 
-		return daoFactory.getVisitsDao().getCprVisitIds(key, value);
+		Map<String, Object> ids = daoFactory.getVisitsDao().getCprVisitIds(key, value);
+		if (ids == null || ids.isEmpty()) {
+			throw OpenSpecimenException.userError(VisitErrorCode.NOT_FOUND, value);
+		}
+
+		return ids;
 	}
 
 	@Override

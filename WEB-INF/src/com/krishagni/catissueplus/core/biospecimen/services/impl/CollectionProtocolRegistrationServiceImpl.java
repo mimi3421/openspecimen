@@ -893,7 +893,7 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 		if (visitId != null) {
 			Visit visit = daoFactory.getVisitsDao().getById(visitId);
 			if (visit == null || !visit.getRegistration().equals(cpr)) {
-				throw OpenSpecimenException.userError(VisitErrorCode.NOT_FOUND);
+				throw OpenSpecimenException.userError(VisitErrorCode.NOT_FOUND, visitId);
 			}
 
 			return getSpecimensByVisit(visit, excludePhi);

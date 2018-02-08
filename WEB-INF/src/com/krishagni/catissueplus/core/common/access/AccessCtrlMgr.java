@@ -722,7 +722,7 @@ public class AccessCtrlMgr {
 	private boolean ensureVisitObjectRights(Long visitId, Operation op, boolean checkPhiAccess) {
 		Visit visit = daoFactory.getVisitDao().getById(visitId);
 		if (visit == null) {
-			throw OpenSpecimenException.userError(VisitErrorCode.NOT_FOUND);
+			throw OpenSpecimenException.userError(VisitErrorCode.NOT_FOUND, visitId);
 		}
 
 		boolean phiAccess = ensureVisitObjectRights(visit, op, checkPhiAccess);
