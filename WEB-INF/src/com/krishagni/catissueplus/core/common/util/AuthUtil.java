@@ -6,7 +6,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -126,7 +126,7 @@ public class AuthUtil {
 
 	public static void setTokenCookie(HttpServletRequest httpReq, HttpServletResponse httpResp, String authToken) {
 		Cookie cookie = new Cookie("osAuthToken", authToken);
-		cookie.setPath(httpReq.getContextPath());
+		cookie.setPath(StringUtils.isBlank(httpReq.getContextPath()) ? "/" : httpReq.getContextPath());
 		cookie.setHttpOnly(true);
 		cookie.setSecure(httpReq.isSecure());
 

@@ -127,7 +127,6 @@ public class AuthTokenFilter extends GenericFilterBean {
 		if (userDetails == null) {
 			String clientHdr = httpReq.getHeader(OS_CLIENT_HDR);
 			if (clientHdr != null && clientHdr.equals("webui")) {
-				AuthUtil.clearTokenCookie(httpReq, httpResp);
 				setUnauthorizedResp(req, resp, chain, false);
 			} else {
 				setRequireAuthResp(req, resp, chain);
@@ -196,6 +195,7 @@ public class AuthTokenFilter extends GenericFilterBean {
 	throws IOException, ServletException {
 		if (reqSignIn || requiresSignIn(req)) {
 			HttpServletResponse httpResp = (HttpServletResponse)resp;
+			AuthUtil.clearTokenCookie((HttpServletRequest) req, httpResp);
 			httpResp.sendError(HttpServletResponse.SC_UNAUTHORIZED,
 				"You must supply valid credentials to access the OpenSpecimen REST API");
 		} else {
