@@ -62,13 +62,20 @@
 
     <query name="getByEmpiOrMrn">
       select
-        distinct v
+        v
       from
         com.krishagni.catissueplus.core.biospecimen.domain.StagedVisit v
-        join v.participant p
-        left join p.pmiList pmi
       where
-        lower(p.empi) = :empiOrMrn or lower(pmi.medicalRecordNumber) = :empiOrMrn
+        v.id in (
+          select
+            distinct v.id
+          from
+            com.krishagni.catissueplus.core.biospecimen.domain.StagedVisit v
+            join v.participant p
+            left join p.pmiList pmi
+          where
+            lower(p.empi) = :empiOrMrn or lower(pmi.medicalRecordNumber) = :empiOrMrn
+        )
     </query>
   </class>
 </hibernate-mapping>
