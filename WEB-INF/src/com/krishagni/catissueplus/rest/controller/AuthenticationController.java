@@ -44,7 +44,10 @@ public class AuthenticationController {
 		loginDetail.setApiUrl(httpReq.getRequestURI());
 		loginDetail.setRequestMethod(RequestMethod.POST.name());
 		ResponseEvent<Map<String, Object>> resp = userAuthService.authenticateUser(new RequestEvent<>(loginDetail));
-		resp.throwErrorIfUnsuccessful();
+		if (!resp.isSuccessful()) {
+			AuthUtil.clearTokenCookie(httpReq, httpResp);
+			throw resp.getError();
+		}
 
 		String authToken = (String)resp.getPayload().get("token");
 		AuthUtil.setTokenCookie(httpReq, httpResp, authToken);
