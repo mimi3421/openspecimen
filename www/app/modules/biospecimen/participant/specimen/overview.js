@@ -1,6 +1,9 @@
 
 angular.module('os.biospecimen.specimen.overview', ['os.biospecimen.models'])
-  .controller('SpecimenOverviewCtrl', function($scope, $rootScope, hasDict, specimen, ExtensionsUtil) {
+  .controller('SpecimenOverviewCtrl', function(
+    $scope, $rootScope, hasDict, specimen, showEvents,
+    osRightDrawerSvc, ExtensionsUtil) {
+
     function init() {
       if (hasDict) {
         ExtensionsUtil.createExtensionFieldMap(specimen);
@@ -10,7 +13,8 @@ angular.module('os.biospecimen.specimen.overview', ['os.biospecimen.models'])
         obj: {specimen: specimen},
         inObjs: ['specimen'],
         exObjs: ['specimen.events'],
-        watcher: ['specimen.collectionEvent.user', 'specimen.receivedEvent.user']
+        watcher: ['specimen.collectionEvent.user', 'specimen.receivedEvent.user'],
+        showEvents: showEvents
       }
 
       loadActivities();
@@ -24,6 +28,10 @@ angular.module('os.biospecimen.specimen.overview', ['os.biospecimen.models'])
           loadActivities();
         }
       });
+
+      if (showEvents) {
+        osRightDrawerSvc.open();
+      }
     }
 
     function loadActivities() {
@@ -38,6 +46,10 @@ angular.module('os.biospecimen.specimen.overview', ['os.biospecimen.models'])
         }
       );
     };
+
+    $scope.toggleShowEvents = function() {
+      $scope.spmnCtx.showEvents = !$scope.spmnCtx.showEvents;
+    }
 
     init();
   });

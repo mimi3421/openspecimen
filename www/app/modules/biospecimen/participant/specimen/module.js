@@ -41,6 +41,14 @@ angular.module('os.biospecimen.specimen',
               visitId: $stateParams.visitId, 
               labelFmt: cpr.specimenLabelFmt
             });
+          },
+
+          showEvents: function(cp, CpConfigSvc) {
+            return CpConfigSvc.getCommonCfg(cp.id, 'showSpmnEvents').then(
+              function(value) {
+                return (value === null || value === undefined || value === '') ? true : (value == true);
+              }
+            );
           }
         },
         controller: function($scope, specimen) {

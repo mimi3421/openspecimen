@@ -88,7 +88,7 @@ angular.module('openspecimen')
     function getCommonCfg(cpId, propName) {
       return getWorkflowData(cpId, 'common').then(
         function(data) {
-          if (!!data[propName] || cpId == -1) {
+          if ((data[propName] != null && data[propName] != undefined) || cpId == -1) {
             return data[propName];
           }
 

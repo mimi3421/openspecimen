@@ -37,9 +37,11 @@ angular.module('openspecimen')
         return;
       }
 
+      var openWidth = +(drawerEl.attr('open-width') || 25);
       drawerEl.addClass('active');
       drawerEl.find('input, textArea, select, button').filter(':visible:first').focus();
-      setCardsViewWidth('75%');
+      setCardsViewWidth((100 - openWidth) + '%') ;
+      drawerEl.css('width', openWidth + '%');
       drawerEl.scope().$emit('osRightDrawerOpen');
     }
 

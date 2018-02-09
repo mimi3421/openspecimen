@@ -675,6 +675,8 @@
 
     "reason_for_closing": "Reason for closing",
 
+    "hide_events": "Hide Events",
+    "show_events": "Show Events",
     "recent_events": "Recent Events",
     "events": "Events",
     "event_name": "Name",
