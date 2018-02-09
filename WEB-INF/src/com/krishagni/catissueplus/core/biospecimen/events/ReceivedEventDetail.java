@@ -14,6 +14,10 @@ public class ReceivedEventDetail extends SpecimenEventDetail {
 	}
 
 	public static ReceivedEventDetail from(SpecimenReceivedEvent sre) {
+		if (sre == null) {
+			return null;
+		}
+
 		ReceivedEventDetail detail = new ReceivedEventDetail();
 		fromTo(sre, detail);
 

@@ -1,5 +1,5 @@
 angular.module('os.biospecimen.models.specimen', ['os.common.models', 'os.biospecimen.models.form'])
-  .factory('Specimen', function(osModel, $http, $parse, SpecimenRequirement, Form, Util) {
+  .factory('Specimen', function(osModel, $http, $parse, SpecimenRequirement, Form, Util, User) {
 
     function matches(name, regex) {
       return name && name.match(regex) != null;
@@ -236,6 +236,70 @@ angular.module('os.biospecimen.models.specimen', ['os.common.models', 'os.biospe
       }
 
       return {index: result, rule: result != -1 ? allocRules[result] : undefined};
+    }
+
+    Specimen.prototype.setCollectionEvent = function(formData) {
+      if (this.lineage != 'New') {
+        return;
+      }
+
+      var eventData = {
+        id: formData.id,
+        user: {id: formData.user},
+        time: formData.time,
+        comments: formData.comments,
+        procedure: formData.procedure,
+        container: formData.container
+      }
+
+      if (!this.collectionEvent) {
+        this.collectionEvent = {};
+      }
+
+      if (this.collectionEvent.user && this.collectionEvent.user.id == eventData.user.id) {
+        eventData.user = this.collectionEvent.user;
+      } else {
+        var that = this;
+        User.getById(eventData.user.id).then(
+          function(user) {
+            that.collectionEvent.user = user;
+          }
+        )
+      }
+
+      angular.extend(this.collectionEvent, eventData);
+    }
+
+    Specimen.prototype.setReceivedEvent = function(formData) {
+      if (this.lineage != 'New') {
+        return;
+      }
+
+      var eventData = {
+        id: formData.id,
+        user: {id: formData.user},
+        time: formData.time,
+        comments: formData.comments,
+        receivedQuality: formData.quality
+      }
+
+      if (!this.receivedEvent) {
+        this.receivedEvent = {};
+      }
+
+      if (this.receivedEvent.user && this.receivedEvent.user.id == eventData.user.id) {
+        eventData.user = this.receivedEvent.user;
+      } else {
+        var that = this;
+        User.getById(eventData.user.id).then(
+          function(user) {
+            that.receivedEvent.user = user;
+          }
+        )
+      }
+
+      this.createdOn = formData.time
+      angular.extend(this.receivedEvent, eventData);
     }
 
     function toSpecimenAttrs(sr) {

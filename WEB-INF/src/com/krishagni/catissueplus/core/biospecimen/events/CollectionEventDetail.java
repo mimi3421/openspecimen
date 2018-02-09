@@ -24,6 +24,10 @@ public class CollectionEventDetail extends SpecimenEventDetail {
 	}
 
 	public static CollectionEventDetail from(SpecimenCollectionEvent ce) {
+		if (ce == null) {
+			return null;
+		}
+
 		CollectionEventDetail detail = new CollectionEventDetail();
 		fromTo(ce, detail);
 

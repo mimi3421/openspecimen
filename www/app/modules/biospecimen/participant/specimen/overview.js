@@ -9,7 +9,8 @@ angular.module('os.biospecimen.specimen.overview', ['os.biospecimen.models'])
       $scope.spmnCtx = {
         obj: {specimen: specimen},
         inObjs: ['specimen'],
-        exObjs: ['specimen.events', 'specimen.collectionEvent', 'specimen.receivedEvent']
+        exObjs: ['specimen.events'],
+        watcher: ['specimen.collectionEvent.user', 'specimen.receivedEvent.user']
       }
 
       loadActivities();

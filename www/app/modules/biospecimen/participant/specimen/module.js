@@ -138,8 +138,10 @@ angular.module('os.biospecimen.specimen',
           postSaveFilters: function() {
             return [
               function(specimen, formName, formData) {
-                if (formName == "SpecimenReceivedEvent") {
-                  specimen.createdOn = formData.time
+                if (formName == 'SpecimenCollectionEvent') {
+                  specimen.setCollectionEvent(formData);
+                } else if (formName == 'SpecimenReceivedEvent') {
+                  specimen.setReceivedEvent(formData);
                 } else if (formName == "SpecimenFrozenEvent" && formData.incrementFreezeThaw == 1) {
                   ++specimen.freezeThawCycles;
                 } else if (formName == "SpecimenThawEvent" && formData.incrementFreezeThaw == 1) {
