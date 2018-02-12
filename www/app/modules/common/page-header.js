@@ -28,9 +28,19 @@ angular.module('openspecimen')
 
         element.addClass("os-page-header").removeAttr('os-page-header');
 
-        if (element.find('.os-breadcrumbs').length == 0) {
-          element.addClass('no-breadcrumbs');
-        }
+        scope.$watch(
+          function() {
+            return element.find('.os-breadcrumbs').length;
+          },
+
+          function(newVal) {
+            if (newVal == 0) {
+              element.addClass('no-breadcrumbs');
+            } else {
+              element.removeClass('no-breadcrumbs');
+            }
+          }
+        );
 
         $compile(navEl)(scope);
       }

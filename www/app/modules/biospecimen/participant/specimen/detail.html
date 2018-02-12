@@ -1,7 +1,9 @@
 <div> 
   <div os-page-header>
-    <div class="os-page-header-content">
-      <ul os-breadcrumbs>
+    <div class="os-page-header-content" ng-switch on="!!fieldsCtx.headers.specimen.breadcrumb">
+      <os-html-template ng-switch-when="true" template="fieldsCtx.headers.specimen.breadcrumb"></os-html-template>
+
+      <ul ng-switch-when="false" os-breadcrumbs>
         <li> 
           <a ui-sref="cp-list-view({cpId: cpr.cpId})">
             {{cpr.cpShortTitle}}
@@ -20,12 +22,28 @@
         </li>
       </ul>
   
-      <h3 ng-switch on="!!specimen.label">
-        <span ng-switch-when="true">{{specimen.label}}</span>
-        <span ng-switch-default>{{specimen.type}} ({{specimen.specimenClass}})</span>
-        <span class="btn os-status-closed" ng-if="specimen.activityStatus == 'Closed'" translate="specimens.closed">
-          Closed
-        </span>
+      <h3>
+        <div ng-switch on="!!fieldsCtx.headers.specimen.leftTitle">
+          <div ng-switch-when="true">
+            <os-html-template template="fieldsCtx.headers.specimen.leftTitle"></os-html-template>
+            <span class="btn os-status-closed" ng-if="specimen.activityStatus == 'Closed'" translate="specimens.closed">
+              Closed
+            </span>
+          </div>
+          <div ng-switch-when="false" ng-switch on="!!specimen.label">
+            <span ng-switch-when="true">{{specimen.label}}</span>
+            <span ng-switch-default>{{specimen.type}} ({{specimen.specimenClass}})</span>
+            <span class="btn os-status-closed" ng-if="specimen.activityStatus == 'Closed'" translate="specimens.closed">
+              Closed
+            </span>
+          </div>
+        </div>
+      </h3>
+    </div>
+
+    <div class="os-page-header-actions">
+      <h3 ng-if="!!fieldsCtx.headers.specimen.rightTitle">
+        <os-html-template template="fieldsCtx.headers.specimen.rightTitle"></os-html-template>
       </h3>
     </div>
   </div>

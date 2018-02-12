@@ -1,8 +1,10 @@
 
 <div>
   <div os-page-header>
-    <div class="os-page-header-content">
-      <ul os-breadcrumbs>
+    <div class="os-page-header-content" ng-switch on="!!fieldsCtx.headers.specimen.breadcrumb">
+      <os-html-template ng-switch-when="true" template="fieldsCtx.headers.specimen.breadcrumb"></os-html-template>
+
+      <ul ng-switch-when="false"  os-breadcrumbs>
         <li> 
           <a ui-sref="cp-list-view({cpId: cpr.cpId})">
             <span>{{cpr.cpShortTitle}}</span>
@@ -20,14 +22,26 @@
         </li>
       </ul>
 
-      <h3 ng-switch on="!!currSpecimen.label">
-        <span ng-switch-when="true">{{currSpecimen.label}}</span>
-        <span ng-switch-default>
-          <span ng-switch on="!!currSpecimen.type">
-            <span ng-switch-when="true">{{currSpecimen.type}} ({{currSpecimen.specimenClass}})</span>
-            <span ng-switch-default translate="specimens.new_spmn">New Specimen</span>
-          </span>
-        </span>
+      <h3>
+        <div ng-switch on="!!fieldsCtx.headers.specimen.leftTitle">
+          <div ng-switch-when="true">
+            <os-html-template template="fieldsCtx.headers.specimen.leftTitle"></os-html-template>
+          </div>
+          <div ng-switch-default ng-switch on="!!currSpecimen.label">
+            <span ng-switch-when="true">{{currSpecimen.label}}</span>
+            <span ng-switch-default>
+              <span ng-switch on="!!currSpecimen.type">
+                <span ng-switch-when="true">{{currSpecimen.type}} ({{currSpecimen.specimenClass}})</span>
+                <span ng-switch-default translate="specimens.new_spmn">New Specimen</span>
+              </span>
+            </span>
+          </div>
+        </div>
+      </h3>
+    </div>
+    <div class="os-page-header-actions">
+      <h3 ng-if="!!fieldsCtx.headers.specimen.rightTitle">
+        <os-html-template template="fieldsCtx.headers.specimen.rightTitle"></os-html-template>
       </h3>
     </div>
   </div>

@@ -1,7 +1,9 @@
 <div>
   <div os-page-header>
-    <div class="os-page-header-content">
-      <ul os-breadcrumbs>
+    <div class="os-page-header-content" ng-switch on="!!fieldsCtx.headers.visit.breadcrumb">
+      <os-html-template ng-switch-when="true" template="fieldsCtx.headers.visit.breadcrumb"></os-html-template>
+
+      <ul ng-switch-when="false" os-breadcrumbs>
         <li>
           <a ui-sref="cp-list-view({cpId: cpr.cpId})">
             <span>{{cpr.cpShortTitle}}</span>
@@ -21,10 +23,26 @@
 
       <h3>
         <span>Specimen Collection</span>
-        <span ng-if="!cp.specimenCentric">
-          : <os-event-desc event-point="visit.eventPoint" event-point-unit="visit.eventPointUnit"
-            event-label="visit.eventLabel"></os-event-desc>
+        <span ng-switch on="!!fieldsCtx.headers.visit.leftTitle">
+          <span ng-switch-when="true">
+            <span>:</span>
+            <os-html-template template="fieldsCtx.headers.visit.leftTitle"></os-html-template>
+          </span>
+          <span ng-switch-default>
+            <span ng-if="!cp.specimenCentric">
+              <span>:</span>
+              <os-event-desc event-point="visit.eventPoint" event-point-unit="visit.eventPointUnit"
+                event-label="visit.eventLabel">
+              </os-event-desc>
+            </span>
+          </span>
         </span>
+      </h3>
+    </div>
+
+    <div class="os-page-header-actions">
+      <h3 ng-if="!!fieldsCtx.headers.visit.rightTitle">
+        <os-html-template template="fieldsCtx.headers.visit.rightTitle"></os-html-template>
       </h3>
     </div>
   </div>

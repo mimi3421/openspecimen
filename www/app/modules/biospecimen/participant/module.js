@@ -405,8 +405,16 @@ angular.module('os.biospecimen.participant',
             );
           },
 
-          participantHdrTmpl: function(cp, CpConfigSvc) {
-            return CpConfigSvc.getCommonCfg(cp.id, 'participantHeaderTmpl');
+          headers: function($q, cp, CpConfigSvc) {
+            var ph = CpConfigSvc.getCommonCfg(cp.id, 'participantHeader');
+            var vh = CpConfigSvc.getCommonCfg(cp.id, 'visitHeader');
+            var sh = CpConfigSvc.getCommonCfg(cp.id, 'specimenHeader');
+
+            return $q.all([ph, vh, sh]).then(
+              function(headers) {
+                return {participant: headers[0], visit: headers[1], specimen: headers[2]};
+              }
+            );
           }
         },
         controller: 'ParticipantRootCtrl',

@@ -1,7 +1,9 @@
 <div>
   <div os-page-header>
-    <div class="os-page-header-content">
-      <ul os-breadcrumbs>
+    <div class="os-page-header-content" ng-switch on="!!fieldsCtx.headers.participant.breadcrumb">
+      <os-html-template ng-switch-when="true" template="fieldsCtx.headers.participant.breadcrumb"></os-html-template>
+
+      <ul ng-switch-when="false" os-breadcrumbs>
         <li>
           <a ui-sref="cp-list-view({cpId: cp.id})">
             <span>{{cp.shortTitle}}</span>
@@ -11,6 +13,15 @@
       <h3 ng-switch on="!!cpr.id"> 
         <span ng-switch-when="true" translate="participant.edit_participant">Edit Participant</span>
         <span ng-switch-default translate="participant.register_participant">Register Participant</span>
+        <span ng-if="!!fieldsCtx.headers.participant.leftTitle">
+          <os-html-template template="fieldsCtx.headers.participant.leftTitle"></os-html-template>
+        </span>
+      </h3>
+    </div>
+
+    <div class="os-page-header-actions">
+      <h3 ng-if="!!fieldsCtx.headers.participant.rightTitle">
+        <os-html-template template="fieldsCtx.headers.participant.rightTitle"></os-html-template>
       </h3>
     </div>
   </div>

@@ -5,6 +5,8 @@ angular.module('openspecimen')
 
       replace: true,
 
+      template: '<span></span>',
+
       link: function(scope, element, attrs) {
         var template = scope.$eval(attrs.template);
         element.html(template);

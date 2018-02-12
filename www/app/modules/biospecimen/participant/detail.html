@@ -1,7 +1,9 @@
 <div> 
   <div os-page-header>
-    <div class="os-page-header-content">
-      <ul os-breadcrumbs>
+    <div class="os-page-header-content" ng-switch on="!!fieldsCtx.headers.participant.breadcrumb">
+      <os-html-template ng-switch-when="true" template="fieldsCtx.headers.participant.breadcrumb"></os-html-template>
+
+      <ul ng-switch-when="false" os-breadcrumbs>
         <li>
           <a ui-sref="cp-list-view({cpId: cpr.cpId})">
             <span>{{cp.shortTitle}}</span>
@@ -13,10 +15,11 @@
           </a>
         </li>
       </ul>
+
       <h3>
-        <div ng-switch on="!!fieldsCtx.participantHdrTmpl">
+        <div ng-switch on="!!fieldsCtx.headers.participant.leftTitle">
           <div ng-switch-when="true">
-            <os-html-template template="fieldsCtx.participantHdrTmpl"></os-html-template>
+            <os-html-template template="fieldsCtx.headers.participant.leftTitle"></os-html-template>
           </div>
           <div ng-switch-default>
             <span translate="{{cpr.ppid}}"></span>
@@ -29,12 +32,10 @@
     </div>
 
     <div class="os-page-header-actions">
-      <ng-include ng-if="!!listViewCtx.headerActionsTmpl" src="listViewCtx.headerActionsTmpl"></ng-include>
+      <h3 ng-if="!!fieldsCtx.headers.participant.rightTitle">
+        <os-html-template template="fieldsCtx.headers.participant.rightTitle"></os-html-template>
+      </h3>
     </div>
-
-    <h3>
-      <span>{{cpr.ppid}}</span>
-    </h3>
   </div>
 
   <div os-side-menu>
