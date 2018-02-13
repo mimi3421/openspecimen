@@ -1,7 +1,7 @@
 package com.krishagni.catissueplus.core.biospecimen.events;
 
 public class VisitSearchDetail {
-	public enum SearchAttr { EMPI_MRN, ACCESSION_NO }
+	public enum SearchAttr { EMPI_MRN, VISIT_NAME, SPR_NO}
 
 	private Long cpId;
 

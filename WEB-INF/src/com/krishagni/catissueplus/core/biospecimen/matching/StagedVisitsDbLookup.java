@@ -54,10 +54,17 @@ public class StagedVisitsDbLookup implements VisitsLookup {
 				result.addAll(daoFactory.getStagedVisitDao().getByEmpiOrMrn(input.getValue()));
 				break;
 
-			case ACCESSION_NO:
-				StagedVisit visit = daoFactory.getStagedVisitDao().getByAccessionNo(input.getValue());
-				if (visit != null) {
-					result.add(visit);
+			case VISIT_NAME:
+				StagedVisit visit1 = daoFactory.getStagedVisitDao().getByName(input.getValue());
+				if (visit1 != null) {
+					result.add(visit1);
+				}
+				break;
+
+			case SPR_NO:
+				StagedVisit visit2 = daoFactory.getStagedVisitDao().getBySprNo(input.getValue());
+				if (visit2 != null) {
+					result.add(visit2);
 				}
 				break;
 		}

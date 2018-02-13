@@ -13,9 +13,9 @@ public class StagedVisitDaoImpl extends AbstractDao<StagedVisit> implements Stag
 	}
 
 	@Override
-	public StagedVisit getByAccessionNo(String accessionNo) {
-		return (StagedVisit) getCurrentSession().getNamedQuery(GET_BY_ACC_NO)
-			.setParameter("accessionNo", accessionNo.toLowerCase())
+	public StagedVisit getByName(String name) {
+		return (StagedVisit) getCurrentSession().getNamedQuery(GET_BY_NAME)
+			.setParameter("name", name.toLowerCase())
 			.uniqueResult();
 	}
 
@@ -36,7 +36,7 @@ public class StagedVisitDaoImpl extends AbstractDao<StagedVisit> implements Stag
 
 	private static final String FQN = StagedVisit.class.getName();
 
-	private static final String GET_BY_ACC_NO = FQN + ".getByAccessionNo";
+	private static final String GET_BY_NAME = FQN + ".getByName";
 
 	private static final String GET_BY_SPR_NO = FQN + ".getBySprNo";
 

@@ -28,10 +28,17 @@ public class DefaultVisitsLookup implements VisitsLookup {
 				visits.addAll(daoFactory.getVisitsDao().getByEmpiOrMrn(input.getCpId(), input.getValue()));
 				break;
 
-			case ACCESSION_NO:
-				Visit visit = daoFactory.getVisitsDao().getByName(input.getValue());
-				if (visit != null) {
-					visits.add(visit);
+			case VISIT_NAME:
+				Visit visit1 = daoFactory.getVisitsDao().getByName(input.getValue());
+				if (visit1 != null) {
+					visits.add(visit1);
+				}
+				break;
+
+			case SPR_NO:
+				Visit visit2 = daoFactory.getVisitsDao().getBySpr(input.getCpId(), input.getValue());
+				if (visit2 != null) {
+					visits.add(visit2);
 				}
 				break;
 		}

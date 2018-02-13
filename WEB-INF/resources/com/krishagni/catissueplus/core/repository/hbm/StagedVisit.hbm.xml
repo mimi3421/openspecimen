@@ -42,13 +42,13 @@
 
     <many-to-one name="participant" column="PARTICIPANT_ID"/>
 
-    <query name="getByAccessionNo">
+    <query name="getByName">
       select
         v
       from
         com.krishagni.catissueplus.core.biospecimen.domain.StagedVisit v
       where
-        lower(v.name) = :accessionNo
+        lower(v.name) = :name
     </query>
 
     <query name="getBySprNo">

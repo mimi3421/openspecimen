@@ -42,7 +42,7 @@ public class StagedVisitServiceImpl implements StagedVisitService {
 	private StagedVisit getMatchingVisit(StagedVisitDetail input) {
 		StagedVisit visit = null;
 		if (StringUtils.isNotBlank(input.getName())) {
-			visit = daoFactory.getStagedVisitDao().getByAccessionNo(input.getName());
+			visit = daoFactory.getStagedVisitDao().getByName(input.getName());
 		} else if (StringUtils.isNotBlank(input.getSurgicalPathologyNumber())) {
 			visit = daoFactory.getStagedVisitDao().getBySprNo(input.getSurgicalPathologyNumber());
 		}
