@@ -1,7 +1,8 @@
 
 angular.module('os.biospecimen.participant.overview', ['os.biospecimen.models'])
   .controller('ParticipantOverviewCtrl', function(
-    $scope, $state, $stateParams, hasFieldsFn, storePhi, cp, cpr, consents, visits,
+    $scope, $state, $stateParams, $injector, hasSde, hasFieldsFn,
+    storePhi, cpDict, visitsTab, cp, cpr, consents, visits,
     Visit, CollectSpecimensSvc, ExtensionsUtil, Util, Alerts) {
 
     function init() {
@@ -20,6 +21,26 @@ angular.module('os.biospecimen.participant.overview', ['os.biospecimen.models'])
         ],
         showAnonymize: storePhi
       }
+
+      $scope.occurredVisitsCols = initVisitTab(visitsTab.occurred, $scope.occurredVisits);
+    }
+
+    function initVisitTab(fieldsCfg, inputVisits) {
+      if (!hasSde || !fieldsCfg || fieldsCfg.length == 0) {
+        return [];
+      }
+
+      var objFn = function(visit) { return {visit: visit}; };
+      var result = $injector.get('sdeFieldsSvc').getFieldValues(cpDict, fieldsCfg, inputVisits, objFn);
+      if (result.fields.length > 0) {
+        angular.forEach(inputVisits,
+          function(visit, idx) {
+            visit.$$columns = result.values[idx];
+          }
+        );
+      }
+
+      return result.fields;
     }
 
     function createCodedResps(consents) {

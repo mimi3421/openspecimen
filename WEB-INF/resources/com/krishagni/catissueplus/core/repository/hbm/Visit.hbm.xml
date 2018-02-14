@@ -125,7 +125,8 @@
         cp.id = :cpId
     </query>
 
-    <sql-query name="getVisitsSummaryByCprId">
+    <!-- TODO: Below query getVisitsSummaryByCprId should be removed before v5.0 RC -->
+    <!-- sql-query name="getVisitsSummaryByCprId">
       <return-scalar column="id" type="long"/>
       <return-scalar column="eventId" type="long"/>
       <return-scalar column="name" type="string"/>
@@ -172,7 +173,7 @@
       where
         cpr.identifier = :cprId and
         cpr.activity_status != 'Disabled'
-    </sql-query>
+    </sql-query -->
 
     <sql-query name="getVisitStats">
       <return-scalar column="visitId" type="long"/>

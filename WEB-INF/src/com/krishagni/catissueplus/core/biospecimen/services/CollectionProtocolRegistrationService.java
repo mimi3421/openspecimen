@@ -33,7 +33,7 @@ public interface CollectionProtocolRegistrationService {
 	
 	public ResponseEvent<CollectionProtocolRegistrationDetail> deleteRegistration(RequestEvent<CpEntityDeleteCriteria> req);
 	
-	public ResponseEvent<List<VisitSummary>> getVisits(RequestEvent<VisitsListCriteria> req);
+	public ResponseEvent<List<VisitDetail>> getVisits(RequestEvent<VisitsListCriteria> req);
 
 	public ResponseEvent<VisitDetail> getLatestVisit(RequestEvent<RegistrationQueryCriteria> req);
 	

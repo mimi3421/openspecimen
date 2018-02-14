@@ -34,88 +34,139 @@ public class VisitsDaoImpl extends AbstractDao<Visit> implements VisitsDao {
 		return Visit.class;
 	}
 
-	@Override
+	//
+	// TODO: VP: Below getVisits() method should be removed before v5.0 RC
+	//
+
+//	@Override
+//	@SuppressWarnings("unchecked")
+//	public List<VisitSummary> getVisits(VisitsListCriteria crit) {
+//		List<Object[]> rows = getCurrentSession().getNamedQuery(GET_VISITS_SUMMARY_BY_CPR_ID)
+//			.setLong("cprId", crit.cprId())
+//			.list();
+//
+//		List<VisitSummary> visits = new ArrayList<>();
+//		Map<Long, VisitSummary> createdVisits = new HashMap<>();      // visitId: key
+//		Map<Long, VisitSummary> anticipatedVisits = new HashMap<>();  // eventId: key
+//
+//		Date regDate = null;
+//		int minEventPoint = 0, minEventPointInDays = 0;
+//		IntervalUnit minEventPointUnit = IntervalUnit.DAYS;
+//		for (Object[] row : rows) {
+//			Long visitId = (Long)row[0];
+//			String eventStatus = (String)row[3];
+//			if (visitId == null && StringUtils.isNotBlank(eventStatus) && eventStatus.equals("Disabled")) {
+//				continue;
+//			}
+//
+//			VisitSummary visit = new VisitSummary();
+//			visit.setId(visitId);
+//			visit.setEventId((Long)row[1]);
+//			visit.setName((String)row[2]);
+//			visit.setEventLabel((String)row[4]);
+//			visit.setEventPoint((Integer)row[5]);
+//
+//			String eventPointUnit = (String) row[6];
+//			if (StringUtils.isNotBlank(eventPointUnit)) {
+//				visit.setEventPointUnit(IntervalUnit.valueOf(eventPointUnit));
+//			}
+//
+//			visit.setStatus((String)row[7]);
+//			visit.setVisitDate((Date)row[8]);
+//			regDate = (Date)row[9];
+//			visit.setMissedReason((String)row[10]);
+//			visit.setCpId((Long)row[11]);
+//			visits.add(visit);
+//
+//			if (crit.includeStat()) {
+//				if (visit.getId() != null) {
+//					createdVisits.put(visitId, visit);
+//				} else {
+//					anticipatedVisits.put(visit.getEventId(), visit);
+//				}
+//			}
+//
+//			if (visit.getEventPoint() != null) {
+//				Integer interval = Utility.getNoOfDays(visit.getEventPoint(), visit.getEventPointUnit());
+//				if (interval < minEventPointInDays) {
+//					minEventPoint = visit.getEventPoint();
+//					minEventPointInDays = interval;
+//					minEventPointUnit = visit.getEventPointUnit();
+//				}
+//			}
+//		}
+//
+//		Calendar cal = Calendar.getInstance();
+//		for (VisitSummary visit : visits) {
+//			if (visit.getEventPoint() == null) {
+//				continue;
+//			}
+//
+//			cal.setTime(regDate);
+//			setAnticipatedVisitDateInCalender(cal, visit.getEventPoint(), visit.getEventPointUnit());
+//			setAnticipatedVisitDateInCalender(cal, -minEventPoint, minEventPointUnit);
+//			visit.setAnticipatedVisitDate(cal.getTime());
+//		}
+//
+//		if (crit.includeStat()) {
+//			if (!createdVisits.isEmpty()) {
+//				loadCreatedVisitStats(createdVisits);
+//			}
+//
+//			if (!anticipatedVisits.isEmpty()) {
+//				loadAnticipatedVisitStats(anticipatedVisits);
+//			}
+//		}
+//
+//		Collections.sort(visits);
+//		return visits;
+//	}
+
 	@SuppressWarnings("unchecked")
-	public List<VisitSummary> getVisits(VisitsListCriteria crit) {
-		List<Object[]> rows = getCurrentSession().getNamedQuery(GET_VISITS_SUMMARY_BY_CPR_ID)
-			.setLong("cprId", crit.cprId())
+	@Override
+	public void loadCreatedVisitStats(Map<Long, ? extends VisitSummary> visitsMap) {
+		if (visitsMap == null || visitsMap.isEmpty()) {
+			return;
+		}
+
+		List<Object[]> rows = getCurrentSession().getNamedQuery(GET_VISIT_STATS)
+			.setParameterList("visitIds", visitsMap.keySet())
 			.list();
-		
-		List<VisitSummary> visits = new ArrayList<>();
-		Map<Long, VisitSummary> createdVisits = new HashMap<>();      // visitId: key
-		Map<Long, VisitSummary> anticipatedVisits = new HashMap<>();  // eventId: key
 
-		Date regDate = null;
-		int minEventPoint = 0, minEventPointInDays = 0;
-		IntervalUnit minEventPointUnit = IntervalUnit.DAYS;
 		for (Object[] row : rows) {
-			Long visitId = (Long)row[0];
-			String eventStatus = (String)row[3];
-			if (visitId == null && StringUtils.isNotBlank(eventStatus) && eventStatus.equals("Disabled")) {
-				continue;
-			}
-			
-			VisitSummary visit = new VisitSummary();
-			visit.setId(visitId);
-			visit.setEventId((Long)row[1]);
-			visit.setName((String)row[2]);
-			visit.setEventLabel((String)row[4]);
-			visit.setEventPoint((Integer)row[5]);
+			int idx = 0;
+			Long visitId = (Long) row[idx++];
+			VisitSummary visit = visitsMap.get(visitId);
+			visit.setTotalPendingSpmns((Integer) row[idx++]);
+			visit.setPendingPrimarySpmns((Integer) row[idx++]);
+			visit.setPlannedPrimarySpmnsColl((Integer) row[idx++]);
+			visit.setUnplannedPrimarySpmnsColl((Integer) row[idx++]);
+			visit.setUncollectedPrimarySpmns((Integer) row[idx++]);
+			visit.setStoredSpecimens((Integer) row[idx++]);
+			visit.setNotStoredSpecimens((Integer) row[idx++]);
+			visit.setDistributedSpecimens((Integer) row[idx++]);
+			visit.setClosedSpecimens((Integer) row[idx++]);
+		}
+	}
 
-			String eventPointUnit = (String) row[6];
-			if (StringUtils.isNotBlank(eventPointUnit)) {
-				visit.setEventPointUnit(IntervalUnit.valueOf(eventPointUnit));
-			}
-
-			visit.setStatus((String)row[7]);
-			visit.setVisitDate((Date)row[8]);
-			regDate = (Date)row[9];
-			visit.setMissedReason((String)row[10]);
-			visit.setCpId((Long)row[11]);
-			visits.add(visit);
-
-			if (crit.includeStat()) {
-				if (visit.getId() != null) {
-					createdVisits.put(visitId, visit);
-				} else {
-					anticipatedVisits.put(visit.getEventId(), visit);
-				}
-			}
-
-			if (visit.getEventPoint() != null) {
-				Integer interval = Utility.getNoOfDays(visit.getEventPoint(), visit.getEventPointUnit());
-				if (interval < minEventPointInDays) {
-					minEventPoint = visit.getEventPoint();
-					minEventPointInDays = interval;
-					minEventPointUnit = visit.getEventPointUnit();
-				}
-			}
+	@SuppressWarnings("unchecked")
+	@Override
+	public void loadAnticipatedVisitStats(Map<Long, ? extends VisitSummary> visitsMap) {
+		if (visitsMap == null || visitsMap.isEmpty()) {
+			return;
 		}
 
-		Calendar cal = Calendar.getInstance();
-		for (VisitSummary visit : visits) {
-			if (visit.getEventPoint() == null) {
-				continue;
-			}
+		List<Object[]> rows = getCurrentSession().getNamedQuery(GET_ANTICIPATED_VISIT_STATS)
+			.setParameterList("eventIds", visitsMap.keySet())
+			.list();
 
-			cal.setTime(regDate);
-			setAnticipatedVisitDateInCalender(cal, visit.getEventPoint(), visit.getEventPointUnit());
-			setAnticipatedVisitDateInCalender(cal, -minEventPoint, minEventPointUnit);
-			visit.setAnticipatedVisitDate(cal.getTime());
+		for (Object[] row : rows) {
+			int idx = 0;
+			Long eventId = (Long) row[idx++];
+			VisitSummary visit = visitsMap.get(eventId);
+			visit.setTotalPendingSpmns((Integer) row[idx++]);
+			visit.setPendingPrimarySpmns((Integer) row[idx++]);
 		}
-
-		if (crit.includeStat()) {
-			if (!createdVisits.isEmpty()) {
-				loadCreatedVisitStats(createdVisits);
-			}
-
-			if (!anticipatedVisits.isEmpty()) {
-				loadAnticipatedVisitStats(anticipatedVisits);
-			}
-		}
-
-		Collections.sort(visits);
-		return visits;
 	}
 
 	@Override
@@ -219,63 +270,6 @@ public class VisitsDaoImpl extends AbstractDao<Visit> implements VisitsDao {
 			.uniqueResult();
 	}
 
-	@SuppressWarnings("unchecked")
-	private void loadCreatedVisitStats(Map<Long, VisitSummary> visitsMap) {
-		List<Object[]> rows = getCurrentSession().getNamedQuery(GET_VISIT_STATS)
-			.setParameterList("visitIds", visitsMap.keySet())
-			.list();
-
-		for (Object[] row : rows) {
-			int idx = 0;
-			Long visitId = (Long) row[idx++];
-			VisitSummary visit = visitsMap.get(visitId);
-			visit.setTotalPendingSpmns((Integer) row[idx++]);
-			visit.setPendingPrimarySpmns((Integer) row[idx++]);
-			visit.setPlannedPrimarySpmnsColl((Integer) row[idx++]);
-			visit.setUnplannedPrimarySpmnsColl((Integer) row[idx++]);
-			visit.setUncollectedPrimarySpmns((Integer) row[idx++]);
-			visit.setStoredSpecimens((Integer) row[idx++]);
-			visit.setNotStoredSpecimens((Integer) row[idx++]);
-			visit.setDistributedSpecimens((Integer) row[idx++]);
-			visit.setClosedSpecimens((Integer) row[idx++]);
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	private void loadAnticipatedVisitStats(Map<Long, VisitSummary> visitsMap) {
-		List<Object[]> rows = getCurrentSession().getNamedQuery(GET_ANTICIPATED_VISIT_STATS)
-			.setParameterList("eventIds", visitsMap.keySet())
-			.list();
-
-		for (Object[] row : rows) {
-			int idx = 0;
-			Long eventId = (Long) row[idx++];
-			VisitSummary visit = visitsMap.get(eventId);
-			visit.setTotalPendingSpmns((Integer) row[idx++]);
-			visit.setPendingPrimarySpmns((Integer) row[idx++]);
-		}
-	}
-
-	private void setAnticipatedVisitDateInCalender(Calendar cal, Integer interval, IntervalUnit intervalUnit) {
-		switch (intervalUnit) {
-			case DAYS:
-				cal.add(Calendar.DAY_OF_YEAR, interval);
-				break;
-
-			case WEEKS:
-				cal.add(Calendar.WEEK_OF_YEAR, interval);
-				break;
-
-			case MONTHS:
-				cal.add(Calendar.MONTH, interval);
-				break;
-
-			case YEARS:
-				cal.add(Calendar.YEAR, interval);
-				break;
-		}
-	}
-
 	private DetachedCriteria getVisitIdsListQuery(VisitsListCriteria crit) {
 		DetachedCriteria detachedCriteria = DetachedCriteria.forClass(Visit.class, "visit")
 			.setProjection(Projections.distinct(Projections.property("visit.id")));
@@ -302,7 +296,7 @@ public class VisitsDaoImpl extends AbstractDao<Visit> implements VisitsDao {
 
 	private static final String FQN = Visit.class.getName();
 	
-	private static final String GET_VISITS_SUMMARY_BY_CPR_ID = FQN + ".getVisitsSummaryByCprId";
+//	private static final String GET_VISITS_SUMMARY_BY_CPR_ID = FQN + ".getVisitsSummaryByCprId";
 
 	private static final String GET_VISIT_STATS = FQN + ".getVisitStats";
 

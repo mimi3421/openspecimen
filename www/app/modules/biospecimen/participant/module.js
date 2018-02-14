@@ -511,6 +511,9 @@ angular.module('os.biospecimen.participant',
           },
           consents: function(hasDict, hasFieldsFn, cpr) {
             return (hasDict && hasFieldsFn(['consents'])) ? cpr.getConsents() : null;
+          },
+          visitsTab: function(cp, CpConfigSvc) {
+            return CpConfigSvc.getWorkflowData(cp.id, 'visitsTab', {});
           }
         },
         controller: 'ParticipantOverviewCtrl',

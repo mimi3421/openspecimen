@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
@@ -58,7 +59,6 @@ import com.krishagni.catissueplus.core.biospecimen.events.RegistrationQueryCrite
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.VisitDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.VisitSpecimensQueryCriteria;
-import com.krishagni.catissueplus.core.biospecimen.events.VisitSummary;
 import com.krishagni.catissueplus.core.biospecimen.repository.CprListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.biospecimen.repository.VisitsListCriteria;
@@ -439,11 +439,45 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 
 	@Override
 	@PlusTransactional
-	public ResponseEvent<List<VisitSummary>> getVisits(RequestEvent<VisitsListCriteria> req) {
+	public ResponseEvent<List<VisitDetail>> getVisits(RequestEvent<VisitsListCriteria> req) {
 		try {
+			VisitsListCriteria crit = req.getPayload();
 			CollectionProtocolRegistration cpr = getCpr(req.getPayload().cprId(), null, null);
-			AccessCtrlMgr.getInstance().ensureReadVisitRights(cpr, false);
-			return ResponseEvent.response(daoFactory.getVisitsDao().getVisits(req.getPayload()));
+			boolean hasPhiAccess = AccessCtrlMgr.getInstance().ensureReadVisitRights(cpr, true);
+
+			//
+			// Step 1: Fetch all created visit records along with their custom fields and stats
+			//
+			Collection<Visit> visits = cpr.getVisits();
+			DeObject.createExtensions(true, Visit.EXTN, cpr.getCollectionProtocol().getId(), visits);
+			Map<Long, VisitDetail> visitsMap = visits.stream()
+				.collect(Collectors.toMap(Visit::getId, v -> VisitDetail.from(v, false, !hasPhiAccess)));
+			if (crit.includeStat()) {
+				daoFactory.getVisitsDao().loadCreatedVisitStats(visitsMap);
+			}
+
+			//
+			// Step 2: Fetch anticipated visits and their details
+			//
+			Set<Long> occurredEvents = visits.stream()
+				.map(Visit::getCpEvent).filter(Objects::nonNull).map(CollectionProtocolEvent::getId)
+				.collect(Collectors.toSet());
+			Set<CollectionProtocolEvent> unoccurredEvents = cpr.getCollectionProtocol().getCollectionProtocolEvents()
+				.stream().filter(cpe -> !occurredEvents.contains(cpe.getId())).collect(Collectors.toSet());
+			Map<Long, VisitDetail> anticipatedVisitsMap = unoccurredEvents.stream()
+				.collect(Collectors.toMap(CollectionProtocolEvent::getId, VisitDetail::from));
+			if (crit.includeStat()) {
+				daoFactory.getVisitsDao().loadAnticipatedVisitStats(anticipatedVisitsMap);
+			}
+
+			//
+			// Step 3: Merge, set anticipated visit dates, sort and return
+			//
+			List<VisitDetail> result = new ArrayList<>(visitsMap.values());
+			result.addAll(anticipatedVisitsMap.values());
+			VisitDetail.setAnticipatedVisitDates(cpr.getRegistrationDate(), result);
+			Collections.sort(result);
+			return ResponseEvent.response(result);
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {
@@ -602,7 +636,7 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 			existing.update(cpr);
 			cpr = existing;
 		}
-		
+
 		cpr.setPpidIfEmpty();
 		daoFactory.getCprDao().saveOrUpdate(cpr);
 

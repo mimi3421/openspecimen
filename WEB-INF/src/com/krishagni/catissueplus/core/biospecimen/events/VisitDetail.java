@@ -5,47 +5,37 @@ import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.HashSet;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolEvent;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
 import com.krishagni.catissueplus.core.biospecimen.domain.Visit;
-import com.krishagni.catissueplus.core.common.AttributeModifiedSupport;
 import com.krishagni.catissueplus.core.common.ListenAttributeChanges;
+import com.krishagni.catissueplus.core.common.Pair;
+import com.krishagni.catissueplus.core.common.domain.IntervalUnit;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
+import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.catissueplus.core.de.events.ExtensionDetail;
 
+
+@JsonSerialize(include= JsonSerialize.Inclusion.NON_NULL)
 @ListenAttributeChanges
-public class VisitDetail extends AttributeModifiedSupport {
+public class VisitDetail extends VisitSummary {
 	private Long cprId;
 
-	private Long eventId;
-	
 	private String ppid;
 	
-	private String eventLabel;
-
-	private Integer eventPoint;
-
-	private String eventPointUnit;
-
-	private Long cpId;
-
 	private String cpTitle;
 
 	private String cpShortTitle;
 
-	private Long id;
-
-	private String name;
-	
 	private Set<String> clinicalDiagnoses;
 	
 	private String clinicalStatus;
@@ -53,8 +43,6 @@ public class VisitDetail extends AttributeModifiedSupport {
 	private String activityStatus;
 
 	private String site;
-
-	private String status;
 
 	private String comments;
 
@@ -68,8 +56,6 @@ public class VisitDetail extends AttributeModifiedSupport {
 	
 	private boolean sprLocked;
 
-	private Date visitDate;
-	
 	private String code;
 	
 	private String cohort;
@@ -92,52 +78,12 @@ public class VisitDetail extends AttributeModifiedSupport {
 		this.cprId = cprId;
 	}
 
-	public Long getEventId() {
-		return eventId;
-	}
-
-	public void setEventId(Long eventId) {
-		this.eventId = eventId;
-	}
-
 	public String getPpid() {
 		return ppid;
 	}
 
 	public void setPpid(String ppid) {
 		this.ppid = ppid;
-	}
-
-	public String getEventLabel() {
-		return eventLabel;
-	}
-
-	public void setEventLabel(String eventLabel) {
-		this.eventLabel = eventLabel;
-	}
-
-	public Integer getEventPoint() {
-		return eventPoint;
-	}
-
-	public void setEventPoint(Integer eventPoint) {
-		this.eventPoint = eventPoint;
-	}
-
-	public String getEventPointUnit() {
-		return eventPointUnit;
-	}
-
-	public void setEventPointUnit(String eventPointUnit) {
-		this.eventPointUnit = eventPointUnit;
-	}
-
-	public Long getCpId() {
-		return cpId;
-	}
-
-	public void setCpId(Long cpId) {
-		this.cpId = cpId;
 	}
 
 	public String getCpTitle() {
@@ -154,22 +100,6 @@ public class VisitDetail extends AttributeModifiedSupport {
 
 	public void setCpShortTitle(String cpShortTitle) {
 		this.cpShortTitle = cpShortTitle;
-	}
-	
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	public Set<String> getClinicalDiagnoses() {
@@ -204,14 +134,6 @@ public class VisitDetail extends AttributeModifiedSupport {
 		this.site = site;
 	}
 
-	public String getStatus() {
-		return status;
-	}
-
-	public void setStatus(String status) {
-		this.status = status;
-	}
-
 	public String getComments() {
 		return comments;
 	}
@@ -242,14 +164,6 @@ public class VisitDetail extends AttributeModifiedSupport {
 
 	public void setSprLocked(boolean sprLock) {
 		this.sprLocked = sprLock;
-	}
-
-	public Date getVisitDate() {
-		return visitDate;
-	}
-
-	public void setVisitDate(Date visitDate) {
-		this.visitDate = visitDate;
 	}
 
 	public String getCode() {
@@ -353,7 +267,7 @@ public class VisitDetail extends AttributeModifiedSupport {
 			detail.setEventId(cpe.getId());
 			detail.setEventLabel(cpe.getEventLabel());
 			detail.setEventPoint(cpe.getEventPoint());
-			detail.setEventPointUnit(cpe.getEventPointUnit() != null ? cpe.getEventPointUnit().name() : null);
+			detail.setEventPointUnit(cpe.getEventPointUnit());
 		}
 		
 		if (!partial) {
@@ -363,11 +277,50 @@ public class VisitDetail extends AttributeModifiedSupport {
 	}
 	
 	public static List<VisitDetail> from(Collection<Visit> visits) {
-		if (CollectionUtils.isEmpty(visits)) {
-			return Collections.emptyList();
-		}
-
-		return visits.stream().map(VisitDetail::from).collect(Collectors.toList());
+		return Utility.nullSafeStream(visits).map(VisitDetail::from).collect(Collectors.toList());
 	}
 
+	public static VisitDetail from(CollectionProtocolEvent event) {
+		VisitDetail detail = new VisitDetail();
+		detail.setEventId(event.getId());
+		detail.setEventLabel(event.getEventLabel());
+		detail.setEventPoint(event.getEventPoint());
+		detail.setEventPointUnit(event.getEventPointUnit());
+		detail.setCpId(event.getCollectionProtocol().getId());
+		detail.setCpShortTitle(event.getCollectionProtocol().getShortTitle());
+		detail.setCpTitle(event.getCollectionProtocol().getTitle());
+		detail.setCode(event.getCode());
+		detail.setSite(event.getDefaultSite() != null ? event.getDefaultSite().getName() : null);
+		detail.setClinicalStatus(event.getClinicalStatus());
+
+		if (StringUtils.isNotBlank(event.getClinicalDiagnosis())) {
+			detail.setClinicalDiagnoses(Collections.singleton(event.getClinicalDiagnosis()));
+		}
+
+		return detail;
+	}
+
+	public static void setAnticipatedVisitDates(Date regDate, Collection<VisitDetail> visits) {
+		Pair<Integer, IntervalUnit> minEventPoint = getMinEventPoint(visits);
+		visits.stream().forEach(v -> v.setAnticipatedVisitDate(regDate, minEventPoint.first(), minEventPoint.second()));
+	}
+
+	private static Pair<Integer, IntervalUnit> getMinEventPoint(Collection<VisitDetail> visits) {
+		int minEventPoint = 0, minEventPointInDays = 0;
+		IntervalUnit minEventPointUnit = IntervalUnit.DAYS;
+		for (VisitDetail visit : visits) {
+			if (visit.getEventPoint() == null) {
+				continue;
+			}
+
+			Integer interval = Utility.getNoOfDays(visit.getEventPoint(), visit.getEventPointUnit());
+			if (interval < minEventPointInDays) {
+				minEventPoint = visit.getEventPoint();
+				minEventPointInDays = interval;
+				minEventPointUnit = visit.getEventPointUnit();
+			}
+		}
+
+		return Pair.make(minEventPoint, minEventPointUnit);
+	}
 }

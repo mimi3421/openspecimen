@@ -71,7 +71,7 @@ public class VisitsController {
 	@RequestMapping(method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
-	public List<VisitSummary> getVisits(
+	public List<VisitDetail> getVisits(
 		@RequestParam(value = "cprId", required = true)
 		Long cprId,
 
@@ -82,7 +82,7 @@ public class VisitsController {
 			.cprId(cprId)
 			.includeStat(includeStats);
 
-		ResponseEvent<List<VisitSummary>> resp = cprSvc.getVisits(request(crit));
+		ResponseEvent<List<VisitDetail>> resp = cprSvc.getVisits(request(crit));
 		resp.throwErrorIfUnsuccessful();
 		return resp.getPayload();
 	}

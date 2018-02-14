@@ -3,6 +3,7 @@ package com.krishagni.catissueplus.core.de.domain;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -347,7 +349,11 @@ public abstract class DeObject {
 		return extension;
 	}
 
-	public static List<DeObject> createExtensions(boolean cpBased, String entityType, Long entityId, List<? extends BaseExtensionEntity> objects) {
+	public static List<DeObject> createExtensions(boolean cpBased, String entityType, Long entityId, Collection<? extends BaseExtensionEntity> objects) {
+		if (CollectionUtils.isEmpty(objects)) {
+			return Collections.emptyList();
+		}
+
 		DeObject fakeDeObj = fakeObject();
 		Map<Long, BaseExtensionEntity> objectsMap = objects.stream().collect(Collectors.toMap(BaseExtensionEntity::getId, obj -> obj));
 
