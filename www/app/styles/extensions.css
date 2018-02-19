@@ -1,4 +1,8 @@
 
+.os-forms-list .list-group-item-heading {
+  margin-right: 20px;
+}
+
 .os-extn-form .panel-heading { 
   display: none;
 }
