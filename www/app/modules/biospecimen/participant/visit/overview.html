@@ -1,32 +1,40 @@
 <div>
   <div class="os-page-commands">
-    <span ng-if="visitCtx.showEdit">
+    <div class="left">
+      <span ng-if="visitCtx.showEdit">
+        <button show-if-allowed="specimenResource.updateOpts" class="default"
+          ng-switch on="!!visit.id" ui-sref="visit-addedit">
+          <span ng-switch-when="true">
+            <span class="fa fa-pencil"></span>
+            <span translate="common.buttons.edit">Edit</span>
+          </span>
+          <span ng-switch-default>
+            <span class="fa fa-plus"></span>
+            <span translate="common.buttons.add">Add</span>
+          </span>
+        </button>
+      </span>
       <button show-if-allowed="specimenResource.updateOpts" class="default"
-        ng-switch on="!!visit.id" ui-sref="visit-addedit">
-        <span ng-switch-when="true">
-          <span class="fa fa-pencil"></span>
-          <span translate="common.buttons.edit">Edit</span>
-        </span>
-        <span ng-switch-default>
-          <span class="fa fa-plus"></span>
-          <span translate="common.buttons.add">Add</span>
-        </span>
+        ng-if="!!visit.id" ng-click="printVisitName()">
+        <span class="fa fa-print"></span>
+        <span translate="common.buttons.print">Print</span>
       </button>
-    </span>
-    <button show-if-allowed="specimenResource.updateOpts" class="default"
-      ng-if="!!visit.id" ng-click="printVisitName()">
-      <span class="fa fa-print"></span>
-      <span translate="common.buttons.print">Print</span>
-    </button>
-    <button show-if-allowed="specimenResource.deleteOpts" class="default"
-      ng-if="!!visit.id" ng-click="deleteVisit()">
-      <span class="fa fa-trash"></span>
-      <span translate="common.buttons.delete">Delete</span>
-    </button>
+      <button show-if-allowed="specimenResource.deleteOpts" class="default"
+        ng-if="!!visit.id" ng-click="deleteVisit()">
+        <span class="fa fa-trash"></span>
+        <span translate="common.buttons.delete">Delete</span>
+      </button>
+    </div>
+    <div class="right">
+      <button class="default" os-right-drawer-toggle ng-switch on="visitCtx.showActivity" ng-click="toggleShowActivity()">
+        <span ng-switch-when="true" translate="common.buttons.hide_activity">Hide Events</span>
+        <span ng-switch-when="false" translate="common.buttons.show_activity">Show Events</span>
+      </button>
+    </div>
   </div>
 
-  <div class="clearfix">
-    <div class="col-xs-8">
+  <div class="os-container-wrapper">
+    <div class="container os-col" style="width=100%;">
       <div ng-switch on="fieldsCtx.hasDict">
         <div ng-switch-when="true">
           <sde-fields-overview base-fields="fieldsCtx.sysDict" fields="fieldsCtx.cpDict"
@@ -44,8 +52,10 @@
       </os-specimen-tree>
     </div>
 
-    <div ng-if="!!visit.id" class="col-xs-4">
-      <os-audit-overview object-name="'visit'" object-id="visit.id"></os-audit-overview>
+    <div class="os-col os-no-border" os-right-drawer open-width="34" style="position: initial;">
+      <div ng-if="!!visit.id">
+        <os-audit-overview class="os-no-top-margin" object-name="'visit'" object-id="visit.id"></os-audit-overview>
+      </div>
     </div>
   </div>
 </div>

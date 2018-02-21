@@ -134,7 +134,9 @@
       "disable": "Disable",
       "help": "Help",
       "validate": "Validate",
-      "copy_to_clipboard": "Copy to Clipboard"
+      "copy_to_clipboard": "Copy to Clipboard",
+      "show_activity": "Show Activity",
+      "hide_activity": "Hide Activity"
     }
   },
 

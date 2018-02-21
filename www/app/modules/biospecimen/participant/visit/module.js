@@ -49,6 +49,14 @@ angular.module('os.biospecimen.visit', [
             } else {
               return cp.storeSprEnabled;
             }
+          },
+
+          showVisitActivity: function(cp, CpConfigSvc) {
+            return CpConfigSvc.getCommonCfg(cp.id, 'showVisitActivity').then(
+              function(value) {
+                return (value === null || value === undefined || value === '') ? true : (value == true);
+              }
+            );
           }
         },
         controller: function($scope, cpr, visit) {
@@ -104,12 +112,21 @@ angular.module('os.biospecimen.visit', [
             }
           );
         },
-        controller: function($scope, hasFieldsFn, ExtensionsUtil) {
+        controller: function($scope, cpr, hasFieldsFn, showVisitActivity, osRightDrawerSvc, ExtensionsUtil) {
           ExtensionsUtil.createExtensionFieldMap($scope.visit);
           $scope.visitCtx = {
-            obj: {visit: $scope.visit},
-            inObjs: ['visit'],
-            showEdit: hasFieldsFn(['visit'], [])
+            obj: {cpr: cpr, visit: $scope.visit},
+            inObjs: ['visit', 'calcVisit'],
+            showEdit: hasFieldsFn(['visit'], []),
+            showActivity: showVisitActivity
+          };
+
+          if (showVisitActivity) {
+            osRightDrawerSvc.open();
+          }
+
+          $scope.toggleShowActivity = function() {
+            $scope.visitCtx.showActivity = !$scope.visitCtx.showActivity;
           }
         },
         parent: 'visit-detail'

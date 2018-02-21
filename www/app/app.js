@@ -314,7 +314,7 @@ osApp.config(function(
 
     $rootScope.back = LocationChangeListener.back;
 
-    $rootScope.global = {
+    ui.os.global = $rootScope.global = {
       defaultDomain: 'openspecimen',	
       filterWaitInterval: 500,
       appProps: ui.os.appProps

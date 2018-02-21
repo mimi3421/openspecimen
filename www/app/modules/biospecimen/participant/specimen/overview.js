@@ -1,7 +1,7 @@
 
 angular.module('os.biospecimen.specimen.overview', ['os.biospecimen.models'])
   .controller('SpecimenOverviewCtrl', function(
-    $scope, $rootScope, hasDict, specimen, showEvents,
+    $scope, $rootScope, hasDict, cpr, visit, specimen, showSpmnActivity,
     osRightDrawerSvc, ExtensionsUtil) {
 
     function init() {
@@ -10,11 +10,11 @@ angular.module('os.biospecimen.specimen.overview', ['os.biospecimen.models'])
       }
 
       $scope.spmnCtx = {
-        obj: {specimen: specimen},
-        inObjs: ['specimen'],
+        obj: {cpr: cpr, visit: visit, specimen: specimen},
+        inObjs: ['specimen', 'calcSpecimen',],
         exObjs: ['specimen.events'],
         watcher: ['specimen.collectionEvent.user', 'specimen.receivedEvent.user'],
-        showEvents: showEvents
+        showActivity: showSpmnActivity
       }
 
       loadActivities();
@@ -29,7 +29,7 @@ angular.module('os.biospecimen.specimen.overview', ['os.biospecimen.models'])
         }
       });
 
-      if (showEvents) {
+      if (showSpmnActivity) {
         osRightDrawerSvc.open();
       }
     }
@@ -47,8 +47,8 @@ angular.module('os.biospecimen.specimen.overview', ['os.biospecimen.models'])
       );
     };
 
-    $scope.toggleShowEvents = function() {
-      $scope.spmnCtx.showEvents = !$scope.spmnCtx.showEvents;
+    $scope.toggleShowActivity = function() {
+      $scope.spmnCtx.showActivity = !$scope.spmnCtx.showActivity;
     }
 
     init();

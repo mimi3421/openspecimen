@@ -13,7 +13,7 @@ angular.module('os.biospecimen.participant.overview', ['os.biospecimen.models'])
       ExtensionsUtil.createExtensionFieldMap($scope.cpr.participant);
       $scope.partCtx = {
         obj: {cpr: $scope.cpr, consents: createCodedResps(consents)},
-        inObjs: ['cpr', 'consents'],
+        inObjs: ['cpr', 'consents', 'calcCpr'],
         showEdit: hasFieldsFn(['cpr'], []),
         auditObjs: [
           {objectId: cpr.id, objectName: 'collection_protocol_registration'},
@@ -30,7 +30,7 @@ angular.module('os.biospecimen.participant.overview', ['os.biospecimen.models'])
         return [];
       }
 
-      var objFn = function(visit) { return {visit: visit}; };
+      var objFn = function(visit) { return {cpr: cpr, visit: visit}; };
       var result = $injector.get('sdeFieldsSvc').getFieldValues(cpDict, fieldsCfg, inputVisits, objFn);
       if (result.fields.length > 0) {
         angular.forEach(inputVisits,

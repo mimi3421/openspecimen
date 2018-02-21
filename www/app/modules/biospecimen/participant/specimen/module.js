@@ -43,8 +43,8 @@ angular.module('os.biospecimen.specimen',
             });
           },
 
-          showEvents: function(cp, CpConfigSvc) {
-            return CpConfigSvc.getCommonCfg(cp.id, 'showSpmnEvents').then(
+          showSpmnActivity: function(cp, CpConfigSvc) {
+            return CpConfigSvc.getCommonCfg(cp.id, 'showSpmnActivity').then(
               function(value) {
                 return (value === null || value === undefined || value === '') ? true : (value == true);
               }

@@ -50,7 +50,9 @@ angular.module('os.biospecimen.specimen.addedit', [])
         $scope.currSpecimen.collectionEvent.container = "Not Specified";
         $scope.currSpecimen.collectionEvent.procedure = "Not Specified";
         $scope.currSpecimen.receivedEvent.receivedQuality = "Acceptable";
-      } else {
+      }
+
+      if (currSpecimen.lineage != 'New') {
         exObjs.push('specimen.collectionEvent', 'specimen.receivedEvent');
       }
 

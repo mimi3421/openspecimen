@@ -180,7 +180,7 @@ angular.module('os.biospecimen.participant.specimen-tree',
 
           angular.forEach(scope.specimens,
             function(specimen) {
-              var obj = {specimen: specimen};
+              var obj = {cpr: scope.cpr, specimen: specimen};
               specimen.$$treeFields = fields.map(
                 function(field) {
                   var result = {type: field.type, value: undefined};
