@@ -42,5 +42,7 @@
     <property name="freezeThawIncrOnReturn" column="FREEZE_THAW_INCR_ON_RETURN"/>
 
     <property name="returnComments" column="RETURN_COMMENTS"/>
+
+    <property name="cost" column="COST"/>
   </class>
 </hibernate-mapping>

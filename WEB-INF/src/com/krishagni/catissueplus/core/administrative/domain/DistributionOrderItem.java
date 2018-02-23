@@ -43,6 +43,8 @@ public class DistributionOrderItem extends BaseEntity {
 
 	private String returnComments;
 
+	private BigDecimal cost;
+
 	private transient SpecimenRequestItem requestItem;
 
 	public DistributionOrder getOrder() {
@@ -139,6 +141,14 @@ public class DistributionOrderItem extends BaseEntity {
 
 	public void setReturnComments(String returnComments) {
 		this.returnComments = returnComments;
+	}
+
+	public BigDecimal getCost() {
+		return cost;
+	}
+
+	public void setCost(BigDecimal cost) {
+		this.cost = cost;
 	}
 
 	public boolean isDistributedAndClosed() {

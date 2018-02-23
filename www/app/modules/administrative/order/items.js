@@ -1,12 +1,14 @@
 angular.module('os.administrative.order')
-  .controller('OrderItemsCtrl', function($scope, order) {
+  .controller('OrderItemsCtrl', function($scope, order, PluginReg) {
   
     var ctx = {
       totalItems: 0,
       currPage: 1,
       itemsPerPage: 100,
       items: [],
-      loading: false
+      loading: false,
+      itemFieldsHdrTmpls:  PluginReg.getTmpls('order-detail', 'item-fields-header', ''),
+      itemFieldsCellTmpls: PluginReg.getTmpls('order-detail', 'item-fields-overview', '')
     };
 
     function init() {

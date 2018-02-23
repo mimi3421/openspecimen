@@ -6,45 +6,51 @@
   <table class="os-table" ng-if="!ctx.loading">
     <thead class="os-table-head">
       <tr class="row">
-        <td class="col os-col-20">
+        <th class="col">
           <span translate="orders.spec.label">Label</span>
-        </td>
-        <td class="col os-col-30">
+        </th>
+        <th class="col os-col-25">
           <span translate="orders.spec.desc">Description</span>
-        </td>
-        <td class="col os-col-20">
+        </th>
+        <th class="col">
           <span translate="orders.spec.cp">Collection Protocol</span>
-        </td>
-        <td class="col os-col-15">
+        </th>
+        <th class="col">
           <span translate="orders.spec.quantity">Quantity</span>
-        </td>
-        <td class="col os-col-15">
+        </th>
+        <th class="col" ng-repeat="tmpl in ctx.itemFieldsHdrTmpls">
+          <ng-include src="tmpl"></ng-include>
+        </th>
+        <th class="col">
           <span translate="orders.status">Status</span>
-        </td>
+        </th>
       </tr>
     </thead>
     <tbody class="os-table-body">
       <tr class="row" ng-repeat="item in ctx.items" ng-init="specimen = item.specimen">
-        <td class="col os-col-20">
+        <td class="col">
           <a ui-sref="specimen({specimenId: specimen.id})">
             <span>{{specimen.label}}</span>
             <span ng-if="!!specimen.barcode">({{specimen.barcode}})</span>
           </a>
         </td>
-        <td class="col os-col-30">
+        <td class="col os-col-25">
           <a ui-sref="specimen({specimenId: specimen.id})">
             <os-specimen-desc specimen="specimen" detailed="true"></os-specimen-desc>
           </a>
         </td>
-        <td class="col os-col-20">
+        <td class="col">
           <span>{{specimen.cpShortTitle}}</span>
         </td>
-        <td class="col os-col-15">
+        <td class="col">
           <span>{{item.quantity}}</span>
           <os-specimen-unit specimen-class="specimen.specimenClass" type="specimen.type">
           </os-specimen-unit>
         </td>
-        <td class="col os-col-15">
+        <td class="col" ng-repeat="tmpl in ctx.itemFieldsCellTmpls">
+          <ng-include src="tmpl"></ng-include>
+        </td>
+        <td class="col">
           <span>{{'orders.item_statuses.' + item.status | translate}}</span>
         </td>
       </tr>

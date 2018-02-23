@@ -106,6 +106,8 @@
         <attribute>quantity</attribute>
       </field>
 
+      $schemaBuilder.insertAdditionalFields("/com/**/schema/order-item/*.xml")
+
       <field>
         <caption>#getMessage("order_item_status")</caption>
         <attribute>status</attribute>

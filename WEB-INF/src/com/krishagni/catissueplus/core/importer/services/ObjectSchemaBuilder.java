@@ -5,5 +5,7 @@ import java.util.Map;
 import com.krishagni.catissueplus.core.importer.domain.ObjectSchema;
 
 public interface ObjectSchemaBuilder {
-	public ObjectSchema getObjectSchema(Map<String, String> params);
+	ObjectSchema getObjectSchema(Map<String, String> params);
+
+	String insertAdditionalFields(String path);
 }

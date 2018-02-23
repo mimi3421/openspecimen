@@ -21,7 +21,8 @@
         <div ng-include src="'orders/addedit-detail.html'"></div>
       </os-wizard-step>
 
-      <os-wizard-step ng-if="!skipSpecimensTab" title="{{'orders.specimens' | translate}}" on-finish="areItemQuantitiesValid(doWizard)">
+      <os-wizard-step ng-if="!skipSpecimensTab" title="{{'orders.specimens' | translate}}"
+        on-finish="areItemQuantitiesValid(doWizard)">
         <div ng-include src="'orders/addedit-order-specimens.html'"></div>
       </os-wizard-step>
 
@@ -207,6 +208,9 @@
           <th class="col">
             <span translate="orders.spec.quantity">Quantity</span>
           </th>
+          <th class="col" ng-repeat="tmpl in ctx.itemFieldsHdrTmpls">
+            <ng-include src="tmpl"></ng-include>
+          </th>
           <th class="col">
             <div class="os-checkbox-container">
               <os-checkbox ng-model="input.allItemStatus" ng-change="toggleAllItemStatus()"></os-checkbox>
@@ -256,6 +260,9 @@
               on-change="setStatus(item)" required>
             </os-spmn-measure>
             <div os-field-error field="sform.qty"></div>
+          </td>
+          <td class="col" ng-repeat="tmpl in ctx.itemFieldsCellTmpls">
+            <ng-include src="tmpl"></ng-include>
           </td>
           <td class="col">
             <div class="os-checkbox-container">

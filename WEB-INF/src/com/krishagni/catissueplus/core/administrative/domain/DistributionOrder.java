@@ -13,12 +13,9 @@ import org.hibernate.envers.NotAudited;
 
 import com.krishagni.catissueplus.core.administrative.domain.factory.DistributionOrderErrorCode;
 import com.krishagni.catissueplus.core.administrative.domain.factory.SpecimenRequestErrorCode;
-import com.krishagni.catissueplus.core.biospecimen.domain.BaseEntity;
 import com.krishagni.catissueplus.core.biospecimen.domain.BaseExtensionEntity;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenList;
-import com.krishagni.catissueplus.core.common.CollectionUpdater;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
-import com.krishagni.catissueplus.core.common.util.Status;
 import com.krishagni.catissueplus.core.common.util.Utility;
 
 @Audited
@@ -131,7 +128,17 @@ public class DistributionOrder extends BaseExtensionEntity {
 	}
 
 	public Map<Long, DistributionOrderItem> getOrderItemsMap() {
-		return getOrderItems().stream().collect(Collectors.toMap(item -> item.getId(), item -> item));
+		return getOrderItems().stream().collect(Collectors.toMap(DistributionOrderItem::getId, item -> item));
+	}
+
+	public Map<Long, DistributionOrderItem> getOrderItemsMapBySpecimenId() {
+		return getOrderItems().stream().collect(Collectors.toMap(item -> item.getSpecimen().getId(), item -> item));
+	}
+
+	public Map<String, DistributionOrderItem> getOrderItemsMapBySpecimenCpAndLabel() {
+		return getOrderItems().stream().collect(Collectors.toMap(
+			item -> item.getSpecimen().getCollectionProtocol().getShortTitle() + "_" + item.getSpecimen().getLabel(),
+			item -> item));
 	}
 
 	public Status getStatus() {
@@ -282,12 +289,21 @@ public class DistributionOrder extends BaseExtensionEntity {
 			 */
 			return;
 		}
-		
-		CollectionUpdater.update(getOrderItems(), other.getOrderItems());
-		for (DistributionOrderItem item : getOrderItems()) {
-			item.setOrder(this);
+
+		Map<Long, DistributionOrderItem> existingItems = getOrderItemsMapBySpecimenId();
+		for (DistributionOrderItem item : other.getOrderItems()) {
+			DistributionOrderItem existing = existingItems.remove(item.getSpecimen().getId());
+			if (existing != null) {
+				existing.setQuantity(item.getQuantity());
+				existing.setCost(item.getCost());
+				existing.setStatus(item.getStatus());
+			} else {
+				item.setOrder(this);
+				getOrderItems().add(item);
+			}
 		}
-		
+
+		getOrderItems().removeAll(existingItems.values());
 	}
 	
 	public DistributionOrderItem getItemBySpecimen(String label) {

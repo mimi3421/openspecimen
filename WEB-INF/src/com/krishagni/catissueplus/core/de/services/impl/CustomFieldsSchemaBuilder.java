@@ -33,6 +33,7 @@ public class CustomFieldsSchemaBuilder extends ExtensionSchemaBuilder {
 
 	public void setTemplateService(TemplateService templateService) {
 		this.templateService = templateService;
+		super.setTemplateService(templateService);
 	}
 
 	public void setSchemaResource(String schemaResource) {
@@ -89,6 +90,7 @@ public class CustomFieldsSchemaBuilder extends ExtensionSchemaBuilder {
 	private InputStream preprocessSchema(String schemaResource, CollectionProtocol cp) {
 		Map<String, Object> params = new HashMap<>();
 		params.put("cp", cp);
+		params.put("schemaBuilder", this);
 		String template = templateService.render(schemaResource, params);
 		return new ByteArrayInputStream( template.getBytes() );
 	}

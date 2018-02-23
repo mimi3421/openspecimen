@@ -100,4 +100,10 @@
       <column name="ADDITIONAL_INFO_JSON" type="${clob.type}"/>
     </addColumn>
   </changeSet>
+
+  <changeSet author="vpawar" id="Add cost of distributed specimen">
+    <addColumn tableName="OS_ORDER_ITEMS">
+      <column name="COST" type="${double.type}"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

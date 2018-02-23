@@ -18,4 +18,11 @@
       <column name="specimenBarcodeFormat_MOD" type="${bit.type}"/>
     </addColumn>
   </changeSet>
+
+  <changeSet author="vpawar" id="Audit and track changes to cost of distributed specimen">
+    <addColumn tableName="OS_ORDER_ITEMS_AUD">
+      <column name="COST" type="${double.type}"/>
+      <column name="cost_MOD" type="${bit.type}"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

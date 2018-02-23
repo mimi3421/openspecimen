@@ -2,7 +2,7 @@
 angular.module('os.administrative.order.addedit', ['os.administrative.models', 'os.biospecimen.models'])
   .controller('OrderAddEditCtrl', function(
     $scope, $state, $translate, order, spmnRequest, requestDp,
-    Institute, Specimen, SpecimensHolder, Site, DistributionProtocol,
+    PluginReg, Institute, Specimen, SpecimensHolder, Site, DistributionProtocol,
     DistributionOrder, SpecimenList, Alerts, Util, SpecimenUtil, ExtensionsUtil) {
     
     var ignoreQtyWarning = false;
@@ -14,7 +14,9 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
 
       $scope.ctx = {
         extnFormCtrl: {},
-        extnOpts: undefined
+        extnOpts: undefined,
+        itemFieldsHdrTmpls:  PluginReg.getTmpls('order-addedit', 'item-fields-header', ''),
+        itemFieldsCellTmpls: PluginReg.getTmpls('order-addedit', 'item-fields-addedit', '')
       };
 
       order.request = spmnRequest;

@@ -584,6 +584,10 @@ public class Specimen extends BaseExtensionEntity {
 		return getCollectionProtocol().getId();
 	}
 
+	public String getCpShortTitle() {
+		return getCollectionProtocol().getShortTitle();
+	}
+
 	public boolean isForceDelete() {
 		return forceDelete;
 	}
