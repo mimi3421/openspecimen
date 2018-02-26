@@ -1,7 +1,7 @@
 angular.module('os.biospecimen.specimen')
   .directive('osSpecimenOps', function(
     $state, $rootScope, $modal, $q, DistributionProtocol, DistributionOrder,
-    Specimen, SpecimensHolder, Alerts, CommentsUtil, DeleteUtil) {
+    Specimen, SpecimensHolder, Alerts, CommentsUtil, DeleteUtil, ParticipantSpecimensViewState) {
 
     function initOpts(scope) {
       if (!scope.resourceOpts) {
@@ -97,6 +97,7 @@ angular.module('os.biospecimen.specimen')
       }).$saveOrUpdate().then(
         function(createdOrder) {
           Alerts.success('orders.creation_success', createdOrder);
+          ParticipantSpecimensViewState.specimensUpdated(scope, {inline: true});
           scope.initList();
         }
       );
@@ -170,7 +171,10 @@ angular.module('os.biospecimen.specimen')
           var opts = {
             confirmDelete: 'specimens.delete_specimens_heirarchy',
             successMessage: 'specimens.specimens_hierarchy_deleted',
-            onBulkDeletion: scope.initList
+            onBulkDeletion: function() {
+              ParticipantSpecimensViewState.specimensUpdated(scope, {inline: true});
+              scope.initList();
+            }
           }
           DeleteUtil.bulkDelete({bulkDelete: Specimen.bulkDelete}, specimenIds, opts);
         }
@@ -190,7 +194,12 @@ angular.module('os.biospecimen.specimen')
                 return specimensToClose;
               }
             }
-          }).result.then(scope.initList);
+          }).result.then(
+            function() {
+              ParticipantSpecimensViewState.specimensUpdated(scope, {inline: true});
+              scope.initList();
+            }
+          );
         };
 
         scope.distributeSpecimens = function() {
@@ -244,6 +253,7 @@ angular.module('os.biospecimen.specimen')
               );
               Specimen.bulkUpdate(spmnsToUpdate).then(
                 function(updatedSpmns) {
+                  ParticipantSpecimensViewState.specimensUpdated(scope, {inline: true});
                   scope.initList();
                 }
               );

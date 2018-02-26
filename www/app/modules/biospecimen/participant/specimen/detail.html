@@ -68,9 +68,19 @@
           <span class="os-title">Events</span>
         </a>
       </li>
+      <li ng-click="rootCtx.showTree=!rootCtx.showTree">
+        <a><span class="fa fa-sitemap"></span></a>
+      </li>
     </ul>
   </div>
 
-  <div class="os-side-menu-page-content" ui-view></div>
+  <div class="os-side-menu-page-content os-no-right-padding clearfix">
+    <div ng-if="rootCtx.showTree" class="os-col-25 os-full-height-container os-scrollable-container-y os-no-left-padding">
+      <div ng-include src="'modules/biospecimen/participant/specimens-drawer.html'"></div>
+    </div>
+    <div class="os-full-height-container os-scrollable-container-y" ng-class="{'os-col-75': !!rootCtx.showTree}"> 
+      <div ui-view></div>
+    </div>
+  </div>
 </div>
 

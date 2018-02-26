@@ -1,8 +1,8 @@
 
 angular.module('os.biospecimen.participant.root', ['os.biospecimen.models'])
   .controller('ParticipantRootCtrl', function(
-    $scope, cpr, hasSde, hasDict, sysDict, cpDict, lookupFieldsCfg, headers,
-    pendingSpmnsDispInterval, barcodingEnabled, spmnBarcodesAutoGen, AuthorizationService) {
+    $scope, $timeout, cpr, hasSde, hasDict, sysDict, cpDict, lookupFieldsCfg, headers, participantSpmnsViewState,
+    pendingSpmnsDispInterval, barcodingEnabled, spmnBarcodesAutoGen, AuthorizationService, Specimen) {
 
     function init() {
       $scope.cpr = $scope.object = cpr;
@@ -20,6 +20,19 @@ angular.module('os.biospecimen.participant.root', ['os.biospecimen.models'])
       $scope.barcodingEnabled = barcodingEnabled;
       $scope.spmnBarcodesAutoGen = spmnBarcodesAutoGen;
       initAuthorizationOpts();
+
+      $scope.rootCtx = {participantSpmnsViewState: participantSpmnsViewState};
+      $scope.$on('participantSpecimensUpdated',
+        function(e, data) {
+          participantSpmnsViewState.specimensUpdated();
+
+          data = data || {};
+          if (data.inline == true && $scope.rootCtx.showTree) {
+            $scope.rootCtx.showTree = false;
+            $timeout(function() { $scope.rootCtx.showTree = true; });
+          }
+        }
+      );
     }
 
     function initAuthorizationOpts() {
@@ -107,6 +120,10 @@ angular.module('os.biospecimen.participant.root', ['os.biospecimen.models'])
           sites: sites
         }
       }
+    }
+
+    $scope.onSpecimenSelect = function(specimen) {
+      $scope.rootCtx.selectedSpmn = specimen;
     }
 
     init();

@@ -5,6 +5,10 @@
   bottom: 0;
 }
 
+/*.os-side-menu-page-content + .os-nav-drawer {
+  top: 107px;
+}*/
+
 .os-nav-drawer {
   background: white;
   border-right: 1px solid #ddd;

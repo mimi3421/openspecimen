@@ -1246,3 +1246,13 @@ h4.os-sub-section-title, h5.os-sub-section-title, h6.os-sub-section-title {
   display: block;
   overflow: auto;
 }
+
+.os-scrollable-container-y {
+  display: block;
+  overflow-y: auto;
+}
+
+.os-scrollable-container-x {
+  display: block;
+  overflow-x: auto;
+}

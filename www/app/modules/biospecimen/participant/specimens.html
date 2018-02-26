@@ -72,7 +72,7 @@
 
                 <div style="margin-left: 12px;">
                   <div ng-style="{'padding-left': (specimen.hasChildren ? specimen.depth * 20 : specimen.depth * 20 + 16) + 'px'}">
-                    <span ng-include="'modules/participant/specimen-node-status.html'"></span>
+                    <span ng-include="'modules/biospecimen/participant/specimens-tree-node-status.html'"></span>
 
                     <a ui-sref="specimen-detail.overview({eventId: specimen.eventId, visitId: specimen.visitId,
                        specimenId: specimen.id, srId: specimen.reqId})">
@@ -146,7 +146,7 @@
                 <div style="margin-left: 12px;">
                   <div ng-style="{'padding-left': (specimen.hasChildren ? specimen.depth * 20 : specimen.depth * 20 + 16) + 'px'}">
                     <span style="display: table-cell;" ng-style="{'min-width': (specimen.hasChildren ? 40 : 24) + 'px'}"
-                      ng-include="'modules/participant/specimen-node-status.html'">
+                      ng-include="'modules/biospecimen/participant/specimens-tree-node-status.html'">
                     </span>
 
                     <a style="display: table-cell;" ui-sref="specimen-detail.overview(
@@ -273,29 +273,4 @@
       </li>
     </ul>
   </div>
-</script>
-
-<script type="text/ng-template" id="modules/participant/specimen-node-status.html">
-  <span>
-    <span ng-if="!specimen.hasOnlyPendingChildren || !hidePendingSpmns">
-      <a ng-if="specimen.hasChildren && specimen.isOpened"
-        class="fa fa-chevron-circle-down" ng-click="closeSpecimenNode(specimen)">
-      </a>
-      <a ng-if="specimen.hasChildren && !specimen.isOpened"
-        class="fa fa-chevron-circle-right" ng-click="openSpecimenNode(specimen)">
-      </a>
-    </span>
-    <span class="fa fa-circle"
-      ng-class="{
-        'os-status-unplanned': specimen.status == 'Collected' && !specimen.reqId && !specimen.distributionStatus && !!specimen.storageLocation.name,
-        'os-status-collected': specimen.status == 'Collected' && !!specimen.storageLocation.name && !specimen.distributionStatus,
-        'os-status-pending': specimen.status == 'Pending' || !specimen.status,
-        'os-status-not-collected': specimen.status == 'Missed Collection',
-        'os-status-closed': specimen.activityStatus == 'Closed' && !specimen.distributionStatus,
-        'os-status-distributed': specimen.distributionStatus == 'Distributed' && specimen.availableQty == 0,
-        'os-status-part-distributed': specimen.distributionStatus == 'Distributed' && specimen.availableQty > 0,
-        'os-status-returned': specimen.distributionStatus == 'Returned',
-        'os-status-virtual': specimen.status == 'Collected' && specimen.activityStatus != 'Closed' && !specimen.distributionStatus && !specimen.storageLocation.name}">
-    </span>
-  </span>
 </script>

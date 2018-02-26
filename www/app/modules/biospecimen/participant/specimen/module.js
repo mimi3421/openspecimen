@@ -51,10 +51,13 @@ angular.module('os.biospecimen.specimen',
             );
           }
         },
-        controller: function($scope, specimen) {
+        controller: function($scope, participantSpmnsViewState, specimen) {
           $scope.specimen = $scope.object = specimen;
           $scope.entityType = 'Specimen';
           $scope.extnState = 'specimen-detail.extensions.';
+
+          participantSpmnsViewState.selectSpecimen(specimen);
+          $scope.$on('$destroy', function() { participantSpmnsViewState.unselectSpecimen(); });
         },
         abstract: true,
         parent: 'visit-root'

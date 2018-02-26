@@ -415,6 +415,10 @@ angular.module('os.biospecimen.participant',
                 return {participant: headers[0], visit: headers[1], specimen: headers[2]};
               }
             );
+          },
+
+          participantSpmnsViewState: function(cpr, ParticipantSpecimensViewState) {
+            return new ParticipantSpecimensViewState(cpr);
           }
         },
         controller: 'ParticipantRootCtrl',

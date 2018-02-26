@@ -1,5 +1,8 @@
 angular.module('os.biospecimen.specimen')
-  .factory('SpecimenUtil', function($modal, $q, $parse, $location, Specimen, PvManager, Alerts, Util) {
+  .factory('SpecimenUtil', function(
+    $modal, $q, $parse, $location,
+    ParticipantSpecimensViewState, Specimen, PvManager, Alerts, Util) {
+
     var URL_LEN_LIMIT = 8192; // 8 KB
 
     function collectAliquots(scope) {
@@ -128,6 +131,7 @@ angular.module('os.biospecimen.specimen')
             delete scope.derivative.storageLocation.reservationId;
           }
 
+          ParticipantSpecimensViewState.specimensUpdated(scope);
           scope.revertEdit();
         }
       );

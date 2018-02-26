@@ -2,7 +2,7 @@
 angular.module('os.biospecimen.visit.addedit', [])
   .controller('AddEditVisitCtrl', function(
     $scope, $state, $stateParams, cp, cpr, visit, latestVisit, extensionCtxt, hasDict, mrnAccessRestriction,
-    PvManager, ExtensionsUtil) {
+    ParticipantSpecimensViewState, PvManager, ExtensionsUtil) {
 
     function loadPvs() {
       $scope.visitStatuses = PvManager.getPvs('visit-status');
@@ -68,6 +68,8 @@ angular.module('os.biospecimen.visit.addedit', [])
 
       $scope.currVisit.$saveOrUpdate().then(
         function(result) {
+          ParticipantSpecimensViewState.specimensUpdated($scope);
+
           angular.extend($scope.visit, result);
           $state.go('visit-detail.overview', {visitId: result.id, eventId: result.eventId});
         }

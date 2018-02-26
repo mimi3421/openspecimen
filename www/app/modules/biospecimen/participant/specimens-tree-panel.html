@@ -1,0 +1,36 @@
+<div ng-switch on="ctx.specimens.length > 0">
+  <table ng-switch-when="true" class="os-table os-table-hover os-table-tree os-table-muted-hdr">
+    <tbody class="os-table-body" ng-repeat="specimen in ctx.specimens | openedTreeNodes">
+      <tr class="row" ng-class="{'selected': (!!specimen.id && specimen.id == viewState.selectedSpmn.id) || (!specimen.id && specimen.reqId == viewState.selectedSpmn.reqId)}"> 
+        <td class="col" style="border: none;">
+          <div ng-style="{'padding-left': (specimen.hasChildren ? specimen.depth * 16 : specimen.depth * 16 + 16) + 'px'}">
+            <span ng-include="'modules/biospecimen/participant/specimens-tree-node-status.html'"></span>
+
+            <a ui-sref="specimen-detail.overview({eventId: specimen.eventId, visitId: specimen.visitId,
+              specimenId: specimen.id, srId: specimen.reqId})" ng-click="viewState.selectSpecimen(specimen)">
+              <span ng-switch on="!!ctx.descTmpl">
+                <span ng-switch-when="true">
+                  <os-html-template template="ctx.descTmpl"></os-html-template>
+                </span>
+                <span ng-switch-when="false">
+                  <span ng-if="!!specimen.label">
+                    <span>{{specimen.label}}</span>
+                    <span ng-if="!!specimen.barcode">({{specimen.barcode}})</span>
+                  </span>
+                  <span ng-if="!specimen.label">
+                    <span>{{specimen.type}}</span>
+                    <span>({{specimen.specimenClass}})</span>
+                  </span>
+                </span>
+              </span>
+            </a>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <div ng-switch-default>
+    <div>No specimens to display</div>
+  </div>
+</div>
+

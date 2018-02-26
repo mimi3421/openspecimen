@@ -222,7 +222,6 @@ angular.module('os.biospecimen.participant.specimen-tree',
       templateUrl: 'modules/biospecimen/participant/specimens.html',
 
       link: function(scope, element, attrs) {
-
         scope.hasDict = false;
         scope.dispTree = false;
         scope.fields = [];

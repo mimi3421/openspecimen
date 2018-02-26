@@ -1,7 +1,7 @@
 angular.module('os.biospecimen.specimen.detail', [])
   .controller('SpecimenDetailCtrl', function(
-    $scope, $state, $modal, $stateParams, currentUser,
-    cp, listView, cpr, visit, specimen, Specimen, SpecimenLabelPrinter, SpecimensHolder, DeleteUtil, Alerts) {
+    $scope, $state, $modal, $stateParams, currentUser, cp, listView, cpr, visit, specimen,
+    ParticipantSpecimensViewState, Specimen, SpecimenLabelPrinter, SpecimensHolder, DeleteUtil, Alerts) {
 
     function init() {
       $scope.cpr = cpr;
@@ -22,6 +22,14 @@ angular.module('os.biospecimen.specimen.detail', [])
       return result.concat($scope.specimen.children);
     }
 
+    function specimenUpdatedInline() {
+      ParticipantSpecimensViewState.specimensUpdated($scope, {inline: true});
+    }
+
+    function specimenUpdated() {
+      ParticipantSpecimensViewState.specimensUpdated($scope);
+    }
+
     $scope.reload = function() {
       var promise = null;
       if ($stateParams.specimenId) {
@@ -38,7 +46,7 @@ angular.module('os.biospecimen.specimen.detail', [])
     }
 
     $scope.reopen = function() {
-      specimen.reopen();
+      specimen.reopen().then(specimenUpdatedInline);
     }
 
     $scope.deleteSpecimen = function() {
@@ -53,6 +61,8 @@ angular.module('os.biospecimen.specimen.detail', [])
         specimen,
         {
           onDeletion: function() {
+            specimenUpdated();
+
             if (!parentId) {
               $state.go(!cp.specimenCentric ? 'visit-detail.overview' : listView, params);
             } else {
@@ -65,7 +75,7 @@ angular.module('os.biospecimen.specimen.detail', [])
     }
 
     $scope.closeSpecimen = function() {
-      var modalInstance = $modal.open({
+      $modal.open({
         templateUrl: 'modules/biospecimen/participant/specimen/close.html',
         controller: 'SpecimenCloseCtrl',
         resolve: {
@@ -73,7 +83,12 @@ angular.module('os.biospecimen.specimen.detail', [])
             return [specimen];
           }
         }
-      });
+      }).result.then(
+        function() {
+          specimen.activityStatus = 'Closed';
+          specimenUpdatedInline();
+        }
+      );
     }
 
     $scope.printSpecimenLabels = function() {

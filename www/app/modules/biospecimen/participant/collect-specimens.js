@@ -195,9 +195,8 @@ angular.module('os.biospecimen.participant.collect-specimens',
   .controller('CollectSpecimensCtrl', 
     function(
       $scope, $translate, $state, $document, $q, $parse, $injector,
-      cp, cpr, visit, latestVisit, cpDict, spmnCollFields, mrnAccessRestriction,
-      Visit, Specimen, PvManager, CollectSpecimensSvc, Container,
-      ExtensionsUtil, Alerts, Util, SpecimenUtil) {
+      cp, cpr, visit, latestVisit, cpDict, spmnCollFields, mrnAccessRestriction, ParticipantSpecimensViewState,
+      Visit, Specimen, PvManager, CollectSpecimensSvc, Container, ExtensionsUtil, Alerts, Util, SpecimenUtil) {
 
       var ignoreQtyWarning = false;
 
@@ -572,6 +571,8 @@ angular.module('os.biospecimen.participant.collect-specimens',
         $scope.updateSpecimens = function() {
           updateSpecimens(navigateTo);
         }
+
+        $scope.cancelUpdateSpmns = navigateTo;
       }
 
       function getVisitFieldsGroup(spmnCollFields) {
@@ -750,11 +751,18 @@ angular.module('os.biospecimen.participant.collect-specimens',
           return;
         }
 
+        var navigateTo = function() {
+          return function() {
+            ParticipantSpecimensViewState.specimensUpdated($scope);
+            $scope.back();
+          }
+        }
+
         var sd = CollectSpecimensSvc.getStateDetail() || {};
-        var navigateTo = function() { return $scope.back; };
         if (sd.state && sd.state.name) {
           navigateTo = function(visit) {
             return function() {
+              ParticipantSpecimensViewState.specimensUpdated($scope);
               $state.go(sd.state.name, angular.extend(sd.params, {visitId: visit.id}));
             }
           }

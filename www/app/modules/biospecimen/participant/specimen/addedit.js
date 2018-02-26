@@ -1,7 +1,7 @@
 
 angular.module('os.biospecimen.specimen.addedit', [])
   .controller('AddEditSpecimenCtrl', function(
-    $scope, $state, cp, cpr, visit, specimen, extensionCtxt, hasDict,
+    $scope, $state, cp, cpr, visit, specimen, extensionCtxt, hasDict, ParticipantSpecimensViewState,
     Specimen, Container, CollectSpecimensSvc, PvManager, SpecimenUtil, Util, ExtensionsUtil) {
 
     function init() {
@@ -102,6 +102,8 @@ angular.module('os.biospecimen.specimen.addedit', [])
       $scope.currSpecimen.$saveOrUpdate().then(
         function(result) {
           angular.extend($scope.specimen, result);
+          ParticipantSpecimensViewState.specimensUpdated($scope);
+
           var params = {specimenId: result.id, cprId: result.cprId, visitId: result.visitId, srId: result.reqId};
           $state.go('specimen-detail.overview', params);
         }
