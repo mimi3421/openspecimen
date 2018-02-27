@@ -7,7 +7,7 @@
             <span ng-include="'modules/biospecimen/participant/specimens-tree-node-status.html'"></span>
 
             <a ui-sref="specimen-detail.overview({eventId: specimen.eventId, visitId: specimen.visitId,
-              specimenId: specimen.id, srId: specimen.reqId})" ng-click="viewState.selectSpecimen(specimen)">
+              specimenId: specimen.id, srId: specimen.reqId})">
               <span ng-switch on="!!ctx.descTmpl">
                 <span ng-switch-when="true">
                   <os-html-template template="ctx.descTmpl"></os-html-template>

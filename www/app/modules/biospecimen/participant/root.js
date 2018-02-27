@@ -122,9 +122,5 @@ angular.module('os.biospecimen.participant.root', ['os.biospecimen.models'])
       }
     }
 
-    $scope.onSpecimenSelect = function(specimen) {
-      $scope.rootCtx.selectedSpmn = specimen;
-    }
-
     init();
   });
