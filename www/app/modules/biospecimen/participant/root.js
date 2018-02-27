@@ -1,8 +1,10 @@
 
 angular.module('os.biospecimen.participant.root', ['os.biospecimen.models'])
   .controller('ParticipantRootCtrl', function(
-    $scope, $timeout, cpr, hasSde, hasDict, sysDict, cpDict, lookupFieldsCfg, headers, participantSpmnsViewState,
-    pendingSpmnsDispInterval, barcodingEnabled, spmnBarcodesAutoGen, AuthorizationService, Specimen) {
+    $scope, $timeout, cpr, hasSde, hasDict, sysDict, cpDict,
+    lookupFieldsCfg, headers, participantSpmnsViewState,
+    pendingSpmnsDispInterval, barcodingEnabled, spmnBarcodesAutoGen,
+    ParticipantSpecimensViewState, AuthorizationService, Specimen) {
 
     function init() {
       $scope.cpr = $scope.object = cpr;
@@ -21,7 +23,11 @@ angular.module('os.biospecimen.participant.root', ['os.biospecimen.models'])
       $scope.spmnBarcodesAutoGen = spmnBarcodesAutoGen;
       initAuthorizationOpts();
 
-      $scope.rootCtx = {participantSpmnsViewState: participantSpmnsViewState};
+      $scope.rootCtx = {
+        participantSpmnsViewState: participantSpmnsViewState,
+        showTree: ParticipantSpecimensViewState.showTree
+      };
+
       $scope.$on('participantSpecimensUpdated',
         function(e, data) {
           participantSpmnsViewState.specimensUpdated();
@@ -120,6 +126,11 @@ angular.module('os.biospecimen.participant.root', ['os.biospecimen.models'])
           sites: sites
         }
       }
+    }
+
+    $scope.toggleTree = function() {
+      $scope.rootCtx.showTree = !$scope.rootCtx.showTree;
+      ParticipantSpecimensViewState.showTree = $scope.rootCtx.showTree;
     }
 
     init();

@@ -1,6 +1,9 @@
 
 angular.module('os.biospecimen.participant')
-  .factory('ParticipantSpecimensViewState', function($q, CpConfigSvc, Specimen) {
+  .factory('ParticipantSpecimensViewState', function(
+    $q, $document, $location, $timeout, $anchorScroll,
+    CpConfigSvc, Specimen) {
+
     var State = function(cpr) {
       this.cpr = cpr;
       this.selectedSpmn = undefined;
@@ -63,13 +66,31 @@ angular.module('os.biospecimen.participant')
       this.selectedSpmn = undefined;
     }
 
+    State.prototype.recordScrollPosition = function(element) {
+      this.scrollTop = element.scrollTop();
+    }
+
+    State.prototype.scrollTo = function(selector, specimen) {
+      var that = this;
+      $timeout(function() {
+        if (specimen && !that.useScrollTop) {
+          $location.hash('specimen-' + (specimen.id || 'na') + '-' + (specimen.reqId || 'na'));
+          $anchorScroll();
+        } else if (selector && that.scrollTop != undefined) {
+          $document.find(selector).scrollTop(that.scrollTop);
+        }
+
+        that.useScrollTop = false;
+      }, 0, false);
+    }
+
     State.specimensUpdated = function(scope, data) {
       scope.$emit('participantSpecimensUpdated', data);
     }
 
     return State;
   })
-  .directive('osSpecimensTreePanel', function() {
+  .directive('osSpecimensTreePanel', function($document, $q) {
     return {
       restrict: 'E',
 
@@ -84,17 +105,20 @@ angular.module('os.biospecimen.participant')
           descTmpl: '',
           specimens: [],
           viewState: scope.viewState
-        },
+        };
 
-        scope.viewState.getSpecimens().then(
-          function(spmns) {
-            scope.ctx.specimens = spmns;
-          }
-        );
+        var containerSelector = '';
+        if (attrs.scrollContainer) {
+          containerSelector = '.' + attrs.scrollContainer;
+        }
 
-        scope.viewState.getDescTmpl().then(
-          function(tmpl) {
-            scope.ctx.descTmpl = tmpl;
+        var spmnsQ = scope.viewState.getSpecimens();
+        var descQ  = scope.viewState.getDescTmpl();
+        $q.all([spmnsQ, descQ]).then(
+          function(resps) {
+            scope.ctx.specimens = resps[0];
+            scope.ctx.descTmpl  = resps[1];
+            scope.viewState.scrollTo(containerSelector, scope.viewState.selectedSpmn);
           }
         );
 
@@ -104,6 +128,18 @@ angular.module('os.biospecimen.participant')
 
         scope.closeSpecimenNode = function(specimen) {
           specimen.isOpened = false;
+        }
+
+        scope.selectSpecimen = function(specimen) {
+          scope.viewState.useScrollTop = true;
+        }
+
+        if (containerSelector) {
+          $document.find(containerSelector)
+            .on('scroll', function(event) {
+              scope.viewState.recordScrollPosition(angular.element(event.target));
+            }
+          );
         }
       }
     }

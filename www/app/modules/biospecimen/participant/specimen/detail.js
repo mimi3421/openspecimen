@@ -1,6 +1,6 @@
 angular.module('os.biospecimen.specimen.detail', [])
   .controller('SpecimenDetailCtrl', function(
-    $scope, $state, $modal, $stateParams, currentUser, cp, listView, cpr, visit, specimen,
+    $scope, $state, $modal, $stateParams, currentUser, cp, listView, cpr, visit, specimen, participantSpmnsViewState,
     ParticipantSpecimensViewState, Specimen, SpecimenLabelPrinter, SpecimensHolder, DeleteUtil, Alerts) {
 
     function init() {
