@@ -114,6 +114,28 @@ angular.module('openspecimen')
       );
     }
 
+    function getValue(cpId, wfName, propName) {
+      var result = {status: 'ok', value: undefined};
+
+      cpId = cpId || -1;
+      getWorkflowData(cpId, wfName).then(
+        function(data) {
+          if ((data[propName] != null && data[propName] != undefined) || cpId == -1) {
+            result.value = data[propName];
+            return;
+          }
+
+          getWorkflowData(-1, wfName).then(
+            function(data) {
+              result.value = data[propName];
+            }
+          );
+        }
+      );
+
+      return result;
+    }
+
     return {
       getRegParticipantTmpl: function(cpId, cprId) {
         if (cprId != -1) { //edit case
@@ -214,6 +236,8 @@ angular.module('openspecimen')
 
       saveWorkflow: saveWorkflow,
 
-      getCommonCfg: getCommonCfg
+      getCommonCfg: getCommonCfg,
+
+      getValue: getValue
     }
   });

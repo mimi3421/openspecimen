@@ -6,6 +6,7 @@ angular.module('os.biospecimen.common.specimendesc', [])
       replace: 'true',
 
       scope: {
+        cp: '=?',
         specimen: '=',
         showReqLabel: '=?'
       },
@@ -14,19 +15,12 @@ angular.module('os.biospecimen.common.specimendesc', [])
         scope.notSpecified = $translate.instant('pvs.not_specified');
         scope.detailed = attrs.detailed === 'true';
 
-        scope.useTmpl = (attrs.useTmpl == true || attrs.useTmpl == 'true')
-        scope.tmpl = '';
-        if (scope.useTmpl) {
-          CpConfigSvc.getCommonCfg(scope.specimen.cpId, 'spmnDescTmpl').then(
-            function(tmpl) {
-              scope.tmpl = tmpl;
-            }
-          );
-        }
+        var cpId = (scope.cp && scope.cp.id) || -1;
+        scope.tmpl = CpConfigSvc.getValue(cpId, 'common', 'spmnDescTmpl');
       },
 
       template:
-        '<span class="os-specimen-desc" ng-switch on="!useTmpl || !tmpl">' +
+        '<span class="os-specimen-desc" ng-switch on="!tmpl.value">' +
           '<span ng-switch-when="true">' +
             '<span ng-if="(specimen.lineage == \'New\' && !specimen.pooledSpecimen) || detailed">' +
               '<span ng-if="!!specimen.pathology && specimen.pathology != notSpecified">' +
@@ -61,7 +55,7 @@ angular.module('os.biospecimen.common.specimendesc', [])
             '</span>' +
           '</span>' +
           '<span ng-switch-when="false">' +
-            '<os-html-template template="tmpl"></os-html-template>' +
+            '<os-html-template template="tmpl.value"></os-html-template>' +
           '</span>' +
         '</span>'
     };
