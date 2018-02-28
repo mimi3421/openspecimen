@@ -76,7 +76,7 @@
 
                     <a ui-sref="specimen-detail.overview({eventId: specimen.eventId, visitId: specimen.visitId,
                        specimenId: specimen.id, srId: specimen.reqId})">
-                      <os-specimen-desc specimen="specimen" show-req-label="true"></os-specimen-desc>
+                      <os-specimen-desc specimen="specimen" show-req-label="true" use-tmpl="true"></os-specimen-desc>
                     </a>
                   </div>
                 </div>
@@ -153,7 +153,7 @@
                       {eventId: specimen.eventId, visitId: specimen.visitId, specimenId: specimen.id, srId: specimen.reqId})"
                       ng-switch on="field.type == 'specimen-description'">
                       <span ng-switch-when="true">
-                        <os-specimen-desc specimen="specimen" show-req-label="true"></os-specimen-desc>
+                        <os-specimen-desc specimen="specimen" show-req-label="true" use-tmpl="true"></os-specimen-desc>
                       </span>
                       <span ng-switch-when="false">
                         {{field.value | osNoValue}}
@@ -164,7 +164,7 @@
               </div>
               <div ng-if="$index > 0" ng-switch on="field.type == 'specimen-description'">
                 <span ng-switch-when="true">
-                  <os-specimen-desc specimen="specimen" show-req-label="true"></os-specimen-desc>
+                  <os-specimen-desc specimen="specimen" show-req-label="true" use-tmpl="true"></os-specimen-desc>
                 </span>
                 <span ng-switch-when="false">
                   {{field.value | osNoValue}}

@@ -3,6 +3,8 @@ angular.module('openspecimen')
   .factory('CpConfigSvc', function(CollectionProtocol, $q) {
     var cpWorkflowsMap = {};
 
+    var cpWorkflowsQ = {};
+
     var listCfgsMap = {};
 
     var summarySt = undefined;
@@ -48,12 +50,23 @@ angular.module('openspecimen')
         return d.promise;
       }
 
-      return CollectionProtocol.getWorkflows(cpId).then(
+      if (cpWorkflowsQ[cpId]) {
+        return cpWorkflowsQ[cpId];
+      }
+
+      cpWorkflowsQ[cpId] = CollectionProtocol.getWorkflows(cpId).then(
         function(cpWorkflows) {
           cpWorkflowsMap[cpId] = cpWorkflows;
+          delete cpWorkflowsQ[cpId];
           return cpWorkflows;
+        },
+
+        function() {
+          delete cpWorkflowsQ[cpId];
         }
       );
+
+      return cpWorkflowsQ[cpId];
     }
 
     function getWorkflowData(cpId, name, defVal) {
