@@ -1,9 +1,5 @@
 package com.krishagni.catissueplus.core.biospecimen.repository.impl;
 
-import java.util.List;
-
-import org.apache.commons.collections.CollectionUtils;
-
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenRequirement;
 import com.krishagni.catissueplus.core.biospecimen.repository.SpecimenRequirementDao;
 import com.krishagni.catissueplus.core.common.repository.AbstractDao;
@@ -17,36 +13,40 @@ public class SpecimenRequirementDaoImpl extends AbstractDao<SpecimenRequirement>
 	
 	@Override
 	public SpecimenRequirement getSpecimenRequirement(Long id) {
-		return (SpecimenRequirement) getSessionFactory()
-				.getCurrentSession()
-				.get(SpecimenRequirement.class, id);
+		return (SpecimenRequirement) getCurrentSession().get(SpecimenRequirement.class, id);
 	}
 	
 	@Override
 	public int getSpecimensCount(Long srId) {
-		return ((Number) getSessionFactory()
-			.getCurrentSession()
-			.getNamedQuery(GET_SPECIMENS_COUNT)
-			.setLong("srId", srId)
+		return ((Number) getCurrentSession().getNamedQuery(GET_SPECIMENS_COUNT)
+			.setParameter("srId", srId)
 			.uniqueResult()).intValue();
 	}
 	
 	@Override
 	@SuppressWarnings("unchecked")
 	public SpecimenRequirement getByCpEventLabelAndSrCode(String cpShortTitle, String eventLabel, String code) {
-		List<SpecimenRequirement> result = getSessionFactory().getCurrentSession()
-			.getNamedQuery(GET_SR_BY_CP_EVENT_AND_SR_CODE)
-			.setString("cpShortTitle", cpShortTitle)
-			.setString("eventLabel", eventLabel)
-			.setString("code", code)
-			.list();
-		
-		return CollectionUtils.isEmpty(result) ? null : result.get(0);
+		return (SpecimenRequirement) getCurrentSession().getNamedQuery(GET_SR_BY_CP_EVENT_AND_SR_CODE)
+			.setParameter("cpShortTitle", cpShortTitle)
+			.setParameter("eventLabel", eventLabel)
+			.setParameter("code", code)
+			.uniqueResult();
 	}
-	
+
+	@Override
+	public SpecimenRequirement getByCpEventLabelAndSrCode(Long cpId, String eventLabel, String code) {
+		return (SpecimenRequirement) getCurrentSession().getNamedQuery(GET_SR_BY_CP_ID_EVENT_N_SR_CODE)
+			.setParameter("cpId", cpId)
+			.setParameter("eventLabel", eventLabel)
+			.setParameter("code", code)
+			.uniqueResult();
+	}
+
 	private static final String FQN = SpecimenRequirement.class.getName();
 	
 	private static final String GET_SPECIMENS_COUNT = FQN + ".getSpecimensCount";
 	
 	private static final String GET_SR_BY_CP_EVENT_AND_SR_CODE = FQN + ".getByCpEventLabelAndSrCode";
+
+	private static final String GET_SR_BY_CP_ID_EVENT_N_SR_CODE = FQN + ".getByCpIdEventLabelAndSrCode";
 }

@@ -388,6 +388,9 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 		SpecimenRequirement sr = null;
 		if (reqId != null) {
 			sr = daoFactory.getSpecimenRequirementDao().getById(reqId);
+		} else if (detail.getCpId() != null) {
+			sr = daoFactory.getSpecimenRequirementDao().getByCpEventLabelAndSrCode(
+				detail.getCpId(), visit.getCpEvent().getEventLabel(), reqCode);
 		} else {
 			sr = daoFactory.getSpecimenRequirementDao().getByCpEventLabelAndSrCode(
 				detail.getCpShortTitle(), visit.getCpEvent().getEventLabel(), reqCode);
@@ -402,7 +405,7 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 	}
 
 	private boolean isReqCodeSpecified(SpecimenDetail detail, Visit visit) {
-		return StringUtils.isNotBlank(detail.getCpShortTitle()) && // cp
+		return (detail.getCpId() != null || StringUtils.isNotBlank(detail.getCpShortTitle())) && // cp
 			visit != null && visit.getCpEvent() != null &&         // visit
 			StringUtils.isNotBlank(detail.getReqCode());           // req code
 	}
