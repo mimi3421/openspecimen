@@ -51,6 +51,8 @@
       <attribute>quantity</attribute>
     </field>
 
+    $schemaBuilder.insertAdditionalFields("/com/**/schema/dp-req/*.xml")
+
     <field>
       <caption>#getMessage("dp_req_comments")</caption>
       <attribute>comments</attribute>

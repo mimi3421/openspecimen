@@ -328,14 +328,18 @@ angular.module('openspecimen')
         }
       );
 
+      var added = [];
       angular.forEach(srcArray,
         function(obj) {
           if (!map[key(obj)]) {
             dstArray.push(obj);
             map[key(obj)] = obj;
+            added.push(obj);
           }
         }
       );
+
+      return added;
     }
 
     function showConfirm(opts) {

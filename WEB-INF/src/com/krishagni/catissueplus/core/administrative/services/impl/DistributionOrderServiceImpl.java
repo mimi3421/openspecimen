@@ -4,6 +4,7 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -381,6 +382,7 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 			ose.checkAndThrow();
 
 			order = daoFactory.getDistributionOrderDao().getById(order.getId());
+			addRates(order, order.getOrderItems());
 			distributeOrder(order, siteCps, inputStatus);
 
 			DistributionOrder savedOrder = daoFactory.getDistributionOrderDao().getById(order.getId());
@@ -434,6 +436,7 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 			ose.checkAndThrow();
 
 			existingOrder = daoFactory.getDistributionOrderDao().getById(existingOrder.getId());
+			addRates(existingOrder, existingOrder.getOrderItems());
 			distributeOrder(existingOrder, siteCps, newOrder.getStatus());
 
 			DistributionOrder savedOrder = daoFactory.getDistributionOrderDao().getById(existingOrder.getId());
@@ -618,6 +621,20 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 		}
 	}
 
+	private void addRates(DistributionOrder order, Collection<DistributionOrderItem> items) {
+		if (order.getSpecimenList() == null) {
+			items.forEach(item -> addRate(order, item));
+		}
+	}
+
+	private DistributionOrderItem addRate(DistributionOrder order, DistributionOrderItem item) {
+		if (item.getCost() == null) {
+			item.setCost(order.getDistributionProtocol().getCost(item.getSpecimen()));
+		}
+
+		return item;
+	}
+
 	private void distributeOrder(DistributionOrder order, List<Pair<Long, Long>> siteCps, Status status) {
 		if (!Status.EXECUTED.equals(status)) {
 			return;
@@ -645,7 +662,7 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 	}
 
 	private void distributeSpecimen(DistributionOrder order, Specimen specimen) {
-		DistributionOrderItem item = DistributionOrderItem.createOrderItem(order, specimen);
+		DistributionOrderItem item = addRate(order, DistributionOrderItem.createOrderItem(order, specimen));
 		daoFactory.getDistributionOrderDao().saveOrUpdateOrderItem(item);
 		item.distribute();
 	}

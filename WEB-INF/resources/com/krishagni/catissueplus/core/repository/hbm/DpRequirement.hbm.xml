@@ -13,10 +13,7 @@
       </generator>
     </id>
     
-    <many-to-one
-      name="distributionProtocol"
-      class="com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol"
-      column="DP_ID" />
+    <many-to-one name="distributionProtocol" column="DP_ID" />
     
     <property name="specimenType" column="SPECIMEN_TYPE" />
     
@@ -28,6 +25,8 @@
     </set>
 
     <property name="clinicalDiagnosis" column="CLINICAL_DAIGNOSIS"/>
+
+    <property name="cost" column="COST"/>
     
     <property name="specimenCount" column="SPECIMEN_COUNT" />
     

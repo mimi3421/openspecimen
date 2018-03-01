@@ -7,9 +7,9 @@ import java.util.Set;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.envers.Audited;
-import org.hibernate.envers.NotAudited;
 
 import com.krishagni.catissueplus.core.biospecimen.domain.BaseExtensionEntity;
+import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.common.CollectionUpdater;
 import com.krishagni.catissueplus.core.common.util.Status;
 
@@ -26,6 +26,8 @@ public class DpRequirement extends BaseExtensionEntity {
 	private Set<String> pathologyStatuses = new HashSet<>();
 
 	private String clinicalDiagnosis;
+
+	private BigDecimal cost;
 	
 	private Long specimenCount;
 	
@@ -75,6 +77,14 @@ public class DpRequirement extends BaseExtensionEntity {
 		this.clinicalDiagnosis = clinicalDiagnosis;
 	}
 
+	public BigDecimal getCost() {
+		return cost;
+	}
+
+	public void setCost(BigDecimal cost) {
+		this.cost = cost;
+	}
+
 	public Long getSpecimenCount() {
 		return specimenCount;
 	}
@@ -118,6 +128,7 @@ public class DpRequirement extends BaseExtensionEntity {
 		setAnatomicSite(dpr.getAnatomicSite());
 		CollectionUpdater.update(getPathologyStatuses(), dpr.getPathologyStatuses());
 		setClinicalDiagnosis(dpr.getClinicalDiagnosis());
+		setCost(dpr.getCost());
 		setSpecimenCount(dpr.getSpecimenCount());
 		setQuantity(dpr.getQuantity());
 		setComments(dpr.getComments());
@@ -138,6 +149,43 @@ public class DpRequirement extends BaseExtensionEntity {
 
 	public void delete() {
 		setActivityStatus(Status.ACTIVITY_STATUS_DISABLED.getStatus());
+	}
+
+	public int getMatchPoints(Specimen specimen) {
+		int points = 0;
+		if (StringUtils.isNotBlank(getSpecimenType())) {
+			if (!getSpecimenType().equals(specimen.getSpecimenType())) {
+				return 0;
+			}
+
+			points += 40;
+		}
+
+		if (!getPathologyStatuses().isEmpty()) {
+			if (!getPathologyStatuses().contains(specimen.getPathologicalStatus())) {
+				return 0;
+			}
+
+			points += 30;
+		}
+
+		if (StringUtils.isNotBlank(getAnatomicSite())) {
+			if (!getAnatomicSite().equals(specimen.getTissueSite())) {
+				return 0;
+			}
+
+			points += 20;
+		}
+
+		if (StringUtils.isNotBlank(getClinicalDiagnosis())) {
+			if (!specimen.getVisit().getClinicalDiagnoses().contains(getClinicalDiagnosis())) {
+				return 0;
+			}
+
+			points += 10;
+		}
+
+		return points;
 	}
 
 	private boolean arePathologyStatusesEqual(Set<String> pathologyStatuses) {

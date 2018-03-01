@@ -34,9 +34,11 @@ angular.module('os.administrative.dp.requirement.addedit', ['os.administrative.m
         return;
       }
 
-      var dpr = angular.copy($scope.dpr);
-      dpr.dp = {id : distributionProtocol.id};
-      dpr.extensionDetail = formCtrl.getFormData();
+      var dpr = angular.extend(angular.copy($scope.dpr), {dp: {id: distributionProtocol.id}});
+      if (formCtrl) {
+        dpr.extensionDetail = formCtrl.getFormData();
+      }
+
       dpr.$saveOrUpdate().then(
         function(saveReq) {
           $state.go('req-list');

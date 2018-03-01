@@ -1,7 +1,7 @@
 
 angular.module('os.administrative.order.addedit', ['os.administrative.models', 'os.biospecimen.models'])
   .controller('OrderAddEditCtrl', function(
-    $scope, $state, $translate, order, spmnRequest, requestDp,
+    $scope, $state, $translate, $injector, order, spmnRequest, requestDp,
     PluginReg, Institute, Specimen, SpecimensHolder, Site, DistributionProtocol,
     DistributionOrder, SpecimenList, Alerts, Util, SpecimenUtil, ExtensionsUtil) {
     
@@ -46,6 +46,11 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
           } else if (!!order.request) {
             order.orderItems = getOrderItemsFromReq(order.request.items, []);
           }
+
+          //
+          // newly created order. item costs are auto-populated
+          //
+          addItemCosts(order.distributionProtocol, order.orderItems);
         } else if (!!order.id) {
           loadOrderItems();
         }
@@ -278,6 +283,29 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
       );
     }
 
+    function addItemCosts(dp, items) {
+      if (!$injector.has('distInvDistributionCost')) {
+        return;
+      }
+
+      var spmnIds = (items || []).map(function(item) { return item.specimen.id });
+      if (!dp || !dp.id || spmnIds.length == 0) {
+        return;
+      }
+
+      $injector.get('distInvDistributionCost').getCosts(dp.id, spmnIds).then(
+        function(resp) {
+          var spmnCosts = resp.specimenCosts;
+
+          angular.forEach(items,
+            function(item) {
+              item.cost = spmnCosts[item.specimen.id];
+            }
+          );
+        }
+      );
+    }
+
     function getValidationMsgKeys(useBarcode) {
       return {
         title:         'orders.specimen_validation.title',
@@ -298,6 +326,8 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
       $scope.order.requester = $scope.order.distributionProtocol.principalInvestigator;
       setUserAndSiteList($scope.order);
       setExtnFormCtxt($scope.order);
+
+      addItemCosts($scope.order.distributionProtocol, $scope.order.orderItems);
     }
     
     $scope.onInstSelect = function () {
@@ -314,8 +344,9 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
 
       ignoreQtyWarning = false;
       var newItems = getOrderItems(specimens);
-      Util.addIfAbsent($scope.order.orderItems, newItems, 'specimen.id');
+      var addedItems = Util.addIfAbsent($scope.order.orderItems, newItems, 'specimen.id');
       $scope.input.noQtySpmnsPresent = $scope.input.noQtySpmnsPresent || anyNoQtySpmns(newItems);
+      addItemCosts($scope.order.distributionProtocol, addedItems);
       return true;
     }
 

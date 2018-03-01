@@ -106,4 +106,10 @@
       <column name="COST" type="${double.type}"/>
     </addColumn>
   </changeSet>
+
+  <changeSet author="vpawar" id="Add DP specimen requirement cost">
+    <addColumn tableName="OS_DP_REQUIREMENTS">
+      <column name="COST" type="${double.type}"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

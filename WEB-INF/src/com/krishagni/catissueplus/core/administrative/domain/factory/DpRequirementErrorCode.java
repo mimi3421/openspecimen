@@ -19,7 +19,9 @@ public enum DpRequirementErrorCode implements ErrorCode {
 
 	SPEC_PROPERTY_REQUIRED,
 
-	INVALID_PATHOLOGY_STATUSES;
+	INVALID_PATHOLOGY_STATUSES,
+
+	INVALID_COST;
 	
 	@Override
 	public String code() {

@@ -1,9 +1,6 @@
 package com.krishagni.catissueplus.core.administrative.domain.factory.impl;
 
-import static com.krishagni.catissueplus.core.common.PvAttributes.CLINICAL_DIAG;
-import static com.krishagni.catissueplus.core.common.PvAttributes.PATH_STATUS;
-import static com.krishagni.catissueplus.core.common.PvAttributes.SPECIMEN_ANATOMIC_SITE;
-import static com.krishagni.catissueplus.core.common.PvAttributes.SPECIMEN_CLASS;
+import static com.krishagni.catissueplus.core.common.PvAttributes.*;
 import static com.krishagni.catissueplus.core.common.service.PvValidator.isValid;
 
 import java.math.BigDecimal;
@@ -54,6 +51,7 @@ public class DpRequirementFactoryImpl implements DpRequirementFactory {
 		setAnatomicSite(detail, existing, dpr, ose);
 		setPathologyStatuses(detail, existing, dpr, ose);
 		setClinicalDiagnosis(detail, existing, dpr, ose);
+		setCost(detail, existing, dpr, ose);
 		setSpecimenCount(detail, existing, dpr, ose);
 		setQuantity(detail, existing, dpr, ose);
 		setComments(detail, existing, dpr, ose);
@@ -180,6 +178,23 @@ public class DpRequirementFactoryImpl implements DpRequirementFactory {
 		dpr.setClinicalDiagnosis(detail.getClinicalDiagnosis());
 	}
 
+	private void setCost(DpRequirementDetail detail, DpRequirement existing, DpRequirement dpr, OpenSpecimenException ose) {
+		if (existing == null || detail.isAttrModified("cost")) {
+			setCost(detail, dpr, ose);
+		} else {
+			dpr.setCost(existing.getCost());
+		}
+	}
+
+	private void setCost(DpRequirementDetail detail, DpRequirement dpr, OpenSpecimenException ose) {
+		BigDecimal cost = detail.getCost();
+		if (NumUtil.lessThanZero(cost)) {
+			ose.addError(DpRequirementErrorCode.INVALID_COST, cost);
+			return;
+		}
+
+		dpr.setCost(cost);
+	}
 
 	private void setSpecimenCount(DpRequirementDetail detail, DpRequirement existing, DpRequirement dpr, OpenSpecimenException ose) {
 		if (existing == null || detail.isAttrModified("specimenCount")) {

@@ -1,6 +1,8 @@
 
 package com.krishagni.catissueplus.core.administrative.domain;
 
+import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -14,7 +16,9 @@ import org.hibernate.envers.RelationTargetAuditMode;
 
 import com.krishagni.catissueplus.core.administrative.domain.factory.DistributionProtocolErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.BaseExtensionEntity;
+import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.common.CollectionUpdater;
+import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.util.Status;
@@ -285,6 +289,20 @@ public class DistributionProtocol extends BaseExtensionEntity {
 		DpConsentTier ct = getConsentTierById(ctId);
 		ct.setActivityStatus(Status.ACTIVITY_STATUS_DISABLED.getStatus());
 		return ct;
+	}
+
+	public DpRequirement getMatchingRequirement(Specimen specimen) {
+		return getRequirements().stream()
+			.map(req -> Pair.make(req, req.getMatchPoints(specimen))) // {req, req-matching-points}
+			.filter(reqPoints -> reqPoints.second() > 0)              // retain only those reqs with more than 0 points
+			.max(Comparator.comparingInt(Pair::second))               // find the req with highest points
+			.map(Pair::first)                                         // unpack req from {req, req-matching-points} tuple
+			.orElse(null);
+	}
+
+	public BigDecimal getCost(Specimen specimen) {
+		DpRequirement dpReq = getMatchingRequirement(specimen);
+		return (dpReq != null) ? dpReq.getCost() : null;
 	}
 
 	private DpConsentTier getConsentTierById(Long ctId) {
