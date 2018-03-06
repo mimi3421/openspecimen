@@ -79,7 +79,9 @@ public enum DistributionOrderErrorCode implements ErrorCode {
 
 	NON_CONSENTING_SPECIMENS,
 
-	INVALID_COST;
+	INVALID_COST,
+
+	NO_SPMNS_RESV_FOR_DP;
 
 	@Override
 	public String code() {

@@ -30,7 +30,7 @@ angular.module('os.administrative.order',
         parent: 'order-root'
       })
       .state('order-addedit', {
-        url: '/order-addedit/:orderId?requestId&specimenListId',
+        url: '/order-addedit/:orderId?requestId&specimenListId&allReservedSpmns&dpId',
         templateUrl: 'modules/administrative/order/addedit.html',
         controller: 'OrderAddEditCtrl',
         resolve: {
@@ -42,12 +42,29 @@ angular.module('os.administrative.order',
             return null;
           },
 
-          order: function($stateParams, specimenList, DistributionOrder) {
-            if ($stateParams.orderId) {
+          order: function($stateParams, $q, specimenList, DistributionProtocol, DistributionOrder) {
+            if (!!$stateParams.orderId) {
               return DistributionOrder.getById($stateParams.orderId);
             }
 
-            return new DistributionOrder({status: 'PENDING', orderItems: [], specimenList: specimenList});
+            var allReservedSpmns = undefined;
+            var p = null;
+            if ($stateParams.dpId && $stateParams.dpId > 0) {
+              allReservedSpmns = !specimenList && ($stateParams.allReservedSpmns == 'true');
+              p = DistributionProtocol.getById($stateParams.dpId);
+            }
+
+            return $q.when(p).then(
+              function(dp) {
+                return new DistributionOrder({
+                  status: 'PENDING',
+                  distributionProtocol: dp,
+                  orderItems: [],
+                  specimenList: specimenList,
+                  allReservedSpmns: allReservedSpmns
+                });
+              }
+            );
           },
 
           spmnRequest: function($stateParams, $injector, order) {

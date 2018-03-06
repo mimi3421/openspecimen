@@ -126,6 +126,12 @@ angular.module('os.administrative.dp',
         templateUrl: 'modules/administrative/dp/history.html',
         controller: 'DpHistoryCtrl',
         parent: 'dp-detail'
+      })
+      .state('dp-detail.reserved-specimens', {
+        url: '/reserved-specimens',
+        templateUrl: 'modules/administrative/dp/reserved-specimens.html',
+        controller: 'DpReservedSpecimensCtrl',
+        parent: 'dp-detail'
       });
   })
 

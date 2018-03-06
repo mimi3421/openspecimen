@@ -2,7 +2,7 @@
   <div class="os-page-commands">
     <div class="left">
       <button show-if-allowed="specimenResource.updateOpts" class="default" ui-sref="specimen-addedit"
-        ng-if="!!visit.id && (!specimen.activityStatus || specimen.activityStatus == 'Active')"
+        ng-if="!!visit.id && !specimen.reserved && (!specimen.activityStatus || specimen.activityStatus == 'Active')"
         ng-switch on="!!specimen.id">
         <span ng-switch-when="true">
           <span class="fa fa-pencil"></span>
@@ -17,14 +17,14 @@
       <span ng-if="!!specimen.id">
         <button show-if-allowed="specimenResource.updateOpts" class="default" ui-sref="specimen-create-derivative(
           {eventId: visit.eventId, visitId: visit.id, specimenId: specimen.id, srId: specimen.reqId})"
-          ng-if="specimen.activityStatus == 'Active'">
+          ng-if="!specimen.reserved && specimen.activityStatus == 'Active'">
           <span class="fa fa-flask"></span>
           <span translate="specimens.ctx_menu.create_derivative">Create Derivative</span>
         </button>
 
         <button show-if-allowed="specimenResource.updateOpts" class="default" ui-sref="specimen-create-aliquots(
           {eventId: visit.eventId, visitId: visit.id, specimenId: specimen.id, srId: specimen.reqId})"
-          ng-if="specimen.activityStatus == 'Active'">
+          ng-if="!specimen.reserved && specimen.activityStatus == 'Active'">
           <span class="fa fa-share-alt"></span>
           <span translate="specimens.ctx_menu.create_aliquots">Create Aliquots</span>
         </button>
@@ -34,7 +34,7 @@
 
         <button show-if-allowed="specimenResource.updateOpts" class="default" ui-sref="specimen-detail.events(
           {eventId: visit.eventId, visitId: visit.id, specimenId: specimen.id, srId: specimen.reqId})"
-          ng-if="specimen.activityStatus == 'Active'">
+          ng-if="!specimen.reserved && specimen.activityStatus == 'Active'">
           <span class="fa fa-calendar-o"></span>
           <span translate="specimens.ctx_menu.add_event">Add Event</span>
         </button>
@@ -53,7 +53,7 @@
               </a>
             </li>
             <li show-if-allowed="specimenResource.updateOpts"
-              ng-if="specimen.activityStatus == 'Active' && specimen.status == 'Collected'">
+              ng-if="!specimen.reserved && specimen.activityStatus == 'Active' && specimen.status == 'Collected'">
               <a ng-click="closeSpecimen()">
                 <span class="fa fa-remove"></span>
                 <span translate="common.buttons.close">Close</span>

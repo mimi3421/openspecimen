@@ -42,6 +42,8 @@ public class SpecimenListCriteria extends AbstractListCriteria<SpecimenListCrite
 
 	private boolean noQty;
 
+	private Long reservedForDp;
+
 	public SpecimenListCriteria() {
 		exactMatch(true);
 	}
@@ -210,6 +212,15 @@ public class SpecimenListCriteria extends AbstractListCriteria<SpecimenListCrite
 
 	public SpecimenListCriteria noQty(boolean noQty) {
 		this.noQty = noQty;
+		return self();
+	}
+
+	public Long reservedForDp() {
+		return reservedForDp;
+	}
+
+	public SpecimenListCriteria reservedForDp(Long reservedForDp) {
+		this.reservedForDp = reservedForDp;
 		return self();
 	}
 }

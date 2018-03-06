@@ -69,6 +69,8 @@ public class SpecimenDetail extends SpecimenInfo {
 
 	private ExtensionDetail extensionDetail;
 
+	private boolean reserved;
+
 	//
 	// transient variables specifying action to be performed
 	//
@@ -230,6 +232,14 @@ public class SpecimenDetail extends SpecimenInfo {
 		this.extensionDetail = extensionDetail;
 	}
 
+	public boolean isReserved() {
+		return reserved;
+	}
+
+	public void setReserved(boolean reserved) {
+		this.reserved = reserved;
+	}
+
 	@JsonIgnore
 	public boolean isForceDelete() {
 		return forceDelete;
@@ -326,6 +336,7 @@ public class SpecimenDetail extends SpecimenInfo {
 		result.setReqCode(sr != null ? sr.getCode() : null);
 		result.setBiohazards(new HashSet<>(specimen.getBiohazards()));
 		result.setComments(specimen.getComment());
+		result.setReserved(specimen.isReserved());
 
 		if (!partial) {
 			result.setExtensionDetail(ExtensionDetail.from(specimen.getExtension(), excludePhi));

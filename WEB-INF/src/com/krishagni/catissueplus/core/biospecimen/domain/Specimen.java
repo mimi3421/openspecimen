@@ -18,12 +18,14 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
+import org.hibernate.envers.RelationTargetAuditMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.krishagni.catissueplus.core.administrative.domain.DistributionOrderItem;
 import com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol;
+import com.krishagni.catissueplus.core.administrative.domain.SpecimenReservedEvent;
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainer;
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainerPosition;
 import com.krishagni.catissueplus.core.administrative.domain.User;
@@ -131,6 +133,11 @@ public class Specimen extends BaseExtensionEntity {
 	private SpecimenCollectionEvent collectionEvent;
 	
 	private SpecimenReceivedEvent receivedEvent;
+
+	//
+	// record the DP for which this specimen is currently reserved
+	//
+	private SpecimenReservedEvent reservedEvent;
 
 	//
 	// Available for all specimens in hierarchy based on values set for primary specimens
@@ -536,6 +543,15 @@ public class Specimen extends BaseExtensionEntity {
 		this.receivedEvent = receivedEvent;
 	}
 
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	public SpecimenReservedEvent getReservedEvent() {
+		return reservedEvent;
+	}
+
+	public void setReservedEvent(SpecimenReservedEvent reservedEvent) {
+		this.reservedEvent = reservedEvent;
+	}
+
 	@NotAudited
 	public SpecimenCollectionReceiveDetail getCollRecvDetails() {
 		return collRecvDetails;
@@ -638,6 +654,14 @@ public class Specimen extends BaseExtensionEntity {
 	
 	public boolean isActiveOrClosed() {
 		return isActive() || isClosed();
+	}
+
+	public boolean isReserved() {
+		return getReservedEvent() != null;
+	}
+
+	public boolean isEditAllowed() {
+		return !isReserved() && isActive();
 	}
 	
 	public boolean isAliquot() {
@@ -835,6 +859,10 @@ public class Specimen extends BaseExtensionEntity {
 	// TODO: Modify to accommodate pooled specimens
 	//	
 	public void updateStatus(String activityStatus, User user, Date date, String reason, boolean isForceDelete) {
+		if (isReserved()) {
+			throw OpenSpecimenException.userError(SpecimenErrorCode.EDIT_NOT_ALLOWED, getLabel());
+		}
+
 		if (this.activityStatus != null && this.activityStatus.equals(activityStatus)) {
 			return;
 		}
@@ -914,6 +942,11 @@ public class Specimen extends BaseExtensionEntity {
 		// add distributed event
 		//
 		SpecimenDistributionEvent.createForDistributionOrderItem(item).saveRecordEntry();
+
+		//
+		// cancel the reservation so that it can be distributed subsequently if available
+		//
+		setReservedEvent(null);
 
 		//
 		// close specimen if explicitly closed or no quantity available

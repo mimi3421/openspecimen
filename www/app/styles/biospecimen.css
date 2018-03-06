@@ -64,6 +64,11 @@
   padding: 0px 4px;
 }
 
+.fa.os-status-reserved:before {
+  color: rgba(128, 0, 128, 0.7);
+  padding: 0px 4px;
+}
+
 .fa.os-status-distributed:before {
   color: #5bc0de;
   padding: 0px 4px;

@@ -56,6 +56,8 @@ public class DistributionOrder extends BaseExtensionEntity {
 	private SpecimenRequest request;
 
 	private SpecimenList specimenList;
+
+	private Boolean allReservedSpecimens;
 	
 	public static String getEntityName() {
 		return ENTITY_NAME;
@@ -190,6 +192,18 @@ public class DistributionOrder extends BaseExtensionEntity {
 		this.specimenList = specimenList;
 	}
 
+	public Boolean getAllReservedSpecimens() {
+		return allReservedSpecimens;
+	}
+
+	public void setAllReservedSpecimens(Boolean allReservedSpecimens) {
+		this.allReservedSpecimens = allReservedSpecimens;
+	}
+
+	public boolean isForAllReservedSpecimens() {
+		return Boolean.TRUE.equals(allReservedSpecimens);
+	}
+
 	public Institute getInstitute() {
 		return requester.getInstitute();
 	}
@@ -206,6 +220,7 @@ public class DistributionOrder extends BaseExtensionEntity {
 		setComments(newOrder.getComments());
 		setExtension(newOrder.getExtension());
 		setSpecimenList(newOrder.getSpecimenList());
+		setAllReservedSpecimens(newOrder.getAllReservedSpecimens());
 
 		updateRequest(newOrder);
 		updateOrderItems(newOrder);
@@ -229,7 +244,7 @@ public class DistributionOrder extends BaseExtensionEntity {
 			throw OpenSpecimenException.userError(DistributionOrderErrorCode.ALREADY_EXECUTED);
 		}
 		
-		if (getSpecimenList() == null && CollectionUtils.isEmpty(getOrderItems())) {
+		if (getSpecimenList() == null && !isForAllReservedSpecimens() && CollectionUtils.isEmpty(getOrderItems())) {
 			throw OpenSpecimenException.userError(DistributionOrderErrorCode.NO_SPECIMENS_TO_DIST);
 		}
 

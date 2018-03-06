@@ -871,7 +871,7 @@ public class FormServiceImpl implements FormService, InitializingBean {
 			Specimen specimen = daoFactory.getSpecimenDao().getById(objectId);
 			if (specimen == null) {
 				throw OpenSpecimenException.userError(SpecimenErrorCode.NOT_FOUND, objectId);
-			} else if (!specimen.isActive()) {
+			} else if (!specimen.isEditAllowed()) {
 				throw OpenSpecimenException.userError(SpecimenErrorCode.EDIT_NOT_ALLOWED, specimen.getLabel());
 			}
 

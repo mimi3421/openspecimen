@@ -90,6 +90,8 @@
       <one-to-many class="com.krishagni.catissueplus.core.biospecimen.domain.SpecimenChildrenEvent"/>
     </set>
 
+    <many-to-one name="reservedEvent" column="RESERVED_EVENT_ID"/>
+
     <filter name="activeEntity"/>
 
     <query name="getByLabel">

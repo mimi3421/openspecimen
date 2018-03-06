@@ -26,8 +26,12 @@ import com.krishagni.catissueplus.core.administrative.events.DistributionOrderSt
 import com.krishagni.catissueplus.core.administrative.events.DistributionOrderStatListCriteria;
 import com.krishagni.catissueplus.core.administrative.events.DistributionProtocolDetail;
 import com.krishagni.catissueplus.core.administrative.events.DpConsentTierDetail;
+import com.krishagni.catissueplus.core.administrative.events.ReserveSpecimensDetail;
 import com.krishagni.catissueplus.core.administrative.repository.DpListCriteria;
+import com.krishagni.catissueplus.core.administrative.services.DistributionOrderService;
 import com.krishagni.catissueplus.core.administrative.services.DistributionProtocolService;
+import com.krishagni.catissueplus.core.biospecimen.events.SpecimenInfo;
+import com.krishagni.catissueplus.core.biospecimen.repository.SpecimenListCriteria;
 import com.krishagni.catissueplus.core.common.events.BulkDeleteEntityOp;
 import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.events.EntityQueryCriteria;
@@ -40,6 +44,9 @@ import com.krishagni.catissueplus.core.common.util.Utility;
 public class DistributionProtocolController {
 	@Autowired
 	private DistributionProtocolService dpSvc;
+
+	@Autowired
+	private DistributionOrderService orderSvc;
 
 	@Autowired
 	private HttpServletRequest httpServletRequest;
@@ -205,6 +212,57 @@ public class DistributionProtocolController {
 		ResponseEvent<DistributionProtocolDetail> resp = dpSvc.updateActivityStatus(req);
 		resp.throwErrorIfUnsuccessful();
 		return resp.getPayload();
+	}
+
+	@RequestMapping(method = RequestMethod.GET, value = "/{id}/reserved-specimens")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public List<SpecimenInfo> getReservedSpecimens(
+			@PathVariable("id")
+			Long dpId,
+
+			@RequestParam(value = "specimenType", required = false)
+			String specimenType,
+
+			@RequestParam(value = "anatomicSite", required = false)
+			String anatomicSite,
+
+			@RequestParam(value = "cpShortTitle", required = false)
+			String cpShortTitle,
+
+			@RequestParam(value = "startAt", required = false, defaultValue = "0")
+			int startAt,
+
+			@RequestParam(value = "maxResults", required = false, defaultValue = "100")
+			int maxResults) {
+
+		SpecimenListCriteria crit = new SpecimenListCriteria()
+			.reservedForDp(dpId)
+			.type(specimenType)
+			.anatomicSite(anatomicSite)
+			.cpShortTitle(cpShortTitle)
+			.startAt(startAt)
+			.maxResults(maxResults);
+
+		ResponseEvent<List<SpecimenInfo>> resp = orderSvc.getReservedSpecimens(getRequest(crit));
+		resp.throwErrorIfUnsuccessful();
+		return resp.getPayload();
+	}
+
+	@RequestMapping(method = RequestMethod.PUT, value = "/{id}/reserved-specimens")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public Map<String, Integer> reserveSpecimens(
+			@PathVariable("id")
+			Long dpId,
+
+			@RequestBody
+			ReserveSpecimensDetail detail) {
+
+		detail.setDpId(dpId);
+		ResponseEvent<Integer> resp = orderSvc.reserveSpecimens(getRequest(detail));
+		resp.throwErrorIfUnsuccessful();
+		return Collections.singletonMap("updated", resp.getPayload());
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/orders")

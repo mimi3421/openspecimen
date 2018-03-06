@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol;
+import com.krishagni.catissueplus.core.administrative.domain.SpecimenReservedEvent;
 import com.krishagni.catissueplus.core.administrative.events.DistributionOrderStat;
 import com.krishagni.catissueplus.core.administrative.events.DistributionOrderStatListCriteria;
 import com.krishagni.catissueplus.core.common.repository.Dao;
@@ -34,4 +35,6 @@ public interface DistributionProtocolDao extends Dao<DistributionProtocol> {
 	Map<String, Object> getDpIds(String key, Object value);
 
 	List<String> getNonConsentingSpecimens(Long dpId, List<Long> specimenIds, int stmtsCount);
+
+	void saveReservedEvents(Collection<SpecimenReservedEvent> events);
 }

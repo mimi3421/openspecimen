@@ -1,0 +1,128 @@
+<div class="os-full-height-container clearfix">
+  <div class="os-full-height-container col-xs-12">
+    <div class="os-detail-sublist">
+      <div class="os-page-commands">
+        <div class="left">
+          <button ui-sref="order-addedit({allReservedSpmns: true, dpId: distributionProtocol.id})"
+            show-if-allowed="lctx.orderCreateOpts" ng-if="lctx.specimens.length > 0" class="default">
+            <span class="fa fa-share"></span>
+            <span translate="dp.distribute_all">Distribute All</span>
+          </button>
+
+          <button show-if-allowed="lctx.orderCreateOpts" ng-if="lctx.checkList.anySelected" class="default"
+            ng-click="distributeSpecimens()">
+            <span class="fa fa-share"></span>
+            <span translate="dp.distribute">Distribute All</span>
+          </button>
+
+          <button show-if-allowed="lctx.orderCreateOpts" ng-if="lctx.checkList.anySelected" class="default"
+            ng-click="cancelReservation()">
+            <span class="fa fa-times"></span>
+            <span translate="dp.cancel_reservation">Cancel Reservation</span>
+          </button>
+        </div>
+
+        <div class="right">
+          <button class="default" os-right-drawer-toggle title="{{'common.buttons.search' | translate}}">
+            <span class="fa fa-search"></span>
+            <span translate="common.buttons.search">Search</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="container">
+        <table class="os-table">
+          <thead class="os-table-head">
+            <tr class="row">
+              <th class="col">
+                <os-checkbox ng-change="lctx.checkList.toggleSelectAll()" ng-model="lctx.checkList.allSelected">
+                </os-checkbox>
+              </th>
+              <th class="col">
+                <span translate="specimens.ppid">PPID</span>
+              </th>
+              <th class="col">
+                <span translate="specimens.label">Label</span>
+              </th>
+              <th class="col">
+                <span translate="specimens.description">Description</span>
+              </th>
+              <th class="col">
+                <span translate="specimens.storage_location">Location</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody class="os-table-body os-border" ng-if="lctx.specimens.length > 0">
+            <tr class="row" ng-repeat="spmn in lctx.specimens">
+              <td class="col">
+                <os-checkbox ng-change="lctx.checkList.toggleSelectItem($index)"
+                  ng-model="lctx.checkList.items[$index].selected">
+                </os-checkbox>
+              </td>
+              <td class="col">
+                <span>{{spmn.ppid}}</span>
+              </td>
+              <td class="col">
+                <a ui-sref="specimen({specimenId: spmn.id})">
+                  <span>{{spmn.label}}</span>
+                  <span ng-if="!!spmn.barcode">({{spmn.barcode}})</span>
+                </a>
+              </td>
+              <td class="col">
+                <os-specimen-desc specimen="spmn" detailed="true"></os-specimen-desc>
+              </td>
+              <td class="col">
+                <a ui-sref="container-detail.locations({containerId: spmn.storageLocation.id})">
+                  <os-disp-storage-position position="spmn.storageLocation"></os-disp-storage-position>
+                </a>
+              </td>
+            </tr>
+          </tbody>
+          <tbody class="os-table-body os-border" ng-if="lctx.specimens.length == 0">
+            <tr class="row">
+              <td class="col" colspan="5">
+                <span translate="common.none">None</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div os-right-drawer ng-include="'modules/administrative/dp/reserved-specimens-search'"></div>
+    </div>
+  </div>
+</div>
+
+<script type="text/ng-template" id="modules/administrative/dp/reserved-specimens-search">
+  <div>
+    <div class="os-search">
+      <div class="os-head">
+        <h3 class="os-title" translate="common.filters.title"> Filters </h3>
+      </div>
+      <div class="os-body">
+        <div class="form-group">
+          <os-pvs ng-model="lctx.filterOpts.specimenType" attribute="specimen_type" show-only-leaf-values="true"
+            os-md-input placeholder="{{'specimens.type' | translate}}">
+          </os-pvs>
+        </div>
+
+        <div class="form-group">
+          <os-pvs ng-model="lctx.filterOpts.anatomicSite" attribute="anatomic_site" show-only-leaf-values="true"
+            os-md-input placeholder="{{'specimens.anatomic_site' | translate}}">
+          </os-pvs>
+        </div>
+
+        <div class="form-group">
+          <os-select list="lctx.cps" display-prop="shortTitle" select-prop="shortTitle"
+            ng-model="lctx.filterOpts.cpShortTitle" os-md-input refresh="loadCps"
+            placeholder="{{'specimens.cp' | translate}}">
+          </os-select>
+        </div>
+
+        <os-clear-filters opts="lctx.filterOpts"></os-clear-filters>
+      </div>
+    </div>
+
+    <os-list-page-size opts="lctx.pagerOpts" on-change="pageSizeChanged()"></os-list-page-size>
+  </div>
+</script>

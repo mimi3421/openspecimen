@@ -25,6 +25,7 @@ import org.hibernate.sql.JoinType;
 
 import com.krishagni.catissueplus.core.administrative.domain.DistributionOrder;
 import com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol;
+import com.krishagni.catissueplus.core.administrative.domain.SpecimenReservedEvent;
 import com.krishagni.catissueplus.core.administrative.events.DistributionOrderStat;
 import com.krishagni.catissueplus.core.administrative.events.DistributionOrderStatListCriteria;
 import com.krishagni.catissueplus.core.administrative.events.DistributionProtocolSummary;
@@ -143,6 +144,11 @@ public class DistributionProtocolDaoImpl extends AbstractDao<DistributionProtoco
 			.setParameterList("specimenIds", specimenIds)
 			.setInteger("respCount", stmtsCount)
 			.list();
+	}
+
+	@Override
+	public void saveReservedEvents(Collection<SpecimenReservedEvent> events) {
+		events.forEach(event -> getCurrentSession().saveOrUpdate(event));
 	}
 
 	private Criteria getDpListQuery(DpListCriteria crit) {

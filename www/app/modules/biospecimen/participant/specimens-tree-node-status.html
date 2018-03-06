@@ -9,14 +9,15 @@
   </span>
   <span class="fa fa-circle"
     ng-class="{
-      'os-status-unplanned': specimen.status == 'Collected' && !specimen.reqId && !specimen.distributionStatus && !!specimen.storageLocation.name,
-      'os-status-collected': specimen.status == 'Collected' && !!specimen.storageLocation.name && !specimen.distributionStatus,
+      'os-status-unplanned': specimen.status == 'Collected' && !specimen.reqId && !specimen.reserved && !specimen.distributionStatus && !!specimen.storageLocation.name,
+      'os-status-collected': specimen.status == 'Collected' && !!specimen.storageLocation.name && !specimen.reserved && !specimen.distributionStatus,
       'os-status-pending': specimen.status == 'Pending' || !specimen.status,
       'os-status-not-collected': specimen.status == 'Missed Collection',
       'os-status-closed': specimen.activityStatus == 'Closed' && !specimen.distributionStatus,
       'os-status-distributed': specimen.distributionStatus == 'Distributed' && specimen.availableQty == 0,
+      'os-status-reserved': specimen.reserved,
       'os-status-part-distributed': specimen.distributionStatus == 'Distributed' && specimen.availableQty > 0,
       'os-status-returned': specimen.distributionStatus == 'Returned',
-      'os-status-virtual': specimen.status == 'Collected' && specimen.activityStatus != 'Closed' && !specimen.distributionStatus && !specimen.storageLocation.name}">
+      'os-status-virtual': specimen.status == 'Collected' && specimen.activityStatus != 'Closed' && !specimen.reserved && !specimen.distributionStatus && !specimen.storageLocation.name}">
   </span>
 </span>

@@ -39,6 +39,12 @@
           <span class="os-title" translate="dp.menu.history">History</span>
         </a>
       </li>
+      <li ui-sref-active="active">
+        <a ui-sref="dp-detail.reserved-specimens">
+          <span class="fa fa-flask"></span>
+          <span class="os-title" translate="dp.reserved_spmns">Reserved Specimens</span>
+        </a>
+      </li>
       <li ng-class="{'active': includesState('req-root')}" ng-if="permCtx.editAllowed">
         <a ui-sref="req-list">
           <span class="fa fa-list-ol"></span>

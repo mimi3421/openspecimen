@@ -411,6 +411,22 @@ public abstract class DeObject {
 		return formInfoCache.getForm(formName);
 	}
 
+	public static Long getFormContextId(boolean cpBased, String entity, Long entityId, String formName) {
+		return DeObject.fakeObject().getFormContext(cpBased, entity, entityId, formName);
+	}
+
+	public static Long saveRecord(Long formCtxtId, Long objectId, Long recordId) {
+		FormRecordEntryBean re = new FormRecordEntryBean();
+		re.setFormCtxtId(formCtxtId);
+		re.setObjectId(objectId);
+		re.setRecordId(recordId);
+		re.setUpdatedBy(AuthUtil.getCurrentUser().getId());
+		re.setUpdatedTime(Calendar.getInstance().getTime());
+		re.setActivityStatus(Status.ACTIVE);
+		DeObject.fakeObject().daoFactory.getFormDao().saveOrUpdateRecordEntry(re);
+		return re.getIdentifier();
+	}
+
 	private static DeObject fakeObject() {
 		return newDeObject(null, null);
 	}
@@ -504,9 +520,13 @@ public abstract class DeObject {
 		}
 
 		Long entityId = isCpBased() ? getCpId() : getEntityId();
-		Long formCtxt = formInfoCache.getFormContext(isCpBased(), getEntityType(), entityId, formName);
+		return getFormContext(isCpBased(), getEntityType(), entityId, formName);
+	}
+
+	private Long getFormContext(boolean cpBased, String entityType, Long entityId, String formName) {
+		Long formCtxt = formInfoCache.getFormContext(cpBased, entityType, entityId, formName);
 		if (formCtxt == null && entityId != -1L) {
-			formCtxt = formInfoCache.getFormContext(isCpBased(), getEntityType(), -1L, formName);
+			formCtxt = formInfoCache.getFormContext(cpBased, entityType, -1L, formName);
 		}
 
 		return formCtxt;

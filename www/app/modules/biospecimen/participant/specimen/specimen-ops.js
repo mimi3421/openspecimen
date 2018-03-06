@@ -42,57 +42,102 @@ angular.module('os.biospecimen.specimen')
       }
     }
 
-    function getDp(scope) {
-      var dpQ;
-      if (scope.cp.distributionProtocols.length == 1) {
-        dpQ = $q.defer();
-        dpQ.resolve(scope.cp.distributionProtocols[0]);
-        dpQ = dpQ.promise;
-      } else {
-        dpQ = $modal.open({
-          templateUrl: 'modules/biospecimen/participant/specimen/distribute.html',
-          controller: function($scope, $modalInstance, distributionProtocols) {
-            function init() {
-              $scope.ctx = {dps: distributionProtocols};
-            }
+    function getDp(scope, hideDistributeBtn) {
+      return $modal.open({
+        templateUrl: 'modules/biospecimen/participant/specimen/distribute.html',
+        controller: function($scope, $modalInstance) {
+          var ctx;
 
-            $scope.cancel = function() {
-              $modalInstance.dismiss('cancel');
-            }
+          function init() {
+            ctx = $scope.ctx = {
+              defDps: undefined,
+              dps: [],
+              dp: undefined,
+              hideDistributeBtn: hideDistributeBtn
+            };
+          }
 
-            $scope.distribute = function() {
-              $modalInstance.close($scope.ctx.dp);
-            }
-
-            init();
-          },
-
-          resolve: {
-            distributionProtocols: function(DistributionProtocol) {
+          function loadDps(searchTerm) {
+            var cpShortTitle;
+            if (scope.cp) {
               if (scope.cp.distributionProtocols && scope.cp.distributionProtocols.length > 0) {
-                return scope.cp.distributionProtocols;
+                ctx.dps = scope.cp.distributionProtocols;
+                if (!ctx.defDps) {
+                  ctx.defDps = ctx.dps;
+                  if (ctx.dps.length == 1) {
+                    ctx.dp = ctx.dps[0];
+                  }
+                }
+
+                return;
               }
 
-              return DistributionProtocol.query({cp: scope.cp.shortTitle, excludeExpiredDps: true});
+              cpShortTitle = scope.cp.shortTitle;
             }
+
+            if (ctx.defDps && (!searchTerm || ctx.defDps.length <= 100)) {
+              ctx.dps = ctx.defDps;
+              return;
+            }
+
+            DistributionProtocol.query({query: searchTerm, cp: cpShortTitle, excludeExpiredDps: true}).then(
+              function(dps) {
+                if (!searchTerm && !ctx.defDps) {
+                  ctx.defDps = dps;
+                  if (dps.length == 1) {
+                    ctx.dp = dps[0];
+                  }
+                }
+
+                ctx.dps = dps;
+              }
+            );
           }
-        }).result;
-      }
 
-      return dpQ;
+          $scope.cancel = function() {
+            $modalInstance.dismiss('cancel');
+          }
+
+          $scope.distribute = function() {
+            $scope.ctx.distribute = true;
+            $modalInstance.close($scope.ctx);
+          }
+
+          $scope.reserve = function() {
+            $modalInstance.close($scope.ctx);
+          }
+
+          $scope.loadDps = loadDps;
+
+          init();
+        },
+
+        size: 'lg'
+      }).result;
     }
 
-    function selectDpAndDistributeSpmns(scope, specimens) {
-      getDp(scope).then(function(selectedDp) { distributeSpmns(scope, selectedDp, specimens); });
+    function selectDpAndDistributeSpmns(scope, specimens, hideDistributeBtn) {
+      getDp(scope, hideDistributeBtn).then(
+        function(details) {
+          if (details.distribute) {
+            distributeSpmns(scope, details, specimens);
+          } else {
+            reserveSpmns(scope, details, specimens);
+          }
+        }
+      );
     }
 
-    function distributeSpmns(scope, dp, specimens) {
+    function distributeSpmns(scope, details, specimens) {
+      var dp = details.dp;
+
       new DistributionOrder({
         name: dp.shortTitle + '_' + new Date().toLocaleString(),
         distributionProtocol: dp,
         requester: dp.principalInvestigator,
         siteName: dp.defReceivingSiteName,
         orderItems: getOrderItems(specimens),
+        comments: details.comments,
         status: 'EXECUTED'
       }).$saveOrUpdate().then(
         function(createdOrder) {
@@ -111,6 +156,21 @@ angular.module('os.biospecimen.specimen')
             quantity: specimen.availableQty,
             status: 'DISTRIBUTED_AND_CLOSED'
           }
+        }
+      );
+    }
+
+    function reserveSpmns(scope, details, specimens) {
+      var request = {
+        dpId: details.dp.id,
+        comments: details.comments,
+        specimens: specimens.map(function(spmn) { return {id: spmn.id }; })
+      };
+
+      details.dp.reserveSpecimens(request).then(
+        function(resp) {
+          Alerts.success('orders.specimens_reserved', {count: resp.updated});
+          specimens.forEach(function(spmn) { return spmn.reserved = true; });
         }
       );
     }
@@ -214,6 +274,16 @@ angular.module('os.biospecimen.specimen')
 
             selectDpAndDistributeSpmns(scope, selectedSpmns);
           }
+        }
+
+        scope.reserveSpecimens = function() {
+          var selectedSpmns = scope.specimens({anyStatus: false});
+          if (!selectedSpmns || selectedSpmns.length == 0) {
+            Alerts.error('specimen_list.no_specimens_for_reservation');
+            return;
+          }
+
+          selectDpAndDistributeSpmns(scope, selectedSpmns, true);
         }
 
         scope.shipSpecimens = function() {

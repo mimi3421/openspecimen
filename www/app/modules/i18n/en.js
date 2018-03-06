@@ -599,7 +599,7 @@
       "missed": "Missed"
     },
     "closed": "Closed",
-
+    "reserved": "Reserved",
     "unplanned": "Unplanned",
     "new_spmn": "New Specimen",
 
@@ -998,6 +998,10 @@
     "add_consent_tier": "Add Consent Tier ...",
     "delete_consent_tier": "{{entityType}} {{entityName}} of {{entity.dpShortTitle}} will be deleted forever. Are you sure you want to proceed?",
     "select_dist_site": "Please select at least one distributing site",
+    "reserved_spmns": "Reserved Specimens",
+    "distribute": "Distribute",
+    "distribute_all": "Distribute All",
+    "cancel_reservation": "Cancel Reservation",
 
     "bulk_import": "Import Distribution Protocols",
     "req_bulk_import": "Import Requirements",
@@ -1895,10 +1899,12 @@
     "specimens_removed_from_user_default_list": "Specimens sucessfully removed from {{owner.firstName}} {{owner.lastName}}'s default cart",
     "specimens_removed_from_normal_list": "Specimens sucessfully removed from cart {{name}}",
     "distribute": "Distribute",
+    "reserve": "Reserve",
     "distribute_all": "Distribute All",
     "ship": "Ship",
     "no_specimens_for_deletion": "Please select at least one specimen for deletion",
     "no_specimens_for_distribution": "Please select at least one collected specimen to create distribution order",
+    "no_specimens_for_reservation": "Please select at least one collected specimen to reserve",
     "no_specimens_for_shipment": "Please select at least one collected specimen to create shipment",
     "created_by": "Created By",
     "checkout": "Checkout",
@@ -1981,6 +1987,9 @@
     "select_dp": "Select Distribution Protocol",
     "creation_success": "Distribution Order {{name}} successfully created",
 
+    "specimens_reserved": "{{count == 0 ? 'Specimens are already reserved for distribution to the selected DP' : (count == 1 ? 'Specimen reserved' : count + ' specimens reserved')}}",
+    "dist_details": "Distribution Details",
+
     "menu": {
       "overview": "Overview",
       "items": "Specimens"
@@ -2009,6 +2018,7 @@
 
     "buttons": {
       "distribute": "Distribute",
+      "reserve": "Reserve",
       "save_draft": "Save Draft",
       "download_report": "Download Report",
       "return_specimens": "Return Specimens",

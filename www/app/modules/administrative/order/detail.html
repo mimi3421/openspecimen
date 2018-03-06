@@ -20,7 +20,7 @@
           <span class="os-title" translate="orders.menu.overview">Overview</span>
         </a>
       </li>
-      <li ui-sref-active="active" ng-if="order.status != 'PENDING' || !order.specimenList">
+      <li ui-sref-active="active" ng-if="order.status != 'PENDING' || (!order.specimenList && !order.allReservedSpmns)">
         <a ui-sref="order-detail.items">
           <span class="fa fa-flask"></span>
           <span class="os-title" translate="orders.menu.items">Specimens</span>

@@ -57,6 +57,24 @@ angular.module('os.administrative.models.dp', ['os.common.models'])
     DistributionProtocol.prototype.getOrderExtnCtxt = function() {
       return DistributionProtocol.getOrderExtnCtxt(this.$id());
     }
+
+    DistributionProtocol.prototype.reserveSpecimens = function(payload) {
+      payload = payload || {};
+      payload.dpId = this.$id();
+      return $http.put(DistributionProtocol.url() + this.$id() + '/reserved-specimens', payload).then(
+        function(resp) {
+          return resp.data;
+        }
+      );
+    }
+
+    DistributionProtocol.prototype.getReservedSpecimens = function(filterOpts) {
+      return $http.get(DistributionProtocol.url() + this.$id() + '/reserved-specimens', {params: filterOpts}).then(
+        function(resp) {
+          return resp.data;
+        }
+      );
+    }
     
     DistributionProtocol.getOrders = function(params) {
       return $http.get(DistributionProtocol.url() + 'orders', {params: params}).then(

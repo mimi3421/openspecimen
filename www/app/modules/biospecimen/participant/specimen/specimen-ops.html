@@ -29,6 +29,12 @@
         <span translate="specimen_list.distribute">Distribute</span>
       </a>
     </li>
+    <li show-if-allowed="resourceOpts.orderCreateOpts" ng-if="allowDistribution && !cp">
+      <a ng-click="reserveSpecimens()">
+        <span class="fa fa-ban"></span>
+        <span translate="specimen_list.reserve">Reserve</span>
+      </a>
+    </li>
     <li show-if-allowed="resourceOpts.shipmentCreateOpts">
       <a ng-click="shipSpecimens()">
         <span class="fa fa-paper-plane-o"></span>

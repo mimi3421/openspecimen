@@ -47,6 +47,8 @@
     <many-to-one name="request" column="REQUEST_ID"/>
 
     <many-to-one name="specimenList" column="SPECIMEN_LIST_ID"/>
+
+    <property name="allReservedSpecimens" column="SPMNS_RESERVED_FOR_DP"/>
       
     <filter name="activeEntity"/>
         

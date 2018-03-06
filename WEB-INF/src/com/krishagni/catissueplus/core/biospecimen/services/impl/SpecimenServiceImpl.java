@@ -641,19 +641,24 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 	}
 
 	private void ensureEditAllowed(SpecimenDetail detail, Specimen existing) {
-		if (existing == null || existing.isActive()) {
+		if (existing == null || existing.isEditAllowed()) {
 			return;
 		}
-		
-		String status = detail.getActivityStatus();
-		if (StringUtils.isNotBlank(status) && !Status.isValidActivityStatus(status))  {
-			throw OpenSpecimenException.userError(ActivityStatusErrorCode.INVALID);
+
+		if (!existing.isReserved()) {
+			//
+			// check whether the new status is active
+			//
+			String status = detail.getActivityStatus();
+			if (StringUtils.isNotBlank(status) && !Status.isValidActivityStatus(status))  {
+				throw OpenSpecimenException.userError(ActivityStatusErrorCode.INVALID);
+			}
+
+			if (StringUtils.isNotBlank(status) && Status.ACTIVITY_STATUS_ACTIVE.getStatus().equals(status)) {
+				return;
+			}
 		}
-		
-		if (StringUtils.isNotBlank(status) && Status.ACTIVITY_STATUS_ACTIVE.getStatus().equals(status)) {
-			return;
-		}
-		
+
 		throw OpenSpecimenException.userError(SpecimenErrorCode.EDIT_NOT_ALLOWED, existing.getLabel());
 	}
 
@@ -816,7 +821,7 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 			specimen = existing;
 			specimen.setLabelIfEmpty();
 		} else if (specimen.getParentSpecimen() != null) {
-			if (!specimen.getParentSpecimen().isActive()) {
+			if (!specimen.getParentSpecimen().isEditAllowed()) {
 				throw OpenSpecimenException.userError(SpecimenErrorCode.EDIT_NOT_ALLOWED, specimen.getParentSpecimen().getLabel());
 			}
 

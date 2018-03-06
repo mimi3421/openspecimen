@@ -941,6 +941,10 @@ public class AccessCtrlMgr {
 		ensureDistributionOrderEximRights(order);
 	}
 
+	public void ensureCreateDistributionOrderRights(DistributionProtocol dp) {
+		ensureDistributionOrderObjectRights(dp, Operation.CREATE);
+	}
+
 	public void ensureReadDistributionOrderRights(DistributionOrder order) {
 		ensureDistributionOrderObjectRights(order, Operation.READ);
 		ensureDistributionOrderEximRights(order);
@@ -963,12 +967,16 @@ public class AccessCtrlMgr {
 	}
 	
 	private void ensureDistributionOrderObjectRights(DistributionOrder order, Operation operation) {
+		ensureDistributionOrderObjectRights(order.getDistributionProtocol(), operation);
+	}
+
+	private void ensureDistributionOrderObjectRights(DistributionProtocol dp, Operation op) {
 		if (AuthUtil.isAdmin()) {
 			return;
 		}
-		
-		Set<Site> allowedSites = getSites(Resource.ORDER, operation);
-		Set<Site> distributingSites = order.getDistributionProtocol().getAllDistributingSites();
+
+		Set<Site> allowedSites = getSites(Resource.ORDER, op);
+		Set<Site> distributingSites = dp.getAllDistributingSites();
 		if (CollectionUtils.intersection(allowedSites, distributingSites).isEmpty()) {
 			throw OpenSpecimenException.userError(RbacErrorCode.ACCESS_DENIED);
 		}

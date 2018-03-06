@@ -137,4 +137,98 @@
         o.activity_status != 'Disabled'
     </createView>
   </changeSet>
+
+  <changeSet author="vpawar" id="Specimen reserved for distribution events">
+    <createTable tableName="OS_SPMN_RESERVED_EVENTS">
+      <column name="IDENTIFIER" type="${int.type}" autoIncrement="${autoIncrement}">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="SPECIMEN_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="DP_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CANCELLED_EVENT_ID" type="${int.type}"/>
+      <column name="USER_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="EVENT_TIME" type="${timestamp.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="COMMENTS" type="${text.type}(255)"/>
+    </createTable>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Sequence to auto generate reserved event identifiers" dbms="oracle">
+    <createSequence sequenceName="OS_SPMN_RESERVED_EVENTS_SEQ" startValue="1" incrementBy="1" ordered="true"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Foreign key on reserved specimen">
+    <addForeignKeyConstraint constraintName="FK_RESERVED_SPMN_ID"
+      baseTableName="OS_SPMN_RESERVED_EVENTS" baseColumnNames="SPECIMEN_ID"
+      referencedTableName="CATISSUE_SPECIMEN" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Foreign key on DP for which the specimen is reserved">
+    <addForeignKeyConstraint constraintName="FK_RESERVED_FOR_DP_ID"
+      baseTableName="OS_SPMN_RESERVED_EVENTS" baseColumnNames="DP_ID"
+      referencedTableName="CATISSUE_DISTRIBUTION_PROTOCOL" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Foreign key on reserved event that is being cancelled">
+    <addForeignKeyConstraint constraintName="FK_CANCELLED_RESERVE_EVENT_ID"
+      baseTableName="OS_SPMN_RESERVED_EVENTS" baseColumnNames="CANCELLED_EVENT_ID"
+      referencedTableName="OS_SPMN_RESERVED_EVENTS" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Specimen reserved event">
+    <addColumn tableName="CATISSUE_SPECIMEN">
+      <column name="RESERVED_EVENT_ID" type="${int.type}"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Foreign key on specimen reserved event">
+    <addForeignKeyConstraint constraintName="FK_SPMN_RESERVE_EVENT_ID"
+      baseTableName="CATISSUE_SPECIMEN" baseColumnNames="RESERVED_EVENT_ID"
+      referencedTableName="OS_SPMN_RESERVED_EVENTS" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Specimen reservation events view">
+    <createView viewName="OS_SPMN_RESERVATIONS_VIEW" replaceIfExists="true">
+      select
+        r.identifier as identifier,
+        dp.short_title as dp_short_title,
+        r.user_id as reserved_by,
+        r.event_time as reservation_date,
+        r.comments as comments
+      from
+        os_spmn_reserved_events r
+        inner join catissue_distribution_protocol dp on dp.identifier = r.dp_id
+      where
+        r.cancelled_event_id is null
+    </createView>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Specimen reservation cancellation events view">
+    <createView viewName="OS_SPMN_RESV_CANCEL_VIEW" replaceIfExists="true">
+      select
+        r.identifier as identifier,
+        dp.short_title as dp_short_title,
+        r.user_id as cancelled_by,
+        r.event_time as cancellation_date,
+        r.comments as comments
+      from
+        os_spmn_reserved_events r
+        inner join catissue_distribution_protocol dp on dp.identifier = r.dp_id
+      where
+        r.cancelled_event_id is not null
+    </createView>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Flag to indicate whether the order was created to distribute reserved specimens">
+    <addColumn tableName="OS_ORDERS">
+      <column name="SPMNS_RESERVED_FOR_DP" type="${bit.type}"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

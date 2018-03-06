@@ -10,7 +10,7 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
     function init() {
       $scope.input = {};
       $scope.order = order;
-      $scope.skipSpecimensTab = (!!order.specimenList && !!order.specimenList.id);
+      $scope.skipSpecimensTab = ((!!order.specimenList && !!order.specimenList.id) || order.allReservedSpmns);
 
       $scope.ctx = {
         extnFormCtrl: {},
@@ -22,10 +22,13 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
       order.request = spmnRequest;
       if (requestDp) {
         order.distributionProtocol = requestDp;
-        $scope.onDpSelect();
       } else {
         loadDps();
         setExtnFormCtxt(order);
+      }
+
+      if (!order.id && !!order.distributionProtocol) {
+        $scope.onDpSelect();
       }
 
       $scope.dpList = [];

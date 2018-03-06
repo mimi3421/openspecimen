@@ -62,6 +62,7 @@ public class DistributionOrderFactoryImpl implements DistributionOrderFactory {
 		setName(detail, order, ose);
 		setRequest(detail, order, ose);
 		setSpecimenList(detail, order, ose);
+		setAllReservedSpecimens(detail, order, ose);
 		setDistributionProtocol(detail, order, ose);		
 		setRequesterAndReceivingSite(detail, order, ose);
 		setDistributionDate(detail, order, ose);
@@ -120,6 +121,14 @@ public class DistributionOrderFactoryImpl implements DistributionOrderFactory {
 		}
 
 		order.setSpecimenList(specimenList);
+	}
+
+	private void setAllReservedSpecimens(DistributionOrderDetail detail, DistributionOrder order, OpenSpecimenException ose) {
+		if (order.getSpecimenList() != null || detail.getAllReservedSpmns() == null || detail.getAllReservedSpmns().equals(Boolean.FALSE)) {
+			return;
+		}
+
+		order.setAllReservedSpecimens(true);
 	}
 
 	private void setDistributionProtocol(DistributionOrderDetail detail, DistributionOrder order, OpenSpecimenException ose) {
@@ -240,7 +249,7 @@ public class DistributionOrderFactoryImpl implements DistributionOrderFactory {
 	}
 		
 	private void setOrderItems(DistributionOrderDetail detail, DistributionOrder order, OpenSpecimenException ose) {
-		if (order.getSpecimenList() != null) {
+		if (order.getSpecimenList() != null || order.isForAllReservedSpecimens()) {
 			return;
 		}
 
