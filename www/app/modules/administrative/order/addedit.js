@@ -45,6 +45,7 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
         if (!order.id) {
           if (angular.isArray(SpecimensHolder.getSpecimens())) {
             order.orderItems = getOrderItems(SpecimensHolder.getSpecimens());
+            order.comments = SpecimensHolder.getExtra() || order.comments;
             SpecimensHolder.setSpecimens(null);
           } else if (!!order.request) {
             order.orderItems = getOrderItemsFromReq(order.request.items, []);

@@ -103,6 +103,12 @@ angular.module('os.biospecimen.specimen')
             $modalInstance.close($scope.ctx);
           }
 
+          $scope.editOrder = function() {
+            $scope.ctx.distribute = true;
+            $scope.ctx.editOrder = true;
+            $modalInstance.close($scope.ctx);
+          }
+
           $scope.reserve = function() {
             $modalInstance.close($scope.ctx);
           }
@@ -129,8 +135,16 @@ angular.module('os.biospecimen.specimen')
     }
 
     function distributeSpmns(scope, details, specimens) {
-      var dp = details.dp;
+      if (details.editOrder) {
+        SpecimensHolder.setSpecimens(specimens, details.comments);
+        $state.go('order-addedit', {dpId: details.dp.id});
+        return;
+      }
 
+      //
+      // direct distribution
+      //
+      var dp = details.dp;
       new DistributionOrder({
         name: dp.shortTitle + '_' + new Date().toLocaleString(),
         distributionProtocol: dp,

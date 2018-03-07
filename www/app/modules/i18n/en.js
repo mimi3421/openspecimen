@@ -125,6 +125,7 @@
       "reset_password": "Reset Password",
       "add_new": "Add New",
       "add_another": "Add Another",
+      "add_more_details": "Add More Details",
       "download": "Download",
       "download_report": "Download Report",
       "reset_password": "Reset Password",
@@ -2018,6 +2019,7 @@
 
     "buttons": {
       "distribute": "Distribute",
+      "distribute_now": "Distribute Now",
       "reserve": "Reserve",
       "save_draft": "Save Draft",
       "download_report": "Download Report",

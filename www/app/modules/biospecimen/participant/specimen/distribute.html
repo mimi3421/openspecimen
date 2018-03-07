@@ -34,9 +34,24 @@
       <button class="btn btn-primary" os-form-submit="reserve()">
         <span translate="orders.buttons.reserve">Reserve</span>
       </button>
-      <button class="btn btn-primary" os-form-submit="distribute()" ng-hide="ctx.hideDistributeBtn">
-        <span translate="orders.buttons.distribute">Distribute</span>
-      </button>
+      <div class="os-inline-btn" dropdown>
+        <button class="btn btn-primary dropdown-toggle" ng-hide="ctx.hideDistributeBtn">
+          <span translate="orders.buttons.distribute">Distribute</span>
+          <span class="fa fa-caret-down"></span>
+        </button>
+        <ul class="dropdown-menu">
+          <li>
+            <a os-form-submit="distribute()">
+              <span translate="orders.buttons.distribute_now">Distribute Now</span>
+            </a>
+          </li>
+          <li>
+            <a os-form-submit="editOrder()" local-form="true">
+              <span translate="common.buttons.add_more_details">Add More Details</span>
+            </a>
+          </li>
+        </ul>
+      </div>
     </div>
   </form>
 </div>
