@@ -660,6 +660,15 @@ angular.module('openspecimen')
 
       evaluate: evaluate,
 
-      fns: fns
+      fns: fns,
+
+      toBeDateTime: function(input, reqSecs) {
+        var fmt = ui.os.global.shortDateFmt + ' HH:mm';
+        if (reqSecs) {
+          fmt += ':ss';
+        }
+
+        return $filter('date')(input, fmt);
+      }
     };
   });

@@ -1,6 +1,6 @@
 angular.module('os.biospecimen.specimen')
   .directive('osSpecimenOps', function(
-    $state, $rootScope, $modal, $q, DistributionProtocol, DistributionOrder,
+    $state, $rootScope, $modal, $q, Util, DistributionProtocol, DistributionOrder,
     Specimen, SpecimensHolder, Alerts, CommentsUtil, DeleteUtil, ParticipantSpecimensViewState) {
 
     function initOpts(scope) {
@@ -146,7 +146,7 @@ angular.module('os.biospecimen.specimen')
       //
       var dp = details.dp;
       new DistributionOrder({
-        name: dp.shortTitle + '_' + new Date().toLocaleString(),
+        name: dp.shortTitle + '_' + Util.toBeDateTime(new Date(), true),
         distributionProtocol: dp,
         requester: dp.principalInvestigator,
         siteName: dp.defReceivingSiteName,

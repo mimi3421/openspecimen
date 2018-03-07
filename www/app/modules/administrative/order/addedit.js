@@ -325,13 +325,18 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
     }
 
     $scope.onDpSelect = function() {
-      $scope.order.instituteName = $scope.order.distributionProtocol.instituteName;
-      $scope.order.siteName = $scope.order.distributionProtocol.defReceivingSiteName;
-      $scope.order.requester = $scope.order.distributionProtocol.principalInvestigator;
-      setUserAndSiteList($scope.order);
-      setExtnFormCtxt($scope.order);
+      var ord = $scope.order;
+      if (!ord.id) {
+        ord.name = ord.distributionProtocol.shortTitle + '_' + Util.toBeDateTime(new Date(), true);
+      }
 
-      addItemCosts($scope.order.distributionProtocol, $scope.order.orderItems);
+      ord.instituteName = ord.distributionProtocol.instituteName;
+      ord.siteName = ord.distributionProtocol.defReceivingSiteName;
+      ord.requester = ord.distributionProtocol.principalInvestigator;
+      setUserAndSiteList(ord);
+      setExtnFormCtxt(ord);
+
+      addItemCosts(ord.distributionProtocol, ord.orderItems);
     }
     
     $scope.onInstSelect = function () {

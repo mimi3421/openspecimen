@@ -42,15 +42,6 @@
       </span>
     </div>
 
-    <div class="form-group">
-      <label class="col-xs-3 control-label" translate="orders.name">Name</label>
-      <div class="col-xs-6">
-        <input type="text" name="name" ng-model="order.name"
-          class="form-control" placeholder="{{'orders.name' | translate}}" ng-maxlength="255" required/>
-        <div os-field-error field="ordForm.name"></div>
-      </div>
-    </div>
-     
     <div class="form-group" ng-if="!!order.request.id">
       <label class="col-xs-3 control-label" translate="orders.request">Request</label>
       <div class="col-xs-6">
@@ -69,7 +60,16 @@
         <div os-field-error field="ordForm.dp"></div>
       </div>
     </div>
-    
+
+    <div class="form-group">
+      <label class="col-xs-3 control-label" translate="orders.name">Name</label>
+      <div class="col-xs-6">
+        <input type="text" name="name" ng-model="order.name"
+          class="form-control" placeholder="{{'orders.name' | translate}}" ng-maxlength="255" required>
+        <div os-field-error field="ordForm.name"></div>
+      </div>
+    </div>
+
     <div class="form-group">
       <label class="control-label col-xs-3" translate="orders.receiving_institute">
         Receiving Institute
