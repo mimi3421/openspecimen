@@ -231,4 +231,18 @@
       <column name="SPMNS_RESERVED_FOR_DP" type="${bit.type}"/>
     </addColumn>
   </changeSet>
+
+  <changeSet author="vpawar" id="Specimen reservation view" runOnChange="true">
+    <createView viewName="OS_SPECIMEN_RESV_VIEW" replaceIfExists="true">
+      select
+        re.identifier as identifier,
+        s.identifier as specimen_id,
+        dp.short_title as dp_short_title,
+        re.event_time as event_time
+      from
+        os_spmn_reserved_events re
+        inner join catissue_distribution_protocol dp on dp.identifier = re.dp_id
+        inner join catissue_specimen s on s.reserved_event_id = re.identifier
+    </createView>
+  </changeSet>
 </databaseChangeLog>

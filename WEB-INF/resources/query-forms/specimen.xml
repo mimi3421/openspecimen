@@ -552,6 +552,40 @@
 
     <row>
       <subForm>
+        <name>specimenResv</name>
+        <udn>specimenResv</udn>
+        <caption>#getMessage("specimen_reservation")</caption>
+        <table>OS_SPECIMEN_RESV_VIEW</table>
+        <foreignKey>SPECIMEN_ID</foreignKey>
+        <parentKey>IDENTIFIER</parentKey>
+
+        <row>
+          <dropDown>
+            <name>dpShortTitle</name>
+            <udn>dpShortTitle</udn>
+            <caption>#getMessage("specimen_reservation_dp")</caption>
+            <column>DP_SHORT_TITLE</column>
+            <options>
+              <sql>select short_title from catissue_distribution_protocol where activity_status != 'Disabled' order by short_title</sql>
+            </options>
+            <recordUrl>#/object-state-params-resolver?stateName=dp-detail.overview&amp;objectName=distribution_protocol&amp;key=shortTitle&amp;value={{$value}}</recordUrl>
+          </dropDown>
+        </row>
+
+        <row>
+          <datePicker>
+            <name>resvDate</name>
+            <udn>resvDate</udn>
+            <caption>#getMessage("specimen_reservation_date")</caption>
+            <column>EVENT_TIME</column>
+            <format>MM-dd-yyyy</format>
+          </datePicker>
+        </row>
+      </subForm>
+    </row>
+
+    <row>
+      <subForm>
         <name>specimenOrders</name>
         <udn>specimenOrders</udn>
         <caption>#getMessage("specimen_order_items_order")</caption>
