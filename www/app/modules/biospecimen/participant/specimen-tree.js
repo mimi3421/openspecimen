@@ -56,7 +56,7 @@ angular.module('os.biospecimen.participant.specimen-tree',
       angular.forEach(specimen.children,
         function(childSpmn) {
           childSpmn.selected = specimen.selected;
-          selectDescendants(childSpmn.children);
+          selectDescendants(childSpmn);
         }
       );
     }
