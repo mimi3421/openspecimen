@@ -500,7 +500,8 @@
       "consents": "Consents",
       "visits": "Visits",
       "specimens": "Specimens",
-      "extensions": "Forms"
+      "extensions": "Forms",
+      "specimen_tree": "Specimen Tree"
     },
 
     "tooltip": {
