@@ -10,11 +10,15 @@ angular.module('os.biospecimen.participant')
       this.specimens = undefined;
     }
 
-    function openSpecimenTree(specimens) {
+    function openSpecimenTree(specimens, openedNodesMap) {
       angular.forEach(specimens,
         function(specimen) {
-          specimen.isOpened = true;
-          openSpecimenTree(specimen.children);
+          if (openedNodesMap) {
+            var key = (specimen.id || 'u') + '-' + (specimen.reqId || 'u');
+            specimen.isOpened = openedNodesMap[key];
+          } else if (specimen.lineage == 'New') {
+            specimen.isOpened = true;
+          }
         }
       );
     }
@@ -30,13 +34,21 @@ angular.module('os.biospecimen.participant')
       return Specimen.listFor(this.cpr.id).then(
         function(specimens) {
           that.specimens = Specimen.flatten(specimens);
-          openSpecimenTree(that.specimens);
+          openSpecimenTree(that.specimens, that.openedNodesMap);
           return that.specimens;
         }
       )
     }
 
     State.prototype.specimensUpdated = function() {
+      var nodesMap = this.openedNodesMap = {};
+      angular.forEach(this.specimens,
+        function(specimen) {
+          var key = (specimen.id || 'u') + '-' + (specimen.reqId || 'u');
+          nodesMap[key] = specimen.isOpened;
+        }
+      );
+
       this.specimens = undefined;
     }
 

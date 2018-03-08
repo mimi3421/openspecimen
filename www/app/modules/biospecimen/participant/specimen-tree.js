@@ -11,11 +11,17 @@ angular.module('os.biospecimen.participant.specimen-tree',
 
     var allowedDps = undefined;
 
-    function openSpecimenTree(specimens) {
-      angular.forEach(specimens, function(specimen) {
-        specimen.isOpened = true;
-        openSpecimenTree(specimen.children);
-      });
+    function openSpecimenTree(specimens, openedNodesMap) {
+      angular.forEach(specimens,
+        function(specimen) {
+          if (openedNodesMap) {
+            var key = (specimen.id || 'u') + '-' + (specimen.reqId || 'u');
+            specimen.isOpened = openedNodesMap[key];
+          } else if (specimen.depth == 0) {
+            specimen.isOpened = true;
+          }
+        }
+      );
     }
 
     function toggleAllSelected(selection, specimens, specimen) {
@@ -45,6 +51,15 @@ angular.module('os.biospecimen.participant.specimen-tree',
         parent = parent.parent;
       }
     };
+
+    function selectDescendants(specimen) {
+      angular.forEach(specimen.children,
+        function(childSpmn) {
+          childSpmn.selected = specimen.selected;
+          selectDescendants(childSpmn.children);
+        }
+      );
+    }
 
     function isAnySelected(specimens) {
       for (var i = 0; i < specimens.length; ++i) {
@@ -139,7 +154,7 @@ angular.module('os.biospecimen.participant.specimen-tree',
     }
 
     function anyPendingSpmnsInTree(specimens) {
-      return specimens.some(
+      return (specimens || []).some(
         function(spmn) {
           if (!spmn.status || spmn.status == 'Pending') {
             return true;
@@ -262,6 +277,10 @@ angular.module('os.biospecimen.participant.specimen-tree',
         scope.toggleSpecimenSelect = function(specimen) {
           if (specimen.status != 'Collected') {
             selectParentSpecimen(specimen);
+          }
+
+          if (!specimen.isOpened) {
+            selectDescendants(specimen);
           }
 
           toggleAllSelected(scope.selection, scope.specimens, specimen);
@@ -407,11 +426,18 @@ angular.module('os.biospecimen.participant.specimen-tree',
             return;
           }
 
+          var openedNodesMap = {};
+          angular.forEach(scope.specimens,
+            function(spmn) {
+              openedNodesMap[(spmn.id || 'u') + '-' + (spmn.reqId || 'u')] = spmn.isOpened;
+            }
+          );
+
           scope.reload().then(
             function() {
               $timeout(function() {
                 scope.specimens = Specimen.flatten(scope.specimenTree);
-                openSpecimenTree(scope.specimens);
+                openSpecimenTree(scope.specimens, openedNodesMap);
                 if ($injector.has('sdeFieldsSvc')) {
                   initSdeTreeFields(scope);
                 }
