@@ -417,8 +417,8 @@ angular.module('os.biospecimen.participant',
             );
           },
 
-          participantSpmnsViewState: function(cpr, ParticipantSpecimensViewState) {
-            return new ParticipantSpecimensViewState(cpr);
+          participantSpmnsViewState: function(cpr, pendingSpmnsDispInterval, ParticipantSpecimensViewState) {
+            return new ParticipantSpecimensViewState(cpr, +pendingSpmnsDispInterval.value);
           }
         },
         controller: 'ParticipantRootCtrl',

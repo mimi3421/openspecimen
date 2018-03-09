@@ -42,6 +42,8 @@ public class SpecimenInfo extends AttributeModifiedSupport implements Comparable
 	private String visitName;
 
 	private String sprNo;
+
+	private Date visitDate;
 	
 	private String cpShortTitle;
 	
@@ -175,6 +177,14 @@ public class SpecimenInfo extends AttributeModifiedSupport implements Comparable
 
 	public void setSprNo(String sprNo) {
 		this.sprNo = sprNo;
+	}
+
+	public Date getVisitDate() {
+		return visitDate;
+	}
+
+	public void setVisitDate(Date visitDate) {
+		this.visitDate = visitDate;
 	}
 
 	public String getCpShortTitle() {
@@ -448,6 +458,7 @@ public class SpecimenInfo extends AttributeModifiedSupport implements Comparable
 		result.setVisitId(specimen.getVisit().getId());
 		result.setVisitName(specimen.getVisit().getName());
 		result.setSprNo(specimen.getVisit().getSurgicalPathologyNumber());
+		result.setVisitDate(specimen.getVisit().getVisitDate());
 		result.setCprId(specimen.getRegistration().getId());
 		result.setPpid(specimen.getRegistration().getPpid());
 		result.setCpId(specimen.getCollectionProtocol().getId());

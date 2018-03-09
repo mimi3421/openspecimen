@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
-import org.springframework.util.CollectionUtils;
 
 import com.krishagni.catissueplus.core.administrative.events.StorageLocationSummary;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
@@ -351,17 +350,7 @@ public class SpecimenDetail extends SpecimenInfo {
 	}
 	
 	public static List<SpecimenDetail> from(Collection<Specimen> specimens) {
-		List<SpecimenDetail> result = new ArrayList<>();
-		
-		if (CollectionUtils.isEmpty(specimens)) {
-			return result;
-		}
-		
-		for (Specimen specimen : specimens) {
-			result.add(SpecimenDetail.from(specimen));
-		}
-		
-		return result;
+		return Utility.nullSafeStream(specimens).map(SpecimenDetail::from).collect(Collectors.toList());
 	}
 	
 	public static SpecimenDetail from(SpecimenRequirement anticipated) {
@@ -383,18 +372,8 @@ public class SpecimenDetail extends SpecimenInfo {
 	}
 
 	public static List<SpecimenDetail> fromAnticipated(Collection<SpecimenRequirement> anticipatedSpecimens) {
-		List<SpecimenDetail> result = new ArrayList<SpecimenDetail>();
-		
-		if (CollectionUtils.isEmpty(anticipatedSpecimens)) {
-			return result;
-		}
-		
-		for (SpecimenRequirement anticipated : anticipatedSpecimens) {
-			result.add(SpecimenDetail.from(anticipated));
-		}
-		
-		return result;
-	}	
+		return Utility.nullSafeStream(anticipatedSpecimens).map(SpecimenDetail::from).collect(Collectors.toList());
+	}
 	
 	public static void sort(List<SpecimenDetail> specimens) {
 		Collections.sort(specimens);
@@ -452,8 +431,8 @@ public class SpecimenDetail extends SpecimenInfo {
 				merge(visit, anticipated.getChildSpecimenRequirements(), result, specimen, reqSpecimenMap);
 			} else {
 				specimen = SpecimenDetail.from(anticipated);
-				specimen.setVisitId(visit != null ? visit.getId() : null);
-				
+				setVisitDetails(visit, specimen);
+
 				if (currentParent == null) {
 					result.add(specimen);
 				} else {
@@ -462,5 +441,17 @@ public class SpecimenDetail extends SpecimenInfo {
 				}				
 			}						
 		}
+	}
+
+	private static void setVisitDetails(Visit visit, SpecimenDetail specimen) {
+		if (visit == null) {
+			return;
+		}
+
+		specimen.setVisitId(visit.getId());
+		specimen.setVisitName(visit.getName());
+		specimen.setSprNo(visit.getSurgicalPathologyNumber());
+		specimen.setVisitDate(visit.getVisitDate());
+		Utility.nullSafeStream(specimen.getChildren()).forEach(child -> setVisitDetails(visit, child));
 	}
 }

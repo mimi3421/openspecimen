@@ -4,10 +4,12 @@ angular.module('os.biospecimen.participant')
     $q, $document, $location, $timeout, $anchorScroll,
     CpConfigSvc, Specimen) {
 
-    var State = function(cpr) {
+    var State = function(cpr, pendingSpmnsDispInterval) {
       this.cpr = cpr;
       this.selectedSpmn = undefined;
       this.specimens = undefined;
+      this.pendingSpmnsDispInterval = pendingSpmnsDispInterval;
+      this.onlyOldPendingSpmns = false;
     }
 
     function openSpecimenTree(specimens, openedNodesMap) {
@@ -23,6 +25,37 @@ angular.module('os.biospecimen.participant')
       );
     }
 
+    function isOldVisit(visitDt, interval) {
+      if (!visitDt && visitDt != 0) {
+        return false; // assuming it is yet to completed visit
+      }
+
+      var dt = new Date(visitDt);
+      dt.setDate(dt.getDate() + interval);
+      return dt.getTime() < Date.now();
+    }
+
+    function hidePendingSpmns(specimens, interval) {
+      var visitsMap = {}, onlyOldPendingSpmns = true;
+      angular.forEach(specimens,
+        function(specimen) {
+          if (!specimen.visitId || (!!specimen.status && specimen.status != 'Pending')) {
+            onlyOldPendingSpmns = false;
+            return;
+          }
+
+          if (!visitsMap.hasOwnProperty(specimen.visitId)) {
+            visitsMap[specimen.visitId] = isOldVisit(specimen.visitDate, interval);
+          }
+
+          specimen.$$hideN = visitsMap[specimen.visitId];
+          onlyOldPendingSpmns = (onlyOldPendingSpmns && specimen.$$hideN);
+        }
+      );
+
+      return onlyOldPendingSpmns;
+    }
+
     State.prototype.getSpecimens = function() {
       if (this.specimens) {
         var q = $q.defer();
@@ -35,6 +68,11 @@ angular.module('os.biospecimen.participant')
         function(specimens) {
           that.specimens = Specimen.flatten(specimens);
           openSpecimenTree(that.specimens, that.openedNodesMap);
+
+          if (that.pendingSpmnsDispInterval > 0) {
+            that.onlyOldPendingSpmns = hidePendingSpmns(that.specimens, that.pendingSpmnsDispInterval);
+          }
+
           return that.specimens;
         }
       )
