@@ -133,16 +133,53 @@ angular.module('os.biospecimen.participant.specimen-tree',
       return specimens;
     };
 
-    function shouldHidePendingSpmns(collectionDate, pendingSpmnsDispInterval) {
-      var hidePendingSpmns = false;
-
-      if (!collectionDate || !pendingSpmnsDispInterval) {
-        return hidePendingSpmns;
+    function isOldVisit(visitDate, interval) {
+      if (!visitDate && visitDate != 0) {
+        return false;
       }
 
-      var dispCutOff = new Date(collectionDate);
-      dispCutOff.setDate(dispCutOff.getDate() + pendingSpmnsDispInterval);
-      return dispCutOff.getTime() < (new Date().getTime());
+      var dispCutOff = new Date(visitDate);
+      dispCutOff.setDate(dispCutOff.getDate() + interval);
+      return dispCutOff.getTime() < Date.now();
+    }
+
+    function hideOldPendingSpmns(specimens, interval) {
+      var result = true, visitsMap = {};
+
+      angular.forEach(specimens,
+        function(specimen) {
+          if (!specimen.visitId) {
+            result = false;
+            return;
+          }
+
+          if (!!specimen.status && specimen.status != 'Pending') {
+            return;
+          }
+
+          if (!visitsMap.hasOwnProperty(specimen.visitId)) {
+            visitsMap[specimen.visitId] = isOldVisit(specimen.visitDate, interval);
+          }
+
+          specimen.$$hideN = visitsMap[specimen.visitId];
+          if (result && (!specimen.status || specimen.status == 'Pending')) {
+            result = specimen.$$hideN;
+          }
+        }
+      );
+
+      // result is false if at least one pending specimen is displayed.
+      return result;
+    }
+
+    function toggleShowHidePendingSpmns(specimens, hide) {
+      angular.forEach(specimens,
+        function(specimen) {
+          if (!specimen.status || specimen.status == 'Pending') {
+            specimen.$$hideN = hide;
+          }
+        }
+      );
     }
 
     function onlyPendingSpmns(specimens) {
@@ -230,7 +267,6 @@ angular.module('os.biospecimen.participant.specimen-tree',
         specimenTree: '=specimens',
         allowedOps: '=',
         reload: '&reload',
-        collectionDate: '=?',
         pendingSpmnsDispInterval: '=?'
       },
 
@@ -244,18 +280,18 @@ angular.module('os.biospecimen.participant.specimen-tree',
         scope.view = 'list';
         scope.parentSpecimen = undefined;
 
-        scope.hidePendingSpmns = shouldHidePendingSpmns(scope.collectionDate, scope.pendingSpmnsDispInterval);
         scope.onlyPendingSpmns = onlyPendingSpmns(scope.specimenTree);
         scope.anyPendingSpmns  = anyPendingSpmnsInTree(scope.specimenTree);
 
         scope.specimens = Specimen.flatten(scope.specimenTree);
         openSpecimenTree(scope.specimens);
+        scope.hidePendingSpmns = hideOldPendingSpmns(scope.specimens, scope.pendingSpmnsDispInterval);
+
         if ($injector.has('sdeFieldsSvc')) {
           initSdeTreeFields(scope);
         } else {
           scope.dispTree = true;
         }
-
 
         scope.openSpecimenNode = function(specimen) {
           specimen.isOpened = true;
@@ -415,6 +451,7 @@ angular.module('os.biospecimen.participant.specimen-tree',
 
         scope.toggleHidePendingSpmns = function() {
           scope.hidePendingSpmns = !scope.hidePendingSpmns;
+          toggleShowHidePendingSpmns(scope.specimens, scope.hidePendingSpmns);
         }
 
         scope.getSelectedSpecimens = function(anyStatus) {

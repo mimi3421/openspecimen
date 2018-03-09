@@ -8,6 +8,7 @@
     </a>
   </span>
   <span class="fa fa-circle"
+    ng-style="{'margin-left': specimen.hasChildren && specimen.hasOnlyPendingChildren && hidePendingSpmns ? '16px' : '0px'}"
     ng-class="{
       'os-status-unplanned': specimen.status == 'Collected' && !specimen.reqId && !specimen.reserved && !specimen.distributionStatus && !!specimen.storageLocation.name,
       'os-status-collected': specimen.status == 'Collected' && !!specimen.storageLocation.name && !specimen.reserved && !specimen.distributionStatus,

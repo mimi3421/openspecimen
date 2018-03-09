@@ -61,9 +61,8 @@
           </tr>
         </thead>
         <tbody class="os-table-body" ng-class="{'os-pool-specimen': !!specimen.pooledSpecimen}"
-          ng-repeat="specimen in specimens | openedTreeNodes">
-          <tr class="row title" ng-class="{'selected': specimen.selected}" 
-            ng-if="(specimen.status && specimen.status != 'Pending') || !hidePendingSpmns">
+          ng-repeat="specimen in specimens | openedTreeNodes" ng-if="!specimen.$$hideN">
+          <tr class="row title" ng-class="{'selected': specimen.selected}">
             <td class="col col-xs-5">
               <div class="clearfix">
                 <div class="os-select-specimen-cb" ng-hide="specimen.status == 'Missed Collection'">
@@ -134,9 +133,8 @@
           </tr>
         </thead>
         <tbody class="os-table-body" ng-class="{'os-pool-specimen': !!specimen.pooledSpecimen}"
-          ng-repeat="specimen in specimens | openedTreeNodes">
-          <tr class="row title" ng-class="{'selected': specimen.selected}"
-            ng-if="(specimen.status && specimen.status != 'Pending') || !hidePendingSpmns">
+          ng-repeat="specimen in specimens | openedTreeNodes" ng-if="!specimen.$$hideN">
+          <tr class="row title" ng-class="{'selected': specimen.selected}">
             <td class="col os-word-break" ng-repeat="field in specimen.$$treeFields">
               <div class="clearfix" ng-if="$index == 0">
                 <div class="os-select-specimen-cb" ng-hide="specimen.status == 'Missed Collection'">
