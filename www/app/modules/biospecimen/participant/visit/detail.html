@@ -75,7 +75,7 @@
     <div ng-if="rootCtx.showTree" class="os-col-25 os-full-height-container os-no-padding">
       <div class="os-full-height-container" ng-include src="'modules/biospecimen/participant/specimens-drawer.html'"></div>
     </div>
-    <div class="os-full-height-container os-scrollable-container-y" ng-class="{'os-col-75': !!rootCtx.showTree}"> 
+    <div class="os-specimen-tree-pane" ng-class="{'os-col-75': !!rootCtx.showTree}">
       <div ui-view></div>
     </div>
   </div>

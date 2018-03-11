@@ -1,4 +1,6 @@
-<div class="panel panel-default">
+<div os-sticky-tree-top>
+
+<div class="panel panel-default os-full-height-container">
   <div class="panel-heading">
     <span translate="specimens.list">Specimens</span>
     <div class="os-action-btns" ng-if = "visit.status != 'Missed Collection'">
@@ -36,11 +38,12 @@
       </div>
     </div>
   </div>
-  <div class="panel-body" ng-switch on="!specimens || specimens.length == 0 || (onlyPendingSpmns && hidePendingSpmns)">
+  <div class="panel-body os-specimen-tree-body"
+    ng-switch on="!specimens || specimens.length == 0 || (onlyPendingSpmns && hidePendingSpmns)">
     <div ng-switch-when="true">
       <span translate="specimens.no_specimens_to_show">No Specimens to Show</span>
     </div>
-    <div class="os-scrollable-container" ng-switch-when="false">
+    <div ng-switch-when="false">
       <table class="os-table os-table-fixed os-table-tree" ng-class="{'os-spmn-hide-options': view != 'list'}"
         ng-if="dispTree && !hasDict">
         <thead class="os-table-head">
@@ -272,3 +275,5 @@
     </ul>
   </div>
 </script>
+
+</div>

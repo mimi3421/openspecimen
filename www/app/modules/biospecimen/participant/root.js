@@ -131,6 +131,7 @@ angular.module('os.biospecimen.participant.root', ['os.biospecimen.models'])
     $scope.toggleTree = function() {
       $scope.rootCtx.showTree = !$scope.rootCtx.showTree;
       ParticipantSpecimensViewState.showTree = $scope.rootCtx.showTree;
+      $scope.$broadcast('osToggleParticipantSpecimenTree', {show: $scope.rootCtx.showTree});
     }
 
     init();

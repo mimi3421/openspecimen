@@ -270,6 +270,8 @@ angular.module('os.biospecimen.participant.specimen-tree',
         pendingSpmnsDispInterval: '=?'
       },
 
+      replace: true,
+
       templateUrl: 'modules/biospecimen/participant/specimens.html',
 
       link: function(scope, element, attrs) {
