@@ -114,6 +114,11 @@
       <attribute>closeParent</attribute>
     </field>
 
+    <field>
+      <caption>#getMessage("specimen_comments")</caption>
+      <attribute>comments</attribute>
+    </field>
+
     <record type="customFields" entityType="SpecimenExtension">
       <attribute>extensionDetail</attribute>
     </record>
