@@ -184,7 +184,8 @@ angular.module('os.biospecimen.specimen')
       details.dp.reserveSpecimens(request).then(
         function(resp) {
           Alerts.success('orders.specimens_reserved', {count: resp.updated});
-          specimens.forEach(function(spmn) { return spmn.reserved = true; });
+          ParticipantSpecimensViewState.specimensUpdated(scope, {inline: true});
+          scope.initList();
         }
       );
     }

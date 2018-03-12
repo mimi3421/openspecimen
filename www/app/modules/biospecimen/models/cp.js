@@ -1,6 +1,6 @@
 
 angular.module('os.biospecimen.models.cp', ['os.common.models'])
-  .factory('CollectionProtocol', function(osModel, $http, $q, Form) {
+  .factory('CollectionProtocol', function(osModel, $http, $q, DistributionProtocol, Form) {
     var CollectionProtocol =
       osModel(
         'collection-protocols',
@@ -13,6 +13,14 @@ angular.module('os.biospecimen.models.cp', ['os.common.models'])
 
           cp.consentModel.prototype.getType = function() {
             return 'consent';
+          }
+
+          if (!!cp.distributionProtocols) {
+            cp.distributionProtocols = cp.distributionProtocols.map(
+              function(dp) {
+                return new DistributionProtocol(dp);
+              }
+            );
           }
         }
       );
