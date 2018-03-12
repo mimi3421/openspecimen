@@ -332,16 +332,16 @@ public abstract class DeObject {
 		for (Attr attr : extension.getAttrs()) {
 			existingAttrs.put(attr.getName(), attr);
 		}
-		
-		List<Attr> attrs = new ArrayList<>();
+
+		Map<String, Object> valueMap = new HashMap<>();
 		for (AttrDetail attrDetail : detail.getAttrs()) {
-			Attr attr = existingAttrs.remove(attrDetail.getName());
-			if (attr == null) {
-				attr = new Attr();
-			} 
-			
-			BeanUtils.copyProperties(attrDetail, attr, "caption");
-			attrs.add(attr);
+			valueMap.put(attrDetail.getName(), attrDetail.getValue());
+		}
+
+		FormData formData = FormData.getFormData(extension.getForm(), valueMap);
+		List<Attr> attrs = extension.getAttrs(formData);
+		for (Attr attr : attrs) {
+			existingAttrs.remove(attr.getName());
 		}
 		
 		attrs.addAll(existingAttrs.values());

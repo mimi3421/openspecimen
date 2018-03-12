@@ -138,6 +138,7 @@
         <bean class="com.krishagni.catissueplus.core.biospecimen.label.visit.VisitClinicalStatusLabelToken"/>
         <bean class="com.krishagni.catissueplus.core.biospecimen.label.visit.VisitClinicalStatusAbbrToken"/>
         <bean class="com.krishagni.catissueplus.core.biospecimen.label.visit.VisitSiteCodeLabelToken"/>
+        <bean class="com.krishagni.catissueplus.core.biospecimen.label.visit.VisitCustomFieldLabelToken"/>
         <ref bean="extnPvLabelToken"/>
       </list>
     </property>
@@ -273,6 +274,7 @@
         <bean class="com.krishagni.catissueplus.core.biospecimen.label.cpr.SiteCodePpidToken"/>
         <bean class="com.krishagni.catissueplus.core.biospecimen.label.cpr.ExternalSubjectIdPpidToken"/>
         <bean class="com.krishagni.catissueplus.core.biospecimen.label.cpr.RegSiteCodePpidToken"/>
+        <bean class="com.krishagni.catissueplus.core.biospecimen.label.cpr.CustomFieldPpidToken"/>
       </list>
     </property>
   </bean>
@@ -355,6 +357,7 @@
         <bean class="com.krishagni.catissueplus.core.biospecimen.label.specimen.CpPpidUniqueIdLabelToken"/>
         <bean class="com.krishagni.catissueplus.core.biospecimen.label.specimen.SpecimenCpUniqueIdToken"/>
         <bean class="com.krishagni.catissueplus.core.biospecimen.label.specimen.ParentSpecimenCounterLabelToken"/>
+        <bean class="com.krishagni.catissueplus.core.biospecimen.label.specimen.SpecimenCustomFieldLabelToken"/>
         <ref bean="extnPvLabelToken"/>
       </list>
     </property>
