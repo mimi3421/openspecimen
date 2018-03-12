@@ -102,7 +102,7 @@
                       <button class="dropdown-toggle">
                         <span class="fa fa-ellipsis-v"></span>
                       </button>
-                      <ul class="dropdown-menu" role="menu">
+                      <ul class="dropdown-menu dropdown-menu-right" role="menu">
                         <li>
                           <a ui-sref="visit-detail.overview({visitId: visit.id, eventId: visit.eventId})">
                             <i class="fa fa-eye"></i>
@@ -168,7 +168,7 @@
                         <button class="btn btn-default dropdown-toggle" style="margin-top: -8px!important">
                           <span class="fa fa-ellipsis-v"></span>
                         </button>
-                        <ul class="dropdown-menu" role="menu">
+                        <ul class="dropdown-menu dropdown-menu-right" role="menu">
                           <li show-if-allowed="specimenResource.updateOpts">
                             <a ui-sref="visit-addedit({visitId: visit.id, eventId: visit.eventId})">
                               <i class="fa fa-plus"></i>
@@ -284,7 +284,7 @@
     <button class="dropdown-toggle">
       <span class="fa fa-ellipsis-v"></span>
     </button>
-    <ul class="dropdown-menu" role="menu">
+    <ul class="dropdown-menu dropdown-menu-right" role="menu">
       <li>
         <a ui-sref="visit-detail.overview({visitId: visit.id, eventId: visit.eventId})">
           <span class="fa fa-eye"></span>
