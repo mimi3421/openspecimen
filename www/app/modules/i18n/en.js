@@ -821,6 +821,19 @@
       "new_location": "New Location",
       "comments": "Comments",
       "success": "Successfully updated locations of {{spmnsCount}} specimens"
+    },
+
+    "tree_node_statuses": {
+      "closed": "Closed",
+      "part-distributed": "Partly Distributed",
+      "distributed": "Distributed",
+      "returned": "Returned",
+      "reserved": "Reserved",
+      "virtual": "Not Stored",
+      "unplanned": "Unplanned Collection",
+      "collected": "Planned Collection",
+      "not-collected": "Missed Collection",
+      "pending": "Pending"
     }
   },
 
