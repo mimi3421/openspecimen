@@ -25,6 +25,26 @@ angular.module('os.biospecimen.participant')
       );
     }
 
+    function openUptoSelected(specimens, selected) {
+      if (!specimens || !selected) {
+        return;
+      }
+
+      var selectedNode = undefined;
+      for (var i = 0; i < specimens.length; ++i) {
+        var node = specimens[i];
+        if ((!!node.id && node.id == selected.id) || (!node.id && !selected.id && node.reqId == selected.reqId)) {
+          selectedNode = node;
+          break;
+        }
+      }
+
+      while (selectedNode && !selectedNode.isOpened) {
+        selectedNode.isOpened = true;
+        selectedNode = selectedNode.parent;
+      }
+    }
+
     function isOldVisit(visitDt, interval) {
       if (!visitDt && visitDt != 0) {
         return false; // assuming it is yet to completed visit
@@ -73,6 +93,7 @@ angular.module('os.biospecimen.participant')
             that.onlyOldPendingSpmns = hidePendingSpmns(that.specimens, that.pendingSpmnsDispInterval);
           }
 
+          openUptoSelected(that.specimens, that.selectedSpmn);
           return that.specimens;
         }
       )
@@ -110,6 +131,7 @@ angular.module('os.biospecimen.participant')
 
     State.prototype.selectSpecimen = function(specimen) {
       this.selectedSpmn = specimen;
+      openUptoSelected(this.specimens, specimen);
     }
 
     State.prototype.unselectSpecimen = function() {
