@@ -22,8 +22,8 @@
                     #set( $site = $sr.site.name )
                     #set( $siteText = "site" )
                   #else
-                    #set( $site = "All sites" )
-                    #set( $siteText = "sites" )
+                    #set( $site = "All sites</b> under <b>$user.institute.name</b> institute" )
+                    #set( $siteText = "" )
                   #end
 
                   #if( $oldSr )
@@ -39,8 +39,8 @@
                       #set( $oldSite = $oldSr.site.name )
                       #set( $oldSiteText = "site" )
                     #else
-                      #set( $oldSite = "All sites")
-                      #set( $oldSiteText = "sites" )
+                      #set( $oldSite = "All sites</b> under <b>$user.institute.name</b> institute" )
+                      #set( $oldSiteText = "" )
                     #end
                   #end
 
@@ -50,7 +50,7 @@
                     #else
                       User $user.firstName $user.lastName has been assigned
                     #end
-                    <b> $sr.role.name </b> role on <b> $cp </b> $cpText for $siteText <b> $site </b>
+                    <b> $sr.role.name </b> role on <b> $cp </b> $cpText for $siteText <b>$site</b>.
                   #end
 
                   #if( $operation == 'UPDATE' )
@@ -58,12 +58,12 @@
                       There is change in your role.
                       Your <b> $oldSr.role.name </b> role on <b> $oldCP </b> $oldCPText for $oldSiteText <b> $oldSite </b>
                       has been updated.<br><br>
-                      Your new role is <b> $sr.role.name </b> on <b>$cp</b> $cpText for $siteText <b> $site </b>
+                      Your new role is <b> $sr.role.name </b> on <b>$cp</b> $cpText for $siteText <b>$site</b>.
                     #else
                       There is change in user $user.firstName $user.lastName role.
                       User $user.firstName $user.lastName <b> $oldSr.role.name </b> role on <b> $oldCP </b> $oldCPText for $oldSiteText <b> $oldSite </b>
                       has been updated.<br><br>
-                      User $user.firstName $user.lastName new role is <b> $sr.role.name </b> on <b>$cp</b> $cpText for $siteText <b> $site </b>
+                      User $user.firstName $user.lastName new role is <b> $sr.role.name </b> on <b>$cp</b> $cpText for $siteText <b>$site</b>.
                     #end
                   #end
 
