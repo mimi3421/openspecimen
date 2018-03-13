@@ -134,7 +134,7 @@
     <div class="form-group" ng-if="barcodingEnabled">
       <label class="col-xs-3 control-label" translate="specimens.barcode">Barcode</label>
       <div class="col-xs-6">
-        <input ng-model="currSpecimen.barcode" class="form-control"
+        <input ng-model="currSpecimen.barcode" class="form-control" ng-disabled="!!spmnBarcodesAutoGen"
           type="text" placeholder="{{'specimens.barcode' | translate}}">
       </div>
     </div>
