@@ -212,6 +212,10 @@ public class StorageContainerPositionDetail implements Comparable<StorageContain
 				props.put("ppid", specimen.getVisit().getRegistration().getPpid());
 			}
 
+			if (specimen.getReservedEvent() != null) {
+				props.put("reserved", true);
+			}
+
 			result.setOccuypingEntity("specimen");
 			result.setOccupyingEntityId(specimen.getId());
 			result.setOccupyingEntityName(specimen.getLabel());

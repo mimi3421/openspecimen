@@ -54,6 +54,10 @@ angular.module('os.administrative.container.util', ['os.common.box'])
           var cssClass = '';
           if (occupant.occuypingEntity == 'specimen' && !!occupant.occupantProps) {
             displayName = getOccupantDisplayName(container, occupant);
+
+            if (occupant.occupantProps.reserved) {
+              cssClass = 'slot-reserved';
+            }
           } else if (!!occupant.occupyingEntityName) {
             displayName = occupant.occupyingEntityName;
           } else if (occupant.blocked) {

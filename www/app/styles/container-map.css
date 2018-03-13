@@ -163,6 +163,10 @@
   background: #d9534f;
 }
 
+.os-container-map .slot-reserved {
+  background: rgba(128, 0, 128, 0.7);
+}
+
 .os-container-tree {
   height: 100%;
   overflow: auto;

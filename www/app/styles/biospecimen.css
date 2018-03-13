@@ -108,6 +108,7 @@
   padding: 0px 4px;
 }
 
+.panel .panel-heading .os-status-closed,
 .os-page-header .os-status-closed {
   background: #d9534f!important;
 }
@@ -124,6 +125,7 @@
   background: #5bc0de!important;
 }
 
+.panel .panel-heading .os-status-closed,
 .os-page-header .os-status-closed,
 .os-page-header .os-status-pending,
 .os-page-header .os-status-collected,
