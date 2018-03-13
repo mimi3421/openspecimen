@@ -175,6 +175,14 @@ angular.module('os.biospecimen.models.specimen', ['os.common.models', 'os.biospe
       return curr;
     };
 
+    Specimen.prototype.getPrimarySpecimenId = function() {
+      return $http.get(Specimen.url() + this.$id() + '/primary-specimen-id').then(
+        function(resp) {
+          return resp.data.id;
+        }
+      );
+    }
+
     Specimen.prototype.getExtensionCtxt = function(params) {
       return Specimen.getExtensionCtxt(params);
     }

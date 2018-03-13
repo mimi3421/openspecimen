@@ -23,6 +23,8 @@ public interface SpecimenDao extends Dao<Specimen> {
 	Specimen getByBarcode(String barcode);
 
 	Specimen getByBarcodeAndCp(String cpShortTitle, String barcode);
+
+	Long getPrimarySpecimen(Long specimenId);
 	
 	List<Specimen> getSpecimensByIds(List<Long> specimenIds);
 

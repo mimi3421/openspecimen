@@ -264,5 +264,19 @@
       where
         spmn.id in :specimenIds
     </query>
+
+    <sql-query name="getRootId">
+      <return-scalar column="rootId" type="long"/>
+
+      select
+        s.identifier as rootId
+      from
+        catissue_specimen_hierarchy h
+        inner join catissue_specimen s on s.identifier = h.ancestor_id
+      where
+        h.descendent_id = :specimenId and
+        s.parent_specimen_id is null and
+        s.activity_status != 'Disabled'
+    </sql-query>
   </class>
 </hibernate-mapping>

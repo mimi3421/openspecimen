@@ -147,7 +147,9 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 			return ResponseEvent.serverError(e);
 		}
 	}
-	
+
+
+
 	@Override
 	@PlusTransactional
 	public ResponseEvent<List<SpecimenInfo>> getSpecimens(RequestEvent<SpecimenListCriteria> req) {
@@ -520,6 +522,17 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 		} catch (Exception e) {
 			return ResponseEvent.serverError(e);
 		}
+	}
+
+	@Override
+	@PlusTransactional
+	public Long getPrimarySpecimen(SpecimenQueryCriteria crit) {
+		Long primarySpecimenId = daoFactory.getSpecimenDao().getPrimarySpecimen(crit.getId());
+		if (primarySpecimenId == null) {
+			throw OpenSpecimenException.userError(SpecimenErrorCode.NOT_FOUND, crit.getId());
+		}
+
+		return primarySpecimenId;
 	}
 
 	@Override

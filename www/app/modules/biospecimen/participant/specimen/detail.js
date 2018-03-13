@@ -19,7 +19,7 @@ angular.module('os.biospecimen.specimen.detail', [])
         }
       );
 
-      return result.concat($scope.specimen.children);
+      return result.concat(specimen.children);
     }
 
     function specimenUpdatedInline() {

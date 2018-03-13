@@ -129,6 +129,13 @@ public class SpecimenDaoImpl extends AbstractDao<Specimen> implements SpecimenDa
 		return specimens.isEmpty() ? null : specimens.iterator().next();
 	}
 
+	@Override
+	public Long getPrimarySpecimen(Long specimenId) {
+		return (Long) getCurrentSession().getNamedQuery(GET_ROOT_ID)
+			.setParameter("specimenId", specimenId)
+			.uniqueResult();
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Specimen> getSpecimensByIds(List<Long> specimenIds) {
@@ -634,4 +641,6 @@ public class SpecimenDaoImpl extends AbstractDao<Specimen> implements SpecimenDa
 	private static final String GET_DUPLICATE_BARCODE_COUNT = FQN + ".getDuplicateBarcodeCount";
 
 	private static final String GET_STORAGE_SITE = FQN + ".getStorageSite";
+
+	private static final String GET_ROOT_ID = FQN + ".getRootId";
 }

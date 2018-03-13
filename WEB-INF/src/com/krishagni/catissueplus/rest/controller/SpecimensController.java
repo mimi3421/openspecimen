@@ -336,6 +336,13 @@ public class SpecimensController {
 		return resp.getPayload();
 	}
 
+	@RequestMapping(method = RequestMethod.GET, value="/{id}/primary-specimen-id")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public Map<String, Long> getPrimarySpecimenId(@PathVariable("id") Long specimenId) {
+		return Collections.singletonMap("id", specimenSvc.getPrimarySpecimen(new SpecimenQueryCriteria(specimenId)));
+	}
+
 	@RequestMapping(method = RequestMethod.GET, value="/extension-form")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody

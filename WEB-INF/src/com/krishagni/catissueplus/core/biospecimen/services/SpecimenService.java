@@ -23,7 +23,7 @@ import com.krishagni.catissueplus.core.common.service.LabelPrinter;
 
 public interface SpecimenService {
 	public ResponseEvent<SpecimenDetail> getSpecimen(RequestEvent<SpecimenQueryCriteria> req);
-	
+
 	public ResponseEvent<List<SpecimenInfo>> getSpecimens(RequestEvent<SpecimenListCriteria> req);
 
 	public ResponseEvent<List<SpecimenInfo>> getSpecimensById(RequestEvent<List<Long>> req);
@@ -61,6 +61,8 @@ public interface SpecimenService {
 	
 	/** Mostly present for UI **/
 	public ResponseEvent<Map<String, Object>> getCprAndVisitIds(RequestEvent<Long> req);
+
+	public Long getPrimarySpecimen(SpecimenQueryCriteria crit);
 
 	//
 	// For internal and plugin usage purpose

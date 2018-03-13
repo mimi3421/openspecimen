@@ -4,8 +4,10 @@ angular.module('os.biospecimen.participant')
     $q, $document, $location, $timeout, $anchorScroll,
     CpConfigSvc, Specimen) {
 
-    var State = function(cpr, pendingSpmnsDispInterval) {
+    var State = function(cp, cpr, pendingSpmnsDispInterval) {
+      this.cp = cp;
       this.cpr = cpr;
+      this.rootId = undefined;
       this.selectedSpmn = undefined;
       this.specimens = undefined;
       this.pendingSpmnsDispInterval = pendingSpmnsDispInterval;
@@ -76,6 +78,18 @@ angular.module('os.biospecimen.participant')
       return onlyOldPendingSpmns;
     }
 
+    function prepareSpecimens(state, specimens) {
+      state.specimens = Specimen.flatten(specimens);
+      openSpecimenTree(state.specimens, state.openedNodesMap);
+
+      if (state.pendingSpmnsDispInterval > 0) {
+        state.onlyOldPendingSpmns = hidePendingSpmns(state.specimens, state.pendingSpmnsDispInterval);
+      }
+
+      openUptoSelected(state.specimens, state.selectedSpmn);
+      return state.specimens;
+    }
+
     State.prototype.getSpecimens = function() {
       if (this.specimens) {
         var q = $q.defer();
@@ -84,19 +98,27 @@ angular.module('os.biospecimen.participant')
       }
 
       var that = this;
-      return Specimen.listFor(this.cpr.id).then(
-        function(specimens) {
-          that.specimens = Specimen.flatten(specimens);
-          openSpecimenTree(that.specimens, that.openedNodesMap);
-
-          if (that.pendingSpmnsDispInterval > 0) {
-            that.onlyOldPendingSpmns = hidePendingSpmns(that.specimens, that.pendingSpmnsDispInterval);
-          }
-
-          openUptoSelected(that.specimens, that.selectedSpmn);
-          return that.specimens;
+      if (!this.cp.specimenCentric) {
+        return Specimen.listFor(this.cpr.id).then(function(specimens) { return prepareSpecimens(that, specimens); });
+      } else if (this.selectedSpmn) {
+        var answer;
+        if (!this.rootId) {
+          answer = (this.selectedSpmn.lineage == 'New') ? this.selectedSpmn.id : this.selectedSpmn.getPrimarySpecimenId();
+        } else {
+          answer = this.rootId;
         }
-      )
+
+        return $q.when(answer).then(
+          function(rootId) {
+            that.rootId = rootId;
+            return Specimen.getById(that.rootId).then(
+              function(specimen) {
+                return prepareSpecimens(that, [specimen]);
+              }
+            );
+          }
+        );
+      }
     }
 
     State.prototype.specimensUpdated = function() {
@@ -136,6 +158,7 @@ angular.module('os.biospecimen.participant')
 
     State.prototype.unselectSpecimen = function() {
       this.selectedSpmn = undefined;
+      this.rootId = undefined;
     }
 
     State.prototype.recordScrollPosition = function(element) {
