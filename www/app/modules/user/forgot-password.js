@@ -1,7 +1,8 @@
 angular.module('openspecimen')
   .controller('ForgotPasswordCtrl', function($scope, User, $translate)  {
-  
-    $scope.user = {};
+    $scope.userCtx = {
+      input: "loginName"
+    };
     $scope.response = {};
 
     var onSendMail = function(result) {
@@ -14,6 +15,8 @@ angular.module('openspecimen')
     }
 
     $scope.sendPasswordResetLink = function() {
-      User.sendPasswordResetLink($scope.user).then(onSendMail);
+      var user = {};
+      user[$scope.userCtx.input] = $scope.userCtx.inputValue;
+      User.sendPasswordResetLink(user).then(onSendMail);
     }
   });

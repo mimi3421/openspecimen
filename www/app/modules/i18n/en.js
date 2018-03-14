@@ -1209,6 +1209,8 @@
 
   "forgot_password": {
     "title": "Forgot Password",
+    "loginName": "Login Name",
+    "emailAddress":  "Email Address",
     "email_reset_password_link": "Email Reset Password Link",
     "return_to_signin": "Return to sign in page",
     "reset_email_sent": "An email containing link to reset password has been sent to your email id. Please click to reset password.",

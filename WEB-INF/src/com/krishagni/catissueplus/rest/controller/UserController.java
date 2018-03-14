@@ -305,8 +305,8 @@ public class UserController {
 	@RequestMapping(method = RequestMethod.POST, value = "/forgot-password")
 	@ResponseBody
 	@ResponseStatus(HttpStatus.OK)
-	public Boolean forgotPassword(@RequestBody Map<String, String>  data) {
-		RequestEvent<String> req = new RequestEvent<String>(data.get("loginName"));
+	public Boolean forgotPassword(@RequestBody UserDetail detail) {
+		RequestEvent<UserDetail> req = new RequestEvent<UserDetail>(detail);
 		ResponseEvent<Boolean> resp = userService.forgotPassword(req);
 		resp.throwErrorIfUnsuccessful();
 		

@@ -443,22 +443,23 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 
 	@Override
 	@PlusTransactional
-	public ResponseEvent<Boolean> forgotPassword(RequestEvent<String> req) {
+	public ResponseEvent<Boolean> forgotPassword(RequestEvent<UserDetail> req) {
 		try {
 			boolean forgotPasswdAllowed = ConfigUtil.getInstance().getBoolSetting(AUTH_MOD, FORGOT_PASSWD, true);
 			if (!forgotPasswdAllowed) {
 				throw OpenSpecimenException.userError(UserErrorCode.FORGOT_PASSWD_DISABLED);
 			}
-
-			UserDao userDao = daoFactory.getUserDao();
-
-			User user = userDao.getUser(req.getPayload(), DEFAULT_AUTH_DOMAIN);
-			if (user == null || user.isPending() || user.isClosed()) {
-				return ResponseEvent.userError(UserErrorCode.NOT_FOUND_IN_OS_DOMAIN, req.getPayload());
+			
+			UserDetail detail = req.getPayload();
+			User user = getUser(detail.getId(), detail.getEmailAddress(), detail.getLoginName(), detail.getDomainName());
+			if (user.isPending() || user.isClosed() || !DEFAULT_AUTH_DOMAIN.equals(user.getAuthDomain().getName())) {
+				String key = StringUtils.isNotBlank(detail.getLoginName()) ? detail.getLoginName() : detail.getEmailAddress();
+				return ResponseEvent.userError(UserErrorCode.NOT_FOUND_IN_OS_DOMAIN, key);
 			} else if (user.isLocked()) {
 				return ResponseEvent.userError(AuthErrorCode.USER_LOCKED);
 			}
 
+			UserDao userDao = daoFactory.getUserDao();
 			ForgotPasswordToken oldToken = userDao.getFpTokenByUser(user.getId());
 			if (oldToken != null) {
 				userDao.deleteFpToken(oldToken);
@@ -629,6 +630,10 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 	}
 
 	private User getUser(Long id, String emailAddress) {
+		return getUser(id, emailAddress, null, null);
+	}
+
+	private User getUser(Long id, String emailAddress, String loginName, String domain) {
 		User user = null;
 		Object key = null;
 
@@ -638,6 +643,13 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 		} else if (StringUtils.isNotBlank(emailAddress)) {
 			user = daoFactory.getUserDao().getUserByEmailAddress(emailAddress);
 			key = emailAddress;
+		} else if (StringUtils.isNotBlank(loginName)) {
+			if (StringUtils.isBlank(domain)) {
+				domain = DEFAULT_AUTH_DOMAIN;
+			}
+
+			user = daoFactory.getUserDao().getUser(loginName, domain);
+			key = loginName;
 		}
 
 		if (key == null) {

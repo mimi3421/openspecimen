@@ -38,7 +38,7 @@ public interface UserService {
 
 	public ResponseEvent<Boolean> changePassword(RequestEvent<PasswordDetails> req);
 
-	public ResponseEvent<Boolean> forgotPassword(RequestEvent<String> req);
+	public ResponseEvent<Boolean> forgotPassword(RequestEvent<UserDetail> req);
 
 	public ResponseEvent<List<UserDetail>> bulkUpdateUsers(RequestEvent<BulkEntityDetail<UserDetail>> req);
 	
