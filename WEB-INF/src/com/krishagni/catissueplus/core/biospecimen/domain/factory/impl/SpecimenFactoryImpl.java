@@ -434,39 +434,37 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 		}
 	}
 
-	//
-	// TODO: VP: This code requires a bit of refactoring, as it is not intuitive
-	//
 	private void setAnatomicSite(SpecimenDetail detail, Specimen specimen, OpenSpecimenException ose) {
 		String anatomicSite = detail.getAnatomicSite();
 
-		Specimen parent = specimen.getParentSpecimen();
-		if (parent != null) {
-			if (StringUtils.isBlank(anatomicSite) || anatomicSite.equals(parent.getTissueSite())) {
-				specimen.setTissueSite(parent.getTissueSite());
-			} else if (specimen.isAliquot()) {
-				ose.addError(SpecimenErrorCode.ANATOMIC_SITE_NOT_SAME_AS_PARENT, anatomicSite, parent.getTissueSite());
+		// Pick from parent when specimen is either aliquot or unplanned derivative with no anatomic site
+		boolean fromParent = specimen.isAliquot() ||
+			(specimen.isDerivative() &&
+			 StringUtils.isBlank(anatomicSite) &&
+			 specimen.getSpecimenRequirement() == null);
+
+		if (fromParent) {
+			if (specimen.getParentSpecimen() != null) {
+				specimen.setTissueSite(specimen.getParentSpecimen().getTissueSite());
 			}
+
+			return;
 		}
 
-		if (specimen.isAliquot() || (specimen.isDerivative() && StringUtils.isBlank(anatomicSite))) {
-			return; // invalid parent scenario
-		}
-		
 		if (StringUtils.isBlank(anatomicSite)) {
 			if (specimen.getSpecimenRequirement() == null) {
 				specimen.setTissueSite(Specimen.NOT_SPECIFIED);
 			}
-			
-			return;				
+
+			return;
 		}
-		
+
 		if (!isValid(SPECIMEN_ANATOMIC_SITE, anatomicSite, true)) {
 			ose.addError(SpecimenErrorCode.INVALID_ANATOMIC_SITE, anatomicSite);
 			return;
 		}
 
-		specimen.setTissueSite(anatomicSite);		
+		specimen.setTissueSite(anatomicSite);
 	}
 	
 	private void setAnatomicSite(SpecimenDetail detail, Specimen existing, Specimen specimen, OpenSpecimenException ose) {
@@ -480,32 +478,33 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 	private void setLaterality(SpecimenDetail detail, Specimen specimen, OpenSpecimenException ose) {
 		String laterality = detail.getLaterality();
 
-		Specimen parent = specimen.getParentSpecimen();
-		if (parent != null) {
-			if (StringUtils.isBlank(laterality) || laterality.equals(parent.getTissueSide())) {
-				specimen.setTissueSide(parent.getTissueSide());
-			} else if (specimen.isAliquot()) {
-				ose.addError(SpecimenErrorCode.LATERALITY_NOT_SAME_AS_PARENT, laterality, parent.getTissueSide());
+		// Pick from parent when specimen is either aliquot or unplanned derivative with no laterality
+		boolean fromParent = specimen.isAliquot() ||
+			(specimen.isDerivative() &&
+			 StringUtils.isBlank(laterality) &&
+			 specimen.getSpecimenRequirement() == null);
+
+		if (fromParent) {
+			if (specimen.getParentSpecimen() != null) {
+				specimen.setTissueSide(specimen.getParentSpecimen().getTissueSide());
 			}
+
+			return;
 		}
 
-		if (specimen.isAliquot() || (StringUtils.isBlank(laterality) && specimen.isDerivative())) {
-			return; // invalid parent scenario
-		}
-		
 		if (StringUtils.isBlank(laterality)) {
 			if (specimen.getSpecimenRequirement() == null) {
 				specimen.setTissueSide(Specimen.NOT_SPECIFIED);
 			}
-			
+
 			return;
 		}
-		
+
 		if (!isValid(SPECIMEN_LATERALITY, laterality)) {
 			ose.addError(SpecimenErrorCode.INVALID_LATERALITY);
 			return;
 		}
-		
+
 		specimen.setTissueSide(laterality);
 	}
 	
@@ -530,15 +529,14 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 			 StringUtils.isBlank(pathology) &&
 			 specimen.getSpecimenRequirement() == null);
 
-		if (specimen.getParentSpecimen() != null && pathFromParent) {
-			specimen.setPathologicalStatus(specimen.getParentSpecimen().getPathologicalStatus());
+		if (pathFromParent) {
+			if (specimen.getParentSpecimen() != null) {
+				specimen.setPathologicalStatus(specimen.getParentSpecimen().getPathologicalStatus());
+			}
+
 			return;
 		}
-		
-		if (pathFromParent) {
-			return; // invalid parent specimen scenario
-		}
-		
+
 		if (StringUtils.isBlank(pathology)) {
 			if (specimen.getSpecimenRequirement() == null) {
 				specimen.setPathologicalStatus(Specimen.NOT_SPECIFIED);
