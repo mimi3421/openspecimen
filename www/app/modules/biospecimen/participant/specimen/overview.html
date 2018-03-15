@@ -29,7 +29,7 @@
           <span translate="specimens.ctx_menu.create_aliquots">Create Aliquots</span>
         </button>
 
-        <os-assign-to-spmn-list on-add-to-list="addSpecimensToSpecimenList(list)" ng-if="!!specimen.id">
+        <os-assign-to-spmn-list menu-align="left" on-add-to-list="addSpecimensToSpecimenList(list)" ng-if="!!specimen.id">
         </os-assign-to-spmn-list>
 
         <button show-if-allowed="specimenResource.updateOpts" class="default" ui-sref="specimen-detail.events(
