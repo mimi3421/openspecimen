@@ -182,6 +182,14 @@ angular.module('os.query.util', ['os.query.models', 'os.query.save'])
       return parenCnt == 0 && last == 'filter';
     };
 
+    function escapeQuotes(value) {
+      return value.replace(/"/g, '\\\"');
+    }
+
+    function stringLiteral(value) {
+      return "\"" + escapeQuotes(value) + "\"";
+    }
+
     function getFilterExpr(filter) {
       if (filter.expr) {
         return filter.expr;
@@ -201,9 +209,9 @@ angular.module('os.query.util', ['os.query.models', 'os.query.save'])
       var filterValue = filter.value;
       if (filter.field.type == "STRING" || filter.field.type == "DATE") {
         if (filter.op.name == 'qin' || filter.op.name == 'not_in' || filter.op.name == 'between') {
-          filterValue = filterValue.map(function(value) { return "\"" + value + "\""; });
+          filterValue = filterValue.map(stringLiteral);
         } else {
-          filterValue = "\"" + filterValue + "\"";
+          filterValue = stringLiteral(filterValue);
         }
       }
 

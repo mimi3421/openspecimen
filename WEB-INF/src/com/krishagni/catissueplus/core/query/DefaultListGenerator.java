@@ -280,13 +280,13 @@ public class DefaultListGenerator implements ListGenerator {
 			return null;
 		}
 
-		return expr + " contains \"" + strValue + "\"";
+		return expr + " contains " + stringLiteral(strValue);
 	}
 
 	private String getInAql(String expr, List<Object> values) {
 		String inVals = values.stream()
-			.map(value -> value != null ? "\"" + value.toString() + "\"" : null)
-			.filter(value -> StringUtils.isNotBlank(value))
+			.map(value -> stringLiteral(value.toString()))
+			.filter(StringUtils::isNotBlank)
 			.collect(Collectors.joining(", "));
 
 		if (StringUtils.isBlank(inVals)) {
@@ -294,6 +294,18 @@ public class DefaultListGenerator implements ListGenerator {
 		}
 
 		return expr + " in (" + inVals + ")";
+	}
+
+	private String stringLiteral(String input) {
+		if (StringUtils.isBlank(input)) {
+			return StringUtils.EMPTY;
+		}
+
+		return "\"" + escapeQuotes(input) + "\"";
+	}
+
+	private String escapeQuotes(String input) {
+		return input.replaceAll("\"", "\\\\\"");
 	}
 
 	private String getOrderExpr(ListConfig cfg) {
