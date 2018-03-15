@@ -19,7 +19,11 @@ angular.module('os.biospecimen.participant.collect-specimens',
 
           var selectorCrit;
           if (specimen.lineage == 'Aliquot') {
-            var key = specimen.parent.id + '-' + specimen.parent.reqId + '-' + match.index;
+            var key = 'u-u-' + match.index;
+            if (specimen.parent) {
+              key = specimen.parent.id + '-' + specimen.parent.reqId + '-' + match.index;
+            }
+
             selectorCrit = aliquots[key];
             if (!selectorCrit) {
               aliquots[key] = selectorCrit = getSelectorCriteria(match.rule, cpId, cprId, specimen);
@@ -75,7 +79,7 @@ angular.module('os.biospecimen.participant.collect-specimens',
     // opts: {ignoreQtyWarning: [true | false], showCollVisitDetails: [true | false]}
     //
     function collect(stateDetail, visit, specimens, opts) {
-      data.stateDetail = stateDetail;
+      data.stateDetail = angular.copy(stateDetail);
       data.visit = visit;
       data.specimens = specimens;
       data.opts = opts || {};
@@ -921,11 +925,6 @@ angular.module('os.biospecimen.participant.collect-specimens',
 
         specimen.specimenClass = uiSpecimen.specimenClass;
         specimen.type = uiSpecimen.type;
-
-        if (uiSpecimen.lineage == 'Derived') {
-          return specimen;
-        }
-
         specimen.pathology = uiSpecimen.pathology;
         specimen.anatomicSite = uiSpecimen.anatomicSite;
         specimen.laterality = uiSpecimen.laterality;
