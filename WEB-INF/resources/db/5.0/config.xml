@@ -44,4 +44,8 @@
       );
     </sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="Update the data type of UID mandatory setting from string to boolean">
+    <sql>update os_cfg_props set data_type = 'BOOLEAN' where name = 'uid_mandatory'</sql>
+  </changeSet>
 </databaseChangeLog>
