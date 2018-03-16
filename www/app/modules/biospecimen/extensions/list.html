@@ -56,7 +56,7 @@
   <div class="panel panel-default">
     <div class="panel-heading">
       <span>Record #{{fctx.record.id}}</span>
-      <span show-if-allowed="extnOpts.update" class="os-btns">
+      <span ng-if="extnOpts.isEntityActive" show-if-allowed="extnOpts.update" class="os-btns">
         <button class="btn btn-primary" ui-sref="{{extnState}}addedit({formId: selectedForm.formId,
           recordId: fctx.record.id, formCtxId: selectedForm.formCtxtId})">
           <span class="fa fa-pencil"></span>
@@ -128,14 +128,16 @@
             <td class="col">
               <span>{{record.updateTime | date: global.dateTimeFmt}}</span>
             </td>
-            <td class="col col-xs-1 os-click-esc" ng-if="extnOpts.isEntityActive">
-              <button show-if-allowed="extnOpts.update" class="btn btn-xs btn-default"
-                ui-sref="{{extnState}}addedit({formId: record.formId, recordId: record.recordId, formCtxId: record.fcId})">
-                <span class="fa fa-pencil"></span>
-              </button>
-              <button show-if-allowed="extnOpts.update" class="btn btn-xs btn-default" ng-click="deleteRecord(record)">
-                <span class="fa fa-trash"></span>
-              </button>
+            <td class="col col-xs-1 os-click-esc">
+              <span ng-if="extnOpts.isEntityActive">
+                <button show-if-allowed="extnOpts.update" class="btn btn-xs btn-default"
+                  ui-sref="{{extnState}}addedit({formId: record.formId, recordId: record.recordId, formCtxId: record.fcId})">
+                  <span class="fa fa-pencil"></span>
+                </button>
+                <button show-if-allowed="extnOpts.update" class="btn btn-xs btn-default" ng-click="deleteRecord(record)">
+                  <span class="fa fa-trash"></span>
+                </button>
+              </span>
             </td>
           </tr>
         </tbody>

@@ -1,8 +1,8 @@
 
 angular.module('os.biospecimen.extensions.addedit-record', [])
   .controller('FormRecordAddEditCtrl', function(
-    $scope, $state, $stateParams, forms, records, formDef,
-    postSaveFilters, viewOpts,
+    $scope, $state, $stateParams, $timeout,
+    forms, records, formDef, postSaveFilters, viewOpts,
     LocationChangeListener, ExtensionsUtil, Alerts) {
 
     function init() {
@@ -43,8 +43,18 @@ angular.module('os.biospecimen.extensions.addedit-record', [])
           }
         },
 
-        onError: function() {
-          alert("Error");
+        onError: function(data) {
+          //
+          // timeout is mostly to trigger a digest cycle as onError is invoked
+          // from a non-angular context by DE framework
+          //
+          $timeout(function() {
+            if (data.responseJSON instanceof Array) {
+              Alerts.errorText(data.responseJSON.map(function(err) { return err.message + " (" + err.code + ")"; }))
+            } else {
+              Alerts.errorText("Unknown error: " + data.responseText);
+            }
+          });
         },
 
         onCancel: function() {

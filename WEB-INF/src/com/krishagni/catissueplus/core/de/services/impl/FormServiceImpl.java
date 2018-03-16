@@ -509,7 +509,7 @@ public class FormServiceImpl implements FormService, InitializingBean {
 			} else if (entityType.equals("SpecimenCollectionGroup")) {
 				AccessCtrlMgr.getInstance().ensureCreateOrUpdateVisitRights(objectId, false);
 			} else if (entityType.equals("Specimen") || entityType.equals("SpecimenEvent")) {
-				AccessCtrlMgr.getInstance().ensureCreateOrUpdateSpecimenRights(objectId, false);
+				ensureSpecimenUpdateRights(objectId, false);
 			}
 			
 			recEntry.setActivityStatus(Status.CLOSED);
@@ -868,14 +868,7 @@ public class FormServiceImpl implements FormService, InitializingBean {
 
 			AccessCtrlMgr.getInstance().ensureCreateOrUpdateVisitRights(visit, form.hasPhiFields());
 		} else if (entityType.equals("Specimen") || entityType.equals("SpecimenEvent")) {
-			Specimen specimen = daoFactory.getSpecimenDao().getById(objectId);
-			if (specimen == null) {
-				throw OpenSpecimenException.userError(SpecimenErrorCode.NOT_FOUND, objectId);
-			} else if (!specimen.isEditAllowed()) {
-				throw OpenSpecimenException.userError(SpecimenErrorCode.EDIT_NOT_ALLOWED, specimen.getLabel());
-			}
-
-			AccessCtrlMgr.getInstance().ensureCreateOrUpdateSpecimenRights(specimen, form.hasPhiFields());
+			ensureSpecimenUpdateRights(objectId, form.hasPhiFields());
 		}
 
 		formData.setRecordId(recordId);
@@ -1076,6 +1069,17 @@ public class FormServiceImpl implements FormService, InitializingBean {
 		}
 
 		return result;
+	}
+
+	private void ensureSpecimenUpdateRights(Long objectId, boolean checkPhiAccess) {
+		Specimen specimen = daoFactory.getSpecimenDao().getById(objectId);
+		if (specimen == null) {
+			throw OpenSpecimenException.userError(SpecimenErrorCode.NOT_FOUND, objectId);
+		} else if (!specimen.isEditAllowed()) {
+			throw OpenSpecimenException.userError(SpecimenErrorCode.EDIT_NOT_ALLOWED, specimen.getLabel());
+		}
+
+		AccessCtrlMgr.getInstance().ensureCreateOrUpdateSpecimenRights(specimen, checkPhiAccess);
 	}
 
 	private Function<ExportJob, List<? extends Object>> getFormRecordsGenerator() {
