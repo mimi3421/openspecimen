@@ -150,8 +150,9 @@
                       event-label="visit.eventLabel"></os-event-desc>
                   </a>
                 </td>
-                <td class="col col-xs-3">
-                  <span>{{visit.anticipatedVisitDate | date: global.dateFmt | osNoValue}}</span>
+                <td class="col col-xs-3" ng-switch on="!!visit.id && !!visit.visitDate">
+                  <span ng-switch-when="true">{{visit.visitDate | date: global.dateFmt | osNoValue}}</span>
+                  <span ng-switch-default>{{visit.anticipatedVisitDate | date: global.dateFmt | osNoValue}}</span>
                 </td>
                 <td class="col col-xs-3">
                   <span>{{visit.pendingPrimarySpmns}}</span>
