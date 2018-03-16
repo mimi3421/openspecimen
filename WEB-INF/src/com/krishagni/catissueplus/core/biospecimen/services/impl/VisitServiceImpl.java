@@ -261,6 +261,7 @@ public class VisitServiceImpl implements VisitService, ObjectAccessor, Initializ
 			// 
 			Visit visit = daoFactory.getVisitsDao().getById(savedVisit.getId());
 			Map<Long, Specimen> reqSpecimenMap = visit.getSpecimens().stream()
+				.filter(s -> s.getSpecimenRequirement() != null) // OPSMN-4227: Complete -> Missed -> Pending -> Complete
 				.collect(Collectors.toMap(s -> s.getSpecimenRequirement().getId(), s -> s));
 			setSpecimenIds(specimens, reqSpecimenMap);
 			

@@ -622,6 +622,15 @@ public class Visit extends BaseExtensionEntity {
 
 		for (Specimen specimen : specimens) {
 			SpecimenRequirement requirement = specimen.getSpecimenRequirement();
+			if (requirement == null) {
+				//
+				// OPSMN-4227: We won't pre-print unplanned specimens
+				// This can happen when following state change transition happens:
+				// visit -> completed -> planned + unplanned specimens collected -> visit missed -> pending
+				//
+				continue;
+			}
+
 			if (requirement.getLabelAutoPrintModeToUse() == SpecimenLabelAutoPrintMode.PRE_PRINT) {
 				Integer printCopies = requirement.getLabelPrintCopiesToUse();
 				spmnPrintItems.add(PrintItem.make(specimen, printCopies));
