@@ -206,7 +206,7 @@ public class CollectionProtocolRegistrationDetail extends AttributeModifiedSuppo
 		detail.setCpTitle(cp.getTitle());
 		detail.setCpShortTitle(cp.getShortTitle());
 		detail.setSpecimenLabelFmt(cp.getSpecimenLabelFormat());
-		detail.setAliquotLabelFmt(cp.getAliquotLabelFormat());
+		detail.setAliquotLabelFmt(cp.getAliquotLabelFormatToUse());
 		detail.setDerivativeLabelFmt(cp.getDerivativeLabelFormat());
 		return detail;
 	}
