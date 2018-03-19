@@ -6,7 +6,8 @@ angular.module('os.biospecimen.participant.search', ['os.biospecimen.models'])
     function search(searchData) {
       var filterOpts = {
         ppid: searchData.ppid,
-        participantId:searchData.participantId,
+        participantId: searchData.participantId,
+        name: searchData.name,
         exactMatch: true
       };
 
