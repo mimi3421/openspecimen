@@ -7,12 +7,15 @@
       <tr id="specimen-{{specimen.id || 'na'}}-{{specimen.reqId || 'na'}}" class="row"
         ng-class="{'selected': (!!specimen.id && specimen.id == viewState.selectedSpmn.id) || (!specimen.id && specimen.reqId == viewState.selectedSpmn.reqId)}" ng-repeat="specimen in ctx.specimens | openedTreeNodes"
         ng-if="!specimen.$$hideN">
-        <td class="col" style="border: none;">
-          <div ng-style="{'padding-left': (specimen.hasChildren ? specimen.depth * 16 : specimen.depth * 16 + 16) + 'px'}">
-            <span ng-include="'modules/biospecimen/participant/specimens-tree-node-status.html'"></span>
+        <td class="col os-word-break" style="border: none;">
+          <div ng-style="{'padding-left': (specimen.hasChildren ? specimen.depth * 20 : specimen.depth * 20 + 16) + 'px'}">
+            <span style="display: table-cell;" ng-style="{'min-width': (specimen.hasChildren ? 40 : 24) + 'px'}"
+              ng-include="'modules/biospecimen/participant/specimens-tree-node-status.html'">
+            </span>
 
-            <a ui-sref="specimen-detail.overview({eventId: specimen.eventId, visitId: specimen.visitId,
-              specimenId: specimen.id, srId: specimen.reqId})" ng-click="selectSpecimen(specimen)">
+            <a style="display: table-cell;" ui-sref="specimen-detail.overview({
+              eventId: specimen.eventId, visitId: specimen.visitId, specimenId: specimen.id, srId: specimen.reqId})"
+              ng-click="selectSpecimen(specimen)">
               <span ng-switch on="!!ctx.descTmpl">
                 <span ng-switch-when="true">
                   <os-html-template template="ctx.descTmpl"></os-html-template>
