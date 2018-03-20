@@ -188,13 +188,25 @@
     <createSequence sequenceName="OS_PRINT_RULES_SEQ" startValue="1" incrementBy="1" ordered="true" />
   </changeSet>
 
-  <changeSet author="agosavi" id="Add FK on Print rule’s institute">
+  <changeSet author="agosavi" id="Add FK on print rule institute">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <foreignKeyConstraintExists foreignKeyTableName="OS_PRINT_RULES" foreignKeyName="FK_PRINT_RULE_INST_ID"/>
+      </not>
+    </preConditions>
+
     <addForeignKeyConstraint constraintName="FK_PRINT_RULE_INST_ID"
       baseTableName="OS_PRINT_RULES" baseColumnNames="INSTITUTE_ID"
       referencedTableName="CATISSUE_INSTITUTION" referencedColumnNames="IDENTIFIER"/>
   </changeSet>
 
-  <changeSet author="agosavi" id="Add FK on print rule’s updated by">
+  <changeSet author="agosavi" id="Add FK on print rule updated by">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <foreignKeyConstraintExists foreignKeyTableName="OS_PRINT_RULES" foreignKeyName="FK_PRINT_RULE_UPDATED_BY"/>
+      </not>
+    </preConditions>
+
     <addForeignKeyConstraint constraintName="FK_PRINT_RULE_UPDATED_BY"
       baseTableName="OS_PRINT_RULES" baseColumnNames="UPDATED_BY"
       referencedTableName="CATISSUE_USER" referencedColumnNames="IDENTIFIER"/>
