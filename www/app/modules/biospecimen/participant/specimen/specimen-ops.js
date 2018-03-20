@@ -3,7 +3,9 @@ angular.module('os.biospecimen.specimen')
     $state, $rootScope, $modal, $q, Util, DistributionProtocol, DistributionOrder,
     Specimen, SpecimensHolder, Alerts, CommentsUtil, DeleteUtil, ParticipantSpecimensViewState) {
 
-    function initOpts(scope) {
+    function initOpts(scope, element, attrs) {
+      scope.title = attrs.title || 'specimens.ops';
+
       if (!scope.resourceOpts) {
         var cpShortTitle = scope.cp && scope.cp.shortTitle;
         var sites = undefined;
@@ -206,7 +208,7 @@ angular.module('os.biospecimen.specimen')
       templateUrl: 'modules/biospecimen/participant/specimen/specimen-ops.html',
 
       link: function(scope, element, attrs) {
-        initOpts(scope);
+        initOpts(scope, element, attrs);
 
         function gotoView(state, params, msgCode, anyStatus) {
           var selectedSpmns = scope.specimens({anyStatus: anyStatus});
