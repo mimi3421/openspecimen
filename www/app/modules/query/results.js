@@ -611,6 +611,8 @@ angular.module('os.query.results', ['os.query.models'])
       $scope.resultsCtx.selectAll = false;
     };
 
+    $scope.getSelectedSpecimens = getSelectedSpecimens;
+
     $scope.addSelectedSpecimensToSpecimenList = function(list) {
       var selectedSpecimens = getSelectedSpecimens();
       if (!selectedSpecimens || selectedSpecimens.length == 0) {

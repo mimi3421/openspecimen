@@ -631,6 +631,7 @@
     "storage_location": "Storage Location",
     "position": "Position",
     "virtually_located": "Not Stored",
+    "child_specimens": "Child Specimens",
     "no_specimens_to_show": "No Child Specimens to Show",
     "aliquot_cnt": "Aliquots Count",
     "qty_per_aliquot": "Quantity per Aliquot",
