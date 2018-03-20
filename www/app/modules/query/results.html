@@ -44,31 +44,44 @@
 
   <div class="os-page-commands">
     <div class="left os-query-btn">
-      <button class="default" ng-click="editFilters()">
-        <span class="fa fa-pencil"></span>
-        <span translate="queries.edit_filters">Edit Filters</span>
-      </button>
-
-      <button class="default" ng-click="saveQuery()"
-        ng-disabled="!queryCtx.isValid || queryCtx.filters.length == 0">
-        <span class="fa fa-save"></span>
-        <span translate="common.buttons.save">Save</span>
-      </button>
-
-      <button class="default" ng-click="defineView()">
-        <span class="fa fa-columns"></span>
-        <span translate="queries.define_view">Columns</span>
-      </button>
-
-      <button class="default" ng-click="rerun()">
-        <span class="fa fa-repeat"></span>
-        <span translate="queries.rerun">Rerun</span>
-      </button>
-
-      <button class="default" ng-click="downloadResults()">
-        <span class="fa fa-download"></span>
-        <span translate="common.buttons.export">Export</span>
-      </button>
+      <div dropdown class="os-inline-btn">
+        <button class="btn btn-default dropdown-toggle default">
+          <span translate="common.buttons.actions">Actions</span>
+          <span class="fa fa-caret-down"></span>
+        </button>
+        <ul class="dropdown-menu">
+          <li>
+            <a ng-click="editFilters()">
+              <span class="fa fa-pencil"></span>
+              <span translate="common.buttons.edit">Edit Filters</span>
+            </a>
+          </li>
+          <li ng-if="queryCtx.isValid && queryCtx.filters.length > 0">
+            <a ng-click="saveQuery()">
+              <span class="fa fa-save"></span>
+              <span translate="common.buttons.save">Save</span>
+            </a>
+          </li>
+          <li>
+            <a ng-click="defineView()">
+              <span class="fa fa-columns"></span>
+              <span translate="queries.define_view">Columns</span>
+            </a>
+          </li>
+          <li>
+            <a ng-click="rerun()">
+              <span class="fa fa-repeat"></span>
+              <span translate="queries.rerun">Rerun</span>
+            </a>
+          </li>
+          <li>
+            <a ng-click="downloadResults()">
+              <span class="fa fa-download"></span>
+              <span translate="common.buttons.export">Export</span>
+            </a>
+          </li>
+        </ul>
+      </div>
 
       <span ng-if="showAddToSpecimenList">
         <button class="btn default" ng-if="!resultsCtx.selectAll" ng-click="selectAllRows()">
@@ -83,13 +96,11 @@
 
         <os-assign-to-spmn-list on-add-to-list="addSelectedSpecimensToSpecimenList(list)">
         </os-assign-to-spmn-list>
-
-        <button class="btn default" ui-sref="specimen-lists">
-          <span translate="specimen_list.checkout">Checkout</span>
-        </button>
       </span>
 
       <os-plugin-hooks view-name="'query-results'" sec-name="'page-header'"></os-plugin-hooks>
+
+      <os-help class="os-btns btn default" link="query_results_help_link"></os-help>
     </div>
   </div>
 

@@ -14,13 +14,18 @@
           </span>
         </button>
       </span>
-      <button show-if-allowed="specimenResource.updateOpts" class="default"
-        ng-if="!!visit.id" ng-click="printVisitName()">
+      <button ng-if="visit.status == 'Complete'" show-if-allowed="specimenResource.updateOpts" class="default"
+        ui-sref="specimen-addedit({cpId: cp.id, visitId: visit.id, cprId: cpr.id})">
+        <span class="fa fa-plus"></span>
+        <span translate="specimens.buttons.add_specimen">Add Specimen</span>
+      </button>
+      <button ng-if="!!visit.id && allowPrintVisit" show-if-allowed="specimenResource.updateOpts" class="default"
+        ng-click="printVisitName()">
         <span class="fa fa-print"></span>
         <span translate="common.buttons.print">Print</span>
       </button>
-      <button show-if-allowed="specimenResource.deleteOpts" class="default"
-        ng-if="!!visit.id" ng-click="deleteVisit()">
+      <button ng-if="!!visit.id" show-if-allowed="specimenResource.deleteOpts" class="default"
+        ng-click="deleteVisit()">
         <span class="fa fa-trash"></span>
         <span translate="common.buttons.delete">Delete</span>
       </button>

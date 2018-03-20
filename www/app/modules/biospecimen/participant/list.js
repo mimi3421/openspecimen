@@ -2,7 +2,7 @@
 angular.module('os.biospecimen.participant.list', ['os.biospecimen.models'])
   .controller('ParticipantListCtrl', function(
     $scope, $state, osRightDrawerSvc, cp, participantListCfg, twoStepReg,
-    Util, ListPagerOpts) {
+    PluginReg, Util, ListPagerOpts) {
 
     var ctrl = this;
 
@@ -28,7 +28,8 @@ angular.module('os.biospecimen.participant.list', ['os.biospecimen.models'])
         ctrl: ctrl,
         headerButtonsTmpl: 'modules/biospecimen/participant/register-button.html',
         headerActionsTmpl: 'modules/biospecimen/participant/list-pager.html',
-        showSearch: (participantListCfg.filters && participantListCfg.filters.length > 0)
+        showSearch: (participantListCfg.filters && participantListCfg.filters.length > 0),
+        showPrimaryBtnDd: !!cp.bulkPartRegEnabled || (PluginReg.getTmpls('participant-list', 'primary-button').length > 0)
       });
 
       Util.filter($scope, 'ctx.filters', loadParticipants);

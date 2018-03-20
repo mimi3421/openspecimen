@@ -1,7 +1,7 @@
 angular.module('os.biospecimen.participant')
   .controller('SpecimensListViewCtrl', function(
     $scope, $state, currentUser, cp, spmnListCfg, sdeConfigured,
-    Util, Specimen, SpecimensHolder, DeleteUtil, Alerts, ListPagerOpts) {
+    PluginReg, Util, Specimen, SpecimensHolder, DeleteUtil, Alerts, ListPagerOpts) {
 
     var ctrl = this;
 
@@ -32,7 +32,8 @@ angular.module('os.biospecimen.participant')
         ctrl: ctrl,
         headerActionsTmpl: 'modules/biospecimen/participant/specimens-list-pager.html',
         headerButtonsTmpl: 'modules/biospecimen/participant/specimens-list-ops.html',
-        showSearch: (spmnListCfg.filters && spmnListCfg.filters.length > 0)
+        showSearch: (spmnListCfg.filters && spmnListCfg.filters.length > 0),
+        showPrimaryBtnDd: !!cp.bulkPartRegEnabled || (PluginReg.getTmpls('participant-list', 'primary-button').length > 0)
       });
 
       Util.filter($scope, 'ctx.filters', loadSpecimens);

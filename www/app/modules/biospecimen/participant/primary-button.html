@@ -1,0 +1,39 @@
+<div ng-if="!cp.specimenCentric && listViewCtx.showPrimaryBtnDd" show-if-allowed="partRegOpts"
+  dropdown class="os-inline-btn">
+  <button class="default dropdown-toggle" title="{{'participant.tooltip.register' | translate}}"
+    ui-sref="participant-addedit({cprId: -1, cpId: cp.id})">
+    <span class="fa fa-plus"></span>
+    <span translate="participant.buttons.register">Register</span>
+  </button>
+
+  <ul class="dropdown-menu">
+    <li>
+      <a ui-sref="participant-addedit({cprId: -1, cpId: cp.id})">
+        <span class="fa fa-user"></span>
+        <span translate="participant.buttons.single">Single</span>
+      </a>
+    </li>
+    <li ng-if="!!cp.bulkPartRegEnabled">
+      <a ui-sref="participant-bulkreg">
+        <span class="fa fa-users"></span>
+        <span translate="participant.buttons.multiple">Multiple</span>
+      </a>
+    </li>
+    <li class="divider"></li>
+    <os-plugin-hooks view-name="'participant-list'" sec-name="'primary-button'"></os-plugin-hooks>
+  </ul>
+</div>
+
+<button ng-if="!cp.specimenCentric && !listViewCtx.showPrimaryBtnDd" show-if-allowed="partRegOpts"
+  class="default" title="{{'participant.tooltip.register' | translate}}"
+  ui-sref="participant-addedit({cprId: -1, cpId: cp.id})">
+  <span class="fa fa-plus"></span>
+  <span translate="participant.buttons.register">Register</span>
+</button>
+
+<button ng-if="cp.specimenCentric && listViewCtx.ctrl.showAddSpmn"
+  show-if-allowed="ctx.resourceOpts.specimenUpdateOpts" class="default"
+  ui-sref="specimen-addedit({cpId: cp.id, visitId: -1, cprId: -1})">
+  <span class="fa fa-plus"></span>
+  <span translate="specimens.buttons.add_specimen">Add Specimen</span>
+</button>

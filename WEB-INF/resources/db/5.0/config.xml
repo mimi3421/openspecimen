@@ -48,4 +48,14 @@
   <changeSet author="vpawar" id="Update the data type of UID mandatory setting from string to boolean">
     <sql>update os_cfg_props set data_type = 'BOOLEAN' where name = 'uid_mandatory'</sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="Training link for query results view">
+    <sql>
+      call add_cfg_prop(
+        'training', 'query_results_help_link',
+        'query_results_help_link', 'query_results_help_link_desc',
+        'STRING', 'http://help.openspecimen.org/query-results'
+      );
+    </sql>
+  </changeSet>
 </databaseChangeLog>

@@ -97,6 +97,7 @@
     },
 
     "buttons": {
+      "actions": "Actions",
       "add": "Add",
       "save": "Save",
       "export": "Export",
@@ -757,8 +758,8 @@
     "ctx_menu": {
       "view_specimen": "View Specimen",
       "edit_specimen": "Edit Specimen",
-      "create_aliquots": "Create Aliquots",
-      "create_derivative": "Create Derivative",
+      "create_aliquots": "Aliquots",
+      "create_derivative": "Derivative",
       "add_event": "Add Event",
       "close": "Close"
     },
@@ -1609,7 +1610,6 @@
     "save_copy": "Save a Copy",
     "query_saved": "Query '{{title}}' saved",
 
-    "edit_filters": "Edit Filters",
     "define_view": "Columns",
     "rerun": "Rerun",
 
@@ -2555,6 +2555,8 @@
         "form_help_link_desc": "Link to training materials on how to manage custom forms and fields",
         "query_help_link": "Query",
         "query_help_link_desc": "Link to training materials on how to query for data (reporting)",
+        "query_results_help_link": "Query Results",
+        "query_results_help_link_desc": "Link to training materials on how to add, remove and reorder the columns displayed in query results table",
         "role_help_link": "Role",
         "role_help_link_desc": "Link to training materials on how to manage roles",
         "site_help_link": "Site",
