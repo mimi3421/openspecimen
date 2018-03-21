@@ -2,7 +2,7 @@
 <span ng-include="'modules/biospecimen/participant/primary-button.html'"></span>
 
 <os-specimen-ops specimens="listViewCtx.ctrl.getSelectedSpecimens()" init-list="listViewCtx.ctrl.loadSpecimens()"
-  resource-opts="ctx.resourceOpts">
+  resource-opts="listViewCtx.ctrl.resourceOpts">
 </os-specimen-ops>
 
 <os-assign-to-spmn-list menu-align="left" on-add-to-list="listViewCtx.ctrl.addSpecimensToList(list)">

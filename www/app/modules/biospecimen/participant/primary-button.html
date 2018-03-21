@@ -32,7 +32,7 @@
 </button>
 
 <button ng-if="cp.specimenCentric && listViewCtx.ctrl.showAddSpmn"
-  show-if-allowed="ctx.resourceOpts.specimenUpdateOpts" class="default"
+  show-if-allowed="listViewCtx.ctrl.resourceOpts.specimenUpdateOpts" class="default"
   ui-sref="specimen-addedit({cpId: cp.id, visitId: -1, cprId: -1})">
   <span class="fa fa-plus"></span>
   <span translate="specimens.buttons.add_specimen">Add Specimen</span>

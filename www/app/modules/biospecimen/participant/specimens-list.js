@@ -12,6 +12,12 @@ angular.module('os.biospecimen.participant')
       listParams = {listName: 'specimen-list-view', maxResults: pagerOpts.recordsPerPage + 1};
 
       ctrl.showAddSpmn = !sdeConfigured,
+      ctrl.resourceOpts = {
+        orderCreateOpts:    $scope.orderCreateOpts,
+        shipmentCreateOpts: $scope.shipmentCreateOpts,
+        specimenUpdateOpts: $scope.specimenUpdateOpts,
+        specimenDeleteOpts: $scope.specimenDeleteOpts
+      }
 
       $scope.ctx = {
         filtersCfg: angular.copy(spmnListCfg.filters),
@@ -19,12 +25,7 @@ angular.module('os.biospecimen.participant')
         specimens: {},
         listSize: -1,
         pagerOpts: pagerOpts,
-        resourceOpts: {
-          orderCreateOpts:    $scope.orderCreateOpts,
-          shipmentCreateOpts: $scope.shipmentCreateOpts,
-          specimenUpdateOpts: $scope.specimenUpdateOpts,
-          specimenDeleteOpts: $scope.specimenDeleteOpts
-        }
+        resourceOpts: ctrl.resourceOpts
       };
 
       angular.extend($scope.listViewCtx, {
