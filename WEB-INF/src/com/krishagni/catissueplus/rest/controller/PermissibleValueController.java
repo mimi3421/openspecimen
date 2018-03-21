@@ -68,7 +68,7 @@ public class PermissibleValueController {
 			.includeOnlyLeafValue(includeOnlyLeafValue)
 			.maxResults(maxResults);
 		
-		RequestEvent<ListPvCriteria> req = new RequestEvent<ListPvCriteria>(crit);
+		RequestEvent<ListPvCriteria> req = new RequestEvent<>(crit);
 		ResponseEvent<List<PvDetail>> resp = pvSvc.getPermissibleValues(req);
 		resp.throwErrorIfUnsuccessful();
 				
