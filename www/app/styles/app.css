@@ -549,7 +549,7 @@ h4.os-sub-section-title, h5.os-sub-section-title, h6.os-sub-section-title {
 
 .os-key-values .item {
   margin: 2px 0px 0px 0px;
-  float: left;
+  /*float: left;*/
   position: relative;
   padding-left: 150px;
 }
@@ -567,9 +567,13 @@ h4.os-sub-section-title, h5.os-sub-section-title, h6.os-sub-section-title {
   width: 100%;
 }
 
-.os-two-cols > .item {
-  width: 50%;
+.os-key-values.os-two-cols {
+  column-count: 2;
 }
+
+/*.os-two-cols > .item {
+  width: 50%;
+}*/
 
 .os-line-section >.key:after {
   content: '';
@@ -600,7 +604,7 @@ h4.os-sub-section-title, h5.os-sub-section-title, h6.os-sub-section-title {
   /*word-wrap: break-word;
   word-break: break-word;*/
   overflow: hidden;
-  white-space: nowrap;
+  /*white-space: nowrap;*/
   text-overflow: ellipsis;
   padding: 2px 5px 2px 5px;
   line-height: 24px;
