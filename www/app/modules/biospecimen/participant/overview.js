@@ -30,6 +30,15 @@ angular.module('os.biospecimen.participant.overview', ['os.biospecimen.models'])
         return [];
       }
 
+      var field = fieldsCfg.find(function(cfg) { return cfg.field.indexOf('visit.extensionDetail.attrsMap') == 0; });
+      if (!!field) {
+        angular.forEach(inputVisits,
+          function(iv) {
+            ExtensionsUtil.createExtensionFieldMap(iv);
+          }
+        );
+      }
+
       var objFn = function(visit) { return {cpr: cpr, visit: visit}; };
       var result = $injector.get('sdeFieldsSvc').getFieldValues(cpDict, fieldsCfg, inputVisits, objFn);
       if (result.fields.length > 0) {
