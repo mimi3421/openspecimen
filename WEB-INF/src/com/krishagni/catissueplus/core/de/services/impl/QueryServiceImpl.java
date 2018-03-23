@@ -241,12 +241,12 @@ public class QueryServiceImpl implements QueryService {
 			SavedQuery savedQuery = getSavedQuery(queryDetail);
 			daoFactory.getSavedQueryDao().saveOrUpdate(savedQuery);
 			return ResponseEvent.response(SavedQueryDetail.fromSavedQuery(savedQuery));
-		} catch (QueryParserException qpe) {
-			return ResponseEvent.userError(SavedQueryErrorCode.MALFORMED, qpe.getMessage());
+		} catch (QueryParserException | IllegalArgumentException ex) {
+			return ResponseEvent.userError(SavedQueryErrorCode.MALFORMED, ex.getMessage());
 		} catch (QueryException qe) {
 			return ResponseEvent.userError(getErrorCode(qe.getErrorCode()), qe.getMessage());
-		} catch (IllegalArgumentException iae) {
-			return ResponseEvent.userError(SavedQueryErrorCode.MALFORMED, iae.getMessage());
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
 		} catch (Exception e) {
 			return ResponseEvent.serverError(e);
 		}	

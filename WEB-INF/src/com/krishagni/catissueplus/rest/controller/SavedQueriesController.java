@@ -96,14 +96,14 @@ public class SavedQueriesController {
 		}				
 	}
 	
-	@RequestMapping(method = RequestMethod.POST, value="/definition-file", produces="text/plain")
+	@RequestMapping(method = RequestMethod.POST, value="/definition-file")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody		
-	public String importQuery(@PathVariable("file") MultipartFile file) 
+	public SavedQueryDetail importQuery(@PathVariable("file") MultipartFile file)
 	throws IOException {
 		String json = new String(file.getBytes());
 		SavedQueryDetail detail = new Gson().fromJson(json, SavedQueryDetail.class);
-		return new Gson().toJson(saveQuery(detail));
+		return saveQuery(detail);
 	}
 	
 	@RequestMapping(method = RequestMethod.POST)
