@@ -18,7 +18,7 @@ angular.module('os.administrative.user.dropdown', ['os.administrative.models'])
 
       ctrl.onceLoaded = true;
       var selectProp = ctrl.attrs.selectProp;
-      if (selectProp != 'id') {
+      if (selectProp != 'id' || !scope.ngModel) {
         return;
       }
 
