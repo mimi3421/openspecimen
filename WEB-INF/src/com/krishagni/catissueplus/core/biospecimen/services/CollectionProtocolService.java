@@ -26,6 +26,7 @@ import com.krishagni.catissueplus.core.biospecimen.events.SpecimenPoolRequiremen
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenRequirementDetail;
 import com.krishagni.catissueplus.core.biospecimen.repository.CpListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.repository.CprListCriteria;
+import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.events.BulkDeleteEntityOp;
 import com.krishagni.catissueplus.core.common.events.BulkDeleteEntityResp;
 import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
@@ -95,7 +96,7 @@ public interface CollectionProtocolService {
 	//
 	// Specimen Requirement API
 	//
-	public ResponseEvent<List<SpecimenRequirementDetail>> getSpecimenRequirments(RequestEvent<Long> req);
+	public ResponseEvent<List<SpecimenRequirementDetail>> getSpecimenRequirments(RequestEvent<Pair<Long, Boolean>> req);
 
 	public ResponseEvent<SpecimenRequirementDetail> getSpecimenRequirement(RequestEvent<Long> req);
 

@@ -756,8 +756,10 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 		
 	@Override
 	@PlusTransactional
-	public ResponseEvent<List<SpecimenRequirementDetail>> getSpecimenRequirments(RequestEvent<Long> req) {
-		Long cpeId = req.getPayload();
+	public ResponseEvent<List<SpecimenRequirementDetail>> getSpecimenRequirments(RequestEvent<Pair<Long, Boolean>> req) {
+		Long cpeId = req.getPayload().first();
+		boolean includeChildren = req.getPayload().second() == null || req.getPayload().second();
+
 		try {
 			CollectionProtocolEvent cpe = daoFactory.getCollectionProtocolDao().getCpe(cpeId);
 			if (cpe == null) {
@@ -765,7 +767,7 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 			}
 			
 			AccessCtrlMgr.getInstance().ensureReadCpRights(cpe.getCollectionProtocol());
-			return ResponseEvent.response(SpecimenRequirementDetail.from(cpe.getTopLevelAnticipatedSpecimens()));
+			return ResponseEvent.response(SpecimenRequirementDetail.from(cpe.getTopLevelAnticipatedSpecimens(), includeChildren));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		}  catch (Exception e) {

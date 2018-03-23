@@ -20,6 +20,7 @@ import com.krishagni.catissueplus.core.biospecimen.domain.DerivedSpecimenRequire
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenPoolRequirements;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenRequirementDetail;
 import com.krishagni.catissueplus.core.biospecimen.services.CollectionProtocolService;
+import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 
@@ -37,30 +38,27 @@ public class SpecimenRequirementsController {
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
 	public List<SpecimenRequirementDetail> getRequirements(
-			@RequestParam(value = "eventId", required = true) 
-			Long eventId) {
+			@RequestParam(value = "eventId")
+			Long eventId,
+
+			@RequestParam(value = "includeChildReqs", required = false, defaultValue = "true")
+			Boolean includeChildReqs) {
 		
-		ResponseEvent<List<SpecimenRequirementDetail>> resp = cpSvc.getSpecimenRequirments(getRequest(eventId));
-		resp.throwErrorIfUnsuccessful();
-		return resp.getPayload();
+		return response(cpSvc.getSpecimenRequirments(request(Pair.make(eventId, includeChildReqs))));
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
 	public SpecimenRequirementDetail getRequirement(@PathVariable("id") Long id) {
-		ResponseEvent<SpecimenRequirementDetail> resp = cpSvc.getSpecimenRequirement(getRequest(id));
-		resp.throwErrorIfUnsuccessful();
-		return resp.getPayload();				
+		return response(cpSvc.getSpecimenRequirement(request(id)));
 	}
 	
 	@RequestMapping(method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
 	public SpecimenRequirementDetail addRequirement(@RequestBody SpecimenRequirementDetail requirement) {
-		ResponseEvent<SpecimenRequirementDetail> resp = cpSvc.addSpecimenRequirement(getRequest(requirement));
-		resp.throwErrorIfUnsuccessful();
-		return resp.getPayload();		
+		return response(cpSvc.addSpecimenRequirement(request(requirement)));
 	}
 	
 	@RequestMapping(method = RequestMethod.PUT, value="/{id}")
@@ -74,9 +72,7 @@ public class SpecimenRequirementsController {
 			SpecimenRequirementDetail requirement) {
 		requirement.setId(id);
 		
-		ResponseEvent<SpecimenRequirementDetail> resp = cpSvc.updateSpecimenRequirement(getRequest(requirement));
-		resp.throwErrorIfUnsuccessful();
-		return resp.getPayload();		
+		return response(cpSvc.updateSpecimenRequirement(request(requirement)));
 	}
 	
 	@RequestMapping(method = RequestMethod.POST, value="/{id}/specimen-pool")
@@ -93,9 +89,7 @@ public class SpecimenRequirementsController {
 		detail.setPooledSpecimenReqId(pooledSpecimenReqId);
 		detail.setSpecimenPoolReqs(specimenPoolReqs);
 
-		ResponseEvent<List<SpecimenRequirementDetail>> resp = cpSvc.addSpecimenPoolReqs(getRequest(detail));
-		resp.throwErrorIfUnsuccessful();
-		return resp.getPayload();
+		return response(cpSvc.addSpecimenPoolReqs(request(detail)));
 	}
 
 	@RequestMapping(method = RequestMethod.POST, value="/{id}/aliquots")
@@ -109,9 +103,7 @@ public class SpecimenRequirementsController {
 			AliquotSpecimensRequirement requirement) {
 		
 		requirement.setParentSrId(parentSrId);
-		ResponseEvent<List<SpecimenRequirementDetail>> resp = cpSvc.createAliquots(getRequest(requirement));
-		resp.throwErrorIfUnsuccessful();
-		return resp.getPayload();		
+		return response(cpSvc.createAliquots(request(requirement)));
 	}
 
 	@RequestMapping(method = RequestMethod.POST, value="/{id}/derived")
@@ -125,9 +117,7 @@ public class SpecimenRequirementsController {
 			DerivedSpecimenRequirement requirement) {
 		
 		requirement.setParentSrId(parentSrId);
-		ResponseEvent<SpecimenRequirementDetail> resp = cpSvc.createDerived(getRequest(requirement));
-		resp.throwErrorIfUnsuccessful();
-		return resp.getPayload();		
+		return response(cpSvc.createDerived(request(requirement)));
 	}
 	
 	@RequestMapping(method = RequestMethod.POST, value="/{id}/copy")
@@ -137,30 +127,29 @@ public class SpecimenRequirementsController {
 			@PathVariable("id")
 			Long srId) {
 		
-		ResponseEvent<SpecimenRequirementDetail> resp = cpSvc.copySpecimenRequirement(getRequest(srId));
-		resp.throwErrorIfUnsuccessful();
-		return resp.getPayload();
+		return response(cpSvc.copySpecimenRequirement(request(srId)));
 	}
 
 	@RequestMapping(method = RequestMethod.DELETE, value="/{id}")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody	
 	public SpecimenRequirementDetail deleteSr(@PathVariable("id") Long srId) {
-		ResponseEvent<SpecimenRequirementDetail> resp = cpSvc.deleteSpecimenRequirement(getRequest(srId));
-		resp.throwErrorIfUnsuccessful();
-		return resp.getPayload();
+		return response(cpSvc.deleteSpecimenRequirement(request(srId)));
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, value="/{id}/specimens-count")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
 	public Integer getSpecimensCount(@PathVariable("id") Long srId) {
-		ResponseEvent<Integer> resp = cpSvc.getSrSpecimensCount(getRequest(srId));
+		return response(cpSvc.getSrSpecimensCount(request(srId)));
+	}
+
+	private <T> RequestEvent<T> request(T payload) {
+		return new RequestEvent<>(payload);
+	}
+
+	private <T> T response(ResponseEvent<T> resp) {
 		resp.throwErrorIfUnsuccessful();
 		return resp.getPayload();
 	}
-		
-	private <T> RequestEvent<T> getRequest(T payload) {
-		return new RequestEvent<T>(payload);
-	}	
 }

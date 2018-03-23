@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 
@@ -13,6 +14,7 @@ import com.krishagni.catissueplus.core.biospecimen.domain.AliquotSpecimensRequir
 import com.krishagni.catissueplus.core.biospecimen.domain.DerivedSpecimenRequirement;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenRequirement;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
+import com.krishagni.catissueplus.core.common.util.Utility;
 
 @JsonFilter("withoutId")
 public class SpecimenRequirementDetail implements Comparable<SpecimenRequirementDetail> {
@@ -385,16 +387,6 @@ public class SpecimenRequirementDetail implements Comparable<SpecimenRequirement
 	}
 	
 	public static List<SpecimenRequirementDetail> from(Collection<SpecimenRequirement> srs, boolean incChildren) {
-		List<SpecimenRequirementDetail> result = new ArrayList<SpecimenRequirementDetail>();
-		if (srs == null) {
-			return result;
-		}
-		
-		for (SpecimenRequirement sr : srs) {
-			result.add(from(sr, incChildren));
-		}
-		
-		Collections.sort(result);
-		return result;		
+		return Utility.nullSafeStream(srs).map(sr -> from(sr, incChildren)).sorted().collect(Collectors.toList());
 	}
 }
