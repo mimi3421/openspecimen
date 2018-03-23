@@ -699,7 +699,7 @@ angular.module('os.query.results', ['os.query.models'])
           if (!toggledValue) {
             filter.value = [];
           } else {
-            filter.value = filter.value || [];
+            filter.value = facet.selectedValues;
 
             var valueIdx = filter.value.indexOf(toggledValue.value);
             if (toggledValue.selected && valueIdx == -1) {
