@@ -46,6 +46,9 @@ public abstract class AbstractCustomFieldLabelToken extends AbstractLabelTmplTok
 
 		BeanWrapper extnWrapper = PropertyAccessorFactory.forBeanPropertyAccess(extensionEntity);
 		DeObject extn = (DeObject)extnWrapper.getPropertyValue("extension");
+		if (extn == null) {
+			return StringUtils.EMPTY;
+		}
 
 		String value = null;
 		for (DeObject.Attr attr : extn.getAttrs()) {
