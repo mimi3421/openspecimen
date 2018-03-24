@@ -10,6 +10,7 @@ angular.module('os.query.list', ['os.query.models'])
       $scope.selectedQueries = [];
       $scope.folders = {
         selectedFolder: folder,
+        allFolders: [],
         myFolders: [],
         sharedFolders: []
       };
@@ -32,6 +33,7 @@ angular.module('os.query.list', ['os.query.models'])
     function loadAllFolders() {
       queryGlobal.loadFolders().then(
         function(resp) {
+          $scope.folders.allFolders    = resp.allFolders;
           $scope.folders.myFolders     = resp.myFolders;
           $scope.folders.sharedFolders = resp.sharedFolders;
         }
@@ -125,6 +127,7 @@ angular.module('os.query.list', ['os.query.models'])
 
       modalInstance.result.then(
         function(folder) {
+          $scope.folders.allFolders.push(folder);
           $scope.folders.myFolders.push(folder);
           Alerts.success("queries.folder_created", {folderName: folder.name});
         }
@@ -146,11 +149,17 @@ angular.module('os.query.list', ['os.query.models'])
         function(result) {
           if (result) {
             $scope.folders.selectedFolder = folder;
+            angular.extend(folder, result);
+
             $scope.queryList = {count: result.queries.length, queries: result.queries};
             Alerts.success("queries.folder_updated", {folderName: result.name});
           } else {
             var idx = $scope.folders.myFolders.indexOf(folder);
             $scope.folders.myFolders.splice(idx, 1);
+
+            idx = $scope.folders.allFolders.indexOf(folder);
+            $scope.folders.allFolders.splice(idx, 1);
+
             if ($scope.folders.selectedFolder == folder) {
               $scope.selectFolder(undefined);
             } 
