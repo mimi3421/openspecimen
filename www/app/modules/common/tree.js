@@ -94,7 +94,7 @@ angular.module('openspecimen')
         '    </div> ' +
         '    <div class="os-tree-node-checkbox"> ' +
         '      <input type="checkbox" ng-model="node.checked" ng-checked="isNodeChecked(node)" ' +
-        '        ng-change="nodeChecked(node)"> ' +
+        '        ng-click="nodeChecked(node)"> ' +
         '    </div> ' +
         '    <div class="os-tree-node-label"> ' +
         '      <div ng-if="nodeTmpl" ng-include src="nodeTmpl"></div> ' +
