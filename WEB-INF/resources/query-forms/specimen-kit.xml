@@ -52,7 +52,7 @@
             <caption>#getMessage("kit_sending_site_name")</caption>
             <column>NAME</column>
             <options>
-              <sql>select name from CATISSUE_SITE where activity_status != 'Disabled'</sql>
+              <sql>select name from CATISSUE_SITE where activity_status != 'Disabled' order by name</sql>
             </options>
             <recordUrl>#/object-state-params-resolver?stateName=site-detail.overview&amp;objectName=site&amp;key=name&amp;value={{$value}}</recordUrl>
           </dropDown>
@@ -76,7 +76,7 @@
             <caption>#getMessage("kit_recv_site_name")</caption>
             <column>NAME</column>
             <options>
-              <sql>select name from CATISSUE_SITE where activity_status != 'Disabled'</sql>
+              <sql>select name from CATISSUE_SITE where activity_status != 'Disabled' order by name</sql>
             </options>
             <recordUrl>#/object-state-params-resolver?stateName=site-detail.overview&amp;objectName=site&amp;key=name&amp;value={{$value}}</recordUrl>
           </dropDown>

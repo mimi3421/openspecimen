@@ -21,7 +21,6 @@
         <udn>firstName</udn>
         <caption>#getMessage("participant_first_name")</caption>
         <column>FIRST_NAME</column>
-        <maxLength>50</maxLength>
         <phi>true</phi>
       </textField>
 
@@ -30,7 +29,6 @@
         <udn>middleName</udn>
         <caption>#getMessage("participant_middle_name")</caption>
         <column>MIDDLE_NAME</column>
-        <maxLength>50</maxLength>
         <phi>true</phi>
       </textField>
 
@@ -173,7 +171,6 @@
             <udn>medicalRecordNumber</udn>
             <caption>#getMessage("participant_mrn_mrn")</caption>
             <column>MEDICAL_RECORD_NUMBER</column>
-            <maxLength>255</maxLength>
             <phi>true</phi>
           </textField>
         </row>
@@ -378,7 +375,6 @@
         <udn>consentComments</udn>
         <caption>#getMessage("participant_consent_comments")</caption>
         <column>CONSENT_COMMENTS</column>
-        <maxLength>1000</maxLength>
       </textField>
     </row>
     <row>

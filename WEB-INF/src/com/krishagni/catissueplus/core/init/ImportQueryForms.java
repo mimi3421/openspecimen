@@ -17,7 +17,7 @@ import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.catissueplus.core.de.services.QueryService;
 
 public class ImportQueryForms extends ImportForms {
-	private int order = 1;
+	private List<String> formFiles = new ArrayList<>();
 	
 	private QueryService querySvc;
 
@@ -34,7 +34,7 @@ public class ImportQueryForms extends ImportForms {
 			in = Utility.getResourceInputStream("/query-forms/list.txt");
 			reader = new BufferedReader(new InputStreamReader(in));
 			
-			List<String> formFiles = new ArrayList<String>();			
+			formFiles.clear();
 			String file = null;
 			while ((file = reader.readLine()) != null) {
 				formFiles.add("/query-forms/" + file);
@@ -63,19 +63,19 @@ public class ImportQueryForms extends ImportForms {
 		formCtx.setCpId(-1L);
 		formCtx.setEntityType("Query");
 		formCtx.setMultiRecord(false);
-		formCtx.setSortOrder(order++);
+		formCtx.setSortOrder(formFiles.indexOf(formFile));
 		formCtx.setSysForm(isSysForm(formFile));
 		return formCtx;		
 	}
 
 	@Override
 	protected void cleanup() {
-		order = 1;
+		formFiles.clear();
 	}
 	
 	@Override
 	protected Map<String, Object> getTemplateProps() {
-		Map<String, Object> props = new HashMap<String, Object>();
+		Map<String, Object> props = new HashMap<>();
 		props.put("querySvc", querySvc);
 		
 		return props;
