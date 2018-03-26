@@ -504,7 +504,6 @@ angular.module('os.query.util', ['os.query.models', 'os.query.save'])
     };
 
     function getFieldsAdvise(form) {
-      console.log(form);
       var result = [];
       var fields = [].concat(form.staticFields).concat(form.extnFields);
       angular.forEach(fields, function(field) {
@@ -612,7 +611,7 @@ angular.module('os.query.util', ['os.query.models', 'os.query.save'])
       ).join(", ");
     }
 
-    function sortDatesFn(d1, d2) {
+    function sortDate(d1, d2) {
       if (!!d1 && !!d2) {
         return new Date(d1) - new Date(d2);
       } else if (!!d1) {
@@ -622,6 +621,60 @@ angular.module('os.query.util', ['os.query.models', 'os.query.save'])
       } else {
         return 0;
       }
+    }
+
+    function sortNumber(n1, n2) {
+      n1 = (n1 == undefined) ? null : n1;
+      n2 = (n2 == undefined) ? null : n2;
+
+      if (n1 == n2) {
+        return 0;
+      } else if (n1 == null) {
+        return -1;
+      } else if (n2 == null) {
+        return 1;
+      }
+
+      n1 = +n1;
+      var badN1 = isNaN(n1);
+
+      n2 = +n2;
+      var badN2 = isNaN(n2);
+
+      if (badN1 && badN2) {
+        return 0;
+      } else if (badN1) {
+        return 1;
+      } else if (badN2) {
+        return -1;
+      }
+
+      return n1 - n2;
+    }
+
+    function sortAlpha(s1, s2) {
+      s1 = (s1 == undefined) ? null : s1;
+      s2 = (s2 == undefined) ? null : s2;
+
+      if (s1 == s2) {
+        return 0;
+      } else if (s1 == null) {
+        return -1;
+      } else if (s2 == null) {
+        return 1;
+      } else {
+        s1 = s1.toLowerCase();
+        s2 = s2.toLowerCase();
+        return (s1 === s2) ? 0 : (s1 < s2 ? -1 : 1);
+      }
+    }
+
+    function sortBool(b1, b2) {
+      if ((b1 && b2) || (!b1 && !b2)) {
+        return 0;
+      }
+
+      return !b1 ? -1 : 1;
     }
 
     function saveQuery(queryContext) {
@@ -689,7 +742,13 @@ angular.module('os.query.util', ['os.query.models', 'os.query.save'])
 
       getStringifiedValue: getStringifiedValue,
 
-      sortDatesFn:         sortDatesFn,
+      sortDate:            sortDate,
+
+      sortNumber:          sortNumber,
+
+      sortAlpha:           sortAlpha,
+
+      sortBool:            sortBool,
 
       saveQuery:           saveQuery
     };

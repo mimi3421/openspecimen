@@ -454,7 +454,7 @@ angular.module('os.query.results', ['os.query.models'])
             cellTemplate: !!cellTemplate ? cellTemplate : undefined,
             showSummary:  showColSummary,
             summary:      summaryRow[idx],
-            sortFn:       isDateColumn ? QueryUtil.sortDatesFn : undefined,
+            sortFn:       getSortFn(result.columnTypes[idx]),
             cellFilter:   isDateColumn ? "date: global.dateTimeFmt" : undefined
           });
         }
@@ -472,6 +472,20 @@ angular.module('os.query.results', ['os.query.models'])
         $(window).resize();
         $(window).resize();
       }, 500);
+    }
+
+    function getSortFn(type) {
+      if (type == 'INTEGER' || type == 'FLOAT' || type == 'DATE_INTERVAL') {
+        return QueryUtil.sortNumber;
+      } else if (type == 'STRING') {
+        return QueryUtil.sortAlpha;
+      } else if (type == 'BOOLEAN') {
+        return QueryUtil.sortBool;
+      } else if (type == 'DATE') {
+        return QueryUtil.sortDate;
+      } else {
+        return function(a, b) { return (a === b) ? 0 : (a < b ? -1 : 1); };
+      }
     }
 
     function getFormattedRows(labels, rows) {
