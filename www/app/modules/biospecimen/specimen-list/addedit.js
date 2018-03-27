@@ -1,6 +1,7 @@
 angular.module('os.biospecimen.specimenlist.addedit', ['os.biospecimen.models'])
   .controller('AddEditSpecimenListCtrl', function(
-    $scope, $state, list, barcodingEnabled, SpecimenList, SpecimensHolder, DeleteUtil, SpecimenUtil, Util) {
+    $scope, $state, list, barcodingEnabled,
+    Alerts, SpecimenList, SpecimensHolder, DeleteUtil, SpecimenUtil, Util) {
  
     function init() { 
       $scope.list = list;
@@ -75,6 +76,9 @@ angular.module('os.biospecimen.specimenlist.addedit', ['os.biospecimen.models'])
           }
 
           if ($scope.isQueryOrSpecimenPage) {
+            var type = savedList.getListType($scope.currentUser);
+            Alerts.success('specimen_list.specimens_added_to_' + type, savedList);
+
             $scope.back();
           } else {
             $state.go('specimen-list', {listId: savedList.id});
