@@ -230,7 +230,6 @@
         <options>
           <option><value>Active</value></option>
           <option><value>Closed</value></option>
-          <option><value>Disabled</value></option>
         </options>
       </dropDown>
     </row>

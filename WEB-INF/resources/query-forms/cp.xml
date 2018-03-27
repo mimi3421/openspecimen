@@ -68,7 +68,6 @@
         <column>ACTIVITY_STATUS</column>
         <options>
           <option><value>Active</value></option>
-          <option><value>Disabled</value></option>
           <option><value>Closed</value></option>
         </options>
       </dropDown>
