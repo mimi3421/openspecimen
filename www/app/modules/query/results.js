@@ -509,12 +509,27 @@ angular.module('os.query.results', ['os.query.models'])
     }
 
     function showAddToSpecimenList() {
-      if ($scope.queryCtx.selectedFields.indexOf('Specimen.label') != -1) {
-        return true;
+      if ($scope.queryCtx.reporting.type == 'crosstab') {
+        return false;
       }
 
-      return false;
-    };
+      var result = false, fields = $scope.queryCtx.selectedFields;
+      for (var i = 0; i < fields.length; ++i) {
+        var field = fields[i];
+
+        if (typeof field == 'string') {
+          result = (field == 'Specimen.label');
+        } else if (typeof field == 'object' && (!field.aggFns || field.aggFns.lengths == 0)) {
+          result = (field.name == 'Specimen.label');
+        }
+
+        if (result) {
+          break;
+        }
+      }
+
+      return result;
+    }
 
     function getSelectedSpecimens() {
       return $scope.selectedRows.map(function(row) {
