@@ -16,6 +16,7 @@ import org.hibernate.sql.JoinType;
 import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
 import com.krishagni.catissueplus.core.administrative.events.ListPvCriteria;
 import com.krishagni.catissueplus.core.administrative.repository.PermissibleValueDao;
+import com.krishagni.catissueplus.core.common.OrderBySubstringMatch;
 import com.krishagni.catissueplus.core.common.repository.AbstractDao;
 
 
@@ -36,9 +37,11 @@ public class PermissibleValueDaoImpl extends AbstractDao<PermissibleValue> imple
 					Restrictions.ilike("value", crit.query(), MatchMode.ANYWHERE), 
 					Restrictions.ilike("conceptCode", crit.query(), MatchMode.ANYWHERE)
 				)
+			).addOrder(
+				OrderBySubstringMatch.asc("value", crit.query()).ignoreCase()
 			);
 		}
-		
+
 		int maxResults = crit.maxResults() < 0 ? 100 : crit.maxResults();
 		return query.setMaxResults(maxResults)
 			.addOrder(Order.asc("sortOrder"))
