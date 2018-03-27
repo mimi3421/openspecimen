@@ -47,13 +47,19 @@ angular.module('os.query.defineview', ['os.query.models'])
     }
 
     $scope.ok = function() {
+      var init = false;
       if (!$scope.selectedFields || $scope.selectedFields.length == 0) {
-        $scope.selectedFields = getSelectedFields(forms);
+        $scope.selectedFields = getSelectedFields(forms, true);
+        init = true;
       }
 
       if (!$scope.selectedFields || $scope.selectedFields.length == 0) {
         Alerts.error('queries.no_fields_selected');
         return;
+      }
+
+      if (init) {
+        prepareAggFns($scope.selectedFields, aggFns, true);
       }
 
       var rptParams = $scope.reporting.params;
