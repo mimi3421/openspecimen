@@ -294,18 +294,21 @@
   </div>
 
   <div class="form-group" ng-if="!!spmnCtx.createAliquots">
-    <div class="col-xs-offset-3 col-xs-6">
+    <div class="col-xs-offset-3 col-xs-8">
       <table class="os-table os-table-tree bulk-edit os-border os-table-muted-hdr">
         <thead class="os-table-head">
           <tr class="row">
-            <th class="col col-xs-4">
+            <th class="col col-xs-3">
               <span translate="specimens.type">Type</span>
             </th>
-            <th class="col col-xs-3">
+            <th class="col col-xs-2">
               <span translate="specimens.count">Count</span>
             </th>
-            <th class="col col-xs-4">
+            <th class="col col-xs-2">
               <span translate="specimens.qty">Quantity</span>
+            </th>
+            <th class="col col-xs-4">
+              <span translate="specimens.pathology_status">Pathology</span>
             </th>
             <th class="col col-xs-1">
               <span>&nbsp;</span>
@@ -326,6 +329,10 @@
               <os-spmn-measure name="qty" md-input="true" specimen="aliquot" quantity="aliquot.qtyPerAliquot" required>
               </os-spmn-measure>
               <div os-field-error field="aform.qty"></div>
+            </td>
+            <td class="col">
+              <os-pvs name="pathology" os-md-input ng-model="aliquot.pathology" attribute="pathology-status">
+              </os-pvs>
             </td>
             <td class="col">
               <button class="btn btn-xs btn-default" ng-click="removeAliquot($index)">

@@ -352,6 +352,7 @@ angular.module('os.biospecimen.specimen')
         parentId: parent.id,
         initialQty: qty,
         concentration: concentration,
+        pathology: spec.pathology,
         storageLocation: {name: '', positionX:'', positionY: ''},
         status: 'Pending',
         children: [],
