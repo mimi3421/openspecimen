@@ -928,6 +928,7 @@ angular.module('os.biospecimen.participant.collect-specimens',
         specimen.pathology = uiSpecimen.pathology;
         specimen.anatomicSite = uiSpecimen.anatomicSite;
         specimen.laterality = uiSpecimen.laterality;
+        specimen.biohazards = uiSpecimen.biohazards;
         return specimen;
       };
 

@@ -27,11 +27,11 @@
           <div ng-switch-when="true">
             <os-html-template template="fieldsCtx.headers.specimen.leftTitle"></os-html-template>
           </div>
-          <div ng-switch-default ng-switch on="!!currSpecimen.label">
-            <span ng-switch-when="true">{{currSpecimen.label}}</span>
+          <div ng-switch-default ng-switch on="opts.editMode && !!inputCtxts[0].specimen.label">
+            <span ng-switch-when="true">{{inputCtxts[0].specimen.label}}</span>
             <span ng-switch-default>
-              <span ng-switch on="!!currSpecimen.type">
-                <span ng-switch-when="true">{{currSpecimen.type}} ({{currSpecimen.specimenClass}})</span>
+              <span ng-switch on="!!opts.reqId">
+                <span ng-switch-when="true">{{inputCtxts[0].specimen.type}} ({{inputCtxts[0].specimen.specimenClass}})</span>
                 <span ng-switch-default translate="specimens.new_spmn">New Specimen</span>
               </span>
             </span>
@@ -47,354 +47,56 @@
   </div>
 
   <div class="container">
-    <form name="sform" class="form-horizontal" os-form-validator="sform" validator="sformValidator" novalidate>
-      <div class="form-group" ng-if="!currSpecimen.id && !currSpecimen.reqId">
-        <label class="col-xs-3 control-label" translate="specimens.create_mode">Create</label>
-        <div class="col-xs-6">
-          <label class="radio-inline">
-            <input type="radio" name="createMode" ng-model="spmnCtx.mode" ng-value="'single'">
-            <span translate="specimens.single">Single Specimen</span>
-          </label>
-          <label class="radio-inline">
-            <input type="radio" name="createMode" ng-model="spmnCtx.mode" ng-value="'multiple'">
-            <span translate="specimens.multiple">Multiple Specimens</span>
-          </label>
-        </div>
+    <form name="osform" class="form-horizontal" os-form-validator="osform" validator="osformValidator" novalidate>
+      <div ng-if="opts.editMode || !!opts.reqId">
+        <os-specimen-addedit-form specimen="inputCtxts[0].specimen" ctrl="inputCtxts[0].form" opts="opts">
+        </os-specimen-addedit-form>
       </div>
-
-      <div class="form-group" ng-if="spmnCtx.manualSpecLabelReq" ng-switch on="spmnCtx.mode">
-        <span ng-switch-when="single" ng-if="!fieldsCtx.hasDict">
-          <label class="col-xs-3 control-label" translate="specimens.label">Label</label>
-          <div class="col-xs-6">
-            <input type="text" name="label" ng-model="currSpecimen.label" class="form-control"
-              ng-disabled="currSpecimen.labelFmt && !cp.manualSpecLabelEnabled"
-              ng-required="currSpecimen.status != 'Missed Collection'"
-              placeholder="{{'specimens.label' | translate}}"/>
-            <div os-field-error field="sform.label"></div>
+      <accordion close-others="true" ng-if="!opts.editMode && !opts.reqId">
+        <accordion-group ng-repeat="spmnCtxt in inputCtxts" is-open="spmnCtxt.open">
+          <accordion-heading>
+            <span class="os-clickable-title">
+              <span translate="specimens.title">Specimen</span>
+              <span>{{$index + 1}}:</span>
+              <os-specimen-desc cp="opts.cp" specimen="spmnCtxt.specimen" show-req-label="true"></os-specimen-desc>
+            </span>
+          </accordion-heading>
+          <div>
+            <os-specimen-addedit-form specimen="spmnCtxt.specimen" ctrl="spmnCtxt.form" opts="opts">
+            </os-specimen-addedit-form>
           </div>
-        </span>
-        <span ng-switch-default>
-          <label class="col-xs-3 control-label" translate="specimens.labels">Labels</label>
-          <div class="col-xs-6">
-            <textarea name="labels" ng-model="currSpecimen.labels" class="form-control"
-              placeholder="{{'specimens.labels_csv' | translate}}" rows="2" required>
-            </textarea>
-            <div os-field-error field="sform.labels"></div>
-          </div>
-        </span>
-      </div>
+        </accordion-group>
 
-      <div class="form-group" ng-if="spmnCtx.mode == 'multiple' && !spmnCtx.manualSpecLabelReq">
-        <label class="col-xs-3 control-label" translate="specimens.num_of_specimens">No of Specimens</label>
-        <div class="col-xs-6">
-          <input type="text" name="numOfSpecimens" ng-model="currSpecimen.numOfSpecimens" class="form-control"
-            placeholder="{{'specimens.num_of_specimens' | translate}}" ng-pattern="/^[1-9][0-9]*$/" required>
-          <div os-field-error field="sform.numOfSpecimens"></div>
-        </div>
-      </div>
-
-      <div ng-switch on="fieldsCtx.hasDict">
-        <div ng-switch-when="true">
-          <sde-form-fields name="spmn" base-fields="fieldsCtx.sysDict" fields="fieldsCtx.cpDict"
-            obj="spmnCtx.obj" in-objs="spmnCtx.inObjs" ex-objs="spmnCtx.exObjs" opts="spmnCtx.opts">
-          </sde-form-fields>
-        </div>
-        <div ng-switch-default>
-          <div ng-include="'modules/biospecimen/participant/specimen/static-addedit.html'">
+        <div class="form-group">
+          <div class="col-xs-12">
+            <button class="btn os-btn-text" ng-click="addAnother()">
+              <span translate="common.buttons.add_another">Add Another</span>
+            </button>
+            <button class="btn os-btn-text" ng-click="addCopyOfLast()">
+              <span translate="common.buttons.copy_last">Copy of Last</span>
+            </button>
           </div>
         </div>
-      </div>
-
-      <div ng-if="!currSpecimen.id && !currSpecimen.reqId">
-        <div ng-form="aliquotForm">
-          <div ng-include="'modules/biospecimen/participant/specimen/add-aliquots-tmpl.html'"></div>
-        </div>
-      </div>
+      </accordion>
 
       <div class="os-divider"></div>
 
       <div class="form-group">
         <div class="col-xs-offset-3 col-xs-6">
-          <button class="btn btn-primary" os-form-submit="save()">
-            <span ng-if="!currSpecimen.id && spmnCtx.mode == 'single'" translate="specimens.buttons.collect">Collect</span>
-            <span ng-if="!currSpecimen.id && spmnCtx.mode == 'multiple'" translate="common.buttons.next">Next</span>
-            <span ng-if="!!currSpecimen.id" translate="common.buttons.update">Update</span>
+          <button class="btn btn-primary" os-form-submit="update()" ng-if="opts.editMode || !!opts.reqId">
+            <span ng-switch on="opts.editMode">
+              <span ng-switch-when="true" translate="common.buttons.update">Update</span>
+              <span ng-switch-when="false" translate="common.buttons.save">Submit</span>
+            </span>
           </button>
-          <button class="btn os-btn-text" ng-click="back()" translate="common.buttons.discard">
-            Discard
+          <button class="btn btn-primary" os-form-submit="next()" ng-if="!opts.editMode && !opts.reqId">
+            <span translate="common.buttons.next">Next</span>
+          </button>
+          <button class="btn os-btn-text" ng-click="back()">
+            <span translate="common.buttons.discard">Discard</span>
           </button>
         </div>
       </div>
     </form>
   </div>
 </div>
-
-<script type="text/ng-template" id="modules/biospecimen/participant/specimen/static-addedit.html">
-  <div>
-    <div class="form-group" ng-if="barcodingEnabled">
-      <label class="col-xs-3 control-label" translate="specimens.barcode">Barcode</label>
-      <div class="col-xs-6">
-        <input ng-model="currSpecimen.barcode" class="form-control" ng-disabled="!!spmnBarcodesAutoGen"
-          type="text" placeholder="{{'specimens.barcode' | translate}}">
-      </div>
-    </div>
-
-    <div class="form-group" ng-if="spmnCtx.mode == 'single'">
-      <label class="col-xs-3 control-label" translate="specimens.collection_status">Collection Status</label>
-      <div class="col-xs-6">
-        <os-select name="collectionStatus" ng-model="currSpecimen.status" list="specimenStatuses"
-          required placeholder="{{'specimens.collection_status' | translate}}">
-        </os-select>
-        <div os-field-error field="sform.collectionStatus"></div>
-      </div>
-    </div>
-
-    <div ng-if="currSpecimen.lineage != 'Aliquot' && !currSpecimen.poolSpecimen">
-      <div class="form-group">
-        <label class="col-xs-3 control-label" translate="specimens.type">Specimen Type</label>
-        <div class="col-xs-6">
-          <os-specimen-types name="type" specimen="currSpecimen" required placeholder="{{'specimens.type' | translate}}">
-          </os-specimen-types>
-          <div os-field-error field="sform.type"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label class="col-xs-3 control-label" translate="specimens.initial_qty">Initial Quantity</label>
-      <div class="col-xs-6">
-        <os-spmn-measure name="qty" specimen="currSpecimen" quantity="currSpecimen.initialQty"
-          placeholder="{{'specimens.initial_qty' | translate}}" 
-          ng-required="currSpecimen.lineage == 'Aliquot'">
-        </os-spmn-measure>
-        <div os-field-error field="sform.qty"></div>
-      </div>
-    </div>
-
-    <div class="form-group" ng-if="spmnCtx.mode == 'single'">
-      <label class="col-xs-3 control-label" translate="specimens.available_qty">Available Quantity</label>
-      <div class="col-xs-6"> 
-        <os-spmn-measure name="aqty" specimen="currSpecimen" quantity="currSpecimen.availableQty"
-          placeholder="{{'specimens.available_qty' | translate}}" 
-          ng-required="currSpecimen.lineage == 'Aliquot'">
-        </os-spmn-measure>
-        <div os-field-error field="sform.aqty"></div>
-      </div>
-    </div>
-
-    <div class="form-group" ng-if="currSpecimen.lineage != 'New' && currSpecimen.status == 'Collected'">
-      <label class="col-xs-3 control-label" translate="specimens.created_on">Created On</label>
-      <div class="col-xs-6">
-        <div class="os-date-time clearfix">
-          <div class="os-col-65 input os-no-padding">
-            <os-date-picker name="createdOn" date="currSpecimen.createdOn"
-              placeholder="{{'specimens.created_on' | translate}}" required>
-            </os-date-picker>
-          </div>
-          <div class="os-col-35">
-            <timepicker ng-model="currSpecimen.createdOn" class="os-time-no-wheels" show-meridian="false">
-            </timepicker>
-          </div>
-        </div>
-        <div os-field-error field="sform.createdOn"></div>
-      </div>
-    </div>
-
-    <div class="form-group" ng-if="!currSpecimen.poolSpecimen">
-      <label class="col-xs-3 control-label" translate="specimens.concentration">Concentration</label>
-      <div class="col-xs-6"> 
-        <os-spmn-measure name="concentration" specimen="currSpecimen" quantity="currSpecimen.concentration"
-          measure="concentration" placeholder="{{'specimens.concentration' | translate}}">
-        </os-spmn-measure>
-        <div os-field-error field="sform.concentration"></div>
-      </div>
-    </div>
-
-    <div class="form-group" ng-if="currSpecimen.status == 'Collected' && spmnCtx.mode == 'single'">
-      <label class="col-xs-3 control-label" translate="specimens.location">Location</label>
-      <div class="col-xs-6">
-        <os-storage-position entity="currSpecimen" cp-id="cpr.cpId" virtual="spmnCtx.isVirtual"></os-storage-position>
-      </div>
-    </div>
-
-    <div class="form-group"  
-      ng-if="(currSpecimen.lineage != 'Aliquot' && !currSpecimen.poolSpecimen) && biohazards.length > 0">
-      <label class="col-xs-3 control-label" translate="specimens.biohazards">Biohazards</label>
-      <div class="col-xs-6">
-        <os-pvs name="biohazards" ng-model="currSpecimen.biohazards" attribute="specimen-biohazard"
-          multiple placeholder="{{'specimens.biohazards' | translate}}">
-        </os-pvs>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label class="col-xs-3 control-label" translate="specimens.freeze_thaw_cycles">Freeze/Thaw Cycles</label>
-      <div class="col-xs-6">
-        <input name="freezeThawCycles" ng-model="currSpecimen.freezeThawCycles"
-          class="form-control" type="text" placeholder="{{'specimens.freeze_thaw_cycles' | translate}}"
-          ng-pattern="/^[0-9]*$/">
-        <div os-field-error field="sform.freezeThawCycles"></div>
-      </div>
-    </div>
-
-    <div ng-if="currSpecimen.lineage != 'Aliquot' && !currSpecimen.poolSpecimen">
-      <div class="form-group">
-        <label class="col-xs-3 control-label" translate="specimens.pathology_status">Pathology Status</label>
-        <div class="col-xs-6">
-          <os-pvs name="pathology" ng-model="currSpecimen.pathology" attribute="pathology-status"
-            required placeholder="{{'specimens.pathology_status' | translate}}">
-          </os-pvs>
-          <div os-field-error field="sform.pathology"></div>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="col-xs-3 control-label" translate="specimens.anatomic_site">Anatomic Site</label>
-        <div class="col-xs-6">
-          <os-pvs name="anatomicSite" ng-model="currSpecimen.anatomicSite" attribute="anatomic-site" 
-            show-only-leaf-values="true" required placeholder="{{'specimens.anatomic_site' | translate}}">
-          </os-pvs>
-          <div os-field-error field="sform.anatomicSite"></div>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="col-xs-3 control-label" translate="specimens.laterality">Laterality</label>
-        <div class="col-xs-6">
-          <os-pvs name="laterality" ng-model="currSpecimen.laterality" attribute="laterality"
-            required placeholder="{{'specimens.laterality' | translate}}">
-          </os-pvs>
-          <div os-field-error field="sform.laterality"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label class="col-xs-3 control-label">
-        <span translate="specimens.comments">Comments</span>
-      </label>
-      <div class="col-xs-6">
-        <textarea ng-model="currSpecimen.comments" class="form-control"
-          placeholder="{{'specimens.comments' | translate}}" rows="2">
-        </textarea>
-      </div>
-    </div>
-
-    <div ng-if="currSpecimen.lineage == 'New' && !currSpecimen.poolSpecimen">
-      <div ng-if = "!currSpecimen.id && !currSpecimen.reqId">
-        <div class="os-section-divider">
-          <span translate="specimens.col_event.title">Collection Details</span>
-        </div>
-
-        <div class="form-group">
-          <label class="col-xs-3 control-label"  translate="specimens.col_event.user_time">User and Time</label>
-          <div class="col-xs-3">
-            <os-users  name="collector" ng-model="currSpecimen.collectionEvent.user" 
-              placeholder="{{'specimens.col_event.user' | translate}}" required> 
-            </os-users>
-            <div os-field-error field="sform.collector"></div>
-          </div>
-          <div class="os-date-time clearfix">
-            <div class="col-xs-2 input">
-              <os-date-picker name="collectionDate" date="currSpecimen.collectionEvent.time"
-                placeholder="{{'specimens.col_event.date' | translate}}" required>
-              </os-date-picker>
-            </div>
-            <div class="col-xs-1 os-timepicker">
-              <timepicker ng-model="currSpecimen.collectionEvent.time" class="os-time-no-wheels" show-meridian="false">
-              </timepicker>
-            </div>
-            <div os-field-error field="sform.collectionDate"></div>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="col-xs-3 control-label" translate="specimens.col_event.collection_container">
-            Collection Container
-          </label>
-          <div class="col-xs-6">
-            <os-pvs name="collectionContainer" ng-model="currSpecimen.collectionEvent.container" attribute="collection-container"
-              placeholder="{{'specimens.col_event.collection_container' | translate}}" required>
-            </os-pvs>
-            <div os-field-error field="sform.collectionContainer"></div>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="col-xs-3 control-label" translate="specimens.col_event.collection_proc">Collection Procedure</label>
-          <div class="col-xs-6">
-            <os-pvs name="collectionProcedure" ng-model="currSpecimen.collectionEvent.procedure" attribute="collection-procedure"
-              placeholder="{{'specimens.col_event.collection_proc' | translate}}" required>
-            </os-pvs>
-            <div os-field-error field="sform.collectionProcedure"></div>
-          </div>
-        </div>
-
-        <div class="os-section-divider">
-          <span translate="specimens.recv_event.title">Received Details</span>
-        </div>
-
-        <div class="form-group">
-          <label class="col-xs-3 control-label"  translate="specimens.recv_event.user">User and Time</label>
-          <div class="col-xs-3">
-            <os-users name="receiver" ng-model="currSpecimen.receivedEvent.user" 
-              placeholder="{{'specimens.recv_event.user_time' | translate}}" required> 
-            </os-users>
-            <div os-field-error field="sform.receiver"></div>
-          </div>
-
-          <div class="os-date-time clearfix">
-            <div class="col-xs-2 input">
-              <os-date-picker name="receiveDate" date="currSpecimen.receivedEvent.time"
-                placeholder="{{'specimens.recv_event.date' | translate}}" required>
-              </os-date-picker>
-            </div>
-            <div class="col-xs-1 os-timepicker">
-              <timepicker ng-model="currSpecimen.receivedEvent.time" class="os-time-no-wheels"show-meridian="false">
-              </timepicker>
-            </div>
-            <div os-field-error field="sform.receiveDate"></div>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="col-xs-3 control-label" translate="specimens.recv_event.received_quality">Received Quality</label>
-          <div class="col-xs-6">
-            <os-pvs name="receivedQuality" ng-model="currSpecimen.receivedEvent.receivedQuality" attribute="received-quality"
-              placeholder="{{'specimens.recv_event.received_quality' | translate}}" required>
-            </os-pvs>
-            <div os-field-error field="sform.receivedQuality"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="os-entity-extn-form-fields" ng-if="!!extnOpts">
-      <div class="os-section-divider">
-        <span translate="specimens.custom_fields">Additional Fields</span>
-      </div>
-      <div class='os-extn-form' os-de-form opts="extnOpts" ctrl="deFormCtrl" extended-obj="currSpecimen"></div>
-    </div>
-  </div>
-</script>
-
-<script type="text/ng-template" id="modules/biospecimen/participant/specimen/add-aliquots-tmpl.html">
-  <div class="os-section-divider">
-    <span translate="specimens.aliquot_details">Aliquot Details</span>
-  </div>
-
-  <div class="form-group">
-    <div class="col-xs-offset-3 col-xs-6 os-text-checkbox">
-      <div class="checkbox">
-        <os-checkbox ng-model="aliquotSpec.createAliquots"></os-checkbox>
-      </div>
-      <div class="message os-ctrl-padding-top">
-        <span translate="specimens.create_aliquots_q">Do you want to create aliquots?</span>
-      </div>
-    </div>
-  </div>
-
-  <div ng-if="!!aliquotSpec.createAliquots">
-    <div ng-include src="'modules/biospecimen/participant/specimen/aliquot-form-fields.html'"></div>
-  </div>
-</script>
