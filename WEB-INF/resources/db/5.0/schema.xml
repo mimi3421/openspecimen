@@ -245,4 +245,25 @@
         inner join catissue_specimen s on s.reserved_event_id = re.identifier
     </createView>
   </changeSet>
+
+  <changeSet author="vpawar" id="Participant visits statistics" runOnChange="true">
+    <createView viewName="OS_CPR_VISIT_STATS_VIEW" replaceIfExists="true">
+      select
+        cpr.identifier as identifier,
+        sum(case when visit.collection_status = 'Complete' then 1 else 0 end) as visits_completed,
+        sum(case when visit.collection_status = 'Missed Collection' then 1 else 0 end) as visits_missed,
+        sum(case when ((visit.collection_status = 'Pending' or visit.identifier is null) and cpe.identifier is not null) then 1 else 0 end) as visits_pending
+      from
+        catissue_coll_prot_reg cpr
+        left join catissue_coll_prot_event cpe
+          on cpe.collection_protocol_id = cpr.collection_protocol_id and
+            cpe.activity_status!= 'Disabled'
+        left join catissue_specimen_coll_group visit
+          on visit.collection_protocol_event_id = cpe.identifier and
+            visit.collection_protocol_reg_id = cpr.identifier and
+            visit.activity_status!= 'Disabled'
+      group by
+        cpr.identifier
+    </createView>
+  </changeSet>
 </databaseChangeLog>
