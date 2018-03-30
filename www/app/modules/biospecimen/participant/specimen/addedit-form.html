@@ -283,7 +283,7 @@
   </div>
 
   <div class="form-group">
-    <div class="col-xs-12 os-text-checkbox">
+    <div class="col-xs-9 os-text-checkbox" ng-class="{'col-xs-offset-3': !opts.verticalLayout}">
       <div class="checkbox">
         <os-checkbox ng-model="spmnCtx.createAliquots" ng-click="toggleAliquots()"></os-checkbox>
       </div>
@@ -294,7 +294,7 @@
   </div>
 
   <div class="form-group" ng-if="!!spmnCtx.createAliquots">
-    <div class="col-xs-12">
+    <div ng-class="{'col-xs-offset-3 col-xs-8': !opts.verticalLayout, 'col-xs-12': opts.verticalLayout}">
       <table class="os-table os-table-tree bulk-edit os-border os-table-muted-hdr">
         <thead class="os-table-head">
           <tr class="row">
