@@ -1,7 +1,7 @@
 
 angular.module('os.biospecimen.specimen.addedit', [])
   .controller('AddEditSpecimenCtrl', function(
-    $scope, $state, cp, cpr, visit, specimen, extensionCtxt, hasDict, sysDict, cpDict,
+    $scope, $state, cp, cpr, visit, specimen, extensionCtxt, hasDict, sysDict, cpDict, layout,
     ParticipantSpecimensViewState, Specimen, CollectSpecimensSvc) {
 
     var inputCtxts;
@@ -11,7 +11,8 @@ angular.module('os.biospecimen.specimen.addedit', [])
         cp: cp, cpr: cpr, visit: visit,
         extensionCtxt: extensionCtxt, hasDict: hasDict,
         sysDict: sysDict, cpDict: cpDict,
-        editMode: !!specimen.id, reqId: specimen.reqId
+        editMode: !!specimen.id, reqId: specimen.reqId,
+        layout: layout, mdInput: false
       }
 
       inputCtxts = $scope.inputCtxts = [

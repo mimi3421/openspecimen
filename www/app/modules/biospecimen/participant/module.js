@@ -338,6 +338,14 @@ angular.module('os.biospecimen.participant',
             return CpConfigSvc.getDictionary($stateParams.cpId, []);
           },
 
+          layout: function($stateParams, hasSde, CpConfigSvc) {
+            if (!hasSde) {
+              return [];
+            }
+
+            return CpConfigSvc.getLayout($stateParams.cpId, []);
+          },
+
           hasDict: function(hasSde, sysDict, cpDict) {
             return hasSde && (cpDict.length > 0 || sysDict.length > 0);
           },

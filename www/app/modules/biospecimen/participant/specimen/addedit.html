@@ -82,7 +82,7 @@
       <div class="os-divider"></div>
 
       <div class="form-group">
-        <div class="col-xs-offset-3 col-xs-6">
+        <div class="col-xs-6" ng-class="{'col-xs-offset-3': !opts.verticalLayout}">
           <button class="btn btn-primary" os-form-submit="update()" ng-if="opts.editMode || !!opts.reqId">
             <span ng-switch on="opts.editMode">
               <span ng-switch-when="true" translate="common.buttons.update">Update</span>

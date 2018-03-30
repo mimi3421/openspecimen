@@ -193,6 +193,22 @@ angular.module('openspecimen')
         );
       },
 
+      getLayout: function(cpId, defValue) {
+        return getWorkflowData(cpId, 'dictionary').then(
+          function(data) {
+            if (data.layout) {
+              return data.layout;
+            }
+
+            return getWorkflowData(-1, 'dictionary').then(
+              function(sysDict) {
+                return sysDict.layout || defValue || [];
+              }
+            );
+          }
+        );
+      },
+
       setSummaryState: function(summaryState) {
         summarySt = summaryState;
       },

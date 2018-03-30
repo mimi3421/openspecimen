@@ -1267,3 +1267,22 @@ h4.os-sub-section-title, h5.os-sub-section-title, h6.os-sub-section-title {
   margin: -10px 0px;
   padding: 10px 0px;
 }
+
+form fieldset {
+  margin-top: 15px;
+}
+
+form fieldset legend {
+  font-weight: bold;
+  color: #959595;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border-top: 1px solid #ddd;
+  border-bottom: none;
+  padding-top: 5px;
+}
+
+form .form-group:empty {
+  display: none!important;
+}
