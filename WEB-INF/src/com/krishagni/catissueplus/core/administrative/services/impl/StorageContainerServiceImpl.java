@@ -11,10 +11,12 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
@@ -611,18 +613,21 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 				while (!allAllocated) {
 					long t2 = System.currentTimeMillis();
 					StorageContainer container = strategy.getContainer(criteria, cp.getAliquotsInSameContainer());
-					if (container == null) {
-						ResponseEvent<List<StorageLocationSummary>> resp = new ResponseEvent<>(Collections.emptyList());
-						resp.setRollback(true);
-						return resp;
-					}
 
 					int numPositions = criteria.minFreePositions();
 					if (numPositions <= 0) {
 						numPositions = 1;
 					}
 
-					List<StorageContainerPosition> positions = container.reservePositions(reservationId, reservationTime, numPositions);
+					List<StorageContainerPosition> positions;
+					if (container == null) {
+						positions = IntStream.range(0, numPositions)
+							.mapToObj(i -> (StorageContainerPosition) null)
+							.collect(Collectors.toList());
+					} else {
+						positions = container.reservePositions(reservationId, reservationTime, numPositions);
+					}
+
 					reservedPositions.addAll(positions);
 					numPositions -= positions.size();
 					if (numPositions == 0) {
@@ -631,8 +636,12 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 						criteria.minFreePositions(numPositions);
 					}
 
-					System.err.println("***** Allocation time: " + (System.currentTimeMillis() - t2) + " ms");
+					logger.info("Allocation round time: " + (System.currentTimeMillis() - t2) + " ms");
 				}
+			}
+
+			if (reservedPositions.stream().allMatch(Objects::isNull)) {
+				reservedPositions = Collections.emptyList(); // all nulls. therefore return empty lists
 			}
 
 			return ResponseEvent.response(StorageLocationSummary.from(reservedPositions));
@@ -641,7 +650,7 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 		} catch (Exception e) {
 			return ResponseEvent.serverError(e);
 		} finally {
-			System.err.println("***** Call time: " + (System.currentTimeMillis() - t1) + " ms");
+			logger.info("Total time for auto-allocation: " + (System.currentTimeMillis() - t1) + " ms");
 		}
 	}
 
