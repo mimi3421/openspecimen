@@ -569,6 +569,7 @@ h4.os-sub-section-title, h5.os-sub-section-title, h6.os-sub-section-title {
 
 .os-key-values.os-two-cols {
   column-count: 2;
+  -webkit-perspective: 1;
 }
 
 /*.os-two-cols > .item {
