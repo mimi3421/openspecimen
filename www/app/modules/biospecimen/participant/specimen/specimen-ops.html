@@ -60,6 +60,12 @@
       </a>
     </li>
     <li show-if-allowed="resourceOpts.specimenUpdateOpts">
+      <a ng-click="transferSpecimens()">
+        <span class="fa fa-arrows-h"></span>
+        <span translate="specimen_list.transfer_specimens">Transfer Specimens</span>
+      </a>
+    </li>
+    <li show-if-allowed="resourceOpts.specimenUpdateOpts">
       <a ng-click="retrieveSpecimens()">
         <span class="fa fa-reply"></span>
         <span translate="specimen_list.retrieve_specimens">Retrieve</span>

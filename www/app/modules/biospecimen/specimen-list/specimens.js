@@ -225,10 +225,6 @@ angular.module('os.biospecimen.specimenlist')
       loadContainerList(name);
     }
 
-    $scope.transferSpecimens = function() {
-      gotoView('bulk-transfer-specimens', {}, 'no_specimens_to_transfer');
-    }
-
     $scope.distributeCart = function() {
       $state.go('order-addedit', {specimenListId: list.id});
     }
