@@ -135,11 +135,23 @@
     <div class="form-group">
       <label class="control-label col-xs-3" translate="shipments.shipped_date">Shipped Date</label>
       <div class="col-xs-6" ng-switch on="shipment.status">
-        <div ng-switch-when="Shipped" class="form-value">{{shipment.shippedDate | date: global.dateFmt}}</div>
+        <div ng-switch-when="Shipped" class="form-value">
+          <span>{{shipment.shippedDate | date: global.dateTimeFmt}}</span>
+        </div>
         <div ng-switch-default>
-          <os-date-picker name="shippedDate" date="shipment.shippedDate"
-            placeholder="{{'shipments.shipped_date' | translate}}" required>
-          </os-date-picker>
+          <div class="os-date-time clearfix">
+            <div class="col-xs-9 input os-no-padding">
+              <os-date-picker name="shippedDate" date="shipment.shippedDate"
+                placeholder="{{'shipments.shipped_date' | translate}}" required>
+              </os-date-picker>
+            </div>
+            <div class="col-xs-3">
+              <div class="os-timepicker">
+                <timepicker ng-model="shipment.shippedDate" class="os-time-no-wheels" show-meridian="false">
+                </timepicker>
+              </div>
+            </div>
+          </div>
           <div os-field-error field="shipForm.shippedDate"></div>
         </div>
       </div>  
@@ -160,9 +172,19 @@
     <div class="form-group" ng-if="shipment.status == 'Shipped'">
       <label class="control-label col-xs-3" translate="shipments.received_date">Received Date</label>
       <div class="col-xs-6">
-        <os-date-picker name="receivedDate" date="shipment.receivedDate"
-          placeholder="{{'shipments.received_date' | translate}}" required>
-        </os-date-picker>
+        <div class="os-date-time clearfix">
+          <div class="col-xs-9 input os-no-padding">
+            <os-date-picker name="receivedDate" date="shipment.receivedDate"
+              placeholder="{{'shipments.received_date' | translate}}" required>
+            </os-date-picker>
+          </div>
+          <div class="col-xs-3">
+            <div class="os-timepicker">
+              <timepicker ng-model="shipment.receivedDate" class="os-time-no-wheels" show-meridian="false">
+              </timepicker>
+            </div>
+          </div>
+        </div>
         <div os-field-error field="shipForm.receivedDate"></div>
       </div>  
     </div>

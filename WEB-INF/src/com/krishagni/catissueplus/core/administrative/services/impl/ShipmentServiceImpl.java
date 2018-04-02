@@ -719,7 +719,7 @@ public class ShipmentServiceImpl implements ShipmentService, ObjectAccessor {
 					put(getMessage("shipment_tracking_url"),    shipment.getTrackingUrl());
 					put(getMessage("shipment_sending_site"),    shipment.getSendingSite().getName());
 					put(getMessage("shipment_sender"),          shipment.getSender().formattedName());
-					put(getMessage("shipment_shipped_date"),    Utility.getDateString(shipment.getShippedDate()));
+					put(getMessage("shipment_shipped_date"),    Utility.getDateTimeString(shipment.getShippedDate()));
 					put(getMessage("shipment_sender_comments"), shipment.getSenderComments());
 					put(getMessage("shipment_recv_site"),       shipment.getReceivingSite().getName());
 					
@@ -728,7 +728,7 @@ public class ShipmentServiceImpl implements ShipmentService, ObjectAccessor {
 					}
 					
 					if (shipment.getReceivedDate() != null) {
-						put(getMessage("shipment_received_date"), Utility.getDateString(shipment.getReceivedDate()));
+						put(getMessage("shipment_received_date"), Utility.getDateTimeString(shipment.getReceivedDate()));
 					}
 					
 					put(getMessage("shipment_receiver_comments"), shipment.getReceiverComments());

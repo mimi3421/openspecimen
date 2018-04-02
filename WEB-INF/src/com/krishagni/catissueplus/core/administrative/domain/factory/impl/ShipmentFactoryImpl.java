@@ -184,15 +184,12 @@ public class ShipmentFactoryImpl implements ShipmentFactory {
 	
 	private void setShippedDate(ShipmentDetail detail, Shipment shipment, OpenSpecimenException ose) {
 		Date shippedDate = detail.getShippedDate();
-		Date todayDate = Utility.chopTime(Calendar.getInstance().getTime());
+		Date todayDate = Calendar.getInstance().getTime();
 		if (shippedDate == null) {
 			shippedDate = todayDate;
-		} else {
-			shippedDate = Utility.chopTime(shippedDate);
-			if (shippedDate.after(todayDate)) {
-				ose.addError(ShipmentErrorCode.INVALID_SHIPPED_DATE);
-				return;
-			}
+		} else if (shippedDate.after(todayDate)) {
+			ose.addError(ShipmentErrorCode.INVALID_SHIPPED_DATE);
+			return;
 		}
 
 		shipment.setShippedDate(shippedDate);
@@ -218,16 +215,11 @@ public class ShipmentFactoryImpl implements ShipmentFactory {
 		}
 		
 		Date receivedDate = detail.getReceivedDate();
-		Date todayDate = Utility.chopTime(Calendar.getInstance().getTime());
+		Date todayDate = Calendar.getInstance().getTime();
 		if (receivedDate == null) {
 			receivedDate = todayDate;
-		} else {
-			receivedDate = Utility.chopTime(receivedDate);
-			if (receivedDate.before(Utility.chopTime(shipment.getShippedDate())) ||
-				receivedDate.after(todayDate)) {
-				ose.addError(ShipmentErrorCode.INVALID_RECEIVED_DATE);
-				return;
-			}
+		} else if (receivedDate.before(shipment.getShippedDate()) || receivedDate.after(todayDate)) {
+			ose.addError(ShipmentErrorCode.INVALID_RECEIVED_DATE);
 		}
 
 		shipment.setReceivedDate(receivedDate);

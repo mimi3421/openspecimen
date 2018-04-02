@@ -52,7 +52,7 @@
     </record>
 
     <field>
-      <type>date</type>
+      <type>datetime</type>
       <caption>#getMessage("order_execution_date")</caption>
       <attribute>executionDate</attribute>
     </field>

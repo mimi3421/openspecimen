@@ -105,9 +105,19 @@
     <div class="form-group">
       <label class="control-label col-xs-3" translate="orders.execution_date">Date</label>
       <div class="col-xs-6">
-        <os-date-picker name="executionDate" date="order.executionDate"
-          placeholder="{{'orders.execution_date' | translate}}" required>
-        </os-date-picker>
+        <div class="os-date-time clearfix">
+          <div class="col-xs-9 input os-no-padding">
+            <os-date-picker name="executionDate" date="order.executionDate"
+              placeholder="{{'orders.execution_date' | translate}}" required>
+            </os-date-picker>
+          </div>
+          <div class="col-xs-3">
+            <div class="os-timepicker">
+              <timepicker ng-model="order.executionDate" class="os-time-no-wheels" show-meridian="false">
+              </timepicker>
+            </div>
+          </div>
+        </div>
         <div os-field-error field="ordForm.executionDate"></div>
       </div>  
     </div>

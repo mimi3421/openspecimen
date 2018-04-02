@@ -1028,13 +1028,13 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 					put(msg("dist_dp_title"),       dp.getTitle());
 					put(msg("dist_dp_short_title"), dp.getShortTitle());
 					put(msg("dist_requestor_name"), order.getRequester().formattedName());
-					put(msg("dist_requested_date"), Utility.getDateString(order.getExecutionDate()));
+					put(msg("dist_requested_date"), Utility.getDateTimeString(order.getExecutionDate()));
 					put(msg("dist_receiving_site"), order.getSite() == null ? notSpecified : order.getSite().getName());
 					put(msg("dist_tracking_url"),   StringUtils.isBlank(order.getTrackingUrl()) ? notSpecified : order.getTrackingUrl());
 					put(msg("dist_comments"),       StringUtils.isBlank(order.getComments()) ? notSpecified : order.getComments());
 					put(msg("dp_irb_id"),           StringUtils.isBlank(dp.getIrbId()) ? notSpecified : dp.getIrbId());
 					put(msg("dist_exported_by"),    AuthUtil.getCurrentUser().formattedName());
-					put(msg("dist_exported_on"),    Utility.getDateString(Calendar.getInstance().getTime()));
+					put(msg("dist_exported_on"),    Utility.getDateTimeString(Calendar.getInstance().getTime()));
 
 					User pi = dp.getPrincipalInvestigator();
 					put(msg("dist_dp_pi_inst"),        pi.getInstitute().getName());

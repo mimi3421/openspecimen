@@ -61,7 +61,7 @@
         <li class="item">
           <strong class="key key-sm" translate="shipments.shipped_date">Shipped Date</strong>
           <span class="value value-md">
-            {{shipment.shippedDate | date: global.dateFmt | osNoValue}}
+            {{shipment.shippedDate | date: global.dateTimeFmt | osNoValue}}
           </span>
         </li>
   
@@ -73,7 +73,7 @@
         <li class="item" ng-if="shipment.status == 'Received'">
           <strong class="key key-sm" translate="shipments.received_date">Received Date</strong>
           <span class="value value-md">
-            {{shipment.receivedDate | date: global.dateFmt | osNoValue}}
+            {{shipment.receivedDate | date: global.dateTimeFmt | osNoValue}}
           </span>
         </li>
   
