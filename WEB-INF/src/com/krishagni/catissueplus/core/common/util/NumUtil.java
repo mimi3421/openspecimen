@@ -60,6 +60,30 @@ public class NumUtil {
             throw new IllegalArgumentException("Input object is not a number");
         }
 
-        return new BigDecimal(((Number)number).toString());
+        return new BigDecimal(number.toString());
+    }
+
+    public static int compareTo(Long o1, Long o2) {
+        if (o1 == null && o2 == null) {
+            return 0;
+        } else if (o1 == null) {
+            return 1;
+        } else if (o2 == null) {
+            return -1;
+        } else {
+            return o1.compareTo(o2);
+        }
+    }
+
+    public static int compareTo(Integer o1, Integer o2) {
+        if (o1 == null && o2 == null) {
+            return 0;
+        } else if (o1 == null) {
+            return 1;
+        } else if (o2 == null) {
+            return -1;
+        } else {
+            return o1.compareTo(o2);
+        }
     }
 }

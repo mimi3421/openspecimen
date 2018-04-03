@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainerPosition;
@@ -16,6 +17,7 @@ import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenRequirement;
 import com.krishagni.catissueplus.core.common.AttributeModifiedSupport;
 import com.krishagni.catissueplus.core.common.ListenAttributeChanges;
+import com.krishagni.catissueplus.core.common.util.NumUtil;
 
 @JsonSerialize(include= JsonSerialize.Inclusion.NON_NULL)
 @ListenAttributeChanges
@@ -504,29 +506,16 @@ public class SpecimenInfo extends AttributeModifiedSupport implements Comparable
 	
 	@Override
 	public int compareTo(SpecimenInfo other) {
-		if (sortOrder != null && other.sortOrder != null) {
-			return sortOrder.compareTo(other.sortOrder);
-		} else if (sortOrder != null) {
-			return -1;
-		} else if (other.sortOrder != null) {
-			return 1;
-		} else if (reqId != null && other.reqId != null && reqId != other.reqId) {
-			return reqId.compareTo(other.reqId);
-		} else if (reqId == other.reqId) {
-			return id.compareTo(other.id);
-		} else if (reqId != null) {
-			return -1;
-		} else if (other.reqId != null) {
-			return 1;
-		} else if (id != null && other.id != null) {
-			return id.compareTo(other.id);
+		int cmp = NumUtil.compareTo(sortOrder, other.sortOrder);
+		if (cmp != 0) {
+			return cmp;
 		}
-		
-		// 
-		// TODO: ERROR: need to put a logger here
-		// This scenario should not happen, as this means we neither have
-		// anticipated specimen nor actual specimen
-		//
-		return 0;
-	}	
+
+		cmp = NumUtil.compareTo(reqId, other.reqId);
+		if (cmp != 0) {
+			return cmp;
+		}
+
+		return NumUtil.compareTo(id, other.id);
+	}
 }
