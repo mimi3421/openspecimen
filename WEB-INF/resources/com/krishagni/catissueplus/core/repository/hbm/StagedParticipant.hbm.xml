@@ -24,7 +24,7 @@
 
     <property name="sexGenotype" column="GENOTYPE" />
 
-    <property name="uid" column="UID" unique="true" />
+    <property name="uid" column="NUID" unique="true" />
 
     <property name="activityStatus" column="ACTIVITY_STATUS" />
 

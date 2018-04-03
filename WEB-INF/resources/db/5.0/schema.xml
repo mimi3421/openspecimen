@@ -266,4 +266,8 @@
         cpr.identifier
     </createView>
   </changeSet>
+
+  <changeSet author="vpawar" id="Rename staged participants UID column to NUID as UID is function in Oracle">
+    <renameColumn tableName="OS_STAGED_PARTICIPANTS" oldColumnName="UID" newColumnName="NUID" columnDataType="${text.type}(50)"/>
+  </changeSet>
 </databaseChangeLog>
