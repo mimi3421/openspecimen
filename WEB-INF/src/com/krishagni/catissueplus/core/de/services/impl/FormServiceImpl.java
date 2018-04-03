@@ -82,13 +82,12 @@ import edu.common.dynamicextensions.domain.nui.PageBreak;
 import edu.common.dynamicextensions.domain.nui.PermissibleValue;
 import edu.common.dynamicextensions.domain.nui.SelectControl;
 import edu.common.dynamicextensions.domain.nui.SubFormControl;
-import edu.common.dynamicextensions.domain.nui.ValidationErrors;
+import edu.common.dynamicextensions.domain.nui.UserContext;
 import edu.common.dynamicextensions.napi.ControlValue;
 import edu.common.dynamicextensions.napi.FileControlValue;
 import edu.common.dynamicextensions.napi.FormData;
 import edu.common.dynamicextensions.napi.FormDataManager;
 import edu.common.dynamicextensions.napi.FormEventsNotifier;
-import edu.common.dynamicextensions.napi.impl.FormDataManagerImpl;
 import edu.common.dynamicextensions.nutility.FileUploadMgr;
 import krishagni.catissueplus.beans.FormContextBean;
 import krishagni.catissueplus.beans.FormRecordEntryBean;
@@ -125,8 +124,10 @@ public class FormServiceImpl implements FormService, InitializingBean {
 		customFieldEntities.put(SCG_FORM, Visit.EXTN);
 		customFieldEntities.put(SPECIMEN_FORM, Specimen.EXTN);
 	}
-	
+
 	private FormDao formDao;
+
+	private FormDataManager formDataMgr;
 
 	private DaoFactory daoFactory;
 
@@ -136,6 +137,10 @@ public class FormServiceImpl implements FormService, InitializingBean {
 
 	public void setFormDao(FormDao formDao) {
 		this.formDao = formDao;
+	}
+
+	public void setFormDataMgr(FormDataManager formDataMgr) {
+		this.formDataMgr = formDataMgr;
 	}
 
 	public void setDaoFactory(DaoFactory daoFactory) {
@@ -420,8 +425,7 @@ public class FormServiceImpl implements FormService, InitializingBean {
 		FormDataDetail detail = req.getPayload();
 		
 		try {
-			User user = AuthUtil.getCurrentUser();
-			FormData formData = saveOrUpdateFormData(user, detail.getRecordId(), detail.getFormData(), detail.isPartial());
+			FormData formData = saveOrUpdateFormData(detail.getRecordId(), detail.getFormData(), detail.isPartial());
 			return ResponseEvent.response(FormDataDetail.ok(formData.getContainer().getId(), formData.getRecordId(), formData));
 		} catch(IllegalArgumentException ex) {
 			return ResponseEvent.userError(FormErrorCode.INVALID_DATA, ex.getMessage());
@@ -436,11 +440,10 @@ public class FormServiceImpl implements FormService, InitializingBean {
 	@PlusTransactional
 	public ResponseEvent<List<FormData>> saveBulkFormData(RequestEvent<List<FormData>> req) {
 		try{
-			User user = AuthUtil.getCurrentUser();
 			List<FormData> formDataList = req.getPayload();
 			List<FormData> savedFormDataList = new ArrayList<>();
 			for (FormData formData : formDataList) {
-				FormData savedFormData = saveOrUpdateFormData(user, formData.getRecordId(), formData, true);
+				FormData savedFormData = saveOrUpdateFormData(formData.getRecordId(), formData, true);
 				savedFormDataList.add(savedFormData);
 			}
 			
@@ -458,8 +461,6 @@ public class FormServiceImpl implements FormService, InitializingBean {
 	@PlusTransactional
 	public ResponseEvent<FileDetail> getFileDetail(RequestEvent<GetFileDetailOp> req) {
 		GetFileDetailOp opDetail = req.getPayload();
-		
-		FormDataManager formDataMgr = new FormDataManagerImpl(false);
 		FileControlValue fcv = formDataMgr.getFileControlValue(opDetail.getFormId(), opDetail.getRecordId(), opDetail.getCtrlName());
 		if (fcv == null) {
 			return ResponseEvent.userError(FormErrorCode.FILE_NOT_FOUND);
@@ -640,8 +641,7 @@ public class FormServiceImpl implements FormService, InitializingBean {
 	//
 	@Override
 	public List<FormData> getSummaryRecords(Long formId, List<Long> recordIds) {
-		FormDataManager mgr = new FormDataManagerImpl(false);
-		return mgr.getSummaryData(formId, recordIds);
+		return formDataMgr.getSummaryData(formId, recordIds);
 	}
 
 	@Override
@@ -732,7 +732,6 @@ public class FormServiceImpl implements FormService, InitializingBean {
 			throw OpenSpecimenException.userError(FormErrorCode.REC_NOT_FOUND);
 		}
 
-		FormDataManager formDataMgr = new FormDataManagerImpl(false);
 		formDataMgr.anonymize(null, form, recordId);
 
 		recEntry.setUpdatedBy(AuthUtil.getCurrentUser().getId());
@@ -818,14 +817,14 @@ public class FormServiceImpl implements FormService, InitializingBean {
 //		return forms;
 //	}
 		
-	private FormData saveOrUpdateFormData(User user, Long recordId, FormData formData, boolean isPartial) {
+	private FormData saveOrUpdateFormData(Long recordId, FormData formData, boolean isPartial) {
 		Map<String, Object> appData = formData.getAppData();
 		if (appData.get("formCtxtId") == null || appData.get("objectId") == null) {
 			throw new IllegalArgumentException("Invalid form context id or object id ");
 		}
 
 		Long objectId = ((Number) appData.get("objectId")).longValue();
-		List<Long> formCtxtId = new ArrayList<Long>();
+		List<Long> formCtxtId = new ArrayList<>();
 		formCtxtId.add(((Number) appData.get("formCtxtId")).longValue());
 		
 		List<FormContextBean> formContexts = formDao.getFormContextsById(formCtxtId);
@@ -834,7 +833,6 @@ public class FormServiceImpl implements FormService, InitializingBean {
 		}
 		
 		boolean isInsert = (recordId == null);
-		FormDataManager formDataMgr = new FormDataManagerImpl(false);
 		if (!isInsert && isPartial) {
 			FormData existing = formDataMgr.getFormData(formData.getContainer(), formData.getRecordId());
 			formData = updateFormData(existing, formData);
@@ -893,17 +891,36 @@ public class FormServiceImpl implements FormService, InitializingBean {
 		}
 
 		
-		recordId = formDataMgr.saveOrUpdateFormData(null, formData);
+		recordId = formDataMgr.saveOrUpdateFormData(getUserContext(), formData);
 
 		recordEntry.setFormCtxtId(formContext.getIdentifier());
 		recordEntry.setObjectId(objectId);
 		recordEntry.setRecordId(recordId);
-		recordEntry.setUpdatedBy(user.getId());
+		recordEntry.setUpdatedBy(AuthUtil.getCurrentUser().getId());
 		recordEntry.setUpdatedTime(Calendar.getInstance().getTime());
 		formDao.saveOrUpdateRecordEntry(recordEntry);
 
 		formData.setRecordId(recordId);
 		return formData;
+	}
+
+	private UserContext getUserContext() {
+		return new UserContext() {
+			@Override
+			public Long getUserId() {
+				return AuthUtil.getCurrentUser() != null ? AuthUtil.getCurrentUser().getId() : null;
+			}
+
+			@Override
+			public String getUserName() {
+				return AuthUtil.getCurrentUser() != null ? AuthUtil.getCurrentUser().getLoginName() : null;
+			}
+
+			@Override
+			public String getIpAddress() {
+				return AuthUtil.getRemoteAddr();
+			}
+		};
 	}
 	
 	private List<FormFieldSummary> getFormFields(Container container) {
@@ -952,8 +969,6 @@ public class FormServiceImpl implements FormService, InitializingBean {
 	}
 
 	private FormData getRecord(Container form, Long objectId, Long formCtxtId, String entityType, Long recordId) {
-		FormDataManager formDataMgr = new FormDataManagerImpl(false);
-
 		FormData formData = formDataMgr.getFormData(form, recordId);
 		if (formData == null) {
 			throw OpenSpecimenException.userError(FormErrorCode.REC_NOT_FOUND);
@@ -1047,7 +1062,6 @@ public class FormServiceImpl implements FormService, InitializingBean {
 	private List<FormRecordsList> getFormRecords(String entityType, Long inputFormId, Long objectId) {
 		List<FormRecordsList> result = new ArrayList<>();
 
-		FormDataManager formDataMgr = new FormDataManagerImpl(false);
 		Map<Long, List<FormRecordSummary>> records = formDao.getFormRecords(objectId, entityType, inputFormId);
 		for (Map.Entry<Long, List<FormRecordSummary>> formRecs : records.entrySet()) {
 			Long formId = formRecs.getKey();
@@ -1321,7 +1335,6 @@ public class FormServiceImpl implements FormService, InitializingBean {
 			}
 
 			private Map<String, Object> getFormData(Long recordId, boolean maskPhi) {
-				FormDataManager formDataMgr = new FormDataManagerImpl(false);
 				FormData formData = formDataMgr.getFormData(form, recordId);
 
 				if (formHasPhi && maskPhi) {

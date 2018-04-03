@@ -402,7 +402,7 @@
   </bean>
   
   <bean id="formDataMgr" class="edu.common.dynamicextensions.napi.impl.FormDataManagerImpl">
-    <constructor-arg type="boolean" value="false"/>
+    <constructor-arg type="boolean" value="true"/>
   </bean>
 
   <bean id="formDao" class="com.krishagni.catissueplus.core.de.repository.impl.FormDaoImpl">
@@ -411,6 +411,7 @@
   
   <bean id="formSvc" class="com.krishagni.catissueplus.core.de.services.impl.FormServiceImpl">
     <property name="formDao" ref="formDao"/>
+    <property name="formDataMgr" ref="formDataMgr"/>
     <property name="daoFactory" ref="biospecimenDaoFactory"/>
     <property name="exportSvc" ref="exportSvc"/>
     <property name="ctxtProcs">
