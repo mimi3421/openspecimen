@@ -14,6 +14,10 @@ angular.module('openspecimen')
         this.addTab = function(tab) {
           angular.extend(tab, {selected: false});
           $scope.tabs.push(tab);
+
+          if ($scope.tabs.length == 1) {
+            tab.selected = true;
+          }
         }
 
         this.selectTab = function($index) {
@@ -30,7 +34,7 @@ angular.module('openspecimen')
       },
 
       link: function(scope, element, attrs, ctrl) {
-        scope.tabs[ctrl.selected].selected = true;
+        // scope.tabs[ctrl.selected].selected = true;
 
         scope.selectTab = function(tab) {
           ctrl.selectTab(tab);
