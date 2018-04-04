@@ -13,7 +13,39 @@
     </div>
 
     <div ng-if="!inputSpmn.id && !inputSpmn.reqId">
-      <div ng-include="'modules/biospecimen/participant/specimen/add-aliquots-tmpl.html'"></div>
+      <div ng-if="opts.showCreateAliquots != false && opts.showCreateAliquots != 'false'">
+        <div ng-include="'modules/biospecimen/participant/specimen/add-aliquots-tmpl.html'"></div>
+      </div>
+
+      <div ng-if="opts.allowMultipleSpecimens != false && opts.allowMultipleSpecimens != 'false'">
+        <fieldset ng-if="opts.verticalLayout">
+          <legend translate="specimens.multiple">Multiple Specimens</legend>
+          <div class="row">
+            <div class="col-xs-6">
+              <input type="text" name="count" ng-model="inputSpmn.$$count" class="form-control"
+                ng-pattern="/^[1-9][0-9]*$/" placeholder="{{'specimens.count' | translate}}">
+              <div os-field-error field="sform.count"></div>
+            </div>
+          </div>
+        </fieldset>
+
+        <div ng-if="!opts.verticalLayout">
+          <div class="os-section-divider">
+            <span translate="specimens.multiple">Multiple Specimens</span>
+          </div>
+
+          <div class="form-group">
+            <label class="col-xs-3 control-label">
+              <span translate="specimens.count">Count</span>
+            </label>
+            <div class="col-xs-6">
+              <input type="text" name="count" ng-model="inputSpmn.$$count" class="form-control"
+                ng-pattern="/^[1-9][0-9]*$/" placeholder="{{'specimens.count' | translate}}">
+              <div os-field-error field="sform.count"></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

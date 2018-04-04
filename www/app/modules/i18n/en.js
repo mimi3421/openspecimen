@@ -718,6 +718,8 @@
     "new_aliquot_count": "Number of aliquots",
     "aliquot_details": "Aliquot Details",
     "create_aliquots_q": "Do you want to create aliquots?",
+    "delete_q": "Delete Specimen?",
+    "confirm_q": "Do you really want to delete the specimen?",
 
     "specimens_hierarchy_deleted": "Selected specimens and their children are deleted successfully",
     "specimens_deleted": "Selected specimens are deleted successfully",
@@ -781,7 +783,8 @@
       "reopen": "Reopen",
       "close": "Close",
       "add_specimen": "Add Specimen",
-      "distribute": "Distribute"
+      "distribute": "Distribute",
+      "copy_last_aliquots": "Copy Last (including Aliquots)"
     },
 
     "errors": {

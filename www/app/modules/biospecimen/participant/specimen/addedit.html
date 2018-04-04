@@ -59,10 +59,17 @@
               <span translate="specimens.title">Specimen</span>
               <span>{{$index + 1}}:</span>
               <os-specimen-desc cp="opts.cp" specimen="spmnCtxt.specimen" show-req-label="true"></os-specimen-desc>
+              <span ng-if="spmnCtxt.specimen.$$count > 1">({{spmnCtxt.specimen.$$count}})</span>
+              <span class="os-btns">
+                <a class="os-btn-text" ng-click="remove($event, $index)">
+                  <span class="fa fa-times-circle"></span>
+                </a>
+              </span>
             </span>
           </accordion-heading>
           <div>
-            <os-specimen-addedit-form specimen="spmnCtxt.specimen" ctrl="spmnCtxt.form" opts="opts">
+            <os-specimen-addedit-form specimen="spmnCtxt.specimen" aliquots="spmnCtxt.aliquots"
+              ctrl="spmnCtxt.form" opts="opts">
             </os-specimen-addedit-form>
           </div>
         </accordion-group>
@@ -74,6 +81,10 @@
             </button>
             <button class="btn os-btn-text" ng-click="addCopyOfLast()">
               <span translate="common.buttons.copy_last">Copy of Last</span>
+            </button>
+            <button class="btn os-btn-text" ng-click="addCopyOfLast(true)"
+              ng-if="opts.allowMultipleSpecimens != false && opts.allowMultipleSpecimens != 'false'">
+              <span translate="specimens.buttons.copy_last_aliquots">Copy of Last</span>
             </button>
           </div>
         </div>
