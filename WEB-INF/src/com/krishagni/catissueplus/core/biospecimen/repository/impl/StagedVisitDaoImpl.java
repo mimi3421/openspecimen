@@ -22,7 +22,7 @@ public class StagedVisitDaoImpl extends AbstractDao<StagedVisit> implements Stag
 	@Override
 	public StagedVisit getBySprNo(String sprNo) {
 		return (StagedVisit) getCurrentSession().getNamedQuery(GET_BY_SPR_NO)
-			.setParameter("sprNo", sprNo)
+			.setParameter("sprNo", sprNo.toLowerCase())
 			.uniqueResult();
 	}
 
