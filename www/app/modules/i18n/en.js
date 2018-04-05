@@ -1936,7 +1936,7 @@
     "export": "Export Cart",
     "remove_spmns": "Remove from Cart",
     "add_event": "Add/Edit Event",
-    "transfer_specimens": "Transfer Specimens",
+    "transfer_specimens": "Transfer",
     "retrieve_specimens": "Retrieve",
     "retrieve_reason": "Reason for retrieving specimens",
     "location": "Storage Location",
@@ -2157,7 +2157,8 @@
       "not_found_count": "Failed: Specimens not present in the shipment",
       "not_found_error": "Failed: Specimen not present in the shipment",
       "extra_count": "Failed: Additional specimens present in the shipment",
-      "extra_error": "Failed: Additional specimen present in the shipment"
+      "extra_error": "Failed: Additional specimen present in the shipment",
+      "report_copied": "Specimen validation report copied to the clipboard"
     }
   },
 
