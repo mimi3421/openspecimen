@@ -225,17 +225,18 @@
             </os-users>
             <div os-field-error field="sform.collector"></div>
           </div>
-          <div class="os-date-time clearfix">
+          <div class="os-date-time clearfix"
+            ng-init="inputSpmn.collectionEvent.time = (inputSpmn.collectionEvent.time || spmnCtx.currentDate)">
             <div class="col-xs-2 input">
               <os-date-picker name="collectionDate" date="inputSpmn.collectionEvent.time"
                 placeholder="{{'specimens.col_event.date' | translate}}" required>
               </os-date-picker>
+              <div os-field-error field="sform.collectionDate"></div>
             </div>
             <div class="col-xs-1 os-timepicker">
               <timepicker ng-model="inputSpmn.collectionEvent.time" class="os-time-no-wheels" show-meridian="false">
               </timepicker>
             </div>
-            <div os-field-error field="sform.collectionDate"></div>
           </div>
         </div>
 
@@ -274,17 +275,18 @@
             <div os-field-error field="sform.receiver"></div>
           </div>
 
-          <div class="os-date-time clearfix">
+          <div class="os-date-time clearfix"
+            ng-init="inputSpmn.receivedEvent.time = (inputSpmn.receivedEvent.time || spmnCtx.currentDate)">
             <div class="col-xs-2 input">
               <os-date-picker name="receiveDate" date="inputSpmn.receivedEvent.time"
                 placeholder="{{'specimens.recv_event.date' | translate}}" required>
               </os-date-picker>
+              <div os-field-error field="sform.receiveDate"></div>
             </div>
             <div class="col-xs-1 os-timepicker">
               <timepicker ng-model="inputSpmn.receivedEvent.time" class="os-time-no-wheels"show-meridian="false">
               </timepicker>
             </div>
-            <div os-field-error field="sform.receiveDate"></div>
           </div>
         </div>
 
@@ -358,9 +360,8 @@
               <div os-field-error field="aform.noOfAliquots"></div>
             </td>
             <td class="col">
-              <os-spmn-measure name="qty" md-input="true" specimen="aliquot" quantity="aliquot.qtyPerAliquot" required>
+              <os-spmn-measure name="qty" md-input="true" specimen="aliquot" quantity="aliquot.qtyPerAliquot">
               </os-spmn-measure>
-              <div os-field-error field="aform.qty"></div>
             </td>
             <td class="col">
               <os-pvs name="pathology" os-md-input ng-model="aliquot.pathology" attribute="pathology-status">
