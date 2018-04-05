@@ -62,9 +62,9 @@
             <th class="col col-xs-3" translate="specimens.location">Container</th>
           </tr>
         </thead>
-        <tbody class="os-table-body" ng-class="{'os-pool-specimen': !!specimen.pooledSpecimen}"
-          ng-repeat="specimen in specimens | openedTreeNodes" ng-if="!specimen.$$hideN">
-          <tr class="row title" ng-class="{'selected': specimen.selected}">
+        <tbody class="os-table-body">
+          <tr class="row title" ng-class="{'selected': specimen.selected, 'os-pool-specimen': !!specimen.pooledSpecimen}"
+            ng-repeat="specimen in specimens | openedTreeNodes" ng-if="!specimen.$$hideN">
             <td class="col col-xs-5">
               <div class="clearfix">
                 <div class="os-select-specimen-cb" ng-hide="specimen.status == 'Missed Collection'">
@@ -105,8 +105,7 @@
         </tbody>
       </table>
 
-      <table class="os-table os-table-tree" ng-class="{'os-spmn-hide-options': view != 'list'}"
-        ng-if="dispTree && hasDict">
+      <table class="os-table os-table-tree" ng-class="{'os-spmn-hide-options': view != 'list'}" ng-if="dispTree && hasDict">
         <thead class="os-table-head">
           <tr class="row">
             <th class="col" ng-repeat="field in fields" ng-style="{'min-width': field.width}">
@@ -122,9 +121,9 @@
             </th>
           </tr>
         </thead>
-        <tbody class="os-table-body" ng-class="{'os-pool-specimen': !!specimen.pooledSpecimen}"
-          ng-repeat="specimen in specimens | openedTreeNodes" ng-if="!specimen.$$hideN">
-          <tr class="row title" ng-class="{'selected': specimen.selected}">
+        <tbody class="os-table-body">
+          <tr class="row title" ng-class="{'selected': specimen.selected, 'os-pool-specimen': !!specimen.pooledSpecimen}"
+            ng-repeat="specimen in specimens | openedTreeNodes" ng-if="!specimen.$$hideN">
             <td class="col os-word-break" ng-repeat="field in specimen.$$treeFields">
               <div class="clearfix" ng-if="$index == 0">
                 <div class="os-select-specimen-cb" ng-hide="specimen.status == 'Missed Collection'">

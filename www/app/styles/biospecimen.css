@@ -420,6 +420,15 @@
   height: calc(100% - 41px);
   overflow-x: auto;
   overflow-y: auto;
+  padding-top: 0px; /* remove the padding of panel so that the scrolled table cells do not appear in the padding region */
+}
+
+.os-specimen-tree-body .os-table .os-table-head .row .col {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: white;
+  padding-top: 23px; /* 8px for table cell and 15px to compensate the panel padding */
 }
 
 .os-tree-scroll-up-btn {
