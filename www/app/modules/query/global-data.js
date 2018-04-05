@@ -1,8 +1,7 @@
 
 angular.module('os.query.globaldata', ['os.query.models', 'os.biospecimen.models'])
   .factory('QueryGlobalData', function(
-    $translate, $q, $http,
-    ApiUrls, CollectionProtocol, Form, SavedQuery, QueryFolder, QueryUtil, Util, Alerts) {
+    $q, $http, ApiUrls, CollectionProtocol, Form, SavedQuery, QueryFolder, QueryUtil, Util, Alerts) {
 
     var QueryGlobalData = function() {
       this.cpsQ = undefined;
@@ -22,13 +21,9 @@ angular.module('os.query.globaldata', ['os.query.models', 'os.biospecimen.models
         var that = this;
         this.cpsQ = CollectionProtocol.list({detailedList: false, maxResults: 1000}).then(
           function(result) {
-            return $translate('common.none').then(
-              function(none) {
-                result.unshift({id: -1, shortTitle: none, title: none});
-                that.cpList = result;
-                return that.cpList;
-              }
-            );
+            result.unshift({id: -1, shortTitle: 'None', title: 'None'});
+            that.cpList = result;
+            return that.cpList;
           }
         );
       }

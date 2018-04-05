@@ -16,7 +16,7 @@ angular.module('os.query.results', ['os.query.models'])
     }
   })
   .controller('QueryResultsCtrl', function(
-    $rootScope, $scope, $state, $stateParams, $modal, $document, $timeout, $interpolate, currentUser,
+    $scope, $state, $stateParams, $modal, $document, $timeout, $interpolate, currentUser,
     queryCtx, cps, QueryCtxHolder, QueryUtil, QueryExecutor, SpecimenList, SpecimensHolder, Alerts) {
 
     var STR_FACETED_OPS = ['eq', 'qin', 'exists', 'any'];
@@ -780,7 +780,7 @@ angular.module('os.query.results', ['os.query.models'])
         function() {
           loadFacetValues(facet, facet.searchFor);
         },
-        $rootScope.global.filterWaitInterval
+        ui.os.global.filterWaitInterval
       );
     }
 
