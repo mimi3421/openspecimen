@@ -232,20 +232,16 @@ angular.module('os.biospecimen.specimen.addedit', [])
 
         var exObjs = ['specimen.lineage', 'specimen.parentLabel', 'specimen.events'];
         if (!inputSpmn.id && !inputSpmn.reqId) {
-          var currentDate = new Date();
           inputSpmn.collectionEvent = {
             user: $rootScope.currentUser,
-            time: currentDate
+            container: 'Not Specified',
+            procedure: 'Not Specified'
           };
 
           inputSpmn.receivedEvent = {
             user: $rootScope.currentUser,
-            time: currentDate
+            receivedQuality: 'Acceptable'
           };
-
-          inputSpmn.collectionEvent.container = "Not Specified";
-          inputSpmn.collectionEvent.procedure = "Not Specified";
-          inputSpmn.receivedEvent.receivedQuality = "Acceptable";
         }
 
         if (inputSpmn.lineage != 'New') {
@@ -257,6 +253,7 @@ angular.module('os.biospecimen.specimen.addedit', [])
         inputSpmn.concentration = Util.getNumberInScientificNotation(inputSpmn.concentration);
 
         var spmnCtx = scope.spmnCtx = {
+          currentDate: new Date(),
           obj: {specimen: inputSpmn, cpr: opts.cpr, visit: opts.visit, cp: opts.cp},
           inObjs: ['specimen'], exObjs: exObjs,
           isVirtual: inputSpmn.showVirtual(),
