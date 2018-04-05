@@ -42,6 +42,7 @@ import com.krishagni.catissueplus.core.common.events.UserSummary;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.catissueplus.core.common.util.Status;
 import com.krishagni.catissueplus.core.common.util.Utility;
+import com.krishagni.catissueplus.core.importer.services.impl.ImporterContextHolder;
 
 public class ShipmentFactoryImpl implements ShipmentFactory {
 	private DaoFactory daoFactory;
@@ -382,6 +383,8 @@ public class ShipmentFactoryImpl implements ShipmentFactory {
 			return null;
 		}
 
+		initSpecimen(shipment, specimen);
+
 		ShipmentSpecimen shipmentSpecimen = new ShipmentSpecimen();
 		shipmentSpecimen.setShipment(shipment);
 		shipmentSpecimen.setSpecimen(specimen);
@@ -478,5 +481,14 @@ public class ShipmentFactoryImpl implements ShipmentFactory {
 		StorageContainer container = containerFactory.createStorageContainer(existing, detail);
 		container.validateRestrictions();
 		return container;
+	}
+
+	//
+	// HSEARCH-1350: https://hibernate.atlassian.net/browse/HSEARCH-1350
+	//
+	private void initSpecimen(Shipment shipment, Specimen specimen) {
+		if (ImporterContextHolder.getInstance().isImportOp() && shipment.isReceived()) {
+			specimen.getBiohazards().size();
+		}
 	}
 }
