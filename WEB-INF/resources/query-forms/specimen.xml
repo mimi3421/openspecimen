@@ -396,7 +396,7 @@
             <caption>#getMessage("specimen_collection_container")</caption>
             <column>COLL_CONTAINER</column>
             <options>
-              <sql>select distinct coll_container from os_spmn_coll_recv_details_view order by coll_container</sql>
+              <sql>select value from catissue_permissible_value where public_id = 'collection_container' order by value</sql>
             </options>
           </dropDown>
           <dropDown>
@@ -405,7 +405,7 @@
             <caption>#getMessage("specimen_collection_procedure")</caption>
             <column>COLL_PROCEDURE</column>
             <options>
-              <sql>select distinct coll_procedure from os_spmn_coll_recv_details_view order by coll_procedure</sql>
+              <sql>select value from catissue_permissible_value where public_id = 'collection_procedure' order by value</sql>
             </options>
           </dropDown>
           <userField>
@@ -426,7 +426,7 @@
             <caption>#getMessage("specimen_received_quality")</caption>
             <column>RECV_QUALITY</column>
             <options>
-              <sql>select distinct recv_quality from os_spmn_coll_recv_details_view order by recv_quality</sql>
+              <sql>select value from catissue_permissible_value where public_id = 'receive_quality' order by value</sql>
             </options>
           </dropDown>
           <userField>
