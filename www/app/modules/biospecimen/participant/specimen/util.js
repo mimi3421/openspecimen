@@ -44,6 +44,7 @@ angular.module('os.biospecimen.specimen')
       parent.isOpened = parent.hasChildren = true;
       parent.depth = 0;
       parent.closeAfterChildrenCreation = spec.closeParent;
+      parent.storageType = !parent.storageLocation.name && (parent.storageType || 'Virtual');
 
       var derived = undefined;
       if (spec.specimenClass != parent.specimenClass || spec.type != parent.type) {
