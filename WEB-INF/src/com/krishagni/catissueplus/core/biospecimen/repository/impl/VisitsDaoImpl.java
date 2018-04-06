@@ -263,11 +263,12 @@ public class VisitsDaoImpl extends AbstractDao<Visit> implements VisitsDao {
 	}
 
 	@Override
-	public Visit getBySpr(Long cpId, String sprNumber) {
-		return (Visit) getCurrentSession().getNamedQuery(GET_BY_CP_SPR)
+	@SuppressWarnings("unchecked")
+	public List<Visit> getBySpr(Long cpId, String sprNumber) {
+		return getCurrentSession().getNamedQuery(GET_BY_CP_SPR)
 			.setParameter("cpId", cpId)
 			.setParameter("sprNo", sprNumber.toLowerCase())
-			.uniqueResult();
+			.list();
 	}
 
 	private DetachedCriteria getVisitIdsListQuery(VisitsListCriteria crit) {

@@ -36,10 +36,7 @@ public class DefaultVisitsLookup implements VisitsLookup {
 				break;
 
 			case SPR_NO:
-				Visit visit2 = daoFactory.getVisitsDao().getBySpr(input.getCpId(), input.getValue());
-				if (visit2 != null) {
-					visits.add(visit2);
-				}
+				visits.addAll(daoFactory.getVisitsDao().getBySpr(input.getCpId(), input.getValue()));
 				break;
 		}
 

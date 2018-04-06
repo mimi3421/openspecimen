@@ -35,5 +35,5 @@ public interface VisitsDao extends Dao<Visit> {
 
 	List<Visit> getByEmpiOrMrn(Long cpId, String empiOrMrn);
 
-	Visit getBySpr(Long cpId, String sprNumber);
+	List<Visit> getBySpr(Long cpId, String sprNumber);
 }
