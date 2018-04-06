@@ -62,10 +62,10 @@
         <div os-field-error field="sform.label"></div>
       </div>
     </div>
-    <div class="form-group" ng-if="barcodingEnabled">
+    <div class="form-group" ng-if="opts.barcodingEnabled">
       <label class="col-xs-3 control-label" translate="specimens.barcode">Barcode</label>
       <div class="col-xs-6">
-        <input ng-model="inputSpmn.barcode" class="form-control" ng-disabled="!!spmnBarcodesAutoGen"
+        <input ng-model="inputSpmn.barcode" class="form-control" ng-disabled="!!opts.spmnBarcodesAutoGen"
           type="text" placeholder="{{'specimens.barcode' | translate}}">
       </div>
     </div>
