@@ -113,6 +113,10 @@
   background: #d9534f!important;
 }
 
+.os-page-header .os-status-reserved {
+  background: rgba(128, 0, 128, 0.7)!important;
+}
+
 .os-page-header .os-status-collected {
   background: #5cb85c!important;
 }
@@ -127,6 +131,7 @@
 
 .panel .panel-heading .os-status-closed,
 .os-page-header .os-status-closed,
+.os-page-header .os-status-reserved,
 .os-page-header .os-status-pending,
 .os-page-header .os-status-collected,
 .os-page-header .os-status-distributed {
