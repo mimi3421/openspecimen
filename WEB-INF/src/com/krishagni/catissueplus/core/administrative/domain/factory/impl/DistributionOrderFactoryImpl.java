@@ -209,7 +209,7 @@ public class DistributionOrderFactoryImpl implements DistributionOrderFactory {
 			return;
 		}
 
-		if (!requestor.getInstitute().equals(site.getInstitute())) {
+		if (requestor != null && !requestor.getInstitute().equals(site.getInstitute())) {
 			ose.addError(DistributionOrderErrorCode.INVALID_REQUESTER_RECV_SITE_INST, requestor.formattedName(), site.getName());
 			return;
 		}
