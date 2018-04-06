@@ -67,6 +67,10 @@ angular.module('os.biospecimen.visit.addedit', [])
         $scope.currVisit.extensionDetail = formCtrl.getFormData();
       }
 
+      if ($scope.currVisit.eventLabel != visit.eventLabel) {
+        $scope.currVisit.eventId = undefined;
+      }
+
       $scope.currVisit.$saveOrUpdate().then(
         function(result) {
           ParticipantSpecimensViewState.specimensUpdated($scope);
