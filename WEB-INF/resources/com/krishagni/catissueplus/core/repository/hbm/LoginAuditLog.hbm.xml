@@ -34,31 +34,31 @@
     </query>
 
     <sql-query name="getActiveUsersCount">
-      <return-scalar column="count" type="int"/>
+      <return-scalar column="usersCnt" type="int"/>
 
       select
-        count(distinct user_id) as count
+        count(distinct u.identifier) as usersCnt
       from
         os_login_audit_logs log
-        inner join catissue_user user on log.user_id = user.identifier
+        inner join catissue_user u on log.user_id = u.identifier
       where
-        is_login_successful = 1 and
-        login_time between :fromDate and :toDate and
-        (:instituteId is null or user.institute_id = :instituteId)
+        log.is_login_successful = 1 and
+        log.login_time between :fromDate and :toDate and
+        (:instituteId is null or u.institute_id = :instituteId)
     </sql-query>
 
     <sql-query name="getLoginsCount">
-      <return-scalar column="count" type="int"/>
+      <return-scalar column="usersCnt" type="int"/>
 
       select
-        count(*) as count
+        count(*) as usersCnt
       from
         os_login_audit_logs log
-        inner join catissue_user user on log.user_id = user.identifier
+        inner join catissue_user u on log.user_id = u.identifier
       where
-        is_login_successful = :loginSuccessful and
-        login_time between :fromDate and :toDate and
-        (:instituteId is null or user.institute_id = :instituteId)
+        log.is_login_successful = :loginSuccessful and
+        log.login_time between :fromDate and :toDate and
+        (:instituteId is null or u.institute_id = :instituteId)
     </sql-query>
   </class>
 </hibernate-mapping>
