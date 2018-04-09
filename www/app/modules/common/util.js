@@ -181,6 +181,10 @@ angular.module('openspecimen')
     }
 
     function getNumberInScientificNotation(input, minRange, fractionDigits) {
+      if (input == null || input == undefined) {
+        return input;
+      }
+
       minRange = minRange || 1000000;
       fractionDigits = fractionDigits || undefined;
       
