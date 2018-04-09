@@ -71,6 +71,8 @@ public class ConfigParams {
 
 	public static final String VISITS_LOOKUP_FLOW        = "visits_lookup_flow";
 
+	public static final String ALIQUOT_QTY_REQ           = "mandatory_aliquot_qty";
+
 	public static String getConsentsDirPath() {
 		String path = ConfigUtil.getInstance().getStrSetting(MODULE, CONSENTS_DIR, null);
 		if (StringUtils.isBlank(path)) {

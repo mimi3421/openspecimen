@@ -82,8 +82,8 @@
             </td>
             <td class="col">
               <os-spmn-measure name="qty" specimen="aliquotSpec" quantity="aliquotSpec.quantity" md-input
-                ng-required="aliquotSpec.parent.type != aliquotSpec.type ||
-                  !aliquotSpec.count || !aliquotSpec.parent.availableQty">
+                ng-required="ctx.aliquotQtyReq && (aliquotSpec.parent.type != aliquotSpec.type ||
+                  !aliquotSpec.count || !aliquotSpec.parent.availableQty)">
               </os-spmn-measure>
               <div os-field-error field="aform.qty"></div>
             </td>

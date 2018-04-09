@@ -25,7 +25,8 @@
     <div class="col-xs-6">
       <os-spmn-measure name="qtyPerAliquot" specimen="aliquotSpec" quantity="aliquotSpec.qtyPerAliquot"
         placeholder="{{'specimens.qty_per_aliquot' | translate}}" 
-        ng-required="parentSpecimen.type != aliquotSpec.type || !aliquotSpec.noOfAliquots || !parentSpecimen.availableQty">
+        ng-required="aliquotQtyReq && (parentSpecimen.type != aliquotSpec.type ||
+          !aliquotSpec.noOfAliquots || !parentSpecimen.availableQty)">
       </os-spmn-measure>
       <div os-field-error field="aliquotForm.qtyPerAliquot"></div>
     </div>

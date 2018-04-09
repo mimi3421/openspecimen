@@ -387,8 +387,10 @@ public class DistributionOrderFactoryImpl implements DistributionOrderFactory {
 		}
 
 		if (detail.getQuantity() == null) {
-			ose.addError(DistributionOrderErrorCode.ITEM_QTY_REQ, specimen.getLabel());
-			return null;
+			if (specimen.getAvailableQuantity() != null) {
+				ose.addError(DistributionOrderErrorCode.ITEM_QTY_REQ, specimen.getLabel());
+				return null;
+			}
 		} else if (NumUtil.lessThanZero(detail.getQuantity())) {
 			ose.addError(DistributionOrderErrorCode.ITEM_INVALID_QTY, specimen.getLabel());
 			return null;

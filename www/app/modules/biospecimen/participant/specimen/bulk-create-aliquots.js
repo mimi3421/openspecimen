@@ -1,6 +1,6 @@
 angular.module('os.biospecimen.specimen')
   .controller('BulkCreateAliquotsCtrl', function(
-    $scope, $q, parentSpmns, cp, containerAllocRules,
+    $scope, $q, parentSpmns, cp, containerAllocRules, aliquotQtyReq,
     Specimen, Alerts, Util, SpecimenUtil, Container) {
 
     var ignoreQtyWarning = false, reservationId;
@@ -37,7 +37,7 @@ angular.module('os.biospecimen.specimen')
         }
       );
 
-      $scope.ctx = {aliquotsSpec: aliquotsSpec, aliquots: []};
+      $scope.ctx = {aliquotsSpec: aliquotsSpec, aliquots: [], aliquotQtyReq: aliquotQtyReq};
       if (!!cp.containerSelectionStrategy) {
         $scope.ctx.step2Title = 'specimens.review_locations';
         $scope.ctx.autoPosAllocate = true;

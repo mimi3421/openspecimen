@@ -43,9 +43,7 @@
           <span>{{specimen.cpShortTitle}}</span>
         </td>
         <td class="col">
-          <span>{{item.quantity}}</span>
-          <os-specimen-unit specimen-class="specimen.specimenClass" type="specimen.type">
-          </os-specimen-unit>
+          <os-spmn-measure-val specimen="specimen" value="item.quantity"></os-spmn-measure-val>
         </td>
         <td class="col" ng-repeat="tmpl in ctx.itemFieldsCellTmpls">
           <ng-include src="tmpl"></ng-include>

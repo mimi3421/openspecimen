@@ -8,6 +8,14 @@ angular.module('os.biospecimen.specimen')
     function collectAliquots(scope) {
       var spec = scope.aliquotSpec;
       var parent = scope.parentSpecimen;
+      if (parent.availableQty == '') {
+        delete parent.availableQty;
+      }
+
+      if (parent.initialQty == '') {
+        delete parent.initialQty;
+      }
+
       var extensionDetail = getExtensionDetail(scope);
       if (!extensionDetail) {
         extensionDetail = scope.aliquotSpec.extensionDetail;
@@ -44,7 +52,7 @@ angular.module('os.biospecimen.specimen')
       parent.isOpened = parent.hasChildren = true;
       parent.depth = 0;
       parent.closeAfterChildrenCreation = spec.closeParent;
-      parent.storageType = !parent.storageLocation.name && (parent.storageType || 'Virtual');
+      parent.storageType = (!parent.storageLocation || !parent.storageLocation.name) && (parent.storageType || 'Virtual');
 
       var derived = undefined;
       if (spec.specimenClass != parent.specimenClass || spec.type != parent.type) {

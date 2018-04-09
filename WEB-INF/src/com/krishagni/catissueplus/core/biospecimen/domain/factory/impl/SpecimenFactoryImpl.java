@@ -21,6 +21,7 @@ import com.krishagni.catissueplus.core.administrative.domain.factory.UserErrorCo
 import com.krishagni.catissueplus.core.administrative.events.StorageContainerDetail;
 import com.krishagni.catissueplus.core.administrative.events.StorageLocationSummary;
 import com.krishagni.catissueplus.core.administrative.services.StorageContainerService;
+import com.krishagni.catissueplus.core.biospecimen.ConfigParams;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
@@ -47,6 +48,7 @@ import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.errors.ActivityStatusErrorCode;
 import com.krishagni.catissueplus.core.common.errors.ErrorType;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
+import com.krishagni.catissueplus.core.common.util.ConfigUtil;
 import com.krishagni.catissueplus.core.common.util.NumUtil;
 import com.krishagni.catissueplus.core.common.util.Status;
 import com.krishagni.catissueplus.core.de.domain.DeObject;
@@ -547,7 +549,7 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 				qty = specimen.getSpecimenRequirement().getInitialQuantity();
 			}
 			
-			if (qty == null) {
+			if (qty == null && isAliquotQtyReq()) {
 				ose.addError(SpecimenErrorCode.ALIQUOT_QTY_REQ);
 				return;
 			}
@@ -567,7 +569,7 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 			return;
 		}
 
-		if (specimen.isAliquot() && availableQty == null) {
+		if (specimen.isAliquot() && availableQty == null && isAliquotQtyReq()) {
 			ose.addError(SpecimenErrorCode.ALIQUOT_QTY_REQ);
 			return;
 		}
@@ -1098,5 +1100,9 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 
 	private boolean isNotSpecified(String value) {
 		return StringUtils.isBlank(value) || Specimen.NOT_SPECIFIED.equalsIgnoreCase(value);
+	}
+
+	private boolean isAliquotQtyReq() {
+		return ConfigUtil.getInstance().getBoolSetting(ConfigParams.MODULE, ConfigParams.ALIQUOT_QTY_REQ, true);
 	}
 }

@@ -427,6 +427,14 @@ angular.module('os.biospecimen.participant',
 
           participantSpmnsViewState: function(cp, cpr, pendingSpmnsDispInterval, ParticipantSpecimensViewState) {
             return new ParticipantSpecimensViewState(cp, cpr, +pendingSpmnsDispInterval.value);
+          },
+
+          aliquotQtyReq: function(SettingUtil) {
+            return SettingUtil.getSetting('biospecimen', 'mandatory_aliquot_qty').then(
+              function(resp) {
+                return resp.value == 'true' || resp.value == true || resp.value == '1' || resp.value == 1;
+              }
+            );
           }
         },
         controller: 'ParticipantRootCtrl',

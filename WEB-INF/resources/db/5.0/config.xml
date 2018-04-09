@@ -58,4 +58,14 @@
       );
     </sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="Setting to specify whether to enforce mandatory aliquot quantity constraint">
+    <sql>
+      call add_cfg_prop(
+        'biospecimen', 'mandatory_aliquot_qty',
+        'mandatory_aliquot_qty', 'mandatory_aliquot_qty_desc',
+        'BOOLEAN', 'true'
+      );
+    </sql>
+  </changeSet>
 </databaseChangeLog>

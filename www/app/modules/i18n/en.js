@@ -2419,7 +2419,9 @@
         "specimen_barcode_format": "Specimen Barcode Format",
         "specimen_barcode_format_desc": "The system-level format for auto-generation of specimen barcodes.",
         "aliquot_label_format": "Aliquot Label Format",
-        "aliquot_label_format_desc": "The system-level format for aliquot labels."
+        "aliquot_label_format_desc": "The system-level format for aliquot labels.",
+        "mandatory_aliquot_qty": "Mandatory Aliquot Quantity",
+        "mandatory_aliquot_qty_desc": "Enable or disable mandatory aliquots quantity constraints."
       },
 
       "common": {

@@ -1183,7 +1183,7 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 	}
 
 	private void setItemReturnedQty(DistributionOrderItem item, BigDecimal returnQty) {
-		if (returnQty == null) {
+		if (returnQty == null && item.getQuantity() != null) {
 			throw OpenSpecimenException.userError(DistributionOrderErrorCode.RETURN_QTY_REQ, item.getSpecimen().getLabel());
 		}
 

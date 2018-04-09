@@ -271,6 +271,14 @@ angular.module('os.biospecimen.specimen',
                 return (data && data.rules && data.rules.length > 0) ? data.rules : [];
               }
             );
+          },
+
+          aliquotQtyReq: function(SettingUtil) {
+            return SettingUtil.getSetting('biospecimen', 'mandatory_aliquot_qty').then(
+              function(resp) {
+                return resp.value == 'true' || resp.value == true || resp.value == 1 || resp.value == '1';
+              }
+            );
           }
         },
         parent: 'signed-in'

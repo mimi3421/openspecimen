@@ -198,7 +198,7 @@
                 </span>
                 <span ng-switch-when="false">
                   <os-spmn-measure name="qty" specimen="specimen" quantity="specimen.initialQty"
-                    md-input ng-required="specimen.lineage == 'Aliquot'"
+                    md-input ng-required="specimen.lineage == 'Aliquot' && aliquotQtyReq"
                     on-change="changeQuantity(specimen, specimen.initialQty)">
                   </os-spmn-measure>
                 </span>

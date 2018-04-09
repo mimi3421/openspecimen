@@ -1,5 +1,5 @@
 
-<div ng-form="sform">
+<ng-form name="sform" os-form-validator="sform" parent-validator="osformValidator">
   <div>
     <div ng-switch on="opts.hasDict">
       <div ng-switch-when="true">
@@ -48,7 +48,7 @@
       </div>
     </div>
   </div>
-</div>
+</ng-form>
 
 <script type="text/ng-template" id="modules/biospecimen/participant/specimen/static-addedit.html">
   <div>
@@ -95,8 +95,8 @@
       <label class="col-xs-3 control-label" translate="specimens.initial_qty">Initial Quantity</label>
       <div class="col-xs-6">
         <os-spmn-measure name="qty" specimen="inputSpmn" quantity="inputSpmn.initialQty"
-          placeholder="{{'specimens.initial_qty' | translate}}" 
-          ng-required="inputSpmn.lineage == 'Aliquot'">
+          ng-required="inputSpmn.lineage == 'Aliquot' && opts.aliquotQtyReq"
+          placeholder="{{'specimens.initial_qty' | translate}}">
         </os-spmn-measure>
         <div os-field-error field="sform.qty"></div>
       </div>
@@ -106,8 +106,8 @@
       <label class="col-xs-3 control-label" translate="specimens.available_qty">Available Quantity</label>
       <div class="col-xs-6"> 
         <os-spmn-measure name="aqty" specimen="inputSpmn" quantity="inputSpmn.availableQty"
-          placeholder="{{'specimens.available_qty' | translate}}" 
-          ng-required="inputSpmn.lineage == 'Aliquot'">
+          ng-required="inputSpmn.lineage == 'Aliquot' && opts.aliquotQtyReq"
+          placeholder="{{'specimens.available_qty' | translate}}">
         </os-spmn-measure>
         <div os-field-error field="sform.aqty"></div>
       </div>

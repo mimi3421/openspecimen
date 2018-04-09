@@ -1450,7 +1450,7 @@ public class Specimen extends BaseExtensionEntity {
 
 	private void adjustParentSpecimenQty(BigDecimal qty) {
 		BigDecimal parentQty = parentSpecimen.getAvailableQuantity();
-		if (parentQty == null || NumUtil.isZero(parentQty)) {
+		if (parentQty == null || NumUtil.isZero(parentQty) || qty == null) {
 			return;
 		}
 
