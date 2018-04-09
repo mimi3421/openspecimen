@@ -11,4 +11,6 @@ public interface StagedVisitDao extends Dao<StagedVisit> {
 	StagedVisit getBySprNo(String sprNo);
 
 	List<StagedVisit> getByEmpiOrMrn(String empiOrMrn);
+
+	int deleteOldVisits(int olderThanDays);
 }

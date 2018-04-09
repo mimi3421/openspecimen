@@ -78,9 +78,10 @@
     <query name="deleteOldParticipants">
       <![CDATA[
       delete
-        com.krishagni.catissueplus.core.biospecimen.domain.StagedParticipant epic
+        com.krishagni.catissueplus.core.biospecimen.domain.StagedParticipant p
       where 
-        epic.updatedTime < :olderThanDt
+        p.updatedTime < :olderThanDt and
+        p.visits is empty
       ]]>
     </query>
   </class>

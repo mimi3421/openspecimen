@@ -1,5 +1,7 @@
 package com.krishagni.catissueplus.core.biospecimen.services.impl;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
@@ -13,6 +15,8 @@ import com.krishagni.catissueplus.core.common.util.ConfigUtil;
 @Configurable
 public class StagedParticipantsCleanupTask implements ScheduledTask {
 
+	private static final Log logger = LogFactory.getLog(StagedParticipantsCleanupTask.class);
+
 	private static final int DEF_CLEANUP_INT = 90;
 
 	@Autowired
@@ -23,8 +27,14 @@ public class StagedParticipantsCleanupTask implements ScheduledTask {
 	public void doJob(ScheduledJobRun jobRun) throws Exception {
 		int olderThanDays = ConfigUtil.getInstance().getIntSetting(
 			ConfigParams.MODULE, ConfigParams.STAGED_PART_CLEANUP_INT, DEF_CLEANUP_INT);
-		if (olderThanDays > 0) {
-			daoFactory.getStagedParticipantDao().cleanupOldParticipants(olderThanDays);
+		if (olderThanDays <= 0) {
+			return;
 		}
+
+		int deletedVisitsCount = daoFactory.getStagedVisitDao().deleteOldVisits(olderThanDays);
+		logger.info("Cleaned up " + deletedVisitsCount + " old visits from staging table");
+
+		int deletedParticipantsCount = daoFactory.getStagedParticipantDao().deleteOldParticipants(olderThanDays);
+		logger.info("Cleaned up " + deletedParticipantsCount + " old participants from staging table");
 	}
 }

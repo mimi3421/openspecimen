@@ -49,12 +49,11 @@ public class StagedParticipantDaoImpl extends AbstractDao<StagedParticipant> imp
 	}
 
 	@Override
-	public boolean cleanupOldParticipants(int olderThanDays) {
+	public int deleteOldParticipants(int olderThanDays) {
 		Date olderThanDt = Date.from(Instant.now().minus(Duration.ofDays(olderThanDays)));
-		int executed = getCurrentSession().getNamedQuery(DELETE_OLD_PARTICIPANTS)
+		return getCurrentSession().getNamedQuery(DELETE_OLD_PARTICIPANTS)
 			.setTimestamp("olderThanDt", olderThanDt)
 			.executeUpdate();
-		return (executed > 0);
 	}
 
 	private Criteria getByPmisQuery(List<PmiDetail> pmis) {

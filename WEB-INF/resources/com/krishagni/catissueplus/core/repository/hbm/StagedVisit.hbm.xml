@@ -42,6 +42,8 @@
 
     <many-to-one name="participant" column="PARTICIPANT_ID"/>
 
+    <property name="updateTime" column="UPDATE_TIME"/>
+
     <query name="getByName">
       select
         v
@@ -76,6 +78,15 @@
           where
             lower(p.empi) = :empiOrMrn or lower(pmi.medicalRecordNumber) = :empiOrMrn
         )
+    </query>
+
+    <query name="deleteOldVisits">
+      <![CDATA[
+        delete
+          com.krishagni.catissueplus.core.biospecimen.domain.StagedVisit visit
+        where
+          visit.updateTime < :olderThanDt
+      ]]>
     </query>
   </class>
 </hibernate-mapping>

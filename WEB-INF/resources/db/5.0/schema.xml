@@ -270,4 +270,12 @@
   <changeSet author="vpawar" id="Rename staged participants UID column to NUID as UID is function in Oracle">
     <renameColumn tableName="OS_STAGED_PARTICIPANTS" oldColumnName="UID" newColumnName="NUID" columnDataType="${text.type}(50)"/>
   </changeSet>
+
+  <changeSet author="vpawar" id="Staged visit update time">
+    <addColumn tableName="OS_STAGED_VISITS">
+      <column name="UPDATE_TIME" type="${timestamp.type}" defaultValueDate="${now}">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

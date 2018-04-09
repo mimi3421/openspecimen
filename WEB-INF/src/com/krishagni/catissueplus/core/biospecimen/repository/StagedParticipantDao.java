@@ -14,5 +14,5 @@ public interface StagedParticipantDao extends Dao<StagedParticipant> {
 
 	List<StagedParticipant> getByMrn(String mrn);
 
-	boolean cleanupOldParticipants(int olderThanDays);
+	int deleteOldParticipants(int olderThanDays);
 }
