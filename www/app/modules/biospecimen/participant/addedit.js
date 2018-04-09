@@ -256,7 +256,7 @@ angular.module('os.biospecimen.participant.addedit', ['os.biospecimen.models', '
           }
 
           match.cpr = {participant: match.participant};
-          match.cps = match.participant.registeredCps.map(function(reg) { return reg.cpShortTitle; });
+          match.cps = (match.participant.registeredCps || []).map(function(reg) { return reg.cpShortTitle; });
         }
       );
 
@@ -295,7 +295,7 @@ angular.module('os.biospecimen.participant.addedit', ['os.biospecimen.models', '
     function useSelectedMatch(match) {
       var matchedCprId = undefined;
       var participant = match.participant;
-      for (var i = 0; i < participant.registeredCps.length; ++i) {
+      for (var i = 0; i < (participant.registeredCps || []).length; ++i) {
         if (participant.registeredCps[i].cpId == cp.id) {
           matchedCprId = participant.registeredCps[i].cprId;
           break;
