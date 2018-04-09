@@ -2,7 +2,7 @@
 angular.module('os.administrative.order.addedit', ['os.administrative.models', 'os.biospecimen.models'])
   .controller('OrderAddEditCtrl', function(
     $scope, $state, $translate, $injector, order, spmnRequest, requestDp,
-    PluginReg, Institute, Specimen, SpecimensHolder, Site, DistributionProtocol,
+    PluginReg, Specimen, SpecimensHolder, Site, DistributionProtocol,
     DistributionOrder, SpecimenList, Alerts, Util, SpecimenUtil, ExtensionsUtil) {
     
     var ignoreQtyWarning = false;
@@ -32,13 +32,11 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
       }
 
       $scope.dpList = [];
-      $scope.instituteNames = [];
       $scope.siteList = [];
       $scope.userFilterOpts = {};
 
       $scope.input = {allItemStatus: false, noQtySpmnsPresent: false};
 
-      loadInstitutes();
       setUserAndSiteList(order);
 
       if (!$scope.skipSpecimensTab) {
@@ -77,14 +75,6 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
       );
     }
     
-    function loadInstitutes () {
-      Institute.query().then(
-        function (institutes) {
-          $scope.instituteNames = Institute.getNames(institutes);
-        }
-      );
-    }
-
     function loadOrderItems() {
       order.getOrderItems().then(
         function(orderItems) {
@@ -339,9 +329,8 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
       addItemCosts(ord.distributionProtocol, ord.orderItems);
     }
     
-    $scope.onInstSelect = function () {
-      var instName = $scope.order.instituteName;
-      setUserFilterOpts(instName);
+    $scope.onInstSelect = function (instituteName) {
+      setUserFilterOpts(instituteName);
       $scope.order.siteName = '';
       $scope.order.requester = '';
     }

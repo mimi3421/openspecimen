@@ -11,9 +11,8 @@
       </div>
 
       <div show-if-admin class="form-group">
-        <os-select os-md-input ng-model="siteFilterOpts.institute" list="ctx.institutes" refresh="loadInstitutes"
-          placeholder="{{'site.institute' | translate}}" select-prop="name" display-prop="name">
-        </os-select>
+        <os-institutes ng-model="siteFilterOpts.institute" md-type="true" placeholder="{{'site.institute' | translate}}">
+        </os-institutes>
       </div>
 
       <os-clear-filters opts="siteFilterOpts"></os-clear-filters>

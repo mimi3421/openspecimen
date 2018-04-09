@@ -3,7 +3,7 @@ angular.module('os.administrative.user.addedit', ['os.administrative.models'])
     user, users, User, Institute, AuthDomain) {
 
     var instituteSites = {};
- 
+
     function init() {
       $scope.user = user;
       $scope.signedUp = false;
@@ -20,21 +20,10 @@ angular.module('os.administrative.user.addedit', ['os.administrative.models'])
           }
         }
       );
-
-      Institute.query().then(
-        function(institutes) {
-          $scope.institutes = institutes.map(function(institute) { return institute.name });
-
-          if (!$scope.user.id && $scope.institutes.length == 1) {
-            $scope.user.instituteName = $scope.institutes[0];
-            loadSites($scope.user.instituteName);
-          }
-        }
-      );
     }
 
     function loadSites(instituteName, siteName) {
-      if (!instituteName) {
+      if (!instituteName || instituteName.length == 0) {
         $scope.sites = [];
         return;
       }

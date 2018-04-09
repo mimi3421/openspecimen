@@ -2,7 +2,7 @@
 angular.module('os.administrative.shipment.addedit', ['os.administrative.models', 'os.biospecimen.models'])
   .controller('ShipmentAddEditCtrl', function(
     $scope, $state, shipment, shipmentItems, Shipment,
-    Institute, Site, Specimen, SpecimensHolder, Alerts, Util, SpecimenUtil) {
+    Site, Specimen, SpecimensHolder, Alerts, Util, SpecimenUtil) {
 
     function init() {
       var spmnShipment = $scope.spmnShipment = shipment.isSpecimenShipment();
@@ -27,7 +27,6 @@ angular.module('os.administrative.shipment.addedit', ['os.administrative.models'
         shipment.shippedDate = new Date();
       }
 
-      loadInstitutes();
       setUserAndSiteList(shipment);
     }
 
@@ -59,14 +58,6 @@ angular.module('os.administrative.shipment.addedit', ['os.administrative.models'
       return sameSite;
     }
     
-    function loadInstitutes () {
-      Institute.query().then(
-        function (institutes) {
-          $scope.instituteNames = Institute.getNames(institutes);
-        }
-      );
-    }
-
     function loadRecvSites(instituteName, searchTerm) {
       return Site.listForInstitute(instituteName, true, searchTerm).then(
         function(sites) {

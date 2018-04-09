@@ -72,9 +72,9 @@
       <div class="form-group">
         <label class="col-xs-3 control-label" translate="user.institute">Institute</label>
         <div class="col-xs-6">
-          <os-select ng-model="user.instituteName" list="institutes" on-select="onInstituteSelect($item)"
-            name="institute" placeholder="{{'user.institute' | translate}}" required>
-          </os-select>
+          <os-institutes name="institute" ng-model="user.instituteName" on-select="onInstituteSelect(institute)"
+            placeholder="{{'user.institute' | translate}}" auto-select required>
+          </os-institutes>
           <div os-field-error field="userForm.institute"></div>
         </div>
       </div>

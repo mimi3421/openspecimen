@@ -1,6 +1,6 @@
 angular.module('os.administrative.site.addedit', ['os.administrative.models'])
   .controller('SiteAddEditCtrl', function(
-    $scope, $state, site, extensionCtxt, currentUser, Institute, ExtensionsUtil) {
+    $scope, $state, site, extensionCtxt, currentUser, ExtensionsUtil) {
 
     function init() {
       $scope.site = site;
@@ -11,23 +11,9 @@ angular.module('os.administrative.site.addedit', ['os.administrative.models'])
       $scope.deFormCtrl = {};
       $scope.extnOpts = ExtensionsUtil.getExtnOpts(site, extensionCtxt);
       $scope.coordFilterOpts = {institute: $scope.site.instituteName};
-      
-      if (currentUser.admin) {
-        loadPvs();
-      }
     }
 
-    function loadPvs() {
-      $scope.institutes = [];
-      Institute.query().then(
-        function(instituteList) {
-          angular.forEach(instituteList, function(institute) {
-            $scope.institutes.push(institute.name);
-          });
-        }
-      );
-    }
-    
+
     $scope.onInstituteSelect = function() {
       $scope.site.coordinators = undefined;
       $scope.coordFilterOpts = {institute: $scope.site.instituteName};

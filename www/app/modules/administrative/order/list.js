@@ -2,7 +2,7 @@
 angular.module('os.administrative.order.list', ['os.administrative.models'])
   .controller('OrderListCtrl', function(
     $scope, $state,
-    DistributionOrder, DistributionProtocol, Institute, Util, ListPagerOpts) {
+    DistributionOrder, DistributionProtocol, Util, ListPagerOpts) {
 
     var pvsLoaded = false;
     var pagerOpts;
@@ -10,7 +10,6 @@ angular.module('os.administrative.order.list', ['os.administrative.models'])
     function init() {
       $scope.orders = [];
       $scope.dps = [];
-      $scope.instituteNames = [];
       pagerOpts = $scope.pagerOpts = new ListPagerOpts({listSizeGetter: getOrdersCount, recordsPerPage: 50});
       $scope.filterOpts = Util.filterOpts({maxResults: pagerOpts.recordsPerPage + 1});
 
@@ -34,7 +33,6 @@ angular.module('os.administrative.order.list', ['os.administrative.models'])
       }
 
       loadDps();
-      loadInstitutes();
       pvsLoaded = true;
     }
 
@@ -46,14 +44,6 @@ angular.module('os.administrative.order.list', ['os.administrative.models'])
       );
     }
  
-    function loadInstitutes() {
-      Institute.query().then(
-        function(institutes) {
-          $scope.instituteNames = Institute.getNames(institutes);
-        }
-      );
-    }
-
     function getOrdersCount() {
       return DistributionOrder.getOrdersCount($scope.filterOpts);
     }

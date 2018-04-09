@@ -2,7 +2,7 @@
 angular.module('os.administrative.user.list', ['os.administrative.models'])
   .controller('UserListCtrl', function(
     $scope, $state, $modal, currentUser,
-    osRightDrawerSvc, Institute, User, ItemsHolder, PvManager,
+    osRightDrawerSvc, User, ItemsHolder, PvManager,
     Util, DeleteUtil, CheckList, Alerts, ListPagerOpts) {
 
     var pagerOpts, filterOpts;
@@ -27,16 +27,7 @@ angular.module('os.administrative.user.list', ['os.administrative.models'])
         }
 
         loadActivityStatuses();
-        loadInstitutes().then(
-          function(institutes) {
-            if (institutes.length == 1) {
-              $scope.userFilterOpts.institute = institutes[0].name;
-            }
-
-            Util.filter($scope, 'userFilterOpts', loadUsers);
-          }
-        );
-
+        Util.filter($scope, 'userFilterOpts', loadUsers);
         pvInit = true;
       });
     }
@@ -50,27 +41,6 @@ angular.module('os.administrative.user.list', ['os.administrative.models'])
           if (idx != -1) {
             $scope.activityStatuses.splice(idx, 1);
           }
-        }
-      );
-    }
-
-    function loadInstitutes() {
-      var q = undefined;
-      if (currentUser.admin) {
-        q = Institute.query();
-      } else {
-        q = currentUser.getInstitute();
-      }
-
-      return q.then(
-        function(result) {
-          if (result instanceof Array) {
-            $scope.institutes = result;
-          } else {
-            $scope.institutes = [result];
-          }
- 
-          return $scope.institutes;
         }
       );
     }

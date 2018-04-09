@@ -13,10 +13,9 @@
 
     <div class="form-group">
       <div os-md-input ng-model="filterOpts.recvInstitute" placeholder="{{'shipments.receiving_institute' | translate}}">
-        <os-select ng-model="filterOpts.recvInstitute" class="form-control"
-          list="instituteNames" os-md-input placeholder="{{'shipments.receiving_institute' | translate}}"
-          on-select="onInstituteSelect()">
-        </os-select>
+        <os-institutes ng-model="filterOpts.recvInstitute" on-select="onInstituteSelect()" md-type="true"
+          placeholder="{{'shipments.receiving_institute' | translate}}">
+        </os-institutes>
       </div>
     </div>
     

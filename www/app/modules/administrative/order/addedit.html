@@ -75,10 +75,9 @@
         Receiving Institute
       </label>
       <div class="col-xs-6">
-        <os-select name="institute" ng-model="order.instituteName" list="instituteNames"
-          placeholder="{{'orders.receiving_institute' | translate}}" required
-          on-select="onInstSelect()">
-        </os-select>
+        <os-institutes name="institute" ng-model="order.instituteName" on-select="onInstSelect(institute)"
+          placeholder="{{'orders.receiving_institute' | translate}}" required>
+        </os-institutes>
         <div os-field-error field="ordForm.institute"></div>
       </div>
     </div>
