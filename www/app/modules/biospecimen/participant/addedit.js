@@ -63,7 +63,7 @@ angular.module('os.biospecimen.participant.addedit', ['os.biospecimen.models', '
         fields: getStaticFields(lockedFields),
         customFields: getCustomFields(lockedFields)
       }
-      $scope.partCtx.fieldOpts = {lockedFields: lockedFields};
+      angular.extend($scope.partCtx.fieldOpts, {lockedFields: lockedFields});
     }
 
     function getStaticFields(fields) {
