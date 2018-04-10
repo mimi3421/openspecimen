@@ -10,7 +10,7 @@
   border-right: 1px solid #ddd;
   left: 0;
   width: 265px;
-  z-index: 5;
+  z-index: 13;
   transform: translate(-265px, 0);
   transition: all 0.25s ease-in-out 0s;
 }
@@ -19,7 +19,7 @@
   display: none;
   background: rgba(0, 0, 0, 0.25);
   width: 100%;
-  z-index: 1;
+  z-index: 12;
 }
 
 .os-nav-drawer.active {
