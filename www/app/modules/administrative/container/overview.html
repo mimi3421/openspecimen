@@ -25,7 +25,7 @@
   <div class="clearfix">
     <div class="col-xs-6">
       <ul class="os-key-values os-one-col">
-        <li class="item">
+        <li class="item" ng-if="ctx.container.positionLabelingMode != 'NONE'">
           <strong class="key key-sm" translate="container.type">Type</strong>
           <a ng-if="ctx.container.typeId"
             ui-sref="container-type-detail.overview({containerTypeId: ctx.container.typeId})">

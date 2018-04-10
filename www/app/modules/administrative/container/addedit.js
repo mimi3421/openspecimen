@@ -11,6 +11,10 @@ angular.module('os.administrative.container.addedit', ['os.administrative.models
       container.$$regular = !container.id;
       container.$$dimensionless = !!container.id && container.noOfRows == null && container.noOfColumns == null;
       container.automated = !container.id ? false : container.automated;
+      if (container.$$dimensionless) {
+        container.noOfRows = container.noOfColumns = null;
+        container.typeId = container.typeName = null;
+      }
 
       $scope.container = container;
 
