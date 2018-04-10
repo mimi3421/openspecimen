@@ -402,16 +402,12 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
     $scope.setHeaderStatus = setHeaderStatus;
 
     $scope.toggleAllItemStatus = function() {
-      var allStatus;
-      if ($scope.input.allItemStatus) {
-        allStatus = 'DISTRIBUTED_AND_CLOSED';
-      } else {
-        allStatus = 'DISTRIBUTED';
-      }
-      
+      var allStatus = $scope.input.allItemStatus ? 'DISTRIBUTED_AND_CLOSED' : 'DISTRIBUTED';
       angular.forEach($scope.order.orderItems,
         function(item) {
-          if (item.quantity != item.specimen.availableQty) {
+          if (item.quantity == null || item.quantity == undefined ||
+              item.specimen.availableQty == null || item.specimen.availableQty == undefined ||
+              item.quantity != item.specimen.availableQty) {
             item.status = allStatus;
           }
         }
