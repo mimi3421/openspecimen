@@ -136,48 +136,42 @@ public class DistributionOrderFactoryImpl implements DistributionOrderFactory {
 			//
 			// Use request specified DP, if any
 			//
+			ensureValidDp(order.getRequest().getDp(), ose);
 			order.setDistributionProtocol(order.getRequest().getDp());
 			return;
 		}
 
 		DistributionProtocolDetail dpDetail = detail.getDistributionProtocol();
-		Long dpId = dpDetail != null ? dpDetail.getId() : null;
-		String dpShortTitle = dpDetail != null ? dpDetail.getShortTitle() : null;
-		if (dpId == null && StringUtils.isBlank(dpShortTitle)) {
-			ose.addError(DistributionOrderErrorCode.DP_REQUIRED);
-			return;
-		}
-		
 		DistributionProtocol dp = null;
 		Object key = null;
-		if (dpId != null) {
-			dp = daoFactory.getDistributionProtocolDao().getById(dpId);
-			key = dpId;
-		} else {
-			dp = daoFactory.getDistributionProtocolDao().getByShortTitle(dpShortTitle);
-			key = dpShortTitle;
+		if (dpDetail != null && dpDetail.getId() != null) {
+			dp = daoFactory.getDistributionProtocolDao().getById(dpDetail.getId());
+			key = dpDetail.getId();
+		} else if (dpDetail != null && StringUtils.isNotBlank(dpDetail.getShortTitle())) {
+			dp = daoFactory.getDistributionProtocolDao().getByShortTitle(dpDetail.getShortTitle());
+			key = dpDetail.getShortTitle();
 		}
-		
-		if (dp == null) {
+
+		if (key == null) {
+			ose.addError(DistributionOrderErrorCode.DP_REQUIRED);
+		} else if (dp == null) {
 			ose.addError(DistributionProtocolErrorCode.NOT_FOUND, key, 1);
-			return;
+		} else {
+			ensureValidDp(dp, ose);
+			order.setDistributionProtocol(dp);
+		}
+	}
+
+	private void ensureValidDp(DistributionProtocol dp, OpenSpecimenException ose) {
+		if (dp.isClosed()) {
+			ose.addError(DistributionProtocolErrorCode.CLOSED, dp.getShortTitle());
 		}
 
-		// TODO: Specimen request
-		// SpecimenRequest request = order.getRequest();
-		// if (request != null && !request.getInstitute().equals(dp.getInstitute())) {
-		//   ose.addError(DistributionOrderErrorCode.INVALID_DP_FOR_REQ, dp.getShortTitle(), request.getId());
-		// 	 return;
-		// }
-
-		Date dpEndDate = Utility.chopTime(dp.getEndDate());
 		Date today = Utility.chopTime(Calendar.getInstance().getTime());
+		Date dpEndDate = Utility.chopTime(dp.getEndDate());
 		if (dpEndDate != null && today.after(dpEndDate)) {
 			ose.addError(DistributionProtocolErrorCode.EXPIRED, dp.getShortTitle());
-			return;
 		}
-
-		order.setDistributionProtocol(dp);
 	}
 
 	private void setRequesterAndReceivingSite(DistributionOrderDetail detail, DistributionOrder order, OpenSpecimenException ose) {

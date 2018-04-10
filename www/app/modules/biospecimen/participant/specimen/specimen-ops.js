@@ -82,7 +82,8 @@ angular.module('os.biospecimen.specimen')
               return;
             }
 
-            DistributionProtocol.query({query: searchTerm, cp: cpShortTitle, excludeExpiredDps: true}).then(
+            var filterOpts = {activityStatus: 'Active', query: searchTerm, excludeExpiredDps: true, cp: cpShortTitle};
+            DistributionProtocol.query(filterOpts).then(
               function(dps) {
                 if (!searchTerm && !ctx.defDps) {
                   ctx.defDps = dps;

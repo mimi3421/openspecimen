@@ -26,7 +26,8 @@ angular.module('os.biospecimen.cp.dp', [])
         return;
       }
 
-      DistributionProtocol.query({query: searchString, cp: cp.shortTitle}).then(
+      var filterOpts = {activityStatus: 'Active', query: searchString, excludeExpiredDps: true, cp: cp.shortTitle};
+      DistributionProtocol.query(filterOpts).then(
         function(dps) {
           angular.forEach(dps, addDisplayValue);
           $scope.dpCtx.dps = dps;

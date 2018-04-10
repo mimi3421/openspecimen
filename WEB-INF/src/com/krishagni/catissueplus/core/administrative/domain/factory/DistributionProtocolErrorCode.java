@@ -34,6 +34,8 @@ public enum DistributionProtocolErrorCode implements ErrorCode {
 	PI_COORD_CANNOT_BE_SAME,
 
 	EXPIRED,
+
+	CLOSED,
 	
 	DUP_CONSENT,
 

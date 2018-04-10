@@ -149,6 +149,10 @@ public class DistributionProtocol extends BaseExtensionEntity {
 		this.activityStatus = activityStatus;
 	}
 
+	public boolean isClosed() {
+		return Status.isClosedStatus(getActivityStatus());
+	}
+
 	public SavedQuery getReport() {
 		return report;
 	}
