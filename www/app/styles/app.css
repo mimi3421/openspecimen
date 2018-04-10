@@ -428,6 +428,13 @@ h4 + .btn-group {
   cursor: pointer;
 }
 
+a.disabled {
+  cursor: not-allowed;
+  text-decoration: none;
+  pointer-events: none;
+  color: inherit;
+}
+
 .os-modal-800 .modal-content {
   width: 800px;
 }

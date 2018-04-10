@@ -72,7 +72,8 @@
                 <os-specimen-desc specimen="spmn" detailed="true"></os-specimen-desc>
               </td>
               <td class="col">
-                <a ui-sref="container-detail.locations({containerId: spmn.storageLocation.id})">
+                <a ui-sref="container-detail.locations({containerId: spmn.storageLocation.id})"
+                  ng-class="{'disabled': !spmn.storageLocation.name}">
                   <os-disp-storage-position position="spmn.storageLocation"></os-disp-storage-position>
                 </a>
               </td>
