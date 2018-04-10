@@ -822,25 +822,29 @@ public class ImportServiceImpl implements ImportService {
 		}
 
 		private void sendJobStatusNotification() {
-			String entityName = getEntityName();
-			String op = getMsg("bulk_import_ops_" + job.getType());
-			String [] subjParams = new String[] {
-				job.getId().toString(),
-				op,
-				entityName
-			};
+			try {
+				String entityName = getEntityName();
+				String op = getMsg("bulk_import_ops_" + job.getType());
+				String [] subjParams = new String[] {
+						job.getId().toString(),
+						op,
+						entityName
+				};
 
-			Map<String, Object> props = new HashMap<>();
-			props.put("job", job);
-			props.put("entityName", entityName);
-			props.put("op", op);
-			props.put("status", getMsg("bulk_import_statuses_" + job.getStatus()));
-			props.put("atomic", atomic);
-			props.put("$subject", subjParams);
-			props.put("ccAdmin", isCopyNotifToAdminEnabled());
+				Map<String, Object> props = new HashMap<>();
+				props.put("job", job);
+				props.put("entityName", entityName);
+				props.put("op", op);
+				props.put("status", getMsg("bulk_import_statuses_" + job.getStatus()));
+				props.put("atomic", atomic);
+				props.put("$subject", subjParams);
+				props.put("ccAdmin", isCopyNotifToAdminEnabled());
 
-			String[] rcpts = {job.getCreatedBy().getEmailAddress()};
-			EmailUtil.getInstance().sendEmail(JOB_STATUS_EMAIL_TMPL, rcpts, null, props);
+				String[] rcpts = {job.getCreatedBy().getEmailAddress()};
+				EmailUtil.getInstance().sendEmail(JOB_STATUS_EMAIL_TMPL, rcpts, null, props);
+			} catch (Throwable t) {
+				logger.error("Failed to send import job status e-mail notification", t);
+			}
 		}
 
 		private String getEntityName() {
