@@ -182,7 +182,7 @@ public class DistributionProtocolFactoryImpl implements DistributionProtocolFact
 			return;
 		}
 
-		if (!pi.getInstitute().equals(dp.getInstitute())) {
+		if (dp.getInstitute() != null && !pi.getInstitute().equals(dp.getInstitute())) {
 			ose.addError(DistributionProtocolErrorCode.PI_DOES_NOT_BELONG_TO_INST, pi.formattedName(), dp.getInstitute().getName());
 			return;
 		}
