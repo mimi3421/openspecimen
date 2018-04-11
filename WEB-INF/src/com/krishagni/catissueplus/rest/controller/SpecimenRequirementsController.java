@@ -21,6 +21,7 @@ import com.krishagni.catissueplus.core.biospecimen.events.SpecimenPoolRequiremen
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenRequirementDetail;
 import com.krishagni.catissueplus.core.biospecimen.services.CollectionProtocolService;
 import com.krishagni.catissueplus.core.common.Pair;
+import com.krishagni.catissueplus.core.common.Tuple;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 
@@ -38,13 +39,19 @@ public class SpecimenRequirementsController {
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
 	public List<SpecimenRequirementDetail> getRequirements(
-			@RequestParam(value = "eventId")
+			@RequestParam(value = "cpId", required = false)
+			Long cpId,
+
+			@RequestParam(value = "eventId", required = false)
 			Long eventId,
+
+			@RequestParam(value = "eventLabel", required = false)
+			String eventLabel,
 
 			@RequestParam(value = "includeChildReqs", required = false, defaultValue = "true")
 			Boolean includeChildReqs) {
 		
-		return response(cpSvc.getSpecimenRequirments(request(Pair.make(eventId, includeChildReqs))));
+		return response(cpSvc.getSpecimenRequirments(request(Tuple.make(cpId, eventId, eventLabel, includeChildReqs))));
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}")
