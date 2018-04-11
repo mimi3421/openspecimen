@@ -487,7 +487,7 @@ public class ShipmentFactoryImpl implements ShipmentFactory {
 	// HSEARCH-1350: https://hibernate.atlassian.net/browse/HSEARCH-1350
 	//
 	private void initSpecimen(Shipment shipment, Specimen specimen) {
-		if (ImporterContextHolder.getInstance().isImportOp() && shipment.isReceived()) {
+		if (ImporterContextHolder.getInstance().isImportOp()) {
 			specimen.getBiohazards().size();
 		}
 	}
