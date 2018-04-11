@@ -123,7 +123,7 @@
                              'os-status-pending': specimen.existingStatus == 'Pending' || !specimen.existingStatus,
                              'os-status-not-collected': specimen.existingStatus == 'Missed Collection'}">
                 </span>
-                <os-specimen-desc specimen="specimen" show-req-label="true"></os-specimen-desc>
+                <os-specimen-desc cp="cp" specimen="specimen" show-req-label="true"></os-specimen-desc>
 
                 <span ng-if="specimen.aliquotGrp.length > 1">
                   <div class="btn-group">
