@@ -34,6 +34,7 @@ angular.module('os.biospecimen.visit.addedit', [])
         angular.extend(currVisit, {status: 'Missed Collection'});
       } else if ($stateParams.newVisit == 'true') {
         angular.extend(currVisit, {id: undefined, name: undefined, status: 'Complete', visitDate: new Date()});
+        $scope.visit = currVisit;
       }
 
       $scope.deFormCtrl = {};
