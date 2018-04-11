@@ -14,7 +14,7 @@ angular.module('os.biospecimen.visit.addedit', [])
       angular.extend(currVisit, {cprId: cpr.id, cpTitle: cpr.cpTitle});
 
       $scope.visitCtx = {
-        obj: {visit: $scope.currVisit, cp: cp},
+        obj: {visit: $scope.currVisit, cpr: cpr, cp: cp},
         opts: {layout: layout, mdInput: false},
         inObjs: ['visit'],
         mrnAccessRestriction: mrnAccessRestriction
