@@ -72,6 +72,8 @@ angular.module('os.biospecimen.specimen.addedit', [])
         var spmn = angular.copy(lastSpmn);
         delete spmn.$$count;
 
+        console.log(JSON.stringify(spmn));
+
         var aliquots = reqAliquots ? angular.copy(lastCtrl.getAliquotSpec()) : undefined;
         inputCtxts.push({
           specimen: spmn,
@@ -234,24 +236,22 @@ angular.module('os.biospecimen.specimen.addedit', [])
 
         var exObjs = ['specimen.lineage', 'specimen.parentLabel', 'specimen.events'];
         if (!inputSpmn.id && !inputSpmn.reqId) {
-          inputSpmn.collectionEvent = {
-            user: $rootScope.currentUser,
-            container: 'Not Specified',
-            procedure: 'Not Specified'
-          };
+          var ce = inputSpmn.collectionEvent = inputSpmn.collectionEvent || {};
+          ce.user = (!ce.user || !ce.user.id) ? $rootScope.currentUser : ce.user;
+          ce.container = ce.container || 'Not Specified';
+          ce.procedure = ce.procedure || 'Not Specified';
 
-          inputSpmn.receivedEvent = {
-            user: $rootScope.currentUser,
-            receivedQuality: 'Acceptable'
-          };
+          var re = inputSpmn.receivedEvent = inputSpmn.receivedEvent || {};
+          re.user = (!re.user || !re.user.id) ? $rootScope.currentUser : re.user;
+          re.receivedQuality = re.receivedQuality || 'Acceptable';
         }
 
         if (inputSpmn.lineage != 'New') {
           exObjs.push('specimen.collectionEvent', 'specimen.receivedEvent');
         }
 
-        inputSpmn.initialQty = Util.getNumberInScientificNotation(inputSpmn.initialQty);
-        inputSpmn.availableQty = Util.getNumberInScientificNotation(inputSpmn.availableQty);
+        inputSpmn.initialQty    = Util.getNumberInScientificNotation(inputSpmn.initialQty);
+        inputSpmn.availableQty  = Util.getNumberInScientificNotation(inputSpmn.availableQty);
         inputSpmn.concentration = Util.getNumberInScientificNotation(inputSpmn.concentration);
 
         var spmnCtx = scope.spmnCtx = {
