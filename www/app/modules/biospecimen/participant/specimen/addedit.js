@@ -72,8 +72,6 @@ angular.module('os.biospecimen.specimen.addedit', [])
         var spmn = angular.copy(lastSpmn);
         delete spmn.$$count;
 
-        console.log(JSON.stringify(spmn));
-
         var aliquots = reqAliquots ? angular.copy(lastCtrl.getAliquotSpec()) : undefined;
         inputCtxts.push({
           specimen: spmn,
