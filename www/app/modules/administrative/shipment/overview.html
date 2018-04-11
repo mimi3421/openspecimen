@@ -34,7 +34,9 @@
         <li class="item">
           <strong class="key key-sm" translate="shipments.tracking_url">Tracking URL</strong>
           <span class="value value-md">
-            <a href="{{shipment.trackingUrl}}" target="_blank">{{shipment.trackingUrl | osNoValue}}</a>
+            <a href="{{shipment.trackingUrl}}" target="_blank" ng-class="{'disabled': !shipment.trackingUrl}">
+              <span>{{shipment.trackingUrl | osNoValue}}</span>
+            </a>
           </span>
         </li>
         
