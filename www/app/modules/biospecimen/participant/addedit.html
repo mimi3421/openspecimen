@@ -46,7 +46,7 @@
     <div ng-switch on="fieldsCtx.lookupFields && fieldsCtx.lookupFields.length > 0">
       <div ng-switch-when="true">
         <sde-form-fields base-fields="fieldsCtx.sysDict" fields="fieldsCtx.lookupFields"
-          obj="partCtx.obj" in-objs="partCtx.inObjs">
+          obj="partCtx.obj" in-objs="partCtx.inObjs" opts="partCtx.fieldOpts">
         </sde-form-fields>
       </div>
       <div ng-switch-default ng-switch on="partCtx.twoStep">
