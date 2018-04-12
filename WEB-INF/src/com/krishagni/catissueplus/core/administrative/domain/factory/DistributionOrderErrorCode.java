@@ -81,6 +81,8 @@ public enum DistributionOrderErrorCode implements ErrorCode {
 
 	INVALID_COST,
 
+	SPMNS_DENIED,
+
 	NO_SPMNS_RESV_FOR_DP;
 
 	@Override

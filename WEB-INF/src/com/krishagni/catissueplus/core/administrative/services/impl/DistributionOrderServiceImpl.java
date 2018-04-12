@@ -30,6 +30,7 @@ import com.krishagni.catissueplus.core.administrative.domain.DistributionOrder;
 import com.krishagni.catissueplus.core.administrative.domain.DistributionOrder.Status;
 import com.krishagni.catissueplus.core.administrative.domain.DistributionOrderItem;
 import com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol;
+import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.administrative.domain.SpecimenRequest;
 import com.krishagni.catissueplus.core.administrative.domain.SpecimenReservedEvent;
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainer;
@@ -668,6 +669,7 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 
 		List<String> closedSpmns = inputSpmns.stream()
 			.filter(spmn -> !spmn.isActive()).map(Specimen::getLabel)
+			.limit(10)
 			.collect(Collectors.toList());
 		if (!closedSpmns.isEmpty()) {
 			ose.addError(DistributionOrderErrorCode.CLOSED_SPECIMENS, closedSpmns);
@@ -691,7 +693,7 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 
 		SpecimenListCriteria crit = new SpecimenListCriteria().siteCps(siteCpPairs).ids(specimenIds);
 		String nonCompliantSpmnLabels = daoFactory.getSpecimenDao().getNonCompliantSpecimens(crit)
-			.stream().collect(Collectors.joining(", "));
+			.stream().limit(10).collect(Collectors.joining(", "));
 		if (!nonCompliantSpmnLabels.isEmpty()) {
 			ose.addError(DistributionOrderErrorCode.SPECIMEN_DOES_NOT_EXIST, nonCompliantSpmnLabels);
 		}
@@ -724,16 +726,32 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 		// This implicitly means specimens with DPs have been pre-validated
 		//
 		Map<Long, Specimen> specimenMap = spmnWithoutDps.stream().collect(Collectors.toMap(Specimen::getId, Function.identity()));
-		Set<Long> allowedSites = AccessCtrlMgr.getInstance().getDistributionOrderAllowedSites(dp);
 		Map<Long, Set<Long>> spmnSitesMap = daoFactory.getSpecimenDao().getSpecimenSites(spmnWithoutDps.stream().map(Specimen::getId).collect(Collectors.toSet()));
-		String errorLabels = spmnSitesMap.entrySet().stream()
+
+		Set<Long> dpSites = dp.getAllDistributingSites().stream().map(Site::getId).collect(Collectors.toSet());
+		String errorLabels = notAllowedSpecimenLabels(specimenMap, spmnSitesMap, dpSites);
+		if (StringUtils.isNotBlank(errorLabels)) {
+			ose.addError(DistributionOrderErrorCode.INVALID_SPECIMENS_FOR_DP, errorLabels, dp.getShortTitle());
+			return;
+		}
+
+		if (AuthUtil.isAdmin()) {
+			return;
+		}
+
+		Set<Long> allowedSites = AccessCtrlMgr.getInstance().getDistributionOrderAllowedSites(dp);
+		errorLabels = notAllowedSpecimenLabels(specimenMap, spmnSitesMap, allowedSites);
+		if (StringUtils.isNotBlank(errorLabels)) {
+			ose.addError(DistributionOrderErrorCode.SPMNS_DENIED, errorLabels);
+		}
+	}
+
+	private String notAllowedSpecimenLabels(Map<Long, Specimen> specimenMap, Map<Long, Set<Long>> spmnSitesMap, Set<Long> allowedSites) {
+		return spmnSitesMap.entrySet().stream()
 			.filter(spmnSites -> CollectionUtils.intersection(spmnSites.getValue(), allowedSites).isEmpty())
 			.map(spmnSites -> specimenMap.get(spmnSites.getKey()).getLabel())
+			.limit(10)
 			.collect(Collectors.joining(", "));
-
-		if (StringUtils.isNotBlank(errorLabels)) {
-			ose.addError(DistributionOrderErrorCode.INVALID_SPECIMENS_FOR_DP, errorLabels);
-		}
 	}
 
 	private boolean isSpecimenReservedForOtherDp(Specimen specimen, DistributionProtocol dp) {
