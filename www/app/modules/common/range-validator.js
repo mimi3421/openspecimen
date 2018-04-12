@@ -29,6 +29,10 @@ angular.module('openspecimen')
 
           for (var i = 0; i < props.length; ++i) {
             var prop = props[i];
+            if (prop.tgt == null || prop.tgt == undefined) {
+              continue;
+            }
+
             var truthy = true;
             if (prop.cmp == 'lt') {
               truthy = (val < prop.tgt);
