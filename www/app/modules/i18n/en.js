@@ -2421,7 +2421,7 @@
         "aliquot_label_format": "Aliquot Label Format",
         "aliquot_label_format_desc": "The system-level format for aliquot labels.",
         "mandatory_aliquot_qty": "Mandatory Aliquot Quantity",
-        "mandatory_aliquot_qty_desc": "Enable or disable mandatory aliquots quantity constraints."
+        "mandatory_aliquot_qty_desc": "Enable to make aliquots quantity a mandatory field."
       },
 
       "common": {
