@@ -278,4 +278,8 @@
       </column>
     </addColumn>
   </changeSet>
+
+  <changeSet author="vpawar" id="Drop not null constraint on distribution quantity">
+    <dropNotNullConstraint tableName="OS_ORDER_ITEMS" columnName="QUANTITY" columnDataType="${double.type}"/>
+  </changeSet>
 </databaseChangeLog>
