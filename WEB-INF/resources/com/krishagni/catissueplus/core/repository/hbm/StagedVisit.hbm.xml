@@ -80,13 +80,29 @@
         )
     </query>
 
-    <query name="deleteOldVisits">
+    <sql-query name="deleteOldVisitDiagnoses">
       <![CDATA[
-        delete
-          com.krishagni.catissueplus.core.biospecimen.domain.StagedVisit visit
+        delete from
+          os_staged_visit_diagnoses
         where
-          visit.updateTime < :olderThanDt
+          visit_id in (
+            select
+              v.identifier
+            from
+              os_staged_visits v
+            where
+              v.update_time < :olderThanDt
+          )
       ]]>
-    </query>
+    </sql-query>
+
+    <sql-query name="deleteOldVisits">
+      <![CDATA[
+        delete from
+          os_staged_visits
+        where
+          update_time < :olderThanDt
+      ]]>
+    </sql-query>
   </class>
 </hibernate-mapping>

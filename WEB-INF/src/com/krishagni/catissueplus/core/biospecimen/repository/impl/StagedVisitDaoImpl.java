@@ -40,9 +40,12 @@ public class StagedVisitDaoImpl extends AbstractDao<StagedVisit> implements Stag
 	@Override
 	public int deleteOldVisits(int olderThanDays) {
 		Date olderThanDt = Date.from(Instant.now().minus(Duration.ofDays(olderThanDays)));
-		return getCurrentSession().getNamedQuery(DEL_OLD_VISITS)
-			.setTimestamp("olderThanDt", olderThanDt)
-			.executeUpdate();
+		deleteOldVisitRecords(DEL_OLD_VISIT_DIAG, olderThanDt);
+		return deleteOldVisitRecords(DEL_OLD_VISITS, olderThanDt);
+	}
+
+	private int deleteOldVisitRecords(String query, Date olderThanDt) {
+		return getCurrentSession().getNamedQuery(query).setTimestamp("olderThanDt", olderThanDt).executeUpdate();
 	}
 
 	private static final String FQN = StagedVisit.class.getName();
@@ -54,4 +57,6 @@ public class StagedVisitDaoImpl extends AbstractDao<StagedVisit> implements Stag
 	private static final String GET_BY_EMPI_OR_MRN = FQN + ".getByEmpiOrMrn";
 
 	private static final String DEL_OLD_VISITS = FQN + ".deleteOldVisits";
+
+	private static final String DEL_OLD_VISIT_DIAG = FQN + ".deleteOldVisitDiagnoses";
 }

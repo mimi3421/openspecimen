@@ -51,9 +51,10 @@ public class StagedParticipantDaoImpl extends AbstractDao<StagedParticipant> imp
 	@Override
 	public int deleteOldParticipants(int olderThanDays) {
 		Date olderThanDt = Date.from(Instant.now().minus(Duration.ofDays(olderThanDays)));
-		return getCurrentSession().getNamedQuery(DELETE_OLD_PARTICIPANTS)
-			.setTimestamp("olderThanDt", olderThanDt)
-			.executeUpdate();
+		deleteOldParticipantRecs(DEL_OLD_PARTICIPANT_PMIS, olderThanDt);
+		deleteOldParticipantRecs(DEL_OLD_PARTICIPANT_RACES, olderThanDt);
+		deleteOldParticipantRecs(DEL_OLD_PARTICIPANT_ETHNICITIES, olderThanDt);
+		return deleteOldParticipantRecs(DEL_OLD_PARTICIPANTS, olderThanDt);
 	}
 
 	private Criteria getByPmisQuery(List<PmiDetail> pmis) {
@@ -77,11 +78,21 @@ public class StagedParticipantDaoImpl extends AbstractDao<StagedParticipant> imp
 		return added ? query.add(junction) : null;
 	}
 
+	private int deleteOldParticipantRecs(String query, Date olderThanDt) {
+		return getCurrentSession().getNamedQuery(query).setTimestamp("olderThanDt", olderThanDt).executeUpdate();
+	}
+
 	private static final String FQN = StagedParticipant.class.getName();
 
 	private static final String GET_BY_EMPI = FQN + ".getByEmpi";
 
 	private static final String GET_BY_MRN = FQN + ".getByMrn";
 
-	private static final String DELETE_OLD_PARTICIPANTS = FQN + ".deleteOldParticipants";
+	private static final String DEL_OLD_PARTICIPANTS = FQN + ".deleteOldParticipants";
+
+	private static final String DEL_OLD_PARTICIPANT_PMIS = FQN + ".deleteOldParticipantPmis";
+
+	private static final String DEL_OLD_PARTICIPANT_RACES = FQN + ".deleteOldParticipantRaces";
+
+	private static final String DEL_OLD_PARTICIPANT_ETHNICITIES = FQN + ".deleteOldParticipantEthnicities";
 }

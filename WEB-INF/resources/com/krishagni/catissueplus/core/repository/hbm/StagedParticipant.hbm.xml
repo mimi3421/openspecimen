@@ -75,14 +75,65 @@
         lower(pmi.medicalRecordNumber) = :mrn
     </query>
 
-    <query name="deleteOldParticipants">
+    <sql-query name="deleteOldParticipantPmis">
       <![CDATA[
-      delete
-        com.krishagni.catissueplus.core.biospecimen.domain.StagedParticipant p
-      where 
-        p.updatedTime < :olderThanDt and
-        p.visits is empty
+        delete from
+          os_staged_part_medical_ids
+        where
+          participant_id in (
+            select
+              p.identifier
+            from
+              os_staged_participants p
+            where
+              p.updated_time < :olderThanDt and
+              not (exists (select v.identifier from os_staged_visits v where v.participant_id = p.identifier))
+          )
       ]]>
-    </query>
+    </sql-query>
+
+    <sql-query name="deleteOldParticipantRaces">
+      <![CDATA[
+        delete from
+          os_staged_participant_races
+        where
+          participant_id in (
+            select
+              p.identifier
+            from
+              os_staged_participants p
+            where
+              p.updated_time < :olderThanDt and
+              not (exists (select v.identifier from os_staged_visits v where v.participant_id = p.identifier))
+          )
+      ]]>
+    </sql-query>
+
+    <sql-query name="deleteOldParticipantEthnicities">
+      <![CDATA[
+        delete from
+          os_staged_part_ethnicities
+        where
+          participant_id in (
+            select
+              p.identifier
+            from
+              os_staged_participants p
+            where
+              p.updated_time < :olderThanDt and
+              not (exists (select v.identifier from os_staged_visits v where v.participant_id = p.identifier))
+          )
+      ]]>
+    </sql-query>
+
+    <sql-query name="deleteOldParticipants">
+      <![CDATA[
+        delete from
+          os_staged_participants
+        where
+          updated_time < :olderThanDt and
+          not (exists (select v.identifier from os_staged_visits v where v.participant_id = os_staged_participants.identifier))
+      ]]>
+    </sql-query>
   </class>
 </hibernate-mapping>
