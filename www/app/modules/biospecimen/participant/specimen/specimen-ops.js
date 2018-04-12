@@ -129,7 +129,17 @@ angular.module('os.biospecimen.specimen')
       getDp(scope, hideDistributeBtn).then(
         function(details) {
           if (details.distribute) {
-            distributeSpmns(scope, details, specimens);
+            var r = specimens.find(function(spmn) { return !spmn.hasOwnProperty('label'); });
+            if (r) { // at least one specimen without label property
+              var spmnIds = specimens.map(function(spmn) {return spmn.id});
+              Specimen.getByIds(spmnIds).then(
+                function(result) {
+                  distributeSpmns(scope, details, result);
+                }
+              );
+            } else {
+              distributeSpmns(scope, details, specimens);
+            }
           } else {
             reserveSpmns(scope, details, specimens);
           }
