@@ -70,6 +70,13 @@ angular.module('os.biospecimen.specimen.addedit', [])
       var lastSpmn = lastCtrl.getSpecimens()[0];
       if (!!lastSpmn) {
         var spmn = angular.copy(lastSpmn);
+        var location = spmn.storageLocation;
+        if (location) {
+          spmn.storageLocation = { name: location.name, mode: location.mode };
+        }
+
+        delete spmn.label;
+        delete spmn.barcode;
         delete spmn.$$count;
 
         var aliquots = reqAliquots ? angular.copy(lastCtrl.getAliquotSpec()) : undefined;
@@ -97,12 +104,13 @@ angular.module('os.biospecimen.specimen.addedit', [])
             for (var i = 0; i < +count; ++i) {
               if (i != 0) {
                 spmns = angular.copy(spmns);
-
                 var location = spmns[0].storageLocation;
                 if (location) {
                   spmns[0].storageLocation = { name: location.name, mode: location.mode };
                 }
 
+                delete spmns[0].label;
+                delete spmns[0].barcode;
                 delete spmns[0].$$count;
               }
 
