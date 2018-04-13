@@ -343,6 +343,9 @@ public class SpecimenDetail extends SpecimenInfo {
 			if (specimen.isPrimary()) {
 				result.setCollectionEvent(CollectionEventDetail.from(specimen.getCollectionEvent()));
 				result.setReceivedEvent(ReceivedEventDetail.from(specimen.getReceivedEvent()));
+			} else {
+				result.setCollectionEvent(CollectionEventDetail.from(specimen.getCollRecvDetails()));
+				result.setReceivedEvent(ReceivedEventDetail.from(specimen.getCollRecvDetails()));
 			}
 		}
 		
