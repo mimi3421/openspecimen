@@ -78,6 +78,7 @@ angular.module('os.biospecimen.specimen.addedit', [])
         delete spmn.label;
         delete spmn.barcode;
         delete spmn.$$count;
+        delete spmn.$$labels;
 
         var aliquots = reqAliquots ? angular.copy(lastCtrl.getAliquotSpec()) : undefined;
         inputCtxts.push({
@@ -99,8 +100,8 @@ angular.module('os.biospecimen.specimen.addedit', [])
             spmns[0].selected = true;
             spmns[0].status = 'Pending';
 
-            var count = spmns[0].$$count;
-            count = count || 1;
+            var labels = Util.splitStr(spmns[0].$$labels || '', /,|\t|\n/);
+            var count = labels.length || spmns[0].$$count || 1;
             for (var i = 0; i < +count; ++i) {
               if (i != 0) {
                 spmns = angular.copy(spmns);
@@ -112,6 +113,11 @@ angular.module('os.biospecimen.specimen.addedit', [])
                 delete spmns[0].label;
                 delete spmns[0].barcode;
                 delete spmns[0].$$count;
+                delete spmns[0].$$labels;
+              }
+
+              if (labels.length > 0) {
+                spmns[0].label = labels[i];
               }
 
               Array.prototype.push.apply(specimensToCollect, spmns);
@@ -156,6 +162,52 @@ angular.module('os.biospecimen.specimen.addedit', [])
       scope.specimenStatuses = PvManager.getPvs('specimen-status');
     };
 
+    function updateParent(parent, children) {
+      angular.forEach(children, function(child) { child.parent = parent; });
+      parent.children = parent.children || [];
+      parent.children = parent.children.concat(children);
+    }
+
+    function getAliquots(cpr, primarySpmn, types, typeSpecs) {
+      var result = [], children = [], derived = undefined;
+
+      angular.forEach(types,
+        function(type) {
+          derived = undefined;
+          angular.forEach(typeSpecs[type],
+            function(aliquotSpec) {
+              var detail = angular.copy({aliquotSpec: aliquotSpec});
+              angular.extend(detail, {parentSpecimen: primarySpmn, deFormCtrl: {}, cpr: cpr});
+
+              var tree = SpecimenUtil.collectAliquots(detail);
+              tree.splice(0, 1); // remove parent as it is already in our final list
+              if (type != primarySpmn.type) {
+                if (derived) {
+                  if (!isNaN(derived.initialQty) && !isNaN(tree[0].initialQty)) {
+                    derived.initialQty = derived.initialQty + tree[0].initialQty;
+                  } else {
+                    derived.initialQty = undefined;
+                  }
+
+                  tree.splice(0, 1);         // remove derived
+                  primarySpmn.children = []; // remove derived as child of primary specimen;
+                  updateParent(derived, tree);
+                } else {
+                  derived = tree[0];
+                }
+              }
+
+              Array.prototype.push.apply(result, tree);
+              Array.prototype.push.apply(children, primarySpmn.children); // accumulate direct children of primary spmns
+            }
+          );
+        }
+      );
+
+      primarySpmn.children = children;
+      return result;
+    }
+
     return {
       restrict: 'E',
 
@@ -180,25 +232,26 @@ angular.module('os.biospecimen.specimen.addedit', [])
             primarySpmn.extensionDetail = formCtrl.getFormData();
           }
 
-          var result = [primarySpmn];
-
-          var spmnCtx = $scope.spmnCtx, children = [];
+          var spmnCtx = $scope.spmnCtx, result = [primarySpmn];
           if (reqAliquots && spmnCtx.createAliquots) {
+            var types = [], typeSpecs = {};
             angular.forEach(spmnCtx.aliquots,
-              function(aliquotSpec) {
-                var detail = angular.copy({aliquotSpec: aliquotSpec});
-                angular.extend(detail, {parentSpecimen: primarySpmn, deFormCtrl: {}, cpr: $scope.opts.cpr});
+              function(spec) {
+                if (types.indexOf(spec.type) == -1) {
+                  types.push(spec.type);
+                }
 
-                var tree = SpecimenUtil.collectAliquots(detail);
-                tree.splice(0, 1); // remove parent as it is already in our final list
-                Array.prototype.push.apply(result, tree);
-
-                Array.prototype.push.apply(children, primarySpmn.children); // accumulate direct children of primary spmns
+                typeSpecs[spec.type] = typeSpecs[spec.type] || [];
+                typeSpecs[spec.type].push(spec);
               }
             );
+
+            var tree = getAliquots($scope.opts.cpr, primarySpmn, types, typeSpecs);
+            Array.prototype.push.apply(result, tree);
+          } else {
+            primarySpmn.children = [];
           }
 
-          primarySpmn.children = children;
           return result;
         }
 

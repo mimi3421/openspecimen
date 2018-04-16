@@ -20,11 +20,20 @@
       <div ng-if="opts.allowMultipleSpecimens != false && opts.allowMultipleSpecimens != 'false'">
         <fieldset ng-if="opts.verticalLayout">
           <legend translate="specimens.multiple">Multiple Specimens</legend>
-          <div class="row">
+          <div class="row" ng-if="!spmnCtx.manualSpecLabelReq">
             <div class="col-xs-6">
               <input type="text" name="count" ng-model="inputSpmn.$$count" class="form-control"
                 ng-pattern="/^[1-9][0-9]*$/" placeholder="{{'specimens.count' | translate}}">
               <div os-field-error field="sform.count"></div>
+            </div>
+          </div>
+
+          <div class="row" ng-if="spmnCtx.manualSpecLabelReq">
+            <div class="col-xs-6">
+              <textarea name="labels" ng-model="inputSpmn.$$labels" class="form-control"
+                placeholder="{{'specimens.labels' | translate}}" rows="2">
+              </textarea>
+              <div os-field-error field="sform.labels"></div>
             </div>
           </div>
         </fieldset>
@@ -34,7 +43,19 @@
             <span translate="specimens.multiple">Multiple Specimens</span>
           </div>
 
-          <div class="form-group">
+          <div class="form-group" ng-if="spmnCtx.manualSpecLabelReq">
+            <label class="col-xs-3 control-label">
+              <span translate="specimens.labels">Labels</span>
+            </label>
+            <div class="col-xs-6">
+              <textarea name="labels" ng-model="inputSpmn.$$labels" class="form-control"
+                placeholder="{{'specimens.labels' | translate}}" rows="2">
+              </textarea>
+              <div os-field-error field="sform.labels"></div>
+            </div>
+          </div>
+
+          <div class="form-group" ng-if="!spmnCtx.manualSpecLabelReq">
             <label class="col-xs-3 control-label">
               <span translate="specimens.count">Count</span>
             </label>
@@ -52,7 +73,10 @@
 
 <script type="text/ng-template" id="modules/biospecimen/participant/specimen/static-addedit.html">
   <div>
-    <div class="form-group" ng-if="spmnCtx.manualSpecLabelReq">
+    <div class="form-group" ng-if="spmnCtx.manualSpecLabelReq &&
+      (!!inputSpmn.id || !!inputSpmn.reqId ||
+       opts.allowMultipleSpecimens == false || opts.allowMultipleSpecimens == 'false')">
+
       <label class="col-xs-3 control-label" translate="specimens.label">Label</label>
       <div class="col-xs-6">
         <input type="text" name="label" ng-model="inputSpmn.label" class="form-control"
@@ -62,6 +86,7 @@
         <div os-field-error field="sform.label"></div>
       </div>
     </div>
+
     <div class="form-group" ng-if="opts.barcodingEnabled">
       <label class="col-xs-3 control-label" translate="specimens.barcode">Barcode</label>
       <div class="col-xs-6">
