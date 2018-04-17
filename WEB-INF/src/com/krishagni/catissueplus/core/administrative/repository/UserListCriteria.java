@@ -3,6 +3,7 @@ package com.krishagni.catissueplus.core.administrative.repository;
 import com.krishagni.catissueplus.core.common.events.AbstractListCriteria;
 
 import java.util.Date;
+import java.util.List;
 
 public class UserListCriteria extends AbstractListCriteria<UserListCriteria> {
 	private String name;
@@ -20,6 +21,16 @@ public class UserListCriteria extends AbstractListCriteria<UserListCriteria> {
 	private String type;
 
 	private Date activeSince;
+
+	private String siteName;
+
+	private String cpShortTitle;
+
+	private List<String> roleNames;
+
+	private String resourceName;
+
+	private List<String> opNames;
 	
 	@Override
 	public UserListCriteria self() {
@@ -95,6 +106,51 @@ public class UserListCriteria extends AbstractListCriteria<UserListCriteria> {
 
 	public UserListCriteria activeSince(Date activeSince) {
 		this.activeSince = activeSince;
+		return self();
+	}
+
+	public String siteName() {
+		return siteName;
+	}
+
+	public UserListCriteria siteName(String siteName) {
+		this.siteName = siteName;
+		return self();
+	}
+
+	public String cpShortTitle() {
+		return cpShortTitle;
+	}
+
+	public UserListCriteria cpShortTitle(String cpShortTitle) {
+		this.cpShortTitle = cpShortTitle;
+		return self();
+	}
+
+	public List<String> roleNames() {
+		return roleNames;
+	}
+
+	public UserListCriteria roleNames(List<String> roleNames) {
+		this.roleNames = roleNames;
+		return self();
+	}
+
+	public String resourceName() {
+		return resourceName;
+	}
+
+	public UserListCriteria resourceName(String resourceName) {
+		this.resourceName = resourceName;
+		return self();
+	}
+
+	public List<String> opNames() {
+		return opNames;
+	}
+
+	public UserListCriteria opNames(List<String> opNames) {
+		this.opNames = opNames;
 		return self();
 	}
 }

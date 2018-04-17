@@ -88,7 +88,22 @@ public class UserController {
 
 			@RequestParam(value = "activeSince", required = false)
 			@DateTimeFormat(pattern="yyyy-MM-dd")
-			Date activeSince) {
+			Date activeSince,
+
+			@RequestParam(value = "site", required = false)
+			String siteName,
+
+			@RequestParam(value = "cp", required = false)
+			String cpShortTitle,
+
+			@RequestParam(value = "role", required = false)
+			String[] roles,
+
+			@RequestParam(value = "resource", required = false)
+			String resourceName,
+
+			@RequestParam(value = "op", required = false)
+			String[] ops) {
 		
 		UserListCriteria crit = new UserListCriteria()
 			.startAt(start)
@@ -102,10 +117,15 @@ public class UserController {
 			.listAll(listAll)
 			.includeStat(includeStats)
 			.type(type)
-			.activeSince(activeSince);
+			.activeSince(activeSince)
+			.siteName(siteName)
+			.cpShortTitle(cpShortTitle)
+			.roleNames(roles != null ? Arrays.asList(roles) : Collections.emptyList())
+			.resourceName(resourceName)
+			.opNames(ops != null ? Arrays.asList(ops) : Collections.emptyList());
 		
 		
-		RequestEvent<UserListCriteria> req = new RequestEvent<UserListCriteria>(crit);
+		RequestEvent<UserListCriteria> req = new RequestEvent<>(crit);
 		ResponseEvent<List<UserSummary>> resp = userService.getUsers(req);
 		resp.throwErrorIfUnsuccessful();
 		

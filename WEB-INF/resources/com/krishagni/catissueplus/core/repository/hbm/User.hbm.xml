@@ -52,6 +52,16 @@
  
     <property name="manageForms" column="MANAGE_FORMS"/>
 
+    <set name="roles" inverse="true" cascade="none">
+      <key column="SUBJECT_ID"/>
+      <one-to-many class="com.krishagni.rbac.domain.SubjectRole"/>
+    </set>
+
+    <set name="acl" inverse="true" cascade="none">
+      <key column="SUBJECT_ID"/>
+      <one-to-many class="com.krishagni.rbac.domain.SubjectAccess"/>
+    </set>
+
     <filter name="activeEntity"/>
     
     <sql-query name="getDependentEntities">
