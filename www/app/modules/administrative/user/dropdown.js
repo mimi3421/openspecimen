@@ -1,8 +1,13 @@
 
 angular.module('os.administrative.user.dropdown', ['os.administrative.models'])
   .directive('osUsers', function(AuthorizationService, User) {
-    function loadUsers(scope, searchTerm, ctrl) {
+    function loadUsers(scope, searchTerm, ctrl, queryParams) {
       var opts = angular.extend({searchString : searchTerm}, scope.filterOpts || {});
+      if (queryParams) {
+        angular.extend(opts, JSON.parse(queryParams));
+      }
+
+      ctrl.listLoaded = true;
       User.query(opts).then(
         function(result) {
           scope.users = result;
@@ -47,8 +52,14 @@ angular.module('os.administrative.user.dropdown', ['os.administrative.models'])
 
       replace: true,
 
-      controller: function($scope) {
+      controller: function($scope, $element, $attrs) {
         var ctrl = this;
+
+        if ($attrs.options) {
+          $scope.users = JSON.parse($attrs.options);
+          ctrl.listLoaded = true;
+          return;
+        }
 
         $scope.searchUsers = function(searchTerm) {
           if (!searchTerm && $scope.defaultList) {
@@ -57,7 +68,7 @@ angular.module('os.administrative.user.dropdown', ['os.administrative.models'])
             return;
           }
 
-          loadUsers($scope, searchTerm, ctrl);
+          loadUsers($scope, searchTerm, ctrl, $attrs.queryParams);
         };
 
         $scope.$watch('filterOpts', function(newVal, oldVal) {
@@ -65,8 +76,22 @@ angular.module('os.administrative.user.dropdown', ['os.administrative.models'])
             return;
           }
 
-          loadUsers($scope, undefined, ctrl);
+          loadUsers($scope, undefined, ctrl, $attrs.queryParams);
         });
+
+        $attrs.$observe('queryParams',
+          function() {
+            if (!ctrl.listLoaded) {
+              //
+              // this is done to ensure we do not load users list twice
+              // once by the attributes observer and another by the filterOpts watcher
+              //
+              return;
+            }
+
+            loadUsers($scope, undefined, ctrl, $attrs.queryParams);
+          }
+        );
       },
   
       link: function(scope, element, attrs, ctrl) {
