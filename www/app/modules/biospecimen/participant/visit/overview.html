@@ -34,12 +34,12 @@
             <li class="divider"></li>
             <li>
               <a ui-sref="specimen-addedit({cpId: cp.id, visitId: visit.id, cprId: cpr.id})">
-                <span>Other</span>
+                <span translate="specimens.other">Other</span>
               </a>
             </li>
           </ul>
         </div>
-      </button>
+      </span>
 
       <button ng-if="!!visit.id && allowPrintVisit" show-if-allowed="specimenResource.updateOpts" class="default"
         ng-click="printVisitName()">
