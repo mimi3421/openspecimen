@@ -112,10 +112,11 @@ angular.module('os.biospecimen.visit', [
             }
           );
         },
-        controller: function($scope, cpr, hasFieldsFn, showVisitActivity, osRightDrawerSvc, ExtensionsUtil) {
+        controller: function($scope, cpr, hasFieldsFn, showVisitActivity, spmnReqs, osRightDrawerSvc, ExtensionsUtil) {
           ExtensionsUtil.createExtensionFieldMap($scope.visit);
           $scope.visitCtx = {
             obj: {cpr: cpr, visit: $scope.visit},
+            spmnReqs: spmnReqs,
             inObjs: ['visit', 'calcVisit'],
             showEdit: hasFieldsFn(['visit'], []),
             showActivity: showVisitActivity
@@ -127,6 +128,15 @@ angular.module('os.biospecimen.visit', [
 
           $scope.toggleShowActivity = function() {
             $scope.visitCtx.showActivity = !$scope.visitCtx.showActivity;
+          }
+        },
+        resolve: {
+          spmnReqs: function(cp, CpConfigSvc) {
+            return CpConfigSvc.getCommonCfg(cp.id, 'addSpecimen', {}).then(
+              function(data) {
+                return (data && data.requirements) || [];
+              }
+            );
           }
         },
         parent: 'visit-detail'

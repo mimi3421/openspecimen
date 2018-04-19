@@ -1,8 +1,8 @@
 
 angular.module('os.biospecimen.specimen.addedit', [])
   .controller('AddEditSpecimenCtrl', function(
-    $scope, $state, cp, cpr, visit, specimen, extensionCtxt, aliquotQtyReq,
-    barcodingEnabled, spmnBarcodesAutoGen, hasDict, sysDict, cpDict, layout,
+    $scope, $state, $parse, cp, cpr, visit, specimen, extensionCtxt, aliquotQtyReq,
+    barcodingEnabled, spmnBarcodesAutoGen, hasDict, sysDict, cpDict, layout, defSpmns,
     CpConfigSvc, Util, ParticipantSpecimensViewState, Specimen, CollectSpecimensSvc) {
 
     var inputCtxts;
@@ -23,13 +23,37 @@ angular.module('os.biospecimen.specimen.addedit', [])
         }
       );
 
-      inputCtxts = $scope.inputCtxts = [
-        {
-          specimen: angular.copy(specimen),
-          form: {},
-          open: true
+
+      if (!specimen.id && !specimen.reqId && defSpmns.length > 0) {
+        inputCtxts = $scope.inputCtxts = getInputCtxts(defSpmns);
+      } else {
+        inputCtxts = $scope.inputCtxts = [{specimen: angular.copy(specimen), form: {}, open: true}]
+      }
+    }
+
+    function getInputCtxts(defSpmns) {
+      return (defSpmns || []).map(
+        function(defSpmn, idx) {
+          var spmn = new Specimen({lineage: 'New', visitId: visit.id, labelFmt: cpr.specimenLabelFmt});
+          angular.forEach(defSpmn.fields,
+            function(field) {
+              $parse(field.name).assign({specimen: spmn}, field.value);
+            }
+          );
+
+          var aliquots = (defSpmn.aliquots || []).map(
+            function(spec) {
+              return new Specimen({
+                lineage: 'Aliquot', type: spec.type,
+                noOfAliquots: spec.count, qtyPerAliquot: spec.quantity,
+                pathology: spec.pathology
+              });
+            }
+          );
+
+          return {specimen: spmn, form: {}, open: idx == 0, aliquots: aliquots.length > 0 ? aliquots : undefined};
         }
-      ]
+      );
     }
 
     function getState() {
