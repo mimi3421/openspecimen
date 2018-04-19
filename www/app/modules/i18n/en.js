@@ -680,6 +680,7 @@
     "assign_locations": "Choose Locations",
     "labels": "Labels",
     "labels_csv": "Comma separated list of specimen labels",
+    "other": "Other",
 
     "reason_for_closing": "Reason for closing",
 
