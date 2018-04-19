@@ -171,6 +171,10 @@ public class Specimen extends BaseExtensionEntity {
 
 	private transient boolean updated;
 
+	private transient String uid;
+
+	private transient String parentUid;
+
 	//
 	// Records the derivatives or aliquots created from this specimen in current action/transaction
 	//
@@ -634,6 +638,22 @@ public class Specimen extends BaseExtensionEntity {
 
 	public void setUpdated(boolean updated) {
 		this.updated = updated;
+	}
+
+	public String getUid() {
+		return uid;
+	}
+
+	public void setUid(String uid) {
+		this.uid = uid;
+	}
+
+	public String getParentUid() {
+		return parentUid;
+	}
+
+	public void setParentUid(String parentUid) {
+		this.parentUid = parentUid;
 	}
 
 	public boolean isPrintLabel() {
