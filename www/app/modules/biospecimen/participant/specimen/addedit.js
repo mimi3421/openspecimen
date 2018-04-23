@@ -3,7 +3,7 @@ angular.module('os.biospecimen.specimen.addedit', [])
   .controller('AddEditSpecimenCtrl', function(
     $scope, $state, $parse, cp, cpr, visit, specimen, extensionCtxt, aliquotQtyReq,
     barcodingEnabled, spmnBarcodesAutoGen, hasDict, sysDict, cpDict, layout, defSpmns,
-    CpConfigSvc, Util, ParticipantSpecimensViewState, Specimen, CollectSpecimensSvc) {
+    Alerts, CpConfigSvc, Util, ParticipantSpecimensViewState, Specimen, CollectSpecimensSvc) {
 
     var inputCtxts;
 
@@ -37,7 +37,12 @@ angular.module('os.biospecimen.specimen.addedit', [])
           var spmn = new Specimen({lineage: 'New', visitId: visit.id, labelFmt: cpr.specimenLabelFmt});
           angular.forEach(defSpmn.fields,
             function(field) {
-              $parse(field.name).assign({specimen: spmn}, field.value);
+              try {
+                $parse(field.name).assign({specimen: spmn}, field.value);
+              } catch (e) {
+                // meant for devs / support staff to debug
+                Alerts.errorText("Invalid field definition: " + (field && JSON.stringify(field)));
+              }
             }
           );
 
