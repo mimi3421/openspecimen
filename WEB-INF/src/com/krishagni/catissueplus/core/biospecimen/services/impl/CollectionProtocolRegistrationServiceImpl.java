@@ -771,17 +771,17 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 				inputCpr.setActivityStatus(Status.ACTIVITY_STATUS_DISABLED.getStatus());
 			}
 		}
-		
-		srcParticipant.getCprs().clear();
-		if (srcParticipant.isActive()) {
-			srcParticipant.delete();
-		}
 
 		if (tgtParticipant.getId() == null) {
 			//
 			// participant might be sourced from external repository
 			//
 			daoFactory.getParticipantDao().saveOrUpdate(tgtParticipant);
+		}
+
+		srcParticipant.getCprs().clear();
+		if (srcParticipant.isActive()) {
+			srcParticipant.delete();
 		}
 
 		return tgtParticipant;
