@@ -43,7 +43,8 @@
           Description
         </label>
         <div class="col-xs-6">
-          <textarea rows="2" placeholder="{{'specimen_list.description' | translate}}" ng-model="list.description" class="form-control">
+          <textarea rows="2" placeholder="{{'specimen_list.description' | translate}}" ng-model="list.description"
+            class="form-control">
           </textarea>
         </div>
       </div>
@@ -52,7 +53,7 @@
         <label class="col-xs-3 control-label" translate="specimen_list.specimens">
           Specimens
         </label>
-        <div class="col-xs-6">
+        <div class="col-xs-6 os-no-label-form">
           <textarea rows="2" name="specimens" ng-model="input.labelText" class="form-control" ng-required="!list.id"
             placeholder="{{'specimen_list.enter_specimen_label' | translate}}">
           </textarea>

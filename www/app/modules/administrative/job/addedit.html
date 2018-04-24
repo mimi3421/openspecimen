@@ -53,7 +53,7 @@
         <label class="col-xs-3 control-label">
           <span translate="jobs.command">External Command</span>
         </label>
-        <div class="col-xs-6">
+        <div class="col-xs-6 os-no-label-form">
           <textarea name="command" ng-model="job.command" class="form-control" 
             placeholder="{{'jobs.command_desc' | translate}}" rows="2" required>
           </textarea>
@@ -66,7 +66,7 @@
           <span translate="jobs.fqn">Task Implementation</span>
         </label>
 
-        <div class="col-xs-6">
+        <div class="col-xs-6 os-no-label-form">
           <textarea name="fqn" ng-model="job.taskImplFqn" class="form-control" 
             placeholder="{{'jobs.fqn_desc' | translate}}" rows="2" required>
           </textarea>
@@ -96,7 +96,7 @@
           <span translate="jobs.args_help_text">Runtime Arguments Help Text</span>
         </label>
 
-        <div class="col-xs-6">
+        <div class="col-xs-6 os-no-label-form">
           <textarea name="helpText" ng-model="job.rtArgsHelpText" class="form-control" 
             placeholder="{{'jobs.args_help_text_desc' | translate}}" rows="2" required>
           </textarea>

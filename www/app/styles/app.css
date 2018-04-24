@@ -1294,3 +1294,17 @@ form fieldset legend {
 form .form-group:empty {
   display: none!important;
 }
+
+
+.ui-select-placeholder,
+.ui-select-search::placeholder,
+.form-control::placeholder {
+  opacity: 0;
+}
+
+.os-no-label-form *::placeholder,
+.os-no-label-form .ui-select-placeholder,
+.os-md-input .ui-select-placeholder,
+.os-md-input *::placeholder {
+  opacity: 1;
+}
