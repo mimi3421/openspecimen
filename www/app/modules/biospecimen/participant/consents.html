@@ -38,15 +38,13 @@
             <div class="form-group">
               <div os-file-upload ctrl="consentFormUploader.ctrl"></div>
             </div>
-            <div class="form-group clearfix">
-              <div class="col-xs-6">
-                <button type="button" class="btn btn-success" ng-click="uploadConsentForm()" translate="common.buttons.upload">
-                  Upload
-                </button>
-                <a class="btn os-btn-text-secondary" ng-click="cancel()" translate="common.buttons.cancel">
-                  Cancel
-                </a>
-              </div>
+            <div class="form-group">
+              <button type="button" class="btn btn-success" ng-click="uploadConsentForm()">
+                <span translate="common.buttons.upload">Upload</span>
+              </button>
+              <a class="btn os-btn-text-secondary" ng-click="cancel()">
+                <span translate="common.buttons.cancel">Cancel</span>
+              </a>
             </div>
           </form>
         </div>
