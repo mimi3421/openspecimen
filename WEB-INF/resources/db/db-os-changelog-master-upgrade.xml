@@ -8,6 +8,7 @@
 
   <include file="db/db-os-pre-conditions.xml"/>
   <include file="db/data-type-definitions.xml"/>
+  <include file="db/ora-views-procs.xml"/>
   
   <include file="db/2.0/schema.xml"/>
   <include file="db/2.0/seed-data.xml"/>

@@ -145,8 +145,8 @@
     <dropUniqueConstraint tableName="CATISSUE_SPECIMEN" constraintName="BARCODE"/>
   </changeSet>
 
-  <changeSet author="vgaikwad" id="Remove unique constraint to allow duplicate specimen barcode" dbms="oracle">
-    <dropUniqueConstraint tableName="CATISSUE_SPECIMEN" constraintName="SYS_C00107673"/>
+  <changeSet author="vpawar" id="Remove unique constraint to allow duplicate specimen barcodes" dbms="oracle">
+    <sql>call os_drop_unique_constraint('catissue_specimen', 'barcode')</sql>
   </changeSet>
 
   <changeSet author="vgaikwad" id="Unique specimen barcode per collection protocol" dbms="mysql">

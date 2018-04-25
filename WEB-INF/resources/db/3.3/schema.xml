@@ -33,8 +33,8 @@
     <dropUniqueConstraint tableName="CATISSUE_SPECIMEN" constraintName="LABEL"/>
   </changeSet>
 
-  <changeSet author="ckhilosiya" id="Remove unique constraint to allow duplicate specimen label" dbms="oracle">
-    <dropUniqueConstraint tableName="CATISSUE_SPECIMEN" constraintName="SYS_C00107672"/>
+  <changeSet author="vpawar" id="Remove unique constraint to allow duplicate specimen labels" dbms="oracle">
+    <sql>call os_drop_unique_constraint('catissue_specimen', 'label')</sql>
   </changeSet>
 
   <changeSet author="ckhilosiya" id="Add index for faster lookup on specimen label">
