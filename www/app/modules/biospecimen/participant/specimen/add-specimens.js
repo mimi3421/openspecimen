@@ -64,7 +64,7 @@ angular.module('os.biospecimen.specimen')
       },
 
       template: function(tElem, tAttrs) {
-        return  '<div>' +
+        return  '<div class="os-no-label-form">' +
                 '  <div class="os-text-checkbox" ng-if="barcodingEnabled">' +
                 '    <div class="checkbox">' +
                 '      <os-checkbox ng-model="input.useBarcode"></os-checkbox>' +

@@ -1,6 +1,8 @@
 package com.krishagni.catissueplus.core.biospecimen.events;
 
+import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenCollectionReceiveDetail;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenReceivedEvent;
+import com.krishagni.catissueplus.core.common.events.UserSummary;
 
 public class ReceivedEventDetail extends SpecimenEventDetail {
 	private String receivedQuality;
@@ -23,5 +25,17 @@ public class ReceivedEventDetail extends SpecimenEventDetail {
 
 		detail.setReceivedQuality(sre.getQuality());
 		return detail;
+	}
+
+	public static ReceivedEventDetail from(SpecimenCollectionReceiveDetail cre) {
+		if (cre == null) {
+			return null;
+		}
+
+		ReceivedEventDetail re = new ReceivedEventDetail();
+		re.setReceivedQuality(cre.getRecvQuality());
+		re.setTime(cre.getRecvTime());
+		re.setUser(UserSummary.from(cre.getReceiver()));
+		return re;
 	}
 }

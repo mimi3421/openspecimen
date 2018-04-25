@@ -1,9 +1,13 @@
 angular.module('os.administrative.setting.util', [])
-  .factory('SettingUtil', function(Setting) {
+  .factory('SettingUtil', function($q, Setting) {
     var settings = {};
 
+    function getKey(module, property) {
+      return module + ':' + property;
+    }
+
     function getSetting(module, property) {
-      var key = module + ':' + property;
+      var key = getKey(module, property);
 
       var setting = settings[key];
       if (!setting || (new Date().getTime() - setting.time) / (60 * 60 * 1000) >= 1) {
@@ -14,7 +18,11 @@ angular.module('os.administrative.setting.util', [])
         settings[key] = setting;
       }
 
-      setting.promise.catch(
+      setting.promise.then(
+        function(value) {
+          setting.value = value;
+        },
+
         function() {
           //
           // rejected promise, remove it from cache so that it can
@@ -27,16 +35,45 @@ angular.module('os.administrative.setting.util', [])
       return setting.promise;
     }
 
-    function clearSetting(module, property) {
-      var key = module + ':' + property;
+    function instant(module, property) {
+      getSetting(module, property);
+      return settings[getKey(module, property)].value;
+    }
+
+    function clearSetting(module, property, newValue) {
+      var key = getKey(module, property);
       if (settings[key]) {
         delete settings[key];
+      }
+
+      if (newValue) {
+        var q = $q.defer();
+        q.resolve(newValue);
+        settings[key] = q.promise;
+      }
+
+      updateAppProps(newValue);
+    }
+
+    function updateAppProps(newValue) {
+      if (!newValue) {
+        return;
+      }
+
+      if (newValue.module == 'common' && newValue.name == 'not_specified_text') {
+        ui.os.appProps.not_specified = newValue.value;
       }
     }
 
     return {
       getSetting: getSetting,
 
-      clearSetting: clearSetting
+      clearSetting: clearSetting,
+
+      instant: instant,
+
+      getNotSpecifiedText: function() {
+       return (ui.os.appProps.not_specified || '').trim();
+      }
     }
   });

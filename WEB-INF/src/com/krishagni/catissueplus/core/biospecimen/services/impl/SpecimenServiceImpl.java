@@ -766,6 +766,7 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 			existing = collectPoolSpecimens(detail, existing);
 			specimen = saveOrUpdate(detail, existing, parent);
 		} else {
+			existing.setUid(detail.getUid());
 			collectPoolSpecimens(detail, existing);
 		}
 
@@ -848,6 +849,8 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 
 		specimen.setBarcodeIfEmpty();
 		incrParentFreezeThawCycles(detail, specimen);
+		specimen.setUid(detail.getUid());
+		specimen.setParentUid(detail.getParentUid());
 
 		daoFactory.getSpecimenDao().saveOrUpdate(specimen);
 		specimen.addOrUpdateCollRecvEvents();

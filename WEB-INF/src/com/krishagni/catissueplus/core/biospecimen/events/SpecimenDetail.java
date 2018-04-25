@@ -83,6 +83,10 @@ public class SpecimenDetail extends SpecimenInfo {
 
 	private boolean autoCollectParents;
 
+	private String uid;
+
+	private String parentUid;
+
 	public CollectionEventDetail getCollectionEvent() {
 		return collectionEvent;
 	}
@@ -292,6 +296,22 @@ public class SpecimenDetail extends SpecimenInfo {
 		this.autoCollectParents = autoCollectParents;
 	}
 
+	public String getUid() {
+		return uid;
+	}
+
+	public void setUid(String uid) {
+		this.uid = uid;
+	}
+
+	public String getParentUid() {
+		return parentUid;
+	}
+
+	public void setParentUid(String parentUid) {
+		this.parentUid = parentUid;
+	}
+
 	public static SpecimenDetail from(Specimen specimen) {
 		return from(specimen, true, true);
 	}
@@ -343,9 +363,14 @@ public class SpecimenDetail extends SpecimenInfo {
 			if (specimen.isPrimary()) {
 				result.setCollectionEvent(CollectionEventDetail.from(specimen.getCollectionEvent()));
 				result.setReceivedEvent(ReceivedEventDetail.from(specimen.getReceivedEvent()));
+			} else {
+				result.setCollectionEvent(CollectionEventDetail.from(specimen.getCollRecvDetails()));
+				result.setReceivedEvent(ReceivedEventDetail.from(specimen.getCollRecvDetails()));
 			}
 		}
-		
+
+		result.setUid(specimen.getUid());
+		result.setParentUid(specimen.getParentUid());
 		return result;
 	}
 	

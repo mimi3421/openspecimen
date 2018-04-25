@@ -35,9 +35,9 @@ angular.module('os.biospecimen.specimen')
           });
           return;
         }
-      } else if (!!spec.qtyPerAliquot) {
+      } else if (spec.specimenClass == parent.specimenClass && spec.type == parent.type && !!spec.qtyPerAliquot) {
         spec.noOfAliquots = Math.floor(parent.availableQty / spec.qtyPerAliquot);
-      } else if (!!spec.noOfAliquots) {
+      } else if (spec.specimenClass == parent.specimenClass && spec.type == parent.type && !!spec.noOfAliquots) {
         spec.qtyPerAliquot = Math.round(parent.availableQty / spec.noOfAliquots * 10000) / 10000;
       }
 

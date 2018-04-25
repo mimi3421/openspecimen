@@ -382,6 +382,7 @@ angular.module('os.biospecimen.participant.specimen-tree',
             visit = new Visit({id: visitId, eventId: eventId, cpId: scope.cp.id});
           }
 
+          visit.cprId = (scope.cpr && scope.cpr.id) || visit.cprId;
           CollectSpecimensSvc.collect(getState(), visit, specimensToCollect);
         };
 

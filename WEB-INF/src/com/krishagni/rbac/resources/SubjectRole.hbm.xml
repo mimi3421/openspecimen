@@ -12,31 +12,14 @@
       </generator>
     </id>
 
-    <many-to-one
-      name="subject"
-      class="com.krishagni.rbac.domain.Subject"
-      cascade="none"
-      column="SUBJECT_ID"/>
+    <many-to-one name="subject" column="SUBJECT_ID" cascade="none"/>
           
-    <many-to-one
-      name="role"
-      class="com.krishagni.rbac.domain.Role"
-      cascade="none"
-      column="ROLE_ID"/>
+    <many-to-one name="role" column="ROLE_ID" cascade="none"/>
     
-    <many-to-one
-      name="site"
-      class="com.krishagni.catissueplus.core.administrative.domain.Site"
-      cascade="none"
-      column="SITE_ID"/>
+    <many-to-one name="site" column="SITE_ID" cascade="none"/>
       
-    <many-to-one
-      name="collectionProtocol"
-      class="com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol"
-      cascade="none"
-      column="CP_ID"/>
+    <many-to-one name="collectionProtocol" column="CP_ID" cascade="none"/>
       
     <property name="systemRole" column="SYSTEM_ROLE"/>
-        
   </class> 
 </hibernate-mapping>

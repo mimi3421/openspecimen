@@ -1,5 +1,5 @@
 <div>
-  <div class="input-group" ng-if="!!ctx.link">
+  <div class="input-group os-no-label-form" ng-if="!!ctx.link">
     <input type="text" class="form-control" ng-model="ctx.query" ui-keyup="{'enter': 'search(ctx.query)'}"
       placeholder="{{'common.search_user_manual' | translate}}">
     <a class="input-group-addon" ng-click="search(ctx.query)">

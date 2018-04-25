@@ -9,18 +9,24 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
+import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Property;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.criterion.Subqueries;
+import org.hibernate.sql.JoinType;
 
 import com.krishagni.catissueplus.core.administrative.domain.ForgotPasswordToken;
 import com.krishagni.catissueplus.core.administrative.domain.Password;
+import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.administrative.repository.UserDao;
 import com.krishagni.catissueplus.core.administrative.repository.UserListCriteria;
+import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.repository.AbstractDao;
 import com.krishagni.catissueplus.core.common.util.Utility;
@@ -208,16 +214,18 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 	}
 
 	private Criteria getUsersListQuery(UserListCriteria crit) {
-		Criteria criteria = sessionFactory.getCurrentSession()
-			.createCriteria(User.class, "u")
-			.add( // not system user
-				Restrictions.not(Restrictions.conjunction()
-					.add(Restrictions.in("u.loginName", excludeUsersList()))
-					.add(Restrictions.eq("u.authDomain.name", User.DEFAULT_AUTH_DOMAIN))
-				)
-			);
+		Criteria criteria = getCurrentSession().createCriteria(User.class, "u");
 
-		return addSearchConditions(criteria, crit);
+		if (hasRoleRestrictions(crit) || hasResourceRestrictions(crit)) {
+			DetachedCriteria subQuery = DetachedCriteria.forClass(User.class, "u")
+				.setProjection(Projections.distinct(Projections.property("u.id")));
+			addSearchConditions(subQuery.getExecutableCriteria(getCurrentSession()), crit);
+			criteria.add(Subqueries.propertyIn("u.id", subQuery));
+		} else {
+			addSearchConditions(criteria, crit);
+		}
+
+		return criteria;
 	}
 
 	private String[] excludeUsersList() {
@@ -245,8 +253,9 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 	}
 	
 	private Criteria addSearchConditions(Criteria criteria, UserListCriteria listCrit) {
+		addNonSystemUserRestriction(criteria);
+
 		String searchString = listCrit.query();
-		
 		if (StringUtils.isBlank(searchString)) {
 			addNameRestriction(criteria, listCrit.name());
 			addLoginNameRestriction(criteria, listCrit.loginName());
@@ -268,7 +277,18 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 		addDomainRestriction(criteria, listCrit.domainName());
 		addTypeRestriction(criteria, listCrit.type());
 		addActiveSinceRestriction(criteria, listCrit.activeSince());
+		addRoleRestrictions(criteria, listCrit);
+		addResourceRestrictions(criteria, listCrit);
 		return criteria;
+	}
+
+	private void addNonSystemUserRestriction(Criteria criteria) {
+		criteria.add( // not system user
+			Restrictions.not(Restrictions.conjunction()
+				.add(Restrictions.in("u.loginName", excludeUsersList()))
+				.add(Restrictions.eq("u.authDomain.name", User.DEFAULT_AUTH_DOMAIN))
+			)
+		);
 	}
 
 	private void addNameRestriction(Criteria criteria, String name) {
@@ -331,6 +351,107 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 		}
 
 		criteria.add(Restrictions.ge("u.creationDate", Utility.chopTime(activeSince)));
+	}
+
+	private void addRoleRestrictions(Criteria criteria, UserListCriteria listCrit) {
+		if (!hasRoleRestrictions(listCrit)) {
+			return;
+		}
+
+		criteria.createAlias("u.roles", "sr");
+
+		if (CollectionUtils.isNotEmpty(listCrit.roleNames())) {
+			criteria.createAlias("sr.role", "role")
+				.add(Restrictions.in("role.name", listCrit.roleNames()));
+		}
+
+		if (StringUtils.isNotBlank(listCrit.siteName())) {
+			addSiteRestriction(criteria, "sr", listCrit.siteName());
+		}
+
+		if (StringUtils.isNotBlank(listCrit.cpShortTitle())) {
+			addCpRestriction(criteria, "sr", listCrit.cpShortTitle());
+		}
+	}
+
+	private void addResourceRestrictions(Criteria criteria, UserListCriteria listCrit) {
+		if (!hasResourceRestrictions(listCrit)) {
+			return;
+		}
+
+		criteria.createAlias("u.acl", "acl")
+			.add(Restrictions.eq("acl.resource", listCrit.resourceName()));
+
+		if (CollectionUtils.isNotEmpty(listCrit.opNames())) {
+			criteria.add(Restrictions.in("acl.operation", listCrit.opNames()));
+		}
+
+		if (StringUtils.isNotBlank(listCrit.siteName())) {
+			addSiteRestriction(criteria, "acl", listCrit.siteName());
+		}
+
+		if (StringUtils.isNotBlank(listCrit.cpShortTitle())) {
+			addCpRestriction(criteria, "acl", listCrit.cpShortTitle());
+		}
+	}
+
+	private void addSiteRestriction(Criteria criteria, String alias, String siteName) {
+		criteria.createAlias(alias + ".site", "rs", JoinType.LEFT_OUTER_JOIN);
+
+		DetachedCriteria userInstituteSite = DetachedCriteria.forClass(Site.class, "uis")
+			.createAlias("uis.institute", "uii")
+			.add(Property.forName("u.institute.id").eqProperty("uii.id"))
+			.add(Restrictions.eq("uis.name", siteName));
+		userInstituteSite.setProjection(Projections.property("uis.id"));
+
+		criteria.add(Restrictions.or(
+			Restrictions.and(
+				Restrictions.isNull("rs.id"),
+				Subqueries.exists(userInstituteSite)
+			),
+			Restrictions.eq("rs.name", siteName)
+		));
+	}
+
+	private void addCpRestriction(Criteria criteria, String alias, String cpShortTitle) {
+		criteria.createAlias(alias + ".collectionProtocol", "rcp", JoinType.LEFT_OUTER_JOIN);
+
+		DetachedCriteria userInstituteCp = DetachedCriteria.forClass(CollectionProtocol.class, "uicp")
+			.createAlias("uicp.sites", "uicps")
+			.createAlias("uicps.site", "uicpss")
+			.createAlias("uicpss.institute", "uicpi")
+			.add(
+				Restrictions.or(
+					Restrictions.and(
+						Property.forName(alias + ".site.id").isNull(),
+						Property.forName("u.institute.id").eqProperty("uicpi.id")
+					),
+					Restrictions.and(
+						Property.forName(alias + ".site.id").isNotNull(),
+						Property.forName(alias + ".site.id").eqProperty("uicpss.id")
+					)
+				)
+			)
+			.add(Restrictions.eq("uicp.shortTitle", cpShortTitle));
+		userInstituteCp.setProjection(Projections.property("uicp.id"));
+
+		criteria.add(Restrictions.or(
+			Restrictions.and(
+				Restrictions.isNull("rcp.id"),
+				Subqueries.exists(userInstituteCp)
+			),
+			Restrictions.eq("rcp.shortTitle", cpShortTitle)
+		));
+	}
+
+	private boolean hasRoleRestrictions(UserListCriteria listCrit) {
+		return CollectionUtils.isNotEmpty(listCrit.roleNames()) ||
+			(StringUtils.isBlank(listCrit.resourceName()) && (StringUtils.isNotBlank(listCrit.cpShortTitle()) ||
+				StringUtils.isNotBlank(listCrit.siteName())));
+	}
+
+	private boolean hasResourceRestrictions(UserListCriteria listCrit) {
+		return CollectionUtils.isEmpty(listCrit.roleNames()) && StringUtils.isNotBlank(listCrit.resourceName());
 	}
 
 	private List<DependentEntityDetail> getDependentEntities(List<Object[]> rows) {

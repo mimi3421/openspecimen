@@ -1,54 +1,8 @@
 <div>
-  <div os-page-header>
-    <div class="os-page-header-content" ng-switch on="!!fieldsCtx.headers.visit.breadcrumb">
-      <os-html-template ng-switch-when="true" template="fieldsCtx.headers.visit.breadcrumb"></os-html-template>
-
-      <ul ng-switch-when="false" os-breadcrumbs>
-        <li>
-          <a ui-sref="cp-list-view({cpId: cpr.cpId})">
-            <span>{{cpr.cpShortTitle}}</span>
-          </a> 
-        </li>
-        <li ng-if="!cp.specimenCentric">
-          <a ui-sref="participant-detail.overview({cprId: cpr.id})">
-            <span>{{cpr.ppid}}</span>
-          </a>
-        </li>
-        <li ng-if="!cp.specimenCentric">
-          <a ui-sref="participant-detail.visits({visitId: visit.id, eventId: visit.eventId})" translate="visits.list">
-            Visits
-          </a>
-        </li>
-      </ul>
-
-      <h3>
-        <span>Specimen Collection</span>
-        <span ng-switch on="!!fieldsCtx.headers.visit.leftTitle">
-          <span ng-switch-when="true">
-            <span>:</span>
-            <os-html-template template="fieldsCtx.headers.visit.leftTitle"></os-html-template>
-          </span>
-          <span ng-switch-default>
-            <span ng-if="!cp.specimenCentric">
-              <span>:</span>
-              <os-event-desc event-point="visit.eventPoint" event-point-unit="visit.eventPointUnit"
-                event-label="visit.eventLabel">
-              </os-event-desc>
-            </span>
-          </span>
-        </span>
-      </h3>
-    </div>
-
-    <div class="os-page-header-actions">
-      <h3 ng-if="!!fieldsCtx.headers.visit.rightTitle">
-        <os-html-template template="fieldsCtx.headers.visit.rightTitle"></os-html-template>
-      </h3>
-    </div>
-  </div>
+  <div ng-include="'modules/biospecimen/participant/collect-specimens-header.html'" os-replace-with-children></div>
 
   <div class="container">
-    <form name="collectionForm" os-form-validator="collectionForm" novalidate ng-if="customFieldGroups.length <= 0">
+    <form name="collectionForm" os-form-validator="collectionForm" novalidate>
       <div ng-include src="'specimen_coll_visit_details.html'" ng-if="showCollVisitDetails"></div>
 
       <table class="os-table os-table-fixed os-table-tree bulk-edit os-border os-table-muted-hdr">
@@ -93,11 +47,8 @@
                   </div>
                 </span>
               </div>
-              <div class="os-col-15 os-no-left-padding">
-                <span translate="specimens.row">Row</span>
-              </div>
-              <div class="os-col-15 os-no-left-padding">
-                <span translate="specimens.column">Column</span>
+              <div class="os-col-30 os-no-left-padding">
+                <span translate="specimens.position">Position</span>
               </div>
             </th>
             <th class="col os-col-10">Status</th>
@@ -240,56 +191,6 @@
             <span translate="common.buttons.submit"> Submit </span>
           </button>
           <button class="btn os-btn-text" ng-click="back()">
-            <span translate="common.buttons.cancel"> Cancel </span>
-          </button>
-        </div>
-      </div>
-    </form>
-
-    <form name="collectionForm" os-form-validator="collectionForm" novalidate ng-if="customFieldGroups.length > 0">
-      <div ng-if="customFieldGroups[0].visitFields">
-        <sde-form-fields name="visit" table="customFieldGroups[0].multiple" opts="customFieldGroups[0].opts"
-          base-fields="customFieldGroups[0].baseFields" fields="customFieldGroups[0].fields"
-          obj="customFieldGroups[0].input">
-        </sde-form-fields>
-      </div>
-      <div ng-repeat="group in customFieldGroups" ng-if="!group.noMatch && !group.visitFields">
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <span>{{group.title}}</span>
-            <a class="btn btn-xs btn-default" ng-click="group.opts.cofrc = !group.opts.cofrc" ng-if="group.opts.enableCofrc">
-              <span ng-if="group.opts.cofrc">
-                <span class="fa fa-plus"></span>
-                <span translate="common.show_all">Show all rows</span>
-                <span>({{group.input.length}})</span>
-              </span>
-              <span ng-if="!group.opts.cofrc">
-                <span class="fa fa-minus"></span>
-                <span translate="common.show_only_first">Show only first row</span>
-              </span>
-            </a>
-            <a class="btn btn-xs btn-default" ng-click="group.opts.$$sdeFormFields.copyFirstToAll()"
-              ng-if="!group.opts.enableCofrc || !group.opts.cofrc">
-              <span class="fa fa-clone"></span>
-              <span translate="specimens.copy_first_to_all">Copy First To All</span>
-            </a>
-          </div>
-          <div class="panel-body os-scrollable-container-x">
-            <sde-form-fields name="samples" table="group.multiple" opts="group.opts"
-              base-fields="group.baseFields" fields="group.fields" obj="group.input">
-            </sde-form-fields>
-          </div>
-        </div>
-      </div>
-
-      <div class="os-divider"></div>
-
-      <div class="row">
-        <div class="col-xs-10">
-          <button type="submit" class="btn btn-primary" ng-click="updateSpecimens()">
-            <span translate="common.buttons.submit"> Submit </span>
-          </button>
-          <button class="btn os-btn-text" ng-click="cancelUpdateSpmns()">
             <span translate="common.buttons.cancel"> Cancel </span>
           </button>
         </div>

@@ -14,11 +14,33 @@
           </span>
         </button>
       </span>
-      <button ng-if="visit.status == 'Complete'" show-if-allowed="specimenResource.updateOpts" class="default"
-        ui-sref="specimen-addedit({cpId: cp.id, visitId: visit.id, cprId: cpr.id})">
-        <span class="fa fa-plus"></span>
-        <span translate="specimens.buttons.add_specimen">Add Specimen</span>
-      </button>
+      <span ng-if="visit.status == 'Complete'" show-if-allowed="specimenResource.updateOpts">
+        <button ng-if="visitCtx.spmnReqs.length == 0" class="default"
+          ui-sref="specimen-addedit({cpId: cp.id, visitId: visit.id, cprId: cpr.id})">
+          <span class="fa fa-plus"></span>
+          <span translate="specimens.buttons.add_specimen">Add Specimen</span>
+        </button>
+        <div class="os-inline-btn" dropdown ng-if="visitCtx.spmnReqs.length > 0">
+          <button class="default dropdown-toggle">
+            <span class="fa fa-plus"></span>
+            <span translate="specimens.buttons.add_specimen">Add Specimen</span>
+          </button>
+          <ul class="dropdown-menu">
+            <li ng-repeat="req in visitCtx.spmnReqs">
+              <a ui-sref="specimen-addedit({cpId: cp.id, visitId: visit.id, cprId: cpr.id, reqName: req.name})">
+                <span>{{req.title}}</span>
+              </a>
+            </li>
+            <li class="divider"></li>
+            <li>
+              <a ui-sref="specimen-addedit({cpId: cp.id, visitId: visit.id, cprId: cpr.id})">
+                <span translate="specimens.other">Other</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </span>
+
       <button ng-if="!!visit.id && allowPrintVisit" show-if-allowed="specimenResource.updateOpts" class="default"
         ng-click="printVisitName()">
         <span class="fa fa-print"></span>

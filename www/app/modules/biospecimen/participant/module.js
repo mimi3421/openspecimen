@@ -582,8 +582,8 @@ angular.module('os.biospecimen.participant',
       })
       .state('participant-detail.collect-specimens', {
         url: '/collect-specimens?visitId&eventId',
-        templateUrl: 'modules/biospecimen/participant/collect-specimens.html',
-        controller: 'CollectSpecimensCtrl',
+        template: '<div ui-view></div>',
+        controller: function() { },
         resolve: {
           visit: function($stateParams, cp, cpr, Visit) {
             if (!!$stateParams.visitId && $stateParams.visitId > 0) {
@@ -612,9 +612,22 @@ angular.module('os.biospecimen.participant',
                 return data || {};
               }
             );
-          },
+          }
         },
+        abstract: true,
         parent: 'participant-root'
+      })
+      .state('participant-detail.collect-specimens.tree', {
+        url: '/tree',
+        templateUrl: 'modules/biospecimen/participant/collect-specimens.html',
+        controller: 'CollectSpecimensCtrl',
+        parent: 'participant-detail.collect-specimens'
+      })
+      .state('participant-detail.collect-specimens.nth-step', {
+        url: '/nth-step',
+        templateUrl: 'modules/biospecimen/participant/collect-specimens-nth-step.html',
+        controller: 'CollectSpecimensNthStepCtrl',
+        parent: 'participant-detail.collect-specimens'
       })
       .state('participant-detail.extensions', {
         url: '/extensions',

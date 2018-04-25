@@ -63,7 +63,7 @@ angular.module('os.biospecimen.specimen',
         parent: 'visit-root'
       })
       .state('specimen-addedit', {
-        url: '/addedit-specimen',
+        url: '/addedit-specimen?reqName',
         templateProvider: function(PluginReg, $q) {
           var defaultTmpl = "modules/biospecimen/participant/specimen/addedit.html";
           return $q.when(PluginReg.getTmpls("specimen-addedit", "page-body", defaultTmpl)).then(
@@ -75,6 +75,20 @@ angular.module('os.biospecimen.specimen',
         resolve: {
           extensionCtxt: function(cp, specimen) {
             return specimen.getExtensionCtxt({cpId: cp.id});
+          },
+
+          defSpmns: function($stateParams, cp, CpConfigSvc) {
+            if (!$stateParams.reqName) {
+              return [];
+            }
+
+            return CpConfigSvc.getCommonCfg(cp.id, 'addSpecimen').then(
+              function(data) {
+                var reqs = (data && data.requirements) || [];
+                var selectedReq =  reqs.find(function(req) { return req.name == $stateParams.reqName; });
+                return (selectedReq && (selectedReq.specimens || [])) || [];
+              }
+            );
           }
         },
         controller: 'AddEditSpecimenCtrl',
