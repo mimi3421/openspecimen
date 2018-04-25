@@ -1,11 +1,24 @@
 
 angular.module('openspecimen')
-  .filter('osNoValue', function($translate) {
-    return function(input, placeholder) {
+  .filter('osNoValue', function($translate, SettingUtil) {
 
-      var result = placeholder || $translate.instant("common.not_specified");
+    function notSpecifiedText(placeholder) {
+      if (!!placeholder) {
+        return placeholder;
+      }
+
+
+      var result = SettingUtil.getNotSpecifiedText();
+      if (result.indexOf('messageKey:') == 0) {
+        result = $translate.instant(result.substring('messageKey:'.length));
+      }
+
+      return result;
+    }
+
+    return function(input, placeholder) {
       if (angular.isUndefined(input) || input === null) {
-        return result;
+        return notSpecifiedText(placeholder);
       }
 
       if (angular.isNumber(input) || angular.isDate(input)) {
@@ -13,7 +26,7 @@ angular.module('openspecimen')
       }
 
       if (angular.isString(input) && input.trim().length == 0) {
-        return result;
+        return notSpecifiedText(placeholder);
       }
 
       return input;

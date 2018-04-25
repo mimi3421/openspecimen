@@ -2462,7 +2462,9 @@
         "toast_disp_time": "Toast Display Time",
         "toast_disp_time_desc": "Duration, in seconds, for which the success or error notification toasts should be displayed.",
         "log_files_retain_period": "Log Files Retain Period",
-        "log_files_retain_period_desc": "Number of days to retain the log files after which they are deleted."
+        "log_files_retain_period_desc": "Number of days to retain the log files after which they are deleted.",
+        "not_specified_text": "Not Specified Text",
+        "not_specified_text_desc": "Text to display for unspecified field values in tables and overview pages."
       },
 
       "email": {

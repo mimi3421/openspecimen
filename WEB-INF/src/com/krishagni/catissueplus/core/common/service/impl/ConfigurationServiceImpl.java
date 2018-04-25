@@ -453,7 +453,7 @@ public class ConfigurationServiceImpl implements ConfigurationService, Initializ
 	
 	@Override
 	public Map<String, Object> getAppProps() {
-		Map<String, Object> props = new HashMap<String, Object>();
+		Map<String, Object> props = new HashMap<>();
 		props.put("plugins",                 PluginManager.getInstance().getPluginNames());
 		props.put("build_version",           appProps.getProperty("buildinfo.version"));
 		props.put("build_date",              appProps.getProperty("buildinfo.date"));
@@ -469,6 +469,7 @@ public class ConfigurationServiceImpl implements ConfigurationService, Initializ
 		props.put("toast_disp_time",         getIntSetting("common", "toast_disp_time", 5));
 		props.put("default_domain",          getStrSetting("auth", "default_domain"));
 		props.put("data_dir",                getDataDir());
+		props.put("not_specified",           getStrSetting("common", "not_specified_text"));
 		return props;
 	}
 

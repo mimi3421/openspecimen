@@ -35,7 +35,7 @@ angular.module('os.administrative.setting.list', ['os.administrative.models'])
           Alerts.success('settings.success_message');
           angular.extend($scope.existingSetting, resp);
           $scope.isEdit = false;
-          SettingUtil.clearSetting(resp.module, resp.name);
+          SettingUtil.clearSetting(resp.module, resp.name, resp);
         }
       );
     }
