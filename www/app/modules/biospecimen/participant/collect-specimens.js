@@ -8,8 +8,6 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
     function getReservePositionsOp(cpId, cprId, allocRules, specimens) {
       var aliquots = {}, result = [];
 
-      angular.forEach(specimens, function(specimen, idx) { specimen.$$uid = idx; });
-
       angular.forEach(specimens,
         function(specimen) {
           if (specimen.storageType == 'Virtual' || (!!specimen.status && specimen.status != 'Pending')) {
@@ -23,8 +21,8 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
           if (specimen.lineage == 'Aliquot') {
             var type = (specimen.specimenClass || 'u') + '-' + (specimen.type || 'u');
             var key = 'u-' + type + '-' + match.index;
-            if (specimen.parent) {
-              key = specimen.parent.$$uid + '-' + type + '-' + match.index;
+            if (specimen.parentUid) {
+              key = specimen.parentUid + '-' + type + '-' + match.index;
             }
 
             selectorCrit = aliquots[key];
