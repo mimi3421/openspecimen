@@ -10,11 +10,21 @@ import com.krishagni.catissueplus.core.biospecimen.domain.StagedVisit;
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class StagedVisitDetail extends VisitDetail {
+	private Long stagedId;
+
 	private Long stagedParticipantId;
 
 	private Date updatedTime;
 
 	private Map<String, Object> additionalInfo;
+
+	public Long getStagedId() {
+		return stagedId;
+	}
+
+	public void setStagedId(Long stagedId) {
+		this.stagedId = stagedId;
+	}
 
 	public Long getStagedParticipantId() {
 		return stagedParticipantId;
@@ -42,6 +52,7 @@ public class StagedVisitDetail extends VisitDetail {
 
 	public static StagedVisitDetail from(StagedVisit visit) {
 		StagedVisitDetail detail = new StagedVisitDetail();
+		detail.setStagedId(visit.getId());
 		detail.setName(visit.getName());
 		detail.setSurgicalPathologyNumber(visit.getSurgicalPathologyNumber());
 		detail.setVisitDate(visit.getVisitDate());

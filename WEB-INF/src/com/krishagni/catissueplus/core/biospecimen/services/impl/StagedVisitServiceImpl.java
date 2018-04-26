@@ -57,7 +57,7 @@ public class StagedVisitServiceImpl implements StagedVisitService {
 			visit = existing;
 		}
 
-		daoFactory.getStagedVisitDao().saveOrUpdate(visit);
+		daoFactory.getStagedVisitDao().saveOrUpdate(visit, true);
 		return visit;
 	}
 
