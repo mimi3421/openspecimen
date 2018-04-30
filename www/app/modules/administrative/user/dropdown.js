@@ -1,6 +1,6 @@
 
 angular.module('os.administrative.user.dropdown', ['os.administrative.models'])
-  .directive('osUsers', function(AuthorizationService, User) {
+  .directive('osUsers', function($filter, AuthorizationService, User) {
     function loadUsers(scope, searchTerm, ctrl, queryParams) {
       var opts = angular.extend({searchString : searchTerm}, scope.filterOpts || {});
       if (queryParams) {
@@ -56,8 +56,17 @@ angular.module('os.administrative.user.dropdown', ['os.administrative.models'])
         var ctrl = this;
 
         if ($attrs.options) {
-          $scope.users = JSON.parse($attrs.options);
+          $scope.users = ctrl.localList = JSON.parse($attrs.options);
           ctrl.listLoaded = true;
+
+          $scope.searchUsers = function(searchTerm) {
+            if (searchTerm) {
+              $scope.users = $filter('filter')(ctrl.localList, searchTerm);
+            } else {
+              $scope.users = ctrl.localList;
+            }
+          }
+
           return;
         }
 
