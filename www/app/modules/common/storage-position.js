@@ -162,6 +162,7 @@ angular.module('openspecimen')
           function(position) {
             var location = angular.extend({}, scope.entity.storageLocation);
             scope.entity.storageLocation = angular.extend(location, position);
+            delete location.reservationId;
           }
         );
       };
