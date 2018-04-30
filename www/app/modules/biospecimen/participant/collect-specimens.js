@@ -1102,7 +1102,7 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
         specimens.forEach(function(spmn) { spmn.status = 'Collected'; });
 
         var groups = $scope.customFieldGroups = SpecimenUtil.sdeGroupSpecimens(
-          cpDict, spmnCollFields.fieldGroups || [], specimens);
+          cpDict, spmnCollFields.fieldGroups || [], specimens, {cpr: cpr, visit: visit});
 
         $scope.visit = visit;
         if (visit) {

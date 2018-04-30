@@ -381,7 +381,7 @@ angular.module('os.biospecimen.specimen')
       });
     }
 
-    function sdeGroupSpecimens(baseFields, groups, specimens) {
+    function sdeGroupSpecimens(baseFields, groups, specimens, ctxtObjs) {
       var result = [];
       var unmatched = [].concat(specimens);
 
@@ -390,7 +390,7 @@ angular.module('os.biospecimen.specimen')
         var group = groups[i];
         var selectedSpmns = [];
         if (!group.criteria) {
-          selectedSpmns = specimens.map(function(spmn) { return {specimen: spmn} });
+          selectedSpmns = specimens.map(sdeGroupInput(ctxtObjs));
           unmatched.length = 0;
         } else {
           var exprs = group.criteria.rules.map(
@@ -408,7 +408,7 @@ angular.module('os.biospecimen.specimen')
           var expr = $parse(exprs.join(group.criteria.op == 'AND' ? ' && ' : ' || '));
           for (var j = specimens.length - 1; j >= 0; j--) {
             if (expr({specimen: specimens[j]})) {
-              selectedSpmns.unshift({specimen: specimens[j]});
+              selectedSpmns.unshift(sdeGroupInput(ctxtObjs)(specimens[j]));
 
               var uidx = unmatched.indexOf(specimens[j]);
               if (uidx > -1) {
@@ -433,12 +433,18 @@ angular.module('os.biospecimen.specimen')
 
       if (unmatched.length > 0) {
         result.push({
-          input: unmatched.map(function(specimen) { return {specimen: specimen}; }),
+          input: unmatched.map(sdeGroupInput(ctxtObjs)),
           noMatch: true
         });
       }
 
       return result;
+    }
+
+    function sdeGroupInput(ctxtObjs) {
+      return function(specimen) {
+        return angular.extend({specimen: specimen}, ctxtObjs);
+      };
     }
 
     return {
