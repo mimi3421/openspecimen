@@ -2,7 +2,7 @@
 angular.module('os.biospecimen.participant')
   .factory('ParticipantSpecimensViewState', function(
     $q, $document, $location, $timeout, $anchorScroll,
-    CpConfigSvc, Specimen) {
+    CpConfigSvc, Specimen, ExtensionsUtil) {
 
     var State = function(cp, cpr, pendingSpmnsDispInterval) {
       this.cp = cp;
@@ -81,6 +81,11 @@ angular.module('os.biospecimen.participant')
     function prepareSpecimens(state, specimens) {
       state.specimens = Specimen.flatten(specimens);
       openSpecimenTree(state.specimens, state.openedNodesMap);
+      angular.forEach(state.specimens,
+        function(spmn) {
+          ExtensionsUtil.createExtensionFieldMap(spmn);
+        }
+      );
 
       if (state.pendingSpmnsDispInterval > 0) {
         state.onlyOldPendingSpmns = hidePendingSpmns(state.specimens, state.pendingSpmnsDispInterval);
