@@ -2,14 +2,14 @@
 angular.module('os.biospecimen.specimen.addedit', [])
   .controller('AddEditSpecimenCtrl', function(
     $scope, $state, $parse, cp, cpr, visit, specimen, extensionCtxt, aliquotQtyReq,
-    barcodingEnabled, spmnBarcodesAutoGen, hasDict, sysDict, cpDict, layout, defSpmns,
+    barcodingEnabled, spmnBarcodesAutoGen, hasDict, sysDict, cpDict, layout, spmnReq, defSpmns,
     Alerts, CpConfigSvc, Util, ParticipantSpecimensViewState, Specimen, CollectSpecimensSvc) {
 
     var inputCtxts;
 
     function init() {
       $scope.opts = {
-        cp: cp, cpr: cpr, visit: visit,
+        cp: cp, cpr: cpr, visit: visit, spmnReq: spmnReq,
         extensionCtxt: extensionCtxt, hasDict: hasDict,
         sysDict: sysDict, cpDict: cpDict,
         barcodingEnabled: barcodingEnabled, spmnBarcodesAutoGen: spmnBarcodesAutoGen,

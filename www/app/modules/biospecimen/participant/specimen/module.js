@@ -77,18 +77,21 @@ angular.module('os.biospecimen.specimen',
             return specimen.getExtensionCtxt({cpId: cp.id});
           },
 
-          defSpmns: function($stateParams, cp, CpConfigSvc) {
+          spmnReq: function($stateParams, cp, CpConfigSvc) {
             if (!$stateParams.reqName) {
-              return [];
+              return undefined;
             }
 
             return CpConfigSvc.getCommonCfg(cp.id, 'addSpecimen').then(
               function(data) {
                 var reqs = (data && data.requirements) || [];
-                var selectedReq =  reqs.find(function(req) { return req.name == $stateParams.reqName; });
-                return (selectedReq && (selectedReq.specimens || [])) || [];
+                return reqs.find(function(req) { return req.name == $stateParams.reqName; });
               }
             );
+          },
+
+          defSpmns: function(spmnReq) {
+            return (spmnReq && (spmnReq.specimens || [])) || [];
           }
         },
         controller: 'AddEditSpecimenCtrl',
