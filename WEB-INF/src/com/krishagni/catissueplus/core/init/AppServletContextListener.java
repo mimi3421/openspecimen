@@ -2,7 +2,6 @@ package com.krishagni.catissueplus.core.init;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -30,8 +29,6 @@ public class AppServletContextListener implements ServletContextListener {
 
 	private static final Logger logger = Logger.getLogger(AppServletContextListener.class);
 
-	private static final String APP_PROPS       = "application.properties";
-
 	private static final String DATA_DIR_PROP   = "app.data_dir";
 
 	private static final String LOG_CONF_PROP   = "app.log_conf";
@@ -40,23 +37,12 @@ public class AppServletContextListener implements ServletContextListener {
 
 	private static final String PLUGIN_DIR_PROP = "plugin.dir";
 
-	private static final String VERSION_PROP    = "buildinfo.version";
-
-	private static final String BUILD_DATE_PROP = "buildinfo.date";
-
-	private static final String REVISION_PROP   = "buildinfo.commit_revision";
-
 	@Override
 	public void contextInitialized(ServletContextEvent sce) {
-		InputStream in = null;
-		
 		try {
-			in = this.getClass().getClassLoader().getResourceAsStream(APP_PROPS);
-			
-			Properties props = new Properties();
-			props.load(in);
+			Properties props = AppProperties.getInstance(getContextName(sce)).getProperties();
 
-			String msg = getWelcomeMessage(props);
+			String msg = getWelcomeMessage();
 			writeToConsole(msg);
 
 			initLogging(props);
@@ -70,8 +56,6 @@ public class AppServletContextListener implements ServletContextListener {
 		} catch (Exception e) {
 			logger.error("Error initializing app", e);
 			throw new RuntimeException("Error initializing app", e);
-		} finally {
-			IOUtils.closeQuietly(in);
 		}
 	}
 
@@ -79,6 +63,16 @@ public class AppServletContextListener implements ServletContextListener {
 	public void contextDestroyed(ServletContextEvent sce) {
 		// TODO Auto-generated method stub
 
+	}
+
+	private String getContextName(ServletContextEvent sce) {
+		try {
+			String[] dirs = sce.getServletContext().getResource("/").toString().split("/");
+			return dirs[dirs.length - 1];
+		} catch (Exception e) {
+			logger.error("Error obtaining webapp context name", e);
+			throw new RuntimeException(e);
+		}
 	}
 
 	private void initLogging(Properties props)
@@ -147,13 +141,15 @@ public class AppServletContextListener implements ServletContextListener {
 		logger.info(msg);
 	}
 
-	private String getWelcomeMessage(Properties props) {
+	private String getWelcomeMessage() {
+		AppProperties appProps = AppProperties.getInstance();
+
 		return
 			"\n ***************************************************" +
 			"\n OpenSpecimen, a Krishagni Product" +
-			"\n Build Version : " + props.getProperty(VERSION_PROP) +
-			"\n Build Date    : " + new Date(Long.parseLong(props.getProperty(BUILD_DATE_PROP))) +
-			"\n Commit        : " + props.getProperty(REVISION_PROP) +
+			"\n Build Version : " + appProps.getBuildVersion() +
+			"\n Build Date    : " + new Date(Long.parseLong(appProps.getBuildDate())) +
+			"\n Commit        : " + appProps.getBuildRevision() +
 			"\n Present Time  : " + Calendar.getInstance().getTime() +
 			"\n ***************************************************";
 	}
