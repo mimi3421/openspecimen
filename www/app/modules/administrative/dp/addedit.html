@@ -43,9 +43,9 @@
       <div class="form-group">
         <label class="control-label col-xs-3" translate="dp.receiving_institute">Receiving Institute</label>
         <div class="col-xs-6">
-          <os-select name="institute" ng-model="distributionProtocol.instituteName"
-            list="institutes" select-prop="name" display-prop="name" on-select="onInstituteSelect()"
-            placeholder="{{'dp.receiving_institute' | translate}}" required></os-select>
+          <os-institutes name="institute" ng-model="distributionProtocol.instituteName"
+            on-select="onInstituteSelect(institute)" placeholder="{{'dp.receiving_institute' | translate}}"
+            required></os-institutes>
           <div os-field-error field="dpForm.institute"></div>
         </div>
       </div>
@@ -135,10 +135,10 @@
         <div class="form-group clearfix" ng-repeat="site in distributionProtocol.distributingSites">
           <ng-form name="dpSitesForm" os-form-validator="dpSitesForm" parent-validator="dpFormValidator">
             <div class="col-xs-3 col-xs-offset-3">
-              <os-select name="distInstituteName" ng-model="site.instituteName"
+              <os-institutes name="distInstituteName" ng-model="site.instituteName"
                 placeholder="{{'dp.institute' | translate}}" required
-                list="instituteNames" on-select="onDistInstSelect($index)">
-              </os-select>
+                on-select="onDistInstSelect($index, institute)">
+              </os-institutes>
               <div os-field-error field="dpSitesForm.distInstituteName"></div>
             </div>
           

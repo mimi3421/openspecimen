@@ -1025,6 +1025,7 @@
     "distribute": "Distribute",
     "distribute_all": "Distribute All",
     "cancel_reservation": "Cancel Reservation",
+    "dist_inst_pre_selected": "Distributing institute {{institute}} already selected in row {{rowNo}}",
 
     "bulk_import": "Import Distribution Protocols",
     "req_bulk_import": "Import Requirements",
