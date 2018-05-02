@@ -1,8 +1,12 @@
 package com.krishagni.catissueplus.core.init;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Properties;
+
+import javax.naming.NameNotFoundException;
+import javax.naming.NamingException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -40,13 +44,20 @@ public class AppProperties implements FactoryBean<Properties> {
 
 	private static final String ORA_DIALECT     = "org.hibernate.dialect.Oracle10gDialect";
 
+	private static final String DEF_CFG_LOC     = "%s" + File.separator + "conf" + File.separator + "%s.properties";
+
 	private static AppProperties instance;
 
+	private String tomcatDir;
+
+	private String contextName;
 
 	private Properties props;
 
-	private AppProperties(String contextName) {
-		this.props = getProperties(contextName);
+	private AppProperties(String tomcatDir, String contextName) {
+		this.tomcatDir = tomcatDir;
+		this.contextName = contextName;
+		this.props = loadProperties();
 	}
 
 	public Properties getProperties() {
@@ -84,18 +95,18 @@ public class AppProperties implements FactoryBean<Properties> {
 		return instance;
 	}
 
-	public static AppProperties getInstance(String contextName) {
+	public static AppProperties getInstance(String tomcatDir, String contextName) {
 		if (instance != null) {
 			return instance;
 		}
 
-		instance = new AppProperties(contextName);
+		instance = new AppProperties(tomcatDir, contextName);
 		return instance;
 	}
 
-	private Properties getProperties(String contextName) {
+	private Properties loadProperties() {
 		Properties properties = loadBuildProperties();
-		properties.putAll(loadExternalConfig(contextName));
+		properties.putAll(loadExternalConfig());
 
 		String ds = properties.getProperty(DS_JNDI_PROP);
 		if (StringUtils.isBlank(ds)) {
@@ -146,11 +157,13 @@ public class AppProperties implements FactoryBean<Properties> {
 		}
 	}
 
-	private Properties loadExternalConfig(String contextName) {
+	private Properties loadExternalConfig() {
 		InputStream in = null;
 
 		try {
-			String externalConfigPath = new JndiTemplate().lookup(JNDI_CFG_PREFIX + contextName, String.class);
+			String externalConfigPath = getExternalConfigPath();
+			logger.info("Loading app configuration properties from " + externalConfigPath);
+
 			in = new FileInputStream(externalConfigPath);
 
 			Properties props = new Properties();
@@ -167,5 +180,19 @@ public class AppProperties implements FactoryBean<Properties> {
 		} finally {
 			IOUtils.closeQuietly(in);
 		}
+	}
+
+	private String getExternalConfigPath() {
+		String externalConfigPath = null;
+		try {
+			externalConfigPath = new JndiTemplate().lookup(JNDI_CFG_PREFIX + contextName, String.class);
+		} catch (NameNotFoundException nfe) {
+			externalConfigPath = String.format(DEF_CFG_LOC, tomcatDir, contextName);
+		} catch (NamingException e) {
+			e.printStackTrace();
+			throw new RuntimeException("Error doing config property resource lookup", e);
+		}
+
+		return externalConfigPath;
 	}
 }

@@ -40,7 +40,10 @@ public class AppServletContextListener implements ServletContextListener {
 	@Override
 	public void contextInitialized(ServletContextEvent sce) {
 		try {
-			Properties props = AppProperties.getInstance(getContextName(sce)).getProperties();
+			String rootDir = sce.getServletContext().getResource("/").getPath();
+			String tomcatDir = new File(rootDir).getParentFile().getParentFile().getPath();
+
+			Properties props = AppProperties.getInstance(tomcatDir, getContextName(rootDir)).getProperties();
 
 			String msg = getWelcomeMessage();
 			writeToConsole(msg);
@@ -65,9 +68,9 @@ public class AppServletContextListener implements ServletContextListener {
 
 	}
 
-	private String getContextName(ServletContextEvent sce) {
+	private String getContextName(String rootDir) {
 		try {
-			String[] dirs = sce.getServletContext().getResource("/").toString().split("/");
+			String[] dirs = rootDir.split(File.separator);
 			return dirs[dirs.length - 1];
 		} catch (Exception e) {
 			logger.error("Error obtaining webapp context name", e);
