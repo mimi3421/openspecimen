@@ -56,7 +56,7 @@ public class RestErrorController extends ResponseEntityExceptionHandler {
 			}
 		} else {
 			logger.error("Error handling request", exception);
-			errorMsgs.add(getMessage(INTERNAL_ERROR, null));
+			errorMsgs.add(getMessage(INTERNAL_ERROR, new Object[] { exception.getMessage() }));
 		}
 
 		HttpHeaders headers = new HttpHeaders();

@@ -34,15 +34,19 @@ angular.module('openspecimen')
         this.fail = function(resp) {
           var xhr = resp.xhr('responseText');
           var status = Math.floor(xhr.status / 100);
-          if (status == 4) {
-            var responses = eval(xhr.response);
-            var errMsgs = [];
-            angular.forEach(responses, function(err) {
-              errMsgs.push(err.message + "(" + err.code + ")");
-            });
+
+          var responses = eval(xhr.response);
+          var errMsgs = [];
+          angular.forEach(responses, function(err) {
+            errMsgs.push(err.message + "(" + err.code + ")");
+          });
+
+          if (errMsgs.length > 0) {
             Alerts.errorText(errMsgs);
+          } else if (status == 4) {
+            Alerts.error('common.ui_error');
           } else if (status == 5) {
-            Alerts.error("common.server_error");
+            Alerts.error('common.server_error');
           }
 
           this.q.reject(resp);
