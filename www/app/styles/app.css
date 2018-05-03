@@ -693,6 +693,8 @@ h4.os-sub-section-title, h5.os-sub-section-title, h6.os-sub-section-title {
 .os-section pre {
   background: transparent;
   border: none;
+  font: inherit;
+  font-size: inherit;
 }
 
 .os-line-section .os-btn-section-collapse {
