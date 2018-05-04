@@ -92,5 +92,6 @@
   <include file="db/5.0/config.xml"/>
   <include file="db/5.0/audit.xml"/>
 
+  <include file="db/5.1/schema.xml"/>
   <include file="db/5.1/config.xml"/>
 </databaseChangeLog>

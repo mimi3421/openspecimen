@@ -4,8 +4,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -29,7 +32,6 @@ import com.krishagni.catissueplus.core.common.util.ConfigUtil;
 import com.krishagni.catissueplus.core.importer.domain.ImportJob;
 import com.krishagni.catissueplus.core.importer.events.ImportDetail;
 import com.krishagni.catissueplus.core.importer.events.ImportJobDetail;
-import com.krishagni.catissueplus.core.importer.services.ImportListener;
 
 @Configurable
 public class ImportRecordsTask implements ScheduledTask {
@@ -49,10 +51,7 @@ public class ImportRecordsTask implements ScheduledTask {
 	@Autowired
 	private DaoFactory daoFactory;
 
-	private TreeMap<Date, File> fileMap = new TreeMap<Date, File>();
-
 	@Override
-	@PlusTransactional
 	public void doJob(ScheduledJobRun jobRun) throws Exception {
 		logger.info("Woken up to bulk import records");
 		if (!getScheduledImportDir().exists()) {
@@ -60,17 +59,21 @@ public class ImportRecordsTask implements ScheduledTask {
 			return;
 		}
 
-		initImportFilesList();
+		List<File> filesToImport = getImportFilesList();
 		setCurrentUser();
-		importFiles();
+		importFiles(filesToImport);
 	}
 
-	private void initImportFilesList() {
+	private List<File> getImportFilesList() {
 		logger.info("Initialising list of files to bulk import");
 
 		SimpleDateFormat sdf = new SimpleDateFormat(TSTAMP_FMT);
-
 		File[] files = getScheduledImportDir().listFiles();
+		if (files == null) {
+			return Collections.emptyList();
+		}
+
+		TreeMap<Date, File> filesMap = new TreeMap<>();
 		for (File file : files) {
 			//
 			// File name format should be
@@ -90,33 +93,31 @@ public class ImportRecordsTask implements ScheduledTask {
 				continue;
 			}
 
+			String timestampStr = tokens.length == 5 ? tokens[4] : tokens[2];
 			Date timestamp = null;
 			try {
-				timestamp = sdf.parse(tokens.length == 5 ? tokens[4] : tokens[2]);
+				timestamp = sdf.parse(timestampStr);
 			} catch (ParseException e) {
-				logger.error("Appended timestamp in filename is not in correct format: " + timestamp, e);
+				logger.error("Appended timestamp in filename is not in correct format: " + timestampStr, e);
 				moveFileToUnprocessedDir(file);
 				continue;
 			}
 
-			fileMap.put(timestamp, file);
+			filesMap.put(timestamp, file);
 		}
 
-		logger.info(String.format("Found %d files to import", fileMap.size()));
+		logger.info(String.format("Found %d files to import", filesMap.size()));
+		return new ArrayList<>(filesMap.values());
 	}
 
+	@PlusTransactional
 	private void setCurrentUser() {
 		User user = daoFactory.getUserDao().getSystemUser();
 		AuthUtil.setCurrentUser(user);
 	}
 
-	private void importFiles() {
-		if (fileMap.isEmpty()) {
-			return;
-		}
-
-		importFile(fileMap.firstEntry().getValue());
-		fileMap.remove(fileMap.firstKey());
+	private void importFiles(List<File> files) {
+		files.forEach(this::importFile);
 	}
 
 	private void importFile(File file) {
@@ -132,7 +133,8 @@ public class ImportRecordsTask implements ScheduledTask {
 			ResponseEvent<ImportJobDetail> resp = importService.importObjects(new RequestEvent<>(detail));
 			resp.throwErrorIfUnsuccessful();
 			processed = true;
-			logger.info(String.format("Import job %d created to import records from file: %d", resp.getPayload().getId(), file.getName()));
+
+			logger.info(String.format("Import job %d created to import records from file: %s", resp.getPayload().getId(), file.getName()));
 		} catch (Exception e) {
 			logger.error("Error importing records from file: " + file.getName(), e);
 		} finally {
@@ -174,20 +176,6 @@ public class ImportRecordsTask implements ScheduledTask {
 			csvType = ImportJob.CsvType.MULTIPLE_ROWS_PER_OBJ;
 		}
 		detail.setCsvType(csvType.toString());
-
-		detail.setListener(new ImportListener() {
-			@Override
-			public void success() {
-				logger.info("Finished importing records from file: " + filename);
-				importFiles();
-			}
-
-			@Override
-			public void fail(Throwable t) {
-				logger.error("Failed to import all records from file: " + filename, t);
-				importFiles();
-			}
-		});
 
 		return detail;
 	}

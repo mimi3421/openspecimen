@@ -1107,11 +1107,9 @@
   <bean id="importObjectsSvc" class="com.krishagni.catissueplus.core.importer.services.impl.ImportServiceImpl">
     <property name="cfgSvc" ref="cfgSvc"/>
     <property name="importJobDao" ref="importJobDao"/>
-    <property name="taskExecutor" ref="taskExecutor"/>
     <property name="schemaFactory" ref="objectSchemaFactory"/>
     <property name="importerFactory" ref="objectImporterFactory"/>
     <property name="transactionManager" ref="transactionManager"/>
-    <property name="sessionFactory" ref="sessionFactory"/>
   </bean>
   
   <bean id="importDefaultQueries" class="com.krishagni.catissueplus.core.init.ImportDefaultQueries">

@@ -8,20 +8,21 @@ import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.biospecimen.domain.BaseEntity;
 
 public class ImportJob extends BaseEntity {
-	public static enum Status {
+	public enum Status {
 		COMPLETED,
 		FAILED,
+		QUEUED,
 		IN_PROGRESS,
 		STOPPED,
 		TXN_SIZE_EXCEEDED
 	}
 	
-	public static enum Type {
+	public enum Type {
 		CREATE,
 		UPDATE
 	}
 	
-	public static enum CsvType {
+	public enum CsvType {
 		SINGLE_ROW_PER_OBJ,
 		MULTIPLE_ROWS_PER_OBJ
 	}
@@ -47,6 +48,8 @@ public class ImportJob extends BaseEntity {
 	private Date creationTime;
 	
 	private Date endTime;
+
+	private Boolean atomic;
 
 	private transient volatile  boolean stopRunning;
 	
@@ -140,6 +143,14 @@ public class ImportJob extends BaseEntity {
 		this.endTime = endTime;
 	}
 
+	public Boolean getAtomic() {
+		return atomic;
+	}
+
+	public void setAtomic(Boolean atomic) {
+		this.atomic = atomic;
+	}
+
 	public Map<String, String> getParams() {
 		return params;
 	}
@@ -154,6 +165,13 @@ public class ImportJob extends BaseEntity {
 
 	public void stop() {
 		this.stopRunning = true;
+		if (isQueued()) {
+			status = Status.STOPPED;
+		}
+	}
+
+	public boolean isQueued() {
+		return getStatus() == Status.QUEUED;
 	}
 
 	public boolean isInProgress() {

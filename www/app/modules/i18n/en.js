@@ -1795,6 +1795,7 @@
     "status_FAILED": "Failed",
     "status_IN_PROGRESS": "In Progress",
     "status_STOPPED": "Stopped",
+    "status_QUEUED": "Queued",
 
     "job_id": "Job ID",
     "submitted_by": "Submitted By",

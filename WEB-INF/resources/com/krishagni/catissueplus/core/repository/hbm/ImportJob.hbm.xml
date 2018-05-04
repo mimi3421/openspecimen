@@ -38,11 +38,13 @@
 
     <property name="failedRecords" column="FAILED_RECORDS"/>
 
-    <many-to-one name="createdBy" column="CREATED_BY"/>
+    <many-to-one name="createdBy" column="CREATED_BY" fetch="join"/>
 
     <property name="creationTime" column="CREATION_TIME"/>
 
     <property name="endTime" column="END_TIME"/>
+
+    <property name="atomic" column="ATOMIC"/>
 
     <map name="params" table="OS_BULK_IMPORT_JOB_PARAMS" lazy="false" batch-size="26">
       <key column="JOB_ID"/>

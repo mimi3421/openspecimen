@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+  http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+  <changeSet author="vpawar" id="Column specifying whether the entire import job was run in a single transaction">
+    <addColumn tableName="OS_BULK_IMPORT_JOBS">
+      <column name="ATOMIC" type="${boolean.type}"/>
+    </addColumn>
+  </changeSet>
+</databaseChangeLog>

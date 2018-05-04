@@ -11,6 +11,8 @@ public class ListImportJobsCriteria extends AbstractListCriteria<ListImportJobsC
 	
 	private Long instituteId;
 
+	private String status;
+
 	private List<String> objectTypes;
 
 	private Map<String, String> params;
@@ -37,7 +39,16 @@ public class ListImportJobsCriteria extends AbstractListCriteria<ListImportJobsC
 		this.instituteId = instituteId;
 		return self();
 	}
-	
+
+	public String status() {
+		return status;
+	}
+
+	public ListImportJobsCriteria status(String status) {
+		this.status = status;
+		return self();
+	}
+
 	public List<String> objectTypes() {
 		return objectTypes;
 	}
