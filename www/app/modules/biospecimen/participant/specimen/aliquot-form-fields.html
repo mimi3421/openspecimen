@@ -2,7 +2,8 @@
   <div class="form-group">
     <label class="col-xs-3 control-label" translate="specimens.specimen_type">Specimen Type</label>
     <div class="col-xs-6">
-      <os-specimen-types name="type" specimen="aliquotSpec" required placeholder="{{'specimens.type' | translate}}">
+      <os-specimen-types name="type" specimen="aliquotSpec" required placeholder="{{'specimens.type' | translate}}"
+        on-select="onChange('type')">
       </os-specimen-types>
       <div os-field-error field="aliquotForm.type"></div>
     </div>
@@ -15,7 +16,7 @@
         class="form-control" type="text" placeholder="{{'specimens.aliquot_cnt' | translate}}"
         ng-required="parentSpecimen.type != aliquotSpec.type || !aliquotSpec.qtyPerAliquot || 
         !parentSpecimen.availableQty || aliquotSpec.qtyPerAliquot > parentSpecimen.availableQty"
-        ng-pattern="/^[1-9][0-9]*$/">
+        ng-pattern="/^[1-9][0-9]*$/" ng-change="onChange('noOfAliquots')">
       <div os-field-error field="aliquotForm.noOfAliquots"></div>
     </div>
   </div>
@@ -26,7 +27,8 @@
       <os-spmn-measure name="qtyPerAliquot" specimen="aliquotSpec" quantity="aliquotSpec.qtyPerAliquot"
         placeholder="{{'specimens.qty_per_aliquot' | translate}}" 
         ng-required="aliquotQtyReq && (parentSpecimen.type != aliquotSpec.type ||
-          !aliquotSpec.noOfAliquots || !parentSpecimen.availableQty)">
+          !aliquotSpec.noOfAliquots || !parentSpecimen.availableQty)"
+        on-change="onChange('qtyPerAliquot')">
       </os-spmn-measure>
       <div os-field-error field="aliquotForm.qtyPerAliquot"></div>
     </div>
@@ -34,7 +36,7 @@
 
   <div ng-if="fieldsCtx.hasDict">
     <sde-form-fields base-fields="fieldsCtx.sysDict" fields="fieldsCtx.cpDict"
-      obj="spmnCtx.aobj" in-objs="spmnCtx.ainObjs" ex-objs="spmnCtx.aexObjs">
+      obj="spmnCtx.aobj" in-objs="spmnCtx.ainObjs" ex-objs="spmnCtx.aexObjs" opts="spmnCtx.aopts">
     </sde-form-fields>
   </div>
 

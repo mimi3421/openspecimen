@@ -3,8 +3,8 @@ angular.module('os.biospecimen.participant.addedit', ['os.biospecimen.models', '
   .controller('ParticipantAddEditCtrl', function(
     $scope, $state, $stateParams, $translate, $modal, $q,
     cp, cpr, extensionCtxt, hasDict, cpDict, twoStepReg, layout,
-    mrnAccessRestriction, addPatientOnLookupFail, lookupFieldsCfg,
-    lockedFields, firstCpEvent,
+    onValueChangeCb, mrnAccessRestriction, addPatientOnLookupFail,
+    lookupFieldsCfg, lockedFields, firstCpEvent,
     CpConfigSvc, CollectionProtocolRegistration, Participant,
     Visit, CollectSpecimensSvc, Site, PvManager, ExtensionsUtil, Alerts) {
 
@@ -21,7 +21,13 @@ angular.module('os.biospecimen.participant.addedit', ['os.biospecimen.models', '
       $scope.partCtx = {
         cpSites: cp.cpSites.map(function(cpSite) { return cpSite.siteName; }),
         firstCpEvent: firstCpEvent,
-        fieldOpts: {lockedFields: lockedFields, layout: layout, mdInput: false},
+        fieldOpts: {
+          viewCtx: $scope,
+          lockedFields: lockedFields,
+          layout: layout,
+          onValueChange: onValueChangeCb,
+          mdInput: false
+        },
         twoStep: lookupFieldsCfg.configured,
         edit: !!cpr.id,
         obj: {cpr: $scope.cpr, cp: cp},

@@ -1,8 +1,9 @@
 
 angular.module('os.biospecimen.specimen.addedit', [])
   .controller('AddEditSpecimenCtrl', function(
-    $scope, $state, $parse, cp, cpr, visit, specimen, extensionCtxt, aliquotQtyReq,
-    barcodingEnabled, spmnBarcodesAutoGen, hasDict, sysDict, cpDict, layout, spmnReq, defSpmns,
+    $scope, $state, $parse, cp, cpr, visit, specimen,
+    extensionCtxt, aliquotQtyReq, barcodingEnabled, spmnBarcodesAutoGen,
+    hasDict, sysDict, cpDict, layout, onValueChangeCb, spmnReq, defSpmns,
     Alerts, CpConfigSvc, Util, ParticipantSpecimensViewState, Specimen, CollectSpecimensSvc) {
 
     var inputCtxts;
@@ -14,7 +15,7 @@ angular.module('os.biospecimen.specimen.addedit', [])
         sysDict: sysDict, cpDict: cpDict,
         barcodingEnabled: barcodingEnabled, spmnBarcodesAutoGen: spmnBarcodesAutoGen,
         editMode: !!specimen.id, reqId: specimen.reqId, aliquotQtyReq: aliquotQtyReq,
-        layout: layout, mdInput: false
+        layout: layout, onValueChange: onValueChangeCb, mdInput: false
       }
 
       CpConfigSvc.getCommonCfg(cp.id, 'addSpecimen').then(
@@ -345,6 +346,7 @@ angular.module('os.biospecimen.specimen.addedit', [])
         var spmnCtx = scope.spmnCtx = {
           currentDate: new Date(),
           obj: {specimen: inputSpmn, cpr: opts.cpr, visit: opts.visit, cp: opts.cp},
+          opts: angular.extend({viewCtx: scope}, opts),
           inObjs: ['specimen'], exObjs: exObjs,
           isVirtual: inputSpmn.showVirtual(),
           manualSpecLabelReq: !!inputSpmn.label || !inputSpmn.labelFmt || opts.cp.manualSpecLabelEnabled,

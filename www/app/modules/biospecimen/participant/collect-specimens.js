@@ -1091,7 +1091,7 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
     })
 
   .controller('CollectSpecimensNthStepCtrl', function(
-      $scope, $state, $injector, cp, cpr, visit, cpDict, spmnCollFields, latestVisit,
+      $scope, $state, $injector, cp, cpr, visit, cpDict, spmnCollFields, latestVisit, onValueChangeCb,
       CollectSpecimensSvc, ExtensionsUtil, SpecimenUtil) {
 
       var isVisitCompleted;
@@ -1101,8 +1101,9 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
         CollectSpecimensSvc.cleanupSpecimens(specimens);
         specimens.forEach(function(spmn) { spmn.status = 'Collected'; });
 
+        var opts = $scope.opts = {viewCtx: $scope, onValueChange: onValueChangeCb};
         var groups = $scope.customFieldGroups = SpecimenUtil.sdeGroupSpecimens(
-          cpDict, spmnCollFields.fieldGroups || [], specimens, {cpr: cpr, visit: visit});
+          cpDict, spmnCollFields.fieldGroups || [], specimens, {cpr: cpr, visit: visit}, opts);
 
         $scope.visit = visit;
         if (visit) {
@@ -1224,6 +1225,10 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
         }
 
         sdeSampleSvc.collectVisitSpecimens(samples).then(function(resp) { navigateTo({id: resp[0].visitId}) });
+      }
+
+      $scope.setToAllChildren = function(object, prop, value, allDescendants) {
+        SpecimenUtil.sdeGroupSetChildrenValue($scope.customFieldGroups, object, prop, value, allDescendants);
       }
 
       $scope.updateSpecimens = function() {

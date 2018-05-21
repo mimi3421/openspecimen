@@ -1,7 +1,7 @@
 
 angular.module('os.biospecimen.specimen.addderivative', [])
   .controller('AddDerivativeCtrl', function(
-    $scope, cp, specimen, cpr, visit, extensionCtxt, hasDict,
+    $scope, cp, specimen, cpr, visit, extensionCtxt, hasDict, onValueChangeCb,
     SpecimenUtil, Container, ExtensionsUtil, Alerts) {
 
     function init() {
@@ -18,7 +18,9 @@ angular.module('os.biospecimen.specimen.addderivative', [])
 
       if (hasDict) {
         $scope.spmnCtx = {
-          obj: {specimen: $scope.derivative}, inObjs: ['specimen'], exObjs: exObjs
+          obj: {specimen: $scope.derivative},
+          inObjs: ['specimen'], exObjs: exObjs,
+          opts: {onValueChange: onValueChangeCb}
         }
       } else {
         $scope.extnOpts = ExtensionsUtil.getExtnOpts($scope.derivative, extensionCtxt);

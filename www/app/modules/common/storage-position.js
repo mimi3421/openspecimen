@@ -114,6 +114,12 @@ angular.module('openspecimen')
       });
     }
 
+    function invokeOnChangeCallback(scope) {
+      if (scope.onChange) {
+        scope.onChange({location: scope.entity.storageLocation});
+      }
+    }
+
     function linker(scope, element, attrs, ctrl) {
       var entity = scope.entity;
       scope.containerListCache = scope.containerListCache || {};
@@ -126,6 +132,7 @@ angular.module('openspecimen')
         if (!entity.storageLocation || !entity.storageLocation.name) {
           // case of unselect
           entity.storageLocation = {};
+          invokeOnChangeCallback(scope);
           return;
         }
 
@@ -136,7 +143,13 @@ angular.module('openspecimen')
             break;
           }
         }
+
+        invokeOnChangeCallback(scope);
       };
+
+      scope.onPositionChange = function() {
+        invokeOnChangeCallback(scope);
+      }
 
       scope.openPositionSelector = function() {
         var modalInstance = $modal.open({
@@ -163,6 +176,7 @@ angular.module('openspecimen')
             var location = angular.extend({}, scope.entity.storageLocation);
             scope.entity.storageLocation = angular.extend(location, position);
             delete location.reservationId;
+            invokeOnChangeCallback(scope);
           }
         );
       };
@@ -194,7 +208,8 @@ angular.module('openspecimen')
         cpId: '=',
         virtual: "=",
         containerListCache: '=?',
-        site: '=?'
+        site: '=?',
+        onChange: '&'
       },
 
       compile: function(tElem, tAttrs) {

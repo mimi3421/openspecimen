@@ -6,7 +6,7 @@
       <div ng-if="customFieldGroups[0].visitFields">
         <sde-form-fields name="visit" table="customFieldGroups[0].multiple" opts="customFieldGroups[0].opts"
           base-fields="customFieldGroups[0].baseFields" fields="customFieldGroups[0].fields"
-          obj="customFieldGroups[0].input">
+          obj="customFieldGroups[0].input" opts="opts">
         </sde-form-fields>
       </div>
       <div ng-repeat="group in customFieldGroups" ng-if="!group.noMatch && !group.visitFields">

@@ -127,6 +127,10 @@ angular.module('openspecimen')
           inputEl.attr('ng-disabled', tAttrs.ngDisabled);
         }
 
+        if (tAttrs.onChange) {
+          inputEl.attr('ng-change', tAttrs.onChange);
+        }
+
         inputEl.attr('ng-model', tAttrs.date)
           .attr('date-only', tAttrs.dateOnly)
           .attr('date-only-fmt', tAttrs.dateOnlyFmt)

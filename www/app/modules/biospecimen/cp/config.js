@@ -136,6 +136,19 @@ angular.module('openspecimen')
       return result;
     }
 
+    function getOnValueChangeFns(cpId, wfOrder, result) {
+      if (wfOrder.length == 0) {
+        return result;
+      }
+
+      return getWorkflowData(cpId, wfOrder[0], {}).then(
+        function(data) {
+          result = angular.extend(result, data.onValueChange || {});
+          return getOnValueChangeFns(cpId, wfOrder.slice(1), result);
+        }
+      );
+    }
+
     return {
       getRegParticipantTmpl: function(cpId, cprId) {
         if (cprId != -1) { //edit case
@@ -205,6 +218,15 @@ angular.module('openspecimen')
                 return sysDict.layout || defValue || [];
               }
             );
+          }
+        );
+      },
+
+      getOnValueChangeCallbacks: function(cpId, wfLuOrder) {
+        return getWorkflowData(-1, 'dictionary', {}).then(
+          function(data) {
+            var result = angular.extend({}, data.onValueChange || {});
+            return getOnValueChangeFns(cpId, (wfLuOrder || []).slice().reverse(), result);
           }
         );
       },

@@ -4,7 +4,7 @@
     <div ng-switch on="opts.hasDict">
       <div ng-switch-when="true">
         <sde-form-fields name="spmn" base-fields="opts.sysDict" fields="opts.cpDict"
-          obj="spmnCtx.obj" in-objs="spmnCtx.inObjs" ex-objs="spmnCtx.exObjs" opts="opts">
+          obj="spmnCtx.obj" in-objs="spmnCtx.inObjs" ex-objs="spmnCtx.exObjs" opts="spmnCtx.opts">
         </sde-form-fields>
       </div>
       <div ng-switch-default>
@@ -18,9 +18,9 @@
       </div>
 
       <div ng-if="opts.allowMultipleSpecimens != false && opts.allowMultipleSpecimens != 'false'">
-        <fieldset ng-if="opts.verticalLayout">
+        <fieldset ng-if="spmnCtx.opts.verticalLayout">
           <legend translate="specimens.multiple">Multiple Specimens</legend>
-          <div class="row" ng-if="!spmnCtx.manualSpecLabelReq">
+          <div class="row" ng-if="!spmnCtx.manualSpecLabelReq" ng-init="opts.verticalLayout=true">
             <div class="col-xs-6">
               <input type="text" name="count" ng-model="inputSpmn.$$count" class="form-control"
                 ng-pattern="/^[1-9][0-9]*$/" placeholder="{{'specimens.count' | translate}}">
@@ -38,8 +38,8 @@
           </div>
         </fieldset>
 
-        <div ng-if="!opts.verticalLayout">
-          <div class="os-section-divider">
+        <div ng-if="!spmnCtx.opts.verticalLayout">
+          <div class="os-section-divider" ng-init="opts.verticalLayout=false">
             <span translate="specimens.multiple">Multiple Specimens</span>
           </div>
 
@@ -342,7 +342,7 @@
   </div>
 
   <div class="form-group">
-    <div class="col-xs-9 os-text-checkbox" ng-class="{'col-xs-offset-3': !opts.verticalLayout}">
+    <div class="col-xs-9 os-text-checkbox" ng-class="{'col-xs-offset-3': !spmnCtx.opts.verticalLayout}">
       <div class="checkbox">
         <os-checkbox ng-model="spmnCtx.createAliquots" ng-click="toggleAliquots()"></os-checkbox>
       </div>
@@ -353,7 +353,7 @@
   </div>
 
   <div class="form-group" ng-if="!!spmnCtx.createAliquots">
-    <div ng-class="{'col-xs-offset-3 col-xs-8': !opts.verticalLayout, 'col-xs-12': opts.verticalLayout}">
+    <div ng-class="{'col-xs-offset-3 col-xs-8': !spmnCtx.opts.verticalLayout, 'col-xs-12': spmnCtx.opts.verticalLayout}">
       <table class="os-table os-table-tree bulk-edit os-border os-table-muted-hdr">
         <thead class="os-table-head">
           <tr class="row">

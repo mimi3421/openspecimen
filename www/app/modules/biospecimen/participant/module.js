@@ -346,6 +346,14 @@ angular.module('os.biospecimen.participant',
             return CpConfigSvc.getLayout($stateParams.cpId, []);
           },
 
+          onValueChangeCb: function($stateParams, hasSde, CpConfigSvc) {
+            if (!hasSde) {
+              return undefined;
+            }
+
+            return CpConfigSvc.getOnValueChangeCallbacks($stateParams.cpId, ['dictionary']);
+          },
+
           hasDict: function(hasSde, sysDict, cpDict) {
             return hasSde && (cpDict.length > 0 || sysDict.length > 0);
           },

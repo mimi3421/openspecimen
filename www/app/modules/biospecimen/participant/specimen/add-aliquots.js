@@ -1,7 +1,8 @@
 
 angular.module('os.biospecimen.specimen.addaliquots', [])
   .controller('AddAliquotsCtrl', function(
-    $scope, $rootScope, $state, $stateParams, specimen, cpr, visit, extensionCtxt, hasDict,
+    $scope, $rootScope, $state, $stateParams, specimen, cpr,
+    visit, extensionCtxt, hasDict, onValueChangeCb,
     CollectSpecimensSvc, SpecimenUtil, ExtensionsUtil, Alerts) {
 
     function init() {
@@ -37,7 +38,9 @@ angular.module('os.biospecimen.specimen.addaliquots', [])
 
       if (hasDict) {
         $scope.spmnCtx = {
-          aobj: {specimen: $scope.aliquotSpec}, ainObjs: ['specimen'], aexObjs: exObjs
+          aobj: {cpr: cpr, visit: visit, specimen: $scope.aliquotSpec},
+          ainObjs: ['specimen'], aexObjs: exObjs,
+          aopts: {onValueChange: onValueChangeCb}
         }
       } else {
         $scope.aextnOpts = ExtensionsUtil.getExtnOpts($scope.aliquotSpec, extensionCtxt);
@@ -59,6 +62,13 @@ angular.module('os.biospecimen.specimen.addaliquots', [])
         if (($scope.parentSpecimen.freezeThawCycles + 1) == $scope.aliquotSpec.freezeThawCycles) {
           $scope.aliquotSpec.freezeThawCycles = $scope.parentSpecimen.freezeThawCycles;
         }
+      }
+    }
+
+    $scope.onChange = function(fieldName) {
+      var ctx = $scope.spmnCtx;
+      if (ctx.aopts.$$sdeFormFields) {
+        ctx.aopts.$$sdeFormFields.valueChanged(undefined, ctx.aobj, 'specimen.' + fieldName, undefined);
       }
     }
 

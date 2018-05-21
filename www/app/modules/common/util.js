@@ -498,6 +498,15 @@ angular.module('openspecimen')
      * List of in-built functions available in evaluation of expressions
      */
     var fns = {
+      set: function(object, expr, value) {
+        $parse(expr).assign(object, value);
+        return object;
+      },
+
+      get: function(object, expr) {
+        return $parse(expr)(object);
+      },
+
       ifnull: function(cond, truth, falsy) {
         return (cond == null || cond == undefined) ? truth : falsy;
       },
