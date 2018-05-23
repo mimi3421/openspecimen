@@ -7,6 +7,10 @@ angular.module('os.biospecimen.specimen')
 
     function collectAliquots(scope) {
       var spec = scope.aliquotSpec;
+      if (!spec.type || !spec.specimenClass) {
+        return [];
+      }
+
       var parent = scope.parentSpecimen;
       if (parent.availableQty == '') {
         delete parent.availableQty;

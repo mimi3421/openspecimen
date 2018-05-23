@@ -375,6 +375,12 @@ angular.module('os.biospecimen.specimen.addedit', [])
             spmnCtx.aliquots.push(new Specimen({lineage: 'Aliquot'}));
           }
         }
+
+        scope.addIfLastAliquot = function(idx) {
+          if (idx == (spmnCtx.aliquots.length - 1)) {
+            scope.addAnotherAliquot();
+          }
+        }
       }
     }
   });

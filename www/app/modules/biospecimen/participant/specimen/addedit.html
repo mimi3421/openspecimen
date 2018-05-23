@@ -84,10 +84,11 @@
             <button class="btn os-btn-text" ng-click="addCopyOfLast()">
               <span translate="common.buttons.copy_last">Copy of Last</span>
             </button>
-            <button class="btn os-btn-text" ng-click="addCopyOfLast(true)"
-              ng-if="opts.allowMultipleSpecimens != false && opts.allowMultipleSpecimens != 'false'">
-              <span translate="specimens.buttons.copy_last_aliquots">Copy of Last</span>
-            </button>
+            <span ng-if="opts.showCreateAliquots != false && opts.showCreateAliquots != 'false'">
+              <button class="btn os-btn-text" ng-click="addCopyOfLast(true)">
+                <span translate="specimens.buttons.copy_last_aliquots">Copy of Last</span>
+              </button>
+            </span>
           </div>
         </div>
       </accordion>

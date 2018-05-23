@@ -27,6 +27,7 @@ angular.module('openspecimen')
         var uiSelect = angular.element(multiple ? '<ui-select multiple/>' : '<ui-select/>')
           .attr('ng-model', tAttrs.ngModel)
           .attr('ng-disabled', tAttrs.ngDisabled)
+          .attr('ng-required', tAttrs.ngRequired)
           .attr('reset-search-input', true)
           .attr('append-to-body', tAttrs.appendToBody == true || tAttrs.appendToBody == 'true')
           .attr('os-tabable', !!tAttrs.osTabable);

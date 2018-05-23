@@ -112,6 +112,10 @@ angular.module('os.biospecimen.common')
           selectEl.attr('os-md-input', '');
         }
 
+        if (tAttrs.ngRequired) {
+          selectEl.attr('ng-required', tAttrs.ngRequired);
+        }
+
         angular.forEach(tAttrs,
           function(val, attr) {
             if (attr.indexOf('$') != 0) {

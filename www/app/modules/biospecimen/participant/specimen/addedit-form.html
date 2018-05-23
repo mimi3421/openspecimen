@@ -6,6 +6,10 @@
         <sde-form-fields name="spmn" base-fields="opts.sysDict" fields="opts.cpDict"
           obj="spmnCtx.obj" in-objs="spmnCtx.inObjs" ex-objs="spmnCtx.exObjs" opts="spmnCtx.opts">
         </sde-form-fields>
+
+        <span ng-if="spmnCtx.opts.verticalLayout">
+          <span ng-init="opts.verticalLayout=true"></span>
+        </span>
       </div>
       <div ng-switch-default>
         <div ng-include="'modules/biospecimen/participant/specimen/static-addedit.html'">
@@ -20,7 +24,7 @@
       <div ng-if="opts.allowMultipleSpecimens != false && opts.allowMultipleSpecimens != 'false'">
         <fieldset ng-if="spmnCtx.opts.verticalLayout">
           <legend translate="specimens.multiple">Multiple Specimens</legend>
-          <div class="row" ng-if="!spmnCtx.manualSpecLabelReq" ng-init="opts.verticalLayout=true">
+          <div class="row" ng-if="!spmnCtx.manualSpecLabelReq">
             <div class="col-xs-6">
               <input type="text" name="count" ng-model="inputSpmn.$$count" class="form-control"
                 ng-pattern="/^[1-9][0-9]*$/" placeholder="{{'specimens.count' | translate}}">
@@ -39,7 +43,7 @@
         </fieldset>
 
         <div ng-if="!spmnCtx.opts.verticalLayout">
-          <div class="os-section-divider" ng-init="opts.verticalLayout=false">
+          <div class="os-section-divider">
             <span translate="specimens.multiple">Multiple Specimens</span>
           </div>
 
@@ -377,19 +381,25 @@
         <tbody class="os-table-body">
           <tr class="row" ng-form="aform" ng-repeat="aliquot in spmnCtx.aliquots">
             <td class="col">
-              <os-specimen-types name="type" md-input="true" specimen="aliquot" required></os-specimen-types>
+              <os-specimen-types name="type" md-input specimen="aliquot" ng-click="addIfLastAliquot($index)"
+                ng-required="specimen.noOfAliquots || specimen.qtyPerAliquot || specimen.pathology">
+              </os-specimen-types>
               <div os-field-error field="aform.type"></div>
             </td>
             <td class="col">
-              <input name="noOfAliquots" os-md-input ng-model="aliquot.noOfAliquots" ng-pattern="/^[1-9][0-9]*$/" required>
+              <input name="noOfAliquots" os-md-input ng-model="aliquot.noOfAliquots"
+                ng-pattern="/^[1-9][0-9]*$/" ng-focus="addIfLastAliquot($index)"
+                ng-required="aliquot.type || aliquot.qtyPerAliquot || aliquot.pathology">
               <div os-field-error field="aform.noOfAliquots"></div>
             </td>
             <td class="col">
-              <os-spmn-measure name="qty" md-input="true" specimen="aliquot" quantity="aliquot.qtyPerAliquot">
+              <os-spmn-measure name="qty" md-input="true" specimen="aliquot"
+                quantity="aliquot.qtyPerAliquot" ng-focus="addIfLastAliquot($index)">
               </os-spmn-measure>
             </td>
             <td class="col">
-              <os-pvs name="pathology" os-md-input ng-model="aliquot.pathology" attribute="pathology-status">
+              <os-pvs name="pathology" os-md-input ng-model="aliquot.pathology" attribute="pathology-status"
+                ng-click="addIfLastAliquot($index)">
               </os-pvs>
             </td>
             <td class="col">

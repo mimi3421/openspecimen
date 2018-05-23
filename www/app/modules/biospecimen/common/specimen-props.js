@@ -161,6 +161,7 @@ angular.module('os.biospecimen.common.specimenprops', [])
         inputEl.attr('name',        tAttrs.name);
         inputEl.attr('ng-model',    tAttrs.quantity);
         inputEl.attr('placeholder', tAttrs.placeholder);
+        inputEl.attr('ng-focus',    tAttrs.ngFocus);
 
         if (tAttrs.ngRequired) {
           inputEl.attr('ng-required', tAttrs.ngRequired);
