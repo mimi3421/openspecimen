@@ -71,10 +71,20 @@ angular.module('os.biospecimen.participant.specimen-tree',
       return false;
     }
 
-    function isAnyChildOrPoolSpecimenSelected(specimen) {
+    function isAnyPendingSelected(specimens) {
+      for (var i = 0; i < specimens.length; ++i) {
+        if (specimens[i].selected && specimens[i].status != 'Collected') {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    function isAnyPendingDescendantSelected(specimen) {
       if (!!specimen.specimensPool) {
         for (var i = 0; i < specimen.specimensPool.length; ++i) {
-          if (specimen.specimensPool[i].selected) {
+          if (specimen.specimensPool[i].selected && specimen.specimensPool[i].status != 'Collected') {
             return true;
           }
         }
@@ -85,11 +95,11 @@ angular.module('os.biospecimen.participant.specimen-tree',
       }
 
       for (var i = 0; i < specimen.children.length; ++i) {
-        if (specimen.children[i].selected) {
+        if (specimen.children[i].selected && specimen.children[i].status != 'Collected') {
           return true;
         }
 
-        if (isAnyChildOrPoolSpecimenSelected(specimen.children[i])) {
+        if (isAnyPendingDescendantSelected(specimen.children[i])) {
           return true;
         }
       }
@@ -304,13 +314,14 @@ angular.module('os.biospecimen.participant.specimen-tree',
           specimen.isOpened = false;
         };
 
-        scope.selection = {all: false, any: false};
+        scope.selection = {all: false, any: false, anyPending: false};
         scope.toggleAllSpecimenSelect = function() {
           angular.forEach(scope.specimens, function(specimen) {
             specimen.selected = scope.selection.all;
           });
 
-          scope.selection.any = scope.selection.all;
+          var anySelected = scope.selection.any = scope.selection.all;
+          scope.selection.anyPending = anySelected && isAnyPendingSelected(scope.specimens);
         };
 
         scope.toggleSpecimenSelect = function(specimen) {
@@ -324,21 +335,22 @@ angular.module('os.biospecimen.participant.specimen-tree',
 
           toggleAllSelected(scope.selection, scope.specimens, specimen);
 
-          scope.selection.any = specimen.selected ? true : isAnySelected(scope.specimens);
+          var anySelected = scope.selection.any = specimen.selected ? true : isAnySelected(scope.specimens);
+          scope.selection.anyPending = anySelected && isAnyPendingSelected(scope.specimens);
         };
 
         scope.collectSpecimens = function() {
-          if (!scope.selection.any) {
+          if (!scope.selection.anyPending) {
             showSelectSpecimens('specimens.no_specimens_for_collection');
             return;
           }
 
           var specimensToCollect = [];
           angular.forEach(scope.specimens, function(specimen) {
-            if (specimen.selected) {
+            if (specimen.selected && specimen.status != 'Collected') {
               specimen.isOpened = true;
               specimensToCollect.push(specimen);
-            } else if (isAnyChildOrPoolSpecimenSelected(specimen)) {
+            } else if (isAnyPendingDescendantSelected(specimen)) {
               if (specimen.status != 'Collected') {
                 // a parent needs to be collected first
                 specimen.selected = true;

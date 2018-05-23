@@ -4,15 +4,17 @@
   <div class="panel-heading">
     <span translate="{{title}}">Specimens</span>
     <div class="os-action-btns" ng-if = "visit.status != 'Missed Collection'">
-      <button ng-if="!allowedOps || allowedOps.update" class="btn btn-primary" ng-click="collectSpecimens()">
+      <button ng-if="selection.anyPending && (!allowedOps || allowedOps.update)"
+        class="btn btn-primary" ng-click="collectSpecimens()">
         <span class="fa fa-plus"></span>
         <span translate="specimens.buttons.collect"> Collect </span>
       </button>
 
-      <os-assign-to-spmn-list on-add-to-list="addSpecimensToSpecimenList(list)">
+      <os-assign-to-spmn-list ng-if="selection.any" on-add-to-list="addSpecimensToSpecimenList(list)">
       </os-assign-to-spmn-list>
 
-      <os-specimen-ops cp="cp" cpr="cpr" specimens="getSelectedSpecimens(anyStatus)" init-list="initTree()">
+      <os-specimen-ops ng-if="selection.any" cp="cp" cpr="cpr" specimens="getSelectedSpecimens(anyStatus)"
+        init-list="initTree()">
       </os-specimen-ops>
 
       <div dropdown os-show-if-menu-items-present class="os-inline-btn">
@@ -21,7 +23,7 @@
           <span class="fa fa-caret-down"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-right">
-          <li ng-if="!allowedOps || allowedOps.update">
+          <li ng-if="selection.any && (!allowedOps || allowedOps.update)">
             <a ng-click="printSpecimenLabels()">
               <span class="fa fa-print"></span>
               <span translate="specimens.buttons.print"> Print </span>
