@@ -47,15 +47,14 @@
         </div>
       </div>
 
-      <div class="os-section" ng-init="ovCollapsed=false">
+      <div class="os-section" ng-init="ovCollapsed=false" ng-if="occurredVisits.length > 0">
         <button class="os-btn-section-collapse os-btn-transparent" ng-click="ovCollapsed=!ovCollapsed">
           <span ng-if="!ovCollapsed" class="fa fa-chevron-circle-down"></span>
           <span ng-if="ovCollapsed" class="fa fa-chevron-circle-right"></span>
         </button>
         <h3 class="os-sub-section-title" translate="visits.occurred_visits">Occurred Visits</h3>
-        <div collapse="ovCollapsed" ng-switch on="occurredVisits.length == 0">
-          <span ng-switch-when="true" translate="common.none">None</span>
-          <div ng-switch-when="false" ng-switch on="occurredVisitsCols.length > 0">
+        <div collapse="ovCollapsed">
+          <div ng-switch on="occurredVisitsCols.length > 0">
             <div ng-switch-when="true">
               <div ng-include src="'modules/biospecimen/participant/overview-occurred-visits-sde.html'"></div>
             </div>
@@ -125,15 +124,14 @@
         </div>
       </div>
 
-      <div class="os-section" ng-init="avCollapsed=false">
+      <div class="os-section" ng-init="avCollapsed=false" ng-if="anticipatedVisits.length > 0">
         <button class="os-btn-section-collapse os-btn-transparent" ng-click="avCollapsed=!avCollapsed">
           <span ng-if="!avCollapsed" class="fa fa-chevron-circle-down"></span>
           <span ng-if="avCollapsed" class="fa fa-chevron-circle-right"></span>
         </button>
         <h3 class="os-sub-section-title" translate="visits.anticipated_visits">Anticipated Visits</h3>
         <div collapse="avCollapsed">
-          <span ng-if="anticipatedVisits.length == 0" translate="common.none">None</span>
-          <table class="os-table os-table-muted-hdr os-border" ng-if="anticipatedVisits.length > 0">
+          <table class="os-table os-table-muted-hdr os-border">
             <thead class="os-table-head">
               <tr class="row">
                 <td class="col col-xs-4" translate="visits.title">Visit</td>
