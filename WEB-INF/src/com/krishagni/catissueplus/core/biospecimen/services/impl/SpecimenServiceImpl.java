@@ -1,6 +1,7 @@
 
 package com.krishagni.catissueplus.core.biospecimen.services.impl;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -26,10 +27,12 @@ import com.krishagni.catissueplus.core.administrative.domain.factory.UserErrorCo
 import com.krishagni.catissueplus.core.administrative.events.StorageLocationSummary;
 import com.krishagni.catissueplus.core.biospecimen.ConfigParams;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
+import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenSavedEvent;
 import com.krishagni.catissueplus.core.biospecimen.domain.Visit;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.CpErrorCode;
+import com.krishagni.catissueplus.core.biospecimen.domain.factory.CprErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.SpecimenErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.SpecimenFactory;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.VisitErrorCode;
@@ -70,6 +73,7 @@ import com.krishagni.catissueplus.core.common.service.LabelPrinter;
 import com.krishagni.catissueplus.core.common.service.ObjectAccessor;
 import com.krishagni.catissueplus.core.common.service.impl.EventPublisher;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
+import com.krishagni.catissueplus.core.common.util.ConfigUtil;
 import com.krishagni.catissueplus.core.common.util.NumUtil;
 import com.krishagni.catissueplus.core.common.util.Status;
 import com.krishagni.catissueplus.core.common.util.Utility;
@@ -489,7 +493,8 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 		if (job == null) {
 			return ResponseEvent.userError(SpecimenErrorCode.PRINT_ERROR);
 		}
-		
+
+		generateLabelsDataFile(job);
 		return ResponseEvent.response(LabelPrintJobSummary.from(job));
 	}
 
@@ -884,6 +889,25 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 			}
 
 			specimens = getFlattenedSpecimens(visit.getTopLevelSpecimens());
+		} else if (detail.getCprId() != null || (StringUtils.isNotBlank(detail.getCpShortTitle()) && StringUtils.isNotBlank(detail.getPpid()))) {
+			CollectionProtocolRegistration cpr = null;
+			Object key = null;
+			if (detail.getCprId() != null) {
+				key = detail.getCprId();
+				cpr = daoFactory.getCprDao().getById(detail.getCprId());
+			} else {
+				key = detail.getCpShortTitle() + ":" + detail.getPpid();
+				cpr = daoFactory.getCprDao().getCprByCpShortTitleAndPpid(detail.getCpShortTitle(), detail.getPpid());
+			}
+
+			if (cpr == null) {
+				throw OpenSpecimenException.userError(CprErrorCode.NOT_FOUND, key);
+			}
+
+			specimens = cpr.getVisits().stream()
+				.map(v -> getFlattenedSpecimens(v.getTopLevelSpecimens()))
+				.flatMap(List::stream)
+				.collect(Collectors.toList());
 		}
 		
 		return specimens;		
@@ -919,7 +943,7 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 	private List<Specimen> getFlattenedSpecimens(Collection<Specimen> specimens) {
 		List<Specimen> sortedSpecimens = Specimen.sort(specimens);
 
-		List<Specimen> result = new ArrayList<Specimen>();
+		List<Specimen> result = new ArrayList<>();
 		for (Specimen specimen : sortedSpecimens) {
 			result.add(specimen);
 			result.addAll(getFlattenedSpecimens(specimen.getSpecimensPool()));
@@ -1003,6 +1027,34 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 		}
 
 		return disposalDate;
+	}
+
+	private void generateLabelsDataFile(LabelPrintJob job) {
+		boolean downloadPrintLabelsFile = ConfigUtil.getInstance().getBoolSetting(
+			ConfigParams.MODULE, ConfigParams.DOWNLOAD_LABEL_PRINT_FILE, false);
+		if (!downloadPrintLabelsFile) {
+			return;
+		}
+
+		File jobDir = new File(getPrintJobsDir());
+		if (!jobDir.exists() && !jobDir.mkdirs()) {
+			logger.error("Error creating print jobs directory");
+		}
+
+		String outputFilePath = String.format(
+			"%s%s%d_%d.csv",
+			jobDir.getAbsolutePath(), File.separator, AuthUtil.getCurrentUser().getId(), job.getId());
+
+		List<Map<String, String>> labels = job.getItems().stream()
+			.map(item -> Collections.nCopies(item.getCopies(), item.getDataItems()))
+			.flatMap(List::stream)
+			.collect(Collectors.toList());
+
+		Utility.writeToCsv(outputFilePath, labels);
+	}
+
+	private String getPrintJobsDir() {
+		return ConfigUtil.getInstance().getDataDir() + File.separator + "print-jobs";
 	}
 
 	private Function<ExportJob, List<? extends Object>> getSpecimensGenerator() {

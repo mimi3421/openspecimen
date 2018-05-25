@@ -9,6 +9,8 @@ public enum CommonErrorCode implements ErrorCode {
 
 	FILE_NOT_FOUND,
 
+	FILE_SEND_ERROR,
+
 	EXCEPTION_NOT_FOUND,
 
 	CUSTOM_FIELD_LEVEL_REQ,

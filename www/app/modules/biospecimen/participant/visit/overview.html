@@ -19,8 +19,8 @@
         <span class="fa fa-plus"></span>
         <span translate="specimens.buttons.add_specimen">Add Specimen</span>
       </button>
-      <button ng-if="!!visit.id && allowPrintVisit" show-if-allowed="specimenResource.updateOpts" class="default"
-        ng-click="printVisitName()">
+      <button ng-if="!!visit.id && visit.status != 'Missed Collection' && specimens.length  > 0"
+        show-if-allowed="specimenResource.updateOpts" class="default" ng-click="printSpecimenLabels()">
         <span class="fa fa-print"></span>
         <span translate="common.buttons.print">Print</span>
       </button>

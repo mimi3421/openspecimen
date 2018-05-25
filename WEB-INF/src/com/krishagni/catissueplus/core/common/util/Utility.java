@@ -3,6 +3,7 @@ package com.krishagni.catissueplus.core.common.util;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -27,6 +28,8 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import javax.activation.FileTypeMap;
 import javax.crypto.Cipher;
@@ -49,6 +52,7 @@ import com.krishagni.catissueplus.core.biospecimen.domain.BaseEntity;
 import com.krishagni.catissueplus.core.biospecimen.domain.BaseExtensionEntity;
 import com.krishagni.catissueplus.core.common.PdfUtil;
 import com.krishagni.catissueplus.core.common.domain.IntervalUnit;
+import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 
 import au.com.bytecode.opencsv.CSVWriter;
 
@@ -477,6 +481,73 @@ public class Utility {
 
 	public static List<String> equals(Object obj1, Object obj2, List<String> fields) {
 		return fields.stream().filter(field -> !equals(obj1, obj2, field)).collect(Collectors.toList());
+	}
+
+	public static File zipFiles(List<String> files, String zipFilePath) {
+		ZipOutputStream zout = null;
+		FileOutputStream fout = null;
+		File result = null;
+
+		try {
+			result = new File(zipFilePath);
+			fout = new FileOutputStream(result);
+			zout = new ZipOutputStream(fout);
+
+			for (String filePath : files) {
+				InputStream in = null;
+				try {
+					File file = new File(filePath);
+					in = new FileInputStream(file);
+					zout.putNextEntry(new ZipEntry(file.getName()));
+					IOUtils.copy(in, zout);
+				} finally {
+					zout.closeEntry();
+					IOUtils.closeQuietly(in);
+				}
+			}
+
+			zout.finish();
+			zout.flush();
+			return result;
+		} catch (Exception e) {
+			throw OpenSpecimenException.serverError(e);
+		} finally {
+			IOUtils.closeQuietly(fout);
+			IOUtils.closeQuietly(zout);
+		}
+	}
+
+	public static File writeToCsv(String filePath, List<Map<String, String>> rows) {
+		List<String> columns = rows.stream()
+			.map(Map::keySet)
+			.flatMap(Set::stream)
+			.distinct()
+			.collect(Collectors.toList());
+		return writeToCsv(filePath, columns, rows);
+	}
+
+	public static File writeToCsv(String filePath, List<String> columns, List<Map<String, String>> rows) {
+		FileOutputStream out = null;
+		CsvFileWriter csvWriter = null;
+
+		try {
+			File result = new File(filePath);
+			out = new FileOutputStream(result);
+			csvWriter = CsvFileWriter.createCsvFileWriter(out);
+
+			csvWriter.writeNext(columns.toArray(new String[0]));
+			for (Map<String, String> row : rows) {
+				csvWriter.writeNext(columns.stream().map(row::get).toArray(String[]::new));
+			}
+
+			csvWriter.flush();
+			return result;
+		} catch (Exception e) {
+			throw OpenSpecimenException.serverError(e);
+		} finally {
+			IOUtils.closeQuietly(out);
+			IOUtils.closeQuietly(csvWriter);
+		}
 	}
 
 	private static Map<String, Object> getExtnAttrValues(BaseExtensionEntity obj) {

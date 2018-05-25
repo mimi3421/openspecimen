@@ -14,7 +14,7 @@ public class LabelPrintJob extends BaseEntity {
 	
 	private Date submissionDate;
 	
-	private Set<LabelPrintJobItem> items = new LinkedHashSet<LabelPrintJobItem>();
+	private Set<LabelPrintJobItem> items = new LinkedHashSet<>();
 
 	public String getItemType() {
 		return itemType;

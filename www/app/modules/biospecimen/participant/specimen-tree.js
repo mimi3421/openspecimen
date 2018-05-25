@@ -391,8 +391,11 @@ angular.module('os.biospecimen.participant.specimen-tree',
             return;
           }
 
+          var ts = Util.formatDate(Date.now(), 'yyyyMMdd_HHmmss');
+          var cpr = scope.cpr, visit = scope.visit || {};
+          var outputFilename = [cpr.cpShortTitle, cpr.ppid, visit.name || visit.id, ts].join('_') + '.csv';
           var specimenIds = specimensToPrint.map(function(s) { return s.id; });
-          SpecimenLabelPrinter.printLabels({specimenIds: specimenIds});
+          SpecimenLabelPrinter.printLabels({specimenIds: specimenIds}, outputFilename);
         };
 
         scope.addSpecimensToSpecimenList = function(list) {

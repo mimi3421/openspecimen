@@ -713,6 +713,7 @@
     },
 
     "labels_print_job_created": "Specimen labels print job {{jobId}} created successfully",
+    "labels_print_download": "Downloading labels print CSV file ...",
     "spmn_aliquots": "Specimen Aliquots",
     "spmn_derivatives": "Specimen Derivatives",
     "new_aliquot_count": "Number of aliquots",
@@ -734,6 +735,8 @@
     "specimen_type": "Specimen Type",
     "anatomic_site": "Anatomic Site",
     "custom_fields": "Additional Fields",
+    "confirm_print": "Confirm Print",
+    "confirm_print_q": "Do you want to print child specimen labels as well?",
 
     "multiple_cp_specimens": "Specimens in multiple protocols",
     "select_protocol": "Following specimens are present in multiple protocols. Please select the right protocol before proceeding",
@@ -784,7 +787,8 @@
       "close": "Close",
       "add_specimen": "Add Specimen",
       "distribute": "Distribute",
-      "copy_last_aliquots": "Copy Last (including Aliquots)"
+      "copy_last_aliquots": "Copy Last (including Aliquots)",
+      "print_current": "No, only current specimen"
     },
 
     "errors": {
@@ -2421,7 +2425,9 @@
         "aliquot_label_format": "Aliquot Label Format",
         "aliquot_label_format_desc": "The system-level format for aliquot labels.",
         "mandatory_aliquot_qty": "Mandatory Aliquot Quantity",
-        "mandatory_aliquot_qty_desc": "Enable to make aliquots quantity a mandatory field."
+        "mandatory_aliquot_qty_desc": "Enable to make aliquots quantity a mandatory field.",
+        "download_labels_print_file": "Download Labels Print File",
+        "download_labels_print_file_desc": "Enable or disable downloading of specimen labels print integration data file. When enabled, a CSV file containing the specimens data to be printed on labels (stickers) is downloaded to the user computer. When disabled, the integration file is not downloaded."
       },
 
       "common": {

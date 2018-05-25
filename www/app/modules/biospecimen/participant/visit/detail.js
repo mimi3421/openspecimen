@@ -2,7 +2,8 @@
 angular.module('os.biospecimen.visit.detail', ['os.biospecimen.models'])
   .controller('VisitDetailCtrl', function(
     $scope, $state, cp, cpr, visit, specimens, storeSpr,
-    CpConfigSvc, Specimen, VisitNamePrinter, DeleteUtil, ExtensionsUtil) {
+    CpConfigSvc, Specimen, VisitNamePrinter, DeleteUtil,
+    SpecimenLabelPrinter, ExtensionsUtil, Util) {
 
     function init() {
       $scope.cpr = cpr;
@@ -43,6 +44,12 @@ angular.module('os.biospecimen.visit.detail', ['os.biospecimen.models'])
 
     $scope.printVisitName = function() {
       VisitNamePrinter.printNames({visitIds: [$scope.visit.id]});
+    }
+
+    $scope.printSpecimenLabels = function() {
+      var ts = Util.formatDate(Date.now(), 'yyyyMMdd_HHmmss');
+      var outputFilename = [cpr.cpShortTitle, cpr.ppid, visit.name || visit.id, ts].join('_') + '.csv';
+      SpecimenLabelPrinter.printLabels({visitId: visit.id}, outputFilename);
     }
 
     init();

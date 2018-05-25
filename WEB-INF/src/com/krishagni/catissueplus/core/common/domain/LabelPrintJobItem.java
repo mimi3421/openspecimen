@@ -1,6 +1,7 @@
 package com.krishagni.catissueplus.core.common.domain;
 
 import java.util.Date;
+import java.util.Map;
 
 import com.krishagni.catissueplus.core.biospecimen.domain.BaseEntity;
 
@@ -26,6 +27,8 @@ public class LabelPrintJobItem extends BaseEntity {
 	private String labelType;
 	
 	private String data;
+
+	private transient Map<String, String> dataItems;
 
 	public LabelPrintJob getJob() {
 		return job;
@@ -89,5 +92,13 @@ public class LabelPrintJobItem extends BaseEntity {
 
 	public void setData(String data) {
 		this.data = data;
+	}
+
+	public Map<String, String> getDataItems() {
+		return dataItems;
+	}
+
+	public void setDataItems(Map<String, String> dataItems) {
+		this.dataItems = dataItems;
 	}
 }

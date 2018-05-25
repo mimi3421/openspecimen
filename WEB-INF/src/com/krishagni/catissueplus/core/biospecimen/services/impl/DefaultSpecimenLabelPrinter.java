@@ -113,6 +113,7 @@ public class DefaultSpecimenLabelPrinter extends AbstractLabelPrinter<Specimen> 
 					item.setStatus(Status.QUEUED);
 					item.setLabelType(rule.getLabelType());
 					item.setData(new ObjectMapper().writeValueAsString(labelDataItems));
+					item.setDataItems(labelDataItems);
 
 					job.getItems().add(item);
 					labelDataList.add(makeLabelData(item, rule, labelDataItems));

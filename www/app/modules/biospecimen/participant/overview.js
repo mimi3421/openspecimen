@@ -3,7 +3,7 @@ angular.module('os.biospecimen.participant.overview', ['os.biospecimen.models'])
   .controller('ParticipantOverviewCtrl', function(
     $scope, $state, $stateParams, $injector, hasSde, hasFieldsFn,
     storePhi, cpDict, visitsTab, cp, cpr, consents, visits,
-    Visit, CollectSpecimensSvc, ExtensionsUtil, Util, Alerts) {
+    Visit, CollectSpecimensSvc, SpecimenLabelPrinter, ExtensionsUtil, Util, Alerts) {
 
     function init() {
       $scope.occurredVisits    = Visit.completedVisits(visits);
@@ -101,6 +101,12 @@ angular.module('os.biospecimen.participant.overview', ['os.biospecimen.models'])
     $scope.collectPending = function(visit) {
       var retSt = {state: $state.current, params: $stateParams};
       CollectSpecimensSvc.collectPending(retSt, cp, cpr.id, visit);
+    }
+
+    $scope.printSpecimenLabels = function() {
+      var ts = Util.formatDate(Date.now(), 'yyyyMMdd_HHmmss');
+      var outputFilename = [cpr.cpShortTitle, cpr.ppid, ts].join('_') + '.csv';
+      SpecimenLabelPrinter.printLabels({cprId: cpr.id}, outputFilename);
     }
 
     init();

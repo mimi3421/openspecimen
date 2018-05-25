@@ -4,13 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PrintSpecimenLabelDetail {
-	private List<Long> specimenIds = new ArrayList<Long>();
+	private List<Long> specimenIds = new ArrayList<>();
 	
-	private List<String> specimenLabels = new ArrayList<String>();
+	private List<String> specimenLabels = new ArrayList<>();
 	
 	private Long visitId;
 	
 	private String visitName;
+
+	private Long cprId;
+
+	private String cpShortTitle;
+
+	private String ppid;
 	
 	private int numCopies = 1;
 
@@ -44,6 +50,30 @@ public class PrintSpecimenLabelDetail {
 
 	public void setVisitName(String visitName) {
 		this.visitName = visitName;
+	}
+
+	public Long getCprId() {
+		return cprId;
+	}
+
+	public void setCprId(Long cprId) {
+		this.cprId = cprId;
+	}
+
+	public String getCpShortTitle() {
+		return cpShortTitle;
+	}
+
+	public void setCpShortTitle(String cpShortTitle) {
+		this.cpShortTitle = cpShortTitle;
+	}
+
+	public String getPpid() {
+		return ppid;
+	}
+
+	public void setPpid(String ppid) {
+		this.ppid = ppid;
 	}
 
 	public int getNumCopies() {

@@ -619,6 +619,10 @@ angular.module('openspecimen')
       }
     }
 
+    function formatDate(date, format) {
+      return $filter('date')(date, format);
+    }
+
     return {
       clear: clear,
 
@@ -673,6 +677,8 @@ angular.module('openspecimen')
         }
 
         return $filter('date')(input, fmt);
-      }
+      },
+
+      formatDate: formatDate
     };
   });

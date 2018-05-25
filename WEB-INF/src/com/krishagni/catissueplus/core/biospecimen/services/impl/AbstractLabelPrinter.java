@@ -16,6 +16,7 @@ import com.krishagni.catissueplus.core.common.domain.LabelPrintJobItem.Status;
 import com.krishagni.catissueplus.core.common.domain.LabelPrintRule;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.service.LabelPrinter;
+import com.krishagni.catissueplus.core.common.util.Utility;
 
 public abstract class AbstractLabelPrinter<T> implements LabelPrinter<T> {
 	//
@@ -71,16 +72,7 @@ public abstract class AbstractLabelPrinter<T> implements LabelPrinter<T> {
 	}
 
 	private String getCommaSeparatedValueFields(Map<String, String> dataItems) {
-		StringBuilder content = new StringBuilder();
-		for (String dataItem : dataItems.values()) {
-			content.append("\"").append(dataItem).append("\",");
-		}
-
-		if (!dataItems.isEmpty()) {
-			content.deleteCharAt(content.length() - 1);
-		}
-
-		return content.toString();
+		return Utility.stringListToCsv(dataItems.values());
 	}
 
 	private String getKeyValueFields(Map<String, String> dataItems) {
@@ -106,5 +98,4 @@ public abstract class AbstractLabelPrinter<T> implements LabelPrinter<T> {
 			FileUtils.write(new File(rule.getCmdFilesDir(), filename), content);
 		}
 	}
-
 }
