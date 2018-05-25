@@ -43,6 +43,18 @@
         <os-assign-to-spmn-list menu-align="left" on-add-to-list="addSpecimensToSpecimenList(list)" ng-if="!!specimen.id">
         </os-assign-to-spmn-list>
 
+        <button show-if-allowed="specimenResource.updateOpts" class="default"
+          ng-if="specimen.activityStatus == 'Active' && specimen.status == 'Collected'" ng-click="printSpecimenLabels()">
+          <span class="fa fa-print"></span>
+          <span translate="specimens.buttons.print">Print</span>
+        </button>
+
+        <button show-if-allowed="specimenResource.deleteOpts" class="default"
+          ng-if="!!specimen.id" ng-click="deleteSpecimen()">
+          <span class="fa fa-trash"></span>
+          <span translate="common.buttons.delete">Delete</span>
+        </button>
+
         <div dropdown os-show-if-menu-items-present class="os-inline-btn">
           <button class="btn btn-default dropdown-toggle default">
             <span translate="common.buttons.more">More</span>
@@ -58,13 +70,6 @@
               </a>
             </li>
             <li show-if-allowed="specimenResource.updateOpts"
-              ng-if="specimen.activityStatus == 'Active' && specimen.status == 'Collected'">
-              <a ng-click="printSpecimenLabels()">
-                <span class="fa fa-print"></span>
-                <span translate="specimens.buttons.print">Print</span>
-              </a>
-            </li>
-            <li show-if-allowed="specimenResource.updateOpts"
               ng-if="!specimen.reserved && specimen.activityStatus == 'Active' && specimen.status == 'Collected'">
               <a ng-click="closeSpecimen()">
                 <span class="fa fa-remove"></span>
@@ -76,13 +81,6 @@
               <a ng-click="reopen()">
                 <span class="fa fa-check"></span>
                 <span translate="specimens.buttons.reopen">Reopen</span>
-              </a>
-            </li>
-            <li show-if-allowed="specimenResource.deleteOpts"
-              ng-if="!!specimen.id">
-              <a ng-click="deleteSpecimen()">
-                <span class="fa fa-trash"></span>
-                <span translate="common.buttons.delete">Delete</span>
               </a>
             </li>
           </ul>
