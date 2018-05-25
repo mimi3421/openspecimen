@@ -73,6 +73,8 @@ public class ConfigParams {
 
 	public static final String ALIQUOT_QTY_REQ           = "mandatory_aliquot_qty";
 
+	public static final String DOWNLOAD_LABEL_PRINT_FILE = "download_labels_print_file";
+
 	public static String getConsentsDirPath() {
 		String path = ConfigUtil.getInstance().getStrSetting(MODULE, CONSENTS_DIR, null);
 		if (StringUtils.isBlank(path)) {

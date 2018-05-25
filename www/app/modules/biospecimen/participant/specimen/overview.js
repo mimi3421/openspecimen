@@ -1,8 +1,8 @@
 
 angular.module('os.biospecimen.specimen.overview', ['os.biospecimen.models'])
   .controller('SpecimenOverviewCtrl', function(
-    $scope, $rootScope, hasDict, cpr, visit, specimen, showSpmnActivity,
-    osRightDrawerSvc, ExtensionsUtil) {
+    $scope, $rootScope, $modal, hasDict, cpr, visit, specimen, showSpmnActivity,
+    osRightDrawerSvc, Specimen, SpecimenLabelPrinter, Util, ExtensionsUtil) {
 
     function init() {
       if (hasDict) {
@@ -47,8 +47,47 @@ angular.module('os.biospecimen.specimen.overview', ['os.biospecimen.models'])
       );
     };
 
+    function printSpecimenLabels(includeChildren, children) {
+      var ids = [];
+      if (includeChildren) {
+        ids = (children || []).map(function(spmn) { return spmn.id; });
+      }
+
+      ids.unshift(specimen.id);
+
+      var ts = Util.formatDate(Date.now(), 'yyyyMMdd_HHmmss');
+      var outputFilename = [
+        cpr.cpShortTitle, cpr.ppid,
+        visit.name || visit.id,
+        specimen.label || specimen.id,
+        ts].join('_') + '.csv';
+      SpecimenLabelPrinter.printLabels({specimenIds: ids}, outputFilename);
+    }
+
     $scope.toggleShowActivity = function() {
       $scope.spmnCtx.showActivity = !$scope.spmnCtx.showActivity;
+    }
+
+    $scope.printSpecimenLabels = function() {
+      var children = Specimen.flatten($scope.treeSpecimens);
+      if (!children || children.length <= 0) {
+        printSpecimenLabels(false);
+        return;
+      }
+
+      $modal.open({
+        templateUrl: 'modules/biospecimen/participant/specimen/confirm-print.html',
+        controller: function($scope, $modalInstance) {
+          $scope.printSpecimenLabels = function(includeChildren) {
+            printSpecimenLabels(includeChildren, children);
+            $modalInstance.dismiss('cancel');
+          }
+
+          $scope.cancel = function() {
+            $modalInstance.dismiss('cancel');
+          }
+        }
+      });
     }
 
     init();

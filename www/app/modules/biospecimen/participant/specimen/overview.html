@@ -300,3 +300,25 @@
     </ul>
   </div>
 </script>
+
+<script type="text/ng-template" id="modules/biospecimen/participant/specimen/confirm-print.html">
+  <div class="os-modal">
+    <div class="os-modal-header">
+      <span translate="specimens.confirm_print">Confirm Print</span>
+    </div>
+    <div class="os-modal-body">
+      <span translate="specimens.confirm_print_q">Do you want to print child specimen labels as well?</span>
+    </div>
+    <div class="os-modal-footer">
+      <button class="btn os-btn-text" ng-click="cancel()">
+        <span translate="common.buttons.discard">Cancel</span>
+      </button>
+      <button class="btn os-btn-secondary" ng-click="printSpecimenLabels(false)">
+        <span translate="specimens.buttons.print_current">No, only current specimen</span>
+      </button>
+      <button class="btn btn-primary" ng-click="printSpecimenLabels(true)">
+        <span translate="common.yes">Yes</span>
+      </button>
+    </div>
+  </div>
+</script>

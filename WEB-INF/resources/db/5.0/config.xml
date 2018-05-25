@@ -68,4 +68,14 @@
       );
     </sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="Setting to enable or disable downloading of print data integration file">
+    <sql>
+      call add_cfg_prop(
+        'biospecimen', 'download_labels_print_file',
+        'download_labels_print_file', 'download_labels_print_file_desc',
+        'BOOLEAN', 'false'
+      );
+    </sql>
+  </changeSet>
 </databaseChangeLog>
