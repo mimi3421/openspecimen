@@ -7,7 +7,7 @@ angular.module('os.biospecimen.participant.specimen-tree',
   .directive('osSpecimenTree', function(
     $state, $stateParams, $modal, $timeout, $rootScope, $q, $injector,
     CpConfigSvc, CollectSpecimensSvc, Visit, Specimen, SpecimenLabelPrinter, SpecimensHolder,
-    ExtensionsUtil, DistributionOrder, DistributionProtocol, Alerts, Util, DeleteUtil, SpecimenUtil) {
+    ExtensionsUtil, DistributionOrder, DistributionProtocol, Alerts, SpecimenUtil) {
 
     var allowedDps = undefined;
 
@@ -396,19 +396,6 @@ angular.module('os.biospecimen.participant.specimen-tree',
 
           visit.cprId = (scope.cpr && scope.cpr.id) || visit.cprId;
           CollectSpecimensSvc.collect(getState(), visit, specimensToCollect);
-        };
-
-        scope.printSpecimenLabels = function() {
-          var specimensToPrint = getSelectedSpecimens(scope, 'specimens.no_specimens_for_print', false);
-          if (specimensToPrint == undefined || specimensToPrint.length == 0) {
-            return;
-          }
-
-          var ts = Util.formatDate(Date.now(), 'yyyyMMdd_HHmmss');
-          var cpr = scope.cpr, visit = scope.visit || {};
-          var outputFilename = [cpr.cpShortTitle, cpr.ppid, visit.name || visit.id, ts].join('_') + '.csv';
-          var specimenIds = specimensToPrint.map(function(s) { return s.id; });
-          SpecimenLabelPrinter.printLabels({specimenIds: specimenIds}, outputFilename);
         };
 
         scope.addSpecimensToSpecimenList = function(list) {

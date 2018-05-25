@@ -14,7 +14,7 @@
       </os-assign-to-spmn-list>
 
       <os-specimen-ops ng-if="selection.any" cp="cp" cpr="cpr" specimens="getSelectedSpecimens(anyStatus)"
-        init-list="initTree()">
+        init-list="initTree()" dropdown-right>
       </os-specimen-ops>
 
       <div dropdown os-show-if-menu-items-present class="os-inline-btn">
@@ -23,12 +23,6 @@
           <span class="fa fa-caret-down"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-right">
-          <li ng-if="selection.any && (!allowedOps || allowedOps.update)">
-            <a ng-click="printSpecimenLabels()">
-              <span class="fa fa-print"></span>
-              <span translate="specimens.buttons.print"> Print </span>
-            </a>
-          </li>
           <li ng-if="anyPendingSpmns">
             <a ng-click="toggleHidePendingSpmns()" ng-switch on="hidePendingSpmns">
               <span class="fa fa-circle os-status-pending"></span>

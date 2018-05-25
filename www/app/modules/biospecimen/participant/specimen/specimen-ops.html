@@ -4,11 +4,17 @@
     <span class="fa fa-caret-down"></span>
   </button>
 
-  <ul class="dropdown-menu">
+  <ul class="dropdown-menu" ng-class="{'dropdown-menu-right': dropdownRight}">
     <li show-if-allowed="resourceOpts.specimenUpdateOpts">
       <a ng-click="editSpecimens()">
         <span class="fa fa-pencil"></span>
         <span translate="common.buttons.edit">Edit</span>
+      </a>
+    </li>
+    <li show-if-allowed="resourceOpts.specimenUpdateOpts">
+      <a ng-click="printSpecimenLabels()">
+        <span class="fa fa-print"></span>
+        <span translate="common.buttons.print">Print</span>
       </a>
     </li>
     <li show-if-allowed="resourceOpts.specimenDeleteOpts">

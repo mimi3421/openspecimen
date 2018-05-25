@@ -1,7 +1,7 @@
 angular.module('os.biospecimen.specimen')
   .directive('osSpecimenOps', function(
-    $state, $rootScope, $modal, $q, Util, DistributionProtocol, DistributionOrder,
-    Specimen, SpecimensHolder, Alerts, CommentsUtil, DeleteUtil, ParticipantSpecimensViewState) {
+    $state, $rootScope, $modal, $q, Util, DistributionProtocol, DistributionOrder, Specimen,
+    SpecimensHolder, Alerts, CommentsUtil, DeleteUtil, SpecimenLabelPrinter, ParticipantSpecimensViewState) {
 
     function initOpts(scope, element, attrs) {
       scope.title = attrs.title || 'specimens.ops';
@@ -219,6 +219,8 @@ angular.module('os.biospecimen.specimen')
       templateUrl: 'modules/biospecimen/participant/specimen/specimen-ops.html',
 
       link: function(scope, element, attrs) {
+        scope.dropdownRight = attrs.hasOwnProperty('dropdownRight');
+
         initOpts(scope, element, attrs);
 
         function gotoView(state, params, msgCode, anyStatus) {
@@ -246,6 +248,26 @@ angular.module('os.biospecimen.specimen')
 
           SpecimensHolder.setSpecimens(spmns);
           $state.go('specimen-bulk-edit');
+        }
+
+        scope.printSpecimenLabels = function() {
+          var spmns = scope.specimens({anyStatus: true});
+          if (!spmns || spmns.length == 0) {
+            Alerts.error('specimens.no_specimens_for_print');
+            return;
+          }
+
+          var parts = [Util.formatDate(Date.now(), 'yyyyMMdd_HHmmss')];
+          if (scope.cpr) {
+            parts.unshift(scope.cpr.ppid);
+            parts.unshift(scope.cpr.cpShortTitle);
+          } else if (scope.cp) {
+            parts.unshift(scope.cp.shortTitle);
+          }
+
+          var outputFilename = parts.join('_') + '.csv';
+          var specimenIds = spmns.map(function(s) { return s.id; });
+          SpecimenLabelPrinter.printLabels({specimenIds: specimenIds}, outputFilename);
         }
 
         scope.deleteSpecimens = function() {
