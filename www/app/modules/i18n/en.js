@@ -174,6 +174,7 @@
    },
 
   "cp": {
+    "self": "Collection Protocol",
     "list": "Collection Protocols",
     "create_cp_title": "Create Collection Protocol",
     "import_cp_title": "Import Collection Protocol",
@@ -262,7 +263,7 @@
     "deleting_event": "Deleting Event...",
     "confirm_delete_event": "Collection Protocol Event and its specimen requirements will be deleted. Are you sure you want to proceed?",
 
-    "bulk_import": "Import",
+    "bulk_import": "Biospecimen Data",
     "bulk_import_biospecimen_obj_jobs": "Import Biospecimen Objects Job List",
     "export": "Export",
 

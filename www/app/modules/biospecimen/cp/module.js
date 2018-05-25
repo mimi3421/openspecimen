@@ -41,6 +41,11 @@ angular.module('os.biospecimen.cp',
         },
         resolve: {
           cpsCtx: function(currentUser, authInit, AuthorizationService) {
+            var cpCreateAllowed = AuthorizationService.isAllowed({
+              resource: 'CollectionProtocol',
+              operations: ['Create']
+            });
+
             var participantEximAllowed = AuthorizationService.isAllowed({
               resource: 'ParticipantPhi',
               operations: ['Export Import']
@@ -52,6 +57,7 @@ angular.module('os.biospecimen.cp',
             });
 
             return {
+              cpCreateAllowed: cpCreateAllowed,
               participantImportAllowed: participantEximAllowed,
               visitSpecimenImportAllowed: visitSpmnEximAllowed,
               participantExportAllowed: participantEximAllowed,

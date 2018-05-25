@@ -92,19 +92,19 @@
           </td>
           <td class="col os-click-esc">
             <div class="os-more-option-btns">
-              <button class="btn btn-xs btn-default" title="{{'cp.view_details' | translate}}"
+              <button class="btn btn-xs btn-default" os-tooltip="{{'cp.view_details' | translate}}"
                 ui-sref="cp-detail.overview({cpId: cp.id})">
                 <span class="fa fa-eye"></span>
               </button>
-              <button class="btn btn-xs btn-default" title="{{'cp.view_participants' | translate}}"
+              <button class="btn btn-xs btn-default" os-tooltip="{{'cp.view_participants' | translate}}"
                 ui-sref="participant-list({cpId: cp.id})" ng-if="!cp.specimenCentric">
                 <span class="fa fa-group"></span>
               </button>
-              <button class="btn btn-xs btn-default" title="{{'cp.view_specimens' | translate}}"
+              <button class="btn btn-xs btn-default" os-tooltip="{{'cp.view_specimens' | translate}}"
                 ui-sref="cp-specimens({cpId: cp.id})" ng-if="cp.specimenCentric">
                 <span class="fa fa-flask"></span>
               </button>
-              <button class="btn btn-xs btn-default" title="{{'cp.view_catalog' | translate}}"
+              <button class="btn btn-xs btn-default" os-tooltip="{{'cp.view_catalog' | translate}}"
                 ui-sref="ssc-catalog-dashboard({catalogId: cp.catalogId, cpId: cp.id})" ng-if="!!cp.catalogId">
                 <span class="fa fa-table"></span>
               </button>
@@ -121,27 +121,10 @@
 
 <script type="text/ng-template" id="modules/biospecimen/cp/single-cp-ops.html">
   <div>
-    <div dropdown class="os-inline-btn">
-      <button show-if-allowed="cpResource.createOpts" class="default dropdown-toggle"
-        title="{{'cp.tooltip.add' | translate}}" ui-sref="cp-addedit({cpId: ''})">
-        <span class="fa fa-plus"></span>
-        <span translate="common.buttons.create">Create</span>
-      </button>
-      <ul class="dropdown-menu">
-        <li>
-          <a ui-sref="cp-addedit">
-            <span class="fa fa-plus"></span>
-            <span translate="common.buttons.create">Create</span>
-          </a>
-        </li>
-        <li>
-          <a ui-sref="cp-import">
-            <span class="fa fa-upload"></span>
-            <span translate="common.buttons.import">Import</span>
-          </a>
-        </li>
-      </ul>
-    </div>
+    <button show-if-allowed="cpResource.createOpts" class="default" ui-sref="cp-addedit({cpId: ''})">
+      <span class="fa fa-plus"></span>
+      <span translate="common.buttons.create">Create</span>
+    </button>
 
     <os-plugin-hooks view-name="'cp-list'" sec-name="'page-header'"></os-plugin-hooks>
 
