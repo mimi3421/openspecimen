@@ -17,14 +17,14 @@
         <span class="fa fa-warning"></span>
         <span translate="participant.buttons.anonymize">Anonymize</span>
       </button>
+      <button ng-if="occurredVisits.length > 0 && (!specimenAllowedOps || specimenAllowedOps.update)" class="default"
+        ng-click="printSpecimenLabels()" title="{{'specimens.tooltip.print' | translate}}">
+        <span class="fa fa-print"></span>
+        <span translate="specimens.buttons.print">Print</span>
+      </button>
       <button show-if-allowed="participantResource.deleteOpts" class="default" ng-click="deleteReg()">
         <span class="fa fa-trash"></span>
         <span translate="common.buttons.delete">Delete</span>
-      </button>
-      <button ng-if="occurredVisits.length > 0 && (!specimenAllowedOps || specimenAllowedOps.update)" class="default"
-        ng-click="printSpecimenLabels()">
-        <span class="fa fa-print"></span>
-        <span translate="specimens.buttons.print">Print</span>
       </button>
 
       <os-plugin-hooks view-name="'participant-detail'" sec-name="'page-commands'">

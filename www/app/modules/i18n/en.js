@@ -791,6 +791,10 @@
       "print_current": "No, only current specimen"
     },
 
+    "tooltip": {
+      "print": "Print specimen labels"
+    },
+
     "errors": {
       "duplicate_labels": "One or more specimens using same label",
       "duplicate_barcodes": "One or more specimens using same barcode",
