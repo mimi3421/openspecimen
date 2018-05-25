@@ -36,9 +36,6 @@
               </os-checkbox>
             </div>
           </th>
-          <th class="col">
-            <span translate="cp.short_title">Short Title</span>
-          </th>
           <th class="col os-desc-column">
             <span translate="cp.title">Title</span>
           </th>
@@ -68,14 +65,10 @@
               </os-checkbox>
             </div>
           </td>
-          <td class="col">
-            <a ui-sref="cp-summary-view({cpId: cp.id})">
-              <span>{{cp.shortTitle}}</span>
-            </a>
-          </td>
           <td class="col os-desc-column">
             <a ui-sref="cp-summary-view({cpId: cp.id})">
               <span>{{cp.title}}</span>
+              <span>({{cp.shortTitle}})</span>
             </a>
           </td>
           <td class="col">
@@ -84,25 +77,22 @@
           <td class="col">
             <span>{{cp.startDate | date: global.dateFmt}}</span>
           </td>
-          <td class="col">
-            <span>{{cp.participantCount | number: 0 | osNoValue: 'common.na' | translate}}</span>
+          <td class="col" ng-switch on="!cp.specimenCentric">
+            <a ng-switch-when="true" ui-sref="participant-list({cpId: cp.id})" ng-if="!cp.specimenCentric">
+              <span>{{cp.participantCount | number: 0}}</span>
+            </a>
+            <span ng-switch-when="false" translate="common.na"></span>
           </td>
           <td class="col">
-            <span>{{cp.specimenCount | number: 0}}</span>
+            <a ui-sref="cp-specimens({cpId: cp.id})">
+              <span>{{cp.specimenCount | number: 0}}</span>
+            </a>
           </td>
           <td class="col os-click-esc">
             <div class="os-more-option-btns">
               <button class="btn btn-xs btn-default" os-tooltip="{{'cp.view_details' | translate}}"
                 ui-sref="cp-detail.overview({cpId: cp.id})">
                 <span class="fa fa-eye"></span>
-              </button>
-              <button class="btn btn-xs btn-default" os-tooltip="{{'cp.view_participants' | translate}}"
-                ui-sref="participant-list({cpId: cp.id})" ng-if="!cp.specimenCentric">
-                <span class="fa fa-group"></span>
-              </button>
-              <button class="btn btn-xs btn-default" os-tooltip="{{'cp.view_specimens' | translate}}"
-                ui-sref="cp-specimens({cpId: cp.id})" ng-if="cp.specimenCentric">
-                <span class="fa fa-flask"></span>
               </button>
               <button class="btn btn-xs btn-default" os-tooltip="{{'cp.view_catalog' | translate}}"
                 ui-sref="ssc-catalog-dashboard({catalogId: cp.catalogId, cpId: cp.id})" ng-if="!!cp.catalogId">
