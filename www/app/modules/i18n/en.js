@@ -96,6 +96,13 @@
       "max": "Max. {{caption}}"
     },
 
+    "tooltip": {
+      "feedback": "Submit Feedback",
+      "online_help": "Online Help",
+      "notif": "Notifications",
+      "user_profile": "User Profile"
+    },
+
     "buttons": {
       "actions": "Actions",
       "add": "Add",
