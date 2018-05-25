@@ -78,13 +78,14 @@
             <span>{{cp.startDate | date: global.dateFmt}}</span>
           </td>
           <td class="col" ng-switch on="!cp.specimenCentric">
-            <a ng-switch-when="true" ui-sref="participant-list({cpId: cp.id})" ng-if="!cp.specimenCentric">
+            <a ng-switch-when="true" ui-sref="participant-list({cpId: cp.id})" ng-if="!cp.specimenCentric"
+              os-tooltip="{{'cp.view_participants' | translate}}">
               <span>{{cp.participantCount | number: 0}}</span>
             </a>
             <span ng-switch-when="false" translate="common.na"></span>
           </td>
           <td class="col">
-            <a ui-sref="cp-specimens({cpId: cp.id})">
+            <a ui-sref="cp-specimens({cpId: cp.id})" os-tooltip="{{'cp.view_specimens' | translate}}">
               <span>{{cp.specimenCount | number: 0}}</span>
             </a>
           </td>

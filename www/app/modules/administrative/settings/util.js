@@ -49,7 +49,11 @@ angular.module('os.administrative.setting.util', [])
       if (newValue) {
         var q = $q.defer();
         q.resolve(newValue);
-        settings[key] = q.promise;
+        settings[key] = {
+          promise: q.promise,
+          time: new Date().getTime(),
+          value: newValue
+        };
       }
 
       updateAppProps(newValue);
