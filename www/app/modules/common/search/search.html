@@ -1,6 +1,6 @@
 <div ng-controller = "QuickSearchCtrl">
   <div class="input-search os-no-label-form">
-    <input type="text" class="form-control" placeholder="{{'search.quick_search' | translate}}"
+    <input type="text" class="form-control" placeholder="{{'search.quick_search' | translate: ctx}}"
       ng-click="initSearch($event)" readonly>
     </input>
 

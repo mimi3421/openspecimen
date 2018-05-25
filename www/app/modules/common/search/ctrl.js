@@ -5,9 +5,20 @@ angular.module('os.common.search.ctrl', [])
     function init() {
       $scope.quickSearch = {};
 
-      $scope.ctx = {
-        entities: QuickSearchSvc.getEntities(),
-        tmpl: ''
+      var entities = QuickSearchSvc.getEntities();
+      var numEntities = entities.length;
+
+      var placeholder = entities.map(function(entity) { return entity.caption; });
+      if (numEntities > 2) {
+        placeholder = placeholder.slice(0, numEntities - 1).join(', ') + ', or ' + placeholder[numEntities - 1];
+      } else {
+        placeholder = placeholder.join(' or ');
+      }
+
+      var ctx = $scope.ctx = {
+        entities: entities,
+        tmpl: '',
+        names: placeholder
       };
 
       $scope.searchData = {};
