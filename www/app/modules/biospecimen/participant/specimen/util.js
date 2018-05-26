@@ -458,7 +458,7 @@ angular.module('os.biospecimen.specimen')
         function(group) {
           angular.forEach(group.input,
             function(obj) {
-              if (obj.specimen[parentIdProp] == parentId) {
+              if (obj.specimen && obj.specimen[parentIdProp] == parentId) {
                 result.push(obj);
               }
             }
