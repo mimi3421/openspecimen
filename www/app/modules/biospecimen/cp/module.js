@@ -324,7 +324,13 @@ angular.module('os.biospecimen.cp',
         templateUrl: 'modules/biospecimen/cp/dp-settings.html',
         parent: 'cp-detail.settings',
         controller: 'CpDpSettingsCtrl'
-      });
+      })
+      .state('cp-detail.settings.import-workflows', {
+        url: '/import-workflows',
+        templateUrl: 'modules/biospecimen/cp/import-workflows.html',
+        parent: 'cp-detail.settings',
+        controller: 'CpImportWorkflowsCtrl'
+      })
     })
 
     .run(function(UrlResolver) {

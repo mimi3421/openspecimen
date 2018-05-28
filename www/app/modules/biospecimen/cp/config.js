@@ -149,6 +149,27 @@ angular.module('openspecimen')
       );
     }
 
+    function setWorkflows(cp, workflows) {
+      cpWorkflowsMap[cp.id] = workflows;
+      delete cpWorkflowsQ[cp.id];
+
+      var pattern = 'cp-' + cp.id + '-';
+      var matchingKeys = [];
+      angular.forEach(listCfgsMap,
+        function(value, key) {
+          if (key.indexOf(pattern) == 0) {
+            matchingKeys.push(key);
+          }
+        }
+      );
+
+      angular.forEach(matchingKeys,
+        function(key) {
+          delete listCfgsMap[key];
+        }
+      );
+    }
+
     return {
       getRegParticipantTmpl: function(cpId, cprId) {
         if (cprId != -1) { //edit case
@@ -276,6 +297,8 @@ angular.module('openspecimen')
 
       getCommonCfg: getCommonCfg,
 
-      getValue: getValue
+      getValue: getValue,
+
+      setWorkflows: setWorkflows
     }
   });

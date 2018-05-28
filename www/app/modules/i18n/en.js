@@ -392,7 +392,12 @@
       "none": "Custom report settings not created for the CP. Create by clicking on \"Customise Report\" button.",
       "malformed_metrics": "Metrics Configuration JSON syntax is incorrect.",
       "malformed_data_cfg": "Data Configuration JSON is incorrect."
-    }
+    },
+
+    "import_workflows": "Import Workflows",
+    "export_workflows": "Export Workflows",
+    "workflows_file": "Workflows JSON file",
+    "workflows_imported": "Workflows imported."
   },
 
   "participant": {

@@ -442,7 +442,7 @@ public class CollectionProtocolsController {
 			String filename = (workflowDetail.getShortTitle() +  "_workflows.json")
 				.replaceAll("\\\\", "_")  // replace backslash with _
 				.replaceAll("/", "_")     // replace forward slash with _
-				.replaceAll("\\s*", "_"); // replace whitespace with _
+				.replaceAll("\\s+", "_"); // replace whitespace with _
 
 			String workflowsJson = new ObjectMapper().writerWithDefaultPrettyPrinter()
 				.writeValueAsString(resp.getPayload().getWorkflows().values());
