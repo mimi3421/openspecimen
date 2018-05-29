@@ -565,6 +565,13 @@
     <property name="emailService"        ref="emailService"/>
     <property name="deDaoFactory"        ref="deDaoFactory"/>
     <property name="taskExecutor"        ref="taskExecutor"/>
+    <property name="validators">
+      <list>
+        <bean class="com.krishagni.catissueplus.core.administrative.services.impl.DistributionConsentValidator">
+          <property name="daoFactory" ref="biospecimenDaoFactory"/>
+        </bean>
+      </list>
+    </property>
   </bean>
   
   <bean id="dpRequirementFactory"

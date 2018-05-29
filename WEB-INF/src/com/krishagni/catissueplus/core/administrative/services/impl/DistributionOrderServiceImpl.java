@@ -51,6 +51,7 @@ import com.krishagni.catissueplus.core.administrative.events.ReserveSpecimensDet
 import com.krishagni.catissueplus.core.administrative.events.ReturnedSpecimenDetail;
 import com.krishagni.catissueplus.core.administrative.events.StorageLocationSummary;
 import com.krishagni.catissueplus.core.administrative.services.DistributionOrderService;
+import com.krishagni.catissueplus.core.administrative.services.DistributionValidator;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenList;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.SpecimenErrorCode;
@@ -106,6 +107,8 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 
 	private AsyncTaskExecutor taskExecutor;
 
+	private Map<String, DistributionValidator> validators = new LinkedHashMap<>();
+
 	private List<EntityCrudListener<DistributionOrderDetail, DistributionOrder>> listeners = new ArrayList<>();
 
 	public void setDaoFactory(DaoFactory daoFactory) {
@@ -130,6 +133,20 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 
 	public void setTaskExecutor(AsyncTaskExecutor taskExecutor) {
 		this.taskExecutor = taskExecutor;
+	}
+
+	public void setValidators(List<DistributionValidator> validators) {
+		for (DistributionValidator validator : validators) {
+			this.validators.put(validator.getName(), validator);
+		}
+	}
+
+	public void addValidator(DistributionValidator validator) {
+		this.validators.put(validator.getName(), validator);
+	}
+
+	public void removeValidator(String name) {
+		this.validators.remove(name);
 	}
 
 	@Override
@@ -678,12 +695,18 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 
 		ensureDpValidity(inputSpmns, dp, ose);
 
-		int stmtsCount = dp.getConsentTiers().size();
-		if (stmtsCount > 0) {
-			List<String> nonConsentingLabels = daoFactory.getDistributionProtocolDao()
-				.getNonConsentingSpecimens(dp.getId(), specimenIds, stmtsCount);
-			if (!nonConsentingLabels.isEmpty()) {
-				ose.addError(DistributionOrderErrorCode.NON_CONSENTING_SPECIMENS, nonConsentingLabels);
+		Map<String, Object> ctxt = Collections.singletonMap("siteCpPairs", siteCpPairs);
+		for (DistributionValidator validator : validators.values()) {
+			try {
+				validator.validate(dp, inputSpmns, ctxt);
+			} catch (OpenSpecimenException ve) {
+				if (ve.getException() == null) {
+					ose.addErrors(ve.getErrors());
+				} else {
+					throw ve;
+				}
+
+				break;
 			}
 		}
 	}
