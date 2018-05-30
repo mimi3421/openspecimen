@@ -20,7 +20,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -29,6 +28,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -106,13 +106,12 @@ import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.catissueplus.core.query.Column;
 import com.krishagni.catissueplus.core.query.ListConfig;
 import com.krishagni.catissueplus.core.query.ListDetail;
-import com.krishagni.catissueplus.core.query.ListGenerator;
+import com.krishagni.catissueplus.core.query.ListService;
 import com.krishagni.rbac.common.errors.RbacErrorCode;
 import com.krishagni.rbac.events.SubjectRoleOpNotif;
 import com.krishagni.rbac.service.RbacService;
 
-
-public class CollectionProtocolServiceImpl implements CollectionProtocolService, ObjectAccessor {
+public class CollectionProtocolServiceImpl implements CollectionProtocolService, ObjectAccessor, InitializingBean {
 
 	private ThreadPoolTaskExecutor taskExecutor;
 
@@ -126,11 +125,9 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 	
 	private RbacService rbacSvc;
 
-	private ListGenerator listGenerator;
+	private ListService listSvc;
 
 	private CpReportSettingsFactory rptSettingsFactory;
-
-	private Map<String, Function<Map<String, Object>, ListConfig>> listConfigFns = new HashMap<>();
 
 	public void setTaskExecutor(ThreadPoolTaskExecutor taskExecutor) {
 		this.taskExecutor = taskExecutor;
@@ -156,17 +153,12 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 		this.rbacSvc = rbacSvc;
 	}
 
-	public void setListGenerator(ListGenerator listGenerator) {
-		this.listGenerator = listGenerator;
+	public void setListSvc(ListService listSvc) {
+		this.listSvc = listSvc;
 	}
 
 	public void setRptSettingsFactory(CpReportSettingsFactory rptSettingsFactory) {
 		this.rptSettingsFactory = rptSettingsFactory;
-	}
-
-	public CollectionProtocolServiceImpl() {
-		listConfigFns.put("participant-list-view", this::getParticipantsListConfig);
-		listConfigFns.put("specimen-list-view", this::getSpecimenListConfig);
 	}
 
 	@Override
@@ -1165,99 +1157,25 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 	@Override
 	@PlusTransactional
 	public ResponseEvent<ListConfig> getCpListCfg(RequestEvent<Map<String, Object>> req) {
-		try {
-			Map<String, Object> input = req.getPayload();
-			String listName = (String)input.get("listName");
-
-			ListConfig cfg = getListConfig(input, listName, null);
-			if (cfg == null) {
-				//
-				// TODO: return appropriate error code
-				//
-				return ResponseEvent.response(null);
-			}
-
-			cfg.setFilters(listGenerator.getFilters(cfg));
-			return ResponseEvent.response(cfg);
-		} catch (OpenSpecimenException ose) {
-			return ResponseEvent.error(ose);
-		} catch (Exception e) {
-			return ResponseEvent.serverError(e);
-		}
+		return listSvc.getListCfg(req);
 	}
 
 	@Override
 	@PlusTransactional
 	public ResponseEvent<ListDetail> getList(RequestEvent<Map<String, Object>> req) {
-		try {
-			Map<String, Object> listReq = req.getPayload();
-			String listName = (String)listReq.get("listName");
-			Function<Map<String, Object>, ListConfig> configFn = listConfigFns.get(listName);
-			if (configFn == null) {
-				return ResponseEvent.response(null);
-			}
-
-			ListConfig cfg = configFn.apply(listReq);
-			if (cfg == null) {
-				return ResponseEvent.response(null);
-			}
-
-			return ResponseEvent.response(listGenerator.getList(cfg, (List<Column>)listReq.get("filters")));
-		} catch (OpenSpecimenException ose) {
-			return ResponseEvent.error(ose);
-		} catch (Exception e) {
-			return ResponseEvent.serverError(e);
-		}
+		return listSvc.getList(req);
 	}
 
 	@Override
 	@PlusTransactional
 	public ResponseEvent<Integer> getListSize(RequestEvent<Map<String, Object>> req) {
-		try {
-			Map<String, Object> listReq = req.getPayload();
-			String listName = (String)listReq.get("listName");
-			Function<Map<String, Object>, ListConfig> configFn = listConfigFns.get(listName);
-			if (configFn == null) {
-				return ResponseEvent.response(null);
-			}
-
-			ListConfig cfg = configFn.apply(listReq);
-			if (cfg == null) {
-				return ResponseEvent.response(null);
-			}
-
-			return ResponseEvent.response(listGenerator.getListSize(cfg, (List<Column>)listReq.get("filters")));
-		} catch (OpenSpecimenException ose) {
-			return ResponseEvent.error(ose);
-		} catch (Exception e) {
-			return ResponseEvent.serverError(e);
-		}
+		return listSvc.getListSize(req);
 	}
 
 	@Override
 	@PlusTransactional
 	public ResponseEvent<Collection<Object>> getListExprValues(RequestEvent<Map<String, Object>> req) {
-		try {
-			Map<String, Object> listReq = req.getPayload();
-			String listName = (String)listReq.get("listName");
-			Function<Map<String, Object>, ListConfig> configFn = listConfigFns.get(listName);
-			if (configFn == null) {
-				return ResponseEvent.response(null);
-			}
-
-			ListConfig cfg = configFn.apply(listReq);
-			if (cfg == null) {
-				return ResponseEvent.response(null);
-			}
-
-			String expr = (String)listReq.get("expr");
-			String searchTerm = (String)listReq.get("searchTerm");
-			return ResponseEvent.response(listGenerator.getExpressionValues(cfg, expr, searchTerm));
-		} catch (OpenSpecimenException ose) {
-			return ResponseEvent.error(ose);
-		} catch (Exception e) {
-			return ResponseEvent.serverError(e);
-		}
+		return listSvc.getListExprValues(req);
 	}
 
 	@Override
@@ -1284,6 +1202,12 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 	public void ensureReadAllowed(Long id) {
 		CollectionProtocol cp = getCollectionProtocol(id, null, null);
 		AccessCtrlMgr.getInstance().ensureReadCpRights(cp);
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		listSvc.registerListConfigurator("participant-list-view", this::getParticipantsListConfig);
+		listSvc.registerListConfigurator("specimen-list-view", this::getSpecimenListConfig);
 	}
 
 	private CpListCriteria addCpListCriteria(CpListCriteria crit) {
