@@ -994,6 +994,36 @@
 
     <row>
       <subForm>
+        <name>specimenCarts</name>
+        <udn>specimenCarts</udn>
+        <caption>#getMessage("specimen_carts")</caption>
+        <table>OS_SPECIMEN_CARTS_VIEW</table>
+        <foreignKey>SPECIMEN_ID</foreignKey>
+        <parentKey>IDENTIFIER</parentKey>
+        <primaryKey>SPECIMEN_ID</primaryKey>
+
+        <row>
+          <textField>
+            <name>name</name>
+            <udn>name</udn>
+            <caption>#getMessage("specimen_cart_name")</caption>
+            <column>NAME</column>
+          </textField>
+        </row>
+
+        <row>
+          <numberField>
+            <name>itemId</name>
+            <udn>itemId</udn>
+            <caption>#getMessage("specimen_cart_item_id")</caption>
+            <column>ITEM_ID</column>
+          </numberField>
+        </row>
+      </subForm>
+    </row>
+
+    <row>
+      <subForm>
         <name>extensions</name>
         <udn>extensions</udn>
         <caption>#getMessage("specimen_extensions")</caption>

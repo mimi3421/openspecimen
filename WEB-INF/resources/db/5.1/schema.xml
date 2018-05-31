@@ -10,4 +10,16 @@
       <column name="ATOMIC" type="${boolean.type}"/>
     </addColumn>
   </changeSet>
+
+  <changeSet author="vpawar" id="Specimen carts view">
+    <createView viewName="OS_SPECIMEN_CARTS_VIEW" replaceIfExists="true">
+      select
+        ci.obj_id as specimen_id, c.tag_label as name, ci.identifier as item_id
+      from
+        catissue_specimenlist_tags c
+        inner join catissue_spec_tag_items ci on ci.tag_id = c.identifier
+      where
+        c.deleted_on is null
+    </createView>
+  </changeSet>
 </databaseChangeLog>
