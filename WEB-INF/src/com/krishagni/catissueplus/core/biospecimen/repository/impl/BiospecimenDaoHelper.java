@@ -1,9 +1,11 @@
 package com.krishagni.catissueplus.core.biospecimen.repository.impl;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Junction;
@@ -90,5 +92,52 @@ public class BiospecimenDaoHelper {
 		}
 
 		query.add(cpSitesCond);
+	}
+
+	public String getSiteCpsCondAql(List<Pair<Long, Long>> siteCps, boolean useMrnSites) {
+		if (CollectionUtils.isEmpty(siteCps)) {
+			return StringUtils.EMPTY;
+		}
+
+		List<String> cpSitesCond = new ArrayList<>(); // joined by or
+		for (Pair<Long, Long> siteCp : siteCps) {
+			Long siteId = siteCp.first();
+			Long cpId = siteCp.second();
+
+			List<String> siteCond = new ArrayList<>(); // joined by or
+			if (useMrnSites) {
+				//
+				// When MRNs exist, site ID should be one of the MRN site
+				//
+				String mrnSite =
+					"Participant.medicalRecord.mrnSiteId exists and " +
+					"Participant.medicalRecord.mrnSite.id = " + siteId;
+
+				//
+				// When no MRNs exist, site ID should be one of CP site
+				//
+				String cpSite =
+					"Participant.medicalRecord.mrnSiteId not exists and " +
+					"CollectionProtocol.cpSites.siteId = " + siteId;
+
+				siteCond.add(mrnSite);
+				siteCond.add(cpSite);
+			} else {
+				//
+				// Site ID should be either MRN site or CP site
+				//
+				siteCond.add("Participant.medicalRecord.mrnSite.id = " + siteId);
+				siteCond.add("CollectionProtocol.cpSites.siteId = " + siteId);
+			}
+
+			String cond = "(" + StringUtils.join(siteCond, " or ") + ")";
+			if (cpId != null) {
+				cond += " and CollectionProtocol.id = " + cpId;
+			}
+
+			cpSitesCond.add("(" + cond + ")");
+		}
+
+		return "(" + StringUtils.join(cpSitesCond, " or ") + ")";
 	}
 }

@@ -2005,7 +2005,11 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 	}
 
 	private ListConfig getListConfig(Map<String, Object> listReq, String listName, String drivingForm) {
-		Long cpId = (Long)listReq.get("cpId");
+		Long cpId = (Long) listReq.get("cpId");
+		if (cpId == null) {
+			cpId = (Long) listReq.get("objectId");
+		}
+
 		Workflow workflow = getWorkFlow(cpId, listName);
 		if (workflow == null) {
 			return null;

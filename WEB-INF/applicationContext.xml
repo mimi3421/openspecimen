@@ -380,6 +380,7 @@
   <bean id="specimenListSvc" class="com.krishagni.catissueplus.core.biospecimen.services.impl.SpecimenListServiceImpl">
     <property name="daoFactory" ref="biospecimenDaoFactory"/>
     <property name="specimenListFactory" ref="specimenListFactory"/>
+    <property name="listSvc" ref="listSvc"/>
   </bean>
 
   <bean id="specimenKitFactory" class="com.krishagni.catissueplus.core.biospecimen.domain.factory.impl.SpecimenKitFactoryImpl">

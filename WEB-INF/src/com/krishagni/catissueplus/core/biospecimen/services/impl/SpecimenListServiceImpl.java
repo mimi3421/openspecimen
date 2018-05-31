@@ -19,6 +19,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.InitializingBean;
 
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainerPosition;
 import com.krishagni.catissueplus.core.administrative.domain.User;
@@ -36,6 +37,7 @@ import com.krishagni.catissueplus.core.biospecimen.events.UpdateListSpecimensOp;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.biospecimen.repository.SpecimenListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.repository.SpecimenListsCriteria;
+import com.krishagni.catissueplus.core.biospecimen.repository.impl.BiospecimenDaoHelper;
 import com.krishagni.catissueplus.core.biospecimen.services.SpecimenListService;
 import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
@@ -54,15 +56,20 @@ import com.krishagni.catissueplus.core.common.util.CsvWriter;
 import com.krishagni.catissueplus.core.common.util.EmailUtil;
 import com.krishagni.catissueplus.core.common.util.MessageUtil;
 import com.krishagni.catissueplus.core.common.util.NotifUtil;
+import com.krishagni.catissueplus.core.query.ListConfig;
+import com.krishagni.catissueplus.core.query.ListService;
+import com.krishagni.catissueplus.core.query.ListUtil;
 
 
-public class SpecimenListServiceImpl implements SpecimenListService {
+public class SpecimenListServiceImpl implements SpecimenListService, InitializingBean {
 
 	private static final Pattern DEF_LIST_NAME_PATTERN = Pattern.compile("\\$\\$\\$\\$user_\\d+");
 
 	private SpecimenListFactory specimenListFactory;
 	
 	private DaoFactory daoFactory;
+
+	private ListService listSvc;
 
 	public SpecimenListFactory getSpecimenListFactory() {
 		return specimenListFactory;
@@ -78,6 +85,10 @@ public class SpecimenListServiceImpl implements SpecimenListService {
 
 	public void setDaoFactory(DaoFactory daoFactory) {
 		this.daoFactory = daoFactory;
+	}
+
+	public void setListSvc(ListService listSvc) {
+		this.listSvc = listSvc;
 	}
 
 	@Override
@@ -338,6 +349,12 @@ public class SpecimenListServiceImpl implements SpecimenListService {
 		} catch (Exception e) {
 			return ResponseEvent.serverError(e);
 		}
+	}
+
+	@Override
+	public void afterPropertiesSet()
+	throws Exception {
+		listSvc.registerListConfigurator("cart-specimens-list-view", this::getListSpecimensConfig);
 	}
 
 	private SpecimenListsCriteria addSpecimenListsCriteria(SpecimenListsCriteria crit) {
@@ -704,6 +721,39 @@ public class SpecimenListServiceImpl implements SpecimenListService {
 	private String getNotifMsg(SpecimenList specimenList, String op) {
 		String msgKey = "specimen_list_user_notif_" + op.toLowerCase();
 		return MessageUtil.getInstance().getMessage(msgKey, new String[] { specimenList.getName() });
+	}
+
+	private ListConfig getListSpecimensConfig(Map<String, Object> listReq) {
+		Number listId = (Number) listReq.get("listId");
+		if (listId == null) {
+			listId = (Number) listReq.get("objectId");
+		}
+
+		SpecimenList list = getSpecimenList(listId.longValue(), null);
+
+		ListConfig cfg = ListUtil.getSpecimensListConfig("cart-specimens-list-view", true);
+		ListUtil.addHiddenFieldsOfSpecimen(cfg);
+		if (cfg == null) {
+			return null;
+		}
+
+		List<Pair<Long, Long>> siteCps = AccessCtrlMgr.getInstance().getReadAccessSpecimenSiteCps();
+		if (siteCps != null && siteCps.isEmpty()) {
+			throw OpenSpecimenException.userError(SpecimenListErrorCode.ACCESS_NOT_ALLOWED);
+		}
+
+		String restriction = "Specimen.specimenCarts.name = \"" + list.getName() + "\"";
+
+		boolean useMrnSites = AccessCtrlMgr.getInstance().isAccessRestrictedBasedOnMrn();
+		String cpSitesCond = BiospecimenDaoHelper.getInstance().getSiteCpsCondAql(siteCps, useMrnSites);
+		if (StringUtils.isNotBlank(cpSitesCond)) {
+			restriction += " and " + cpSitesCond;
+		}
+
+		cfg.setDrivingForm("Specimen");
+		cfg.setRestriction(restriction);
+		cfg.setDistinct(true);
+		return ListUtil.setListLimit(cfg, listReq);
 	}
 
 	private String getMsg(String code) {

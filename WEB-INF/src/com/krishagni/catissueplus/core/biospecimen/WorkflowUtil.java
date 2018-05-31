@@ -1,6 +1,7 @@
 package com.krishagni.catissueplus.core.biospecimen;
 
 import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
@@ -43,6 +44,15 @@ public class WorkflowUtil {
 		}
 
 		return sysWorkflows.getWorkflows().get(name);
+	}
+
+	public <T> T getSysWorkflow(String name, Class<T> klass) {
+		Workflow workflow = getSysWorkflow(name);
+		if (workflow != null) {
+			return new ObjectMapper().convertValue(workflow.getData(), klass);
+		}
+
+		return null;
 	}
 
 	private CpWorkflowConfig getSysWorkflows0() {
