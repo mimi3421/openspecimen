@@ -381,6 +381,8 @@
     <property name="daoFactory" ref="biospecimenDaoFactory"/>
     <property name="specimenListFactory" ref="specimenListFactory"/>
     <property name="listSvc" ref="listSvc"/>
+    <property name="deDaoFactory" ref="deDaoFactory"/>
+    <property name="querySvc" ref="querySvc"/>
   </bean>
 
   <bean id="specimenKitFactory" class="com.krishagni.catissueplus.core.biospecimen.domain.factory.impl.SpecimenKitFactoryImpl">

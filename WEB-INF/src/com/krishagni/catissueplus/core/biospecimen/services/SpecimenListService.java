@@ -2,7 +2,6 @@ package com.krishagni.catissueplus.core.biospecimen.services;
 
 import java.util.List;
 
-import com.krishagni.catissueplus.core.biospecimen.events.ListSpecimensDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.ShareSpecimenListOp;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenInfo;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenListDetail;
@@ -11,10 +10,10 @@ import com.krishagni.catissueplus.core.biospecimen.events.UpdateListSpecimensOp;
 import com.krishagni.catissueplus.core.biospecimen.repository.SpecimenListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.repository.SpecimenListsCriteria;
 import com.krishagni.catissueplus.core.common.events.EntityQueryCriteria;
-import com.krishagni.catissueplus.core.common.events.ExportedFileDetail;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
+import com.krishagni.catissueplus.core.de.events.QueryDataExportResult;
 
 public interface SpecimenListService {
 	ResponseEvent<List<SpecimenListSummary>> getSpecimenLists(RequestEvent<SpecimenListsCriteria> req);
@@ -41,5 +40,5 @@ public interface SpecimenListService {
 
 	ResponseEvent<Boolean> addChildSpecimens(RequestEvent<Long> req);
 
-	ResponseEvent<ExportedFileDetail> exportSpecimenList(RequestEvent<EntityQueryCriteria> req);
+	ResponseEvent<QueryDataExportResult> exportSpecimenList(RequestEvent<EntityQueryCriteria> req);
 }

@@ -51,8 +51,8 @@
               <span translate="specimen_list.inc_child_spmns">Include Child Specimens</span>
             </a>
           </li>
-          <li>
-            <a target="_blank" href="{{ctx.url + '/' + ctx.list.id + '/csv-file'}}">
+          <li ng-if="ctx.rptTmplConfigured">
+            <a ng-click="downloadReport()">
               <span class="fa fa-download"></span>
               <span translate="specimen_list.export">Export Cart</span>
             </a>

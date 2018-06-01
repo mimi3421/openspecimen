@@ -14,4 +14,14 @@
       );
     </sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="Saved query to use for cart specimens report">
+    <sql>
+      call add_cfg_prop(
+        'common', 'cart_specimens_rpt_query',
+        'cart_specimens_rpt_query', 'cart_specimens_rpt_query_desc',
+        'INT', ''
+      );
+    </sql>
+  </changeSet>
 </databaseChangeLog>

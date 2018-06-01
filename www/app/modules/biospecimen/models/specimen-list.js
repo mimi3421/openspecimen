@@ -69,10 +69,10 @@ angular.module('os.biospecimen.models.specimenlist', ['os.common.models'])
       );
     }
 
-    SpecimenList.prototype.getSpecimenSortedByRel = function() {
-      return $http.get(SpecimenList.url() + this.$id() + '/specimens-sorted-by-rel').then(
-        function(result) {
-          return result.data;
+    SpecimenList.prototype.generateReport = function() {
+      return $http.get(SpecimenList.url() + this.$id() + '/report').then(
+        function(resp) {
+          return resp.data;
         }
       );
     }

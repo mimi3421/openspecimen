@@ -1,27 +1,25 @@
 package com.krishagni.catissueplus.core.biospecimen.services.impl;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.InitializingBean;
 
-import com.krishagni.catissueplus.core.administrative.domain.StorageContainerPosition;
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.biospecimen.ConfigParams;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
@@ -45,21 +43,26 @@ import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
 import com.krishagni.catissueplus.core.common.domain.Notification;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.EntityQueryCriteria;
-import com.krishagni.catissueplus.core.common.events.ExportedFileDetail;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.catissueplus.core.common.util.ConfigUtil;
-import com.krishagni.catissueplus.core.common.util.CsvFileWriter;
-import com.krishagni.catissueplus.core.common.util.CsvWriter;
 import com.krishagni.catissueplus.core.common.util.EmailUtil;
 import com.krishagni.catissueplus.core.common.util.MessageUtil;
 import com.krishagni.catissueplus.core.common.util.NotifUtil;
+import com.krishagni.catissueplus.core.common.util.Utility;
+import com.krishagni.catissueplus.core.de.domain.SavedQuery;
+import com.krishagni.catissueplus.core.de.events.ExecuteQueryEventOp;
+import com.krishagni.catissueplus.core.de.events.QueryDataExportResult;
+import com.krishagni.catissueplus.core.de.services.QueryService;
+import com.krishagni.catissueplus.core.de.services.SavedQueryErrorCode;
 import com.krishagni.catissueplus.core.query.Column;
 import com.krishagni.catissueplus.core.query.ListConfig;
 import com.krishagni.catissueplus.core.query.ListService;
 import com.krishagni.catissueplus.core.query.ListUtil;
+
+import edu.common.dynamicextensions.query.WideRowMode;
 
 
 public class SpecimenListServiceImpl implements SpecimenListService, InitializingBean {
@@ -71,6 +74,10 @@ public class SpecimenListServiceImpl implements SpecimenListService, Initializin
 	private DaoFactory daoFactory;
 
 	private ListService listSvc;
+
+	private com.krishagni.catissueplus.core.de.repository.DaoFactory deDaoFactory;
+
+	private QueryService querySvc;
 
 	public SpecimenListFactory getSpecimenListFactory() {
 		return specimenListFactory;
@@ -90,6 +97,14 @@ public class SpecimenListServiceImpl implements SpecimenListService, Initializin
 
 	public void setListSvc(ListService listSvc) {
 		this.listSvc = listSvc;
+	}
+
+	public void setDeDaoFactory(com.krishagni.catissueplus.core.de.repository.DaoFactory deDaoFactory) {
+		this.deDaoFactory = deDaoFactory;
+	}
+
+	public void setQuerySvc(QueryService querySvc) {
+		this.querySvc = querySvc;
 	}
 
 	@Override
@@ -340,7 +355,7 @@ public class SpecimenListServiceImpl implements SpecimenListService, Initializin
 
 	@Override
 	@PlusTransactional
-	public ResponseEvent<ExportedFileDetail> exportSpecimenList(RequestEvent<EntityQueryCriteria> req) {
+	public ResponseEvent<QueryDataExportResult> exportSpecimenList(RequestEvent<EntityQueryCriteria> req) {
 		try {
 			EntityQueryCriteria crit = req.getPayload();
 			SpecimenList list = getSpecimenList(crit.getId(), crit.getName());
@@ -578,99 +593,50 @@ public class SpecimenListServiceImpl implements SpecimenListService, Initializin
 		return specimenList;
 	}
 
-	private ExportedFileDetail exportSpecimenList(SpecimenList list) {
-		String listName = list.getName();
-		FileWriter fileWriter = null;
-		CsvWriter csvWriter = null;
-		File dataFile = null;
-
-		try {
-			if (list.isDefaultList()) {
-				listName = list.getOwner().formattedName() + " " + getMsg(LIST_DEFAULT);
-			}
-
-			File dataDir = new File(ConfigUtil.getInstance().getDataDir());
-			dataFile = File.createTempFile("specimen-list-", ".csv", dataDir);
-			fileWriter = new FileWriter(dataFile);
-			csvWriter = CsvFileWriter.createCsvFileWriter(fileWriter);
-
-			csvWriter.writeNext(new String[] { getMsg(LIST_NAME), listName});
-			csvWriter.writeNext(new String[] { getMsg(LIST_DESC), list.getDescription()});
-			csvWriter.writeNext(new String[0]);
-
-			csvWriter.writeNext(getHeaderRow());
-
-			List<Pair<Long, Long>> siteCpPairs = AccessCtrlMgr.getInstance().getReadAccessSpecimenSiteCps();
-			if (siteCpPairs == null || !siteCpPairs.isEmpty()) {
-				exportSpecimenList(list, siteCpPairs, csvWriter);
-			}
-
-			csvWriter.flush();
-		} catch (Exception e) {
-			if (dataFile != null) {
-				dataFile.delete();
-			}
-
-			throw new RuntimeException("Error exporting specimen list", e);
-		} finally {
-			IOUtils.closeQuietly(fileWriter);
-			IOUtils.closeQuietly(csvWriter);
+	private QueryDataExportResult exportSpecimenList(final SpecimenList list) {
+		Integer queryId = ConfigUtil.getInstance().getIntSetting("common", "cart_specimens_rpt_query", -1);
+		if (queryId == -1) {
+			return null;
 		}
 
-		return new ExportedFileDetail(listName, dataFile);
-	}
-
-	private void exportSpecimenList(SpecimenList list, List<Pair<Long, Long>> siteCps, CsvWriter csvWriter)
-	throws IOException {
-		SpecimenListCriteria crit = new SpecimenListCriteria()
-			.siteCps(siteCps)
-			.specimenListId(list.getId())
-			.limitItems(true)
-			.maxResults(100);
-
-		boolean endOfList = false;
-		int startAt = 0;
-		while (!endOfList) {
-			crit.startAt(startAt);
-
-			List<Specimen> specimens = daoFactory.getSpecimenDao().getSpecimens(crit);
-			specimens.forEach(spmn -> csvWriter.writeNext(getDataRow(spmn)));
-
-			endOfList = (specimens.size() < crit.maxResults());
-			startAt += specimens.size();
-			csvWriter.flush();
-		}
-	}
-
-	private String[] getHeaderRow() {
-		return new String[] {
-			getMsg(SPMN_LABEL),
-			getMsg(SPMN_CP),
-			getMsg(SPMN_LINEAGE),
-			getMsg(SPMN_CLASS),
-			getMsg(SPMN_TYPE),
-			getMsg(SPMN_PATHOLOGY),
-			getMsg(SPMN_LOC),
-			getMsg(SPMN_QTY)
-		};
-	}
-
-	private String[] getDataRow(Specimen specimen) {
-		String availableQty = "";
-		if (specimen.getAvailableQuantity() != null) {
-			availableQty = specimen.getAvailableQuantity().stripTrailingZeros().toString();
+		SavedQuery query = deDaoFactory.getSavedQueryDao().getQuery(queryId.longValue());
+		if (query == null) {
+			throw OpenSpecimenException.userError(SavedQueryErrorCode.NOT_FOUND, queryId);
 		}
 
-		return new String[] {
-			specimen.getLabel(),
-			specimen.getCollectionProtocol().getShortTitle(),
-			specimen.getLineage(),
-			specimen.getSpecimenClass(),
-			specimen.getSpecimenType(),
-			specimen.getPathologicalStatus(),
-			StorageContainerPosition.getDisplayString(specimen.getPosition()),
-			availableQty
-		};
+		String restriction = "Specimen.specimenCarts.name = \"" + list.getName() + "\"";
+
+		List<Pair<Long, Long>> siteCpPairs = AccessCtrlMgr.getInstance().getReadAccessSpecimenSiteCps();
+		String siteCpRestriction = BiospecimenDaoHelper.getInstance().getSiteCpsCondAql(
+			siteCpPairs, AccessCtrlMgr.getInstance().isAccessRestrictedBasedOnMrn());
+		if (StringUtils.isNotBlank(siteCpRestriction)) {
+			restriction += " and " + siteCpRestriction;
+		}
+
+
+		ExecuteQueryEventOp op = new ExecuteQueryEventOp();
+		op.setDrivingForm("Participant");
+		op.setAql(query.getAql(restriction));
+		op.setWideRowMode(WideRowMode.DEEP.name());
+		op.setRunType("Export");
+		return querySvc.exportQueryData(op, new QueryService.ExportProcessor() {
+			@Override
+			public String filename() {
+				return "cart_" + list.getId() + "_" + UUID.randomUUID().toString();
+			}
+
+			@Override
+			public void headers(OutputStream out) {
+				String notSpecified = msg("common_not_specified");
+
+				Map<String, String> headers = new LinkedHashMap<String, String>() {{
+					put(msg(LIST_NAME), list.getName());
+					put(msg(LIST_DESC), StringUtils.isNotBlank(list.getDescription()) ? list.getDescription() : notSpecified);
+				}};
+
+				Utility.writeKeyValuesToCsv(out, headers);
+			}
+		});
 	}
 
 	private void notifyUsersOnCreate(SpecimenList specimenList) {
@@ -762,31 +728,13 @@ public class SpecimenListServiceImpl implements SpecimenListService, Initializin
 		return ListUtil.setListLimit(cfg, listReq);
 	}
 
-	private String getMsg(String code) {
+	private String msg(String code) {
 		return MessageUtil.getInstance().getMessage(code);
 	}
 
 	private static final String LIST_NAME      = "specimen_list_name";
 
 	private static final String LIST_DESC      = "specimen_list_description";
-
-	private static final String LIST_DEFAULT   = "specimen_list_default_user_list";
-
-	private static final String SPMN_LABEL     = "specimen_label";
-
-	private static final String SPMN_CLASS     = "specimen_class";
-
-	private static final String SPMN_TYPE      = "specimen_type";
-
-	private static final String SPMN_PATHOLOGY = "specimen_pathology";
-
-	private static final String SPMN_CP        = "specimen_cp_short";
-
-	private static final String SPMN_QTY       = "specimen_quantity";
-
-	private static final String SPMN_LOC       = "specimen_location";
-
-	private static final String SPMN_LINEAGE   = "specimen_lineage";
 
 	private static final String SPECIMEN_LIST_SHARED_TMPL = "specimen_list_shared";
 }

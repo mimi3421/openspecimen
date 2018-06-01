@@ -1,7 +1,7 @@
 angular.module('os.biospecimen.specimenlist')
   .controller('SpecimenListSpecimensCtrl', function(
     $scope, $state, $stateParams, $injector, currentUser, list,
-    Specimen, SpecimensHolder, SpecimenList, CollectionProtocol, Container, DeleteUtil, Alerts, Util) {
+    Specimen, SpecimensHolder, DeleteUtil, Alerts, Util, SettingUtil) {
 
     function init() { 
       $scope.specimenUpdateOpts = {resource: 'VisitAndSpecimen', operations: ['Update']};
@@ -13,7 +13,6 @@ angular.module('os.biospecimen.specimenlist')
           listName: 'cart-specimens-list-view',
           objectId: list.id
         },
-        url: SpecimenList.url(),
         breadcrumbs: $stateParams.breadcrumbs,
         reqBasedDistOrShip: false
       }
@@ -25,6 +24,12 @@ angular.module('os.biospecimen.specimenlist')
           }
         );
       }
+
+      SettingUtil.getSetting('common', 'cart_specimens_rpt_query').then(
+        function(setting) {
+          $scope.ctx.rptTmplConfigured = !!setting.value;
+        }
+      );
     }
 
     function loadSpecimens() {
@@ -102,6 +107,10 @@ angular.module('os.biospecimen.specimenlist')
     $scope.setListCtrl = function(listCtrl) {
       $scope.ctx.listCtrl = listCtrl;
       $scope.ctx.showSearch = listCtrl.haveFilters;
+    }
+
+    $scope.downloadReport = function() {
+      Util.downloadReport(list, 'specimen_list');
     }
 
     init();
