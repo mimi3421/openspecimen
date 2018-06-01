@@ -56,6 +56,7 @@ import com.krishagni.catissueplus.core.common.util.CsvWriter;
 import com.krishagni.catissueplus.core.common.util.EmailUtil;
 import com.krishagni.catissueplus.core.common.util.MessageUtil;
 import com.krishagni.catissueplus.core.common.util.NotifUtil;
+import com.krishagni.catissueplus.core.query.Column;
 import com.krishagni.catissueplus.core.query.ListConfig;
 import com.krishagni.catissueplus.core.query.ListService;
 import com.krishagni.catissueplus.core.query.ListUtil;
@@ -750,9 +751,14 @@ public class SpecimenListServiceImpl implements SpecimenListService, Initializin
 			restriction += " and " + cpSitesCond;
 		}
 
+		Column orderBy = new Column();
+		orderBy.setExpr("Specimen.specimenCarts.itemId");
+		orderBy.setDirection("asc");
+
 		cfg.setDrivingForm("Specimen");
 		cfg.setRestriction(restriction);
 		cfg.setDistinct(true);
+		cfg.setOrderBy(Collections.singletonList(orderBy));
 		return ListUtil.setListLimit(cfg, listReq);
 	}
 

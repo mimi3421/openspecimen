@@ -2,7 +2,9 @@ package com.krishagni.catissueplus.core.biospecimen.repository.impl;
 
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -99,7 +101,7 @@ public class BiospecimenDaoHelper {
 			return StringUtils.EMPTY;
 		}
 
-		List<String> cpSitesCond = new ArrayList<>(); // joined by or
+		Set<String> cpSitesCond = new LinkedHashSet<>(); // joined by or
 		for (Pair<Long, Long> siteCp : siteCps) {
 			Long siteId = siteCp.first();
 			Long cpId = siteCp.second();
@@ -111,7 +113,7 @@ public class BiospecimenDaoHelper {
 				//
 				String mrnSite =
 					"Participant.medicalRecord.mrnSiteId exists and " +
-					"Participant.medicalRecord.mrnSite.id = " + siteId;
+					"Participant.medicalRecord.mrnSiteId = " + siteId;
 
 				//
 				// When no MRNs exist, site ID should be one of CP site
@@ -126,7 +128,7 @@ public class BiospecimenDaoHelper {
 				//
 				// Site ID should be either MRN site or CP site
 				//
-				siteCond.add("Participant.medicalRecord.mrnSite.id = " + siteId);
+				siteCond.add("Participant.medicalRecord.mrnSiteId = " + siteId);
 				siteCond.add("CollectionProtocol.cpSites.siteId = " + siteId);
 			}
 

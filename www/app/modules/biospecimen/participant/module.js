@@ -173,11 +173,6 @@ angular.module('os.biospecimen.participant',
         url: '/participants?filters',
         templateUrl: 'modules/biospecimen/participant/list.html',
         controller: 'ParticipantListCtrl',
-        resolve: {
-          participantListCfg: function(cp, CpConfigSvc) {
-            return CpConfigSvc.getListConfig(cp, 'participant-list-view');
-          }
-        },
         metaInfo: {
           button: {
             icon: 'fa-group',

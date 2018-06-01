@@ -149,5 +149,89 @@
                 }
             ]
         }
+    },
+    {
+        "name": "common-specimens-list-view",
+        "data": {
+            "columns": [
+                {
+                    "expr": "Participant.ppid",
+                    "caption": "PPID"
+                },
+                {
+                    "expr": "Specimen.label",
+                    "caption": "Label",
+                    "metainfo": {
+                        "showLink": "true"
+                    }
+                },
+                {
+                    "expr": "Specimen.lineage",
+                    "caption": "Lineage"
+                },
+                {
+                    "expr": "Specimen.type",
+                    "caption": "Type"
+                },
+                {
+                    "expr": "Specimen.tissueSite",
+                    "caption": "Anatomic Site"
+                },
+                {
+                    "expr": "CollectionProtocol.shortTitle",
+                    "caption": "Collection Protocol"
+                },
+                {
+                    "expr": "Specimen.availableQty",
+                    "caption": "Quantity",
+                    "metainfo": {
+                        "showUnit": "true",
+                        "measure": "quantity"
+                    }
+                },
+                {
+                    "expr": "concat(Specimen.specimenPosition.containerName, concat_ws(\"\", concat(\" (\", Specimen.specimenPosition.formattedPos, \")\")))",
+                    "caption": "Location"
+                }
+            ],
+            "criteria": "",
+            "orderBy": [],
+            "filters": [
+                {
+                    "expr": "Participant.ppid",
+                    "caption": "PPID",
+                    "searchType": "contains"
+                },
+                {
+                    "expr": "Specimen.label",
+                    "caption": "Label",
+                    "searchType": "contains"
+                },
+                {
+                    "expr": "Specimen.lineage",
+                    "caption": "Lineage"
+                },
+                {
+                    "expr": "Specimen.type",
+                    "caption": "Type"
+                },
+                {
+                    "expr": "Specimen.tissueSite",
+                    "caption": "Anatomic Site"
+                },
+                {
+                    "expr": "CollectionProtocol.shortTitle",
+                    "caption": "Collection Protocol"
+                },
+                {
+                    "expr": "Specimen.availableQty",
+                    "caption": "Quantity"
+                },
+                {
+                    "expr": "Specimen.specimenPosition.containerName",
+                    "caption": "Storage Container"
+                }
+            ]
+        }
     }
 ]

@@ -1979,7 +1979,6 @@
     "filter_lists": "Filters",
     "search_def_list_tip": "Use $$ to search users' default carts",
     "add_child_specimens": "Add Child Specimens",
-    "sort_by_rel": "Sort by Relationship",
     "child_specimens_added": "Successfully added {{count}} child specimens",
     "available_spmns": "Available Specimens",
     "enter_specimen_label": "Enter specimen labels or barcodes separated by a comma, tab or newline"

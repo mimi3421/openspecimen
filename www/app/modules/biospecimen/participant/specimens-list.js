@@ -1,16 +1,11 @@
 angular.module('os.biospecimen.participant')
   .controller('SpecimensListViewCtrl', function(
-    $scope, $state, currentUser, cp, spmnListCfg, sdeConfigured,
-    PluginReg, Util, Specimen, SpecimensHolder, DeleteUtil, Alerts, ListPagerOpts) {
+    $scope, $state, currentUser, cp, sdeConfigured,
+    PluginReg, Specimen, SpecimensHolder, Alerts) {
 
     var ctrl = this;
 
-    var pagerOpts, listParams;
-
     function init() {
-      pagerOpts  = new ListPagerOpts({listSizeGetter: getSpecimensCount});
-      listParams = {listName: 'specimen-list-view', maxResults: pagerOpts.recordsPerPage + 1};
-
       ctrl.showAddSpmn = !sdeConfigured,
       ctrl.resourceOpts = {
         orderCreateOpts:    $scope.orderCreateOpts,
@@ -20,11 +15,10 @@ angular.module('os.biospecimen.participant')
       }
 
       $scope.ctx = {
-        filtersCfg: angular.copy(spmnListCfg.filters),
-        filters: Util.filterOpts({}),
-        specimens: {},
-        listSize: -1,
-        pagerOpts: pagerOpts,
+        params: {
+          listName: 'specimen-list-view',
+          objectId: cp.id
+        },
         resourceOpts: ctrl.resourceOpts
       };
 
@@ -33,57 +27,12 @@ angular.module('os.biospecimen.participant')
         ctrl: ctrl,
         headerActionsTmpl: 'modules/biospecimen/participant/specimens-list-pager.html',
         headerButtonsTmpl: 'modules/biospecimen/participant/specimens-list-ops.html',
-        showSearch: (spmnListCfg.filters && spmnListCfg.filters.length > 0),
         showPrimaryBtnDd: !!cp.bulkPartRegEnabled || (PluginReg.getTmpls('participant-list', 'primary-button').length > 0)
       });
-
-      Util.filter($scope, 'ctx.filters', loadSpecimens);
-    }
-
-    function loadSpecimens() {
-      var params = angular.extend({}, listParams);
-      if (pagerOpts.$$pageSizeChanged > 0) {
-        params.includeCount = false;
-      }
-
-      cp.getListDetail(params, getFilters()).then(
-        function(specimens) {
-          $scope.ctx.specimens = specimens;
-          if (params.includeCount) {
-            $scope.ctx.listSize = specimens.size;
-          }
-
-          pagerOpts.refreshOpts(specimens.rows);
-        }
-      );
-    }
-
-    function getSpecimensCount() {
-      if (!listParams.includeCount) {
-        listParams.includeCount = true;
-
-        return cp.getListSize(listParams, getFilters()).then(
-          function(size) {
-            $scope.ctx.listSize = size;
-            return {count: size};
-          }
-        );
-      } else {
-        return {count: $scope.ctx.listSize};
-      }
-    }
-
-    function getFilters() {
-      var filters = [];
-      if ($scope.ctx.$listFilters) {
-        filters = $scope.ctx.$listFilters.getFilters();
-      }
-
-      return filters;
     }
 
     function gotoView(state, params, msgCode) {
-      var selectedSpmns = $scope.ctx.$list.getSelectedItems();
+      var selectedSpmns = $scope.ctx.listCtrl.getSelectedItems();
       if (!selectedSpmns || selectedSpmns.length == 0) {
         Alerts.error('specimen_list.' + msgCode);
         return;
@@ -107,21 +56,14 @@ angular.module('os.biospecimen.participant')
       $state.go('specimen', {specimenId: row.hidden.specimenId});
     }
 
-    $scope.loadFilterValues = function(expr) {
-      return cp.getExpressionValues(listParams.listName, expr);
-    }
-
-    $scope.setListCtrl = function($list) {
-      $scope.ctx.$list = $list;
-    }
-
-    $scope.setFiltersCtrl = function($listFilters) {
-      $scope.ctx.$listFilters = $listFilters;
-      loadSpecimens();
+    $scope.setListCtrl = function(listCtrl) {
+      $scope.ctx.listCtrl = listCtrl;
+      $scope.listViewCtx.showSearch = listCtrl.haveFilters;
+      $scope.listViewCtx.pagerOpts  = listCtrl.pagerOpts;
     }
 
     this.getSelectedSpecimens = function() {
-      var selectedSpmns = $scope.ctx.$list.getSelectedItems();
+      var selectedSpmns = $scope.ctx.listCtrl.getSelectedItems();
       if (!selectedSpmns || selectedSpmns.length == 0) {
         return [];
       }
@@ -129,19 +71,12 @@ angular.module('os.biospecimen.participant')
       return selectedSpmns.map(function(spmn) { return {id: spmn.hidden.specimenId}; });
     }
 
-    this.loadSpecimens = loadSpecimens;
-
-    $scope.pageSizeChanged = function(newPageSize) {
-      listParams.maxResults = pagerOpts.recordsPerPage + 1;
-      loadSpecimens();
-    }
-
-    this.pagerOpts = function() {
-      return pagerOpts;
+    this.loadSpecimens = function() {
+      $scope.ctx.listCtrl.loadList();
     }
 
     this.addSpecimensToList = function(list) {
-      var items = $scope.ctx.$list.getSelectedItems();
+      var items = $scope.ctx.listCtrl.getSelectedItems();
       if (!items || items.length == 0) {
         Alerts.error('specimens.no_specimens_for_specimen_list');
         return;

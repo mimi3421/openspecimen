@@ -13,6 +13,10 @@ public class ListUtil {
 			cfg = WorkflowUtil.getInstance().getSysWorkflow("common-specimens-list-view", ListConfig.class);
 		}
 
+		if (cfg == null && fallbackToCommon) {
+			cfg = WorkflowUtil.getInstance().getSysWorkflow("specimen-list-view", ListConfig.class);
+		}
+
 		return cfg;
 	}
 
