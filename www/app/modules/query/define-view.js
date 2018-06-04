@@ -696,19 +696,19 @@ angular.module('os.query.defineview', ['os.query.models'])
       var selectedFieldsMap = {};
       angular.forEach(queryCtx.selectedFields, 
         function(selectedField) {
-          var copy = angular.copy(selectedField);
-          if (typeof copy == "string" && copy.indexOf("$temporal.") == 0) {
-            selectedFieldsMap[copy] = copy;
-            return;
-          }
-
-          var form;
+          var copy = angular.copy(selectedField), fieldName, form;
           if (typeof copy == "string") {
+            fieldName = copy;
             form = copy.split(".", 1);
           } else {
+            fieldName = copy.name;
             form = copy.name.split(".", 1);
           }
-         
+
+          if (form == '$temporal') {
+            form = fieldName;
+          }
+
           if (!selectedFieldsMap[form]) {
             selectedFieldsMap[form] = [];
           }
