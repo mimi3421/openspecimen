@@ -141,10 +141,12 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 		}
 	}
 
+	@Override
 	public void addValidator(DistributionValidator validator) {
 		this.validators.put(validator.getName(), validator);
 	}
 
+	@Override
 	public void removeValidator(String name) {
 		this.validators.remove(name);
 	}

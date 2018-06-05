@@ -45,6 +45,13 @@ public interface DistributionOrderService {
 	ResponseEvent<Integer> reserveSpecimens(RequestEvent<ReserveSpecimensDetail> req);
 
 	//
+	// Validators
+	//
+	void addValidator(DistributionValidator validator);
+
+	void removeValidator(String name);
+
+	//
 	// Internal APIs for use by plugins and service extenders...
 	//
 	public void addListener(EntityCrudListener<DistributionOrderDetail, DistributionOrder> listener);
