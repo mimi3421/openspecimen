@@ -219,7 +219,10 @@ public class CpReportGenerator {
 			op.setRunType("Export");
 			op.setWideRowMode(WideRowMode.DEEP.name());
 
-			QueryDataExportResult result = querySvc.exportQueryData(op, null);
+			ResponseEvent<QueryDataExportResult> resp = querySvc.exportQueryData(new RequestEvent<>(op));
+			resp.throwErrorIfUnsuccessful();
+
+			QueryDataExportResult result = resp.getPayload();
 			String dataFile = result.getDataFile();
 			if (!result.isCompleted()) {
 				try {
@@ -234,9 +237,9 @@ public class CpReportGenerator {
 				return null;
 			}
 
-			ResponseEvent<File> resp = querySvc.getExportDataFile(new RequestEvent<>(dataFile));
-			resp.throwErrorIfUnsuccessful();
-			return resp.getPayload();
+			ResponseEvent<File> fileResp = querySvc.getExportDataFile(new RequestEvent<>(dataFile));
+			fileResp.throwErrorIfUnsuccessful();
+			return fileResp.getPayload();
 		}
 	}
 }

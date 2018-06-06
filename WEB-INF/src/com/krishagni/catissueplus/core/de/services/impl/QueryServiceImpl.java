@@ -21,6 +21,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -421,7 +422,7 @@ public class QueryServiceImpl implements QueryService {
 		boolean queryCntIncremented = false;
 		try {
 			queryCntIncremented = incConcurrentQueriesCnt();
-			return ResponseEvent.response(exportQueryData(req.getPayload(), null));
+			return ResponseEvent.response(exportData(req.getPayload(), null, null));
 		} catch (QueryParserException qpe) {
 			return ResponseEvent.userError(SavedQueryErrorCode.MALFORMED, qpe.getMessage());
 		} catch (QueryException qe) {
@@ -807,82 +808,15 @@ public class QueryServiceImpl implements QueryService {
 	@Override
 	@PlusTransactional
 	public QueryDataExportResult exportQueryData(final ExecuteQueryEventOp opDetail, final ExportProcessor processor) {
-		OutputStream out = null;
-
-		try {
-			final Authentication auth = AuthUtil.getAuth();
-			final User user = AuthUtil.getCurrentUser();
-			final String filename = getExportFilename(opDetail, processor);
-			final OutputStream fout = new FileOutputStream(getExportDataDir() + File.separator + filename);
-			out = fout;
-
-			if (processor != null) {
-				processor.headers(out);
-			}
-
-			final Query query = getQuery(opDetail);
-			Future<Boolean> result = exportThreadPool.submit(new Callable<Boolean>() {
-				@Override
-				@PlusTransactional
-				public Boolean call() throws Exception {
-					SecurityContextHolder.getContext().setAuthentication(auth);
-
-					QueryResultExporter exporter = new QueryResultCsvExporter(Utility.getFieldSeparator());
-					try {
-						QueryResponse resp = exporter.export(fout, query, getResultScreener(query));
-						insertAuditLog(user, opDetail, resp);
-						notifyExportCompleted();
-					} catch (Exception e) {
-						logger.error("Error exporting query data", e);
-						throw OpenSpecimenException.serverError(e);
-					} finally {
-						IOUtils.closeQuietly(fout);
-					}
-
-					return true;
-				}
-
-				private void notifyExportCompleted() {
-					try {
-						User user = userDao.getById(AuthUtil.getCurrentUser().getId());
-						if (user.isSysUser()) {
-							return;
-						}
-
-						SavedQuery savedQuery = null;
-						Long queryId = opDetail.getSavedQueryId();
-						if (queryId != null) {
-							savedQuery = daoFactory.getSavedQueryDao().getQuery(queryId);
-						}
-						sendQueryDataExportedEmail(user, savedQuery, filename);
-						notifyQueryDataExported(user, savedQuery, filename);
-					} catch (Exception e) {
-						logger.error("Error sending email with query exported data", e);
-					}
-				}
-			});
-
-			boolean completed = false;
-			try {
-				out = null;
-				completed = result.get(ONLINE_EXPORT_TIMEOUT_SECS, TimeUnit.SECONDS);
-				out = fout;
-			} catch (TimeoutException te) {
-				completed = false;
-			}
-
-			return QueryDataExportResult.create(filename, completed, result);
-		} catch (OpenSpecimenException ose) {
-			throw ose;
-		} catch (Exception e) {
-			throw OpenSpecimenException.serverError(e);
-		} finally {
-			if (out != null) {
-				IOUtils.closeQuietly(out);
-			}
-		}
+		return exportData(opDetail, processor, null);
 	}
-	
+
+	@Override
+	@PlusTransactional
+	public QueryDataExportResult exportQueryData(final ExecuteQueryEventOp opDetail, BiConsumer<QueryResultData, OutputStream> qdConsumer) {
+		return exportData(opDetail, null, qdConsumer);
+	}
+
 	@Override
 	@PlusTransactional
 	public ResponseEvent<List<FacetDetail>> getFacetValues(RequestEvent<GetFacetValuesOp> req) {
@@ -1383,5 +1317,91 @@ public class QueryServiceImpl implements QueryService {
 		}
 
 		return SavedQueryErrorCode.MALFORMED;
+	}
+
+	private QueryDataExportResult exportData(final ExecuteQueryEventOp op, final ExportProcessor proc, BiConsumer<QueryResultData, OutputStream> procFn) {
+		OutputStream out = null;
+
+		try {
+			final Authentication auth = AuthUtil.getAuth();
+			final User user = AuthUtil.getCurrentUser();
+			final String filename = getExportFilename(op, procFn == null ? proc : null);
+			final OutputStream fout = new FileOutputStream(getExportDataDir() + File.separator + filename);
+			out = fout;
+
+			if (proc != null && procFn == null) {
+				proc.headers(out);
+			}
+
+			final Query query = getQuery(op);
+			Future<Boolean> result = exportThreadPool.submit(new Callable<Boolean>() {
+				@Override
+				@PlusTransactional
+				public Boolean call() {
+					SecurityContextHolder.getContext().setAuthentication(auth);
+
+					try {
+						QueryResponse resp = null;
+						if (procFn == null) {
+							QueryResultExporter exporter = new QueryResultCsvExporter(Utility.getFieldSeparator());
+							resp = exporter.export(fout, query, getResultScreener(query));
+						} else {
+							resp = query.getData();
+							QueryResultData data = resp.getResultData();
+							data.setScreener(getResultScreener(query));
+							procFn.accept(data, fout);
+						}
+
+						insertAuditLog(user, op, resp);
+						notifyExportCompleted();
+					} catch (Exception e) {
+						logger.error("Error exporting query data", e);
+						throw OpenSpecimenException.serverError(e);
+					} finally {
+						IOUtils.closeQuietly(fout);
+					}
+
+					return true;
+				}
+
+				private void notifyExportCompleted() {
+					try {
+						User user = userDao.getById(AuthUtil.getCurrentUser().getId());
+						if (user.isSysUser()) {
+							return;
+						}
+
+						SavedQuery savedQuery = null;
+						Long queryId = op.getSavedQueryId();
+						if (queryId != null) {
+							savedQuery = daoFactory.getSavedQueryDao().getQuery(queryId);
+						}
+						sendQueryDataExportedEmail(user, savedQuery, filename);
+						notifyQueryDataExported(user, savedQuery, filename);
+					} catch (Exception e) {
+						logger.error("Error sending email with query exported data", e);
+					}
+				}
+			});
+
+			boolean completed = false;
+			try {
+				out = null;
+				completed = result.get(ONLINE_EXPORT_TIMEOUT_SECS, TimeUnit.SECONDS);
+				out = fout;
+			} catch (TimeoutException te) {
+				completed = false;
+			}
+
+			return QueryDataExportResult.create(filename, completed, result);
+		} catch (OpenSpecimenException ose) {
+			throw ose;
+		} catch (Exception e) {
+			throw OpenSpecimenException.serverError(e);
+		} finally {
+			if (out != null) {
+				IOUtils.closeQuietly(out);
+			}
+		}
 	}
 }

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -62,6 +63,7 @@ import com.krishagni.catissueplus.core.query.ListConfig;
 import com.krishagni.catissueplus.core.query.ListService;
 import com.krishagni.catissueplus.core.query.ListUtil;
 
+import edu.common.dynamicextensions.query.QueryResultData;
 import edu.common.dynamicextensions.query.WideRowMode;
 
 
@@ -357,9 +359,7 @@ public class SpecimenListServiceImpl implements SpecimenListService, Initializin
 	@PlusTransactional
 	public ResponseEvent<QueryDataExportResult> exportSpecimenList(RequestEvent<EntityQueryCriteria> req) {
 		try {
-			EntityQueryCriteria crit = req.getPayload();
-			SpecimenList list = getSpecimenList(crit.getId(), crit.getName());
-			return ResponseEvent.response(exportSpecimenList(list));
+			return ResponseEvent.response(exportSpecimenList0(req.getPayload(), null));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {
@@ -371,6 +371,11 @@ public class SpecimenListServiceImpl implements SpecimenListService, Initializin
 	public void afterPropertiesSet()
 	throws Exception {
 		listSvc.registerListConfigurator("cart-specimens-list-view", this::getListSpecimensConfig);
+	}
+
+	@Override
+	public QueryDataExportResult exportSpecimenList(EntityQueryCriteria crit, BiConsumer<QueryResultData, OutputStream> qdConsumer) {
+		return exportSpecimenList0(crit, qdConsumer);
 	}
 
 	private SpecimenListsCriteria addSpecimenListsCriteria(SpecimenListsCriteria crit) {
@@ -593,7 +598,9 @@ public class SpecimenListServiceImpl implements SpecimenListService, Initializin
 		return specimenList;
 	}
 
-	private QueryDataExportResult exportSpecimenList(final SpecimenList list) {
+	private QueryDataExportResult exportSpecimenList0(EntityQueryCriteria crit, BiConsumer<QueryResultData, OutputStream> qdConsumer) {
+		final SpecimenList list = getSpecimenList(crit.getId(), crit.getName());
+
 		Integer queryId = ConfigUtil.getInstance().getIntSetting("common", "cart_specimens_rpt_query", -1);
 		if (queryId == -1) {
 			return null;
@@ -613,12 +620,15 @@ public class SpecimenListServiceImpl implements SpecimenListService, Initializin
 			restriction += " and " + siteCpRestriction;
 		}
 
-
 		ExecuteQueryEventOp op = new ExecuteQueryEventOp();
 		op.setDrivingForm("Participant");
 		op.setAql(query.getAql(restriction));
 		op.setWideRowMode(WideRowMode.DEEP.name());
 		op.setRunType("Export");
+		if (qdConsumer != null) {
+			return querySvc.exportQueryData(op, qdConsumer);
+		}
+
 		return querySvc.exportQueryData(op, new QueryService.ExportProcessor() {
 			@Override
 			public String filename() {

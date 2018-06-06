@@ -28,6 +28,7 @@ import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 import com.krishagni.catissueplus.core.common.util.ConfigUtil;
+import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.catissueplus.core.de.events.ExecuteQueryEventOp;
 import com.krishagni.catissueplus.core.de.events.ExecuteSavedQueryOp;
 import com.krishagni.catissueplus.core.de.events.FacetDetail;
@@ -106,7 +107,7 @@ public class QueryController {
 		
 		File file = response(querySvc.getExportDataFile(request(fileId)));
 
-		response.setContentType("text/csv;");
+		response.setContentType(Utility.getContentType(filename));
 		response.setHeader("Content-Disposition", "attachment;filename=" + filename);
 
 		InputStream in = null;

@@ -215,7 +215,12 @@ angular.module('openspecimen')
           if (result.completed) {
             Alerts.info(msgClass + '.downloading_report');
 
-            filename = (filename || entity.name) + '.csv';
+            filename = (filename || entity.name);
+            if (!filename.slice((filename.lastIndexOf('.') - 1 >>> 0) + 2)) {
+              // no extension, by default, append .csv
+              filename += '.csv';
+            }
+
             downloadFile(ApiUrls.getBaseUrl() + 'query/export?fileId=' + result.dataFile + '&filename=' + filename);
           } else if (result.dataFile) {
             Alerts.info(msgClass + '.report_will_be_emailed');

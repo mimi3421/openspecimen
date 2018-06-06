@@ -3,6 +3,7 @@ package com.krishagni.catissueplus.core.de.services;
 import java.io.File;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
@@ -25,6 +26,8 @@ import com.krishagni.catissueplus.core.de.events.SavedQueryDetail;
 import com.krishagni.catissueplus.core.de.events.SavedQuerySummary;
 import com.krishagni.catissueplus.core.de.events.ShareQueryFolderOp;
 import com.krishagni.catissueplus.core.de.events.UpdateFolderQueriesOp;
+
+import edu.common.dynamicextensions.query.QueryResultData;
 
 public interface QueryService {	
 	ResponseEvent<SavedQueriesList> getSavedQueries(RequestEvent<ListSavedQueriesCriteria> req);
@@ -95,6 +98,8 @@ public interface QueryService {
 	}	
 
 	QueryDataExportResult exportQueryData(ExecuteQueryEventOp opDetail, ExportProcessor processor);
+
+	QueryDataExportResult exportQueryData(ExecuteQueryEventOp opDetail, BiConsumer<QueryResultData, OutputStream> qdConsumer);
 
 	//
 	// internal use
