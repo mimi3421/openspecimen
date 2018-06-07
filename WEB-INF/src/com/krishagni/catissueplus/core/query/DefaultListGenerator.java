@@ -14,8 +14,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 
 import com.krishagni.catissueplus.core.common.PlusTransactional;
+import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
+import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.catissueplus.core.de.events.ExecuteQueryEventOp;
 import com.krishagni.catissueplus.core.de.events.FacetDetail;
 import com.krishagni.catissueplus.core.de.events.GetFacetValuesOp;
@@ -39,11 +41,7 @@ public class DefaultListGenerator implements ListGenerator {
 	@PlusTransactional
 	public ListDetail getList(ListConfig cfg, List<Column> searchCriteria) {
 		if (CollectionUtils.isEmpty(cfg.getColumns())) {
-			// TODO: Error empty column list
-		}
-
-		if (StringUtils.isBlank(cfg.getCriteria()) && StringUtils.isBlank(cfg.getRestriction())) {
-			// TODO: No list restricting criteria
+			throw OpenSpecimenException.userError(ListError.NO_COLUMNS);
 		}
 
 		return getListDetail(cfg, searchCriteria);
@@ -52,10 +50,6 @@ public class DefaultListGenerator implements ListGenerator {
 	@Override
 	@PlusTransactional
 	public int getListSize(ListConfig cfg, List<Column> searchCriteria) {
-		if (StringUtils.isBlank(cfg.getCriteria()) && StringUtils.isBlank(cfg.getRestriction())) {
-			// TODO: No list restricting criteria
-		}
-
 		return getListSize(cfg, getCriteria(cfg, searchCriteria));
 	}
 
@@ -106,7 +100,7 @@ public class DefaultListGenerator implements ListGenerator {
 		}
 
 		StringBuilder distinct = new StringBuilder("distinct ");
-		distinct.append(cfg.getOrderBy().stream().map(expr -> getSelectExpr(expr)).collect(Collectors.joining(", ")));
+		distinct.append(cfg.getOrderBy().stream().map(this::getSelectExpr).collect(Collectors.joining(", ")));
 		return distinct.append(", ").toString();
 	}
 
@@ -158,6 +152,10 @@ public class DefaultListGenerator implements ListGenerator {
 			criteria.append("(").append(searchCriteriaAql).append(")");
 		}
 
+		if (criteria.length() == 0) {
+			throw OpenSpecimenException.userError(ListError.NO_CRITERIA);
+		}
+
 		return criteria.toString();
 	}
 
@@ -166,12 +164,8 @@ public class DefaultListGenerator implements ListGenerator {
 			return StringUtils.EMPTY;
 		}
 
-		if (CollectionUtils.isEmpty(cfg.getFilters())) {
-			// TODO: error out when no filters are pre-configured
-		}
-
-		Map<String, Column> filtersMap = cfg.getFilters().stream()
-			.collect(Collectors.toMap(column -> column.getExpr(), column -> column));
+		Map<String, Column> filtersMap = Utility.nullSafeStream(cfg.getFilters())
+			.collect(Collectors.toMap(Column::getExpr, column -> column));
 
 		List<String> invalidFilters = new ArrayList<>();
 		Map<String, Container> formsCache = new HashMap<>();
@@ -192,7 +186,7 @@ public class DefaultListGenerator implements ListGenerator {
 		}
 
 		if (CollectionUtils.isNotEmpty(invalidFilters)) {
-			// TODO: error out specifying invalid filter expressions
+			throw OpenSpecimenException.userError(ListError.INVALID_FILTERS, invalidFilters);
 		}
 
 		return aqls.stream().collect(Collectors.joining(" and "));
@@ -421,7 +415,7 @@ public class DefaultListGenerator implements ListGenerator {
 		String formName, fieldName;
 		if (exprParts[1].equals("extensions") || exprParts[1].equals("customFields")) {
 			if (exprParts.length < 4) {
-				throw new IllegalArgumentException("Invalid expression: " + expr);
+				throw OpenSpecimenException.userError(ListError.INVALID_FIELD, expr);
 			}
 
 			formName = exprParts[2];
@@ -435,7 +429,7 @@ public class DefaultListGenerator implements ListGenerator {
 		if (form == null) {
 			form = Container.getContainer(formName);
 			if (form == null) {
-				throw new IllegalArgumentException("Invalid expression: " + expr);
+				throw OpenSpecimenException.userError(ListError.INVALID_FIELD, expr);
 			}
 
 			formsCache.put(formName, form);
@@ -443,7 +437,7 @@ public class DefaultListGenerator implements ListGenerator {
 
 		Control field = form.getControlByUdn(fieldName, "\\.");
 		if (field == null) {
-			throw new IllegalArgumentException("Invalid filter: " + expr);
+			throw OpenSpecimenException.userError(ListError.INVALID_FIELD, expr);
 		}
 
 		return field;
