@@ -4,7 +4,8 @@ angular.module('os.biospecimen.specimen.addedit', [])
     $scope, $state, $parse, cp, cpr, visit, specimen,
     extensionCtxt, aliquotQtyReq, barcodingEnabled, spmnBarcodesAutoGen,
     hasDict, sysDict, cpDict, layout, onValueChangeCb, spmnReq, defSpmns,
-    Alerts, CpConfigSvc, Util, ParticipantSpecimensViewState, Specimen, CollectSpecimensSvc) {
+    Alerts, CpConfigSvc, PluginReg, Util, ParticipantSpecimensViewState,
+    Specimen, CollectSpecimensSvc) {
 
     var inputCtxts;
 
@@ -15,7 +16,8 @@ angular.module('os.biospecimen.specimen.addedit', [])
         sysDict: sysDict, cpDict: cpDict,
         barcodingEnabled: barcodingEnabled, spmnBarcodesAutoGen: spmnBarcodesAutoGen,
         editMode: !!specimen.id, reqId: specimen.reqId, aliquotQtyReq: aliquotQtyReq,
-        layout: layout, onValueChange: onValueChangeCb, mdInput: false
+        layout: layout, onValueChange: onValueChangeCb, mdInput: false,
+        hasInfo: PluginReg.getTmpls('specimen-addedit', 'info').length > 0
       }
 
       CpConfigSvc.getCommonCfg(cp.id, 'addSpecimen').then(
