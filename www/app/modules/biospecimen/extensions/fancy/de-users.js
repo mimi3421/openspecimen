@@ -9,20 +9,20 @@ openspecimen.ui.fancy.Users = edu.common.de.LookupSvc.extend({
   },
 
   searchRequest: function(searchTerm) {
-    return {searchString: searchTerm, sortBy: 'lastName,firstName'};
+    return {searchString: searchTerm, sortBy: 'firstName,lastName'};
   },
 
   formatResults: function(users) {
     var result = [];
     for (var i = 0; i < users.length; ++i) {
-      result.push({id: users[i].id, text: users[i].lastName + ', ' + users[i].firstName});
+      result.push({id: users[i].id, text: users[i].firstName + ' ' + users[i].lastName});
     }
 
     return result;
   },
 
   formatResult: function(data) {
-    return {id: data.id, text: data.lastName + ', ' + data.firstName};
+    return {id: data.id, text: data.firstName + ' ' + data.lastName};
   },
 
   getDefaultValue: function() {

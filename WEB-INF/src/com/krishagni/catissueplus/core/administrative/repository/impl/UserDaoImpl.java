@@ -43,8 +43,8 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 		return getUsersListQuery(listCrit)
 			.setFirstResult(listCrit.startAt())
 			.setMaxResults(listCrit.maxResults())
-			.addOrder(Order.asc("u.lastName"))
 			.addOrder(Order.asc("u.firstName"))
+			.addOrder(Order.asc("u.lastName"))
 			.list();
 	}
 	

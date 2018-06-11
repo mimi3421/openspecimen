@@ -137,10 +137,10 @@ angular.module('os.administrative.user.dropdown', ['os.administrative.models'])
                   (!!tAttrs.onSelect ? 'on-select="$parent.onSelect({user: $item})"' : '') +
                   ' append-to-body="' + bodyAppend + '" os-tabable="' + tabable + '">' +
                   '<ui-select-match placeholder="{{$parent.placeholder}}">' +
-                    '{{$item.lastName}}, {{$item.firstName}}' +
+                    '{{$item.firstName}} {{$item.lastName}}' +
                   '</ui-select-match>' +
                   '<ui-select-choices repeat="' + loopExpr +'" refresh="searchUsers($select.search)" refresh-delay="750">' +
-                    '<span ng-bind-html="user.lastName + \', \' + user.firstName | highlight: $select.search"></span>' +
+                    '<span ng-bind-html="user.firstName + \' \' + user.lastName | highlight: $select.search"></span>' +
                   '</ui-select-choices>' +
                 '</ui-select>' +
               '</div>'
@@ -152,10 +152,10 @@ angular.module('os.administrative.user.dropdown', ['os.administrative.models'])
                   (!!tAttrs.onSelect ? 'on-select="$parent.onSelect({user: $item})"' : '') +
                   ' append-to-body="' + bodyAppend + '" os-tabable="' + tabable + '">' +
                   '<ui-select-match placeholder="{{$parent.placeholder}}" allow-clear="'+ (tAttrs.required == undefined) +'">' +
-                    '{{$select.selected.lastName}}, {{$select.selected.firstName}}' +
+                    '{{$select.selected.firstName}} {{$select.selected.lastName}}' +
                   '</ui-select-match>' +
                   '<ui-select-choices repeat="' + loopExpr +'" refresh="searchUsers($select.search)" refresh-delay="750">' +
-                    '<span ng-bind-html="user.lastName + \', \' + user.firstName | highlight: $select.search"></span>' +
+                    '<span ng-bind-html="user.firstName + \' \' + user.lastName | highlight: $select.search"></span>' +
                   '</ui-select-choices>' + 
                 '</ui-select>' +
               '</div>';
