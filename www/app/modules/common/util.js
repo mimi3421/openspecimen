@@ -524,6 +524,14 @@ angular.module('openspecimen')
         return (cond !== null && cond !== undefined) ? truth : falsy;
       },
 
+      split: function(inputStr, regex, limit) {
+        return (inputStr || '' ).split(regex, limit);
+      },
+
+      join: function(inputStrs, separator) {
+        return (inputStrs || []).join(separator);
+      },
+
       concatList: function(list, expr, separator) {
         var parsedExpr = $parse(expr);
 
