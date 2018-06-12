@@ -590,7 +590,7 @@ public class CollectionProtocol extends BaseExtensionEntity {
 		setVisitNamePrintCopies(cp.getVisitNamePrintCopies());
 		setUnsignedConsentDocumentURL(cp.getUnsignedConsentDocumentURL());
 		setExtension(cp.getExtension());
-		setCatalogId(cp.getCatalogId());
+//		setCatalogId(cp.getCatalogId());
 		
 		updateSites(cp.getSites());
 		updateSpecimenLabelPrintSettings(cp.getSpmnLabelPrintSettings());
