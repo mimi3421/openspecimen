@@ -380,10 +380,6 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
     }
 
     $scope.areItemQuantitiesValid = function(doWizard) {
-      if (!doWizard.forward) {
-        return true;
-      }
-
       return areItemQuantitiesValid($scope.order, function () { doWizard.next(false); });
     }
 

@@ -142,6 +142,8 @@
 
     <div ng-if="!!ctx.extnOpts">
       <div class='os-extn-form' os-de-form opts="ctx.extnOpts" ctrl="ctx.extnFormCtrl"></div>
+
+      <div class="os-divider"></div>
     </div>
 
     <div class="form-group right-btns">
@@ -153,8 +155,7 @@
         <button class="btn btn-primary" os-form-submit="doWizard.next(false)" ng-if="!doWizard.isLastStep()">
           <span translate="common.buttons.next"> Next </span>
         </button>
-
-        <span ng-if="doWizard.isLastStep()">
+        <span ng-if="order.orderItems.length > 0 || !!order.specimenList.id || order.allReservedSpmns">
           <button class="btn btn-primary" os-form-submit="saveDraft()">
             <span translate="orders.buttons.save_draft"> Save as Draft </span>
           </button>
@@ -296,7 +297,7 @@
         <button class="btn os-btn-text" ng-click="back()">
           <span translate="common.buttons.cancel">Cancel</span>
         </button>
-        <button class="btn os-btn-secondary" ng-click="doWizard.previous(false)">
+        <button class="btn os-btn-secondary" os-form-submit="doWizard.previous(false)">
           <span translate="common.buttons.previous"> Previous </span>
         </button>
 
@@ -304,15 +305,13 @@
           <span translate="common.buttons.next"> Next </span>
         </button>
 
-        <span ng-if="doWizard.isLastStep()">
-          <button class="btn btn-primary" os-form-submit="saveDraft()" ng-disabled="!order.orderItems.length">
-            <span translate="orders.buttons.save_draft"> Save as Draft </span>
-          </button>
+        <button class="btn btn-primary" os-form-submit="saveDraft()" ng-disabled="!order.orderItems.length">
+          <span translate="orders.buttons.save_draft"> Save as Draft </span>
+        </button>
 
-          <button class="btn btn-primary" os-form-submit="distribute()" ng-disabled="!order.orderItems.length">
-            <span translate="orders.buttons.distribute"> Distribute </span>
-          </button>
-        </span>
+        <button class="btn btn-primary" os-form-submit="distribute()" ng-disabled="!order.orderItems.length">
+          <span translate="orders.buttons.distribute"> Distribute </span>
+        </button>
       </div>
     </div>
   </form>
