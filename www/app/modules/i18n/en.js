@@ -2011,8 +2011,9 @@
     "courier_tracking_url": "Courier Tracking URL",
     "sender_comments": "Sender Comments",
     "details": "Order Details",
-    "no_specimens_in_list": "No specimens in order list to distribute. Add at least one specimen",
+    "no_specimens_in_list": "No specimens in the order list to distribute. Add at least one specimen.",
     "enter_specimen_label": "To add specimens to distribution list, enter labels or barcodes separated by a comma, tab or newline and click add",
+    "more_specimens_than_limit": "The order list has more specimens than allowed for editing details using UI. Please consider using bulk import option if you like to specify additional details (quantity, cost etc) of the specimens to be distributed.",
     "loading_items": "Loading order items. Please wait for a moment ...",
     "more_time": "Saving distribution order is taking more time than anticipated. An email notification will be sent to you on successful distribution of specimens",
 
@@ -2359,7 +2360,9 @@
         "store_list_retry_interval": "Store List Retry Interval",
         "store_list_retry_interval_desc" : "Time interval in hours to elapse between retry of failed store list executions.",
         "store_list_max_retries": "Store List Max Retries",
-        "store_list_max_retries_desc": "Maximum number of attempts to execute store list before marking the store list as permanently failed."
+        "store_list_max_retries_desc": "Maximum number of attempts to execute store list before marking the store list as permanently failed.",
+        "max_order_spmns_ui_limit": "Order Specimens UI Limit",
+        "max_order_spmns_ui_limit_desc": "Maximum number of specimens whose details can be edited at the time of distribution using UI."
       },
 
       "biospecimen": {

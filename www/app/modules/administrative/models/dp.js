@@ -76,6 +76,14 @@ angular.module('os.administrative.models.dp', ['os.common.models'])
       );
     }
     
+    DistributionProtocol.prototype.getReservedSpecimensCount = function(filterOpts) {
+      return $http.get(DistributionProtocol.url() + this.$id() + '/reserved-specimens-count', {params: filterOpts}).then(
+        function(resp) {
+          return +resp.data.count;
+        }
+      );
+    }
+
     DistributionProtocol.getOrders = function(params) {
       return $http.get(DistributionProtocol.url() + 'orders', {params: params}).then(
         function(resp) {

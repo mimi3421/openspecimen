@@ -42,6 +42,8 @@ public interface DistributionOrderService {
 
 	ResponseEvent<List<SpecimenInfo>> getReservedSpecimens(RequestEvent<SpecimenListCriteria> req);
 
+	ResponseEvent<Integer> getReservedSpecimensCount(RequestEvent<SpecimenListCriteria> req);
+
 	ResponseEvent<Integer> reserveSpecimens(RequestEvent<ReserveSpecimensDetail> req);
 
 	//

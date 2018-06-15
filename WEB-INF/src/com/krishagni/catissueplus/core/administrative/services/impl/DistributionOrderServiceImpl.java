@@ -315,21 +315,23 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 	@PlusTransactional
 	public ResponseEvent<List<SpecimenInfo>> getReservedSpecimens(RequestEvent<SpecimenListCriteria> req) {
 		try {
-			SpecimenListCriteria criteria = req.getPayload();
-			DistributionProtocol dp = getDp(criteria.reservedForDp(), null);
-			AccessCtrlMgr.getInstance().ensureReadDpRights(dp);
-
-			//
-			// Ensure user has specimen read rights
-			//
-			List<Pair<Long, Long>> siteCps = AccessCtrlMgr.getInstance().getReadAccessSpecimenSiteCps();
-			if (siteCps != null && siteCps.isEmpty()) {
-				return ResponseEvent.userError(RbacErrorCode.ACCESS_DENIED);
-			}
-			criteria.siteCps(siteCps);
-
+			SpecimenListCriteria criteria = getReservedSpecimensCriteria(req.getPayload());
 			List<Specimen> spmns = daoFactory.getSpecimenDao().getSpecimens(criteria);
 			return ResponseEvent.response(SpecimenInfo.from(spmns));
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
+		} catch (Exception e) {
+			return ResponseEvent.serverError(e);
+		}
+	}
+
+	@Override
+	@PlusTransactional
+	public ResponseEvent<Integer> getReservedSpecimensCount(RequestEvent<SpecimenListCriteria> req) {
+		try {
+			SpecimenListCriteria criteria = getReservedSpecimensCriteria(req.getPayload());
+			Integer count = daoFactory.getSpecimenDao().getSpecimensCount(criteria);
+			return ResponseEvent.response(count);
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {
@@ -889,6 +891,21 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 		}
 
 		return result;
+	}
+
+	private SpecimenListCriteria getReservedSpecimensCriteria(SpecimenListCriteria criteria) {
+		DistributionProtocol dp = getDp(criteria.reservedForDp(), null);
+		AccessCtrlMgr.getInstance().ensureReadDpRights(dp);
+
+		//
+		// Ensure user has specimen read rights
+		//
+		List<Pair<Long, Long>> siteCps = AccessCtrlMgr.getInstance().getReadAccessSpecimenSiteCps();
+		if (siteCps != null && siteCps.isEmpty()) {
+			throw OpenSpecimenException.userError(RbacErrorCode.ACCESS_DENIED);
+		}
+
+		return criteria.siteCps(siteCps);
 	}
 
 	private int reserveSpecimens(

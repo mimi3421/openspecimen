@@ -7,6 +7,14 @@
   transition: opacity ease-in-out .5s;
 }
 
+.os-alert-container.inline {
+  width: 100%;
+  padding: 10px 0px;
+  position:inherit!important;
+  opacity: 1;
+  z-index: 3000;
+}
+
 .os-alert-container.show {
   opacity: 1;
   z-index: 3000;

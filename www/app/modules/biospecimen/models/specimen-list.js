@@ -37,6 +37,14 @@ angular.module('os.biospecimen.models.specimenlist', ['os.common.models'])
       return $http.get(getSpecimensUrl(this.$id()), {params: params}).then(Specimen.modelArrayRespTransform);
     };
 
+    SpecimenList.prototype.getSpecimensCount = function(params) {
+      return $http.get(SpecimenList.url() + this.$id() + '/specimens-count', {params: params}).then(
+        function(resp) {
+          return +resp.data.count;
+        }
+      );
+    };
+
     SpecimenList.prototype.addSpecimens = function(specimens) {
       return doSpecimenListOp(this.$id(), specimens, 'ADD');
     }

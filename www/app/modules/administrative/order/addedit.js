@@ -1,17 +1,14 @@
 
 angular.module('os.administrative.order.addedit', ['os.administrative.models', 'os.biospecimen.models'])
   .controller('OrderAddEditCtrl', function(
-    $scope, $state, $translate, $injector, order, spmnRequest, requestDp,
+    $scope, $state, $translate, $injector, order, spmnRequest, requestDp, maxSpmnsLimit,
     PluginReg, Specimen, SpecimensHolder, Site, DistributionProtocol,
     DistributionOrder, SpecimenList, Alerts, Util, SpecimenUtil, ExtensionsUtil) {
     
     var ignoreQtyWarning = false;
 
     function init() {
-      $scope.input = {};
       $scope.order = order;
-      $scope.skipSpecimensTab = ((!!order.specimenList && !!order.specimenList.id) || order.allReservedSpmns);
-
       $scope.ctx = {
         extnFormCtrl: {},
         extnOpts: undefined,
@@ -34,12 +31,15 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
       $scope.dpList = [];
       $scope.siteList = [];
       $scope.userFilterOpts = {};
-
-      $scope.input = {allItemStatus: false, noQtySpmnsPresent: false};
-
       setUserAndSiteList(order);
 
-      if (!$scope.skipSpecimensTab) {
+      $scope.input = {
+        allItemStatus: false,
+        noQtySpmnsPresent: false,
+        spmnsFromExternalList: (!!order.specimenList && !!order.specimenList.id) || order.allReservedSpmns
+      };
+
+      if (!$scope.input.spmnsFromList) {
         if (!order.id) {
           if (angular.isArray(SpecimensHolder.getSpecimens())) {
             order.orderItems = getOrderItems(SpecimensHolder.getSpecimens());
@@ -76,7 +76,7 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
     }
     
     function loadOrderItems() {
-      order.getOrderItems().then(
+      order.getOrderItems({maxResults: maxSpmnsLimit}).then(
         function(orderItems) {
           order.orderItems = orderItems;
 
@@ -258,14 +258,6 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
     function setNoQtySpmnPresent() {
       if (!!$scope.order.orderItems && $scope.order.orderItems.length > 0) {
         $scope.input.noQtySpmnsPresent = anyNoQtySpmns($scope.order.orderItems);
-      } else if (!!$scope.order.specimenList && !!$scope.order.specimenList.id) {
-        $scope.order.specimenList.getSpecimens({noQty: true, maxResults: 1}).then(
-          function(specimens) {
-            if (!!specimens && specimens.length > 0) {
-              $scope.input.noQtySpmnsPresent = true;
-            }
-          }
-        );
       }
     }
 
@@ -371,9 +363,44 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
     }
 
     $scope.passThrough = function() {
+      return true;
+    }
+
+    $scope.showSpecimens = function() {
       var formCtrl = $scope.ctx.extnFormCtrl.ctrl;
       if (formCtrl && !formCtrl.validate()) {
         return false;
+      }
+
+      var countFn, spmnsFn;
+      if (order.specimenList && order.specimenList.id) {
+        countFn = function() { return order.specimenList.getSpecimensCount({available: true}) };
+        spmnsFn = function() { return order.specimenList.getSpecimens({available: true}) };
+      } else if (order.allReservedSpmns) {
+        countFn = function() { return order.distributionProtocol.getReservedSpecimensCount() };
+        spmnsFn = function() { return order.distributionProtocol.getReservedSpecimens() };
+      }
+
+      if (countFn && spmnsFn) {
+        countFn().then(
+          function(spmnsCount) {
+            if (spmnsCount > maxSpmnsLimit) {
+              $scope.input.moreSpmnsThanLimit = true;
+              return;
+            }
+
+            spmnsFn().then(
+              function(spmns) {
+                order.orderItems = getOrderItems(spmns);
+                order.allReservedSpmns = order.specimenList = null;
+                $scope.input.spmnsFromExternalList = false;
+                setNoQtySpmnPresent();
+              }
+            );
+          }
+        );
+      } else {
+        $scope.input.moreSpmnsThanLimit = (order.orderItems && order.orderItems.length > maxSpmnsLimit)
       }
 
       return true;

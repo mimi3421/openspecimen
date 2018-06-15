@@ -24,4 +24,14 @@
       );
     </sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="Setting to specify maximum number of specimens allowed in distribution UI">
+    <sql>
+      call add_cfg_prop(
+        'administrative', 'max_order_spmns_ui_limit',
+        'max_order_spmns_ui_limit', 'max_order_spmns_ui_limit_desc',
+        'INT', '100'
+      );
+    </sql>
+  </changeSet>
 </databaseChangeLog>

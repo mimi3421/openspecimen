@@ -249,6 +249,33 @@ public class DistributionProtocolController {
 		return resp.getPayload();
 	}
 
+	@RequestMapping(method = RequestMethod.GET, value = "/{id}/reserved-specimens-count")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public Map<String, Integer> getReservedSpecimensCount(
+			@PathVariable("id")
+			Long dpId,
+
+			@RequestParam(value = "specimenType", required = false)
+			String specimenType,
+
+			@RequestParam(value = "anatomicSite", required = false)
+			String anatomicSite,
+
+			@RequestParam(value = "cpShortTitle", required = false)
+			String cpShortTitle) {
+
+		SpecimenListCriteria crit = new SpecimenListCriteria()
+			.reservedForDp(dpId)
+			.type(specimenType)
+			.anatomicSite(anatomicSite)
+			.cpShortTitle(cpShortTitle);
+
+		ResponseEvent<Integer> resp = orderSvc.getReservedSpecimensCount(getRequest(crit));
+		resp.throwErrorIfUnsuccessful();
+		return Collections.singletonMap("count", resp.getPayload());
+	}
+
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}/reserved-specimens")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody

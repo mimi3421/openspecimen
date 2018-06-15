@@ -62,6 +62,7 @@ import com.krishagni.catissueplus.core.query.Column;
 import com.krishagni.catissueplus.core.query.ListConfig;
 import com.krishagni.catissueplus.core.query.ListService;
 import com.krishagni.catissueplus.core.query.ListUtil;
+import com.krishagni.rbac.common.errors.RbacErrorCode;
 
 import edu.common.dynamicextensions.query.QueryResultData;
 import edu.common.dynamicextensions.query.WideRowMode;
@@ -219,20 +220,22 @@ public class SpecimenListServiceImpl implements SpecimenListService, Initializin
 	@PlusTransactional
 	public ResponseEvent<List<SpecimenInfo>> getListSpecimens(RequestEvent<SpecimenListCriteria> req) {
 		try {
-			SpecimenListCriteria crit = req.getPayload();
-
-			//
-			// specimen list is retrieved to ensure user has access to the list
-			//
-			getSpecimenList(crit.specimenListId(), null);
-
-			List<Pair<Long, Long>> siteCpPairs = AccessCtrlMgr.getInstance().getReadAccessSpecimenSiteCps();
-			if (siteCpPairs != null && siteCpPairs.isEmpty()) {
-				return ResponseEvent.response(Collections.emptyList());
-			}
-
-			List<Specimen> specimens = daoFactory.getSpecimenDao().getSpecimens(crit.siteCps(siteCpPairs));
+			SpecimenListCriteria crit = getListSpecimensCriteria(req.getPayload());
+			List<Specimen> specimens = daoFactory.getSpecimenDao().getSpecimens(crit);
 			return ResponseEvent.response(SpecimenInfo.from(specimens));
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
+		} catch (Exception e) {
+			return ResponseEvent.serverError(e);
+		}
+	}
+
+	@Override
+	@PlusTransactional
+	public ResponseEvent<Integer> getListSpecimensCount(RequestEvent<SpecimenListCriteria> req) {
+		try {
+			SpecimenListCriteria crit = getListSpecimensCriteria(req.getPayload());
+			return ResponseEvent.response(daoFactory.getSpecimenDao().getSpecimensCount(crit));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {
@@ -507,6 +510,20 @@ public class SpecimenListServiceImpl implements SpecimenListService, Initializin
 			.specimenListId(listId).siteCps(siteCps)
 			.maxResults(size).limitItems(true);
 		return daoFactory.getSpecimenDao().getSpecimens(crit);
+	}
+
+	private SpecimenListCriteria getListSpecimensCriteria(SpecimenListCriteria crit) {
+		//
+		// specimen list is retrieved to ensure user has access to the list
+		//
+		getSpecimenList(crit.specimenListId(), null);
+
+		List<Pair<Long, Long>> siteCpPairs = AccessCtrlMgr.getInstance().getReadAccessSpecimenSiteCps();
+		if (siteCpPairs != null && siteCpPairs.isEmpty()) {
+			throw OpenSpecimenException.userError(RbacErrorCode.ACCESS_DENIED);
+		}
+
+		return crit.siteCps(siteCpPairs);
 	}
 
 	private void ensureValidSpecimensAndUsers(SpecimenListDetail details, SpecimenList specimenList, List<Pair<Long, Long>> siteCpPairs) {

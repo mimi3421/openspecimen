@@ -1,10 +1,14 @@
 
 angular.module('os.administrative.models.order', ['os.common.models'])
-  .factory('DistributionOrder', function(osModel, $http, Specimen, SpecimenList) {
+  .factory('DistributionOrder', function(osModel, $http, Specimen, SpecimenList, DistributionProtocol) {
     var DistributionOrder = osModel('distribution-orders',
       function(order) {
         if (!!order.specimenList) {
           order.specimenList = new SpecimenList(order.specimenList);
+        }
+
+        if (!!order.distributionProtocol) {
+          order.distributionProtocol = new DistributionProtocol(order.distributionProtocol);
         }
       }
     );

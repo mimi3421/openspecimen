@@ -60,6 +60,13 @@ public class SpecimenDaoImpl extends AbstractDao<Specimen> implements SpecimenDa
 		return query.list();
 	}
 
+	public Integer getSpecimensCount(SpecimenListCriteria crit) {
+		Number count = (Number) getSpecimenIdsQuery(crit).getExecutableCriteria(getCurrentSession())
+			.setProjection(Projections.rowCount())
+			.uniqueResult();
+		return count.intValue();
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Long> getSpecimenIds(SpecimenListCriteria crit) {

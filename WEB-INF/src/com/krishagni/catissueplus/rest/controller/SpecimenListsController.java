@@ -193,6 +193,58 @@ public class SpecimenListsController {
 		return resp.getPayload();
 	}
 
+	@RequestMapping(method = RequestMethod.GET, value="/{listId}/specimens-count")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public Map<String, Integer> getListSpecimensCount(
+		@PathVariable("listId")
+		Long listId,
+
+		@RequestParam(value = "label", required = false)
+		String label,
+
+		@RequestParam(value = "cpId", required = false)
+		Long cpId,
+
+		@RequestParam(value = "ppid", required = false)
+		String ppid,
+
+		@RequestParam(value = "lineage", required = false)
+		String lineage,
+
+		@RequestParam(value = "type", required = false)
+		String type,
+
+		@RequestParam(value = "anatomicSite", required = false)
+		String anatomicSite,
+
+		@RequestParam(value = "container", required = false)
+		String container,
+
+		@RequestParam(value = "available", required = false, defaultValue = "false")
+		boolean available,
+
+		@RequestParam(value = "noQty", required = false, defaultValue = "false")
+		boolean noQty) {
+
+		SpecimenListCriteria criteria = new SpecimenListCriteria()
+			.specimenListId(listId)
+			.labels(StringUtils.isNotBlank(label) ? Collections.singletonList(label) : null)
+			.cpId(cpId)
+			.ppid(ppid)
+			.lineages(StringUtils.isNotBlank(lineage) ? new String[] {lineage} : null)
+			.type(type)
+			.anatomicSite(anatomicSite)
+			.container(container)
+			.exactMatch(false)
+			.available(available)
+			.noQty(noQty);
+
+		ResponseEvent<Integer> resp = specimenListSvc.getListSpecimensCount(request(criteria));
+		resp.throwErrorIfUnsuccessful();
+		return Collections.singletonMap("count", resp.getPayload());
+	}
+
 	@RequestMapping(method = RequestMethod.GET, value="/{listId}/specimens-sorted-by-rel")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody

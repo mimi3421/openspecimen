@@ -34,6 +34,8 @@ public interface SpecimenListService {
 
 	ResponseEvent<List<SpecimenInfo>> getListSpecimens(RequestEvent<SpecimenListCriteria> req);
 
+	ResponseEvent<Integer> getListSpecimensCount(RequestEvent<SpecimenListCriteria> req);
+
 	ResponseEvent<List<SpecimenInfo>> getListSpecimensSortedByRel(RequestEvent<EntityQueryCriteria> req);
 
 	ResponseEvent<Integer>  updateListSpecimens(RequestEvent<UpdateListSpecimensOp> req);

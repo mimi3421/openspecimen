@@ -94,6 +94,14 @@ angular.module('os.administrative.order',
             }
 
             return null;
+          },
+
+          maxSpmnsLimit: function(SettingUtil) {
+            return SettingUtil.getSetting('administrative', 'max_order_spmns_ui_limit').then(
+              function(setting) {
+                return (setting.value && +setting.value) || 100;
+              }
+            )
           }
         },
         parent: 'order-root'
