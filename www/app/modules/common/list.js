@@ -78,7 +78,7 @@ angular.module('openspecimen')
               }
 
               if (ctrl.enableSelection) {
-                $scope.checkList = new CheckList(ctx.data.rows);
+                ctrl.checkList = $scope.checkList = new CheckList(ctx.data.rows);
               }
             }
           );
@@ -141,7 +141,7 @@ angular.module('openspecimen')
       link: function(scope, element, attrs, ctrl) {
         ctrl.enableSelection = (scope.enableSelection == 'true' || scope.enableSelection == true);
         if (ctrl.enableSelection) {
-          scope.checkList = new CheckList([]);
+          ctrl.checkList = scope.checkList = new CheckList([]);
         }
 
         scope.setFiltersCtrl = function(filtersCtrl) {

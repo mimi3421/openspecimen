@@ -19,6 +19,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.InitializingBean;
 
 import com.krishagni.catissueplus.core.administrative.domain.DistributionOrder;
 import com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol;
@@ -45,8 +46,11 @@ import com.krishagni.catissueplus.core.administrative.services.DistributionProto
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.ConsentStatement;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.ConsentStatementErrorCode;
+import com.krishagni.catissueplus.core.biospecimen.domain.factory.SpecimenListErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.events.CollectionProtocolSummary;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
+import com.krishagni.catissueplus.core.biospecimen.repository.impl.BiospecimenDaoHelper;
+import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
 import com.krishagni.catissueplus.core.common.domain.Notification;
@@ -72,11 +76,15 @@ import com.krishagni.catissueplus.core.de.domain.Form;
 import com.krishagni.catissueplus.core.de.events.FormContextDetail;
 import com.krishagni.catissueplus.core.de.events.RemoveFormContextOp;
 import com.krishagni.catissueplus.core.de.services.FormService;
+import com.krishagni.catissueplus.core.query.Column;
+import com.krishagni.catissueplus.core.query.ListConfig;
+import com.krishagni.catissueplus.core.query.ListService;
+import com.krishagni.catissueplus.core.query.ListUtil;
 import com.krishagni.rbac.common.errors.RbacErrorCode;
 
 import krishagni.catissueplus.beans.FormContextBean;
 
-public class DistributionProtocolServiceImpl implements DistributionProtocolService, ObjectAccessor {
+public class DistributionProtocolServiceImpl implements DistributionProtocolService, ObjectAccessor, InitializingBean {
 	
 	private static final Map<String, String> attrDisplayKeys = new HashMap<String, String>() {
 		{
@@ -99,6 +107,8 @@ public class DistributionProtocolServiceImpl implements DistributionProtocolServ
 	private FormService formSvc;
 
 	private ConfigurationService cfgSvc;
+
+	private ListService listSvc;
 
 	public void setDaoFactory(DaoFactory daoFactory) {
 		this.daoFactory = daoFactory;
@@ -132,8 +142,8 @@ public class DistributionProtocolServiceImpl implements DistributionProtocolServ
 		});
 	}
 
-	private DpRequirementDao getDprDao() {
-		return daoFactory.getDistributionProtocolRequirementDao();
+	public void setListSvc(ListService listSvc) {
+		this.listSvc = listSvc;
 	}
 
 	@Override
@@ -470,32 +480,6 @@ public class DistributionProtocolServiceImpl implements DistributionProtocolServ
 	}
 
 	@Override
-	public String getObjectName() {
-		return DistributionProtocol.getEntityName();
-	}
-
-	@Override
-	@PlusTransactional
-	public Map<String, Object> resolveUrl(String key, Object value) {
-		if (key.equals("id")) {
-			value = Long.valueOf(value.toString());
-		}
-
-		return daoFactory.getDistributionProtocolDao().getDpIds(key, value);
-	}
-
-	@Override
-	public String getAuditTable() {
-		return "CAT_DISTRIBUTION_PROTOCOL_AUD";
-	}
-
-	@Override
-	public void ensureReadAllowed(Long id) {
-		DistributionProtocol dp = getDistributionProtocol(id);
-		AccessCtrlMgr.getInstance().ensureReadDpRights(dp);
-	}
-
-	@Override
 	@PlusTransactional
 	public ResponseEvent<List<DpConsentTierDetail>> getConsentTiers(RequestEvent<EntityQueryCriteria> req) {
 		try {
@@ -569,6 +553,38 @@ public class DistributionProtocolServiceImpl implements DistributionProtocolServ
 		} catch (Exception e) {
 			return ResponseEvent.serverError(e);
 		}
+	}
+
+	@Override
+	public String getObjectName() {
+		return DistributionProtocol.getEntityName();
+	}
+
+	@Override
+	@PlusTransactional
+	public Map<String, Object> resolveUrl(String key, Object value) {
+		if (key.equals("id")) {
+			value = Long.valueOf(value.toString());
+		}
+
+		return daoFactory.getDistributionProtocolDao().getDpIds(key, value);
+	}
+
+	@Override
+	public String getAuditTable() {
+		return "CAT_DISTRIBUTION_PROTOCOL_AUD";
+	}
+
+	@Override
+	public void ensureReadAllowed(Long id) {
+		DistributionProtocol dp = getDistributionProtocol(id);
+		AccessCtrlMgr.getInstance().ensureReadDpRights(dp);
+	}
+
+	@Override
+	public void afterPropertiesSet()
+	throws Exception {
+		listSvc.registerListConfigurator(RESV_SPMNS_LIST_NAME, this::getReservedSpecimensConfig);
 	}
 
 	private DpListCriteria addDpListCriteria(DpListCriteria crit) {
@@ -1087,6 +1103,48 @@ public class DistributionProtocolServiceImpl implements DistributionProtocolServ
 		}
 	}
 
+	private ListConfig getReservedSpecimensConfig(Map<String, Object> listReq) {
+		Number dpId = (Number) listReq.get("dpId");
+		if (dpId == null) {
+			dpId = (Number) listReq.get("objectId");
+		}
+
+		DistributionProtocol dp = getDistributionProtocol(dpId != null ? dpId.longValue() : null);
+
+		ListConfig cfg = ListUtil.getSpecimensListConfig(RESV_SPMNS_LIST_NAME, true);
+		ListUtil.addHiddenFieldsOfSpecimen(cfg);
+		if (cfg == null) {
+			return null;
+		}
+
+		List<Pair<Long, Long>> siteCps = AccessCtrlMgr.getInstance().getReadAccessSpecimenSiteCps();
+		if (siteCps != null && siteCps.isEmpty()) {
+			throw OpenSpecimenException.userError(SpecimenListErrorCode.ACCESS_NOT_ALLOWED);
+		}
+
+		String restriction = "Specimen.specimenResv.dpShortTitle = \"" + dp.getShortTitle() + "\"";
+
+		boolean useMrnSites = AccessCtrlMgr.getInstance().isAccessRestrictedBasedOnMrn();
+		String cpSitesCond = BiospecimenDaoHelper.getInstance().getSiteCpsCondAql(siteCps, useMrnSites);
+		if (StringUtils.isNotBlank(cpSitesCond)) {
+			restriction += " and " + cpSitesCond;
+		}
+
+		Column orderBy = new Column();
+		orderBy.setExpr("Specimen.specimenResv.id");
+		orderBy.setDirection("asc");
+
+		cfg.setDrivingForm("Specimen");
+		cfg.setRestriction(restriction);
+		cfg.setDistinct(true);
+		cfg.setOrderBy(Collections.singletonList(orderBy));
+		return ListUtil.setListLimit(cfg, listReq);
+	}
+
+	private DpRequirementDao getDprDao() {
+		return daoFactory.getDistributionProtocolRequirementDao();
+	}
+
 	private static final String ROLE_UPDATED_EMAIL_TMPL = "users_dp_role_updated";
 
 	private static final int N_USER = 0;
@@ -1103,4 +1161,5 @@ public class DistributionProtocolServiceImpl implements DistributionProtocolServ
 
 	private static final int N_DP_RECV_SITE = 2;
 
+	private static final String RESV_SPMNS_LIST_NAME =  "reserved-specimens-list-view";
 }

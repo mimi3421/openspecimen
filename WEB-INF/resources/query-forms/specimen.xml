@@ -553,6 +553,15 @@
         <parentKey>IDENTIFIER</parentKey>
 
         <row>
+          <numberField>
+            <name>id</name>
+            <udn>id</udn>
+            <caption>#getMessage("specimen_reservation_id")</caption>
+            <column>IDENTIFIER</column>
+          </numberField>
+        </row>
+
+        <row>
           <dropDown>
             <name>dpShortTitle</name>
             <udn>dpShortTitle</udn>

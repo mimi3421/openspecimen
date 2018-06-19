@@ -554,6 +554,7 @@
     <property name="dprFactory" ref="dpRequirementFactory"/>
     <property name="formSvc" ref="formSvc"/>
     <property name="cfgSvc" ref="cfgSvc"/>
+    <property name="listSvc" ref="listSvc"/>
   </bean>
 	
   <bean id="distributionFactory" class="com.krishagni.catissueplus.core.administrative.domain.factory.impl.DistributionOrderFactoryImpl">

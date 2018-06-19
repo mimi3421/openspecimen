@@ -723,7 +723,7 @@ public class SpecimenListServiceImpl implements SpecimenListService, Initializin
 			listId = (Number) listReq.get("objectId");
 		}
 
-		SpecimenList list = getSpecimenList(listId.longValue(), null);
+		SpecimenList list = getSpecimenList(listId != null ? listId.longValue() : null, null);
 
 		ListConfig cfg = ListUtil.getSpecimensListConfig("cart-specimens-list-view", true);
 		ListUtil.addHiddenFieldsOfSpecimen(cfg);

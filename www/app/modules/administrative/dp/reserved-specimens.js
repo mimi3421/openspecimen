@@ -1,73 +1,44 @@
 angular.module('os.administrative.dp')
-  .controller('DpReservedSpecimensCtrl', function(
-    $scope, $state, distributionProtocol, 
-    Util, CollectionProtocol, CheckList, ListPagerOpts, SpecimensHolder) {
+  .controller('DpReservedSpecimensCtrl', function($scope, $state, distributionProtocol, Specimen, SpecimensHolder) {
 
-    var lctx, filterOpts, pagerOpts;
+    var lctx;
 
     function init() {
-      pagerOpts = new ListPagerOpts({listSizeGetter: getSpecimensCount});
-      filterOpts = Util.filterOpts({maxResults: pagerOpts.recordsPerPage + 1});
-
       lctx = $scope.lctx = {
-        specimens: [],
-        cps: [],
-        filterOpts: filterOpts,
-        checkList: new CheckList([]),
-        pagerOpts: pagerOpts,
+        params: {
+          listName: 'reserved-specimens-list-view',
+          objectId: distributionProtocol.id
+        },
         orderCreateOpts: {resource: 'Order', operations: ['Create']}
       };
-
-      loadSpecimens(lctx.filterOpts);
-      Util.filter($scope, 'lctx.filterOpts', loadSpecimens);
     }
 
-    function loadSpecimens(filterOpts) {
-      distributionProtocol.getReservedSpecimens(filterOpts).then(
-        function(specimens) {
-          lctx.specimens = specimens;
-          lctx.checkList = new CheckList(specimens);
-          lctx.pagerOpts.refreshOpts(specimens);
-        }
-      );
+    function loadSpecimens() {
+      lctx.listCtrl.loadList();
     }
-
-    function loadCps(shortTitle) {
-      var params = {query: shortTitle};
-      CollectionProtocol.list(params).then(
-        function(cps) {
-          lctx.cps = cps;
-        }
-      );
-    }
-
-    function getSpecimensCount() {
-      return distributionProtocol.getReservedSpecimensCount(lctx.filterOpts);
-    }
-
-    $scope.loadCps = loadCps;
 
     $scope.distributeSpecimens = function() {
-      SpecimensHolder.setSpecimens(lctx.checkList.getSelectedItems());
-      $state.go('order-addedit', {dpId: distributionProtocol.id});
+      var spmnIds = lctx.listCtrl.getSelectedItems().map(function(spmn) { return spmn.hidden.specimenId });
+      Specimen.getByIds(spmnIds).then(
+        function(spmns) {
+          SpecimensHolder.setSpecimens(spmns);
+          $state.go('order-addedit', {dpId: distributionProtocol.id});
+        }
+      );
     }
 
     $scope.cancelReservation = function() {
       var payload = {
         dpId: distributionProtocol.id,
-        specimens: lctx.checkList.getSelectedItems().map(function(spmn) { return {id: spmn.id}; }),
+        specimens: lctx.listCtrl.getSelectedItems().map(function(spmn) { return {id: spmn.hidden.specimenId } }),
         cancelOp: true
-      }
-
-      distributionProtocol.reserveSpecimens(payload).then(
-        function() {
-          loadSpecimens(lctx.filterOpts);
-        }
-      )
+      };
+      distributionProtocol.reserveSpecimens(payload).then(loadSpecimens);
     }
 
-    $scope.pageSizeChanged = function() {
-      filterOpts.maxResults = pagerOpts.recordsPerPage + 1;
+    $scope.setListCtrl = function(listCtrl) {
+      lctx.listCtrl = listCtrl;
+      lctx.showSearch = listCtrl.haveFilters;
     }
 
     init();
