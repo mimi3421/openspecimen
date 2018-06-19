@@ -25,7 +25,7 @@ angular.module('openspecimen')
         return input; 
       }
 
-      if (angular.isString(input) && input.trim().length == 0) {
+      if (angular.isString(input) && (input.trim().length == 0 || input.trim() == 'Not Specified')) {
         return notSpecifiedText(placeholder);
       }
 
