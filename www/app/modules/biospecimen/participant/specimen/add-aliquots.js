@@ -50,7 +50,12 @@ angular.module('os.biospecimen.specimen.addaliquots', [])
     }
 
     function getState() {
-      return {state: $state.current, params: $stateParams};
+      var stateInfo = $scope.stateChangeInfo;
+      if (stateInfo && stateInfo.fromState) {
+        return {state: stateInfo.fromState, params: stateInfo.fromParams};
+      } else {
+        return {state: $state.current, params: $stateParams};
+      }
     }
 
     $scope.toggleIncrParentFreezeThaw = function() {
