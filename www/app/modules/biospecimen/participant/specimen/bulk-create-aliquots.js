@@ -1,6 +1,6 @@
 angular.module('os.biospecimen.specimen')
   .controller('BulkCreateAliquotsCtrl', function(
-    $scope, $q, parentSpmns, cp, containerAllocRules, aliquotQtyReq,
+    $scope, $q, parentSpmns, cp, containerAllocRules, aliquotQtyReq, createDerived,
     Specimen, Alerts, Util, SpecimenUtil, Container) {
 
     var ignoreQtyWarning = false, reservationId;
@@ -31,7 +31,8 @@ angular.module('os.biospecimen.specimen')
               availableQty: ps.availableQty,
               createdOn: ps.createdOn,
               specimenClass: ps.specimenClass,
-              type: ps.type
+              type: ps.type,
+              lineage: ps.lineage
             }
           });
         }
@@ -329,7 +330,8 @@ angular.module('os.biospecimen.specimen')
       angular.forEach($scope.ctx.aliquotsSpec,
         function(spec) {
           var children;
-          if (spec.specimenClass != spec.parent.specimenClass || spec.type != spec.parent.type) {
+          if ((spec.parent.lineage != 'Derived' && createDerived) ||
+              spec.specimenClass != spec.parent.specimenClass || spec.type != spec.parent.type) {
             children = [getDerivative(spec, aliquots, aliquotIdx)];
           } else {
             children = aliquots.slice(aliquotIdx, aliquotIdx + +spec.count);

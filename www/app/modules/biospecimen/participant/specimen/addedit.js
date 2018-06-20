@@ -1,9 +1,9 @@
 
 angular.module('os.biospecimen.specimen.addedit', [])
   .controller('AddEditSpecimenCtrl', function(
-    $scope, $state, $parse, cp, cpr, visit, specimen,
-    extensionCtxt, aliquotQtyReq, barcodingEnabled, spmnBarcodesAutoGen,
-    hasDict, sysDict, cpDict, layout, onValueChangeCb, spmnReq, defSpmns,
+    $scope, $state, $parse, cp, cpr, visit, specimen, extensionCtxt,
+    aliquotQtyReq, barcodingEnabled, spmnBarcodesAutoGen, hasDict, sysDict,
+    cpDict, layout, onValueChangeCb, spmnReq, defSpmns, createDerived,
     Alerts, CpConfigSvc, PluginReg, Util, ParticipantSpecimensViewState,
     Specimen, CollectSpecimensSvc) {
 
@@ -17,7 +17,8 @@ angular.module('os.biospecimen.specimen.addedit', [])
         barcodingEnabled: barcodingEnabled, spmnBarcodesAutoGen: spmnBarcodesAutoGen,
         editMode: !!specimen.id, reqId: specimen.reqId, aliquotQtyReq: aliquotQtyReq,
         layout: layout, onValueChange: onValueChangeCb, mdInput: false,
-        hasInfo: PluginReg.getTmpls('specimen-addedit', 'info').length > 0
+        hasInfo: PluginReg.getTmpls('specimen-addedit', 'info').length > 0,
+        createDerived: createDerived
       }
 
       CpConfigSvc.getCommonCfg(cp.id, 'addSpecimen').then(
@@ -200,7 +201,7 @@ angular.module('os.biospecimen.specimen.addedit', [])
       parent.children = parent.children.concat(children);
     }
 
-    function getAliquots(cpr, primarySpmn, types, typeSpecs) {
+    function getAliquots(opts, primarySpmn, types, typeSpecs) {
       var result = [], children = [], derived = undefined;
 
       angular.forEach(types,
@@ -209,7 +210,8 @@ angular.module('os.biospecimen.specimen.addedit', [])
           angular.forEach(typeSpecs[type],
             function(aliquotSpec) {
               var detail = angular.copy({aliquotSpec: aliquotSpec});
-              angular.extend(detail, {parentSpecimen: primarySpmn, deFormCtrl: {}, cpr: cpr});
+              angular.extend(detail, {parentSpecimen: primarySpmn, deFormCtrl: {}, cpr: opts.cpr});
+              detail.aliquotSpec.createDerived = opts.createDerived;
 
               var tree = SpecimenUtil.collectAliquots(detail);
               tree.splice(0, 1); // remove parent as it is already in our final list
@@ -278,7 +280,7 @@ angular.module('os.biospecimen.specimen.addedit', [])
               }
             );
 
-            var tree = getAliquots($scope.opts.cpr, primarySpmn, types, typeSpecs);
+            var tree = getAliquots($scope.opts, primarySpmn, types, typeSpecs);
             Array.prototype.push.apply(result, tree);
           } else {
             primarySpmn.children = [];

@@ -59,7 +59,8 @@ angular.module('os.biospecimen.specimen')
       parent.storageType = (!parent.storageLocation || !parent.storageLocation.name) && (parent.storageType || 'Virtual');
 
       var derived = undefined;
-      if (spec.specimenClass != parent.specimenClass || spec.type != parent.type) {
+      if ((parent.lineage != 'Derived' && spec.createDerived) ||
+          spec.specimenClass != parent.specimenClass || spec.type != parent.type) {
         derived = getSpmnToSave(
           'Derived', spec, parent,
           Math.round(spec.qtyPerAliquot * spec.noOfAliquots),

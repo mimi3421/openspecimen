@@ -2,7 +2,7 @@
 angular.module('os.biospecimen.specimen.addaliquots', [])
   .controller('AddAliquotsCtrl', function(
     $scope, $rootScope, $state, $stateParams, specimen, cpr,
-    visit, extensionCtxt, hasDict, onValueChangeCb,
+    visit, extensionCtxt, hasDict, onValueChangeCb, createDerived,
     CollectSpecimensSvc, SpecimenUtil, ExtensionsUtil, Alerts) {
 
     function init() {
@@ -17,7 +17,8 @@ angular.module('os.biospecimen.specimen.addaliquots', [])
         createdOn : Date.now(),
         freezeThawCycles: specimen.freezeThawCycles + 1,
         incrParentFreezeThaw: 1,
-        labelFmt: cpr.aliquotLabelFmt
+        labelFmt: cpr.aliquotLabelFmt,
+        createDerived: createDerived
       };
 
       //
