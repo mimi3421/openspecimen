@@ -135,7 +135,7 @@ public class ConfigurationServiceImpl implements ConfigurationService, Initializ
 		
 		String setting = detail.getValue();
 		if (!isValidSetting(existing.getProperty(), setting)) {
-			return ResponseEvent.userError(ConfigErrorCode.INVALID_SETTING_VALUE);
+			return ResponseEvent.userError(ConfigErrorCode.INVALID_SETTING_VALUE, setting);
 		}
 		
 		boolean successful = false;
