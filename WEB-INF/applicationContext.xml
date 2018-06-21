@@ -16,18 +16,10 @@
     http://www.springframework.org/schema/context 
     http://www.springframework.org/schema/context/spring-context-3.2.xsd">
 
-  <bean id="appProps" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-    <property name="locations">
-      <list>
-        <value>classpath:application.properties</value>
-      </list>
-    </property>
-  </bean>
+  <bean id="placeholderConfig" class="com.krishagni.catissueplus.core.init.AppPropertyPlaceholderConfigurer"/>
 
-  <bean id="placeholderConfig" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
-    <property name="properties" ref="appProps"/>
-  </bean> 
-  
+  <bean id="appProps" class="com.krishagni.catissueplus.core.init.AppProperties" factory-method="getInstance"/>
+
   <bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
     <property name="jndiName" value="${datasource.jndi}"/>
   </bean>
