@@ -1048,8 +1048,8 @@ public class StorageContainer extends BaseEntity {
 		AutomatedContainerContext.getInstance().storeSpecimen(this, specimen);
 	}
 
-	public void processList(ContainerStoreList list) {
-		getAutoFreezerProvider().getInstance().processList(list);
+	public ContainerStoreList.Status processList(ContainerStoreList list) {
+		return getAutoFreezerProvider().getInstance().processList(list);
 	}
 
 	public boolean isSiteContainer(Site site) {

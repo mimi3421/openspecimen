@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 import com.krishagni.catissueplus.core.administrative.domain.ScheduledJobRun;
+import com.krishagni.catissueplus.core.administrative.events.AutoFreezerReportDetail;
 import com.krishagni.catissueplus.core.administrative.services.ScheduledTask;
 import com.krishagni.catissueplus.core.administrative.services.StorageContainerService;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
@@ -20,7 +21,7 @@ public class AutomatedFreezerReportGenerator implements ScheduledTask {
 	@Override
 	public void doJob(ScheduledJobRun jobRun) throws Exception {
 		try {
-			storageContainerSvc.generateAutoFreezerReport(new RequestEvent<>());
+			storageContainerSvc.generateAutoFreezerReport(new RequestEvent<>(new AutoFreezerReportDetail()));
 		} catch (Exception e) {
 			logger.error("Error generating automated freezer report", e);
 		}

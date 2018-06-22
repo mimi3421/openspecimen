@@ -126,7 +126,7 @@ public class ContainerStoreList extends BaseEntity {
 		getItems().add(item);
 	}
 
-	public void process() {
-		getContainer().processList(this);
+	public Status process() {
+		return getContainer().processList(this);
 	}
 }
