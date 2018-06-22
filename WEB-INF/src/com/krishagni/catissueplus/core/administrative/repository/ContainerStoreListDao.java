@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.krishagni.catissueplus.core.administrative.domain.ContainerStoreList;
+import com.krishagni.catissueplus.core.administrative.domain.ContainerStoreListItem;
 import com.krishagni.catissueplus.core.common.repository.Dao;
 
 public interface ContainerStoreListDao extends Dao<ContainerStoreList> {
@@ -12,4 +13,6 @@ public interface ContainerStoreListDao extends Dao<ContainerStoreList> {
 	List<ContainerStoreList> getStoreLists(ContainerStoreListCriteria crit);
 
 	Map<ContainerStoreList.Op, Integer> getStoreListItemsCount(Date from, Date to);
+
+	void saveOrUpdateItem(ContainerStoreListItem item);
 }

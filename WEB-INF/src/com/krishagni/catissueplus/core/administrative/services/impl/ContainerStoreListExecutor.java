@@ -1,5 +1,6 @@
 package com.krishagni.catissueplus.core.administrative.services.impl;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -10,10 +11,13 @@ import org.springframework.beans.factory.annotation.Configurable;
 import com.krishagni.catissueplus.core.administrative.domain.ContainerStoreList;
 import com.krishagni.catissueplus.core.administrative.domain.ContainerStoreList.Status;
 import com.krishagni.catissueplus.core.administrative.domain.ScheduledJobRun;
+import com.krishagni.catissueplus.core.administrative.events.AutoFreezerReportDetail;
 import com.krishagni.catissueplus.core.administrative.repository.ContainerStoreListCriteria;
 import com.krishagni.catissueplus.core.administrative.services.ScheduledTask;
+import com.krishagni.catissueplus.core.administrative.services.StorageContainerService;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
+import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.util.ConfigUtil;
 
 @Configurable
@@ -21,21 +25,37 @@ public class ContainerStoreListExecutor implements ScheduledTask {
 	@Autowired
 	private DaoFactory daoFactory;
 
+	@Autowired
+	private StorageContainerService storageContainerSvc;
+
 	@Override
 	public void doJob(ScheduledJobRun jobRun)
 	throws Exception {
+		List<Long> failedStoreListIds = new ArrayList<>();
+
 		boolean hasPendingLists = true;
 		while (hasPendingLists) {
 			List<ContainerStoreList> storeLists = getPendingStoreLists();
-			storeLists.forEach(ContainerStoreList::process);
+			for (ContainerStoreList storeList : storeLists) {
+				boolean firstAttempt = (storeList.getNoOfRetries() == 0);
+				ContainerStoreList.Status status = storeList.process();
+				if (status == Status.FAILED && firstAttempt) {
+					failedStoreListIds.add(storeList.getId());
+				}
+			}
+
 			hasPendingLists = (storeLists.size() >= MAX_PENDING_LISTS_TO_FETCH);
+		}
+
+		if (!failedStoreListIds.isEmpty()) {
+			storageContainerSvc.generateAutoFreezerReport(new RequestEvent<>(new AutoFreezerReportDetail(failedStoreListIds)));
 		}
 	}
 
 	@PlusTransactional
 	private List<ContainerStoreList> getPendingStoreLists() {
 		int retryInterval = ConfigUtil.getInstance().getIntSetting(ADMIN_MOD, RETRY_INTERVAL, DEF_RETRY_INTERVAL);
-		int maxRetries = ConfigUtil.getInstance().getIntSetting(ADMIN_MOD, MAX_RETRIES, DEF_RETRIES);
+		int maxRetries    = ConfigUtil.getInstance().getIntSetting(ADMIN_MOD, MAX_RETRIES, DEF_RETRIES);
 
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.HOUR, -retryInterval);

@@ -5,6 +5,6 @@ task deploy(type: Copy, dependsOn: 'build') {
   delete deploy_location + "/openspecimen-ds.xml"
   
   from war
-  
+
   into deploy_location
 }

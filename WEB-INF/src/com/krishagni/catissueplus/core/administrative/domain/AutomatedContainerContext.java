@@ -49,7 +49,10 @@ public class AutomatedContainerContext {
 			storeList = createNewList(container, op);
 		}
 
-		storeList.addItem(specimen);
+		ContainerStoreListItem item = new ContainerStoreListItem();
+		item.setSpecimen(specimen);
+		item.setStoreList(storeList);
+		daoFactory.getContainerStoreListDao().saveOrUpdateItem(item);
 	}
 
 	private String listLookupKey(StorageContainer container, ContainerStoreList.Op op) {

@@ -220,7 +220,7 @@ def getBranch() {
 processResources {
   from(sourceSets.main.resources.srcDirs) {
     include 'application.properties'
-    
+
     filter(
       ReplaceTokens, 
       tokens: [

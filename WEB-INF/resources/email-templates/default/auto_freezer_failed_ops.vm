@@ -9,7 +9,7 @@
                 <p style="margin:10px 0 0 0">
                   Hello $rcpt.firstName $rcpt.lastName,
                   <br><br>
-                  Given below is the status of specimens stored/retrieved from the automated freezers on : $date.
+                  One or more recent specimens store/retrieve from automated freezers failed. Please download the attached CSV file for more details.
                   <br>
                 </p>
               </td>
@@ -18,40 +18,16 @@
               <td>
                 <table>
                   <tr>
-                    <td> Stored </td>
-                    <td>
-                      #set($stored = $storedSpmnsCnt - $failedToStore)
-                      : $stored
-                    </td>
-                  </tr>
-                  <tr>
-                    <td> Retrieved </td>
-                    <td>
-                      #set($retrieved = $retrievedSpmnsCnt - $failedToRetrieve)
-                      : $retrieved
-                    </td>
-                  </tr>
-                  <tr>
                     <td> Failed to Store </td>
-                    <td> : $failedToStore </td>
+                    <td> : $failedStores </td>
                   </tr>
                   <tr>
                     <td> Failed to Retrieve  </td>
-                    <td> : $failedToRetrieve </td>
+                    <td> : $failedRetrieves </td>
                   </tr>
                 </table>
               </td>
             </tr>
-
-            #if ($failedToStore != 0 || $failedToRetrieve != 0)
-            <tr>
-              <td style="border-collapse:collapse;padding-bottom:10px">
-                <p>
-                  Please check attached report of failed specimens to store/retrieve.
-                </p>
-              </td>
-            </tr>
-            #end
           </tbody>
         </table>
       </td>

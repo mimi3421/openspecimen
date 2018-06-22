@@ -36,6 +36,7 @@ import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.administrative.domain.factory.SiteErrorCode;
 import com.krishagni.catissueplus.core.administrative.domain.factory.StorageContainerErrorCode;
 import com.krishagni.catissueplus.core.administrative.domain.factory.StorageContainerFactory;
+import com.krishagni.catissueplus.core.administrative.events.AutoFreezerReportDetail;
 import com.krishagni.catissueplus.core.administrative.events.ContainerCriteria;
 import com.krishagni.catissueplus.core.administrative.events.ContainerHierarchyDetail;
 import com.krishagni.catissueplus.core.administrative.events.ContainerQueryCriteria;
@@ -767,62 +768,25 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 	//
 	@Override
 	@PlusTransactional
-	public ResponseEvent<File> generateAutoFreezerReport(RequestEvent<Date> req) {
+	public ResponseEvent<File> generateAutoFreezerReport(RequestEvent<AutoFreezerReportDetail> req) {
 		if (!AuthUtil.isAdmin()) {
 			return ResponseEvent.userError(RbacErrorCode.ADMIN_RIGHTS_REQUIRED);
 		}
 
-		Date inputDate = req.getPayload();
-		if (inputDate == null) {
-			inputDate = Calendar.getInstance().getTime();
-		}
-
-		Date fromDate = Utility.chopTime(inputDate);
-		Date toDate = Utility.getEndOfDay(inputDate);
-
-		CsvWriter csvWriter = null;
-		int failedLists  = 0, maxLists = 100;
-		int failedToStore = 0, failedToRetrieve = 0;
 		try {
-			File dataDir = new File(ConfigUtil.getInstance().getDataDir());
-			File file = File.createTempFile("auto-freezer-report-", ".csv", dataDir);
-			csvWriter = CsvFileWriter.createCsvFileWriter(file);
-			csvWriter.writeNext(getAutoFreezerReportHeader());
-
-			ContainerStoreListCriteria crit = new ContainerStoreListCriteria()
-				.statuses(Collections.singletonList(ContainerStoreList.Status.FAILED))
-				.fromDate(fromDate)
-				.toDate(toDate)
-				.maxResults(maxLists);
-
-			boolean endOfLists = false;
-			while (!endOfLists) {
-				crit.startAt(failedLists);
-				List<ContainerStoreList> storeLists = daoFactory.getContainerStoreListDao().getStoreLists(crit);
-				failedLists += storeLists.size();
-
-				for (ContainerStoreList storeList : storeLists) {
-					List<String[]> rows = getAutoFreezerReportRows(storeList);
-					csvWriter.writeAll(rows);
-
-					if (storeList.getOp() == ContainerStoreList.Op.PICK) {
-						failedToRetrieve += rows.size();
-					} else if (storeList.getOp() == ContainerStoreList.Op.PUT) {
-						failedToStore += rows.size();
-					}
-				}
-
-				endOfLists = storeLists.size() < maxLists;
+			AutoFreezerReportDetail detail = generateStoreListsFailureReport(req.getPayload());
+			if (!detail.reportForFailedOps()) {
+				Map<ContainerStoreList.Op, Integer> itemsCnt = daoFactory.getContainerStoreListDao()
+					.getStoreListItemsCount(detail.getFromDate(), detail.getToDate());
+				detail.setStored(itemsCnt.get(Op.PUT) == null ? 0 : itemsCnt.get(Op.PUT));
+				detail.setRetrieved(itemsCnt.get(Op.PICK) == null ? 0 : itemsCnt.get(Op.PICK));
 			}
 
-			Map<ContainerStoreList.Op, Integer> itemsCnt = daoFactory.getContainerStoreListDao().getStoreListItemsCount(fromDate, toDate);
-			sendAutoFreezerReport(file, itemsCnt, failedToRetrieve, failedToStore);
-			return ResponseEvent.response(failedLists > 0 ? file : null);
+			sendAutoFreezerReport(detail);
+			return ResponseEvent.response(detail.getReport());
 		} catch (Exception e) {
 			logger.error("Error generating automated freezer report", e);
 			return ResponseEvent.serverError(e);
-		} finally {
-			IOUtils.closeQuietly(csvWriter);
 		}
 	}
 
@@ -1535,6 +1499,68 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 		};
 	}
 
+	private AutoFreezerReportDetail generateStoreListsFailureReport(AutoFreezerReportDetail reportDetail) {
+		CsvWriter csvWriter = null;
+		int failedLists = 0, maxLists = 100;
+		int failedToStore = 0, failedToRetrieve = 0;
+		try {
+			File dataDir = new File(ConfigUtil.getInstance().getDataDir());
+			File file = File.createTempFile("auto-freezer-report-", ".csv", dataDir);
+			csvWriter = CsvFileWriter.createCsvFileWriter(file);
+			csvWriter.writeNext(getAutoFreezerReportHeader());
+
+			List<Long> storeListIds = reportDetail.getFailedStoreListIds();
+			boolean retrieveByIds = reportDetail.reportForFailedOps();
+			ContainerStoreListCriteria crit = new ContainerStoreListCriteria()
+				.statuses(Collections.singletonList(ContainerStoreList.Status.FAILED))
+				.fromDate(!retrieveByIds ? reportDetail.getFromDate() : null)
+				.toDate(!retrieveByIds   ? reportDetail.getToDate() : null)
+				.maxResults(maxLists);
+
+			boolean endOfLists = false;
+			while (!endOfLists) {
+				if (retrieveByIds) {
+					int toIdx = storeListIds.size() < maxLists ? storeListIds.size() : maxLists;
+					crit.ids(storeListIds.subList(0, toIdx));
+					storeListIds = storeListIds.subList(toIdx, storeListIds.size());
+				} else {
+					crit.startAt(failedLists);
+				}
+
+				List<ContainerStoreList> storeLists = daoFactory.getContainerStoreListDao().getStoreLists(crit);
+				failedLists += storeLists.size();
+
+				for (ContainerStoreList storeList : storeLists) {
+					List<String[]> rows = getAutoFreezerReportRows(storeList);
+					csvWriter.writeAll(rows);
+
+					if (storeList.getOp() == ContainerStoreList.Op.PICK) {
+						failedToRetrieve += rows.size();
+					} else if (storeList.getOp() == ContainerStoreList.Op.PUT) {
+						failedToStore += rows.size();
+					}
+				}
+
+				if (retrieveByIds) {
+					endOfLists = storeListIds.isEmpty();
+				} else {
+					endOfLists = storeLists.size() < maxLists;
+				}
+			}
+
+			reportDetail.setFailedRetrieves(failedToRetrieve);
+			reportDetail.setFailedStores(failedToStore);
+			reportDetail.setFailedLists(failedLists);
+			reportDetail.setReport(failedToRetrieve > 0 || failedToStore > 0 ? file : null);
+			return reportDetail;
+		} catch (Exception e) {
+			logger.error("Error generating automated freezer failed ops report", e);
+			throw new RuntimeException("Error generating automated freezer failed ops report", e);
+		}  finally {
+			IOUtils.closeQuietly(csvWriter);
+		}
+	}
+
 	private String[] getAutoFreezerReportHeader() {
 		return new String[] {
 			msg("auto_freezer_store_list_id"),
@@ -1580,18 +1606,19 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 		return rows;
 	}
 
-	private void sendAutoFreezerReport(File reportFile, Map<ContainerStoreList.Op, Integer> itemsCnt, int failedToRetrieve, int failedToStore) {
+	private void sendAutoFreezerReport(AutoFreezerReportDetail reportDetail) {
 		String date = Utility.getDateString(Calendar.getInstance().getTime());
 
 		Map<String, Object> emailProps = new HashMap<>();
 		emailProps.put("$subject", new String[] {date});
 		emailProps.put("date", date);
 		emailProps.put("ccAdmin", false);
-		emailProps.put("filename", reportFile.getName());
-		emailProps.put("storedSpmnsCnt", itemsCnt.get(Op.PUT) == null ? 0 : itemsCnt.get(Op.PUT));
-		emailProps.put("retrievedSpmnsCnt", itemsCnt.get(Op.PICK) == null ? 0 : itemsCnt.get(Op.PICK));
-		emailProps.put("failedToStore", failedToStore);
-		emailProps.put("failedToRetrieve", failedToRetrieve);
+		emailProps.putAll(reportDetail.toMap());
+
+		if (!reportDetail.hasAnyActivity()) {
+			logger.info("Not sending automated freezers report email, as there was no activity seen on: " + date);
+			return;
+		}
 
 		UserListCriteria rcptsCrit = new UserListCriteria().activityStatus("Active").type("SUPER");
 		List<User> rcpts = daoFactory.getUserDao().getUsers(rcptsCrit);
@@ -1605,9 +1632,11 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 			rcpts.add(itAdmin);
 		}
 
+		String emailTmpl = reportDetail.reportForFailedOps() ? AUTO_FREEZER_FAILED_OPS_RPT : AUTO_FREEZER_DAILY_RPT;
+		File[] attachments = reportDetail.getReport() != null ? new File[] { reportDetail.getReport() } : null;
 		for (User user : rcpts) {
 			emailProps.put("rcpt", user);
-			EmailUtil.getInstance().sendEmail(REPORT_EMAIL_TMPL, new String[] {user.getEmailAddress()}, new File[] {reportFile}, emailProps);
+			EmailUtil.getInstance().sendEmail(emailTmpl, new String[] {user.getEmailAddress()}, attachments, emailProps);
 		}
 	}
 
@@ -1615,5 +1644,7 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 		return MessageUtil.getInstance().getMessage(code);
 	}
 
-	private final static String REPORT_EMAIL_TMPL = "automated_freezer_report";
+	private final static String AUTO_FREEZER_DAILY_RPT      = "auto_freezer_daily";
+
+	private final static String AUTO_FREEZER_FAILED_OPS_RPT = "auto_freezer_failed_ops";
 }

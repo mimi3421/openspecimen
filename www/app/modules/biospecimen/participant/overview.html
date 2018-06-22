@@ -332,7 +332,7 @@
 
 <script type="text/ng-template" id="modules/biospecimen/participant/overview-visit-spmns-count.html">
   <progress class="progress" max="visit.totalPrimarySpmns"
-    bs-popover trigger="hover" placement="bottom" content-template="specimen-count.html">
+    bs-popover trigger="hover" placement="bottom" container="body" content-template="specimen-count.html">
     <bar value="visit.plannedPrimarySpmnsColl" type="success">
       <span><b> {{visit.plannedPrimarySpmnsColl}} </b> </span>
     </bar>
@@ -350,7 +350,7 @@
 
 <script type="text/ng-template" id="modules/biospecimen/participant/overview-visit-spmns-storage.html">
   <progress class="progress" max="visit.reqStorage"
-    bs-popover trigger="hover" placement="bottom" content-template="storage-utilization.html">
+    bs-popover trigger="hover" placement="bottom" container="body" content-template="storage-utilization.html">
     <bar value="visit.storedSpecimens" type="success" ng-if="!!visit.storedSpecimens">
       <span><b> {{visit.storedSpecimens}} </b></span>
     </bar>

@@ -6,12 +6,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
 import com.krishagni.catissueplus.core.administrative.domain.ContainerStoreList;
 import com.krishagni.catissueplus.core.administrative.domain.ContainerStoreList.Op;
+import com.krishagni.catissueplus.core.administrative.domain.ContainerStoreListItem;
 import com.krishagni.catissueplus.core.administrative.repository.ContainerStoreListCriteria;
 import com.krishagni.catissueplus.core.administrative.repository.ContainerStoreListDao;
 import com.krishagni.catissueplus.core.common.repository.AbstractDao;
@@ -27,7 +29,8 @@ public class ContainerStoreListDaoImpl extends AbstractDao<ContainerStoreList> i
 	@Override
 	public List<ContainerStoreList> getStoreLists(ContainerStoreListCriteria crit) {
 		return getQuery(crit).addOrder(Order.asc("sl.id"))
-			.setFirstResult(crit.startAt()).setMaxResults(crit.maxResults())
+			.setFirstResult(crit.startAt())
+			.setMaxResults(CollectionUtils.isNotEmpty(crit.ids()) ? crit.ids().size() : crit.maxResults())
 			.list();
 	}
 
@@ -41,8 +44,17 @@ public class ContainerStoreListDaoImpl extends AbstractDao<ContainerStoreList> i
 		return rows.stream().collect(Collectors.toMap(row -> (Op)row[0], row -> ((Long)row[1]).intValue()));
 	}
 
+	@Override
+	public void saveOrUpdateItem(ContainerStoreListItem item) {
+		getCurrentSession().saveOrUpdate(item);
+	}
+
 	private Criteria getQuery(ContainerStoreListCriteria crit) {
 		Criteria query = getCurrentSession().createCriteria(ContainerStoreList.class, "sl");
+
+		if (CollectionUtils.isNotEmpty(crit.ids())) {
+			query.add(Restrictions.in("sl.id", crit.ids()));
+		}
 
 		if (crit.fromDate() != null) {
 			query.add(Restrictions.ge("sl.executionTime", crit.fromDate()));

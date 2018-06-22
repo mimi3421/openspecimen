@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainer;
+import com.krishagni.catissueplus.core.administrative.events.AutoFreezerReportDetail;
 import com.krishagni.catissueplus.core.administrative.events.PositionsDetail;
 import com.krishagni.catissueplus.core.administrative.events.ContainerHierarchyDetail;
 import com.krishagni.catissueplus.core.administrative.events.ContainerQueryCriteria;
@@ -98,7 +99,7 @@ public interface StorageContainerService {
 	//
 	// Auto freezer APIs
 	//
-	ResponseEvent<File> generateAutoFreezerReport(RequestEvent<Date> req);
+	ResponseEvent<File> generateAutoFreezerReport(RequestEvent<AutoFreezerReportDetail> req);
 
 	//
 	// Internal APIs
