@@ -2,6 +2,9 @@ package com.krishagni.catissueplus.core.common.service.impl;
 
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
@@ -18,6 +21,8 @@ import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.rbac.common.errors.RbacErrorCode;
 
 public class CommonServiceImpl implements CommonService {
+	private static final Log logger = LogFactory.getLog(CommonServiceImpl.class);
+
 	private DaoFactory daoFactory;
 	
 	public void setDaoFactory(DaoFactory daoFactory) {
@@ -92,7 +97,15 @@ public class CommonServiceImpl implements CommonService {
 	@Override
 	@PlusTransactional
 	public Long saveUnhandledException(UnhandledException exception) {
-		daoFactory.getUnhandledExceptionDao().saveOrUpdate(exception, true);
-		return exception.getId();
+		Long exceptionId = null;
+
+		try {
+			daoFactory.getUnhandledExceptionDao().saveOrUpdate(exception, true);
+			exceptionId = exception.getId();
+		} catch (Exception e) {
+			logger.error("Error saving details of unhandled exception to DB", e);
+		}
+
+		return exceptionId;
 	}
 }
