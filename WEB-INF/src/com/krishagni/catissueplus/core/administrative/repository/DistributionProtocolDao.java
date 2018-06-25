@@ -20,6 +20,8 @@ public interface DistributionProtocolDao extends Dao<DistributionProtocol> {
 
 	List<DistributionProtocol> getDistributionProtocols(DpListCriteria criteria);
 
+	List<DistributionProtocol> getDistributionProtocols(Collection<String> dpShortTitles);
+
 	Long getDistributionProtocolsCount(DpListCriteria criteria);
 
 	List<DistributionProtocol> getExpiringDps(Date fromDate, Date toDate);

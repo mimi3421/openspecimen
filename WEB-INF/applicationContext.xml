@@ -560,6 +560,7 @@
   <bean id="distributionFactory" class="com.krishagni.catissueplus.core.administrative.domain.factory.impl.DistributionOrderFactoryImpl">
     <property name="daoFactory" ref="biospecimenDaoFactory"/>
     <property name="specimenResolver" ref="specimenResolver"/>
+    <property name="specimenFactory" ref="specimenFactory"/>
   </bean>
 
   <bean id="distributionOrderService" class="com.krishagni.catissueplus.core.administrative.services.impl.DistributionOrderServiceImpl">

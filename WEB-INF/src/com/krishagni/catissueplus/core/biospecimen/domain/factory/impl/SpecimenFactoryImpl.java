@@ -13,9 +13,11 @@ import java.util.Set;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
+import com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol;
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainer;
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainerPosition;
 import com.krishagni.catissueplus.core.administrative.domain.User;
+import com.krishagni.catissueplus.core.administrative.domain.factory.DistributionProtocolErrorCode;
 import com.krishagni.catissueplus.core.administrative.domain.factory.StorageContainerErrorCode;
 import com.krishagni.catissueplus.core.administrative.domain.factory.UserErrorCode;
 import com.krishagni.catissueplus.core.administrative.events.StorageContainerDetail;
@@ -159,6 +161,7 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 		}
 		
 		setSpecimenPosition(detail, existing, specimen, ose);
+		setHoldingLocation(detail, existing, specimen, ose);
 		setCollectionDetail(detail, existing, specimen, ose);
 		setReceiveDetail(detail, existing, specimen, ose);
 		setCreatedOn(detail, existing, specimen, ose);
@@ -758,127 +761,16 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 	}
 
 	private void setSpecimenPosition(SpecimenDetail detail, Specimen specimen, OpenSpecimenException ose) {
+		StorageContainerPosition position = getPosition(
+			specimen, detail.getStorageLocation(),
+			detail.getContainerLocation(), detail.getContainerTypeId(), detail.getContainerTypeName(),
+			ose);
+
 		specimen.setTransferComments(detail.getTransferComments());
-
-		StorageLocationSummary location = detail.getStorageLocation();
-		if (isVirtual(location) || !specimen.isCollected()) {
-			//
-			// When specimen location is virtual or specimen is 
-			// not collected - pending / missed collection
-			//
-			return;
-		}
-
-		StorageContainer container = null;
-		Object key = null;
-		if (location.getId() != null && location.getId() != -1) {
-			key = location.getId();
-			container = daoFactory.getStorageContainerDao().getById(location.getId());			
-		} else {
-			key = location.getName();
-			container = daoFactory.getStorageContainerDao().getByName(location.getName());
-
-			if (container == null) {
-				//
-				// Check the possibility of auto creating container
-				//
-				container = createContainer(detail, ose);
-				ose.checkAndThrow();
-			}
-		} 
-		
-		if (container == null) {
-			ose.addError(StorageContainerErrorCode.NOT_FOUND, key, 1);
-			return;
-		}
-		
-		if (!container.canContain(specimen)) {
-			ose.addError(StorageContainerErrorCode.CANNOT_HOLD_SPECIMEN, container.getName(), specimen.getLabelOrDesc());
-			return;
-		}
-
-		String posOne = null, posTwo = null;
-		if (!container.isDimensionless()) {
-			posOne = location.getPositionX();
-			posTwo = location.getPositionY();
-			if (container.usesLinearLabelingMode() && location.getPosition() != null && location.getPosition() != 0) {
-				Pair<Integer, Integer> coord = container.getPositionAssigner().fromPosition(container, location.getPosition());
-				posTwo = coord.first().toString();
-				posOne = coord.second().toString();
-			}
-		}
-
-		StorageContainerPosition position = null;
-		if (StringUtils.isNotBlank(posOne) && StringUtils.isNotBlank(posTwo)) {
-			if (StringUtils.isBlank(location.getReservationId())) {
-				if (container.canSpecimenOccupyPosition(specimen.getId(), posOne, posTwo)) {
-					position = container.createPosition(posOne, posTwo);
-					container.setLastAssignedPos(position);
-				} else {
-					ose.addError(StorageContainerErrorCode.NO_FREE_SPACE, container.getName());
-				}
-			} else {
-				position = container.getReservedPosition(posTwo, posOne, location.getReservationId());
-				if (position != null) {
-					container.getOccupiedPositions().remove(position);
-					position = container.createPosition(posOne, posTwo);
-				} else if (container.canSpecimenOccupyPosition(specimen.getId(), posOne, posTwo)) {
-					position = container.createPosition(posOne, posTwo);
-				} else {
-					// TODO: no free space, improve error code
-					ose.addError(StorageContainerErrorCode.NO_FREE_SPACE, container.getName());
-				}
-
-				if (position != null) {
-					container.setLastAssignedPos(position);
-				}
-			}
-		} else {
-			position = container.nextAvailablePosition(true);
-			if (position == null) {
-				ose.addError(StorageContainerErrorCode.NO_FREE_SPACE, container.getName());
-			} 
-		} 
-		
+		specimen.setPosition(position);
 		if (position != null) {
 			position.setOccupyingSpecimen(specimen);
-			specimen.setPosition(position);
 		}
-	}
-
-	private StorageContainer createContainer(SpecimenDetail detail, OpenSpecimenException ose) {
-		StorageLocationSummary containerLocation = detail.getContainerLocation();
-		Long containerTypeId = detail.getContainerTypeId();
-		String containerTypeName = detail.getContainerTypeName();
-
-		if (containerLocation == null && containerTypeId == null && StringUtils.isBlank(containerTypeName)) {
-			//
-			// no auto creation of containers
-			//
-			return null;
-		} else if (containerLocation == null) {
-			//
-			// auto creation but parent container details missing
-			//
-			ose.addError(SpecimenErrorCode.PARENT_CONTAINER_REQ);
-			return null;
-		} else if (containerTypeId == null && StringUtils.isBlank(containerTypeName)) {
-			//
-			// auto creation but container type details missing
-			//
-			ose.addError(SpecimenErrorCode.CONTAINER_TYPE_REQ);
-			return null;
-		}
-
-		//
-		// row and columns will be picked from container type
-		//
-		StorageContainerDetail containerDetail = new StorageContainerDetail();
-		containerDetail.setName(detail.getStorageLocation().getName());
-		containerDetail.setTypeId(containerTypeId);
-		containerDetail.setTypeName(containerTypeName);
-		containerDetail.setStorageLocation(containerLocation);
-		return containerSvc.createStorageContainer(null, containerDetail);
 	}
 
 	private void setSpecimenPosition(SpecimenDetail detail, Specimen existing, Specimen specimen, OpenSpecimenException ose) {
@@ -899,21 +791,25 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 			specimen.setPosition(existing.getPosition());
 		}
 	}
-	
-	private boolean isVirtual(StorageLocationSummary location) {
-		if (location == null) {
-			return true;
+
+	private void setHoldingLocation(SpecimenDetail detail, Specimen existing, Specimen specimen, OpenSpecimenException ose) {
+		if (detail.getHoldingLocation() == null || StringUtils.isBlank(detail.getHoldingLocation().getName())) {
+			return;
 		}
-		
-		if (location.getId() != null && location.getId() != -1) {
-			return false;
+
+		if (detail.getDpId() == null) {
+			ose.addError(DistributionProtocolErrorCode.DP_REQUIRED);
+			return;
 		}
-		
-		if (StringUtils.isNotBlank(location.getName())) {
-			return false;			
+
+		DistributionProtocol dp = daoFactory.getDistributionProtocolDao().getById(detail.getDpId());
+		if (dp == null) {
+			ose.addError(DistributionProtocolErrorCode.NOT_FOUND, detail.getDpId());
+			return;
 		}
-		
-		return true;
+
+		specimen.setDp(dp);
+		specimen.setHoldingLocation(getPosition(specimen, detail.getHoldingLocation(), ose));
 	}
 	
 	private void setCollectionDetail(SpecimenDetail detail, Specimen specimen, OpenSpecimenException ose) {
@@ -1104,5 +1000,147 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 
 	private boolean isAliquotQtyReq() {
 		return ConfigUtil.getInstance().getBoolSetting(ConfigParams.MODULE, ConfigParams.ALIQUOT_QTY_REQ, true);
+	}
+
+	private StorageContainerPosition getPosition(Specimen specimen, StorageLocationSummary location, OpenSpecimenException ose) {
+		return getPosition(specimen, location, null, null, null, ose);
+	}
+
+	private StorageContainerPosition getPosition(
+		Specimen specimen, StorageLocationSummary location,
+		StorageLocationSummary containerLocation, Long containerTypeId, String containerTypeName,
+		OpenSpecimenException ose) {
+
+		if (isVirtual(location) || !specimen.isCollected()) {
+			//
+			// When specimen location is virtual or specimen is
+			// not collected - pending / missed collection
+			//
+			return null;
+		}
+
+		StorageContainer container = null;
+		Object key = null;
+		if (location.getId() != null && location.getId() != -1) {
+			key = location.getId();
+			container = daoFactory.getStorageContainerDao().getById(location.getId());
+		} else {
+			key = location.getName();
+			container = daoFactory.getStorageContainerDao().getByName(location.getName());
+
+			if (container == null) {
+				//
+				// Check the possibility of auto creating container
+				//
+				container = createContainer(location.getName(), containerLocation, containerTypeId, containerTypeName, ose);
+				ose.checkAndThrow();
+			}
+		}
+
+		if (container == null) {
+			ose.addError(StorageContainerErrorCode.NOT_FOUND, key, 1);
+			return null;
+		}
+
+		if (!container.canContain(specimen)) {
+			ose.addError(StorageContainerErrorCode.CANNOT_HOLD_SPECIMEN, container.getName(), specimen.getLabelOrDesc());
+			return null;
+		}
+
+		String posOne = null, posTwo = null;
+		if (!container.isDimensionless()) {
+			posOne = location.getPositionX();
+			posTwo = location.getPositionY();
+			if (container.usesLinearLabelingMode() && location.getPosition() != null && location.getPosition() != 0) {
+				Pair<Integer, Integer> coord = container.getPositionAssigner().fromPosition(container, location.getPosition());
+				posTwo = coord.first().toString();
+				posOne = coord.second().toString();
+			}
+		}
+
+		StorageContainerPosition position = null;
+		if (StringUtils.isNotBlank(posOne) && StringUtils.isNotBlank(posTwo)) {
+			if (StringUtils.isBlank(location.getReservationId())) {
+				if (container.canSpecimenOccupyPosition(specimen.getId(), posOne, posTwo)) {
+					position = container.createPosition(posOne, posTwo);
+					container.setLastAssignedPos(position);
+				} else {
+					ose.addError(StorageContainerErrorCode.NO_FREE_SPACE, container.getName());
+				}
+			} else {
+				position = container.getReservedPosition(posTwo, posOne, location.getReservationId());
+				if (position != null) {
+					container.getOccupiedPositions().remove(position);
+					position = container.createPosition(posOne, posTwo);
+				} else if (container.canSpecimenOccupyPosition(specimen.getId(), posOne, posTwo)) {
+					position = container.createPosition(posOne, posTwo);
+				} else {
+					// TODO: no free space, improve error code
+					ose.addError(StorageContainerErrorCode.NO_FREE_SPACE, container.getName());
+				}
+
+				if (position != null) {
+					container.setLastAssignedPos(position);
+				}
+			}
+		} else {
+			position = container.nextAvailablePosition(true);
+			if (position == null) {
+				ose.addError(StorageContainerErrorCode.NO_FREE_SPACE, container.getName());
+			}
+		}
+
+		return position;
+	}
+
+	private boolean isVirtual(StorageLocationSummary location) {
+		if (location == null) {
+			return true;
+		}
+
+		if (location.getId() != null && location.getId() != -1) {
+			return false;
+		}
+
+		if (StringUtils.isNotBlank(location.getName())) {
+			return false;
+		}
+
+		return true;
+	}
+
+	private StorageContainer createContainer(
+		String name,
+		StorageLocationSummary containerLocation, Long containerTypeId, String containerTypeName,
+		OpenSpecimenException ose) {
+
+		if (containerLocation == null && containerTypeId == null && StringUtils.isBlank(containerTypeName)) {
+			//
+			// no auto creation of containers
+			//
+			return null;
+		} else if (containerLocation == null) {
+			//
+			// auto creation but parent container details missing
+			//
+			ose.addError(SpecimenErrorCode.PARENT_CONTAINER_REQ);
+			return null;
+		} else if (containerTypeId == null && StringUtils.isBlank(containerTypeName)) {
+			//
+			// auto creation but container type details missing
+			//
+			ose.addError(SpecimenErrorCode.CONTAINER_TYPE_REQ);
+			return null;
+		}
+
+		//
+		// row and columns will be picked from container type
+		//
+		StorageContainerDetail containerDetail = new StorageContainerDetail();
+		containerDetail.setName(name);
+		containerDetail.setTypeId(containerTypeId);
+		containerDetail.setTypeName(containerTypeName);
+		containerDetail.setStorageLocation(containerLocation);
+		return containerSvc.createStorageContainer(null, containerDetail);
 	}
 }

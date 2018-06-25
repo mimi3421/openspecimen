@@ -6,8 +6,9 @@ angular.module('openspecimen')
 
       controllerAs: '$storagePositions',
 
-      controller: function($scope) {
+      controller: function($scope, $element, $attrs) {
         var ctrl = this;
+        var locationAttr = $attrs.locationAttr || 'storageLocation';
 
         this.entities = [];
 
@@ -25,16 +26,16 @@ angular.module('openspecimen')
           var assignedPositions = {};
           angular.forEach(ctrl.entities,
             function(entity) {
-              if (!entity.storageLocation || !entity.storageLocation.name) {
+              if (!entity[locationAttr] || !entity[locationAttr].name) {
                 return;
               }
 
-              var positions = assignedPositions[entity.storageLocation.name];
+              var positions = assignedPositions[entity[locationAttr].name];
               if (!positions) {
-                assignedPositions[entity.storageLocation.name] = (positions = []);
+                assignedPositions[entity[locationAttr].name] = (positions = []);
               }
 
-              positions.push(entity.storageLocation);
+              positions.push(entity[locationAttr]);
             }
           );
           return assignedPositions;
@@ -54,7 +55,6 @@ angular.module('openspecimen')
   })
   .directive('osStoragePosition', function($modal, $timeout, Container) {
     function loadContainers(name, scope, ctrl) {
-      scope.entityType = scope.entity.getType();
       var params = {
         name: name, 
         onlyFreeContainers: true
@@ -73,14 +73,21 @@ angular.module('openspecimen')
           storeSpecimensEnabled: true,
           maxResults: 10
         });
-      } else {
+      } else if (scope.entityType == 'storage_container') {
         if (!scope.entity.siteName) {
           return;
         }
 
         angular.extend(params, {
           site: scope.entity.siteName,
-          canHold: scope.entity.typeName
+          canHold: scope.entity.typeName,
+          usageMode: scope.entity.usedFor || 'STORAGE'
+        });
+      } else if (scope.entityType == 'order_item') {
+        angular.extend(params, {
+          dpShortTitle: scope.dp,
+          storeSpecimensEnabled: true,
+          maxResults: 10
         });
       }
 
@@ -104,7 +111,19 @@ angular.module('openspecimen')
     };
 
     function watchOccupyingEntityChanges(scope, ctrl) {
-      var objType = scope.entity.getType() == 'specimen' ? ['entity.type'] : ['entity.siteName', 'entity.typeName'];
+      var objType = undefined;
+      if (scope.entityType == 'specimen') {
+        objType = ['entity.type'];
+      } else if (scope.entityType == 'storage_container') {
+        objType = ['entity.siteName', 'entity.typeName', 'entity.usedFor'];
+      } else {
+        /* for now, nothing to observe for order items */
+      }
+
+      if (!objType) {
+        return;
+      }
+
       scope.$watchGroup(objType, function(newVal, oldVal) {
         if (!newVal || newVal == oldVal) {
           return;
@@ -116,30 +135,33 @@ angular.module('openspecimen')
 
     function invokeOnChangeCallback(scope) {
       if (scope.onChange) {
-        scope.onChange({location: scope.entity.storageLocation});
+        scope.onChange({location: scope.entity[scope.locationAttr]});
       }
     }
 
     function linker(scope, element, attrs, ctrl) {
-      var entity = scope.entity;
       scope.containerListCache = scope.containerListCache || {};
+
+      var entity = scope.entity;
+      var entityType = scope.entityType = attrs.entityType || entity.getType();
+      var locationAttr = scope.locationAttr = attrs.locationAttr || 'storageLocation';
 
       if (!!ctrl) {
         ctrl.addEntity(entity);
       }
 
       scope.onContainerChange = function() {
-        if (!entity.storageLocation || !entity.storageLocation.name) {
+        if (!entity[locationAttr] || !entity[locationAttr].name) {
           // case of unselect
-          entity.storageLocation = {};
+          entity[locationAttr] = {};
           invokeOnChangeCallback(scope);
           return;
         }
 
         var containers = scope.containers;
         for (var i = 0; i < containers.length; ++i) {
-          if (containers[i].name == entity.storageLocation.name) {
-            entity.storageLocation = {name: containers[i].name, mode: containers[i].positionLabelingMode};
+          if (containers[i].name == entity[locationAttr].name) {
+            entity[locationAttr] = {name: containers[i].name, mode: containers[i].positionLabelingMode};
             break;
           }
         }
@@ -158,23 +180,35 @@ angular.module('openspecimen')
           size: 'lg',
           resolve: {
             entity: function() {
-              return scope.entity
+              return scope.entity;
+            },
+
+            entityType: function() {
+              return scope.entityType;
             },
 
             cpId: function() {
               return scope.cpId;
             },
 
+            dp: function() {
+              return scope.dp;
+            },
+
             assignedPositions: function() {
               return !!ctrl ?  ctrl.assignedPositions() : {};
+            },
+
+            locationAttr: function() {
+              return locationAttr;
             }
           }
         });
 
         modalInstance.result.then(
           function(position) {
-            var location = angular.extend({}, scope.entity.storageLocation);
-            scope.entity.storageLocation = angular.extend(location, position);
+            var location = angular.extend({}, scope.entity[locationAttr]);
+            scope.entity[locationAttr] = angular.extend(location, position);
             delete location.reservationId;
             invokeOnChangeCallback(scope);
           }
@@ -206,6 +240,7 @@ angular.module('openspecimen')
       scope: {
         entity: '=',
         cpId: '=',
+        dp: '=',
         virtual: "=",
         containerListCache: '=?',
         site: '=?',

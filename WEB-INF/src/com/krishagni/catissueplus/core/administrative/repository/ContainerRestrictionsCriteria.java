@@ -1,14 +1,13 @@
 package com.krishagni.catissueplus.core.administrative.repository;
 
-import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections.CollectionUtils;
-
+import com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol;
 import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.common.events.AbstractListCriteria;
+import com.krishagni.catissueplus.core.common.util.Utility;
 
 public class ContainerRestrictionsCriteria extends AbstractListCriteria<ContainerRestrictionsCriteria> {
 
@@ -21,6 +20,8 @@ public class ContainerRestrictionsCriteria extends AbstractListCriteria<Containe
 	private Set<CollectionProtocol> cps;
 
 	private Site site;
+
+	private Set<DistributionProtocol> dps;
 
 	@Override
 	public ContainerRestrictionsCriteria self() {
@@ -59,11 +60,7 @@ public class ContainerRestrictionsCriteria extends AbstractListCriteria<Containe
 	}
 
 	public Set<Long> collectionProtocolIds() {
-		if (CollectionUtils.isEmpty(cps)) {
-			return Collections.emptySet();
-		}
-
-		return cps.stream().map(cp -> cp.getId()).collect(Collectors.toSet());
+		return Utility.nullSafeStream(cps).map(CollectionProtocol::getId).collect(Collectors.toSet());
 	}
 
 	public ContainerRestrictionsCriteria collectionProtocols(Set<CollectionProtocol> cps) {
@@ -81,6 +78,19 @@ public class ContainerRestrictionsCriteria extends AbstractListCriteria<Containe
 
 	public ContainerRestrictionsCriteria site(Site site) {
 		this.site = site;
+		return self();
+	}
+
+	public Set<DistributionProtocol> distributionProtocols() {
+		return dps;
+	}
+
+	public Set<Long> distributionProtocolIds() {
+		return Utility.nullSafeStream(dps).map(DistributionProtocol::getId).collect(Collectors.toSet());
+	}
+
+	public ContainerRestrictionsCriteria distributionProtocols(Set<DistributionProtocol> dps) {
+		this.dps = dps;
 		return self();
 	}
 }

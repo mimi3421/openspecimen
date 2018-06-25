@@ -1235,6 +1235,18 @@ h4.os-sub-section-title, h5.os-sub-section-title, h6.os-sub-section-title {
   min-width: 200px;
 }
 
+.os-mw-140 {
+  min-width: 140px;
+}
+
+.os-mw-120 {
+  min-width: 120px;
+}
+
+.os-mw-100 {
+  min-width: 100px;
+}
+
 .os-no-border {
   border: 0px!important;
 }
@@ -1310,4 +1322,8 @@ form .form-group:empty {
 .os-md-input .ui-select-placeholder,
 .os-md-input *::placeholder {
   opacity: 1;
+}
+
+.os-width-100 {
+  width: 100px;
 }

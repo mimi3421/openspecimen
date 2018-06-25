@@ -25,7 +25,9 @@ import com.krishagni.catissueplus.core.administrative.events.DistributionOrderIt
 import com.krishagni.catissueplus.core.administrative.events.DistributionProtocolDetail;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenList;
+import com.krishagni.catissueplus.core.biospecimen.domain.factory.SpecimenFactory;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.SpecimenListErrorCode;
+import com.krishagni.catissueplus.core.biospecimen.events.SpecimenDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenInfo;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.biospecimen.services.SpecimenResolver;
@@ -44,6 +46,8 @@ public class DistributionOrderFactoryImpl implements DistributionOrderFactory {
 	private DaoFactory daoFactory;
 
 	private SpecimenResolver specimenResolver;
+
+	private SpecimenFactory specimenFactory;
 	
 	public void setDaoFactory(DaoFactory daoFactory) {
 		this.daoFactory = daoFactory;
@@ -51,6 +55,10 @@ public class DistributionOrderFactoryImpl implements DistributionOrderFactory {
 
 	public void setSpecimenResolver(SpecimenResolver specimenResolver) {
 		this.specimenResolver = specimenResolver;
+	}
+
+	public void setSpecimenFactory(SpecimenFactory specimenFactory) {
+		this.specimenFactory = specimenFactory;
 	}
 
 	@Override
@@ -392,6 +400,22 @@ public class DistributionOrderFactoryImpl implements DistributionOrderFactory {
 
 		if (NumUtil.lessThanZero(detail.getCost())) {
 			ose.addError(DistributionOrderErrorCode.INVALID_COST, specimen.getLabel(), detail.getCost());
+		}
+
+		if (detail.getHoldingLocation() != null && StringUtils.isNotBlank(detail.getHoldingLocation().getName())) {
+			try {
+				SpecimenDetail spmnDetail = new SpecimenDetail();
+				spmnDetail.setId(specimen.getId());
+				spmnDetail.setDpId(order.getDistributionProtocol() != null ? order.getDistributionProtocol().getId() : null);
+				spmnDetail.setHoldingLocation(detail.getHoldingLocation());
+
+				Specimen newSpmn = specimenFactory.createSpecimen(specimen, spmnDetail, null);
+				specimen.setDp(newSpmn.getDp());
+				specimen.setHoldingLocation(newSpmn.getHoldingLocation());
+				detail.setStatus(DistributionOrderItem.Status.DISTRIBUTED_AND_CLOSED.name());
+			} catch (OpenSpecimenException se) {
+				ose.addErrors(se.getErrors());
+			}
 		}
 
 		DistributionOrderItem orderItem = new DistributionOrderItem();

@@ -71,7 +71,15 @@ public class DistributionProtocolDaoImpl extends AbstractDao<DistributionProtoco
 				.list();
 		return CollectionUtils.isNotEmpty(dps) ? dps.iterator().next() : null;
 	}
-	
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<DistributionProtocol> getDistributionProtocols(Collection<String> dpShortTitles) {
+		return getCurrentSession().getNamedQuery(GET_DPS_BY_SHORT_TITLE)
+			.setParameterList("shortTitles", dpShortTitles)
+			.list();
+	}
+
 	@SuppressWarnings("unchecked")
  	@Override
 	public List<DistributionProtocol> getExpiringDps(Date fromDate, Date toDate) {
@@ -309,6 +317,8 @@ public class DistributionProtocolDaoImpl extends AbstractDao<DistributionProtoco
 	private static final String GET_DP_BY_TITLE = FQN + ".getDistributionProtocolByTitle";
 
 	private static final String GET_DP_BY_SHORT_TITLE = FQN + ".getDistributionProtocolByShortTitle";
+
+	private static final String GET_DPS_BY_SHORT_TITLE = FQN + ".getDistributionProtocolsByShortTitle";
 	
 	private static final String GET_EXPIRING_DPS = FQN + ".getExpiringDps";
 	

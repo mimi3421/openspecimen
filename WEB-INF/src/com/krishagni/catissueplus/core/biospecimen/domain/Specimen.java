@@ -176,6 +176,14 @@ public class Specimen extends BaseExtensionEntity {
 	private transient String parentUid;
 
 	//
+	// holdingLocation and dp are used during distribution to record the location
+	// where the specimen will be stored temporarily post distribution.
+	//
+	private transient StorageContainerPosition holdingLocation;
+
+	private transient DistributionProtocol dp;
+
+	//
 	// Records the derivatives or aliquots created from this specimen in current action/transaction
 	//
 	private transient SpecimenChildrenEvent derivativeEvent;
@@ -656,6 +664,22 @@ public class Specimen extends BaseExtensionEntity {
 		this.parentUid = parentUid;
 	}
 
+	public StorageContainerPosition getHoldingLocation() {
+		return holdingLocation;
+	}
+
+	public void setHoldingLocation(StorageContainerPosition holdingLocation) {
+		this.holdingLocation = holdingLocation;
+	}
+
+	public DistributionProtocol getDp() {
+		return dp;
+	}
+
+	public void setDp(DistributionProtocol dp) {
+		this.dp = dp;
+	}
+
 	public boolean isPrintLabel() {
 		return printLabel;
 	}
@@ -769,8 +793,8 @@ public class Specimen extends BaseExtensionEntity {
 		if (!getActivityStatus().equals(Status.ACTIVITY_STATUS_ACTIVE.getStatus())) {
 			return;
 		}
-		
-		virtualize(time, reason);
+
+		transferTo(holdingLocation, time, reason);
 		addDisposalEvent(user, time, reason);		
 		setActivityStatus(Status.ACTIVITY_STATUS_CLOSED.getStatus());
 	}
@@ -818,9 +842,9 @@ public class Specimen extends BaseExtensionEntity {
 		}
 
 		updateStatus(specimen.getActivityStatus(), reason);
-		if (!isActive()) {
-			return;
-		}
+//		if (!isActive()) {
+//			return;
+//		}
 		
 		setLabel(specimen.getLabel());
 		setBarcode(specimen.getBarcode());
@@ -972,7 +996,8 @@ public class Specimen extends BaseExtensionEntity {
 		// close specimen if explicitly closed or no quantity available
 		//
 		if (NumUtil.isZero(getAvailableQuantity()) || item.isDistributedAndClosed()) {
-			close(item.getOrder().getDistributor(), item.getOrder().getExecutionDate(), "Distributed");
+			String dpShortTitle = item.getOrder().getDistributionProtocol().getShortTitle();
+			close(item.getOrder().getDistributor(), item.getOrder().getExecutionDate(), "Distributed to " + dpShortTitle);
 		}
 	}
 
@@ -1253,6 +1278,10 @@ public class Specimen extends BaseExtensionEntity {
 		}
 
 		freezeThawIncremented = true;
+	}
+
+	public boolean isStoredInDistributionContainer() {
+		return getPosition() != null && getPosition().getContainer().isDistributionContainer();
 	}
 
 	public static String getDesc(String specimenClass, String type) {

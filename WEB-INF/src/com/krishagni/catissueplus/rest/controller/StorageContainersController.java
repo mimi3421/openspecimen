@@ -107,8 +107,14 @@ public class StorageContainersController {
 		@RequestParam(value = "cpShortTitle", required = false)
 		String[] cpShortTitles,
 
+		@RequestParam(value = "dpShortTitle", required = false)
+		String[] dpShortTitles,
+
 		@RequestParam(value = "storeSpecimensEnabled", required = false)
 		Boolean storeSpecimensEnabled,
+
+		@RequestParam(value = "usageMode", required =  false, defaultValue = "")
+		String usageMode,
 			
 		@RequestParam(value = "hierarchical", required = false, defaultValue = "false")
 		boolean hierarchical,
@@ -130,14 +136,15 @@ public class StorageContainersController {
 			.specimenType(specimenType)
 			.cpIds(cpIds)
 			.cpShortTitles(cpShortTitles)
+			.dpShortTitles(dpShortTitles)
 			.storeSpecimensEnabled(storeSpecimensEnabled)
+			.usageMode(usageMode)
 			.hierarchical(hierarchical)
 			.includeStat(includeStats);
 					
 		RequestEvent<StorageContainerListCriteria> req = new RequestEvent<>(crit);
 		ResponseEvent<List<StorageContainerSummary>> resp = storageContainerSvc.getStorageContainers(req);
 		resp.throwErrorIfUnsuccessful();
-		
 		return resp.getPayload();
 	}
 
@@ -178,9 +185,15 @@ public class StorageContainersController {
 		@RequestParam(value = "cpShortTitle", required = false)
 		String[] cpShortTitles,
 
+		@RequestParam(value = "dpShortTitle", required = false)
+		String[] dpShortTitles,
+
 		@RequestParam(value = "storeSpecimensEnabled", required = false)
 		Boolean storeSpecimensEnabled,
-			
+
+		@RequestParam(value = "usageMode", required =  false, defaultValue = "")
+		String usageMode,
+
 		@RequestParam(value = "hierarchical", required = false, defaultValue = "false")
 		boolean hierarchical) {
 		
@@ -196,13 +209,14 @@ public class StorageContainersController {
 			.specimenType(specimenType)
 			.cpIds(cpIds)
 			.cpShortTitles(cpShortTitles)
+			.dpShortTitles(dpShortTitles)
 			.storeSpecimensEnabled(storeSpecimensEnabled)
+			.usageMode(usageMode)
 			.hierarchical(hierarchical);
 
 		RequestEvent<StorageContainerListCriteria> req = new RequestEvent<>(crit);
 		ResponseEvent<Long> resp = storageContainerSvc.getStorageContainersCount(req);
 		resp.throwErrorIfUnsuccessful();
-
 		return Collections.singletonMap("count", resp.getPayload());
 	}
 
@@ -213,13 +227,13 @@ public class StorageContainersController {
 		@PathVariable("id")
 		Long containerId,
 			
-		@RequestParam(value = "cpId", required = true)
+		@RequestParam(value = "cpId")
 		Long cpId,
 			
-		@RequestParam(value = "specimenType", required = true)
+		@RequestParam(value = "specimenType")
 		String specimenType,
 			
-		@RequestParam(value = "specimenClass", required = true)
+		@RequestParam(value = "specimenClass")
 		String specimenClass) {
 		
 		TenantDetail detail = new TenantDetail();
@@ -228,7 +242,7 @@ public class StorageContainersController {
 		detail.setSpecimenClass(specimenClass);
 		detail.setSpecimenType(specimenType);
 		
-		RequestEvent<TenantDetail> req = new RequestEvent<TenantDetail>(detail);
+		RequestEvent<TenantDetail> req = new RequestEvent<>(detail);
 		ResponseEvent<Boolean> resp = storageContainerSvc.isAllowed(req);
 		resp.throwErrorIfUnsuccessful();
 		return resp.getPayload();

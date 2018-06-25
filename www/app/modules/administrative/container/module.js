@@ -43,7 +43,12 @@ angular.module('os.administrative.container',
               return Container.getById($stateParams.containerId);
             }
 
-            return new Container({allowedCollectionProtocols: [], allowedSpecimenClasses: [], allowedSpecimenTypes: []});
+            return new Container({
+              allowedCollectionProtocols: [],
+              allowedSpecimenClasses: [],
+              allowedSpecimenTypes: [],
+              allowedDistributionProtocols: []
+            });
           },
           containerType: function($stateParams, ContainerType) {
             if ($stateParams.containerTypeId) {

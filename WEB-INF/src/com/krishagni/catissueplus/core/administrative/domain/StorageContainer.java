@@ -64,6 +64,11 @@ public class StorageContainer extends BaseEntity {
 		VT_BOTTOM_UP_RIGHT_LEFT
 	}
 
+	public enum UsageMode {
+		STORAGE,
+		DISTRIBUTION
+	}
+
 	private static final String ENTITY_NAME = "storage_container";
 
 	private static final String DEF_SITE_CONT_NAME = "storage_container_site_cont_name";
@@ -96,6 +101,8 @@ public class StorageContainer extends BaseEntity {
 	private String barcode;
 
 	private ContainerType type;
+
+	private UsageMode usedFor;
 	
 	private Double temperature;
 	
@@ -143,6 +150,8 @@ public class StorageContainer extends BaseEntity {
 	private Set<String> allowedSpecimenTypes = new HashSet<>();
 	
 	private Set<CollectionProtocol> allowedCps = new HashSet<>();
+
+	private Set<DistributionProtocol> allowedDps = new HashSet<>();
 	
 	private boolean storeSpecimenEnabled = false;
 			
@@ -160,6 +169,8 @@ public class StorageContainer extends BaseEntity {
 	private Set<String> compAllowedSpecimenTypes = new HashSet<>();
 	
 	private Set<CollectionProtocol> compAllowedCps = new HashSet<>();
+
+	private Set<DistributionProtocol> compAllowedDps = new HashSet<>();
 
 	private transient StorageContainerPosition lastAssignedPos;
 
@@ -189,6 +200,18 @@ public class StorageContainer extends BaseEntity {
 
 	public void setType(ContainerType type) {
 		this.type = type;
+	}
+
+	public UsageMode getUsedFor() {
+		return usedFor;
+	}
+
+	public void setUsedFor(UsageMode usedFor) {
+		this.usedFor = usedFor;
+	}
+
+	public boolean isDistributionContainer() {
+		return UsageMode.DISTRIBUTION.equals(getUsedFor());
 	}
 
 	public Double getTemperature() {
@@ -423,6 +446,14 @@ public class StorageContainer extends BaseEntity {
 		this.allowedCps = allowedCps;
 	}
 
+	public Set<DistributionProtocol> getAllowedDps() {
+		return allowedDps;
+	}
+
+	public void setAllowedDps(Set<DistributionProtocol> allowedDps) {
+		this.allowedDps = allowedDps;
+	}
+
 	public boolean isStoreSpecimenEnabled() {
 		return storeSpecimenEnabled;
 	}
@@ -484,6 +515,15 @@ public class StorageContainer extends BaseEntity {
 		this.compAllowedCps = compAllowedCps;
 	}
 
+	@NotAudited
+	public Set<DistributionProtocol> getCompAllowedDps() {
+		return compAllowedDps;
+	}
+
+	public void setCompAllowedDps(Set<DistributionProtocol> compAllowedDps) {
+		this.compAllowedDps = compAllowedDps;
+	}
+
 	public boolean isActive() {
 		return Status.ACTIVITY_STATUS_ACTIVE.getStatus().equals(getActivityStatus());
 	}
@@ -513,6 +553,7 @@ public class StorageContainer extends BaseEntity {
 		setComments(other.getComments());
 		updateAllowedSpecimenClassAndTypes(other, hasParentChanged);
 		updateAllowedCps(other, hasParentChanged);
+		updateAllowedDps(other, hasParentChanged);
 		updateStoreSpecimenEnabled(other);
 		updateCellDisplayProp(other);
 		validateRestrictions();
@@ -708,13 +749,18 @@ public class StorageContainer extends BaseEntity {
 	}
 	
 	public boolean canContain(Specimen specimen) {
-		return canContainSpecimen(
-				specimen.getVisit().getCollectionProtocol(),
-				specimen.getSpecimenClass(),
-				specimen.getSpecimenType()); 
+		if (isDistributionContainer()) {
+			return canContainSpecimen(specimen.getDp());
+		} else {
+			return canContainSpecimen(specimen.getCollectionProtocol(), specimen.getSpecimenClass(), specimen.getSpecimenType());
+		}
 	}
 	
 	public boolean canContain(StorageContainer container) {
+		if (isDistributionContainer()) {
+			return getCompAllowedDps().isEmpty() || getCompAllowedDps().containsAll(container.getCompAllowedDps());
+		}
+
 		Set<String> allowedClasses = getCompAllowedSpecimenClasses();
 		if (!allowedClasses.containsAll(container.getCompAllowedSpecimenClasses())) {
 			return false;
@@ -758,6 +804,11 @@ public class StorageContainer extends BaseEntity {
 		}
 	}
 
+	public boolean canContainSpecimen(DistributionProtocol dp) {
+		return isStoreSpecimenEnabled() && isDistributionContainer() &&
+			(getAllowedDps().isEmpty() || getAllowedDps().contains(dp));
+	}
+
 	public StorageContainerPosition getReservedPosition(String row, String column, String reservationId) {
 		StorageContainerPosition reservedPos = getOccupiedPositions().stream()
 			.filter(pos -> pos.equals(row, column, reservationId))
@@ -787,6 +838,7 @@ public class StorageContainer extends BaseEntity {
 			.specimenClasses(getCompAllowedSpecimenClasses())
 			.specimenTypes(getCompAllowedSpecimenTypes())
 			.collectionProtocols(getCompAllowedCps())
+			.distributionProtocols(getCompAllowedDps())
 			.site(getSite());
 
 		StorageContainerDao containerDao = getDaoFactory().getStorageContainerDao();
@@ -799,7 +851,13 @@ public class StorageContainer extends BaseEntity {
 				nonCompliantContainers.get(0));
 		}
 
-		List<String> nonCompliantSpecimens = containerDao.getNonCompliantSpecimens(crit);
+		List<String> nonCompliantSpecimens = null;
+		if (isDistributionContainer()) {
+			nonCompliantSpecimens = containerDao.getNonCompliantDistributedSpecimens(crit);
+		} else {
+			nonCompliantSpecimens = containerDao.getNonCompliantSpecimens(crit);
+		}
+
 		if (CollectionUtils.isNotEmpty(nonCompliantSpecimens)) {
 			// Show first non compliant specimen in error message
 			throw OpenSpecimenException.userError(
@@ -839,6 +897,14 @@ public class StorageContainer extends BaseEntity {
 		}
 		
 		return types;
+	}
+
+	public Set<DistributionProtocol> computeAllowedDps() {
+		if (CollectionUtils.isNotEmpty(getAllowedDps()) || getParentContainer() == null) {
+			return new HashSet<>(getAllowedDps());
+		}
+
+		return getParentContainer().computeAllowedDps();
 	}
 
 	public List<DependentEntityDetail> getDependentEntities() {
@@ -1004,15 +1070,22 @@ public class StorageContainer extends BaseEntity {
 		copy.setAllowedSpecimenClasses(new HashSet<>(getAllowedSpecimenClasses()));
 		copy.setAllowedSpecimenTypes(new HashSet<>(getAllowedSpecimenTypes()));
 		copy.setAllowedCps(new HashSet<>(getAllowedCps()));
+		copy.setAllowedDps(new HashSet<>(getAllowedDps()));
 		copy.setCompAllowedSpecimenClasses(computeAllowedSpecimenClasses());
 		copy.setCompAllowedSpecimenTypes(computeAllowedSpecimenTypes());
 		copy.setCompAllowedCps(computeAllowedCps());
+		copy.setCompAllowedDps(computeAllowedDps());
 		return copy;
 	}
 	
 	public void removeCpRestriction(CollectionProtocol cp) {
 		getAllowedCps().remove(cp);
 		updateComputedCps();
+	}
+
+	public void removeDpRestriction(DistributionProtocol dp) {
+		getAllowedDps().remove(dp);
+		updateComputedDps();
 	}
 
 	public void setFreezerCapacity() {
@@ -1356,10 +1429,26 @@ public class StorageContainer extends BaseEntity {
 	private void updateComputedCps() {
 		getCompAllowedCps().clear();
 		getCompAllowedCps().addAll(computeAllowedCps());
-		
-		for (StorageContainer childContainer : getChildContainers()) {
-			childContainer.updateComputedCps();
-		}		
+		getChildContainers().forEach(StorageContainer::updateComputedCps);
+	}
+
+	private void updateAllowedDps(StorageContainer other, boolean updateComputedDps) {
+		boolean computeDps = updateComputedDps;
+		if (!CollectionUtils.isEqualCollection(getAllowedDps(), other.getAllowedDps())) {
+			getAllowedDps().clear();
+			getAllowedDps().addAll(other.getAllowedDps());
+			computeDps = true;
+		}
+
+		if (computeDps) {
+			updateComputedDps();
+		}
+	}
+
+	private void updateComputedDps() {
+		getCompAllowedDps().clear();
+		getCompAllowedDps().addAll(computeAllowedDps());
+		getChildContainers().forEach(StorageContainer::updateComputedDps);
 	}
 	
 	private void updateStoreSpecimenEnabled(StorageContainer other) {

@@ -23,10 +23,12 @@ public class StorageContainerSummary extends AttributeModifiedSupport {
 	private String name;
 
 	private String barcode;
-	
+
 	private Long typeId;
 	
 	private String typeName;
+
+	private String usedFor;
 
 	private String activityStatus;
 
@@ -100,6 +102,14 @@ public class StorageContainerSummary extends AttributeModifiedSupport {
 
 	public void setTypeName(String typeName) {
 		this.typeName = typeName;
+	}
+
+	public String getUsedFor() {
+		return usedFor;
+	}
+
+	public void setUsedFor(String usedFor) {
+		this.usedFor = usedFor;
 	}
 
 	public String getActivityStatus() {
@@ -248,7 +258,8 @@ public class StorageContainerSummary extends AttributeModifiedSupport {
 	protected static void transform(StorageContainer container, StorageContainerSummary result) {
 		result.setId(container.getId());
 		result.setName(container.getName());
-		result.setBarcode(container.getBarcode());		
+		result.setBarcode(container.getBarcode());
+		result.setUsedFor(container.getUsedFor().name());
 		result.setActivityStatus(container.getActivityStatus());
 		result.setCreatedBy(UserSummary.from(container.getCreatedBy()));
 		

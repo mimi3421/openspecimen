@@ -22,4 +22,58 @@
         c.deleted_on is null
     </createView>
   </changeSet>
+
+  <changeSet author="vpawar" id="Storage container usage mode">
+    <addColumn tableName="OS_STORAGE_CONTAINERS">
+      <column name="USED_FOR" type="${text.type}(32)" defaultValue="STORAGE">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Container allowed DPs">
+    <createTable tableName="OS_STOR_CONTAINER_DPS">
+      <column name="STORAGE_CONTAINER_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="DP_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Foreign key on container ID of container allowed DPs">
+    <addForeignKeyConstraint constraintName="FK_OS_STORE_CONT_DP_CONT_ID"
+      baseTableName="OS_STOR_CONTAINER_DPS" baseColumnNames="STORAGE_CONTAINER_ID"
+      referencedTableName="OS_STORAGE_CONTAINERS" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Foreign key on DP ID of container allowed DPs">
+    <addForeignKeyConstraint constraintName="FK_OS_STORE_CONT_DP_DP_ID"
+      baseTableName="OS_STOR_CONTAINER_DPS" baseColumnNames="DP_ID"
+      referencedTableName="CATISSUE_DISTRIBUTION_PROTOCOL" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Container allowed DPs - computed set">
+    <createTable tableName="OS_STOR_CONTAINER_COMP_DPS">
+      <column name="STORAGE_CONTAINER_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="DP_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Foreign key on container ID of container allowed DPs - computed set">
+    <addForeignKeyConstraint constraintName="FK_OS_STORE_CONT_CDPS_CONT_ID"
+      baseTableName="OS_STOR_CONTAINER_COMP_DPS" baseColumnNames="STORAGE_CONTAINER_ID"
+      referencedTableName="OS_STORAGE_CONTAINERS" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Foreign key on DP ID of container allowed DPs - computed set">
+    <addForeignKeyConstraint constraintName="FK_OS_STORE_CONT_CDPS_DP_ID"
+      baseTableName="OS_STOR_CONTAINER_COMP_DPS" baseColumnNames="DP_ID"
+      referencedTableName="CATISSUE_DISTRIBUTION_PROTOCOL" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
 </databaseChangeLog>

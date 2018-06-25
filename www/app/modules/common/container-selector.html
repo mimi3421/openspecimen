@@ -70,7 +70,8 @@
         <div class="col col-xs-2">
           <button class="btn btn-xs btn-success" ng-click="toggleContainerSelection(container)"
             ng-if="(entityType == 'storage_container' || 
-                    (entityType == 'specimen' && container.storeSpecimensEnabled)) && 
+                    (entityType == 'specimen' && container.usedFor == 'STORAGE' && container.storeSpecimensEnabled) ||
+                    (entityType == 'order_item' && container.usedFor == 'DISTRIBUTION' && container.storeSpecimensEnabled)) &&
                    !container.selected && 
                    (container.freePositions > 0 || container.positionLabelingMode == 'NONE')">
             <span class="fa fa-check"></span>
@@ -78,7 +79,8 @@
           </button>
           <button class="btn btn-xs btn-danger" ng-click="toggleContainerSelection(container)"
             ng-if="(entityType == 'storage_container' || 
-                    (entityType == 'specimen' && container.storeSpecimensEnabled)) && 
+                    (entityType == 'specimen' && container.usedFor == 'STORAGE' && container.storeSpecimensEnabled) ||
+                    (entityType == 'order_item' && container.usedFor == 'DISTRIBUTION' && container.storeSpecimensEnabled)) &&
                    container.selected">
             <span class="fa fa-remove"></span>
             <span translate="common.buttons.unselect">Unselect</span>

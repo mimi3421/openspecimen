@@ -1308,6 +1308,7 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 
 	private StorageContainer getContainerCopy(StorageContainer source) {
 		StorageContainer copy = new StorageContainer();
+		copy.setUsedFor(source.getUsedFor());
 		copy.setTemperature(source.getTemperature());
 		copy.setNoOfColumns(source.getNoOfColumns());
 		copy.setNoOfRows(source.getNoOfRows());
@@ -1319,9 +1320,11 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 		copy.setAllowedSpecimenClasses(new HashSet<>(source.getAllowedSpecimenClasses()));
 		copy.setAllowedSpecimenTypes(new HashSet<>(source.getAllowedSpecimenTypes()));
 		copy.setAllowedCps(new HashSet<>(source.getAllowedCps()));
+		copy.setAllowedDps(new HashSet<>(source.getAllowedDps()));
 		copy.setCompAllowedSpecimenClasses(copy.computeAllowedSpecimenClasses());
 		copy.setCompAllowedSpecimenTypes(copy.computeAllowedSpecimenTypes());
 		copy.setCompAllowedCps(copy.computeAllowedCps());
+		copy.setCompAllowedDps(copy.computeAllowedDps());
 		copy.setStoreSpecimenEnabled(source.isStoreSpecimenEnabled());
 		copy.setCreatedBy(AuthUtil.getCurrentUser());
 		return copy;

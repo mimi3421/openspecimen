@@ -15,6 +15,15 @@
 
     <property name="barcode" column="BARCODE"/>
 
+    <property name="usedFor" column="USED_FOR">
+      <type name="org.hibernate.type.EnumType">
+        <param name="enumClass">
+          com.krishagni.catissueplus.core.administrative.domain.StorageContainer$UsageMode
+        </param>
+        <param name="type">12</param>
+      </type>
+    </property>
+
     <property name="temperature" column="TEMPERATURE"/>
 
     <property name="noOfColumns" column="NO_OF_COLS"/>
@@ -102,9 +111,14 @@
       <element column="SPECIMEN_TYPE" type="string"/>
     </set>
             
-    <set name="allowedCps" table="OS_STOR_CONTAINER_CPS" inverse="false">
+    <set name="allowedCps" table="OS_STOR_CONTAINER_CPS">
       <key column="STORAGE_CONTAINER_ID"/>
       <many-to-many class="com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol" column="CP_ID"/>
+    </set>
+
+    <set name="allowedDps" table="OS_STOR_CONTAINER_DPS">
+      <key column="STORAGE_CONTAINER_ID"/>
+      <many-to-many class="com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol" column="DP_ID"/>
     </set>
 
     <set name="compAllowedSpecimenClasses" table="OS_STOR_CONT_COMP_SPEC_CLASSES" cascade="all-delete-orphan">
@@ -117,9 +131,14 @@
       <element column="SPECIMEN_TYPE" type="string"/>
     </set>
             
-    <set name="compAllowedCps" table="OS_STOR_CONTAINER_COMP_CPS" inverse="false">
+    <set name="compAllowedCps" table="OS_STOR_CONTAINER_COMP_CPS">
       <key column="STORAGE_CONTAINER_ID"/>
       <many-to-many class="com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol" column="CP_ID"/>
+    </set>
+
+    <set name="compAllowedDps" table="OS_STOR_CONTAINER_COMP_DPS">
+      <key column="STORAGE_CONTAINER_ID"/>
+      <many-to-many class="com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol" column="DP_ID"/>
     </set>
 
     <one-to-one

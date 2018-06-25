@@ -5,11 +5,12 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
     PluginReg, Specimen, SpecimensHolder, Site, DistributionProtocol,
     DistributionOrder, SpecimenList, Alerts, Util, SpecimenUtil, ExtensionsUtil) {
     
+    var ctx;
     var ignoreQtyWarning = false;
 
     function init() {
       $scope.order = order;
-      $scope.ctx = {
+      ctx = $scope.ctx = {
         extnFormCtrl: {},
         extnOpts: undefined,
         itemFieldsHdrTmpls:  PluginReg.getTmpls('order-addedit', 'item-fields-header', ''),
@@ -24,14 +25,16 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
         setExtnFormCtxt(order);
       }
 
-      if (!order.id && !!order.distributionProtocol) {
-        $scope.onDpSelect();
-      }
-
       $scope.dpList = [];
       $scope.siteList = [];
       $scope.userFilterOpts = {};
-      setUserAndSiteList(order);
+
+      if (!order.id && !!order.distributionProtocol) {
+        $scope.onDpSelect();
+      } else {
+        setUserAndSiteList(order);
+        showOrHideHoldingLocation(order.distributionProtocol, order.orderItems);
+      }
 
       $scope.input = {
         allItemStatus: false,
@@ -101,10 +104,10 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
         return;
       }
 
-      $scope.ctx.extnOpts = undefined;
+      ctx.extnOpts = undefined;
       DistributionProtocol.getOrderExtnCtxt(order.distributionProtocol.id).then(
         function(extnCtxt) {
-          $scope.ctx.extnOpts = ExtensionsUtil.getExtnOpts(order, extnCtxt);
+          ctx.extnOpts = ExtensionsUtil.getExtnOpts(order, extnCtxt);
         }
       );
     }
@@ -192,6 +195,10 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
       });
     }
 
+    function anyItemHasHoldingLocation(order) {
+      return (order.orderItems || []).some(function(item) { return !!item.holdingLocation && !!item.holdingLocation.name; });
+    }
+
     function saveOrUpdate(order) {
       if (!areItemQuantitiesValid(order, function() { saveOrUpdate(order); })) {
         return;
@@ -221,7 +228,7 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
         orderClone.orderItems = items;
       }
 
-      var formCtrl = $scope.ctx.extnFormCtrl.ctrl;
+      var formCtrl = ctx.extnFormCtrl.ctrl;
       if (formCtrl) {
         orderClone.extensionDetail = formCtrl.getFormData();
       }
@@ -292,6 +299,23 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
       );
     }
 
+    function showOrHideHoldingLocation(dp, items) {
+      if (!dp) {
+        ctx.allowHoldingLocations = false;
+        return;
+      }
+
+      dp.hasDistributionContainers().then(
+        function(result) {
+          if (!result) {
+            (items || []).forEach(function(item) { delete item.holdingLocation; });
+          }
+
+          ctx.allowHoldingLocations = result;
+        }
+      );
+    }
+
     function getValidationMsgKeys(useBarcode) {
       return {
         title:         'orders.specimen_validation.title',
@@ -318,6 +342,7 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
       setUserAndSiteList(ord);
       setExtnFormCtxt(ord);
 
+      showOrHideHoldingLocation(ord.distributionProtocol, ord.orderItems);
       addItemCosts(ord.distributionProtocol, ord.orderItems);
     }
     
@@ -358,6 +383,11 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
     }
 
     $scope.saveDraft = function() {
+      if(anyItemHasHoldingLocation($scope.order)) {
+        Alerts.error('orders.holding_loc_draft_not_allowed');
+        return;
+      }
+
       $scope.order.status = 'PENDING';
       saveOrUpdate($scope.order);
     }
@@ -367,7 +397,7 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
     }
 
     $scope.showSpecimens = function() {
-      var formCtrl = $scope.ctx.extnFormCtrl.ctrl;
+      var formCtrl = ctx.extnFormCtrl.ctrl;
       if (formCtrl && !formCtrl.validate()) {
         return false;
       }
@@ -413,7 +443,9 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
     $scope.setStatus = function(item) {
       var selected = !spmnRequest ? true : item.specimen.selected;
 
-      if ((!item.specimen.availableQty || item.quantity >= item.specimen.availableQty) && selected) {
+      if (((item.holdingLocation && item.holdingLocation.name) ||
+           (!item.specimen.availableQty || item.quantity >= item.specimen.availableQty)) &&
+           selected) {
         item.status = 'DISTRIBUTED_AND_CLOSED';
       } else {
         item.status = 'DISTRIBUTED';
@@ -428,9 +460,10 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
       var allStatus = $scope.input.allItemStatus ? 'DISTRIBUTED_AND_CLOSED' : 'DISTRIBUTED';
       angular.forEach($scope.order.orderItems,
         function(item) {
-          if (item.quantity == null || item.quantity == undefined ||
+          if ((item.quantity == null || item.quantity == undefined ||
               item.specimen.availableQty == null || item.specimen.availableQty == undefined ||
-              item.quantity != item.specimen.availableQty) {
+              item.quantity != item.specimen.availableQty) &&
+              (!item.holdingLocation || !item.holdingLocation.name)) {
             item.status = allStatus;
           }
         }
@@ -467,6 +500,27 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
       var prop = ctrl.useBarcode() ? 'specimen.barcode' : 'specimen.label';
       var result = Util.validateItems($scope.order.orderItems, ctrl.getLabels(), prop);
       Util.showItemsValidationResult(getValidationMsgKeys(ctrl.useBarcode()), result);
+    }
+
+    $scope.applyFirstLocationToAll = function() {
+      var orderItems = $scope.order.orderItems;
+      if (!orderItems || orderItems.length <= 1) {
+        return;
+      }
+
+      var location = {};
+      if (orderItems[0].holdingLocation && orderItems[0].holdingLocation.name) {
+        location = {name: orderItems[0].holdingLocation.name, mode: orderItems[0].holdingLocation.mode};
+      }
+
+      for (var i = 1; i < orderItems.length; ++i) {
+        orderItems[i].holdingLocation = angular.extend({}, location);
+        if (orderItems[i].holdingLocation.name) {
+          orderItems[i].status = 'DISTRIBUTED_AND_CLOSED';
+        }
+      }
+
+      setHeaderStatus();
     }
     
     init();

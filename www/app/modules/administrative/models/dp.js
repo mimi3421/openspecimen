@@ -1,6 +1,6 @@
 
 angular.module('os.administrative.models.dp', ['os.common.models'])
-  .factory('DistributionProtocol', function(osModel, $http) {
+  .factory('DistributionProtocol', function(osModel, $http, Container) {
     var DistributionProtocol =
       osModel(
         'distribution-protocols',
@@ -80,6 +80,14 @@ angular.module('os.administrative.models.dp', ['os.common.models'])
       return $http.get(DistributionProtocol.url() + this.$id() + '/reserved-specimens-count', {params: filterOpts}).then(
         function(resp) {
           return +resp.data.count;
+        }
+      );
+    }
+
+    DistributionProtocol.prototype.hasDistributionContainers = function() {
+      return $http.get(Container.url(), {params: {dpShortTitle: [this.shortTitle], maxResults: 1}}).then(
+        function(resp) {
+          return resp.data.length > 0;
         }
       );
     }

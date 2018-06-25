@@ -31,6 +31,8 @@ public interface StorageContainerDao extends Dao<StorageContainer> {
 
 	List<String> getNonCompliantSpecimens(ContainerRestrictionsCriteria crit);
 
+	List<String> getNonCompliantDistributedSpecimens(ContainerRestrictionsCriteria crit);
+
 	int getSpecimensCount(Long containerId);
 
 	Map<Long, Integer> getSpecimensCount(Collection<Long> containerIds);

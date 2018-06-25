@@ -54,7 +54,9 @@ public enum StorageContainerErrorCode implements ErrorCode {
 
 	INV_POS,
 	
-	INVALID_CPS, 
+	INVALID_CPS,
+
+	INVALID_DPS,
 	
 	TYPE_REQUIRED,
 
@@ -82,7 +84,11 @@ public enum StorageContainerErrorCode implements ErrorCode {
 
 	DL_POS_BLK_NP,
 
-	POS_OCCUPIED;
+	POS_OCCUPIED,
+
+	INV_USAGE_MODE,
+
+	USAGE_DIFFER;
 
 	@Override
 	public String code() {

@@ -217,39 +217,44 @@
                 <os-checkbox ng-model="input.allSelected" ng-change="toggleAllSpecimensSelect()"></os-checkbox>
               </div>
             </th>
-            <th class="col">
+            <th class="col os-mw-140">
               <span translate="orders.spec.label">Label</span>
             </th>
-            <th class="col">
+            <th class="col os-mw-140">
               <span translate="orders.spec.desc">Description</span>
             </th>
-            <th class="col">
+            <th class="col os-mw-140">
               <span translate="orders.spec.cp">Collection Protocol</span>
             </th>
-            <th class="col">
+            <th class="col os-mw-140">
               <span translate="orders.spec.location">Location</span>
             </th>
-            <th class="col">
+            <th class="col os-mw-100">
               <span translate="orders.spec.available_qty">Available</span>
             </th>
-            <th class="col">
+            <th class="col os-mw-140">
               <span translate="orders.spec.quantity">Quantity</span>
             </th>
-            <th class="col" ng-repeat="tmpl in ctx.itemFieldsHdrTmpls">
+            <th class="col os-mw-200" ng-if="ctx.allowHoldingLocations">
+              <span translate="orders.holding_location">Holding Location</span>
+              <a ng-click="applyFirstLocationToAll()" style="font-weight: normal;">
+                <span>(</span>
+                <span translate="common.copy_first_to_all">Copy first to all</span>
+                <span>)</span>
+              </a>
+            </th>
+            <th class="col os-mw-140" ng-repeat="tmpl in ctx.itemFieldsHdrTmpls">
               <ng-include src="tmpl"></ng-include>
             </th>
-            <th class="col">
+            <th class="col os-width-100">
               <div class="os-checkbox-container">
                 <os-checkbox ng-model="input.allItemStatus" ng-change="toggleAllItemStatus()"></os-checkbox>
-                <span class="os-checkbox-label" translate="orders.dispose_all">Dispose All</span>
+                <span class="os-checkbox-label" translate="orders.dispose">Dispose</span>
               </div>
-            </th>
-            <th class="col" ng-if="!order.request">
-              <span>&nbsp;</span>
             </th>
           </tr>
         </thead>
-        <tbody class="os-table-body">
+        <tbody class="os-table-body" os-storage-positions location-attr="holdingLocation">
           <tr class="row" ng-repeat="item in order.orderItems" ng-form="sform" ng-init="specimen=item.specimen">
             <td class="col" ng-if="!!order.request">
               <div class="os-select-specimen-cb">
@@ -288,17 +293,24 @@
               </os-spmn-measure>
               <div os-field-error field="sform.qty"></div>
             </td>
+            <td class="col" ng-if="ctx.allowHoldingLocations">
+              <os-storage-position os-md-input entity="item" entity-type="order_item"
+                dp="order.distributionProtocol.shortTitle" location-attr="holdingLocation"
+                on-change="setStatus(item)" hide-placeholder>
+              </os-storage-position>
+            </td>
             <td class="col" ng-repeat="tmpl in ctx.itemFieldsCellTmpls">
               <ng-include src="tmpl"></ng-include>
             </td>
-            <td class="col">
-              <div class="os-checkbox-container">
-                <os-checkbox ng-model="item.status" ng-true-value="'DISTRIBUTED_AND_CLOSED'" ng-change="setHeaderStatus()"
-                  ng-false-value="'DISTRIBUTED'" ng-disabled="item.quantity == specimen.availableQty"></os-checkbox>
+            <td class="col clearfix">
+              <div class="os-checkbox-container pull-left">
+                <os-checkbox ng-model="item.status"
+                  ng-true-value="'DISTRIBUTED_AND_CLOSED'" ng-false-value="'DISTRIBUTED'" ng-change="setHeaderStatus()"
+                  ng-disabled="!!item.holdingLocation.name || item.quantity == specimen.availableQty">
+                </os-checkbox>
               </div>
-            </td>
-            <td class="col" ng-if="!order.request">
-              <button class="btn btn-xs btn-default" ng-click="removeOrderItem(item)">
+              <button class="btn btn-xs btn-default" style="margin-left: 15px;"
+                ng-click="removeOrderItem(item)" ng-if="!order.request">
                 <span class="fa fa-remove"></span>
               </button>
             </td>

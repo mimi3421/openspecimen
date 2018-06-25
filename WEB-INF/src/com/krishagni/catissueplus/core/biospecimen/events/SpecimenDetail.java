@@ -87,6 +87,10 @@ public class SpecimenDetail extends SpecimenInfo {
 
 	private String parentUid;
 
+	private Long dpId;
+
+	private StorageLocationSummary holdingLocation;
+
 	public CollectionEventDetail getCollectionEvent() {
 		return collectionEvent;
 	}
@@ -310,6 +314,22 @@ public class SpecimenDetail extends SpecimenInfo {
 
 	public void setParentUid(String parentUid) {
 		this.parentUid = parentUid;
+	}
+
+	public Long getDpId() {
+		return dpId;
+	}
+
+	public void setDpId(Long dpId) {
+		this.dpId = dpId;
+	}
+
+	public StorageLocationSummary getHoldingLocation() {
+		return holdingLocation;
+	}
+
+	public void setHoldingLocation(StorageLocationSummary holdingLocation) {
+		this.holdingLocation = holdingLocation;
 	}
 
 	public static SpecimenDetail from(Specimen specimen) {

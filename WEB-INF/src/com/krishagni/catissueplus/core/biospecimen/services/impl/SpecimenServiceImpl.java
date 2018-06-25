@@ -650,11 +650,7 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 
 	private List<SpecimenInfo> flattenSpecimenTree(SpecimenDetail specimen, List<SpecimenInfo> result) {
 		result.add(specimen);
-
-		if (CollectionUtils.isNotEmpty(specimen.getChildren())) {
-			specimen.getChildren().stream().forEach(child -> flattenSpecimenTree(child, result));
-		}
-
+		Utility.nullSafeStream(specimen.getChildren()).forEach(child -> flattenSpecimenTree(child, result));
 		return result;
 	}
 
@@ -673,6 +669,11 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 			}
 
 			if (StringUtils.isNotBlank(status) && Status.ACTIVITY_STATUS_ACTIVE.getStatus().equals(status)) {
+				return;
+			}
+
+			if (existing.isStoredInDistributionContainer() &&
+				detail.areTheOnlyModifiedAttrs("id", "cpShortTitle", "label", "barcode", "storageLocation", "transferComments")) {
 				return;
 			}
 		}

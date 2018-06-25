@@ -5,7 +5,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import com.krishagni.catissueplus.core.administrative.domain.StorageContainer;
 import com.krishagni.catissueplus.core.common.Pair;
+import com.krishagni.catissueplus.core.common.errors.CommonErrorCode;
+import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.AbstractListCriteria;
 
 public class StorageContainerListCriteria extends AbstractListCriteria<StorageContainerListCriteria> {
@@ -36,7 +42,11 @@ public class StorageContainerListCriteria extends AbstractListCriteria<StorageCo
 	
 	private Set<String> cpShortTitles;
 
+	private Set<String> dpShortTitles;
+
 	private Set<Pair<Long, Long>> siteCps;
+
+	private StorageContainer.UsageMode usageMode;
 	
 	@Override
 	public StorageContainerListCriteria self() {
@@ -170,11 +180,31 @@ public class StorageContainerListCriteria extends AbstractListCriteria<StorageCo
 		return self();
 	}
 
+
 	public StorageContainerListCriteria cpShortTitles(String[] cpShortTitles) {
 		if (cpShortTitles != null && cpShortTitles.length > 0) {
-			this.cpShortTitles = new HashSet<String>(Arrays.asList(cpShortTitles));
+			this.cpShortTitles = new HashSet<>(Arrays.asList(cpShortTitles));
 		} else {
 			this.cpShortTitles = null;
+		}
+
+		return self();
+	}
+
+	public Set<String> dpShortTitles() {
+		return dpShortTitles;
+	}
+
+	public StorageContainerListCriteria dpShortTitles(Set<String> dpShortTitles) {
+		this.dpShortTitles = dpShortTitles;
+		return self();
+	}
+
+	public StorageContainerListCriteria dpShortTitles(String[] dpShortTitles) {
+		if (dpShortTitles != null && dpShortTitles.length > 0) {
+			this.dpShortTitles = new HashSet<>(Arrays.asList(dpShortTitles));
+		} else {
+			this.dpShortTitles = null;
 		}
 
 		return self();
@@ -187,5 +217,44 @@ public class StorageContainerListCriteria extends AbstractListCriteria<StorageCo
 	public StorageContainerListCriteria siteCps(Set<Pair<Long, Long>> siteCps) {
 		this.siteCps = siteCps;
 		return self();
+	}
+
+	public StorageContainer.UsageMode usageMode() {
+		if (usageMode != null) {
+			return usageMode;
+		}
+
+		//
+		// this is all done for backward compatibility to avoid making changes to clients who want
+		// to query containers that can store specimens in the repo.
+		//
+		boolean dpSpecified = CollectionUtils.isNotEmpty(dpShortTitles);
+		boolean cpSpecified = CollectionUtils.isNotEmpty(cpShortTitles) || CollectionUtils.isNotEmpty(cpIds);
+		boolean spmnTypeSpecified = StringUtils.isNotBlank(specimenClass) || StringUtils.isNotBlank(specimenType);
+
+		if (dpSpecified && !cpSpecified && !spmnTypeSpecified) {
+			return StorageContainer.UsageMode.DISTRIBUTION;
+		} else if (!dpSpecified && (cpSpecified || spmnTypeSpecified)) {
+			return StorageContainer.UsageMode.STORAGE;
+		}
+
+		return null;
+	}
+
+	public StorageContainerListCriteria usageMode(StorageContainer.UsageMode usageMode) {
+		this.usageMode = usageMode;
+		return self();
+	}
+
+	public StorageContainerListCriteria usageMode(String usageMode) {
+		try {
+			if (StringUtils.isNotBlank(usageMode)) {
+				this.usageMode = StorageContainer.UsageMode.valueOf(usageMode);
+			}
+
+			return self();
+		} catch (Exception e) {
+			throw OpenSpecimenException.userError(CommonErrorCode.INVALID_INPUT, e.getMessage());
+		}
 	}
 }

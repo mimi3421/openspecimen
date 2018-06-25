@@ -18,6 +18,8 @@ public class DistributionOrderItemDetail {
 	private BigDecimal quantity;
 
 	private BigDecimal cost;
+
+	private StorageLocationSummary holdingLocation;
 	
 	private String status;
 
@@ -59,6 +61,14 @@ public class DistributionOrderItemDetail {
 
 	public void setCost(BigDecimal cost) {
 		this.cost = cost;
+	}
+
+	public StorageLocationSummary getHoldingLocation() {
+		return holdingLocation;
+	}
+
+	public void setHoldingLocation(StorageLocationSummary holdingLocation) {
+		this.holdingLocation = holdingLocation;
 	}
 
 	public String getStatus() {

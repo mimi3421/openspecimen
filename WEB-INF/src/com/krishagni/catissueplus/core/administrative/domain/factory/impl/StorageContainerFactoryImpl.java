@@ -14,6 +14,7 @@ import org.apache.commons.lang3.BooleanUtils;
 
 import com.krishagni.catissueplus.core.administrative.domain.AutoFreezerProvider;
 import com.krishagni.catissueplus.core.administrative.domain.ContainerType;
+import com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol;
 import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainer;
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainerPosition;
@@ -66,6 +67,7 @@ public class StorageContainerFactoryImpl implements StorageContainerFactory {
 
 		setName(detail, existing, container, ose);
 		setBarcode(detail, existing, container, ose);
+		setContainerClass(detail, existing, container, ose);
 		setType(detail, existing, container, ose);
 		setTemperature(detail, existing, container, ose);
 		setCapacity(detail, existing, container, ose);
@@ -81,11 +83,16 @@ public class StorageContainerFactoryImpl implements StorageContainerFactory {
 		setAutomated(detail, existing, container, ose);
 		setAutoFreezerProvider(detail, existing, container, ose);
 		setCellDisplayProp(detail, existing, container, ose);
-		setAllowedSpecimenClasses(detail, existing, container, ose);
-		setAllowedSpecimenTypes(detail, existing, container, ose);
-		setAllowedCps(detail, existing, container, ose);
+
+		if (!container.isDistributionContainer()) {
+			setAllowedSpecimenClasses(detail, existing, container, ose);
+			setAllowedSpecimenTypes(detail, existing, container, ose);
+			setAllowedCps(detail, existing, container, ose);
+		} else {
+			setAllowedDps(detail, existing, container, ose);
+		}
+
 		setComputedRestrictions(container);
-		
 		ose.checkAndThrow();
 		return container;
 	}
@@ -95,6 +102,7 @@ public class StorageContainerFactoryImpl implements StorageContainerFactory {
 		ContainerType type = getType(input.getTypeId(), input.getTypeName());
 		StorageContainerDetail detail = getStorageContainerDetail(type);
 		detail.setName(name);
+		detail.setUsedFor(input.getUsedFor());
 		detail.setSiteName(input.getSiteName());
 		detail.setStorageLocation(input.getStorageLocation());
 		detail.setCellDisplayProp(input.getCellDisplayProp());
@@ -135,6 +143,7 @@ public class StorageContainerFactoryImpl implements StorageContainerFactory {
 	public StorageContainer createStorageContainer(String name, ContainerType type, StorageContainer parentContainer) {
 		StorageContainerDetail detail = getStorageContainerDetail(type);
 		detail.setName(name);
+		detail.setUsedFor(parentContainer.getUsedFor().name());
 		detail.setSiteName(parentContainer.getSite().getName());
 
 		StorageContainer container = createStorageContainer(detail);
@@ -175,6 +184,27 @@ public class StorageContainerFactoryImpl implements StorageContainerFactory {
 			setBarcode(detail, container, ose);
 		} else {
 			container.setBarcode(existing.getBarcode());
+		}
+	}
+
+	private void setContainerClass(StorageContainerDetail detail, StorageContainer container, OpenSpecimenException ose) {
+		if (StringUtils.isBlank(detail.getUsedFor())) {
+			container.setUsedFor(StorageContainer.UsageMode.STORAGE);
+			return;
+		}
+
+		try {
+			container.setUsedFor(StorageContainer.UsageMode.valueOf(detail.getUsedFor()));
+		} catch (Exception e) {
+			ose.addError(StorageContainerErrorCode.INV_USAGE_MODE, detail.getUsedFor());
+		}
+	}
+
+	private void setContainerClass(StorageContainerDetail detail, StorageContainer existing, StorageContainer container, OpenSpecimenException ose) {
+		if (existing == null) {
+			setContainerClass(detail, container, ose);
+		} else {
+			container.setUsedFor(existing.getUsedFor());
 		}
 	}
 	
@@ -480,6 +510,10 @@ public class StorageContainerFactoryImpl implements StorageContainerFactory {
 				ose.addError(StorageContainerErrorCode.PARENT_CONT_NOT_FOUND, key);
 			}
 		} else {
+			if (container.getUsedFor() != parentContainer.getUsedFor()) {
+				ose.addError(StorageContainerErrorCode.USAGE_DIFFER, parentContainer.getUsedFor(), container.getUsedFor());
+			}
+
 			container.setParentContainer(parentContainer);
 		}
 
@@ -713,7 +747,7 @@ public class StorageContainerFactoryImpl implements StorageContainerFactory {
 	private void setAllowedCps(StorageContainerDetail detail, StorageContainer container, OpenSpecimenException ose) {
 		Set<String> allowedCps = detail.getAllowedCollectionProtocols();
 		
-		List<CollectionProtocol> cps = new ArrayList<CollectionProtocol>();		
+		List<CollectionProtocol> cps = new ArrayList<>();
 		if (CollectionUtils.isNotEmpty(allowedCps) && container.getSite() != null) {
 			cps = daoFactory.getCollectionProtocolDao().getCpsByShortTitle(allowedCps, container.getSite().getName());
 			if (cps.size() != allowedCps.size()) {
@@ -732,11 +766,38 @@ public class StorageContainerFactoryImpl implements StorageContainerFactory {
 			container.setAllowedCps(existing.getAllowedCps());
 		}		
 	}
+
+	private void setAllowedDps(StorageContainerDetail detail, StorageContainer container, OpenSpecimenException ose) {
+		Set<String> allowedDps = detail.getAllowedDistributionProtocols();
+
+		List<DistributionProtocol> dps = new ArrayList<>();
+		if (CollectionUtils.isNotEmpty(allowedDps)) {
+			dps = daoFactory.getDistributionProtocolDao().getDistributionProtocols(allowedDps);
+			if (dps.size() != allowedDps.size()) {
+				ose.addError(StorageContainerErrorCode.INVALID_DPS);
+				return;
+			}
+		}
+
+		container.setAllowedDps(new HashSet<>(dps));
+	}
+
+	private void setAllowedDps(StorageContainerDetail detail, StorageContainer existing, StorageContainer container, OpenSpecimenException ose) {
+		if (detail.isAttrModified("allowedDistributionProtocols") || existing == null) {
+			setAllowedDps(detail, container, ose);
+		} else {
+			container.setAllowedDps(existing.getAllowedDps());
+		}
+	}
 	
 	private void setComputedRestrictions(StorageContainer container) {
-		container.setCompAllowedSpecimenClasses(container.computeAllowedSpecimenClasses());
-		container.setCompAllowedSpecimenTypes(container.computeAllowedSpecimenTypes());
-		container.setCompAllowedCps(container.computeAllowedCps());
+		if (container.isDistributionContainer()) {
+			container.setCompAllowedDps(container.computeAllowedDps());
+		} else {
+			container.setCompAllowedSpecimenClasses(container.computeAllowedSpecimenClasses());
+			container.setCompAllowedSpecimenTypes(container.computeAllowedSpecimenTypes());
+			container.setCompAllowedCps(container.computeAllowedCps());
+		}
 	}
 	
 	private ContainerType getType(Long id, String name) {

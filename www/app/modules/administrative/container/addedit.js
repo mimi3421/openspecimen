@@ -1,12 +1,14 @@
 angular.module('os.administrative.container.addedit', ['os.administrative.models'])
   .controller('ContainerAddEditCtrl', function(
     $scope, $state, $stateParams, $q, container, containerType, barcodingEnabled,
-    Container, ContainerType, CollectionProtocol, PvManager, Util, Alerts) {
+    Container, ContainerType, CollectionProtocol, DistributionProtocol, PvManager, Util, Alerts) {
 
     var allSpecimenTypes = undefined;
     var allowedCps = undefined;
+    var allowedDps = undefined;
 
     function init() {
+      container.usedFor = (!container.id && 'STORAGE') || container.usedFor;
       container.storageLocation = container.storageLocation || {};
       container.$$regular = !container.id;
       container.$$dimensionless = !!container.id && container.noOfRows == null && container.noOfColumns == null;
@@ -35,6 +37,7 @@ angular.module('os.administrative.container.addedit', ['os.administrative.models
        * Therefore we copy pre-selected cps and then use it when all CPs are loaded
        */
       allowedCps = angular.copy(container.allowedCollectionProtocols);
+      allowedDps = angular.copy(container.allowedDistributionProtocols);
 
       $scope.cps = [];
       $scope.specimenTypes = [];
@@ -93,7 +96,6 @@ angular.module('os.administrative.container.addedit', ['os.administrative.models
       } else {
         loadAllCpsAndSpecimenTypes();
       }
-
     };
 
     function loadContainerTypes() {
@@ -107,15 +109,25 @@ angular.module('os.administrative.container.addedit', ['os.administrative.models
       var parentName = $scope.container.storageLocation.name;
       Container.getByName(parentName).then(
         function(parentContainer) {
-          restrictCps(parentContainer);
-          restrictSpecimenTypes(parentContainer);
+          var usedFor = container.usedFor = parentContainer.usedFor;
+
+          if (usedFor == 'STORAGE') {
+            restrictCps(parentContainer);
+            restrictSpecimenTypes(parentContainer);
+          } else if (usedFor == 'DISTRIBUTION') {
+            restrictDps(parentContainer);
+          }
         }
       );
     };
 
     function loadAllCpsAndSpecimenTypes() {
-      loadAllCps();
-      loadAllSpecimenTypes();
+      if (container.usedFor == 'STORAGE') {
+        loadAllCps();
+        loadAllSpecimenTypes();
+      } else if (container.usedFor == 'DISTRIBUTION') {
+        loadAllDps();
+      }
     };
      
     function restrictCps(parentContainer) {
@@ -130,6 +142,11 @@ angular.module('os.administrative.container.addedit', ['os.administrative.models
     };
 
     function loadAllCps(siteName) {
+      if ($scope.cps && $scope.cps.length > 0) {
+        // already loaded - do nothing
+        return;
+      }
+
       siteName = !siteName ? $scope.container.siteName : siteName;
 
       CollectionProtocol.query({repositoryName: siteName, maxResults: 1000}).then(
@@ -181,6 +198,33 @@ angular.module('os.administrative.container.addedit', ['os.administrative.models
           allSpecimenTypes = specimenTypes;
           Util.assign($scope.specimenTypes, specimenTypes);
           return allSpecimenTypes;
+        }
+      );
+    };
+
+    function restrictDps(parentContainer) {
+      var parentDps = parentContainer.calcAllowedDistributionProtocols;
+      if (parentDps.length > 0) {
+        $scope.dps = parentDps;
+      } else {
+        loadAllDps();
+      }
+
+      $scope.container.allowedDistributionProtocols = allowedDps;
+    };
+
+    function loadAllDps(query) {
+      if ($scope.dps && $scope.dps.length > 0) {
+        // already loaded - do nothing
+        return;
+      }
+
+      DistributionProtocol.query({query: query, maxResults: 1000}).then(
+        function(dps) {
+          $scope.dps = dps.map(function(dp) { return dp.shortTitle; });
+
+          // fix - pre-selected cps were getting cleared
+          $scope.container.allowedDistributionProtocols = allowedDps;
         }
       );
     };
@@ -293,6 +337,17 @@ angular.module('os.administrative.container.addedit', ['os.administrative.models
       if ($scope.ctx.mode != 'single') {
         container.$$dimensionless = false;
       }
+    }
+
+    $scope.onUsedForChange = function() {
+      if (container.usedFor == 'DISTRIBUTION') {
+        container.allowedCollectionProtocols = container.allowedSpecimenClasses = container.allowedSpecimenTypes = [];
+      } else {
+        container.allowedDistributionProtocols = [];
+      }
+
+      container.storageLocation = {};
+      loadAllCpsAndSpecimenTypes();
     }
 
     //
