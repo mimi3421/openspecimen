@@ -842,9 +842,13 @@ public class Specimen extends BaseExtensionEntity {
 		}
 
 		updateStatus(specimen.getActivityStatus(), reason);
-//		if (!isActive()) {
-//			return;
-//		}
+
+		//
+		// NOTE: This has been commented to allow retrieving distributed specimens from the holding tanks
+		//
+		//	if (!isActive()) {
+		//		return;
+		//	}
 		
 		setLabel(specimen.getLabel());
 		setBarcode(specimen.getBarcode());

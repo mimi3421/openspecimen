@@ -23,7 +23,7 @@ public class AttributeModifiedSupport implements Serializable {
 
 	public boolean areTheOnlyModifiedAttrs(String ...attrs) {
 		if (attrs == null) {
-			return true;
+			return modifiedAttrs.isEmpty();
 		}
 
 		int modified = 0;

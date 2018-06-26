@@ -67,7 +67,7 @@ public class StorageContainerFactoryImpl implements StorageContainerFactory {
 
 		setName(detail, existing, container, ose);
 		setBarcode(detail, existing, container, ose);
-		setContainerClass(detail, existing, container, ose);
+		setUsageMode(detail, existing, container, ose);
 		setType(detail, existing, container, ose);
 		setTemperature(detail, existing, container, ose);
 		setCapacity(detail, existing, container, ose);
@@ -187,7 +187,7 @@ public class StorageContainerFactoryImpl implements StorageContainerFactory {
 		}
 	}
 
-	private void setContainerClass(StorageContainerDetail detail, StorageContainer container, OpenSpecimenException ose) {
+	private void setUsageMode(StorageContainerDetail detail, StorageContainer container, OpenSpecimenException ose) {
 		if (StringUtils.isBlank(detail.getUsedFor())) {
 			container.setUsedFor(StorageContainer.UsageMode.STORAGE);
 			return;
@@ -200,9 +200,9 @@ public class StorageContainerFactoryImpl implements StorageContainerFactory {
 		}
 	}
 
-	private void setContainerClass(StorageContainerDetail detail, StorageContainer existing, StorageContainer container, OpenSpecimenException ose) {
+	private void setUsageMode(StorageContainerDetail detail, StorageContainer existing, StorageContainer container, OpenSpecimenException ose) {
 		if (existing == null) {
-			setContainerClass(detail, container, ose);
+			setUsageMode(detail, container, ose);
 		} else {
 			container.setUsedFor(existing.getUsedFor());
 		}

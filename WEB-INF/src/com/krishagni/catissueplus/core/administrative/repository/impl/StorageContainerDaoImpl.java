@@ -673,7 +673,7 @@ public class StorageContainerDaoImpl extends AbstractDao<StorageContainer> imple
 			addCpRestriction();
 			addDpRestriction();
 			addStoreSpecimenRestriction();
-			addContainerClassRestriction();
+			addUsageModeRestriction();
 			
 			addParentRestriction();
 			addCanHoldRestriction();
@@ -844,7 +844,7 @@ public class StorageContainerDaoImpl extends AbstractDao<StorageContainer> imple
 		}
 
 		private void addCpRestriction() {
-			if (CollectionUtils.isEmpty(crit.cpIds()) && CollectionUtils.isEmpty(crit.cpShortTitles())) {
+			if (isEmpty(crit.cpIds()) && isEmpty(crit.cpShortTitles())) {
 				return;
 			}
 
@@ -862,7 +862,7 @@ public class StorageContainerDaoImpl extends AbstractDao<StorageContainer> imple
 		}
 
 		private void addDpRestriction() {
-			if (CollectionUtils.isEmpty(crit.dpShortTitles())) {
+			if (isEmpty(crit.dpShortTitles())) {
 				return;
 			}
 
@@ -923,7 +923,7 @@ public class StorageContainerDaoImpl extends AbstractDao<StorageContainer> imple
 			where.append("(").append(StringUtils.join(disjunctions, " or ")).append(")");
 		}
 
-		private void addContainerClassRestriction() {
+		private void addUsageModeRestriction() {
 			if (crit.usageMode() == null) {
 				return;
 			}

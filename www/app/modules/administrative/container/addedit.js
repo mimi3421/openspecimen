@@ -142,11 +142,6 @@ angular.module('os.administrative.container.addedit', ['os.administrative.models
     };
 
     function loadAllCps(siteName) {
-      if ($scope.cps && $scope.cps.length > 0) {
-        // already loaded - do nothing
-        return;
-      }
-
       siteName = !siteName ? $scope.container.siteName : siteName;
 
       CollectionProtocol.query({repositoryName: siteName, maxResults: 1000}).then(
@@ -214,11 +209,6 @@ angular.module('os.administrative.container.addedit', ['os.administrative.models
     };
 
     function loadAllDps(query) {
-      if ($scope.dps && $scope.dps.length > 0) {
-        // already loaded - do nothing
-        return;
-      }
-
       DistributionProtocol.query({query: query, maxResults: 1000}).then(
         function(dps) {
           $scope.dps = dps.map(function(dp) { return dp.shortTitle; });
