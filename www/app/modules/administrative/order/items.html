@@ -18,6 +18,9 @@
         <th class="col">
           <span translate="orders.spec.quantity">Quantity</span>
         </th>
+        <th class="col" ng-if="ctx.showLocations">
+          <span translate="orders.location">Location</span>
+        </th>
         <th class="col" ng-repeat="tmpl in ctx.itemFieldsHdrTmpls">
           <ng-include src="tmpl"></ng-include>
         </th>
@@ -44,6 +47,9 @@
         </td>
         <td class="col">
           <os-spmn-measure-val specimen="specimen" value="item.quantity"></os-spmn-measure-val>
+        </td>
+        <td class="col" ng-if="ctx.showLocations">
+          <os-disp-storage-position position="item.specimen.storageLocation"></os-disp-storage-position>
         </td>
         <td class="col" ng-repeat="tmpl in ctx.itemFieldsCellTmpls">
           <ng-include src="tmpl"></ng-include>

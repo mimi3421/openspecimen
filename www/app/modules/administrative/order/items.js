@@ -38,6 +38,11 @@ angular.module('os.administrative.order')
 
           ctx.items = orderItems;
           ctx.loading = false;
+          ctx.showLocations = orderItems.some(
+            function(item) {
+              return !!item.specimen.storageLocation && !!item.specimen.storageLocation.name;
+            }
+          );
         }
       );
     }

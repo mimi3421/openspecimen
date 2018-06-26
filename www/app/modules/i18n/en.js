@@ -2013,6 +2013,7 @@
     "courier_tracking_url": "Courier Tracking URL",
     "sender_comments": "Sender Comments",
     "details": "Order Details",
+    "location": "Location",
     "holding_location": "Holding Location",
     "no_specimens_in_list": "No specimens in the order list to distribute. Add at least one specimen.",
     "enter_specimen_label": "To add specimens to distribution list, enter labels or barcodes separated by a comma, tab or newline and click add",
