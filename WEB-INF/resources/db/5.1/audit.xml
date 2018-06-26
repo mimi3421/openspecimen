@@ -5,6 +5,53 @@
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
 
+  <changeSet author="vpawar" id="Track whether container allowed DPs were modified">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <changeSetExecuted changeLogFile="db/5.0/audit.xml"
+          author="vpawar" id="Track whether container allowed DPs were modified"/>
+      </not>
+    </preConditions>
+    <addColumn tableName="OS_STORAGE_CONTAINERS_AUD">
+      <column name="allowedDps_MOD" type="${boolean.type}"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Track changes to container allowed DPs">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <changeSetExecuted changeLogFile="db/5.0/audit.xml"
+          author="vpawar" id="Track changes to container allowed DPs"/>
+      </not>
+    </preConditions>
+    <createTable tableName="OS_STOR_CONTAINER_DPS_AUD">
+      <column name="REV" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="STORAGE_CONTAINER_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="DP_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="REVTYPE" type="${tinyint.type}">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Foreign key on revision number of container allowed DPs">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <changeSetExecuted changeLogFile="db/5.0/audit.xml"
+          author="vpawar" id="Foreign key on revision number of container allowed DPs"/>
+      </not>
+    </preConditions>
+    <addForeignKeyConstraint constraintName="FK_OS_STORE_CONT_DPS_AUD_REV"
+      baseTableName="OS_STOR_CONTAINER_DPS_AUD" baseColumnNames="REV"
+      referencedTableName="OS_REVISIONS" referencedColumnNames="REV"/>
+  </changeSet>
+
   <changeSet author="vpawar" id="Track changes to storage container usage mode">
     <addColumn tableName="OS_STORAGE_CONTAINERS_AUD">
       <column name="USED_FOR" type="${text.type}(32)"/>
