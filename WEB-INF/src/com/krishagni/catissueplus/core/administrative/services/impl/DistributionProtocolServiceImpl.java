@@ -28,6 +28,7 @@ import com.krishagni.catissueplus.core.administrative.domain.DpDistributionSite;
 import com.krishagni.catissueplus.core.administrative.domain.DpRequirement;
 import com.krishagni.catissueplus.core.administrative.domain.Institute;
 import com.krishagni.catissueplus.core.administrative.domain.Site;
+import com.krishagni.catissueplus.core.administrative.domain.StorageContainer;
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.administrative.domain.factory.DistributionProtocolErrorCode;
 import com.krishagni.catissueplus.core.administrative.domain.factory.DistributionProtocolFactory;
@@ -620,6 +621,8 @@ public class DistributionProtocolServiceImpl implements DistributionProtocolServ
 	private void deleteDistributionProtocol(DistributionProtocol dp) {
 		DistributionProtocol deletedDp = new DistributionProtocol();
 		BeanUtils.copyProperties(dp, deletedDp);
+
+		removeContainerRestrictions(dp);
 		dp.delete();
 		notifyOnDpDelete(deletedDp);
 	}
@@ -888,6 +891,15 @@ public class DistributionProtocolServiceImpl implements DistributionProtocolServ
 		if (tier != null && !tier.getId().equals(consentTierDetail.getId())) {
 			throw OpenSpecimenException.userError(DistributionProtocolErrorCode.DUP_CONSENT, tier.getStatement().getCode(), dp.getShortTitle());
 		}
+	}
+
+	private void removeContainerRestrictions(DistributionProtocol dp) {
+		Set<StorageContainer> containers = dp.getDistributionContainers();
+		for (StorageContainer container : containers) {
+			container.removeDpRestriction(dp);
+		}
+
+		dp.setDistributionContainers(Collections.emptySet());
 	}
 
 	private void notifyOnDpCreate(DistributionProtocol dp) {

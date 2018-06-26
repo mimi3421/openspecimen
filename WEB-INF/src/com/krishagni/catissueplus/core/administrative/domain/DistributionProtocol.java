@@ -64,6 +64,8 @@ public class DistributionProtocol extends BaseExtensionEntity {
 	private Set<DpRequirement> requirements = new HashSet<>();
 	
 	private Set<DpConsentTier> consentTiers = new HashSet<>();
+
+	private Set<StorageContainer> distributionContainers = new HashSet<>();
 	
 	public static String getEntityName() {
 		return ENTITY_NAME;
@@ -204,6 +206,15 @@ public class DistributionProtocol extends BaseExtensionEntity {
 		this.consentTiers = consentTiers;
 	}
 
+	@NotAudited
+	public Set<StorageContainer> getDistributionContainers() {
+		return distributionContainers;
+	}
+
+	public void setDistributionContainers(Set<StorageContainer> distributionContainers) {
+		this.distributionContainers = distributionContainers;
+	}
+
 	public void update(DistributionProtocol dp) {
 		if (dp.getActivityStatus().equals(Status.ACTIVITY_STATUS_DISABLED.getStatus())) {
 			setShortTitle(Utility.getDisabledValue(dp.getShortTitle(), 50));
@@ -229,7 +240,10 @@ public class DistributionProtocol extends BaseExtensionEntity {
 	
 	public List<DependentEntityDetail> getDependentEntities() {
 		return DependentEntityDetail
-			.singletonList(DistributionOrder.getEntityName(), getDistributionOrders().size());
+			.listBuilder()
+			.add(DistributionOrder.getEntityName(), getDistributionOrders().size())
+			.add(StorageContainer.getEntityName(), getDistributionContainers().size())
+			.build();
 	}
 	
 	public void delete() {
