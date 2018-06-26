@@ -106,6 +106,31 @@
         <attribute>quantity</attribute>
       </field>
 
+      <record>
+        <caption>#getMessage("order_item_location")</caption>
+        <attribute>holdingLocation</attribute>
+
+        <field>
+          <caption>#getMessage("order_item_location_container")</caption>
+          <attribute>name</attribute>
+        </field>
+
+        <field>
+          <caption>#getMessage("order_item_location_row")</caption>
+          <attribute>positionY</attribute>
+        </field>
+
+        <field>
+          <caption>#getMessage("order_item_location_column")</caption>
+          <attribute>positionX</attribute>
+        </field>
+
+        <field>
+          <caption>#getMessage("order_item_location_position")</caption>
+          <attribute>position</attribute>
+        </field>
+      </record>
+
       $schemaBuilder.insertAdditionalFields("/com/**/schema/order-item/*.xml")
 
       <field>

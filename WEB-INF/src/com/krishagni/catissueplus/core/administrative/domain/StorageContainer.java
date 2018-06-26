@@ -806,7 +806,7 @@ public class StorageContainer extends BaseEntity {
 
 	public boolean canContainSpecimen(DistributionProtocol dp) {
 		return isStoreSpecimenEnabled() && isDistributionContainer() &&
-			(getAllowedDps().isEmpty() || getAllowedDps().contains(dp));
+			(getCompAllowedDps().isEmpty() || getCompAllowedDps().contains(dp));
 	}
 
 	public StorageContainerPosition getReservedPosition(String row, String column, String reservationId) {
