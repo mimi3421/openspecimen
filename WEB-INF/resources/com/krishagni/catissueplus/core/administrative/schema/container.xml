@@ -21,6 +21,11 @@
     </field>
 
     <field>
+      <caption>#getMessage("container_used_for")</caption>
+      <attribute>usedFor</attribute>
+    </field>
+
+    <field>
       <caption>#getMessage("container_type")</caption>
       <attribute>typeName</attribute>
     </field>
@@ -106,6 +111,12 @@
       <multiple>true</multiple>
       <caption>#getMessage("container_allowed_cp")</caption>
       <attribute>allowedCollectionProtocols</attribute>
+    </field>
+
+    <field>
+      <multiple>true</multiple>
+      <caption>#getMessage("container_allowed_dp")</caption>
+      <attribute>allowedDistributionProtocols</attribute>
     </field>
 
     <field>
