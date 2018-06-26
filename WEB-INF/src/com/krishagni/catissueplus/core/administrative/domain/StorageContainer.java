@@ -868,11 +868,13 @@ public class StorageContainer extends BaseEntity {
 	}
 	
 	public Set<CollectionProtocol> computeAllowedCps() {
-		if (CollectionUtils.isNotEmpty(getAllowedCps()) || getParentContainer() == null) {
+		if (CollectionUtils.isNotEmpty(getAllowedCps())) {
 			return new HashSet<>(getAllowedCps());
+		} else if (getParentContainer() == null) {
+			return new HashSet<>();
+		} else {
+			return getParentContainer().computeAllowedCps();
 		}
-		
-		return getParentContainer().computeAllowedCps();
 	}
 	
 	public Set<String> computeAllowedSpecimenClasses() {
@@ -900,11 +902,13 @@ public class StorageContainer extends BaseEntity {
 	}
 
 	public Set<DistributionProtocol> computeAllowedDps() {
-		if (CollectionUtils.isNotEmpty(getAllowedDps()) || getParentContainer() == null) {
+		if (CollectionUtils.isNotEmpty(getAllowedDps())) {
 			return new HashSet<>(getAllowedDps());
+		} else if (getParentContainer() == null) {
+			return new HashSet<>();
+		} else {
+			return getParentContainer().computeAllowedDps();
 		}
-
-		return getParentContainer().computeAllowedDps();
 	}
 
 	public List<DependentEntityDetail> getDependentEntities() {
