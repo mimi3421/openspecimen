@@ -4,6 +4,7 @@ package com.krishagni.catissueplus.core.administrative.repository.impl;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -55,11 +56,9 @@ public class DistributionProtocolDaoImpl extends AbstractDao<DistributionProtoco
 	@SuppressWarnings("unchecked")
 	@Override
 	public DistributionProtocol getByShortTitle(String shortTitle) {
-		List<DistributionProtocol> dps = sessionFactory.getCurrentSession()
-				.getNamedQuery(GET_DP_BY_SHORT_TITLE)
-				.setString("shortTitle", shortTitle)
-				.list();		
-		return CollectionUtils.isNotEmpty(dps) ? dps.iterator().next() : null;
+		return (DistributionProtocol) getCurrentSession().getNamedQuery(GET_DPS_BY_SHORT_TITLE)
+			.setParameterList("shortTitles", Collections.singleton(shortTitle))
+			.uniqueResult();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -315,8 +314,6 @@ public class DistributionProtocolDaoImpl extends AbstractDao<DistributionProtoco
 	private static final String FQN = DistributionProtocol.class.getName();
 
 	private static final String GET_DP_BY_TITLE = FQN + ".getDistributionProtocolByTitle";
-
-	private static final String GET_DP_BY_SHORT_TITLE = FQN + ".getDistributionProtocolByShortTitle";
 
 	private static final String GET_DPS_BY_SHORT_TITLE = FQN + ".getDistributionProtocolsByShortTitle";
 	

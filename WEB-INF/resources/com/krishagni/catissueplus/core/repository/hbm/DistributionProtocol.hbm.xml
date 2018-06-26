@@ -70,13 +70,6 @@
         title=:title 
     </query>
       
-    <query name="getDistributionProtocolByShortTitle">
-      from 
-        com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol 
-      where 
-        shortTitle=:shortTitle 
-    </query>
-      
     <query name="getAllDistributionProtocols">
       from 
         com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol 
