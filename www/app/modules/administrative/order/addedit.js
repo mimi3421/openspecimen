@@ -338,7 +338,11 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
 
       ord.instituteName = ord.distributionProtocol.instituteName;
       ord.siteName = ord.distributionProtocol.defReceivingSiteName;
-      ord.requester = ord.distributionProtocol.principalInvestigator;
+      if (spmnRequest && spmnRequest.requestor) {
+        ord.requester = spmnRequest.requestor;
+      } else {
+        ord.requester = ord.distributionProtocol.principalInvestigator;
+      }
       setUserAndSiteList(ord);
       setExtnFormCtxt(ord);
 
