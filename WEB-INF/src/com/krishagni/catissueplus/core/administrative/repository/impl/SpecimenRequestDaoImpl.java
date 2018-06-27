@@ -19,6 +19,7 @@ import com.krishagni.catissueplus.core.administrative.repository.SpecimenRequest
 import com.krishagni.catissueplus.core.administrative.repository.SpecimenRequestListCriteria;
 import com.krishagni.catissueplus.core.common.errors.CommonErrorCode;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
+import com.krishagni.catissueplus.core.common.events.UserSummary;
 import com.krishagni.catissueplus.core.common.repository.AbstractDao;
 import com.krishagni.catissueplus.core.common.util.Utility;
 
@@ -37,6 +38,7 @@ public class SpecimenRequestDaoImpl extends AbstractDao<SpecimenRequest> impleme
 	private Criteria getListQuery(SpecimenRequestListCriteria crit) {
 		Criteria query = getCurrentSession().createCriteria(SpecimenRequest.class)
 			.createAlias("dp", "dp", JoinType.LEFT_OUTER_JOIN)
+			.createAlias("requestor", "requestor", JoinType.LEFT_OUTER_JOIN)
 			.setFirstResult(crit.startAt())
 			.setMaxResults(crit.maxResults())
 			.addOrder(Order.desc("id"));
@@ -116,6 +118,10 @@ public class SpecimenRequestDaoImpl extends AbstractDao<SpecimenRequest> impleme
 		ProjectionList projs = Projections.projectionList()
 			.add(Projections.property("id"))
 			.add(Projections.property("catalogId"))
+			.add(Projections.property("requestor.id"))
+			.add(Projections.property("requestor.firstName"))
+			.add(Projections.property("requestor.lastName"))
+			.add(Projections.property("requestor.emailAddress"))
 			.add(Projections.property("requestorEmailId"))
 			.add(Projections.property("irbId"))
 			.add(Projections.property("dp.id"))
@@ -134,6 +140,16 @@ public class SpecimenRequestDaoImpl extends AbstractDao<SpecimenRequest> impleme
 		SpecimenRequestSummary req = new SpecimenRequestSummary();
 		req.setId((Long)row[idx++]);
 		req.setCatalogId((Long)row[idx++]);
+
+		UserSummary requestor = new UserSummary();
+		requestor.setId((Long)row[idx++]);
+		requestor.setFirstName((String)row[idx++]);
+		requestor.setLastName((String)row[idx++]);
+		requestor.setEmailAddress((String)row[idx++]);
+		if (requestor.getId() != null) {
+			req.setRequestor(requestor);
+		}
+
 		req.setRequestorEmailId((String)row[idx++]);
 		req.setIrbId((String)row[idx++]);
 		req.setDpId((Long)row[idx++]);

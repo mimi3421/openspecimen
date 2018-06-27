@@ -76,4 +76,27 @@
       baseTableName="OS_STOR_CONTAINER_COMP_DPS" baseColumnNames="DP_ID"
       referencedTableName="CATISSUE_DISTRIBUTION_PROTOCOL" referencedColumnNames="IDENTIFIER"/>
   </changeSet>
+
+  <changeSet author="vpawar" id="Specimens requestor ID">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <columnExists tableName="OS_SPECIMEN_REQUESTS" columnName="REQUESTOR_ID"/>
+      </not>
+    </preConditions>
+    <addColumn tableName="OS_SPECIMEN_REQUESTS">
+      <column name="REQUESTOR_ID" type="${int.type}"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Foreign key on specimen requestor ID">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <foreignKeyConstraintExists foreignKeyTableName="OS_SPECIMEN_REQUESTS" foreignKeyName="FK_OS_SPMN_REQS_REQUESTOR"/>
+      </not>
+    </preConditions>
+    <addForeignKeyConstraint
+      constraintName="FK_OS_SPMN_REQS_REQUESTOR"
+      baseTableName="OS_SPECIMEN_REQUESTS" baseColumnNames="REQUESTOR_ID"
+      referencedTableName="CATISSUE_USER" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
 </databaseChangeLog>

@@ -13,6 +13,8 @@ public class SpecimenRequestSummary {
 
 	private Long catalogId;
 
+	private UserSummary requestor;
+
 	private String requestorEmailId;
 
 	private String irbId;
@@ -47,6 +49,14 @@ public class SpecimenRequestSummary {
 
 	public void setCatalogId(Long catalogId) {
 		this.catalogId = catalogId;
+	}
+
+	public UserSummary getRequestor() {
+		return requestor;
+	}
+
+	public void setRequestor(UserSummary requestor) {
+		this.requestor = requestor;
 	}
 
 	public String getRequestorEmailId() {
@@ -132,6 +142,11 @@ public class SpecimenRequestSummary {
 	public static void copyTo(SpecimenRequest request, SpecimenRequestSummary summary) {
 		summary.setId(request.getId());
 		summary.setCatalogId(request.getCatalogId());
+
+		if (request.getRequestor() != null) {
+			summary.setRequestor(UserSummary.from(request.getRequestor()));
+		}
+
 		summary.setRequestorEmailId(request.getRequestorEmailId());
 		summary.setIrbId(request.getIrbId());
 		summary.setDateOfRequest(request.getDateOfRequest());

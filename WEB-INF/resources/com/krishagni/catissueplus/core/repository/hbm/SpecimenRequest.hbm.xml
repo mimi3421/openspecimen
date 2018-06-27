@@ -15,6 +15,8 @@
 
     <property name="catalogQueryDef" column="CATALOG_QUERY_DEF"/>
 
+    <many-to-one name="requestor" column="REQUESTOR_ID"/>
+
     <property name="requestorEmailId" column="REQUESTOR_EMAIL_ID" not-null="true"/>
 
     <property name="irbId" column="IRB_ID"/>

@@ -25,6 +25,8 @@ public class SpecimenRequest extends BaseExtensionEntity {
 
 	private String catalogQueryDef;
 
+	private User requestor;
+
 	private String requestorEmailId;
 
 	private String irbId;
@@ -71,8 +73,16 @@ public class SpecimenRequest extends BaseExtensionEntity {
 		this.catalogQueryDef = catalogQueryDef;
 	}
 
+	public User getRequestor() {
+		return requestor;
+	}
+
+	public void setRequestor(User requestor) {
+		this.requestor = requestor;
+	}
+
 	public String getRequestorEmailId() {
-		return requestorEmailId;
+		return requestor != null ? requestor.getEmailAddress() : requestorEmailId;
 	}
 
 	public void setRequestorEmailId(String requestorEmailId) {
