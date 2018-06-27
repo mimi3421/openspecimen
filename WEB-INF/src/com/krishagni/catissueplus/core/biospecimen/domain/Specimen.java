@@ -859,7 +859,7 @@ public class Specimen extends BaseExtensionEntity {
 		updateEvent(getCollectionEvent(), specimen.getCollectionEvent());
 		updateEvent(getReceivedEvent(), specimen.getReceivedEvent());
 		updateCollectionStatus(specimen.getCollectionStatus());
-		updatePosition(specimen.getPosition(), null, specimen.getTransferComments());
+		updatePosition(specimen.getPosition(), null, null, specimen.getTransferComments());
 
 		if (isCollected()) {
 			if (isPrimary()) {
@@ -1065,26 +1065,15 @@ public class Specimen extends BaseExtensionEntity {
 		event.saveOrUpdate();
 	}
 
-	private void updatePosition(StorageContainerPosition newPosition, Date time, String comments) {
-		if (!isCollected()) {
-			return;
-		}
-
-		if (newPosition != null) {
-			StorageContainer container = newPosition.getContainer();
-			if (container == null || (!container.isDimensionless() && !newPosition.isSpecified())) {
-				newPosition = null;
-			}
-		}
-
-		transferTo(newPosition, time, comments);
-	}
-
 	private void virtualize(Date time, String comments) {
 		transferTo(null, time, comments);
 	}
 	
 	private void transferTo(StorageContainerPosition newPosition, Date time, String comments) {
+		transferTo(newPosition, null, time, comments);
+	}
+
+	private void transferTo(StorageContainerPosition newPosition, User user, Date time, String comments) {
 		StorageContainerPosition oldPosition = getPosition();
 		if (StorageContainerPosition.areSame(oldPosition, newPosition)) {
 			return;
@@ -1099,7 +1088,7 @@ public class Specimen extends BaseExtensionEntity {
 		}
 
 		SpecimenTransferEvent transferEvent = new SpecimenTransferEvent(this);
-		transferEvent.setUser(AuthUtil.getCurrentUser());
+		transferEvent.setUser(user == null ? AuthUtil.getCurrentUser() : user);
 		transferEvent.setTime(time == null ? Calendar.getInstance().getTime() : time);
 		transferEvent.setComments(comments);
 		
@@ -1255,7 +1244,22 @@ public class Specimen extends BaseExtensionEntity {
 	}
 	
 	public void updatePosition(StorageContainerPosition newPosition, Date time) {
-		updatePosition(newPosition, time, null);
+		updatePosition(newPosition, null, time, null);
+	}
+
+	public void updatePosition(StorageContainerPosition newPosition, User user, Date time, String comments) {
+		if (!isCollected()) {
+			return;
+		}
+
+		if (newPosition != null) {
+			StorageContainer container = newPosition.getContainer();
+			if (container == null || (!container.isDimensionless() && !newPosition.isSpecified())) {
+				newPosition = null;
+			}
+		}
+
+		transferTo(newPosition, user, time, comments);
 	}
 
 	public String getLabelOrDesc() {

@@ -112,10 +112,19 @@ public class DistributionOrderDaoImpl extends AbstractDao<DistributionOrder> imp
 	@Override
 	@SuppressWarnings("unchecked")
 	public List<DistributionOrderItem> getOrderItems(DistributionOrderItemListCriteria crit) {
-		return getCurrentSession().createCriteria(DistributionOrderItem.class, "orderItem")
+		Criteria query = getCurrentSession().createCriteria(DistributionOrderItem.class, "orderItem")
 			.createAlias("orderItem.order", "order")
-			.add(Restrictions.eq("order.id", crit.orderId()))
-			.setFirstResult(crit.startAt())
+			.add(Restrictions.eq("order.id", crit.orderId()));
+
+		if (crit.storedInContainers()) {
+			query.createAlias("orderItem.specimen", "specimen")
+				.createAlias("specimen.position", "spmnPos")
+				.add(Restrictions.isNotNull("spmnPos.id"))
+				.add(Restrictions.eq("orderItem.status", DistributionOrderItem.Status.DISTRIBUTED_AND_CLOSED));
+		}
+
+
+		return query.setFirstResult(crit.startAt())
 			.setMaxResults(crit.maxResults())
 			.addOrder(Order.asc("orderItem.id"))
 			.list();
@@ -129,10 +138,10 @@ public class DistributionOrderDaoImpl extends AbstractDao<DistributionOrder> imp
 	@SuppressWarnings("unchecked")
 	private Criteria getOrderListQuery(DistributionOrderListCriteria crit) {
 		Criteria query = sessionFactory.getCurrentSession()
-				.createCriteria(DistributionOrder.class)
-				.createAlias("distributionProtocol", "dp")
-				.createAlias("requester", "user")
-				.createAlias("site", "site", JoinType.LEFT_OUTER_JOIN);
+			.createCriteria(DistributionOrder.class)
+			.createAlias("distributionProtocol", "dp")
+			.createAlias("requester", "user")
+			.createAlias("site", "site", JoinType.LEFT_OUTER_JOIN);
 		
 		//
 		// Restrict by distributing sites

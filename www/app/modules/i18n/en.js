@@ -2078,7 +2078,8 @@
       "save_draft": "Save Draft",
       "download_report": "Download Report",
       "return_specimens": "Return Specimens",
-      "copy_first_to_all": "Copy First To All"
+      "copy_first_to_all": "Copy First To All",
+      "retrieve": "Retrieve"
     },
 
     "tooltip": {

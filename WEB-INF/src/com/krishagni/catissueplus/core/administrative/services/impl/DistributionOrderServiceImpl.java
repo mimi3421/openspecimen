@@ -48,6 +48,7 @@ import com.krishagni.catissueplus.core.administrative.events.DistributionOrderIt
 import com.krishagni.catissueplus.core.administrative.events.DistributionOrderListCriteria;
 import com.krishagni.catissueplus.core.administrative.events.DistributionOrderSummary;
 import com.krishagni.catissueplus.core.administrative.events.ReserveSpecimensDetail;
+import com.krishagni.catissueplus.core.administrative.events.RetrieveSpecimensOp;
 import com.krishagni.catissueplus.core.administrative.events.ReturnedSpecimenDetail;
 import com.krishagni.catissueplus.core.administrative.events.StorageLocationSummary;
 import com.krishagni.catissueplus.core.administrative.services.DistributionOrderService;
@@ -394,6 +395,60 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 
 
 			return ResponseEvent.response(count);
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
+		} catch (Exception e) {
+			return ResponseEvent.serverError(e);
+		}
+	}
+
+	@Override
+	@PlusTransactional
+	public ResponseEvent<Integer> retrieveSpecimens(RequestEvent<RetrieveSpecimensOp> req) {
+		try {
+			RetrieveSpecimensOp detail = req.getPayload();
+			DistributionOrder order = daoFactory.getDistributionOrderDao().getById(detail.getListId());
+			if (order == null) {
+				return ResponseEvent.userError(DistributionOrderErrorCode.NOT_FOUND, detail.getListId());
+			}
+
+			ensureUserCanRetrieveSpecimens(order);
+
+			User retrievedBy = null;
+			if (detail.getUser() != null) {
+				retrievedBy = getUser(detail.getUser().getId(), detail.getUser().getEmailAddress());
+			}
+
+			if (retrievedBy == null) {
+				retrievedBy = AuthUtil.getCurrentUser();
+			}
+
+			Date retrieveDate = detail.getTime();
+			if (retrieveDate == null) {
+				retrieveDate = Calendar.getInstance().getTime();
+			}
+
+			int retrievedSpmnsCount = 0;
+			DistributionOrderItemListCriteria itemsCrit = new DistributionOrderItemListCriteria()
+				.orderId(order.getId())
+				.storedInContainers(true);
+			boolean endOfItems = false;
+			while (!endOfItems) {
+				// startAt is not set. The idea is the previously retrieved specimens won't appear in next chunk.
+				List<DistributionOrderItem> items = daoFactory.getDistributionOrderDao().getOrderItems(itemsCrit);
+				endOfItems = (items.size() < itemsCrit.maxResults());
+
+				for (DistributionOrderItem item : items) {
+					item.getSpecimen().updatePosition(null, retrievedBy, retrieveDate, detail.getComments());
+					item.getSpecimen().getBiohazards().size(); // HSEARCH-1350
+				}
+
+				retrievedSpmnsCount += items.size();
+				items.clear();
+				SessionUtil.getInstance().clearSession();
+			}
+
+			return ResponseEvent.response(retrievedSpmnsCount);
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {
@@ -1132,6 +1187,7 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 		}
 
 		Set<User> rcpts = new HashSet<>();
+		rcpts.add(AuthUtil.getCurrentUser());
 		if (newStatus.equals(Status.EXECUTED)) {
 			rcpts.add(order.getDistributor());
 			rcpts.add(order.getRequester());
@@ -1141,10 +1197,6 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 			if (order.getSite() != null && CollectionUtils.isNotEmpty(order.getSite().getCoordinators())) {
 				rcpts.addAll(order.getSite().getCoordinators());
 			}
-		}
-
-		if (!rcpts.contains(AuthUtil.getCurrentUser())) {
-			rcpts.add(AuthUtil.getCurrentUser());
 		}
 
 		Object[] subjectParams = { order.getName(), newStatus.equals(Status.EXECUTED) ? 1 : 2 };
@@ -1355,6 +1407,22 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 		}
 
 		item.setReturnedBy(user);
+	}
+
+	private void ensureUserCanRetrieveSpecimens(DistributionOrder order) {
+		try {
+			AccessCtrlMgr.getInstance().ensureUpdateDistributionOrderRights(order);
+		} catch (OpenSpecimenException ose) {
+			if (ose.getErrors().size() > 1 || !ose.containsError(RbacErrorCode.ACCESS_DENIED)) {
+				throw ose;
+			}
+
+			User currentUser = AuthUtil.getCurrentUser();
+			DistributionProtocol dp = order.getDistributionProtocol();
+			if (!dp.getPrincipalInvestigator().equals(currentUser) && !dp.getCoordinators().contains(currentUser)) {
+				throw OpenSpecimenException.userError(RbacErrorCode.ACCESS_DENIED);
+			}
+		}
 	}
 
 	private void raiseError(ErrorCode error, Object ... args) {

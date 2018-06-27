@@ -70,6 +70,14 @@ angular.module('os.administrative.models.order', ['os.common.models'])
       );
     }
 
+    DistributionOrder.prototype.retrieveSpecimens = function(detail) {
+      return $http.post(DistributionOrder.url() + this.$id() + '/retrieve', detail).then(
+        function(resp) {
+          return resp.data.count;
+        }
+      );
+    }
+
     DistributionOrder.getDistributionDetails = function(labels, filterOpts) {
       filterOpts = filterOpts || {};
       filterOpts.label = labels;

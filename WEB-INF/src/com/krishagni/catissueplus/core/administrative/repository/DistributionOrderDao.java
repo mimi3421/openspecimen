@@ -11,17 +11,17 @@ import com.krishagni.catissueplus.core.administrative.events.DistributionOrderSu
 import com.krishagni.catissueplus.core.common.repository.Dao;
 
 public interface DistributionOrderDao extends Dao<DistributionOrder> {
-	public List<DistributionOrderSummary> getOrders(DistributionOrderListCriteria criteria);
+	List<DistributionOrderSummary> getOrders(DistributionOrderListCriteria criteria);
 
-	public Long getOrdersCount(DistributionOrderListCriteria criteria);
+	Long getOrdersCount(DistributionOrderListCriteria criteria);
 
-	public DistributionOrder getOrder(String name);
+	DistributionOrder getOrder(String name);
 
-	public List<DistributionOrder> getOrders(List<String> names);
+	List<DistributionOrder> getOrders(List<String> names);
 
-	public List<DistributionOrderItem> getDistributedOrderItems(List<Long> specimenIds);
+	List<DistributionOrderItem> getDistributedOrderItems(List<Long> specimenIds);
 
-	public Map<String, Object> getOrderIds(String key, Object value);
+	Map<String, Object> getOrderIds(String key, Object value);
 
 	List<DistributionOrderItem> getOrderItems(DistributionOrderItemListCriteria crit);
 

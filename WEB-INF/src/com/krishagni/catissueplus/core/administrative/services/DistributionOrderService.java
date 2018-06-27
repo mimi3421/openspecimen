@@ -10,6 +10,7 @@ import com.krishagni.catissueplus.core.administrative.events.DistributionOrderIt
 import com.krishagni.catissueplus.core.administrative.events.DistributionOrderListCriteria;
 import com.krishagni.catissueplus.core.administrative.events.DistributionOrderSummary;
 import com.krishagni.catissueplus.core.administrative.events.ReserveSpecimensDetail;
+import com.krishagni.catissueplus.core.administrative.events.RetrieveSpecimensOp;
 import com.krishagni.catissueplus.core.administrative.events.ReturnedSpecimenDetail;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenInfo;
@@ -45,6 +46,8 @@ public interface DistributionOrderService {
 	ResponseEvent<Integer> getReservedSpecimensCount(RequestEvent<SpecimenListCriteria> req);
 
 	ResponseEvent<Integer> reserveSpecimens(RequestEvent<ReserveSpecimensDetail> req);
+
+	ResponseEvent<Integer> retrieveSpecimens(RequestEvent<RetrieveSpecimensOp> req);
 
 	//
 	// Validators

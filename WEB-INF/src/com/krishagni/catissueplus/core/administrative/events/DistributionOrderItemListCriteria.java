@@ -6,6 +6,8 @@ public class DistributionOrderItemListCriteria extends AbstractListCriteria<Dist
 
 	private Long orderId;
 
+	private boolean storedInContainers;
+
 	@Override
 	public DistributionOrderItemListCriteria self() {
 		return this;
@@ -17,6 +19,15 @@ public class DistributionOrderItemListCriteria extends AbstractListCriteria<Dist
 
 	public DistributionOrderItemListCriteria orderId(Long orderId) {
 		this.orderId = orderId;
+		return self();
+	}
+
+	public boolean storedInContainers() {
+		return storedInContainers;
+	}
+
+	public DistributionOrderItemListCriteria storedInContainers(boolean storedInContainers) {
+		this.storedInContainers = storedInContainers;
 		return self();
 	}
 }

@@ -1,68 +1,79 @@
 <div>
-  <div ng-if="ctx.loading">
-    <span translate="orders.loading_items">Loading order items. Please wait for a moment ...</span>
+  <div class="os-page-commands" ng-if="ctx.showRetrieveBtn">
+    <div class="left">
+      <button class="default" ng-click="retrieveSpecimens()">
+        <span class="fa fa-reply"></span>
+        <span translate="orders.buttons.retrieve">Retrieve</span>
+      </button>
+    </div>
   </div>
 
-  <table class="os-table" ng-if="!ctx.loading">
-    <thead class="os-table-head">
-      <tr class="row">
-        <th class="col">
-          <span translate="orders.spec.label">Label</span>
-        </th>
-        <th class="col os-col-25">
-          <span translate="orders.spec.desc">Description</span>
-        </th>
-        <th class="col">
-          <span translate="orders.spec.cp">Collection Protocol</span>
-        </th>
-        <th class="col">
-          <span translate="orders.spec.quantity">Quantity</span>
-        </th>
-        <th class="col" ng-if="ctx.showLocations">
-          <span translate="orders.location">Location</span>
-        </th>
-        <th class="col" ng-repeat="tmpl in ctx.itemFieldsHdrTmpls">
-          <ng-include src="tmpl"></ng-include>
-        </th>
-        <th class="col">
-          <span translate="orders.status">Status</span>
-        </th>
-      </tr>
-    </thead>
-    <tbody class="os-table-body">
-      <tr class="row" ng-repeat="item in ctx.items" ng-init="specimen = item.specimen">
-        <td class="col">
-          <a ui-sref="specimen({specimenId: specimen.id})">
-            <span>{{specimen.label}}</span>
-            <span ng-if="!!specimen.barcode">({{specimen.barcode}})</span>
-          </a>
-        </td>
-        <td class="col os-col-25">
-          <a ui-sref="specimen({specimenId: specimen.id})">
-            <os-specimen-desc specimen="specimen" detailed="true"></os-specimen-desc>
-          </a>
-        </td>
-        <td class="col">
-          <span>{{specimen.cpShortTitle}}</span>
-        </td>
-        <td class="col">
-          <os-spmn-measure-val specimen="specimen" value="item.quantity"></os-spmn-measure-val>
-        </td>
-        <td class="col" ng-if="ctx.showLocations">
-          <os-disp-storage-position position="item.specimen.storageLocation"></os-disp-storage-position>
-        </td>
-        <td class="col" ng-repeat="tmpl in ctx.itemFieldsCellTmpls">
-          <ng-include src="tmpl"></ng-include>
-        </td>
-        <td class="col">
-          <span>{{'orders.item_statuses.' + item.status | translate}}</span>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <div>
+    <div ng-if="ctx.loading">
+      <span translate="orders.loading_items">Loading order items. Please wait for a moment ...</span>
+    </div>
 
-  <span ng-if="!ctx.loading && ctx.items.length > 0 && ctx.items.length < ctx.totalItems">
-    <pager total-items="ctx.totalItems" items-per-page="ctx.itemsPerPage" ng-model="ctx.currPage">
-    </pager>
-  </span>
+    <table class="os-table" ng-if="!ctx.loading">
+      <thead class="os-table-head">
+        <tr class="row">
+          <th class="col">
+            <span translate="orders.spec.label">Label</span>
+          </th>
+          <th class="col os-col-25">
+            <span translate="orders.spec.desc">Description</span>
+          </th>
+          <th class="col">
+            <span translate="orders.spec.cp">Collection Protocol</span>
+          </th>
+          <th class="col">
+            <span translate="orders.spec.quantity">Quantity</span>
+          </th>
+          <th class="col" ng-if="ctx.showLocations">
+            <span translate="orders.location">Location</span>
+          </th>
+          <th class="col" ng-repeat="tmpl in ctx.itemFieldsHdrTmpls">
+            <ng-include src="tmpl"></ng-include>
+          </th>
+          <th class="col">
+            <span translate="orders.status">Status</span>
+          </th>
+        </tr>
+      </thead>
+      <tbody class="os-table-body">
+        <tr class="row" ng-repeat="item in ctx.items" ng-init="specimen = item.specimen">
+          <td class="col">
+            <a ui-sref="specimen({specimenId: specimen.id})">
+              <span>{{specimen.label}}</span>
+              <span ng-if="!!specimen.barcode">({{specimen.barcode}})</span>
+            </a>
+          </td>
+          <td class="col os-col-25">
+            <a ui-sref="specimen({specimenId: specimen.id})">
+              <os-specimen-desc specimen="specimen" detailed="true"></os-specimen-desc>
+            </a>
+          </td>
+          <td class="col">
+            <span>{{specimen.cpShortTitle}}</span>
+          </td>
+          <td class="col">
+            <os-spmn-measure-val specimen="specimen" value="item.quantity"></os-spmn-measure-val>
+          </td>
+          <td class="col" ng-if="ctx.showLocations">
+            <os-disp-storage-position position="item.specimen.storageLocation"></os-disp-storage-position>
+          </td>
+          <td class="col" ng-repeat="tmpl in ctx.itemFieldsCellTmpls">
+            <ng-include src="tmpl"></ng-include>
+          </td>
+          <td class="col">
+            <span>{{'orders.item_statuses.' + item.status | translate}}</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <span ng-if="!ctx.loading && ctx.items.length > 0 && ctx.items.length < ctx.totalItems">
+      <pager total-items="ctx.totalItems" items-per-page="ctx.itemsPerPage" ng-model="ctx.currPage">
+      </pager>
+    </span>
+  </div>
 </div>
