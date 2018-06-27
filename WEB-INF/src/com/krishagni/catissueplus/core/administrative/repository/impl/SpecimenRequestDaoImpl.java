@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
+import org.hibernate.criterion.Conjunction;
+import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
@@ -44,10 +46,9 @@ public class SpecimenRequestDaoImpl extends AbstractDao<SpecimenRequest> impleme
 			.addOrder(Order.desc("id"));
 
 		addCatalogCond(query, crit);
-		addSiteCond(query, crit);
-		addScreeningStatus(query, crit);
 		addDateConds(query, crit);
-		return addStatusConds(query, crit);
+		addStatusConds(query, crit);
+		return addUserRestrictions(query, crit);
 	}
 
 	private Criteria addCatalogCond(Criteria query, SpecimenRequestListCriteria crit) {
@@ -59,36 +60,6 @@ public class SpecimenRequestDaoImpl extends AbstractDao<SpecimenRequest> impleme
 		return query;
 	}
 
-	private Criteria addSiteCond(Criteria query, SpecimenRequestListCriteria crit) {
-		if (CollectionUtils.isEmpty(crit.siteIds())) {
-			return query;
-		}
-
-
-		query.createAlias("dp.distributingSites", "distSites", JoinType.LEFT_OUTER_JOIN)
-			.createAlias("distSites.site", "distSite", JoinType.LEFT_OUTER_JOIN)
-			.createAlias("distSites.institute", "distInst", JoinType.LEFT_OUTER_JOIN)
-			.createAlias("distInst.sites", "instSite", JoinType.LEFT_OUTER_JOIN)
-			.add(Restrictions.or(
-				Restrictions.and(Restrictions.isNull("distSites.site"), Restrictions.in("instSite.id", crit.siteIds())),
-				Restrictions.and(Restrictions.isNotNull("distSites.site"),Restrictions.in("distSite.id", crit.siteIds()))
-			));
-		return query;
-	}
-
-	private Criteria addScreeningStatus(Criteria query, SpecimenRequestListCriteria crit) {
-		if (StringUtils.isBlank(crit.screeningStatus())) {
-			return query;
-		}
-
-		try {
-			SpecimenRequest.ScreeningStatus status = SpecimenRequest.ScreeningStatus.valueOf(crit.screeningStatus());
-			query.add(Restrictions.eq("screeningStatus", status));
-			return query;
-		} catch (Exception e) {
-			throw OpenSpecimenException.userError(CommonErrorCode.INVALID_REQUEST, e.getMessage());
-		}
-	}
 
 	private Criteria addDateConds(Criteria query, SpecimenRequestListCriteria crit) {
 		if (crit.fromReqDate() != null) {
@@ -112,6 +83,39 @@ public class SpecimenRequestDaoImpl extends AbstractDao<SpecimenRequest> impleme
 		}
 
 		return query;
+	}
+
+	private Criteria addUserRestrictions(Criteria query, SpecimenRequestListCriteria crit) {
+		Disjunction orCond = Restrictions.disjunction();
+
+		if (CollectionUtils.isNotEmpty(crit.siteIds())) {
+			query.createAlias("dp.distributingSites", "distSites", JoinType.LEFT_OUTER_JOIN)
+				.createAlias("distSites.site", "distSite", JoinType.LEFT_OUTER_JOIN)
+				.createAlias("distSites.institute", "distInst", JoinType.LEFT_OUTER_JOIN)
+				.createAlias("distInst.sites", "instSite", JoinType.LEFT_OUTER_JOIN);
+
+			orCond.add(
+				Restrictions.and(
+					Restrictions.or(
+						Restrictions.and(
+							Restrictions.isNull("distSites.site"),
+							Restrictions.in("instSite.id", crit.siteIds())
+						),
+						Restrictions.and(
+							Restrictions.isNotNull("distSites.site"),
+							Restrictions.in("distSite.id", crit.siteIds())
+						)
+					),
+					Restrictions.eq("screeningStatus", SpecimenRequest.ScreeningStatus.APPROVED)
+				)
+			);
+		}
+
+		if (crit.requestorId() != null) {
+			orCond.add(Restrictions.eq("requestor.id", crit.requestorId()));
+		}
+
+		return query.add(orCond);
 	}
 
 	private Criteria addSummaryFields(Criteria query, boolean distinct) {

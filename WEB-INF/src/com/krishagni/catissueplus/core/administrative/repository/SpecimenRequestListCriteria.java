@@ -9,10 +9,6 @@ public class SpecimenRequestListCriteria extends AbstractListCriteria<SpecimenRe
 
 	private Long catalogId;
 
-	private Collection<Long> siteIds;
-
-	private String screeningStatus;
-
 	private Date fromReqDate;
 
 	private Date toReqDate;
@@ -20,6 +16,14 @@ public class SpecimenRequestListCriteria extends AbstractListCriteria<SpecimenRe
 	private Boolean pendingReqs;
 
 	private Boolean closedReqs;
+
+	//
+	// internally added restrictions
+	//
+	private Collection<Long> siteIds;
+
+	private Long requestorId;
+
 
 	@Override
 	public SpecimenRequestListCriteria self() {
@@ -32,24 +36,6 @@ public class SpecimenRequestListCriteria extends AbstractListCriteria<SpecimenRe
 
 	public SpecimenRequestListCriteria catalogId(Long catalogId) {
 		this.catalogId = catalogId;
-		return this;
-	}
-
-	public Collection<Long> siteIds() {
-		return siteIds;
-	}
-
-	public SpecimenRequestListCriteria siteIds(Collection<Long> siteIds) {
-		this.siteIds = siteIds;
-		return this;
-	}
-
-	public String screeningStatus() {
-		return screeningStatus;
-	}
-
-	public SpecimenRequestListCriteria screeningStatus(String screeningStatus) {
-		this.screeningStatus = screeningStatus;
 		return this;
 	}
 
@@ -87,5 +73,23 @@ public class SpecimenRequestListCriteria extends AbstractListCriteria<SpecimenRe
 	public SpecimenRequestListCriteria closedReqs(Boolean closedReqs) {
 		this.closedReqs = closedReqs;
 		return this;
+	}
+
+	public Collection<Long> siteIds() {
+		return siteIds;
+	}
+
+	public SpecimenRequestListCriteria siteIds(Collection<Long> siteIds) {
+		this.siteIds = siteIds;
+		return this;
+	}
+
+	public Long requestorId() {
+		return requestorId;
+	}
+
+	public SpecimenRequestListCriteria requestorId(Long requestorId) {
+		this.requestorId = requestorId;
+		return self();
 	}
 }
