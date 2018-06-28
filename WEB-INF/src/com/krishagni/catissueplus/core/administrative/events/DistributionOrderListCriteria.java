@@ -24,6 +24,8 @@ public class DistributionOrderListCriteria extends AbstractListCriteria<Distribu
 	private String receivingSite;
 	
 	private String receivingInstitute;
+
+	private Long requestId;
 		
 	@Override
 	public DistributionOrderListCriteria self() {
@@ -108,6 +110,15 @@ public class DistributionOrderListCriteria extends AbstractListCriteria<Distribu
 	
 	public DistributionOrderListCriteria receivingInstitute(String receivingInstitute) {
 		this.receivingInstitute = receivingInstitute;
+		return self();
+	}
+
+	public Long requestId() {
+		return requestId;
+	}
+
+	public DistributionOrderListCriteria requestId(Long requestId) {
+		this.requestId = requestId;
 		return self();
 	}
 }

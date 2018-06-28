@@ -34,9 +34,9 @@ public class DistributionOrderDaoImpl extends AbstractDao<DistributionOrder> imp
 	@Override
 	public List<DistributionOrderSummary> getOrders(DistributionOrderListCriteria listCrit) {
 		Criteria query = getOrderListQuery(listCrit)
-				.setFirstResult(listCrit.startAt())
-				.setMaxResults(listCrit.maxResults())
-				.addOrder(Order.desc("id"));
+			.setFirstResult(listCrit.startAt())
+			.setMaxResults(listCrit.maxResults())
+			.addOrder(Order.desc("id"));
 
 		addProjections(query, CollectionUtils.isNotEmpty(listCrit.siteIds()));
 		List<Object[]> rows = query.list();
@@ -164,10 +164,10 @@ public class DistributionOrderDaoImpl extends AbstractDao<DistributionOrder> imp
 		addNameRestriction(query, crit, matchMode);
 		addDpRestriction(query, crit, matchMode);
 		addRequestorRestriction(query, crit, matchMode);
+		addRequestRestriction(query, crit);
 		addExecutionDtRestriction(query, crit);
 		addReceivingSiteRestriction(query, crit, matchMode);
 		addReceivingInstRestriction(query, crit, matchMode);
-		
 		return query;
 	}
 	
@@ -197,6 +197,15 @@ public class DistributionOrderDaoImpl extends AbstractDao<DistributionOrder> imp
 					.add(Restrictions.ilike("user.lastName", crit.requestor(), mode))
 			);
 		}	
+	}
+
+	private void addRequestRestriction(Criteria query, DistributionOrderListCriteria crit) {
+		if (crit.requestId() == null) {
+			return;
+		}
+
+		query.createAlias("request", "request")
+			.add(Restrictions.eq("request.id", crit.requestId()));
 	}
 
 	private void addExecutionDtRestriction(Criteria query, DistributionOrderListCriteria crit) {

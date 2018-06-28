@@ -61,6 +61,9 @@ public class DistributionOrderController {
 		
 		@RequestParam(value = "requestorId", required = false)
 		Long requestorId,
+
+		@RequestParam(value = "requestId", required = false)
+		Long requestId,
 		
 		@RequestParam(value = "executionDate", required = false) 
 		@DateTimeFormat(pattern="yyyy-MM-dd")
@@ -88,6 +91,7 @@ public class DistributionOrderController {
 			.dpId(dpId)
 			.requestor(requestor)
 			.requestorId(requestorId)
+			.requestId(requestId)
 			.executionDate(executionDate)
 			.receivingSite(receivingSite)
 			.receivingInstitute(receivingInstitute)
@@ -118,7 +122,10 @@ public class DistributionOrderController {
 		
 		@RequestParam(value = "requestorId", required = false)
 		Long requestorId,
-		
+
+		@RequestParam(value = "requestId", required = false)
+		Long requestId,
+
 		@RequestParam(value = "executionDate", required = false)
 		@DateTimeFormat(pattern="yyyy-MM-dd")
 		Date executionDate,
@@ -136,6 +143,7 @@ public class DistributionOrderController {
 			.dpId(dpId)
 			.requestor(requestor)
 			.requestorId(requestorId)
+			.requestId(requestId)
 			.executionDate(executionDate)
 			.receivingSite(receivingSite)
 			.receivingInstitute(receivingInstitute);
