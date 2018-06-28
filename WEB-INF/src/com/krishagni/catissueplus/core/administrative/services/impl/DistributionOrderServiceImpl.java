@@ -1419,7 +1419,9 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 
 			User currentUser = AuthUtil.getCurrentUser();
 			DistributionProtocol dp = order.getDistributionProtocol();
-			if (!dp.getPrincipalInvestigator().equals(currentUser) && !dp.getCoordinators().contains(currentUser)) {
+			if (!order.getRequester().equals(currentUser) &&
+				!dp.getPrincipalInvestigator().equals(currentUser) &&
+				!dp.getCoordinators().contains(currentUser)) {
 				throw OpenSpecimenException.userError(RbacErrorCode.ACCESS_DENIED);
 			}
 		}

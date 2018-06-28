@@ -67,13 +67,13 @@ angular.module('os.administrative.order')
     }
 
     $scope.retrieveSpecimens = function() {
-      var ctx = {
+      var opts = {
         header: 'specimen_list.retrieve_specimens', headerParams: {},
         placeholder: 'specimen_list.retrieve_reason',
         button: 'specimen_list.retrieve_specimens'
       };
 
-      CommentsUtil.getComments(ctx,
+      CommentsUtil.getComments(opts,
         function(comments) {
           order.retrieveSpecimens({comments: comments}).then(
             function(count) {
