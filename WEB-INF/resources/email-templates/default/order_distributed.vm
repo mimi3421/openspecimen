@@ -34,6 +34,16 @@
                     <td> Requester </td>
                     <td> : $order.requester.firstName $order.requester.lastName </td>
                   </tr>
+                  #if ($order.request)
+                  <tr>
+                    <td> Request </td>
+                    <td> :
+                      <a href="$appUrl/#/specimen-requests/$order.request.id/overview?catalogId=$order.request.catalogId">
+                        #$order.request.id
+                      </a>
+                    </td>
+                  </tr>
+                  #end
                   <tr>
                     <td> Receiving Site </td>
                     <td> : 
