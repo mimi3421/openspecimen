@@ -1384,7 +1384,7 @@ public class QueryServiceImpl implements QueryService {
 				}
 			});
 
-			boolean completed = false;
+			boolean completed;
 			try {
 				out = null;
 				completed = result.get(ONLINE_EXPORT_TIMEOUT_SECS, TimeUnit.SECONDS);
