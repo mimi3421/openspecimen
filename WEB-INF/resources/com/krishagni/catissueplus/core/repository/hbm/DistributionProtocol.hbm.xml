@@ -38,6 +38,8 @@
 
     <many-to-one name="orderExtnForm" column="ORDER_EXTN_FORM_ID"/>
 
+    <property name="disableEmailNotifs" column="DISABLE_EMAIL_NOTIFS"/>
+
     <set name="distributionOrders" cascade="none">
       <key column="DISTRIBUTION_PROTOCOL_ID"/>
       <one-to-many class="com.krishagni.catissueplus.core.administrative.domain.DistributionOrder"/>

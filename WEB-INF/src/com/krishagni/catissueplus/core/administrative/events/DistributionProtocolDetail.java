@@ -29,6 +29,8 @@ public class DistributionProtocolDetail extends DistributionProtocolSummary {
 	private SavedQuerySummary report;
 
 	private FormSummary orderExtnForm;
+
+	private Boolean disableEmailNotifs;
 	
 	private Map<String, List<String>> distributingSites = new HashMap<>();
 
@@ -82,6 +84,14 @@ public class DistributionProtocolDetail extends DistributionProtocolSummary {
 		this.orderExtnForm = orderExtnForm;
 	}
 
+	public Boolean getDisableEmailNotifs() {
+		return disableEmailNotifs;
+	}
+
+	public void setDisableEmailNotifs(Boolean disableEmailNotifs) {
+		this.disableEmailNotifs = disableEmailNotifs;
+	}
+
 	public Map<String, List<String>> getDistributingSites() {
 		return distributingSites;
 	}
@@ -119,6 +129,8 @@ public class DistributionProtocolDetail extends DistributionProtocolSummary {
 		detail.setPrincipalInvestigator(UserSummary.from(dp.getPrincipalInvestigator()));
 		detail.setCoordinators(UserSummary.from(dp.getCoordinators()));
 		detail.setActivityStatus(dp.getActivityStatus());
+		detail.setDisableEmailNotifs(dp.getDisableEmailNotifs());
+
 		if (dp.getReport() != null) {
 			detail.setReport(SavedQuerySummary.fromSavedQuery(dp.getReport()));
 		}

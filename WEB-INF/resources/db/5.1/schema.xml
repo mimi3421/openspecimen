@@ -99,4 +99,10 @@
       baseTableName="OS_SPECIMEN_REQUESTS" baseColumnNames="REQUESTOR_ID"
       referencedTableName="CATISSUE_USER" referencedColumnNames="IDENTIFIER"/>
   </changeSet>
+
+  <changeSet author="vpawar" id="Setting to control DP email notifications">
+    <addColumn tableName="CATISSUE_DISTRIBUTION_PROTOCOL">
+      <column name="DISABLE_EMAIL_NOTIFS" type="${boolean.type}"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

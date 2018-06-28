@@ -68,6 +68,12 @@
       <attribute>endDate</attribute>
     </field>
 
+    <field>
+      <type>boolean</type>
+      <caption>#getMessage("dp_disable_email_notifs")</caption>
+      <attribute>disableEmailNotifs</attribute>
+    </field>
+
     <record>
       <caption>#getMessage("dp_distributing_sites")</caption>
       <attribute>distributingSitesMapList</attribute>

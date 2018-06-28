@@ -1200,14 +1200,17 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 		}
 
 		Object[] subjectParams = { order.getName(), newStatus.equals(Status.EXECUTED) ? 1 : 2 };
-
-		// Send email notification
-		Map<String, Object> emailProps = new HashMap<>();
-		emailProps.put("$subject", subjectParams);
-		emailProps.put("order", order);
-		for (User rcpt : rcpts) {
-			emailProps.put("rcpt", rcpt);
-			emailService.sendEmail(ORDER_DISTRIBUTED_EMAIL_TMPL, new String[] { rcpt.getEmailAddress() }, null, emailProps);
+		if (!Boolean.TRUE.equals(order.getDistributionProtocol().getDisableEmailNotifs())) {
+			//
+			// Send email notification
+			//
+			Map<String, Object> emailProps = new HashMap<>();
+			emailProps.put("$subject", subjectParams);
+			emailProps.put("order", order);
+			for (User rcpt : rcpts) {
+				emailProps.put("rcpt", rcpt);
+				emailService.sendEmail(ORDER_DISTRIBUTED_EMAIL_TMPL, new String[] { rcpt.getEmailAddress() }, null, emailProps);
+			}
 		}
 
 		// UI notification

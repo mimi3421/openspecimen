@@ -58,4 +58,11 @@
       <column name="usedFor_MOD" type="${boolean.type}"/>
     </addColumn>
   </changeSet>
+
+  <changeSet author="vpawar" id="Track changes to disable email notif settings of the DP">
+    <addColumn tableName="CAT_DISTRIBUTION_PROTOCOL_AUD">
+      <column name="DISABLE_EMAIL_NOTIFS" type="${boolean.type}"/>
+      <column name="disableEmailNotifs_MOD" type="${boolean.type}"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

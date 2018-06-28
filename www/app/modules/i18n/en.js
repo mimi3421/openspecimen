@@ -1030,6 +1030,8 @@
     "distributing_sites": "Distributing Sites",
     "custom_fields_form": "Order Custom Fields",
     "order_report_query": "Order Report Query",
+    "email_notifs": "Email Notifications",
+    "disable_email_notifs": "Disable e-mail notifications. No e-mails will be sent when orders are processed.",
     "closed": "Closed",
     "confirm_close_title": "Closing {{shortTitle}} confirmation",
     "confirm_close": "Are you sure you want to close the distribution protocol {{shortTitle}} ?",

@@ -71,6 +71,7 @@ public class DistributionProtocolFactoryImpl implements DistributionProtocolFact
 		setActivityStatus(detail, existing, dp, ose);
 		setReport(detail, existing, dp, ose);
 		setOrderExtnForm(detail, existing, dp, ose);
+		setDisableEmailNotifs(detail, existing, dp, ose);
 		setDistributingSites(detail, existing, dp, ose);
 		setExtension(detail, existing, dp, ose);
 
@@ -323,6 +324,14 @@ public class DistributionProtocolFactoryImpl implements DistributionProtocolFact
 			dp.setOrderExtnForm(form);
 		} else if (key != null) {
 			ose.addError(FormErrorCode.NOT_FOUND, key);
+		}
+	}
+
+	private void setDisableEmailNotifs(DistributionProtocolDetail detail, DistributionProtocol existing, DistributionProtocol dp, OpenSpecimenException ose) {
+		if (existing == null || detail.isAttrModified("disableEmailNotifs")) {
+			dp.setDisableEmailNotifs(detail.getDisableEmailNotifs());
+		} else {
+			dp.setDisableEmailNotifs(existing.getDisableEmailNotifs());
 		}
 	}
 

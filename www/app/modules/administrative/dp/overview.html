@@ -106,6 +106,13 @@
             {{distributionProtocol.report.title | osNoValue}}
           </span>
         </li>
+
+        <li class="item">
+          <strong class="key key-sm" translate="dp.email_notifs">Email Notifications</strong>
+          <span class="value value-md">
+            {{distributionProtocol.disableEmailNotifs | osBoolValue: 'common.disabled': 'common.enabled'}}
+          </span>
+        </li>
       </ul>
   
       <div ng-if="!!distributionProtocol.extensionDetail">

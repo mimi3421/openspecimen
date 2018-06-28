@@ -56,6 +56,8 @@ public class DistributionProtocol extends BaseExtensionEntity {
 	private SavedQuery report;
 
 	private Form orderExtnForm;
+
+	private Boolean disableEmailNotifs;
 	
 	private Set<DistributionOrder> distributionOrders = new HashSet<>();
 	
@@ -171,6 +173,14 @@ public class DistributionProtocol extends BaseExtensionEntity {
 		this.orderExtnForm = orderExtnForm;
 	}
 
+	public Boolean getDisableEmailNotifs() {
+		return disableEmailNotifs;
+	}
+
+	public void setDisableEmailNotifs(Boolean disableEmailNotifs) {
+		this.disableEmailNotifs = disableEmailNotifs;
+	}
+
 	@NotAudited
 	public Set<DistributionOrder> getDistributionOrders() {
 		return distributionOrders;
@@ -233,6 +243,7 @@ public class DistributionProtocol extends BaseExtensionEntity {
 		setActivityStatus(dp.getActivityStatus());
 		setReport(dp.getReport());
 		setOrderExtnForm(dp.getOrderExtnForm());
+		setDisableEmailNotifs(dp.getDisableEmailNotifs());
 		CollectionUpdater.update(getCoordinators(), dp.getCoordinators());
 		CollectionUpdater.update(getDistributingSites(), dp.getDistributingSites());
 		setExtension(dp.getExtension());
