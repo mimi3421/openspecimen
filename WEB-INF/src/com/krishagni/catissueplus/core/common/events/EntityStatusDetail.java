@@ -2,6 +2,7 @@ package com.krishagni.catissueplus.core.common.events;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class EntityStatusDetail {
 	private Long id;
@@ -19,6 +20,8 @@ public class EntityStatusDetail {
 	private boolean forceUpdate;
 
 	private List<UserSummary> notifyUsers;
+
+	private Map<String, Object> extraAttrs;
 
 	public Long getId() {
 		return id;
@@ -82,5 +85,13 @@ public class EntityStatusDetail {
 
 	public void setNotifyUsers(List<UserSummary> notifyUsers) {
 		this.notifyUsers = notifyUsers;
+	}
+
+	public Map<String, Object> getExtraAttrs() {
+		return extraAttrs;
+	}
+
+	public void setExtraAttrs(Map<String, Object> extraAttrs) {
+		this.extraAttrs = extraAttrs;
 	}
 }
