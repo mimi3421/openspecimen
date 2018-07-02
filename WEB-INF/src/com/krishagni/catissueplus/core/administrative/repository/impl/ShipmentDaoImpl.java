@@ -32,12 +32,11 @@ public class ShipmentDaoImpl extends AbstractDao<Shipment> implements ShipmentDa
 	@Override
 	@SuppressWarnings("unchecked")
 	public List<Shipment> getShipments(ShipmentListCriteria crit) {
-		Criteria query = getShipmentsQuery(crit)
-				.setFirstResult(crit.startAt())
-				.setMaxResults(crit.maxResults())
-				.addOrder(Order.desc("id"));
-		
-		return query.list();
+		return getShipmentsQuery(crit)
+			.setFirstResult(crit.startAt())
+			.setMaxResults(crit.maxResults())
+			.addOrder(Order.desc("id"))
+			.list();
 	}
 
 	@Override
@@ -52,9 +51,9 @@ public class ShipmentDaoImpl extends AbstractDao<Shipment> implements ShipmentDa
 	@SuppressWarnings("unchecked")
 	public Shipment getShipmentByName(String name) {
 		List<Shipment> result = sessionFactory.getCurrentSession()
-				.getNamedQuery(GET_SHIPMENT_BY_NAME)
-				.setString("name", name)
-				.list();
+			.getNamedQuery(GET_SHIPMENT_BY_NAME)
+			.setString("name", name)
+			.list();
 		
 		return result.isEmpty() ? null : result.iterator().next();
 	}
@@ -63,9 +62,9 @@ public class ShipmentDaoImpl extends AbstractDao<Shipment> implements ShipmentDa
 	@SuppressWarnings("unchecked")
 	public List<Specimen> getShippedSpecimensByIds(List<Long> specimenIds) {
 		return sessionFactory.getCurrentSession()
-				.getNamedQuery(GET_SHIPPED_SPECIMENS_BY_IDS)
-				.setParameterList("ids", specimenIds)
-				.list();
+			.getNamedQuery(GET_SHIPPED_SPECIMENS_BY_IDS)
+			.setParameterList("ids", specimenIds)
+			.list();
 	}
 
 	@Override
@@ -120,11 +119,13 @@ public class ShipmentDaoImpl extends AbstractDao<Shipment> implements ShipmentDa
 
 	private Criteria getShipmentsQuery(ShipmentListCriteria crit) {
 		Criteria query = sessionFactory.getCurrentSession()
-				.createCriteria(Shipment.class)
-				.createAlias("receivingSite", "recvSite");
-		
+			.createCriteria(Shipment.class)
+			.createAlias("sendingSite", "sendSite")
+			.createAlias("receivingSite", "recvSite");
+
 		addNameRestrictions(query, crit);
-		addInstituteRestrictions(query, crit);
+		addSendSiteRestrictions(query, crit);
+		addRecvSiteRestrictions(query, crit);
 		addSiteRestrictions(query, crit);
 		return query;
 	}
@@ -136,35 +137,43 @@ public class ShipmentDaoImpl extends AbstractDao<Shipment> implements ShipmentDa
 		
 		query.add(Restrictions.ilike("name", crit.name(), crit.matchMode()));
 	}
-	
-	private void addInstituteRestrictions(Criteria query, ShipmentListCriteria crit) {
-		if (StringUtils.isBlank(crit.recvInstitute())) {
+
+	private void addSendSiteRestrictions(Criteria query, ShipmentListCriteria crit) {
+		if (StringUtils.isBlank(crit.sendingSite())) {
 			return;
 		}
-		
-		query.createAlias("recvSite.institute", "institute")
-			.add(Restrictions.eq("institute.name", crit.recvInstitute()));
+
+		query.add(Restrictions.eq("sendSite.name", crit.sendingSite()));
 	}
-	
-	private void addSiteRestrictions(Criteria query, ShipmentListCriteria crit) {
+
+	private void addRecvSiteRestrictions(Criteria query, ShipmentListCriteria crit) {
+		if (StringUtils.isNotBlank(crit.recvInstitute())) {
+			query.createAlias("recvSite.institute", "institute")
+				.add(Restrictions.eq("institute.name", crit.recvInstitute()));
+		}
+
 		if (StringUtils.isNotBlank(crit.recvSite())) {
 			query.add(Restrictions.eq("recvSite.name", crit.recvSite()));
 		}
-		
+	}
+
+	//
+	// Used to restrict access of shipments based on users' roles on various sites
+	//
+	private void addSiteRestrictions(Criteria query, ShipmentListCriteria crit) {
 		if (CollectionUtils.isEmpty(crit.siteIds())) {
 			return;
 		}
 		
-		query.createAlias("sendingSite", "sendSite")
-			.add(
-				Restrictions.or(
-					Restrictions.and(
-						Restrictions.in("recvSite.id", crit.siteIds()),
-						Restrictions.ne("status", Status.PENDING)
-					),/* end of AND */
-					Restrictions.in("sendSite.id", crit.siteIds())
-				)/* end of OR */
-			);
+		query.add(
+			Restrictions.or(
+				Restrictions.and(
+					Restrictions.in("recvSite.id", crit.siteIds()),
+					Restrictions.ne("status", Status.PENDING)
+				),/* end of AND */
+				Restrictions.in("sendSite.id", crit.siteIds())
+			)/* end of OR */
+		);
 	}
 	
 	private static final String FQN = Shipment.class.getName();

@@ -6,6 +6,8 @@ import com.krishagni.catissueplus.core.common.events.AbstractListCriteria;
 
 public class ShipmentListCriteria extends AbstractListCriteria<ShipmentListCriteria> {
 	private String name;
+
+	private String sendingSite;
 	
 	private String recvInstitute;
 	
@@ -24,6 +26,15 @@ public class ShipmentListCriteria extends AbstractListCriteria<ShipmentListCrite
 	
 	public ShipmentListCriteria name(String name) {
 		this.name = name;
+		return self();
+	}
+
+	public String sendingSite() {
+		return sendingSite;
+	}
+
+	public ShipmentListCriteria sendingSite(String sendingSite) {
+		this.sendingSite = sendingSite;
 		return self();
 	}
 	

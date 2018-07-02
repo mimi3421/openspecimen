@@ -12,6 +12,12 @@
     </div>
 
     <div class="form-group">
+      <os-sites md-type="true" ng-model="filterOpts.sendingSite" placeholder="{{'shipments.sending_site' | translate}}"
+        list-all="true">
+      </os-sites>
+    </div>
+
+    <div class="form-group">
       <div os-md-input ng-model="filterOpts.recvInstitute" placeholder="{{'shipments.receiving_institute' | translate}}">
         <os-institutes ng-model="filterOpts.recvInstitute" on-select="onInstituteSelect()" md-type="true"
           placeholder="{{'shipments.receiving_institute' | translate}}">

@@ -39,6 +39,9 @@ public class ShipmentController {
 	public List<ShipmentDetail> getShipments(
 		@RequestParam(value = "name", required = false, defaultValue = "")
 		String name,
+
+		@RequestParam(value = "sendingSite", required = false, defaultValue = "")
+		String sendingSite,
 			
 		@RequestParam(value = "recvInstitute", required = false, defaultValue = "")
 		String recvInstitute,
@@ -57,6 +60,7 @@ public class ShipmentController {
 		
 		ShipmentListCriteria listCrit = new ShipmentListCriteria()
 			.name(name)
+			.sendingSite(sendingSite)
 			.recvInstitute(recvInstitute)
 			.recvSite(recvSite)
 			.startAt(startAt)
@@ -71,7 +75,10 @@ public class ShipmentController {
 	public Map<String, Long> getShipmentsCount(
 		@RequestParam(value = "name", required = false, defaultValue = "")
 		String name,
-			
+
+		@RequestParam(value = "sendingSite", required = false, defaultValue = "")
+		String sendingSite,
+
 		@RequestParam(value = "recvInstitute", required = false, defaultValue = "")
 		String recvInstitute,
 			
@@ -80,6 +87,7 @@ public class ShipmentController {
 		
 		ShipmentListCriteria listCrit = new ShipmentListCriteria()
 			.name(name)
+			.sendingSite(sendingSite)
 			.recvInstitute(recvInstitute)
 			.recvSite(recvSite);
 		return Collections.singletonMap("count", response(shipmentSvc.getShipmentsCount(request(listCrit))));
