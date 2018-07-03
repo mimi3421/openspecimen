@@ -2372,7 +2372,7 @@
         "store_list_max_retries_desc": "Maximum number of attempts to execute store list before marking the store list as permanently failed.",
         "max_order_spmns_ui_limit": "Order Specimens UI Limit",
         "max_order_spmns_ui_limit_desc": "Maximum number of specimens whose details can be edited at the time of distribution using UI.",
-        "allow_spmn_relabeling": "Allow Specimen Relabeling",
+        "allow_spmn_relabeling": "Relabel Shipment Specimens",
         "allow_spmn_relabeling_desc": "Enable to allow editing of specimen labels when shipments are received."
       },
 
