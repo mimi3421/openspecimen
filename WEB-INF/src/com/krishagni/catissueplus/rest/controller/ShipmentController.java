@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import com.krishagni.catissueplus.core.administrative.domain.Shipment;
 import com.krishagni.catissueplus.core.administrative.events.ShipmentContainerDetail;
 import com.krishagni.catissueplus.core.administrative.events.ShipmentDetail;
 import com.krishagni.catissueplus.core.administrative.events.ShipmentItemsListCriteria;
@@ -22,6 +24,8 @@ import com.krishagni.catissueplus.core.administrative.events.ShipmentListCriteri
 import com.krishagni.catissueplus.core.administrative.events.ShipmentSpecimenDetail;
 import com.krishagni.catissueplus.core.administrative.events.StorageContainerSummary;
 import com.krishagni.catissueplus.core.administrative.services.ShipmentService;
+import com.krishagni.catissueplus.core.common.errors.CommonErrorCode;
+import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 import com.krishagni.catissueplus.core.de.events.QueryDataExportResult;
@@ -48,6 +52,9 @@ public class ShipmentController {
 			
 		@RequestParam(value = "recvSite", required = false, defaultValue = "")
 		String recvSite,
+
+		@RequestParam(value = "status", required = false, defaultValue = "")
+		String status,
 			
 		@RequestParam(value = "startAt", required = false, defaultValue = "0")
 		int startAt,
@@ -55,17 +62,20 @@ public class ShipmentController {
 		@RequestParam(value = "maxResults", required = false, defaultValue = "50")
 		int maxResults,
 
-		@RequestParam(value = "includeStat", required = false, defaultValue = "false")
-		boolean includeStat) {
+		@RequestParam(value = "includeStats", required = false, defaultValue = "false")
+		boolean includeStats) {
+
+
 		
 		ShipmentListCriteria listCrit = new ShipmentListCriteria()
 			.name(name)
 			.sendingSite(sendingSite)
 			.recvInstitute(recvInstitute)
 			.recvSite(recvSite)
+			.status(getStatus(status))
 			.startAt(startAt)
 			.maxResults(maxResults)
-			.includeStat(includeStat);
+			.includeStat(includeStats);
 		return response(shipmentSvc.getShipments(request(listCrit)));
 	}
 
@@ -83,13 +93,17 @@ public class ShipmentController {
 		String recvInstitute,
 			
 		@RequestParam(value = "recvSite", required = false, defaultValue = "")
-		String recvSite) {
+		String recvSite,
+
+		@RequestParam(value = "status", required = false, defaultValue = "")
+		String status) {
 		
 		ShipmentListCriteria listCrit = new ShipmentListCriteria()
 			.name(name)
 			.sendingSite(sendingSite)
 			.recvInstitute(recvInstitute)
-			.recvSite(recvSite);
+			.recvSite(recvSite)
+			.status(getStatus(status));
 		return Collections.singletonMap("count", response(shipmentSvc.getShipmentsCount(request(listCrit))));
 	}
 
@@ -190,5 +204,17 @@ public class ShipmentController {
 	private <T> T response(ResponseEvent<T> resp) {
 		resp.throwErrorIfUnsuccessful();
 		return resp.getPayload();
+	}
+
+	private Shipment.Status getStatus(String input) {
+		if (StringUtils.isBlank(input)) {
+			return null;
+		}
+
+		try {
+			return Shipment.Status.fromName(input);
+		} catch (Exception e) {
+			throw OpenSpecimenException.userError(CommonErrorCode.INVALID_INPUT, input);
+		}
 	}
 }

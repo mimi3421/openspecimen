@@ -35,7 +35,7 @@ public class ShipmentDaoImpl extends AbstractDao<Shipment> implements ShipmentDa
 		return getShipmentsQuery(crit)
 			.setFirstResult(crit.startAt())
 			.setMaxResults(crit.maxResults())
-			.addOrder(Order.desc("id"))
+			.addOrder(Order.desc("shippedDate"))
 			.list();
 	}
 
@@ -126,6 +126,7 @@ public class ShipmentDaoImpl extends AbstractDao<Shipment> implements ShipmentDa
 		addNameRestrictions(query, crit);
 		addSendSiteRestrictions(query, crit);
 		addRecvSiteRestrictions(query, crit);
+		addStatusRestrictions(query, crit);
 		addSiteRestrictions(query, crit);
 		return query;
 	}
@@ -155,6 +156,14 @@ public class ShipmentDaoImpl extends AbstractDao<Shipment> implements ShipmentDa
 		if (StringUtils.isNotBlank(crit.recvSite())) {
 			query.add(Restrictions.eq("recvSite.name", crit.recvSite()));
 		}
+	}
+
+	private void addStatusRestrictions(Criteria query, ShipmentListCriteria crit) {
+		if (crit.status() == null) {
+			return;
+		}
+
+		query.add(Restrictions.eq("status", crit.status()));
 	}
 
 	//

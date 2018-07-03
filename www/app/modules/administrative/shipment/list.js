@@ -1,15 +1,16 @@
 
 angular.module('os.administrative.shipment.list', ['os.administrative.models'])
   .controller('ShipmentListCtrl', function(
-    $scope, $state, Shipment, Site, Util, ListPagerOpts) {
+    $scope, $state, $translate, Shipment, Site, Util, ListPagerOpts) {
 
     var pagerOpts;
 
     function init() {
       pagerOpts = $scope.pagerOpts = new ListPagerOpts({listSizeGetter: getShipmentsCount, recordsPerPage: 50});
-      $scope.filterOpts = Util.filterOpts({maxResults: pagerOpts.recordsPerPage + 1, includeStat: true});
+      $scope.filterOpts = Util.filterOpts({maxResults: pagerOpts.recordsPerPage + 1, includeStats: true});
 
       loadShipments($scope.filterOpts);
+      loadStatuses();
       Util.filter($scope, 'filterOpts', loadShipments);
     }
 
@@ -18,6 +19,19 @@ angular.module('os.administrative.shipment.list', ['os.administrative.models'])
         function(result) {
           $scope.shipments = result;
           pagerOpts.refreshOpts(result);
+        }
+      );
+    }
+
+    function loadStatuses() {
+      $scope.statuses = [ {name: 'Shipped'}, {name: 'Received'}, {name: 'Pending'} ];
+      $translate('shipments.statuses.Shipped').then(
+        function() {
+          angular.forEach($scope.statuses,
+            function(status) {
+              status.caption = $translate.instant('shipments.statuses.' + status.name);
+            }
+          );
         }
       );
     }
