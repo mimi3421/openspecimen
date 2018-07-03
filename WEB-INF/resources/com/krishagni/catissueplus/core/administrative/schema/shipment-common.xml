@@ -30,11 +30,6 @@
 </field>
 
 <field>
-  <caption>#getMessage("shipment_recv_site")</caption>
-  <attribute>receivingSite</attribute>
-</field>
-
-<field>
   <type>datetime</type>
   <caption>#getMessage("shipment_shipped_date")</caption>
   <attribute>shippedDate</attribute>
@@ -56,6 +51,11 @@
 </field>
 
 <field>
+  <caption>#getMessage("shipment_recv_site")</caption>
+  <attribute>receivingSite</attribute>
+</field>
+
+ <field>
   <type>datetime</type>
   <caption>#getMessage("shipment_received_date")</caption>
   <attribute>receivedDate</attribute>

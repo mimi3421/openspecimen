@@ -165,6 +165,8 @@ public class Specimen extends BaseExtensionEntity {
 
 	private transient boolean freezeThawIncremented;
 
+	private transient Date transferTime;
+
 	private transient String transferComments;
 
 	private transient boolean autoCollectParents;
@@ -624,6 +626,14 @@ public class Specimen extends BaseExtensionEntity {
 		this.forceDelete = forceDelete;
 	}
 
+	public Date getTransferTime() {
+		return transferTime;
+	}
+
+	public void setTransferTime(Date transferTime) {
+		this.transferTime = transferTime;
+	}
+
 	public String getTransferComments() {
 		return transferComments;
 	}
@@ -859,7 +869,7 @@ public class Specimen extends BaseExtensionEntity {
 		updateEvent(getCollectionEvent(), specimen.getCollectionEvent());
 		updateEvent(getReceivedEvent(), specimen.getReceivedEvent());
 		updateCollectionStatus(specimen.getCollectionStatus());
-		updatePosition(specimen.getPosition(), null, null, specimen.getTransferComments());
+		updatePosition(specimen.getPosition(), null, specimen.getTransferTime(), specimen.getTransferComments());
 
 		if (isCollected()) {
 			if (isPrimary()) {

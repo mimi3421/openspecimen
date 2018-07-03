@@ -1,14 +1,18 @@
 package com.krishagni.catissueplus.core.administrative.domain;
 
 import org.hibernate.envers.Audited;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 
 import com.krishagni.catissueplus.core.administrative.domain.factory.StorageContainerErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.BaseEntity;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenShipmentReceivedEvent;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenShipmentShippedEvent;
+import com.krishagni.catissueplus.core.biospecimen.services.SpecimenService;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 
+@Configurable
 @Audited
 public class ShipmentSpecimen extends BaseEntity {
 	private Shipment shipment;
@@ -18,6 +22,9 @@ public class ShipmentSpecimen extends BaseEntity {
 	private ShipmentContainer shipmentContainer;
 	
 	private Shipment.ItemReceiveQuality receivedQuality;
+
+	@Autowired
+	private SpecimenService spmnSvc;
 
 	public Shipment getShipment() {
 		return shipment;
@@ -65,7 +72,7 @@ public class ShipmentSpecimen extends BaseEntity {
 	
 	public void receive(ShipmentSpecimen other) {
 		setReceivedQuality(other.getReceivedQuality());
-		updatePosition(other);
+		updateSpecimen(other);
 		SpecimenShipmentReceivedEvent.createForShipmentItem(this).saveRecordEntry();
 	}
 
@@ -85,19 +92,11 @@ public class ShipmentSpecimen extends BaseEntity {
 		SpecimenShipmentShippedEvent.createForShipmentSpecimen(item).saveRecordEntry();
 	}
 
-	private void updatePosition(ShipmentSpecimen other) {
-		if (!getShipment().isSpecimenShipment()) {
+	private void updateSpecimen(ShipmentSpecimen other) {
+		if (!getShipment().isSpecimenShipment() || getReceivedQuality() != Shipment.ItemReceiveQuality.ACCEPTABLE) {
 			return;
 		}
 
-		StorageContainerPosition position = other.getSpecimen().getPosition();
-		if (getReceivedQuality() == Shipment.ItemReceiveQuality.ACCEPTABLE && position != null) {
-			StorageContainer container = position.getContainer();
-			if (container.isPositionOccupied(position.getPosOne(), position.getPosTwo())) {
-				throw OpenSpecimenException.userError(StorageContainerErrorCode.NO_FREE_SPACE, container.getName());
-			}
-
-			getSpecimen().updatePosition(position, getShipment().getReceivedDate());
-		}
+		spmnSvc.updateSpecimen(getSpecimen(), other.getSpecimen());
 	}
 }

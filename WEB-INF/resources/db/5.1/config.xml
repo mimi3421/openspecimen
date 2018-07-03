@@ -34,4 +34,14 @@
       );
     </sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="Setting to enable or disable relabeling of specimens when shipments are received">
+    <sql>
+      call add_cfg_prop(
+        'administrative', 'allow_spmn_relabeling',
+        'allow_spmn_relabeling', 'allow_spmn_relabeling_desc',
+        'BOOLEAN', 'false'
+      );
+    </sql>
+  </changeSet>
 </databaseChangeLog>

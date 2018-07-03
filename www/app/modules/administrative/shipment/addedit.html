@@ -258,11 +258,8 @@
                 (<span translate="common.copy_first_to_all">Copy First To All</span>)
               </a>
             </div>
-            <div class="os-col-15 os-no-left-padding">
-              <span translate="specimens.row">Row</span>
-            </div>
-            <div class="os-col-15 os-no-left-padding">
-              <span translate="specimens.column">Column</span>
+            <div class="os-col-30 os-no-left-padding">
+              <span translate="specimens.position">Position</span>
             </div>
           </th>
           <th class="col os-col-15" ng-if="shipment.status == 'Shipped'">
@@ -276,13 +273,17 @@
       <tbody class="os-table-body" os-storage-positions>
         <tr class="row" ng-repeat="item in shipment.shipmentSpmns"
           ng-form="sform" ng-init="specimen = item.specimen; item.receivedQuality = qualityStatuses[0]">
-          <td class="col">
-            <a ui-sref="specimen({specimenId: specimen.id})">
+          <td class="col" ng-switch on="shipment.status != 'Shipped' || !relabelSpmns">
+            <a ng-switch-when="true" ui-sref="specimen({specimenId: specimen.id})">
               <span>{{specimen.label}}</span>
               <span ng-if="!!specimen.barcode">
                 ({{specimen.barcode}})
               </span>
             </a>
+            <div ng-switch-when="false">
+              <input name="label" ng-model="specimen.label" required os-md-input>
+              <div os-field-error field="sform.label"></div>
+            </div>
           </td>
           <td class="col">
             <a ui-sref="specimen({specimenId: specimen.id})">
@@ -292,8 +293,15 @@
           <td class="col">
             <span>{{specimen.cpShortTitle}}</span>
           </td>
-          <td class="col">
-            <os-spmn-measure-val specimen="specimen" value="specimen.availableQty"></os-spmn-measure-val>
+          <td class="col" ng-switch on="shipment.status != 'Shipped'">
+            <div ng-switch-when="true">
+              <os-spmn-measure-val specimen="specimen" value="specimen.availableQty"></os-spmn-measure-val>
+            </div>
+            <div ng-switch-when="false">
+              <os-spmn-measure name="qty" specimen="specimen" quantity="specimen.availableQty" required md-input>
+              </os-spmn-measure>
+              <div os-field-error field="sform.qty"></div>
+            </div>
           </td>
           <td class="col" ng-if="shipment.status != 'Shipped'">
             <os-disp-storage-position position="specimen.storageLocation"></os-disp-storage-position>

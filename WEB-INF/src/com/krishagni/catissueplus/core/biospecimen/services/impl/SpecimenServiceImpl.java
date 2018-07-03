@@ -214,7 +214,7 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 	public ResponseEvent<SpecimenDetail> createSpecimen(RequestEvent<SpecimenDetail> req) {
 		try {
 			SpecimenDetail detail = req.getPayload();
-			Specimen specimen = saveOrUpdate(detail, null, null);
+			Specimen specimen = saveOrUpdate(detail, null, null, null);
 			return ResponseEvent.response(SpecimenDetail.from(specimen, false, false));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
@@ -561,6 +561,12 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 	}
 
 	@Override
+	@PlusTransactional
+	public Specimen updateSpecimen(Specimen existing, Specimen newSpmn) {
+		return saveOrUpdate(null, newSpmn, existing, null);
+	}
+
+	@Override
 	public String getObjectName() {
 		return Specimen.getEntityName();
 	}
@@ -628,9 +634,9 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 	}
 
 	private void setDistributionStatus(List<SpecimenInfo> specimens) {
-		List<Long> spmnIds = specimens.stream().map(spmn -> spmn.getId()).collect(Collectors.toList());
+		List<Long> spmnIds = specimens.stream().map(SpecimenInfo::getId).collect(Collectors.toList());
 		Map<Long, String> distStatuses = daoFactory.getSpecimenDao().getDistributionStatus(spmnIds);
-		specimens.stream().forEach(spmn -> spmn.setDistributionStatus(distStatuses.get(spmn.getId())));
+		specimens.forEach(spmn -> spmn.setDistributionStatus(distStatuses.get(spmn.getId())));
 	}
 
 	private Specimen updateSpecimen(SpecimenDetail detail, OpenSpecimenException ose) {
@@ -640,7 +646,7 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 		}
 
 		AccessCtrlMgr.getInstance().ensureCreateOrUpdateSpecimenRights(existing);
-		saveOrUpdate(detail, existing, null);
+		saveOrUpdate(detail, null, existing, null);
 		return existing;
 	}
 
@@ -674,6 +680,24 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 
 			if (existing.isStoredInDistributionContainer() &&
 				detail.areTheOnlyModifiedAttrs("id", "cpShortTitle", "label", "barcode", "storageLocation", "transferComments")) {
+				return;
+			}
+		}
+
+		throw OpenSpecimenException.userError(SpecimenErrorCode.EDIT_NOT_ALLOWED, existing.getLabel());
+	}
+
+	private void ensureEditAllowed(Specimen newSpmn, Specimen existing) {
+		if (existing == null || existing.isEditAllowed()) {
+			return;
+		}
+
+		if (!existing.isReserved()) {
+			if (newSpmn.isActive()) {
+				return;
+			}
+
+			if (existing.isStoredInDistributionContainer()) {
 				return;
 			}
 		}
@@ -770,7 +794,7 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 		Specimen specimen = existing;
 		if (existing == null || !existing.isCollected()) {
 			existing = collectPoolSpecimens(detail, existing);
-			specimen = saveOrUpdate(detail, existing, parent);
+			specimen = saveOrUpdate(detail, null, existing, parent);
 		} else {
 			existing.setUid(detail.getUid());
 			collectPoolSpecimens(detail, existing);
@@ -812,14 +836,17 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 		return existing;
 	}
 
-	private Specimen saveOrUpdate(SpecimenDetail detail, Specimen existing, Specimen parent) {
-		ensureEditAllowed(detail, existing);
+	private Specimen saveOrUpdate(SpecimenDetail detail, Specimen specimen, Specimen existing, Specimen parent) {
+		if (specimen == null) {
+			ensureEditAllowed(detail, existing);
 
-		Specimen specimen = null;
-		if (existing != null) {
-			specimen = specimenFactory.createSpecimen(existing, detail, parent);
+			if (existing != null) {
+				specimen = specimenFactory.createSpecimen(existing, detail, parent);
+			} else {
+				specimen = specimenFactory.createSpecimen(detail, parent);
+			}
 		} else {
-			specimen = specimenFactory.createSpecimen(detail, parent);
+			ensureEditAllowed(specimen, existing);
 		}
 
 		AccessCtrlMgr.getInstance().ensureCreateOrUpdateSpecimenRights(specimen);
@@ -854,9 +881,12 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 		}
 
 		specimen.setBarcodeIfEmpty();
-		incrParentFreezeThawCycles(detail, specimen);
-		specimen.setUid(detail.getUid());
-		specimen.setParentUid(detail.getParentUid());
+
+		if (detail != null) {
+			incrParentFreezeThawCycles(detail, specimen);
+			specimen.setUid(detail.getUid());
+			specimen.setParentUid(detail.getParentUid());
+		}
 
 		daoFactory.getSpecimenDao().saveOrUpdate(specimen);
 		specimen.addOrUpdateCollRecvEvents();

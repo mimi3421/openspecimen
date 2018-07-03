@@ -369,9 +369,9 @@ public class Shipment extends BaseEntity {
 	}
 
 	private void ensureShippedSpecimens(Shipment other) {
-		Function<ShipmentSpecimen, String> fn = (ss) -> ss.getSpecimen().getLabel();
-		List<String> existingSpecimens = getShipmentSpecimens().stream().map(fn).collect(Collectors.toList());
-		List<String> newSpecimens = other.getShipmentSpecimens().stream().map(fn).collect(Collectors.toList());
+		Function<ShipmentSpecimen, Long> fn = (ss) -> ss.getSpecimen().getId();
+		List<Long> existingSpecimens = getShipmentSpecimens().stream().map(fn).collect(Collectors.toList());
+		List<Long> newSpecimens = other.getShipmentSpecimens().stream().map(fn).collect(Collectors.toList());
 
 		if (!CollectionUtils.isEqualCollection(existingSpecimens, newSpecimens)) {
 			throw OpenSpecimenException.userError(ShipmentErrorCode.INVALID_SHIPPED_SPECIMENS);

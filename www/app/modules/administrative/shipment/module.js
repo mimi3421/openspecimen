@@ -149,6 +149,14 @@ angular.module('os.administrative.shipment',
 
             return items;
           },
+
+          isSpmnRelabelingAllowed: function(SettingUtil) {
+            return SettingUtil.getSetting('administrative', 'allow_spmn_relabeling').then(
+              function(setting) {
+                return setting.value == true || setting.value == 'true';
+              }
+            );
+          }
         },
         controller: 'ShipmentReceiveCtrl',
         parent: 'shipment-root'

@@ -1,11 +1,11 @@
 angular.module('os.administrative.shipment.receive', ['os.administrative.models'])
-  .controller('ShipmentReceiveCtrl', function($scope, $state, shipment, shipmentItems, Specimen, Container, PvManager) {
-
-    function loadPvs() {
-      $scope.qualityStatuses = PvManager.getPvs('quality-status');
-    }
+  .controller('ShipmentReceiveCtrl', function(
+    $scope, $state, shipment, shipmentItems, isSpmnRelabelingAllowed,
+    Specimen, Container, PvManager) {
 
     function init() {
+      $scope.relabelSpmns = isSpmnRelabelingAllowed;
+
       var attrs = getItemAttrs();
       angular.forEach(shipmentItems,
         function(item) {
@@ -29,6 +29,10 @@ angular.module('os.administrative.shipment.receive', ['os.administrative.models'
       } else {
         return {collName: 'shipmentContainers', itemKey: 'container', newItem: function(i) { return new Container(i) }};
       }
+    }
+
+    function loadPvs() {
+      $scope.qualityStatuses = PvManager.getPvs('quality-status');
     }
 
     $scope.passThrough = function() {

@@ -40,6 +40,8 @@ import com.krishagni.catissueplus.core.common.errors.ErrorType;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
+import com.krishagni.catissueplus.core.common.util.ConfigUtil;
+import com.krishagni.catissueplus.core.common.util.NumUtil;
 import com.krishagni.catissueplus.core.common.util.Status;
 import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.catissueplus.core.importer.services.impl.ImporterContextHolder;
@@ -378,7 +380,7 @@ public class ShipmentFactoryImpl implements ShipmentFactory {
 			}
 		}
 		
-		Specimen specimen = getSpecimen(detail.getSpecimen(), receivedQuality, ose);
+		Specimen specimen = getSpecimen(shipment, detail.getSpecimen(), receivedQuality, ose);
 		if (specimen == null) {
 			return null;
 		}
@@ -429,7 +431,7 @@ public class ShipmentFactoryImpl implements ShipmentFactory {
 		return receivedQuality;
 	}
 
-	private Specimen getSpecimen(SpecimenInfo info, Shipment.ItemReceiveQuality receivedQuality, OpenSpecimenException ose) {
+	private Specimen getSpecimen(Shipment shipment, SpecimenInfo info, Shipment.ItemReceiveQuality receivedQuality, OpenSpecimenException ose) {
 		Specimen existing = specimenResolver.getSpecimen(info.getId(), info.getCpShortTitle(), info.getLabel(), info.getBarcode(), ose);
 		if (existing == null) {
 			return null;
@@ -445,7 +447,25 @@ public class ShipmentFactoryImpl implements ShipmentFactory {
 		SpecimenDetail detail = new SpecimenDetail();
 		detail.setId(info.getId());
 		detail.setStorageLocation(info.getStorageLocation());
+		detail.setTransferTime(shipment.getReceivedDate());
+
+		if (info.getLabel() != null && isSpmnRelabelingAllowed()) {
+			detail.setLabel(info.getLabel()); // relabeling at time of receiving shipment
+		}
+
+		if (info.getAvailableQty() != null) {
+			detail.setAvailableQty(info.getAvailableQty());
+
+			if (NumUtil.greaterThan(info.getAvailableQty(), existing.getInitialQuantity())) {
+				detail.setInitialQty(info.getAvailableQty());
+			}
+		}
+
 		return specimenFactory.createSpecimen(existing, detail, null);
+	}
+
+	private boolean isSpmnRelabelingAllowed() {
+		return ConfigUtil.getInstance().getBoolSetting(ADMIN_MODULE, ALLOW_SPMN_RELABELING, false);
 	}
 
 	private StorageContainer getContainer(Shipment shipment, StorageContainerSummary info, Shipment.ItemReceiveQuality receivedQuality, OpenSpecimenException ose) {
@@ -491,4 +511,9 @@ public class ShipmentFactoryImpl implements ShipmentFactory {
 			specimen.getBiohazards().size();
 		}
 	}
+
+	private static final String ADMIN_MODULE = "administrative";
+
+	private static final String ALLOW_SPMN_RELABELING = "allow_spmn_relabeling";
+
 }

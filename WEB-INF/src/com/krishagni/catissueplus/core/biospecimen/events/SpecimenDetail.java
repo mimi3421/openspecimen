@@ -3,6 +3,7 @@ package com.krishagni.catissueplus.core.biospecimen.events;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -78,6 +79,8 @@ public class SpecimenDetail extends SpecimenInfo {
 	private boolean printLabel;
 
 	private Integer incrParentFreezeThaw;
+
+	private Date transferTime;
 
 	private String transferComments;
 
@@ -278,6 +281,16 @@ public class SpecimenDetail extends SpecimenInfo {
 	@JsonProperty
 	public void setIncrParentFreezeThaw(Integer incrParentFreezeThaw) {
 		this.incrParentFreezeThaw = incrParentFreezeThaw;
+	}
+
+	@JsonIgnore
+	public Date getTransferTime() {
+		return transferTime;
+	}
+
+	@JsonProperty
+	public void setTransferTime(Date transferTime) {
+		this.transferTime = transferTime;
 	}
 
 	@JsonIgnore

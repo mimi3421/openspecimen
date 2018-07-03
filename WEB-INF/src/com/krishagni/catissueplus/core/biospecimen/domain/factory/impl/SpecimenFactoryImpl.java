@@ -766,6 +766,7 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 			detail.getContainerLocation(), detail.getContainerTypeId(), detail.getContainerTypeName(),
 			ose);
 
+		specimen.setTransferTime(detail.getTransferTime());
 		specimen.setTransferComments(detail.getTransferComments());
 		specimen.setPosition(position);
 		if (position != null) {
