@@ -655,6 +655,7 @@
     "concentration": "Concentration",
     "freeze_thaw_cycles": "Freeze/Thaw Cycles",
     "increment_parent_freeze_thaw": "Increment parent specimen's Freeze/Thaw cycles?",
+    "external_id": "External ID",
     "comments": "Comments",
     "qty": "Quantity",
     "count": "Count",

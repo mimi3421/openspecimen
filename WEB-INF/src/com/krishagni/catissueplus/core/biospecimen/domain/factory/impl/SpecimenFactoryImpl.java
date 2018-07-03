@@ -29,6 +29,7 @@ import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegi
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenCollectionEvent;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenEvent;
+import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenExternalIdentifier;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenReceivedEvent;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenRequirement;
 import com.krishagni.catissueplus.core.biospecimen.domain.Visit;
@@ -50,6 +51,7 @@ import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.errors.ActivityStatusErrorCode;
 import com.krishagni.catissueplus.core.common.errors.ErrorType;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
+import com.krishagni.catissueplus.core.common.events.NameValuePair;
 import com.krishagni.catissueplus.core.common.util.ConfigUtil;
 import com.krishagni.catissueplus.core.common.util.NumUtil;
 import com.krishagni.catissueplus.core.common.util.Status;
@@ -152,6 +154,7 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 		setConcentration(detail, existing, specimen, ose);
 		setBiohazards(detail, existing, specimen, ose);
 		setFreezeThawCycles(detail, existing, specimen, ose);
+		setExternalIds(detail, existing, specimen, ose);
 		setComments(detail, existing, specimen, ose);
 
 		if (sr != null && 
@@ -749,6 +752,42 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 			setFreezeThawCycles(detail, specimen, ose);
 		} else {
 			specimen.setFreezeThawCycles(existing.getFreezeThawCycles());
+		}
+	}
+
+	private void setExternalIds(SpecimenDetail detail, Specimen specimen, OpenSpecimenException ose) {
+		if (CollectionUtils.isEmpty(detail.getExternalIds())) {
+			return;
+		}
+
+		Set<String> sources = new HashSet<>();
+		Set<SpecimenExternalIdentifier> externalIds = new HashSet<>();
+		for (NameValuePair id : detail.getExternalIds()) {
+			if (StringUtils.isBlank(id.getName()) || StringUtils.isBlank(id.getValue())) {
+				ose.addError(SpecimenErrorCode.EXT_ID_NO_NAME_VALUE);
+				break;
+			}
+
+			if (!sources.add(id.getName())) {
+				ose.addError(SpecimenErrorCode.EXT_ID_DUP_NAME, id.getName());
+				break;
+			}
+
+			SpecimenExternalIdentifier externalId = new SpecimenExternalIdentifier();
+			externalId.setSpecimen(specimen);
+			externalId.setName(id.getName());
+			externalId.setValue(id.getValue());
+			externalIds.add(externalId);
+		}
+
+		specimen.setExternalIds(externalIds);
+	}
+
+	private void setExternalIds(SpecimenDetail detail, Specimen existing, Specimen specimen, OpenSpecimenException ose) {
+		if (existing == null || detail.isAttrModified("externalIds")) {
+			setExternalIds(detail, specimen, ose);
+		} else {
+			specimen.setExternalIds(existing.getExternalIds());
 		}
 	}
 

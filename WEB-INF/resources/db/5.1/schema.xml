@@ -105,4 +105,31 @@
       <column name="DISABLE_EMAIL_NOTIFS" type="${boolean.type}"/>
     </addColumn>
   </changeSet>
+
+  <changeSet author="vpawar" id="Specimen external identifiers">
+    <createTable tableName="OS_SPMN_EXTERNAL_IDS">
+      <column name="IDENTIFIER" type="${int.type}" autoIncrement="${autoIncrement}">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="SPECIMEN_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="NAME" type="${text.type}(128)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="VALUE" type="${text.type}(128)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Specimen external identifiers sequence" dbms="oracle">
+    <createSequence sequenceName="OS_SPMN_EXT_ID_SEQ" incrementBy="1" minValue="1" ordered="true"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Foreign key on specimen ID of external identifiers">
+    <addForeignKeyConstraint constraintName="FK_EXT_IDS_SPMN_ID"
+      baseTableName="OS_SPMN_EXTERNAL_IDS" baseColumnNames="SPECIMEN_ID"
+      referencedTableName="CATISSUE_SPECIMEN" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
 </databaseChangeLog>

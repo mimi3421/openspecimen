@@ -1,5 +1,5 @@
 angular.module('os.administrative.shipment')
-  .controller('ShipmentSpecimensCtrl', function($scope, shipment) {
+  .controller('ShipmentSpecimensCtrl', function($scope, shipment, ShipmentUtil) {
   
     var ctx = {
       totalItems: 0,
@@ -28,6 +28,7 @@ angular.module('os.administrative.shipment')
 
           ctx.shipmentSpmns = shipmentSpmns;
           ctx.loading = false;
+          angular.extend(ctx, ShipmentUtil.hasPpidAndExtIds(shipmentSpmns));
         }
       );
     }

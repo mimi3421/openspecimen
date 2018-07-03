@@ -65,4 +65,36 @@
       <column name="disableEmailNotifs_MOD" type="${boolean.type}"/>
     </addColumn>
   </changeSet>
+
+  <changeSet author="vpawar" id="Track changes in specimen external IDs">
+    <createTable tableName="OS_SPMN_EXTERNAL_IDS_AUD">
+      <column name="REV" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="REVTYPE" type="${tinyint.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="IDENTIFIER" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="SPECIMEN_ID" type="${int.type}"/>
+      <column name="specimen_MOD" type="${boolean.type}"/>
+      <column name="NAME" type="${text.type}(128)"/>
+      <column name="name_MOD" type="${boolean.type}"/>
+      <column name="VALUE" type="${text.type}(128)"/>
+      <column name="value_MOD" type="${boolean.type}"/>
+    </createTable>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Foreign key on revision number of specimen external IDs">
+    <addForeignKeyConstraint constraintName="FK_SPMN_EXT_IDS_AUD_REV"
+      baseTableName="OS_SPMN_EXTERNAL_IDS_AUD" baseColumnNames="REV"
+      referencedTableName="OS_REVISIONS" referencedColumnNames="REV"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Track whether specimen external IDs were modified">
+    <addColumn tableName="CATISSUE_SPECIMEN_AUD">
+      <column name="externalIds_MOD" type="${boolean.type}"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

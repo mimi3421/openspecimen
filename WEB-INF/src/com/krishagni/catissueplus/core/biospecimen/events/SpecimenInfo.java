@@ -17,6 +17,7 @@ import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenRequirement;
 import com.krishagni.catissueplus.core.common.AttributeModifiedSupport;
 import com.krishagni.catissueplus.core.common.ListenAttributeChanges;
+import com.krishagni.catissueplus.core.common.events.NameValuePair;
 import com.krishagni.catissueplus.core.common.util.NumUtil;
 
 @JsonSerialize(include= JsonSerialize.Inclusion.NON_NULL)
@@ -100,6 +101,8 @@ public class SpecimenInfo extends AttributeModifiedSupport implements Comparable
 	private String distributionStatus;
 	
 	private Integer freezeThawCycles;
+
+	private List<NameValuePair> externalIds;
 
 	public Long getId() {
 		return id;
@@ -405,6 +408,14 @@ public class SpecimenInfo extends AttributeModifiedSupport implements Comparable
 		this.freezeThawCycles = freezeThawCycles;
 	}
 
+	public List<NameValuePair> getExternalIds() {
+		return externalIds;
+	}
+
+	public void setExternalIds(List<NameValuePair> externalIds) {
+		this.externalIds = externalIds;
+	}
+
 	public static SpecimenInfo from(Specimen specimen) {
 		return fromTo(specimen, new SpecimenInfo());
 	}
@@ -466,6 +477,9 @@ public class SpecimenInfo extends AttributeModifiedSupport implements Comparable
 		result.setCpId(specimen.getCollectionProtocol().getId());
 		result.setCpShortTitle(specimen.getCollectionProtocol().getShortTitle());
 		result.setFreezeThawCycles(specimen.getFreezeThawCycles());
+		result.setExternalIds(specimen.getExternalIds().stream()
+			.map(externalId -> NameValuePair.create(externalId.getName(), externalId.getValue()))
+			.collect(Collectors.toList()));
 
 		if (specimen.getCollRecvDetails() != null) {
 			result.setCollectionContainer(specimen.getCollRecvDetails().getCollContainer());

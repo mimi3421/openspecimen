@@ -115,7 +115,7 @@ public class Specimen extends BaseExtensionEntity {
 
 	private Set<Specimen> specimensPool = new HashSet<>();
 
-	private Set<ExternalIdentifier> externalIdentifierCollection = new HashSet<>();
+	private Set<SpecimenExternalIdentifier> externalIds = new HashSet<>();
 
 	//
 	// records aliquot or derivative events that have occurred on this specimen
@@ -488,13 +488,12 @@ public class Specimen extends BaseExtensionEntity {
 		this.specimensPool = specimensPool;
 	}
 
-	@NotAudited
-	public Set<ExternalIdentifier> getExternalIdentifierCollection() {
-		return externalIdentifierCollection;
+	public Set<SpecimenExternalIdentifier> getExternalIds() {
+		return externalIds;
 	}
 
-	public void setExternalIdentifierCollection(Set<ExternalIdentifier> externalIdentifierCollection) {
-		this.externalIdentifierCollection = externalIdentifierCollection;
+	public void setExternalIds(Set<SpecimenExternalIdentifier> externalIds) {
+		this.externalIds = externalIds;
 	}
 
 	@NotAudited
@@ -866,6 +865,7 @@ public class Specimen extends BaseExtensionEntity {
 		setAvailableQuantity(specimen.getAvailableQuantity());
 		setConcentration((isPoolSpecimen() ? getPooledSpecimen() : specimen).getConcentration());
 
+		updateExternalIds(specimen.getExternalIds());
 		updateEvent(getCollectionEvent(), specimen.getCollectionEvent());
 		updateEvent(getReceivedEvent(), specimen.getReceivedEvent());
 		updateCollectionStatus(specimen.getCollectionStatus());
@@ -1639,5 +1639,26 @@ public class Specimen extends BaseExtensionEntity {
 			//
 			parentSpmn.addToChildrenEvent(childSpmn);
 		}
+	}
+
+	private void updateExternalIds(Collection<SpecimenExternalIdentifier> otherExternalIds) {
+		for (SpecimenExternalIdentifier externalId : otherExternalIds) {
+			SpecimenExternalIdentifier existing = getExternalIdByName(getExternalIds(), externalId.getName());
+			if (existing == null) {
+				SpecimenExternalIdentifier newId = new SpecimenExternalIdentifier();
+				newId.setSpecimen(this);
+				newId.setName(externalId.getName());
+				newId.setValue(externalId.getValue());
+				getExternalIds().add(newId);
+			} else {
+				existing.setValue(externalId.getValue());
+			}
+		}
+
+		getExternalIds().removeIf(externalId -> getExternalIdByName(otherExternalIds, externalId.getName()) == null);
+	}
+
+	private SpecimenExternalIdentifier getExternalIdByName(Collection<SpecimenExternalIdentifier> externalIds, String name) {
+		return externalIds.stream().filter(externalId -> StringUtils.equals(externalId.getName(), name)).findFirst().orElse(null);
 	}
 }

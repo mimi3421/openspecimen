@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+  http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+  <changeSet author="vpawar" id="Copy specimen external IDs from legacy table to the new table">
+    <preConditions onFail="MARK_RAN">
+      <tableExists tableName="catissue_external_identifier"/>
+    </preConditions>
+    <sql>
+      insert into
+        os_spmn_external_ids
+      select
+        os_spmn_ext_id_seq.nextval, specimen_id, name, value
+      from
+        catissue_external_identifier
+      where
+        name is not null or value is not null
+    </sql>
+  </changeSet>
+</databaseChangeLog>

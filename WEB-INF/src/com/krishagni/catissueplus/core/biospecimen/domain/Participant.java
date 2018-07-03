@@ -321,14 +321,8 @@ public class Participant extends BaseExtensionEntity {
 				existing.setMedicalRecordNumber(pmi.getMedicalRecordNumber());
 			}
 		}
-		
-		Iterator<ParticipantMedicalIdentifier> iter = getPmis().iterator();
-		while (iter.hasNext()) {
-			ParticipantMedicalIdentifier existing = iter.next();			
-			if (getPmiBySite(participant.getPmis(), existing.getSite().getName()) == null) {
-				iter.remove();
-			}			
-		}		
+
+		getPmis().removeIf(pmi -> getPmiBySite(participant.getPmis(), pmi.getSite().getName()) == null);
 	}
 
 	private void disableMrns() {

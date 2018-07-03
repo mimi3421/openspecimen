@@ -70,6 +70,11 @@
       <filter name="activeEntity"/>
     </set>
 
+    <set name="externalIds" table="OS_SPMN_EXTERNAL_IDS" inverse="true" cascade="all-delete-orphan">
+      <key column="SPECIMEN_ID"/>
+      <one-to-many class="com.krishagni.catissueplus.core.biospecimen.domain.SpecimenExternalIdentifier"/>
+    </set>
+
     <many-to-one name="collectionProtocol" column="COLLECTION_PROTOCOL_ID"/>
 
     <many-to-one name="visit" column="SPECIMEN_COLLECTION_GROUP_ID"/>

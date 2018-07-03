@@ -8,19 +8,28 @@
       <table class="os-table" ng-if="!ctx.loading">
         <thead class="os-table-head">
           <tr class="row">
-            <th class="col">
+            <th class="col os-mw-140">
               <span translate="specimens.label">Label</span>
             </th>
-            <th class="col">
+            <th class="col os-mw-140" ng-if="ctx.hasExtId">
+              <span translate="specimens.external_id">External ID</span>
+            </th>
+            <th class="col os-mw-140">
               <span translate="specimens.description">Description</span>
             </th>
-            <th class="col">
+            <th class="col os-mw-140">
               <span translate="specimens.cp">Collection Protocol</span>
             </th>
-            <th class="col">
+            <th class="col os-mw-140" ng-if="ctx.hasPpid">
+              <span translate="specimens.ppid">PPID</span>
+            </th>
+            <th class="col os-mw-100">
               <span translate="specimens.qty">Quantity</span>
             </th>
-            <th class="col" ng-if="shipment.status == 'Received'">
+            <th class="col os-mw-140">
+              <span translate="specimens.location">Location</span>
+            </th>
+            <th class="col os-mw-100" ng-if="shipment.status == 'Received'">
               <span translate="shipments.received_quality">Quality</span>
             </th>
           </tr>
@@ -33,6 +42,9 @@
                 <span ng-if="!!specimen.barcode"> ({{specimen.barcode}}) </span>
               </a>
             </td>
+            <td class="col" ng-if="ctx.hasExtId">
+              <span>{{specimen.externalIds | osNameValueText | osNoValue}}</span>
+            </td>
             <td class="col">
               <a ui-sref="specimen({specimenId: specimen.id})">
                 <os-specimen-desc specimen="specimen" detailed="true"></os-specimen-desc>
@@ -41,8 +53,14 @@
             <td class="col">
               <span>{{specimen.cpShortTitle}}</span>
             </td>
+            <td class="col" ng-if="ctx.hasPpid">
+              <span>{{specimen.ppid | osNoValue}}</span>
+            </td>
             <td class="col">
               <os-spmn-measure-val specimen="specimen" value="specimen.availableQty"></os-spmn-measure-val>
+            </td>
+            <td class="col">
+              <os-disp-storage-position position="specimen.storageLocation"></os-disp-storage-position>
             </td>
             <td class="col" ng-if="shipment.status == 'Received'">
               <span>{{"shipments.quality." + item.receivedQuality | translate}}</span>

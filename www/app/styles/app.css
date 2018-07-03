@@ -1231,6 +1231,18 @@ h4.os-sub-section-title, h5.os-sub-section-title, h6.os-sub-section-title {
 
 
 /** Min width classes **/
+.os-mw-260 {
+  min-width: 260px;
+}
+
+.os-mw-240 {
+  min-width: 240px;
+}
+
+.os-mw-220 {
+  min-width: 220px;
+}
+
 .os-mw-200 {
   min-width: 200px;
 }

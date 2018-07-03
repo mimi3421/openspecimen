@@ -122,7 +122,11 @@ public enum SpecimenErrorCode implements ErrorCode {
 
 	PARENT_CONTAINER_REQ,
 
-	CONTAINER_TYPE_REQ;
+	CONTAINER_TYPE_REQ,
+
+	EXT_ID_NO_NAME_VALUE,
+
+	EXT_ID_DUP_NAME;
 
 	public String code() {
 		return "SPECIMEN_" + this.name();

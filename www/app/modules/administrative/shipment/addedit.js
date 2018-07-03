@@ -1,8 +1,8 @@
 
 angular.module('os.administrative.shipment.addedit', ['os.administrative.models', 'os.biospecimen.models'])
   .controller('ShipmentAddEditCtrl', function(
-    $scope, $state, shipment, shipmentItems, Shipment,
-    Site, Specimen, SpecimensHolder, Alerts, Util, SpecimenUtil) {
+    $scope, $state, shipment, shipmentItems, Shipment, ShipmentUtil,
+    Site, Specimen, SpecimensHolder, Alerts, Util) {
 
     function init() {
       var spmnShipment = $scope.spmnShipment = shipment.isSpecimenShipment();
@@ -11,6 +11,7 @@ angular.module('os.administrative.shipment.addedit', ['os.administrative.models'
       $scope.shipment = shipment;
       $scope.spmnOpts = {filters: {}, error: {}};
       $scope.input = {};
+      $scope.ctx = {};
 
       if (!shipment.id && angular.isArray(SpecimensHolder.getSpecimens())) {
         shipment.shipmentSpmns = getShipmentSpecimens(SpecimensHolder.getSpecimens());
@@ -28,6 +29,7 @@ angular.module('os.administrative.shipment.addedit', ['os.administrative.models'
       }
 
       setUserAndSiteList(shipment);
+      showOrHidePpidAndExtIds();
     }
 
     function areSpmnsOfSameSite(shipmentSpmns) {
@@ -131,6 +133,15 @@ angular.module('os.administrative.shipment.addedit', ['os.administrative.models'
       }
     }
 
+    function showOrHidePpidAndExtIds() {
+      if (!shipment.isSpecimenShipment()) {
+        return;
+      }
+
+      var result = ShipmentUtil.hasPpidAndExtIds(shipment.shipmentSpmns);
+      angular.extend($scope.ctx, result);
+    }
+
     $scope.loadSendingSites = loadSendingSites;
 
     $scope.loadRecvSites = loadRecvSites;
@@ -172,6 +183,7 @@ angular.module('os.administrative.shipment.addedit', ['os.administrative.models'
       }
 
       Util.addIfAbsent($scope.shipment.shipmentSpmns, getShipmentSpecimens(specimens), 'specimen.id');
+      showOrHidePpidAndExtIds();
       return true;
     }
 
@@ -181,6 +193,8 @@ angular.module('os.administrative.shipment.addedit', ['os.administrative.models'
       if (idx != -1) {
         collection.splice(idx, 1);
       }
+
+      showOrHidePpidAndExtIds();
     }
 
     $scope.addContainers = function(names) {

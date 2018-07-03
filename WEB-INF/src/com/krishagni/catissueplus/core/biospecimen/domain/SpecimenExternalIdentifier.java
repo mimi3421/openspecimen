@@ -1,10 +1,10 @@
 
 package com.krishagni.catissueplus.core.biospecimen.domain;
 
-public class ExternalIdentifier {
+import org.hibernate.envers.Audited;
 
-	private Long id;
-
+@Audited
+public class SpecimenExternalIdentifier extends BaseEntity {
 	private String name;
 
 	private String value;
@@ -42,5 +42,4 @@ public class ExternalIdentifier {
 	public void setSpecimen(Specimen specimen) {
 		this.specimen = specimen;
 	}
-
 }
