@@ -5,7 +5,23 @@
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
 
-  <changeSet author="vpawar" id="Copy specimen external IDs from legacy table to the new table">
+  <changeSet author="vpawar" id="Copy specimen external IDs from legacy table to the new table" dbms="mysql">
+    <preConditions onFail="MARK_RAN">
+      <tableExists tableName="catissue_external_identifier"/>
+    </preConditions>
+    <sql>
+      insert into
+        os_spmn_external_ids
+      select
+        identifier, specimen_id, name, value
+      from
+        catissue_external_identifier
+      where
+        name is not null or value is not null
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Copy specimen external IDs from legacy table to the new table" dbms="oracle">
     <preConditions onFail="MARK_RAN">
       <tableExists tableName="catissue_external_identifier"/>
     </preConditions>
