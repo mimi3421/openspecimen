@@ -64,8 +64,6 @@ public class ShipmentController {
 
 		@RequestParam(value = "includeStats", required = false, defaultValue = "false")
 		boolean includeStats) {
-
-
 		
 		ShipmentListCriteria listCrit = new ShipmentListCriteria()
 			.name(name)
