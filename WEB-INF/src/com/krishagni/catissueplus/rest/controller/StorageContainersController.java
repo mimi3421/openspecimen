@@ -538,7 +538,7 @@ public class StorageContainersController {
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
 	public List<StorageContainerSummary> createContainerHierarchy(@RequestBody ContainerHierarchyDetail detail) {
-		RequestEvent<ContainerHierarchyDetail> req = new RequestEvent<ContainerHierarchyDetail>(detail);
+		RequestEvent<ContainerHierarchyDetail> req = new RequestEvent<>(detail);
 		ResponseEvent<List<StorageContainerSummary>> resp = storageContainerSvc.createContainerHierarchy(req);
 		resp.throwErrorIfUnsuccessful();
 		

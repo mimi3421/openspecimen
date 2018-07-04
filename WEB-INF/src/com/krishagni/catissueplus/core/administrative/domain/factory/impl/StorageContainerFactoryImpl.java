@@ -109,6 +109,7 @@ public class StorageContainerFactoryImpl implements StorageContainerFactory {
 		detail.setAllowedSpecimenClasses(input.getAllowedSpecimenClasses());
 		detail.setAllowedSpecimenTypes(input.getAllowedSpecimenTypes());
 		detail.setAllowedCollectionProtocols(input.getAllowedCollectionProtocols());
+		detail.setAllowedDistributionProtocols(input.getAllowedDistributionProtocols());
 		
 		if (input.getNoOfColumns() != null && input.getNoOfColumns() > 0) {
 			detail.setNoOfColumns(input.getNoOfColumns());

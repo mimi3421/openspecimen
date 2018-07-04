@@ -1058,6 +1058,7 @@ public class StorageContainer extends BaseEntity {
 	public StorageContainer copy() {
 		StorageContainer copy = new StorageContainer();
 		copy.setType(getType());
+		copy.setUsedFor(getUsedFor());
 		copy.setSite(getSite());
 		copy.setParentContainer(getParentContainer());
 		copy.setNoOfColumns(getNoOfColumns());
