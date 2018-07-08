@@ -14,7 +14,7 @@ angular.module('os.query.addeditfilter', ['os.query.models'])
           return false;
         } else if (op == 'qin' || op == 'not_in') {
           if (filter.hasSq) {
-            return !filter.subQuery;
+            return !filter.subQuery || !filter.subQuery.context;
           } else {
             return !filter.value || filter.value.length == 0;
           }
