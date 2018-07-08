@@ -107,10 +107,15 @@ angular.module('os.query.addedit', ['os.query.models', 'os.query.util', 'os.quer
     }
 
     $scope.searchQuery = function(searchTerm) {
+      var thisQueryId = $scope.queryLocal.id;
       var cp = $scope.queryLocal.selectedCp;
       SavedQuery.query({cpId: cp.id, searchString: searchTerm, max: 25}).then(
         function(savedQueries) {
-          $scope.savedQueries = savedQueries;
+          $scope.savedQueries = savedQueries.filter(
+            function(query) {
+              return query.id != thisQueryId;
+            }
+          );
         }
       );
     }
