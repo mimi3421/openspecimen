@@ -1,5 +1,5 @@
 angular.module('os.query.addeditfilter', ['os.query.models'])
-  .controller('QueryAddEditFilterCtrl', function($scope, QueryUtil, Util, Form) {
+  .controller('QueryAddEditFilterCtrl', function($scope, QueryUtil, Util, Form, SavedQuery) {
     $scope.onOpSelect = function() {
       QueryUtil.onOpSelect($scope.queryLocal.currFilter);
     };
@@ -13,7 +13,11 @@ angular.module('os.query.addeditfilter', ['os.query.models'])
         if (op == 'exists' || op == 'not_exists' || op == 'any') {
           return false;
         } else if (op == 'qin' || op == 'not_in') {
-          return !filter.value || filter.value.length == 0;
+          if (filter.hasSq) {
+            return !filter.subQuery;
+          } else {
+            return !filter.value || filter.value.length == 0;
+          }
         } else if (filter.value) {
           return false;
         } else {
@@ -30,7 +34,7 @@ angular.module('os.query.addeditfilter', ['os.query.models'])
       var ql = $scope.queryLocal;
       ql.filterId++;
       var filter = angular.extend({form: $scope.openForm, id: ql.filterId}, ql.currFilter);
-      if (filter.valueType == 'tagsSelect') {
+      if (filter.valueType == 'tagsSelect' && !filter.hasSq) {
         filter.value = Util.splitStr(filter.value, /,|\t|\n/);
       }
 
@@ -54,7 +58,7 @@ angular.module('os.query.addeditfilter', ['os.query.models'])
       ql.currFilter = angular.copy(filter);
       ql.currFilter.unaryOp = QueryUtil.isUnaryOp(filter.op);
       ql.currFilter.valueType = QueryUtil.getValueType(filter.field, filter.op);
-      if (ql.currFilter.valueType == 'tagsSelect') {
+      if (ql.currFilter.valueType == 'tagsSelect' && !ql.currFilter.hasSq) {
         ql.currFilter.value = QueryUtil.getStringifiedValue(ql.currFilter.value);
       }
 
@@ -68,7 +72,7 @@ angular.module('os.query.addeditfilter', ['os.query.models'])
 
       var ql = $scope.queryLocal;
       var filter = angular.extend({}, ql.currFilter);
-      if (filter.valueType == 'tagsSelect') {
+      if (filter.valueType == 'tagsSelect' && !filter.hasSq) {
         filter.value = Util.splitStr(filter.value, /,|\t|\n/);
       }
 
@@ -238,6 +242,35 @@ angular.module('os.query.addeditfilter', ['os.query.models'])
       Form.getPvs(formName, fieldName, input).then(
         function(pvs) {
           filter.field.pvs = pvs;
+        }
+      );
+    }
+
+    $scope.onSqToggle = function(filter) {
+      if (!filter.hasSq) {
+        filter.subQuery = undefined;
+      } else {
+        filter.value = undefined;
+      }
+    }
+
+    $scope.loadQueryDef = function(filter) {
+      if (!filter.subQuery) {
+        return;
+      }
+
+      SavedQuery.getById(filter.subQuery.id).then(
+        function(query) {
+          filter.subQuery = query;
+          if (query.ctxQ) {
+            return;
+          }
+
+          query.ctxQ = $scope.queryGlobal.setupFilters($scope.queryLocal.selectedCp, query).then(
+            function(context) {
+              return (query.context = context);
+            }
+          );
         }
       );
     }

@@ -37,6 +37,10 @@ public class SavedQuery {
 	private Object[] selectList;
 	
 	private ReportSpec reporting;
+
+	private Set<Long> subQueries = new HashSet<>();
+
+	private Set<Long> dependentQueries = new HashSet<>();
 	
 	private Set<QueryFolder> folders = new HashSet<>();
 	
@@ -107,6 +111,10 @@ public class SavedQuery {
 	}
 
 	public void setCpId(Long cpId) {
+		if (cpId != null && cpId == -1L) {
+			cpId = null;
+		}
+
 		this.cpId = cpId;
 	}
 
@@ -151,6 +159,24 @@ public class SavedQuery {
 
 	public void setReporting(ReportSpec reporting) {
 		this.reporting = reporting;
+	}
+
+	@NotAudited
+	public Set<Long> getSubQueries() {
+		return subQueries;
+	}
+
+	public void setSubQueries(Set<Long> subQueries) {
+		this.subQueries = subQueries;
+	}
+
+	@NotAudited
+	public Set<Long> getDependentQueries() {
+		return dependentQueries;
+	}
+
+	public void setDependentQueries(Set<Long> dependentQueries) {
+		this.dependentQueries = dependentQueries;
 	}
 
 	@NotAudited
@@ -228,7 +254,7 @@ public class SavedQuery {
 		if(includeTitle){
 			this.title = query.title;
 		}
-		this.cpId = query.cpId;
+		this.cpId = (query.cpId != null && query.cpId == -1L) ? null : query.cpId;
 		this.selectList = query.selectList;
 		this.filters = query.filters;
 		this.queryExpression = query.queryExpression;
@@ -257,7 +283,8 @@ public class SavedQuery {
 		setLastUpdatedBy(query.getLastUpdatedBy());
 		setLastUpdated(query.getLastUpdated());
 		setSelectList(query.getSelectList());
-		setFilters(query.getFilters());		
+		setFilters(query.getFilters());
+		setSubQueries(query.getSubQueries());
 		setQueryExpression(query.getQueryExpression());
 		setReporting(query.getReporting());
 		setWideRowMode(query.getWideRowMode());

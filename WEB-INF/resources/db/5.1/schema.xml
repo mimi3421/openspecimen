@@ -132,4 +132,43 @@
       baseTableName="OS_SPMN_EXTERNAL_IDS" baseColumnNames="SPECIMEN_ID"
       referencedTableName="CATISSUE_SPECIMEN" referencedColumnNames="IDENTIFIER"/>
   </changeSet>
+
+  <changeSet author="vpawar" id="Association of saved query with collection protocol">
+    <addColumn tableName="CATISSUE_SAVED_QUERIES">
+      <column name="CP_ID" type="${int.type}"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Foreign key on saved query CP">
+    <addForeignKeyConstraint constraintName="FK_SAVED_QUERY_CP"
+      baseTableName="CATISSUE_SAVED_QUERIES" baseColumnNames="CP_ID"
+      referencedTableName="CATISSUE_COLLECTION_PROTOCOL" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Update CP ID of all saved queries">
+    <customChange class="com.krishagni.catissueplus.core.upgrade.InitializeSavedQueryCpId"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Query dependencies">
+    <createTable tableName="OS_SAVED_QUERY_DEPS">
+      <column name="QUERY_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="SUB_QUERY_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Foreign key on parent query">
+    <addForeignKeyConstraint constraintName="FK_DEPS_PARENT_QUERY"
+      baseTableName="OS_SAVED_QUERY_DEPS" baseColumnNames="QUERY_ID"
+       referencedTableName="CATISSUE_SAVED_QUERIES" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Foreign key on child query">
+    <addForeignKeyConstraint constraintName="FK_DEPS_CHILD_QUERY"
+      baseTableName="OS_SAVED_QUERY_DEPS" baseColumnNames="SUB_QUERY_ID"
+      referencedTableName="CATISSUE_SAVED_QUERIES" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
 </databaseChangeLog>

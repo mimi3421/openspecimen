@@ -20,6 +20,7 @@ import org.hibernate.sql.JoinType;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
 import com.krishagni.catissueplus.core.common.repository.AbstractDao;
 import com.krishagni.catissueplus.core.de.domain.SavedQuery;
+import com.krishagni.catissueplus.core.de.events.ListSavedQueriesCriteria;
 import com.krishagni.catissueplus.core.de.events.SavedQuerySummary;
 import com.krishagni.catissueplus.core.de.repository.SavedQueryDao;
 
@@ -32,42 +33,29 @@ public class SavedQueryDaoImpl extends AbstractDao<SavedQuery> implements SavedQ
 	private static final String GET_QUERIES_BY_ID = FQN + ".getQueriesByIds";
 		
 	@Override
-	public Long getQueriesCount(Long userId, String ... searchString) {		
-		Criteria criteria = sessionFactory.getCurrentSession()
-				.createCriteria(SavedQuery.class, "s")
-				.createAlias("createdBy", "c")
-				.createAlias("folders", "f", JoinType.LEFT_OUTER_JOIN)
-				.createAlias("f.sharedWith", "su", JoinType.LEFT_OUTER_JOIN)
-				.add(Restrictions.isNull("s.deletedOn"))
-				.add(Restrictions.disjunction()
-						.add(Restrictions.eq("f.sharedWithAll", true))
-						.add(Restrictions.eq("c.id", userId))
-						.add(Restrictions.eq("su.id", userId)))
-				.setProjection(Projections.countDistinct("s.id"));
-		
-		addSearchConditions(criteria, searchString);
-		return ((Number)criteria.uniqueResult()).longValue();
+	public Long getQueriesCount(ListSavedQueriesCriteria crit) {
+		return ((Number) getSavedQueriesListQuery(crit)
+			.setProjection(Projections.countDistinct("s.id"))
+			.uniqueResult()).longValue();
 	}
-	
+
+	@Override
+	public List<SavedQuerySummary> getQueries(ListSavedQueriesCriteria crit) {
+		Criteria query = getSavedQueriesListQuery(crit)
+			.createAlias("lastUpdatedBy", "m", JoinType.LEFT_OUTER_JOIN)
+			.addOrder(Order.desc("s.id"));
+		addProjectionFields(query);
+		addLimits(query, crit.startAt(), crit.maxResults());
+		return getSavedQueries(query);
+	}
+
 	@Override
 	public List<SavedQuerySummary> getQueries(Long userId, int startAt, int maxRecords, String ... searchString) {
-		Criteria criteria = sessionFactory.getCurrentSession()
-				.createCriteria(SavedQuery.class, "s")
-				.createAlias("createdBy", "c")
-				.createAlias("lastUpdatedBy", "m", JoinType.LEFT_OUTER_JOIN)		
-				.createAlias("folders", "f", JoinType.LEFT_OUTER_JOIN)
-				.createAlias("f.sharedWith", "su", JoinType.LEFT_OUTER_JOIN)
-				.add(Restrictions.isNull("s.deletedOn"))
-				.add(Restrictions.disjunction()
-						.add(Restrictions.eq("f.sharedWithAll", true))
-						.add(Restrictions.eq("c.id", userId))
-						.add(Restrictions.eq("su.id", userId)));
-		
-		addSearchConditions(criteria, searchString);
-		addProjectionFields(criteria);
-		criteria.addOrder(Order.desc("s.id"));
-		addLimits(criteria, startAt, maxRecords);
-		return getSavedQueries(criteria);
+		return getQueries(new ListSavedQueriesCriteria()
+			.userId(userId)
+			.query(searchString != null && searchString.length > 0 ? searchString[0] : null)
+			.startAt(startAt)
+			.maxResults(maxRecords));
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -89,7 +77,7 @@ public class SavedQueryDaoImpl extends AbstractDao<SavedQuery> implements SavedQ
 	}
 	
 	@Override
-	public Long getQueriesCountByFolderId(Long folderId, String ... searchString) {
+	public Long getQueriesCountByFolderId(Long folderId, String searchString) {
 		Criteria criteria = sessionFactory.getCurrentSession()
 				.createCriteria(SavedQuery.class, "s")
 				.createAlias("folders", "f", JoinType.INNER_JOIN)
@@ -102,7 +90,7 @@ public class SavedQueryDaoImpl extends AbstractDao<SavedQuery> implements SavedQ
 	}
 
 	@Override
-	public List<SavedQuerySummary> getQueriesByFolderId(Long folderId, int startAt, int maxRecords, String ... searchString) {
+	public List<SavedQuerySummary> getQueriesByFolderId(Long folderId, int startAt, int maxRecords, String searchString) {
 		Criteria criteria = sessionFactory.getCurrentSession()
 				.createCriteria(SavedQuery.class, "s")
 				.createAlias("createdBy", "c")
@@ -199,20 +187,6 @@ public class SavedQueryDaoImpl extends AbstractDao<SavedQuery> implements SavedQ
 		}
 	}
 	
-	private void addSearchConditions(Criteria criteria, String[] searchString) {
-		if (searchString == null || searchString.length == 0 || StringUtils.isBlank(searchString[0])) {
-			return;
-		}
-		
-		Disjunction srchCond = Restrictions.disjunction();
-		if (StringUtils.isNumeric(searchString[0])) {
-			srchCond.add(Restrictions.eq("s.id", Long.parseLong(searchString[0])));
-		}
-		
-		srchCond.add(Restrictions.ilike("s.title", searchString[0], MatchMode.ANYWHERE));
-		criteria.add(srchCond);
-	}
-	
 	private void addProjectionFields(Criteria criteria) {
 		criteria.setProjection(Projections.distinct(
 				Projections.projectionList()
@@ -238,7 +212,50 @@ public class SavedQueryDaoImpl extends AbstractDao<SavedQuery> implements SavedQ
 		
 		return result;		
 	}
-	
+
+	private Criteria getSavedQueriesListQuery(ListSavedQueriesCriteria crit) {
+		Criteria query = getCurrentSession().createCriteria(SavedQuery.class, "s")
+			.createAlias("createdBy", "c")
+			.createAlias("folders", "f", JoinType.LEFT_OUTER_JOIN)
+			.createAlias("f.sharedWith", "su", JoinType.LEFT_OUTER_JOIN)
+			.add(Restrictions.isNull("s.deletedOn"))
+			.add(Restrictions.disjunction()
+				.add(Restrictions.eq("f.sharedWithAll", true))
+				.add(Restrictions.eq("c.id", crit.userId()))
+				.add(Restrictions.eq("su.id", crit.userId())));
+
+		addCpCondition(query, crit.cpId());
+		addSearchConditions(query, crit.query());
+		return query;
+	}
+
+	private Criteria addCpCondition(Criteria query, Long cpId) {
+		if (cpId == null || cpId == -1L) {
+			return query;
+		}
+
+		return query.add(
+			Restrictions.or(
+				Restrictions.isNull("s.cpId"),
+				Restrictions.eq("s.cpId", cpId)
+			)
+		);
+	}
+
+	private Criteria addSearchConditions(Criteria query, String searchTerm) {
+		if (StringUtils.isBlank(searchTerm)) {
+			return query;
+		}
+
+		Disjunction srchCond = Restrictions.disjunction();
+		if (StringUtils.isNumeric(searchTerm)) {
+			srchCond.add(Restrictions.eq("s.id", Long.parseLong(searchTerm)));
+		}
+
+		srchCond.add(Restrictions.ilike("s.title", searchTerm, MatchMode.ANYWHERE));
+		return query.add(srchCond);
+	}
+
 	private static final String INSERT_QUERY_CHANGE_LOG_SQL = FQN + ".insertQueryChangeLog"; 
 	
 	private static final String GET_QUERY_ID_AND_MD5_SQL = FQN + ".getQueryIdAndDigest"; 

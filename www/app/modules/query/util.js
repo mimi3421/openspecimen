@@ -206,6 +206,12 @@ angular.module('os.query.util', ['os.query.models', 'os.query.save'])
         return expr;
       }
 
+      if (filter.hasSq) {
+        var sqWhere = getWhereExpr(filter.subQuery.context.filtersMap, filter.subQuery.context.exprNodes);
+        expr += '(select ' + filter.form.name + '.' + filter.field.name + ' where ' + sqWhere + ')';
+        return expr;
+      }
+
       var filterValue = filter.value;
       if (filter.field.type == "STRING" || filter.field.type == "DATE") {
         if (filter.op.name == 'qin' || filter.op.name == 'not_in' || filter.op.name == 'between') {
@@ -531,7 +537,7 @@ angular.module('os.query.util', ['os.query.models', 'os.query.save'])
       return index;
     }
 
-    function getUiFilter(selectedCp, filterDef) {
+    function getUiFilter(queryGlobal, selectedCp, filterDef) {
       if (filterDef.expr) {
         return filterDef;
       }
@@ -550,7 +556,7 @@ angular.module('os.query.util', ['os.query.models', 'os.query.save'])
         value = filterDef.values;
       }
 
-      return {
+      var uiFilter =  {
         id: filterDef.id,
         op: getOpByModel(filterDef.op),
         value: value,
@@ -558,28 +564,63 @@ angular.module('os.query.util', ['os.query.models', 'os.query.save'])
         fieldName: fieldName.substr(dotIdx + 1),
         parameterized: filterDef.parameterized
       };
+
+      if (filterDef.subQueryId) {
+        uiFilter.sqCtxQ = SavedQuery.getById(filterDef.subQueryId).then(
+          function(query) {
+            uiFilter.hasSq    = true;
+            uiFilter.subQuery = query;
+            return queryGlobal.setupFilters(selectedCp, query).then(
+              function(context) {
+                return (query.context = context);
+              }
+            );
+          }
+        );
+      }
+
+      return uiFilter;
     };
 
-    function disableCpSelection(queryCtx) {
-      if (queryCtx.selectedCp.id == -1) {
-        queryCtx.disableCpSelection = false;
-        return;
+    function getUiExprNode(expr) {
+      var result = undefined;
+      if (expr.nodeType == 'FILTER') {
+        result = {type: 'filter', value: expr.value};
+      } else if (expr.nodeType == 'OPERATOR') {
+        result = {type: 'op', value: getOpByModel(expr.value).name};
+      } else if (expr.nodeType == 'PARENTHESIS') {
+        result = {type: 'paren', value: expr.value == 'LEFT' ? '(' : ')'};
       }
 
+      return result;
+    }
+
+    function getUiExprNodes(nodes) {
+      return nodes.map(getUiExprNode);
+    }
+
+    function disableCpSelection(queryCtx) {
       var filters = queryCtx.filters;
       for (var i = 0; i < filters.length; ++i) {
-        if (filters[i].expr && (filters[i].expr.indexOf('.extensions.') != -1 || filters[i].expr.indexOf('.customFields.') != -1)) { 
+        var filter = filters[i];
+
+        if (filter.expr && (filter.expr.indexOf('.extensions.') != -1 || filter.expr.indexOf('.customFields.') != -1)) {
           queryCtx.disableCpSelection = true;
           return;
         }
 
-        if (!filters[i].expr && (filters[i].field.name.indexOf('extensions.') == 0 || filters[i].field.name.indexOf('customFields.') == 0)) {
+        if (!filter.expr && (filter.field.name.indexOf('extensions.') == 0 || filter.field.name.indexOf('customFields.') == 0)) {
+          queryCtx.disableCpSelection = true;
+          return;
+        }
+
+        if (filter.hasSq) {
           queryCtx.disableCpSelection = true;
           return;
         }
       }
 
-      var selectedFields = queryCtx.selectedFields;
+      var selectedFields = queryCtx.selectedFields || [];
       for (var i = 0; i < selectedFields.length; ++i) {
         var fieldName = undefined;
         if (typeof selectedFields[i] == "string") {
@@ -735,6 +776,10 @@ angular.module('os.query.util', ['os.query.models', 'os.query.save'])
       getOpBySymbol:       getOpBySymbol,
 
       getUiFilter:         getUiFilter,
+
+      getUiExprNode:       getUiExprNode,
+
+      getUiExprNodes:      getUiExprNodes,
 
       getTemporalExprObj:  getTemporalExprObj,
 

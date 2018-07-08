@@ -19,6 +19,8 @@ angular.module('os.query.expr', ['os.query.models'])
         desc = "<i>" + filter.form.caption + "  >> " + filter.field.caption + "</i> <b>" + filter.op.desc + "</b> ";
         if (filter.value) {
           desc += filter.value;
+        } else if (filter.subQuery) {
+          desc += filter.subQuery.title;
         }
       }
 
@@ -27,11 +29,6 @@ angular.module('os.query.expr', ['os.query.models'])
 
     $scope.getOpCode = function(name) {
       return QueryUtil.getOp(name).code;
-    };
-
-    $scope.isFilterParamterized = function(filterId) {
-      var filter = $scope.queryLocal.filtersMap[filterId];
-      return filter && filter.parameterized;
     };
 
     $scope.addParen = function() {

@@ -4,9 +4,7 @@
  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd"> 
 
 <hibernate-mapping>
-  <class name="com.krishagni.catissueplus.core.de.domain.SavedQuery" 
-         table="CATISSUE_SAVED_QUERIES">
-
+  <class name="com.krishagni.catissueplus.core.de.domain.SavedQuery" table="CATISSUE_SAVED_QUERIES">
     <id name="id" column="IDENTIFIER">
       <generator class="native">
         <param name="sequence">CATISSUE_SAVED_QUERIES_SEQ</param>
@@ -15,33 +13,29 @@
 
     <property name="title" column="TITLE"/>
 
-    <many-to-one 
-      name="createdBy"
-      class="com.krishagni.catissueplus.core.administrative.domain.User"
-      cascade="none"
-      update="true"
-      insert="true"
-      column="CREATED_BY"
-     />
+    <property name="cpId" column="CP_ID"/>
+
+    <many-to-one name="createdBy" column="CREATED_BY" cascade="none"/>
      
-    <many-to-one
-      name="lastUpdatedBy"
-      class="com.krishagni.catissueplus.core.administrative.domain.User"
-      cascade="none"
-      update="true"
-      insert="true"
-      column="LAST_UPDATED_BY"
-    />
+    <many-to-one name="lastUpdatedBy" column="LAST_UPDATED_BY" cascade="none"/>
 
     <property name="queryDefJson" column="QUERY_DEF"/>
 	
     <property name="lastUpdated"  column="LAST_UPDATED_ON" type="timestamp"/>
 	
     <property name="deletedOn" column="DELETED_ON" type="timestamp"/>
-	
-    <set 
-      name="folders" 
-      table="CATISSUE_QUERY_FOLDER_QUERIES">
+
+    <set name="subQueries" table="OS_SAVED_QUERY_DEPS">
+      <key column="QUERY_ID"/>
+      <element column="SUB_QUERY_ID" type="long"/>
+    </set>
+
+    <set name="dependentQueries" table="OS_SAVED_QUERY_DEPS" mutable="false">
+      <key column="SUB_QUERY_ID"/>
+      <element column="QUERY_ID" type="long"/>
+    </set>
+
+    <set name="folders" table="CATISSUE_QUERY_FOLDER_QUERIES">
       <key column="QUERY_ID"/>
       <many-to-many class="com.krishagni.catissueplus.core.de.domain.QueryFolder" column="FOLDER_ID" />
     </set>

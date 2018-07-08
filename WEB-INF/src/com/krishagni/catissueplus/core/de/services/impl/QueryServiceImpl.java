@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -11,6 +12,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
@@ -186,18 +188,16 @@ public class QueryServiceImpl implements QueryService {
 	public ResponseEvent<SavedQueriesList> getSavedQueries(RequestEvent<ListSavedQueriesCriteria> req) {
 		try {
 			ListSavedQueriesCriteria crit = req.getPayload();
-			
 			if (crit.startAt() < 0 || crit.maxResults() <= 0) {
 				return ResponseEvent.userError(SavedQueryErrorCode.INVALID_PAGINATION_FILTER);
 			}
 
-			Long userId = AuthUtil.getCurrentUser().getId();
-			List<SavedQuerySummary> queries = daoFactory.getSavedQueryDao().getQueries(
-				userId, crit.startAt(), crit.maxResults(), crit.query());
+			crit.userId(AuthUtil.getCurrentUser().getId());
+			List<SavedQuerySummary> queries = daoFactory.getSavedQueryDao().getQueries(crit);
 			
 			Long count = null;
 			if (crit.countReq()) {
-				count = daoFactory.getSavedQueryDao().getQueriesCount(userId, crit.query());
+				count = daoFactory.getSavedQueryDao().getQueriesCount(crit);
 			}
 			
 			return ResponseEvent.response(SavedQueriesList.create(queries, count));
@@ -285,6 +285,8 @@ public class QueryServiceImpl implements QueryService {
 			return ResponseEvent.userError(getErrorCode(qe.getErrorCode()), qe.getMessage());
 		} catch (IllegalArgumentException iae) {
 			return ResponseEvent.userError(SavedQueryErrorCode.MALFORMED, iae.getMessage());
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
 		} catch (Exception e) {
 			return ResponseEvent.serverError(e);
 		}
@@ -305,6 +307,13 @@ public class QueryServiceImpl implements QueryService {
 				return ResponseEvent.userError(SavedQueryErrorCode.OP_NOT_ALLOWED);
 			}
 
+			if (!query.getDependentQueries().isEmpty()) {
+				return ResponseEvent.userError(
+					SavedQueryErrorCode.DEPS_FOUND,
+					query.getDependentQueries().stream().limit(5).collect(Collectors.toSet()));
+			}
+
+			query.getSubQueries().clear();
 			query.setDeletedOn(Calendar.getInstance().getTime());
 			daoFactory.getSavedQueryDao().saveOrUpdate(query);
 			return ResponseEvent.response(queryId);
@@ -541,7 +550,7 @@ public class QueryServiceImpl implements QueryService {
 			folderDetails.setOwner(owner);
 			
 			QueryFolder queryFolder = queryFolderFactory.createQueryFolder(folderDetails);
-			Set<User> newUsers = new HashSet<User>(queryFolder.getSharedWith());
+			Set<User> newUsers = new HashSet<>(queryFolder.getSharedWith());
 			newUsers.removeAll(existing.getSharedWith());
 			existing.update(queryFolder);
 			
@@ -857,6 +866,10 @@ public class QueryServiceImpl implements QueryService {
 		savedQuery.setCpId(detail.getCpId());
 		savedQuery.setSelectList(detail.getSelectList());
 		savedQuery.setFilters(detail.getFilters());
+		savedQuery.setSubQueries(Arrays.stream(detail.getFilters())
+			.map(Filter::getSubQueryId)
+			.filter(Objects::nonNull)
+			.collect(Collectors.toSet()));
 		savedQuery.setQueryExpression(detail.getQueryExpression());
 		if (detail.getId() == null) {
 			savedQuery.setCreatedBy(AuthUtil.getCurrentUser());

@@ -26,12 +26,15 @@
     ng-model="queryLocal.exprNodes" ui-sortable="exprSortOpts">
 
     <div class="pull-left" ng-switch="node.type" ng-repeat="node in queryLocal.exprNodes">
-      <div ng-switch-when="filter" class="os-query-filter-node"
-        tooltip-html-unsafe="{{getFilterDesc(node.value)}}" tooltip-placement="bottom">
+      <div ng-switch-when="filter" class="os-query-filter-node" os-tooltip="{{getFilterDesc(node.value)}}" html="true">
         <b>{{node.value}}</b>
-        <div class="pq" ng-if="isFilterParamterized(node.value)"
-          tooltip="Parameterized Filter" tooltip-placement="bottom" tooltip-append-to-body="true">
+        <div class="pq" ng-if="queryLocal.filtersMap[node.value].parameterized"
+          os-tooltip="Parameterized Filter" placement="right">
           <span translate="queries.parameterized_marker">P</span>
+        </div>
+        <div class="sq" ng-if="!!queryLocal.filtersMap[node.value].subQuery"
+          os-tooltip="Subquery" placement="right">
+          <span translate="queries.subquery_marker">Q</span>
         </div>
       </div>
       <div ng-switch-when="op" ng-click="toggleOp($index)" 

@@ -196,12 +196,24 @@
 
 .os-query-filter-node .pq {
   position: absolute;
-  right: 0px;
+  right: -2px;
   top: 0px;
   border-radius: 50%;
   background: #428bca;
-  height: 12px;
-  width: 12px;
+  height: 14px;
+  width: 14px;
+  font-size: 10px;
+  color: white;
+}
+
+.os-query-filter-node .sq {
+  position: absolute;
+  right: -2px;
+  top: 0px;
+  border-radius: 50%;
+  background: #5cb85c;
+  height: 14px;
+  width: 14px;
   font-size: 10px;
   color: white;
 }

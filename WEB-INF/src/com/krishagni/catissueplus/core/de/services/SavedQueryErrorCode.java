@@ -47,7 +47,9 @@ public enum SavedQueryErrorCode implements ErrorCode {
 
 	INV_RV_CFG,
 
-	AUDIT_LOG_NOT_FOUND;
+	AUDIT_LOG_NOT_FOUND,
+
+	DEPS_FOUND;
 	
 	@Override
 	public String code() {

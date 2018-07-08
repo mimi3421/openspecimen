@@ -188,6 +188,27 @@ angular.module('os.query.globaldata', ['os.query.models', 'os.biospecimen.models
       );
     };
 
+    QueryGlobalData.prototype.setupFilters = function(cp, savedQuery, queryCtx) {
+      queryCtx = queryCtx || {selectedCp: cp};
+
+      var that = this;
+      var promise = this.loadCpForms(cp).then(
+        function(forms) {
+          var promises = recreateUiFilters(that, queryCtx, savedQuery.filters);
+          recreateUiExprNodes(queryCtx, savedQuery.queryExpression);
+          promises = promises.concat(loadFormFieldsNeededForFilters(queryCtx.filters));
+          return $q.all(promises);
+        }
+      );
+
+      return promise.then(
+        function() {
+          fleshOutFilterFields(queryCtx);
+          return queryCtx;
+        }
+      )
+    }
+
     function createQueryCtx(queryGlobal, savedQuery, cpId) {
       var queryCtx = queryGlobal.newQueryCtx(savedQuery);
       return queryGlobal.getCps().then(
@@ -200,25 +221,12 @@ angular.module('os.query.globaldata', ['os.query.models', 'os.biospecimen.models
           if (!selectedCp) {
             return undefined;
           }
-         
-          var promise = queryGlobal.loadCpForms(selectedCp).then(
-            function(forms) {
-              recreateUiFilters(queryCtx, savedQuery.filters);
-              recreateUiExprNodes(queryCtx, savedQuery.queryExpression);
-              return $q.all(loadFormFieldsNeededForFilters(queryCtx.filters));
-            }
-          );
 
-          return promise.then(
-            function() {
-              fleshOutFilterFields(queryCtx);
-              return queryCtx;
-            }
-          )
+          return queryGlobal.setupFilters(selectedCp, savedQuery, queryCtx);
         }
       );
     }
-        
+
     function getCp(cps, cpId) {
       for (var i = 0; i < cps.length; ++i) {
         if (cps[i].id == cpId) {
@@ -229,13 +237,14 @@ angular.module('os.query.globaldata', ['os.query.models', 'os.biospecimen.models
       return null;
     }
 
-    function recreateUiFilters(queryCtx, filters) {
+    function recreateUiFilters(queryGlobal, queryCtx, filters) {
       var uiFilters = queryCtx.filters = []; 
       var filtersMap = queryCtx.filtersMap = {};
       var filterId = 0;
 
+      var sqPromises = [];
       angular.forEach(filters, function(filter) {
-        var uiFilter = QueryUtil.getUiFilter(queryCtx.selectedCp, filter);
+        var uiFilter = QueryUtil.getUiFilter(queryGlobal, queryCtx.selectedCp, filter);
         if (!uiFilter.expr && (!uiFilter.form || !uiFilter.fieldName)) {
           Alerts.error('queries.invalid_form_or_field', filter);
         }
@@ -246,24 +255,19 @@ angular.module('os.query.globaldata', ['os.query.models', 'os.biospecimen.models
         if (filterId < uiFilter.id) {
           filterId = uiFilter.id;
         }
-      });
 
-      queryCtx.filterId = filterId;
-    }
-
-    function recreateUiExprNodes(queryCtx, queryExpressions) {
-      var exprNodes = queryCtx.exprNodes = [];
-      angular.forEach(queryExpressions, function(expr) {
-        if (expr.nodeType == 'FILTER') {
-          exprNodes.push({type: 'filter', value: expr.value});
-        } else if (expr.nodeType == 'OPERATOR') {
-          exprNodes.push({type: 'op', value: QueryUtil.getOpByModel(expr.value).name});
-        } else if (expr.nodeType == 'PARENTHESIS') {
-          exprNodes.push({type: 'paren', value: expr.value == 'LEFT' ? '(' : ')'});
+        if (uiFilter.sqCtxQ) {
+          sqPromises.push(uiFilter.sqCtxQ);
         }
       });
 
-      return exprNodes;
+      queryCtx.filterId = filterId;
+      return sqPromises;
+    }
+
+    function recreateUiExprNodes(queryCtx, queryExpression) {
+      queryCtx.exprNodes = QueryUtil.getUiExprNodes(queryExpression);
+      return queryCtx.exprNodes;
     }
 
     function loadFormFieldsNeededForFilters(filters) {

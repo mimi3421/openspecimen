@@ -28,6 +28,18 @@ angular.module('os.query.models.savedquery', ['os.common.models'])
 
     SavedQuery.ops = ops;
 
+    SavedQuery.query = function(filterOpts) {
+      return $http.get(SavedQuery.url(), {params: filterOpts}).then(
+        function(resp) {
+          return resp.data.queries.map(
+            function(query) {
+              return new SavedQuery(query);
+            }
+          );
+        }
+      );
+    }
+
     SavedQuery.list = function(filterOpts) {
       var result = {count: 0, queries: []};
       var params = angular.extend({countReq: false}, filterOpts);
@@ -76,6 +88,11 @@ angular.module('os.query.models.savedquery', ['os.common.models'])
             return {
               id: filter.id, expr: filter.expr, 
               desc: filter.desc, parameterized: filter.parameterized
+            };
+          } else if (filter.hasSq) {
+            return {
+              id: filter.id, field: filter.form.name + '.' + filter.field.name,
+              op: filter.op.model, subQueryId: filter.subQuery.id
             };
           } else {
             var values = filter.value instanceof Array ? filter.value : [filter.value];

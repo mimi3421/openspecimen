@@ -43,7 +43,8 @@ angular.module('openspecimen')
           'bs-tooltip': '',
           'data-title': tooltip,
           'trigger'   : 'hover focus',
-          'placement' : 'auto'
+          'placement' : tAttrs.placement || 'auto',
+          'html'      : (tAttrs.html == true || tAttrs.html == 'true')
         });
 
         var linkFn = $compile(tElem);

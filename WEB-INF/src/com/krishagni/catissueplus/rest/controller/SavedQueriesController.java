@@ -49,24 +49,27 @@ public class SavedQueriesController {
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
 	public SavedQueriesList getSavedQueries(
-			@RequestParam(value = "start", required = false, defaultValue = "0") 
-			int start,
+		@RequestParam(value = "cpId", required = false)
+		Long cpId,
+
+		@RequestParam(value = "searchString", required = false, defaultValue = "")
+		String searchString,
+
+		@RequestParam(value = "start", required = false, defaultValue = "0")
+		int start,
 			
-			@RequestParam(value = "max", required = false, defaultValue = "25") 
-			int max,
-			
-			@RequestParam(value = "countReq", required = false, defaultValue = "false") 
-			boolean countReq,
-			
-			@RequestParam(value = "searchString", required = false, defaultValue = "") 
-			String searchString) {
+		@RequestParam(value = "max", required = false, defaultValue = "25")
+		int max,
+
+		@RequestParam(value = "countReq", required = false, defaultValue = "false")
+		boolean countReq) {
 		
 		ListSavedQueriesCriteria crit = new ListSavedQueriesCriteria()
-			.startAt(start)
-			.maxResults(max)
+			.cpId(cpId)
+			.query(searchString)
 			.countReq(countReq)
-			.query(searchString);
-		
+			.startAt(start)
+			.maxResults(max);
 		return response(querySvc.getSavedQueries(request(crit)));
 	}
 

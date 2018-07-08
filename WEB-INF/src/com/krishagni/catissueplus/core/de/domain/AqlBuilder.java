@@ -2,9 +2,13 @@ package com.krishagni.catissueplus.core.de.domain;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
@@ -12,6 +16,7 @@ import com.krishagni.catissueplus.core.de.domain.Filter.Op;
 import com.krishagni.catissueplus.core.de.domain.QueryExpressionNode.LogicalOp;
 import com.krishagni.catissueplus.core.de.domain.QueryExpressionNode.Parenthesis;
 import com.krishagni.catissueplus.core.de.domain.SelectField.Function;
+import com.krishagni.catissueplus.core.de.repository.DaoFactory;
 import com.krishagni.catissueplus.core.de.services.SavedQueryErrorCode;
 
 import edu.common.dynamicextensions.domain.nui.Container;
@@ -19,7 +24,11 @@ import edu.common.dynamicextensions.domain.nui.Control;
 import edu.common.dynamicextensions.domain.nui.DataType;
 import edu.common.dynamicextensions.domain.nui.LookupControl;
 
+@Configurable
 public class AqlBuilder {
+
+	@Autowired
+	private DaoFactory daoFactory;
 	
 	private AqlBuilder() {
 		
@@ -34,28 +43,34 @@ public class AqlBuilder {
 	}
 	
 	public String getQuery(Object[] selectList, Filter[] filters, Filter[] conjunctionFilters, QueryExpressionNode[] queryExprNodes) {
-		String conjunctionExpr = "";
+		Context ctx = new Context();
+
+		StringBuilder conjunctionExpr = new StringBuilder();
 		if (conjunctionFilters != null) {
 			for (int i = 0; i < conjunctionFilters.length; ++i) {
 				if (i > 0) {
-					conjunctionExpr += " and ";
+					conjunctionExpr.append(" and ");
 				}
 
-				conjunctionExpr += buildFilterExpr(conjunctionFilters[i]);
+				conjunctionExpr.append(buildFilterExpr(ctx, conjunctionFilters[i]));
 			}
 		}
 
-		return getQuery(selectList, filters, conjunctionExpr, queryExprNodes);
+		return getQuery(ctx, selectList, filters, conjunctionExpr.toString(), queryExprNodes);
 	}
 
 	public String getQuery(Object[] selectList, Filter[] filters, String conjunction, QueryExpressionNode[] queryExprNodes) {
+		return getQuery(new Context(), selectList, filters, conjunction, queryExprNodes);
+	}
+
+	private String getQuery(Context ctx, Object[] selectList, Filter[] filters, String conjunction, QueryExpressionNode[] queryExprNodes) {
 		Map<Integer, Filter> filterMap = new HashMap<>();
 		for (Filter filter : filters) {
 			filterMap.put(filter.getId(), filter);
 		}
 
 		String selectClause = buildSelectClause(filterMap, selectList);
-		String whereClause = buildWhereClause(filterMap, queryExprNodes);
+		String whereClause = buildWhereClause(ctx, filterMap, queryExprNodes);
 		if (StringUtils.isNotBlank(conjunction)) {
 			whereClause = "(" + whereClause + ") and (" + conjunction + ")";
 		}
@@ -134,7 +149,7 @@ public class AqlBuilder {
 		return expr;
 	}	
 	
-	private String buildWhereClause(Map<Integer, Filter> filterMap, QueryExpressionNode[] queryExprNodes) {		
+	private String buildWhereClause(Context ctx, Map<Integer, Filter> filterMap, QueryExpressionNode[] queryExprNodes) {
 		StringBuilder whereClause = new StringBuilder();
 		
 		for (QueryExpressionNode node : queryExprNodes) {
@@ -148,7 +163,7 @@ public class AqlBuilder {
 				  }
 				  
 				  Filter filter = filterMap.get(filterId);
-				  String filterExpr = buildFilterExpr(filter);
+				  String filterExpr = buildFilterExpr(ctx, filter);
 				  whereClause.append(filterExpr);				  				  
 				  break;
 				  
@@ -179,14 +194,13 @@ public class AqlBuilder {
 		return whereClause.toString();
 	}
 	
-	private String buildFilterExpr(Filter filter) {
+	private String buildFilterExpr(Context ctx, Filter filter) {
 		if (filter.getExpr() != null) {
 			return filter.getExpr();
 		}
 		
 		String field = filter.getField();
 		String[] fieldParts = field.split("\\.");
-		
 		if (fieldParts.length <= 1) {
 			throw OpenSpecimenException.userError(SavedQueryErrorCode.MALFORMED, "Invalid field: " + field);
 		}
@@ -195,6 +209,16 @@ public class AqlBuilder {
 		filterExpr.append(field).append(" ").append(filter.getOp().symbol()).append(" ");
 		if (filter.getOp().isUnary()) {
 			return filterExpr.toString();
+		}
+
+		if (filter.getSubQueryId() != null) {
+			SavedQuery query = ctx.getQuery(filter.getSubQueryId()).copy();
+
+			ctx.addActiveQuery(filter.getSubQueryId());
+			String subAql = getQuery(ctx, new Object[] { field }, query.getFilters(), null, query.getQueryExpression());
+			ctx.removeActiveQuery(filter.getSubQueryId());
+
+			return filterExpr.append("(").append(subAql).append(")").toString();
 		}
 
 		Container form = null;
@@ -215,15 +239,15 @@ public class AqlBuilder {
 		if (form == null) {
 			throw OpenSpecimenException.userError(SavedQueryErrorCode.MALFORMED, "Invalid field: " + field);
 		}
-		
-		ctrl = form.getControlByUdn(ctrlName, "\\.");				
+
+		ctrl = form.getControlByUdn(ctrlName, "\\.");
 
 		DataType type = ctrl.getDataType();
 		if (ctrl instanceof LookupControl) {
 			type = ((LookupControl)ctrl).getValueType();
 		}
 		
-		String[] values = (String[])Arrays.copyOf(filter.getValues(), filter.getValues().length);		
+		String[] values = Arrays.copyOf(filter.getValues(), filter.getValues().length);
 		quoteStrings(type, values);
 		
 		String value = values[0];
@@ -263,5 +287,36 @@ public class AqlBuilder {
 	
 	public Container getContainer(String formName){
 		return Container.getContainer(formName);
+	}
+
+	private class Context {
+		private Map<Long, SavedQuery> queryMap = new HashMap<>();
+
+		private Set<Long> activeQueries = new HashSet<>();
+
+		SavedQuery getQuery(Long queryId) {
+			SavedQuery query = queryMap.get(queryId);
+			if (query == null) {
+				query = daoFactory.getSavedQueryDao().getQuery(queryId);
+				if (query == null) {
+					throw OpenSpecimenException.userError(SavedQueryErrorCode.NOT_FOUND, queryId);
+				}
+
+				queryMap.put(queryId, query);
+			}
+
+			return query;
+		}
+
+		void addActiveQuery(Long queryId) {
+			boolean added = activeQueries.add(queryId);
+			if (!added) {
+				throw OpenSpecimenException.userError(SavedQueryErrorCode.MALFORMED, "One or more cyclic sub-queries found: " + queryId + "!");
+			}
+		}
+
+		void removeActiveQuery(Long queryId) {
+			activeQueries.remove(queryId);
+		}
 	}
 }

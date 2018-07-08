@@ -9,6 +9,8 @@ angular.module('os.query.addedit', ['os.query.models', 'os.query.util', 'os.quer
     var popovers = [];
 
     function init() {
+      $scope.queryGlobal = queryGlobal;
+
       $scope.openForm = undefined;
       $scope.cps = cps;
       $scope.queryLocal = queryCtx;
@@ -102,6 +104,15 @@ angular.module('os.query.addedit', ['os.query.models', 'os.query.util', 'os.quer
 
     $scope.closePopover = function() {
       QueryUtil.hidePopovers();
+    }
+
+    $scope.searchQuery = function(searchTerm) {
+      var cp = $scope.queryLocal.selectedCp;
+      SavedQuery.query({cpId: cp.id, searchString: searchTerm, max: 25}).then(
+        function(savedQueries) {
+          $scope.savedQueries = savedQueries;
+        }
+      );
     }
 
     init();

@@ -26,7 +26,7 @@ public class Filter {
 
 		private String symbol;
 
-		private Op(String symbol) {
+		Op(String symbol) {
 			this.symbol = symbol;
 		}
 
@@ -37,7 +37,7 @@ public class Filter {
 		public boolean isUnary() {
 			return this == EXISTS || this == NOT_EXISTS || this == ANY;
 		}
-	};
+	}
 	
 	private int id;
 
@@ -48,6 +48,8 @@ public class Filter {
 	private String[] values;
 	
 	private String expr;
+
+	private Long subQueryId;
 	
 	private String desc;
 	
@@ -93,6 +95,14 @@ public class Filter {
 		this.expr = expr;
 	}
 
+	public Long getSubQueryId() {
+		return subQueryId;
+	}
+
+	public void setSubQueryId(Long subQueryId) {
+		this.subQueryId = subQueryId;
+	}
+
 	public String getDesc() {
 		return desc;
 	}
@@ -126,7 +136,7 @@ public class Filter {
 	}
 
 	private boolean isParameterizableConditionValue() {
-		if (!isParameterized()) {
+		if (!isParameterized() || getSubQueryId() != null) {
 			return false;
 		}
 
