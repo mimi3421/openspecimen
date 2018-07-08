@@ -119,6 +119,8 @@ angular.module('os.query.util', ['os.query.models', 'os.query.save'])
 
       filter.valueType = getValueType(filter.field, filter.op);
       filter.unaryOp = isUnaryOp(filter.op);
+      filter.hasSq = false;
+      filter.subQuery = undefined;
     }
 
     function hidePopovers() {
