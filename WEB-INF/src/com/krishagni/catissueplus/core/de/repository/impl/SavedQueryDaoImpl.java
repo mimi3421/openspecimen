@@ -230,7 +230,7 @@ public class SavedQueryDaoImpl extends AbstractDao<SavedQuery> implements SavedQ
 	}
 
 	private Criteria addCpCondition(Criteria query, Long cpId) {
-		if (cpId == null || cpId == -1L) {
+		if (cpId == null) {
 			return query;
 		}
 
