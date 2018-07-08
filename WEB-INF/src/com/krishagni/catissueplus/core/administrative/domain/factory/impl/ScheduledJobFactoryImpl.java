@@ -182,10 +182,10 @@ public class ScheduledJobFactoryImpl implements ScheduledJobFactory {
 		}
 		
 		Integer dayOfMonth = detail.getScheduledDayOfMonth();
-		
+
 		if (dayOfMonth == null || dayOfMonth < 1 || dayOfMonth > 31) {
 			ose.addError(ScheduledJobErrorCode.INVALID_SCHEDULED_TIME);
-			return;	
+			return;
 		}
 	
 		job.setScheduledDayOfMonth(dayOfMonth);
