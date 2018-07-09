@@ -30,7 +30,9 @@
           </span>
 
           <span ng-if="!!filter.subQuery">
-            <i>{{filter.subQuery.title}}</i>
+            <a ui-sref="query-addedit({queryId: filter.subQuery.id})" target="_blank">
+              <i>{{filter.subQuery.title}}</i>
+            </a>
           </span>
         </div>
         <div ng-switch-when="false"> 

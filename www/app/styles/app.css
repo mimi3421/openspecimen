@@ -1339,3 +1339,28 @@ form .form-group:empty {
 .os-width-100 {
   width: 100px;
 }
+
+/** Page header tags **/
+.os-page-header .os-tag-success,
+.os-page-header .os-tag-danger {
+  padding: 0px 4px;
+  color: #fff;
+  font-weight: bold;
+  border-radius: 4px;
+  font-size: 14px;
+  margin-bottom: 5px;
+  vertical-align: middle;
+  text-align: center;
+  display: inline-block;
+  line-height: 1.42857143;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.os-page-header .os-tag-success {
+  background: #5cb85c!important;
+}
+
+.os-page-header .os-tag-danger {
+  background: #d9534f!important;
+}
