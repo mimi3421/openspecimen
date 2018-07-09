@@ -727,15 +727,19 @@ angular.module('os.query.util', ['os.query.models', 'os.query.save'])
         resolve: {
           queryToSave: function() {
             return SavedQuery.fromQueryCtx(queryContext);
+          },
+
+          dependentQueries: function() {
+            return queryContext.dependentQueries;
           }
         }
       }).result.then(
         function(savedQuery) {
           angular.extend(queryContext, {id: savedQuery.id, title: savedQuery.title});
 
+          Alerts.success('queries.query_saved', {title: savedQuery.title});
           var params = {queryId: savedQuery.id, cpId: savedQuery.cpId || -1, editMode: $stateParams.editMode};
           $state.go($state.current.name, params, {reload: true});
-          Alerts.success('queries.query_saved', {title: savedQuery.title});
         }
       );
     }

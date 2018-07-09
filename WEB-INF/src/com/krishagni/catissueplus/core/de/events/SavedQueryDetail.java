@@ -23,6 +23,8 @@ public class SavedQueryDetail extends SavedQuerySummary {
 
 	private boolean outputColumnExprs;
 
+	private Long[] dependentQueries;
+
 	public Long getCpId() {
 		return cpId;
 	}
@@ -87,6 +89,14 @@ public class SavedQueryDetail extends SavedQuerySummary {
 		this.outputColumnExprs = outputColumnExprs;
 	}
 
+	public Long[] getDependentQueries() {
+		return dependentQueries;
+	}
+
+	public void setDependentQueries(Long[] dependentQueries) {
+		this.dependentQueries = dependentQueries;
+	}
+
 	public static SavedQueryDetail fromSavedQuery(SavedQuery savedQuery){
 		SavedQueryDetail detail = new SavedQueryDetail();
 		
@@ -103,6 +113,7 @@ public class SavedQueryDetail extends SavedQuerySummary {
 		detail.setReporting(savedQuery.getReporting());
 		detail.setWideRowMode(savedQuery.getWideRowMode());
 		detail.setOutputColumnExprs(savedQuery.isOutputColumnExprs());
+		detail.setDependentQueries(savedQuery.getDependentQueries().toArray(new Long[0]));
 		return detail;
 	}	
 }

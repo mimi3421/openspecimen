@@ -6,17 +6,33 @@
   <div class="os-modal-body">
     <div class="form-group">
       <label translate="queries.title">Title</label>
-      <input class="form-control" ng-model="queryToSave.title" type="text">
+      <input class="form-control" ng-model="lctx.queryToSave.title" type="text">
     </div>       
+
+    <div class="form-group" ng-if="lctx.dependentQueries.length > 0">
+      <i class="os-dep-query-warning" translate="queries.dep_query_warning">
+        The query is used as a filter in one or more saved queries. Changing the query can impact the results of dependent saved queries. Do you really wish to overwrite the query?
+      </i>
+      <div>
+        <label class="radio-inline">
+          <input type="radio" name="overwrite" ng-model="lctx.overwrite" ng-value="true">
+          <span translate="common.yes">Yes</span>
+        </label>
+        <label class="radio-inline">
+          <input type="radio" name="overwrite" ng-model="lctx.overwrite" ng-value="false">
+          <span translate="common.no">No</span>
+        </label>
+      </div>
+    </div>
   </div>
   <div class="os-modal-footer">
     <button class="btn os-btn-text" ng-click="cancel()">
       <span translate="common.buttons.cancel">Cancel</span>
     </button>
-    <button class="btn os-btn-secondary" ng-click="save(true)" ng-if="queryToSave.id">
+    <button class="btn os-btn-secondary" ng-click="save(true)" ng-if="lctx.queryToSave.id">
       <span translate="queries.save_copy">Save a Copy</span>
     </button>
-    <button class="btn btn-primary" ng-click="save(false)">
+    <button class="btn btn-primary" ng-click="save(false)" ng-disabled="!lctx.overwrite">
       <span translate="common.buttons.save">Save</span>
     </button>
   </div>

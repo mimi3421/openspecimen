@@ -472,3 +472,9 @@
   padding: 8px;
   margin: 5px;
 }
+
+
+.os-dep-query-warning {
+  display: inline-block;
+  margin-bottom: 5px;
+}

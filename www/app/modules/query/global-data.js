@@ -148,7 +148,8 @@ angular.module('os.query.globaldata', ['os.query.models', 'os.biospecimen.models
         isValid: true,
         drivingForm: 'Participant',
         wideRowMode: savedQuery.wideRowMode || 'DEEP',
-        outputColumnExprs: savedQuery.outputColumnExprs
+        outputColumnExprs: savedQuery.outputColumnExprs,
+        dependentQueries: savedQuery.dependentQueries
       };
 
       var that = this;
