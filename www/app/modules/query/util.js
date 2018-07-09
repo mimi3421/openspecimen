@@ -730,7 +730,7 @@ angular.module('os.query.util', ['os.query.models', 'os.query.save'])
           },
 
           dependentQueries: function() {
-            return queryContext.dependentQueries;
+            return queryContext.dependentQueries || [];
           }
         }
       }).result.then(
