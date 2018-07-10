@@ -3,8 +3,7 @@ angular.module('os.query.save', ['os.query.models'])
   .controller('QuerySaveCtrl', function($scope, $modalInstance, queryToSave, dependentQueries) {
     $scope.lctx = {
       queryToSave: queryToSave,
-      dependentQueries: dependentQueries,
-      overwrite: dependentQueries.length == 0
+      dependentQueries: dependentQueries
     };
 
     $scope.save = function(copy) {

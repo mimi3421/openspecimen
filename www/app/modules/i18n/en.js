@@ -1646,7 +1646,7 @@
     "save_query": "Save Query",
     "save_copy": "Save a Copy",
     "query_saved": "Query '{{title}}' saved",
-    "dep_query_warning": "The query is used as a filter in one or more dependent saved queries. Changing the query might impact the results of those queries. Do you really wish to save the changes?",
+    "dep_query_warning": "This query is used as a \"subquery\" in other queries and any updates will impact those queries too.",
 
     "define_view": "Columns",
     "rerun": "Rerun",
