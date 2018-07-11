@@ -67,8 +67,8 @@
           </td>
           <td class="col os-desc-column">
             <a ui-sref="cp-summary-view({cpId: cp.id})">
-              <span>{{cp.title}}</span>
-              <span>({{cp.shortTitle}})</span>
+              <span>{{cp.shortTitle}}</span>
+              <span ng-if="!!cp.code">({{cp.code}})</span>
             </a>
           </td>
           <td class="col">
