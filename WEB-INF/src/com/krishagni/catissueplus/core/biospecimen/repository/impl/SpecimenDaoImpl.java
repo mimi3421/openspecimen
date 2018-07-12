@@ -31,6 +31,7 @@ import com.krishagni.catissueplus.core.biospecimen.domain.Visit;
 import com.krishagni.catissueplus.core.biospecimen.repository.SpecimenDao;
 import com.krishagni.catissueplus.core.biospecimen.repository.SpecimenListCriteria;
 import com.krishagni.catissueplus.core.common.Pair;
+import com.krishagni.catissueplus.core.common.access.SiteCpPair;
 import com.krishagni.catissueplus.core.common.repository.AbstractDao;
 
 public class SpecimenDaoImpl extends AbstractDao<Specimen> implements SpecimenDao {
@@ -238,7 +239,7 @@ public class SpecimenDaoImpl extends AbstractDao<Specimen> implements SpecimenDa
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public Map<Long, Set<Long>> getSpecimenSites(Set<Long> specimenIds) {
+	public Map<Long, Set<SiteCpPair>> getSpecimenSites(Set<Long> specimenIds) {
 		Criteria query = getSessionFactory().getCurrentSession().createCriteria(Specimen.class)
 				.createAlias("visit", "visit")
 				.createAlias("visit.registration", "cpr")
@@ -249,21 +250,20 @@ public class SpecimenDaoImpl extends AbstractDao<Specimen> implements SpecimenDa
 		ProjectionList projs = Projections.projectionList();
 		query.setProjection(projs);
 		projs.add(Projections.property("id"));
+		projs.add(Projections.property("site.institute.id"));
 		projs.add(Projections.property("site.id"));
 		query.add(Restrictions.in("id", specimenIds));
 		
 		List<Object []> rows = query.list();
-		Map<Long, Set<Long>> results = new HashMap<>();
+		Map<Long, Set<SiteCpPair>> results = new HashMap<>();
 		for (Object[] row: rows) {
-			Long id = (Long)row[0];
-			Long siteId = (Long)row[1];
-			Set<Long> siteIds = results.get(id);
-			if (siteIds == null) {
-				siteIds = new HashSet<>();
-				results.put(id, siteIds);
-			}
-			
-			siteIds.add(siteId);
+			int idx = 0;
+			Long id = (Long)row[idx++];
+			Long instituteId = (Long)row[idx++];
+			Long siteId = (Long)row[idx++];
+
+			Set<SiteCpPair> sites = results.computeIfAbsent(id, (k) -> new HashSet<>());
+			sites.add(SiteCpPair.make(instituteId, siteId, null));
 		}
 		
 		return results;

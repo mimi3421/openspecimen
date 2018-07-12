@@ -38,9 +38,9 @@ import com.krishagni.catissueplus.core.biospecimen.repository.SpecimenListCriter
 import com.krishagni.catissueplus.core.biospecimen.repository.SpecimenListsCriteria;
 import com.krishagni.catissueplus.core.biospecimen.repository.impl.BiospecimenDaoHelper;
 import com.krishagni.catissueplus.core.biospecimen.services.SpecimenListService;
-import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
+import com.krishagni.catissueplus.core.common.access.SiteCpPair;
 import com.krishagni.catissueplus.core.common.domain.Notification;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.EntityQueryCriteria;
@@ -156,8 +156,8 @@ public class SpecimenListServiceImpl implements SpecimenListService, Initializin
 		try {
 			SpecimenListDetail listDetails = req.getPayload();
 			
-			List<Pair<Long, Long>> siteCpPairs = AccessCtrlMgr.getInstance().getReadAccessSpecimenSiteCps();
-			if (siteCpPairs != null && siteCpPairs.isEmpty()) {
+			List<SiteCpPair> siteCps = AccessCtrlMgr.getInstance().getReadAccessSpecimenSiteCps();
+			if (siteCps != null && siteCps.isEmpty()) {
 				return ResponseEvent.userError(SpecimenListErrorCode.ACCESS_NOT_ALLOWED);
 			}
 			
@@ -167,7 +167,7 @@ public class SpecimenListServiceImpl implements SpecimenListService, Initializin
 			
 			SpecimenList specimenList = specimenListFactory.createSpecimenList(listDetails);
 			ensureUniqueName(specimenList);
-			ensureValidSpecimensAndUsers(listDetails, specimenList, siteCpPairs);
+			ensureValidSpecimensAndUsers(listDetails, specimenList, siteCps);
 
 			daoFactory.getSpecimenListDao().saveOrUpdate(specimenList);
 			saveListItems(specimenList, listDetails.getSpecimenIds(), true);
@@ -487,21 +487,21 @@ public class SpecimenListServiceImpl implements SpecimenListService, Initializin
 		return list;
 	}
 
-	private List<Long> getReadAccessSpecimenIds(List<Long> specimenIds, List<Pair<Long, Long>> siteCpPairs) {
-		if (siteCpPairs == null) {
-			siteCpPairs = AccessCtrlMgr.getInstance().getReadAccessSpecimenSiteCps();
+	private List<Long> getReadAccessSpecimenIds(List<Long> specimenIds, List<SiteCpPair> siteCps) {
+		if (siteCps == null) {
+			siteCps = AccessCtrlMgr.getInstance().getReadAccessSpecimenSiteCps();
 		}
 
-		if (siteCpPairs != null && siteCpPairs.isEmpty()) {
+		if (siteCps != null && siteCps.isEmpty()) {
 			return Collections.emptyList();
 		}
 
-		SpecimenListCriteria crit = new SpecimenListCriteria().ids(specimenIds).siteCps(siteCpPairs);
+		SpecimenListCriteria crit = new SpecimenListCriteria().ids(specimenIds).siteCps(siteCps);
 		return daoFactory.getSpecimenDao().getSpecimenIds(crit);
 	}
 
 	private List<Specimen> getReadAccessSpecimens(Long listId, int size) {
-		List<Pair<Long, Long>> siteCps = AccessCtrlMgr.getInstance().getReadAccessSpecimenSiteCps();
+		List<SiteCpPair> siteCps = AccessCtrlMgr.getInstance().getReadAccessSpecimenSiteCps();
 		if (siteCps != null && siteCps.isEmpty()) {
 			return Collections.emptyList();
 		}
@@ -518,7 +518,7 @@ public class SpecimenListServiceImpl implements SpecimenListService, Initializin
 		//
 		getSpecimenList(crit.specimenListId(), null);
 
-		List<Pair<Long, Long>> siteCpPairs = AccessCtrlMgr.getInstance().getReadAccessSpecimenSiteCps();
+		List<SiteCpPair> siteCpPairs = AccessCtrlMgr.getInstance().getReadAccessSpecimenSiteCps();
 		if (siteCpPairs != null && siteCpPairs.isEmpty()) {
 			throw OpenSpecimenException.userError(RbacErrorCode.ACCESS_DENIED);
 		}
@@ -526,7 +526,7 @@ public class SpecimenListServiceImpl implements SpecimenListService, Initializin
 		return crit.siteCps(siteCpPairs);
 	}
 
-	private void ensureValidSpecimensAndUsers(SpecimenListDetail details, SpecimenList specimenList, List<Pair<Long, Long>> siteCpPairs) {
+	private void ensureValidSpecimensAndUsers(SpecimenListDetail details, SpecimenList specimenList, List<SiteCpPair> siteCpPairs) {
 		if (details.isAttrModified("specimenIds")) {
 			ensureValidSpecimens(details, siteCpPairs);
 		}
@@ -536,7 +536,7 @@ public class SpecimenListServiceImpl implements SpecimenListService, Initializin
 		}
 	}
 	
-	private void ensureValidSpecimens(SpecimenListDetail details, List<Pair<Long, Long>> siteCpPairs) {
+	private void ensureValidSpecimens(SpecimenListDetail details, List<SiteCpPair> siteCpPairs) {
 		if (CollectionUtils.isEmpty(details.getSpecimenIds())) {
 			return;
 		}
@@ -544,14 +544,14 @@ public class SpecimenListServiceImpl implements SpecimenListService, Initializin
 		ensureValidSpecimens(details.getSpecimenIds(), siteCpPairs);
 	}
 	
-	private void ensureValidSpecimens(List<Long> specimenIds,  List<Pair<Long, Long>> siteCpPairs) {
+	private void ensureValidSpecimens(List<Long> specimenIds,  List<SiteCpPair> siteCpPairs) {
 		List<Long> dbSpmnIds = getReadAccessSpecimenIds(specimenIds, siteCpPairs);
 		if (dbSpmnIds.size() != specimenIds.size()) {
 			throw OpenSpecimenException.userError(SpecimenListErrorCode.INVALID_SPECIMENS);
 		}
 	}
 
-	private void ensureValidUsers(SpecimenList specimenList, List<Pair<Long, Long>> siteCpPairs) {
+	private void ensureValidUsers(SpecimenList specimenList, List<SiteCpPair> siteCps) {
 		if (CollectionUtils.isEmpty(specimenList.getSharedWith())) {
 			return;
 		}
@@ -630,9 +630,9 @@ public class SpecimenListServiceImpl implements SpecimenListService, Initializin
 
 		String restriction = "Specimen.specimenCarts.name = \"" + list.getName() + "\"";
 
-		List<Pair<Long, Long>> siteCpPairs = AccessCtrlMgr.getInstance().getReadAccessSpecimenSiteCps();
+		List<SiteCpPair> siteCps = AccessCtrlMgr.getInstance().getReadAccessSpecimenSiteCps();
 		String siteCpRestriction = BiospecimenDaoHelper.getInstance().getSiteCpsCondAql(
-			siteCpPairs, AccessCtrlMgr.getInstance().isAccessRestrictedBasedOnMrn());
+			siteCps, AccessCtrlMgr.getInstance().isAccessRestrictedBasedOnMrn());
 		if (StringUtils.isNotBlank(siteCpRestriction)) {
 			restriction += " and " + siteCpRestriction;
 		}
@@ -731,7 +731,7 @@ public class SpecimenListServiceImpl implements SpecimenListService, Initializin
 			return null;
 		}
 
-		List<Pair<Long, Long>> siteCps = AccessCtrlMgr.getInstance().getReadAccessSpecimenSiteCps();
+		List<SiteCpPair> siteCps = AccessCtrlMgr.getInstance().getReadAccessSpecimenSiteCps();
 		if (siteCps != null && siteCps.isEmpty()) {
 			throw OpenSpecimenException.userError(SpecimenListErrorCode.ACCESS_NOT_ALLOWED);
 		}

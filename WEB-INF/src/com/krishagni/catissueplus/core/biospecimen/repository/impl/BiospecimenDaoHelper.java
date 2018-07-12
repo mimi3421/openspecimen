@@ -2,6 +2,7 @@ package com.krishagni.catissueplus.core.biospecimen.repository.impl;
 
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -9,13 +10,18 @@ import java.util.Set;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
+import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Junction;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.criterion.Subqueries;
 import org.hibernate.sql.JoinType;
 
+import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.biospecimen.repository.SpecimenListCriteria;
-import com.krishagni.catissueplus.core.common.Pair;
+import com.krishagni.catissueplus.core.common.access.SiteCpPair;
 
 public class BiospecimenDaoHelper {
 
@@ -32,7 +38,7 @@ public class BiospecimenDaoHelper {
 		addSiteCpsCond(query, crit.siteCps(), crit.useMrnSites(), query.getAlias().equals("visit") ? "cpr" : "visit");
 	}
 
-	public void addSiteCpsCond(Criteria query, List<Pair<Long, Long>> siteCps, boolean useMrnSites, String startAlias) {
+	public void addSiteCpsCond(Criteria query, Collection<SiteCpPair> siteCps, boolean useMrnSites, String startAlias) {
 		if (CollectionUtils.isEmpty(siteCps)) {
 			return;
 		}
@@ -55,10 +61,7 @@ public class BiospecimenDaoHelper {
 			.createAlias("pmi.site", "mrnSite", JoinType.LEFT_OUTER_JOIN);
 
 		Disjunction cpSitesCond = Restrictions.disjunction();
-		for (Pair<Long, Long> siteCp : siteCps) {
-			Long siteId = siteCp.first();
-			Long cpId = siteCp.second();
-
+		for (SiteCpPair siteCp : siteCps) {
 			Junction siteCond = Restrictions.disjunction();
 			if (useMrnSites) {
 				//
@@ -66,14 +69,14 @@ public class BiospecimenDaoHelper {
 				//
 				Junction mrnSite = Restrictions.conjunction()
 					.add(Restrictions.isNotEmpty("participant.pmis"))
-					.add(Restrictions.eq("mrnSite.id", siteId));
+					.add(getSiteIdRestriction("mrnSite.id", siteCp));
 
 				//
 				// When no MRNs exist, site ID should be one of CP site
 				//
 				Junction cpSite = Restrictions.conjunction()
 					.add(Restrictions.isEmpty("participant.pmis"))
-					.add(Restrictions.eq("site.id", siteId));
+					.add(getSiteIdRestriction("site.id", siteCp));
 
 				siteCond.add(mrnSite).add(cpSite);
 			} else {
@@ -81,13 +84,13 @@ public class BiospecimenDaoHelper {
 				// Site ID should be either MRN site or CP site
 				//
 				siteCond
-					.add(Restrictions.eq("mrnSite.id", siteId))
-					.add(Restrictions.eq("site.id", siteId));
+					.add(getSiteIdRestriction("mrnSite.id", siteCp))
+					.add(getSiteIdRestriction("site.id", siteCp));
 			}
 
 			Junction cond = Restrictions.conjunction().add(siteCond);
-			if (cpId != null) {
-				cond.add(Restrictions.eq("cp.id", cpId));
+			if (siteCp.getCpId() != null) {
+				cond.add(Restrictions.eq("cp.id", siteCp.getCpId()));
 			}
 
 			cpSitesCond.add(cond);
@@ -96,16 +99,13 @@ public class BiospecimenDaoHelper {
 		query.add(cpSitesCond);
 	}
 
-	public String getSiteCpsCondAql(List<Pair<Long, Long>> siteCps, boolean useMrnSites) {
+	public String getSiteCpsCondAql(List<SiteCpPair> siteCps, boolean useMrnSites) {
 		if (CollectionUtils.isEmpty(siteCps)) {
 			return StringUtils.EMPTY;
 		}
 
 		Set<String> cpSitesCond = new LinkedHashSet<>(); // joined by or
-		for (Pair<Long, Long> siteCp : siteCps) {
-			Long siteId = siteCp.first();
-			Long cpId = siteCp.second();
-
+		for (SiteCpPair siteCp : siteCps) {
 			List<String> siteCond = new ArrayList<>(); // joined by or
 			if (useMrnSites) {
 				//
@@ -113,28 +113,27 @@ public class BiospecimenDaoHelper {
 				//
 				String mrnSite =
 					"Participant.medicalRecord.mrnSiteId exists and " +
-					"Participant.medicalRecord.mrnSiteId = " + siteId;
+					getAqlSiteIdRestriction("Participant.medicalRecord.mrnSiteId", siteCp);
+				siteCond.add(mrnSite);
 
 				//
 				// When no MRNs exist, site ID should be one of CP site
 				//
 				String cpSite =
 					"Participant.medicalRecord.mrnSiteId not exists and " +
-					"CollectionProtocol.cpSites.siteId = " + siteId;
-
-				siteCond.add(mrnSite);
+					getAqlSiteIdRestriction("CollectionProtocol.cpSites.siteId", siteCp);
 				siteCond.add(cpSite);
 			} else {
 				//
 				// Site ID should be either MRN site or CP site
 				//
-				siteCond.add("Participant.medicalRecord.mrnSiteId = " + siteId);
-				siteCond.add("CollectionProtocol.cpSites.siteId = " + siteId);
+				siteCond.add(getAqlSiteIdRestriction("Participant.medicalRecord.mrnSiteId", siteCp));
+				siteCond.add(getAqlSiteIdRestriction("CollectionProtocol.cpSites.siteId", siteCp));
 			}
 
 			String cond = "(" + StringUtils.join(siteCond, " or ") + ")";
-			if (cpId != null) {
-				cond += " and CollectionProtocol.id = " + cpId;
+			if (siteCp.getCpId() != null) {
+				cond += " and CollectionProtocol.id = " + siteCp.getCpId();
 			}
 
 			cpSitesCond.add("(" + cond + ")");
@@ -142,4 +141,30 @@ public class BiospecimenDaoHelper {
 
 		return "(" + StringUtils.join(cpSitesCond, " or ") + ")";
 	}
+
+	private Criterion getSiteIdRestriction(String property, SiteCpPair siteCp) {
+		if (siteCp.getSiteId() != null) {
+			return Restrictions.eq(property, siteCp.getSiteId());
+		}
+
+		DetachedCriteria subQuery = DetachedCriteria.forClass(Site.class)
+			.add(Restrictions.eq("institute.id", siteCp.getInstituteId()))
+			.setProjection(Projections.property("id"));
+		return Subqueries.propertyIn(property, subQuery);
+	}
+
+	private String getAqlSiteIdRestriction(String property, SiteCpPair siteCp) {
+		if (siteCp.getSiteId() != null) {
+			return property + " = " + siteCp.getSiteId();
+		} else {
+			return property + " in " + sql(String.format(INSTITUTE_SITE_IDS_SQL, siteCp.getInstituteId()));
+		}
+	}
+
+	private String sql(String sql) {
+		return "sql(\"" + sql + "\")";
+	}
+
+	private static final String INSTITUTE_SITE_IDS_SQL =
+		"select identifier from catissue_site where institute_id = %d and activity_status != 'Disabled'";
 }

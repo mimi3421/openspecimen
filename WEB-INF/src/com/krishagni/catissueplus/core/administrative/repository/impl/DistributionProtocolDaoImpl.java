@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -14,7 +15,9 @@ import java.util.Set;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
+import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Junction;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
@@ -26,12 +29,14 @@ import org.hibernate.sql.JoinType;
 
 import com.krishagni.catissueplus.core.administrative.domain.DistributionOrder;
 import com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol;
+import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.administrative.domain.SpecimenReservedEvent;
 import com.krishagni.catissueplus.core.administrative.events.DistributionOrderStat;
 import com.krishagni.catissueplus.core.administrative.events.DistributionOrderStatListCriteria;
 import com.krishagni.catissueplus.core.administrative.events.DistributionProtocolSummary;
 import com.krishagni.catissueplus.core.administrative.repository.DistributionProtocolDao;
 import com.krishagni.catissueplus.core.administrative.repository.DpListCriteria;
+import com.krishagni.catissueplus.core.common.access.SiteCpPair;
 import com.krishagni.catissueplus.core.common.repository.AbstractDao;
 import com.krishagni.catissueplus.core.common.util.Utility;
 
@@ -119,11 +124,10 @@ public class DistributionProtocolDaoImpl extends AbstractDao<DistributionProtoco
 		query.add(Restrictions.eq("status", DistributionOrder.Status.EXECUTED));
 		if (listCrit.dpId() != null) {
 			query.add(Restrictions.eq("distributionProtocol.id", listCrit.dpId()));
-		} else if (CollectionUtils.isNotEmpty(listCrit.siteIds())) {
+		} else if (CollectionUtils.isNotEmpty(listCrit.sites())) {
 			query.createAlias("distributionProtocol", "dp")
 				.createAlias("dp.distributingSites", "distSites");
-			
-			addSitesCondition(query, listCrit.siteIds());
+			addSitesCondition(query, listCrit.sites());
 		}
 		
 		addOrderStatProjections(query, listCrit);
@@ -227,13 +231,12 @@ public class DistributionProtocolDaoImpl extends AbstractDao<DistributionProtoco
 	}
 	
 	private void addDistSitesCondition(Criteria query, DpListCriteria crit) {
-		Set<Long> siteIds = crit.siteIds();
-		if (CollectionUtils.isEmpty(siteIds)) {
+		if (CollectionUtils.isEmpty(crit.sites())) {
 			return;
 		}
 		
 		query.createAlias("distributingSites", "distSites");
-		addSitesCondition(query, siteIds);
+		addSitesCondition(query, crit.sites());
 	}
 
 	private void addExpiredDpsCondition(Criteria query, DpListCriteria crit) {
@@ -301,16 +304,52 @@ public class DistributionProtocolDaoImpl extends AbstractDao<DistributionProtoco
 		return stat;
 	}
 	
-	private void addSitesCondition(Criteria query, Set<Long> siteIds) {
+	private void addSitesCondition(Criteria query, Set<SiteCpPair> sites) {
+		Set<Long> siteIds      = new HashSet<>();
+		Set<Long> instituteIds = new HashSet<>();
+		for (SiteCpPair site : sites) {
+			if (site.getSiteId() != null) {
+				siteIds.add(site.getSiteId());
+			} else {
+				instituteIds.add(site.getInstituteId());
+			}
+		}
+
 		query.createAlias("distSites.site", "distSite", JoinType.LEFT_OUTER_JOIN)
 			.createAlias("distSites.institute", "distInst")
-			.createAlias("distInst.sites", "instSite")
-			.add(Restrictions.or(
-				Restrictions.and(Restrictions.isNull("distSites.site"), Restrictions.in("instSite.id", siteIds)),
-				Restrictions.and(Restrictions.isNotNull("distSites.site"),Restrictions.in("distSite.id", siteIds))
-			));
+			.createAlias("distInst.sites", "instSite");
+
+		Disjunction instituteConds = Restrictions.disjunction();
+		if (!siteIds.isEmpty()) {
+			instituteConds.add(Restrictions.in("instSite.id", siteIds));
+		}
+
+		if (!instituteIds.isEmpty()) {
+			instituteConds.add(Restrictions.in("distInst.id", instituteIds));
+		}
+
+		Disjunction siteConds = Restrictions.disjunction();
+		if (!siteIds.isEmpty()) {
+			siteConds.add(Restrictions.in("distSite.id", siteIds));
+		}
+
+		if (!instituteIds.isEmpty()) {
+			siteConds.add(isSiteOfInstitute("distSite.id", instituteIds));
+		}
+
+		query.add(Restrictions.or(
+			Restrictions.and(Restrictions.isNull("distSites.site"), instituteConds),
+			Restrictions.and(Restrictions.isNotNull("distSites.site"), siteConds)
+		));
 	}
-	
+
+	private Criterion isSiteOfInstitute(String property, Collection<Long> instituteIds) {
+		DetachedCriteria subQuery = DetachedCriteria.forClass(Site.class)
+			.add(Restrictions.in("institute.id", instituteIds))
+			.setProjection(Projections.property("id"));
+		return Subqueries.propertyIn(property, subQuery);
+	}
+
 	private static final String FQN = DistributionProtocol.class.getName();
 
 	private static final String GET_DP_BY_TITLE = FQN + ".getDistributionProtocolByTitle";

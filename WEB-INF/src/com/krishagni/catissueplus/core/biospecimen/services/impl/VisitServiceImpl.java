@@ -47,9 +47,9 @@ import com.krishagni.catissueplus.core.biospecimen.services.SpecimenService;
 import com.krishagni.catissueplus.core.biospecimen.services.SprPdfGenerator;
 import com.krishagni.catissueplus.core.biospecimen.services.VisitService;
 import com.krishagni.catissueplus.core.common.OpenSpecimenAppCtxProvider;
-import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
+import com.krishagni.catissueplus.core.common.access.SiteCpPair;
 import com.krishagni.catissueplus.core.common.domain.LabelPrintJob;
 import com.krishagni.catissueplus.core.common.domain.PrintItem;
 import com.krishagni.catissueplus.core.common.errors.ErrorType;
@@ -493,7 +493,7 @@ public class VisitServiceImpl implements VisitService, ObjectAccessor, Initializ
 	@PlusTransactional
 	@Override
 	public List<Visit> getSpecimenVisits(List<String> specimenLabels) {
-		List<Pair<Long, Long>> siteCps = AccessCtrlMgr.getInstance().getReadAccessSpecimenSiteCps();
+		List<SiteCpPair> siteCps = AccessCtrlMgr.getInstance().getReadAccessSpecimenSiteCps();
 		if (siteCps != null && siteCps.isEmpty()) {
 			return Collections.emptyList();
 		}
@@ -907,7 +907,7 @@ public class VisitServiceImpl implements VisitService, ObjectAccessor, Initializ
 				}
 
 				Long cpId = getCpId(params);
-				List<Pair<Long, Long>> siteCps = AccessCtrlMgr.getInstance().getReadAccessSpecimenSiteCps(cpId, false);
+				List<SiteCpPair> siteCps = AccessCtrlMgr.getInstance().getReadAccessSpecimenSiteCps(cpId, false);
 				if (siteCps != null && siteCps.isEmpty()) {
 					endOfVisits = true;
 				} else if (!AccessCtrlMgr.getInstance().hasVisitSpecimenEximRights(cpId)) {

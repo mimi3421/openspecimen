@@ -51,9 +51,9 @@ import com.krishagni.catissueplus.core.biospecimen.repository.SpecimenListCriter
 import com.krishagni.catissueplus.core.biospecimen.services.SpecimenResolver;
 import com.krishagni.catissueplus.core.biospecimen.services.SpecimenService;
 import com.krishagni.catissueplus.core.common.OpenSpecimenAppCtxProvider;
-import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
+import com.krishagni.catissueplus.core.common.access.SiteCpPair;
 import com.krishagni.catissueplus.core.common.domain.LabelPrintJob;
 import com.krishagni.catissueplus.core.common.domain.PrintItem;
 import com.krishagni.catissueplus.core.common.errors.ActivityStatusErrorCode;
@@ -619,12 +619,12 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 	}
 
 	private List<Specimen> getSpecimens(SpecimenListCriteria crit) {
-		List<Pair<Long, Long>> siteCpPairs = AccessCtrlMgr.getInstance().getReadAccessSpecimenSiteCps(crit.cpId());
-		if (siteCpPairs != null && siteCpPairs.isEmpty()) {
+		List<SiteCpPair> siteCps = AccessCtrlMgr.getInstance().getReadAccessSpecimenSiteCps(crit.cpId());
+		if (siteCps != null && siteCps.isEmpty()) {
 			return Collections.emptyList();
 		}
 
-		crit.siteCps(siteCpPairs);
+		crit.siteCps(siteCps);
 		crit.useMrnSites(AccessCtrlMgr.getInstance().isAccessRestrictedBasedOnMrn());
 		return daoFactory.getSpecimenDao().getSpecimens(crit);
 	}
@@ -1160,7 +1160,7 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 					}
 				}
 
-				List<Pair<Long, Long>> siteCps = AccessCtrlMgr.getInstance().getReadAccessSpecimenSiteCps(cpId, false);
+				List<SiteCpPair> siteCps = AccessCtrlMgr.getInstance().getReadAccessSpecimenSiteCps(cpId, false);
 				if (siteCps != null && siteCps.isEmpty()) {
 					endOfSpecimens = true;
 				} else if (!AccessCtrlMgr.getInstance().hasVisitSpecimenEximRights(cpId)) {

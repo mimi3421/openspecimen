@@ -44,7 +44,7 @@ import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolSite
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.repository.SpecimenListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.repository.impl.BiospecimenDaoHelper;
-import com.krishagni.catissueplus.core.common.Pair;
+import com.krishagni.catissueplus.core.common.access.SiteCpPair;
 import com.krishagni.catissueplus.core.common.repository.AbstractDao;
 import com.krishagni.catissueplus.core.common.util.Status;
 
@@ -366,13 +366,25 @@ public class StorageContainerDaoImpl extends AbstractDao<StorageContainer> imple
 			innerQuery.createAlias("cont.site", "site")
 				.createAlias("cont.allowedCps", "cp", JoinType.LEFT_OUTER_JOIN);
 
+			boolean instituteAdded = false;
 			Disjunction siteCpsCond = Restrictions.disjunction();
-			for (Pair<Long, Long> siteCp : crit.siteCps()) {
-				Junction siteCpCond = Restrictions.conjunction().add(Restrictions.eq("site.id", siteCp.first()));
-				if (siteCp.second() != null) {
+			for (SiteCpPair siteCp : crit.siteCps()) {
+				Junction siteCpCond = Restrictions.conjunction();
+				if (siteCp.getSiteId() != null) {
+					siteCpCond.add(Restrictions.eq("site.id", siteCp.getSiteId()));
+				} else {
+					if (!instituteAdded) {
+						innerQuery.createAlias("site.institute", "institute");
+						instituteAdded = true;
+					}
+
+					siteCpCond.add(Restrictions.eq("institute.id", siteCp.getInstituteId()));
+				}
+
+				if (siteCp.getCpId() != null) {
 					siteCpCond.add(Restrictions.or(
 						Restrictions.isNull("cp.id"),
-						Restrictions.eq("cp.id", siteCp.second())
+						Restrictions.eq("cp.id", siteCp.getCpId())
 					));
 				}
 
@@ -423,7 +435,7 @@ public class StorageContainerDaoImpl extends AbstractDao<StorageContainer> imple
 	//
 	@Override
 	public Map<String, List<String>> getInaccessibleSpecimens(
-		List<Long> containerIds, List<Pair<Long, Long>> siteCps,
+		List<Long> containerIds, List<SiteCpPair> siteCps,
 		boolean useMrnSites, int firstN) {
 
 		DetachedCriteria validSpmnsQuery = DetachedCriteria.forClass(Specimen.class, "specimen")
@@ -434,6 +446,7 @@ public class StorageContainerDaoImpl extends AbstractDao<StorageContainer> imple
 			.createAlias("pos.container", "container")
 			.createAlias("container.ancestorContainers", "aContainer")
 			.add(Restrictions.in("aContainer.id", containerIds));
+
 		BiospecimenDaoHelper.getInstance().addSiteCpsCond(query, siteCps, useMrnSites, "visit");
 		return getInvalidSpecimens(containerIds, validSpmnsQuery, firstN);
 	}
@@ -905,13 +918,26 @@ public class StorageContainerDaoImpl extends AbstractDao<StorageContainer> imple
 				addCpAlias();
 			}
 
+			boolean instituteAliasAdded = false;
+
 			List<String> disjunctions = new ArrayList<>();
-			for (Pair<Long, Long> siteCp : crit.siteCps()) {
-				StringBuilder restriction = new StringBuilder("(site.id = ").append(siteCp.first());
-				if (siteCp.second() != null) {
+			for (SiteCpPair siteCp : crit.siteCps()) {
+				StringBuilder restriction = new StringBuilder();
+				if (siteCp.getSiteId() != null) {
+					restriction.append("(site.id = ").append(siteCp.getSiteId());
+				} else {
+					if (!instituteAliasAdded) {
+						from.append(" join site.institute institute");
+						instituteAliasAdded = true;
+					}
+
+					restriction.append("(institute.id = ").append(siteCp.getInstituteId());
+				}
+
+				if (siteCp.getCpId() != null) {
 					restriction.append(" and (")
 						.append("cp.id is null or ")
-						.append("cp.id = ").append(siteCp.second())
+						.append("cp.id = ").append(siteCp.getCpId())
 						.append(")");
 				}
 

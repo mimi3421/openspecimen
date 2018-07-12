@@ -2,7 +2,7 @@ package com.krishagni.catissueplus.core.biospecimen.repository;
 
 import java.util.List;
 
-import com.krishagni.catissueplus.core.common.Pair;
+import com.krishagni.catissueplus.core.common.access.SiteCpPair;
 import com.krishagni.catissueplus.core.common.events.AbstractListCriteria;
 
 public class SpecimenListCriteria extends AbstractListCriteria<SpecimenListCriteria> {
@@ -14,7 +14,7 @@ public class SpecimenListCriteria extends AbstractListCriteria<SpecimenListCrite
 
 	private String[] collectionStatuses;
 
-	private List<Pair<Long, Long>> siteCps;
+	private List<SiteCpPair> siteCps;
 	
 	private List<String> labels;
 
@@ -89,11 +89,11 @@ public class SpecimenListCriteria extends AbstractListCriteria<SpecimenListCrite
 		return self();
 	}
 
-	public List<Pair<Long, Long>> siteCps() {
+	public List<SiteCpPair> siteCps() {
 		return siteCps;
 	}
 	
-	public SpecimenListCriteria siteCps(List<Pair<Long, Long>> siteCps) {
+	public SpecimenListCriteria siteCps(List<SiteCpPair> siteCps) {
 		this.siteCps = siteCps;
 		return self();
 	}

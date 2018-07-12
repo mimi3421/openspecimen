@@ -17,15 +17,13 @@
 
     <property name="activityStatus" column="ACTIVITY_STATUS"/>
     
-    <set
-      name="users"
-      table="CATISSUE_USER">
+    <set name="users" table="CATISSUE_USER" lazy="extra">
       <key column="INSTITUTE_ID"/>
       <one-to-many  class="com.krishagni.catissueplus.core.administrative.domain.User" />
       <filter name="activeEntity"/>
     </set>
     
-    <set name="sites" inverse="false" cascade="none">
+    <set name="sites" cascade="none" lazy="extra" mutable="false">
       <key column="INSTITUTE_ID"/>
       <one-to-many class="com.krishagni.catissueplus.core.administrative.domain.Site"/>
       <filter name="activeEntity"/>

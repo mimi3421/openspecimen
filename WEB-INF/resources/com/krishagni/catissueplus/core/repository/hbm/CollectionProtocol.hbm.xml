@@ -248,22 +248,7 @@
         site.activityStatus = 'Active'
     </query>
     
-    <sql-query name="getCpIdsBySiteIds">
-      <return-scalar column="cpId" type="long"/> 
-      
-      select
-        cp_site.collection_protocol_id as cpId
-      from
-        catissue_site_cp cp_site 
-        inner join catissue_collection_protocol cp on cp_site.collection_protocol_id = cp.identifier
-        inner join catissue_site site on site.identifier = cp_site.site_id
-      where
-        cp.activity_status = 'Active' 
-        and site.activity_status = 'Active'
-        and cp_site.site_id in (:siteIds)
-    </sql-query>
-    
-    <query name="getConsentTier"> 
+    <query name="getConsentTier">
       select 
         ct
       from 
@@ -303,7 +288,7 @@
 
     <query name="getRepoIdsByCps">
       select 
-        cp.id, site.id
+        cp.id, site.institute.id, site.id
       from
         com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol cp
         join cp.sites cpSite

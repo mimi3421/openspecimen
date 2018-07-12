@@ -3,6 +3,7 @@ package com.krishagni.catissueplus.core.administrative.events;
 import java.util.Set;
 
 import com.krishagni.catissueplus.core.administrative.domain.Shipment;
+import com.krishagni.catissueplus.core.common.access.SiteCpPair;
 import com.krishagni.catissueplus.core.common.events.AbstractListCriteria;
 
 public class ShipmentListCriteria extends AbstractListCriteria<ShipmentListCriteria> {
@@ -16,7 +17,7 @@ public class ShipmentListCriteria extends AbstractListCriteria<ShipmentListCrite
 
 	private Shipment.Status status;
 	
-	private Set<Long> siteIds;
+	private Set<SiteCpPair> sites;
 	
 	@Override
 	public ShipmentListCriteria self() {
@@ -68,13 +69,12 @@ public class ShipmentListCriteria extends AbstractListCriteria<ShipmentListCrite
 		return self();
 	}
 	
-	public Set<Long> siteIds() {
-		return siteIds;
+	public Set<SiteCpPair> sites() {
+		return sites;
 	}
 	
-	public ShipmentListCriteria siteIds(Set<Long> siteIds) {
-		this.siteIds = siteIds;
+	public ShipmentListCriteria sites(Set<SiteCpPair> sites) {
+		this.sites = sites;
 		return self();
 	}
-	
 }

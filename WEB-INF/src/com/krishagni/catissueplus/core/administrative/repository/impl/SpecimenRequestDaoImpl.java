@@ -1,26 +1,28 @@
 package com.krishagni.catissueplus.core.administrative.repository.impl;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
-import org.hibernate.criterion.Conjunction;
+import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.criterion.Subqueries;
 import org.hibernate.sql.JoinType;
 
+import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.administrative.domain.SpecimenRequest;
 import com.krishagni.catissueplus.core.administrative.events.SpecimenRequestSummary;
 import com.krishagni.catissueplus.core.administrative.repository.SpecimenRequestDao;
 import com.krishagni.catissueplus.core.administrative.repository.SpecimenRequestListCriteria;
-import com.krishagni.catissueplus.core.common.errors.CommonErrorCode;
-import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
+import com.krishagni.catissueplus.core.common.access.SiteCpPair;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
 import com.krishagni.catissueplus.core.common.repository.AbstractDao;
 import com.krishagni.catissueplus.core.common.util.Utility;
@@ -33,7 +35,7 @@ public class SpecimenRequestDaoImpl extends AbstractDao<SpecimenRequest> impleme
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<SpecimenRequestSummary> getSpecimenRequests(SpecimenRequestListCriteria crit) {
-		Criteria query = addSummaryFields(getListQuery(crit), CollectionUtils.isNotEmpty(crit.siteIds()));
+		Criteria query = addSummaryFields(getListQuery(crit), CollectionUtils.isNotEmpty(crit.sites()));
 		return ((List<Object[]>)query.list()).stream().map(this::getRequest).collect(Collectors.toList());
 	}
 
@@ -88,23 +90,48 @@ public class SpecimenRequestDaoImpl extends AbstractDao<SpecimenRequest> impleme
 	private Criteria addUserRestrictions(Criteria query, SpecimenRequestListCriteria crit) {
 		Disjunction orCond = Restrictions.disjunction();
 
-		if (CollectionUtils.isNotEmpty(crit.siteIds())) {
+		if (CollectionUtils.isNotEmpty(crit.sites())) {
+			Set<Long> instituteIds = new HashSet<>();
+			Set<Long> siteIds      = new HashSet<>();
+			for (SiteCpPair site : crit.sites()) {
+				if (site.getSiteId() != null) {
+					siteIds.add(site.getSiteId());
+				} else if (site.getInstituteId() != null) {
+					instituteIds.add(site.getInstituteId());
+				}
+			}
+
 			query.createAlias("dp.distributingSites", "distSites", JoinType.LEFT_OUTER_JOIN)
 				.createAlias("distSites.site", "distSite", JoinType.LEFT_OUTER_JOIN)
 				.createAlias("distSites.institute", "distInst", JoinType.LEFT_OUTER_JOIN)
 				.createAlias("distInst.sites", "instSite", JoinType.LEFT_OUTER_JOIN);
 
+			Disjunction instituteConds = Restrictions.disjunction();
+			if (!siteIds.isEmpty()) {
+				instituteConds.add(Restrictions.in("instSite.id", siteIds));
+			}
+
+			if (!instituteIds.isEmpty()) {
+				instituteConds.add(Restrictions.in("distInst.id", instituteIds));
+			}
+
+			Disjunction siteConds = Restrictions.disjunction();
+			if (!siteIds.isEmpty()) {
+				siteConds.add(Restrictions.in("distSite.id", siteIds));
+			}
+
+			if (!instituteIds.isEmpty()) {
+				DetachedCriteria instituteSites = DetachedCriteria.forClass(Site.class)
+					.add(Restrictions.in("institute.id", instituteIds))
+					.setProjection(Projections.property("id"));
+				siteConds.add(Subqueries.propertyIn("distSite.id", instituteSites));
+			}
+
 			orCond.add(
 				Restrictions.and(
 					Restrictions.or(
-						Restrictions.and(
-							Restrictions.isNull("distSites.site"),
-							Restrictions.in("instSite.id", crit.siteIds())
-						),
-						Restrictions.and(
-							Restrictions.isNotNull("distSites.site"),
-							Restrictions.in("distSite.id", crit.siteIds())
-						)
+						Restrictions.and(Restrictions.isNull("distSites.site"), instituteConds),
+						Restrictions.and(Restrictions.isNotNull("distSites.site"), siteConds)
 					),
 					Restrictions.eq("screeningStatus", SpecimenRequest.ScreeningStatus.APPROVED)
 				)

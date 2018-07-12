@@ -290,6 +290,10 @@ public class StorageContainer extends BaseEntity {
 		this.site = site;
 	}
 
+	public Institute getInstitute() {
+		return site != null ? site.getInstitute() : null;
+	}
+
 	public StorageContainer getParentContainer() {
 		return parentContainer;
 	}

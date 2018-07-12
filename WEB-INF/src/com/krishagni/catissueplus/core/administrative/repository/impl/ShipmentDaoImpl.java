@@ -1,25 +1,34 @@
 package com.krishagni.catissueplus.core.administrative.repository.impl;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
+import org.hibernate.criterion.Conjunction;
+import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.criterion.Subqueries;
 
 import com.krishagni.catissueplus.core.administrative.domain.Shipment;
 import com.krishagni.catissueplus.core.administrative.domain.Shipment.Status;
 import com.krishagni.catissueplus.core.administrative.domain.ShipmentContainer;
 import com.krishagni.catissueplus.core.administrative.domain.ShipmentSpecimen;
+import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.administrative.events.ShipmentItemsListCriteria;
 import com.krishagni.catissueplus.core.administrative.events.ShipmentListCriteria;
 import com.krishagni.catissueplus.core.administrative.repository.ShipmentDao;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
+import com.krishagni.catissueplus.core.common.access.SiteCpPair;
 import com.krishagni.catissueplus.core.common.repository.AbstractDao;
 
 public class ShipmentDaoImpl extends AbstractDao<Shipment> implements ShipmentDao {
@@ -118,8 +127,7 @@ public class ShipmentDaoImpl extends AbstractDao<Shipment> implements ShipmentDa
 	}
 
 	private Criteria getShipmentsQuery(ShipmentListCriteria crit) {
-		Criteria query = sessionFactory.getCurrentSession()
-			.createCriteria(Shipment.class)
+		Criteria query = getCurrentSession().createCriteria(Shipment.class)
 			.createAlias("sendingSite", "sendSite")
 			.createAlias("receivingSite", "recvSite");
 
@@ -170,19 +178,49 @@ public class ShipmentDaoImpl extends AbstractDao<Shipment> implements ShipmentDa
 	// Used to restrict access of shipments based on users' roles on various sites
 	//
 	private void addSiteRestrictions(Criteria query, ShipmentListCriteria crit) {
-		if (CollectionUtils.isEmpty(crit.siteIds())) {
+		if (CollectionUtils.isEmpty(crit.sites())) {
 			return;
 		}
-		
+
+		Set<Long> instituteIds = new HashSet<>();
+		Set<Long> siteIds      = new HashSet<>();
+		for (SiteCpPair site : crit.sites()) {
+			if (site.getSiteId() != null) {
+				siteIds.add(site.getSiteId());
+			} else if (site.getInstituteId() != null) {
+				instituteIds.add(site.getInstituteId());
+			}
+		}
+
+		//
+		// (recv site is one of accessible sites and shipment is not pending) or (send site is one of accessible sites)
+		//
 		query.add(
 			Restrictions.or(
 				Restrictions.and(
-					Restrictions.in("recvSite.id", crit.siteIds()),
+					getSiteRestriction("recvSite.id", instituteIds, siteIds),
 					Restrictions.ne("status", Status.PENDING)
-				),/* end of AND */
-				Restrictions.in("sendSite.id", crit.siteIds())
-			)/* end of OR */
+				), /* end of AND */
+				getSiteRestriction("sendSite.id", instituteIds, siteIds)
+			) /* end of OR */
 		);
+	}
+
+	private Criterion getSiteRestriction(String sitePropName, Collection<Long> instituteIds, Collection<Long> siteIds) {
+		Disjunction result = Restrictions.disjunction();
+
+		if (!instituteIds.isEmpty()) {
+			DetachedCriteria instituteSites = DetachedCriteria.forClass(Site.class)
+				.add(Restrictions.in("institute.id", instituteIds))
+				.setProjection(Projections.property("id"));
+			result.add(Subqueries.propertyIn(sitePropName, instituteSites));
+		}
+
+		if (!siteIds.isEmpty()) {
+			result.add(Restrictions.in(sitePropName, siteIds));
+		}
+
+		return result;
 	}
 	
 	private static final String FQN = Shipment.class.getName();

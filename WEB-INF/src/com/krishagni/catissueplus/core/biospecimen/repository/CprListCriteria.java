@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import com.krishagni.catissueplus.core.common.Pair;
+import com.krishagni.catissueplus.core.common.access.SiteCpPair;
 import com.krishagni.catissueplus.core.common.events.AbstractListCriteria;
 
 public class CprListCriteria extends AbstractListCriteria<CprListCriteria> {
@@ -31,12 +32,9 @@ public class CprListCriteria extends AbstractListCriteria<CprListCriteria> {
 	
 	private String specimen;
 
-	//
-	// [{[site ids], cp id}, ...]
-	//
-	private Set<Pair<Set<Long>, Long>> phiSiteCps;
+	private Set<SiteCpPair> phiSiteCps;
 
-	private Set<Pair<Set<Long>, Long>> siteCps;
+	private Set<SiteCpPair> siteCps;
 
 	private boolean useMrnSites;
 
@@ -127,20 +125,20 @@ public class CprListCriteria extends AbstractListCriteria<CprListCriteria> {
 		return specimen;
 	}
 
-	public Set<Pair<Set<Long>, Long>> phiSiteCps() {
+	public Set<SiteCpPair> phiSiteCps() {
 		return phiSiteCps;
 	}
 
-	public CprListCriteria phiSiteCps(Set<Pair<Set<Long>, Long>> phiSiteCps) {
+	public CprListCriteria phiSiteCps(Set<SiteCpPair> phiSiteCps) {
 		this.phiSiteCps = phiSiteCps;
 		return self();
 	}
 
-	public Set<Pair<Set<Long>, Long>> siteCps() {
+	public Set<SiteCpPair> siteCps() {
 		return siteCps;
 	}
 
-	public CprListCriteria siteCps(Set<Pair<Set<Long>, Long>> siteCps) {
+	public CprListCriteria siteCps(Set<SiteCpPair> siteCps) {
 		this.siteCps = siteCps;
 		return self();
 	}
@@ -166,7 +164,7 @@ public class CprListCriteria extends AbstractListCriteria<CprListCriteria> {
 			return Collections.emptySet();
 		}
 
-		return phiSiteCps().stream().map(Pair::second).collect(Collectors.toSet());
+		return phiSiteCps().stream().map(SiteCpPair::getCpId).collect(Collectors.toSet());
 	}
 
 	public List<String> ppids() {

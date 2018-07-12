@@ -23,9 +23,9 @@ public class Institute extends BaseEntity {
 
 	private String activityStatus;
 
-	private Set<User> users = new HashSet<User>();
+	private Set<User> users = new HashSet<>();
 	
-	private Set<Site> sites = new HashSet<Site>(); 
+	private Set<Site> sites = new HashSet<>();
 
 	public static String getEntityName() {
 		return ENTITY_NAME;
@@ -56,11 +56,6 @@ public class Institute extends BaseEntity {
 		this.users = userCollection;
 	}
 	
-	@NotAudited
-	public Set<Site> getSites() {
-		return sites;
-	}
-
 	public void setSites(Set<Site> sites) {
 		this.sites = sites;
 	}
@@ -71,7 +66,6 @@ public class Institute extends BaseEntity {
 	}
 	
 	public List<DependentEntityDetail> getDependentEntities() {
-		
 		return DependentEntityDetail
 				.listBuilder()
 				.add(User.getEntityName(), getUsers().size())
@@ -89,6 +83,10 @@ public class Institute extends BaseEntity {
 		}
 		
 		setActivityStatus(activityStatus);
+	}
+
+	private Set<Site> getSites() {
+		return sites;
 	}
 
 	private void updateActivityStatus(String newActivityStatus) {

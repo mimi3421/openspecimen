@@ -9,7 +9,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainer;
-import com.krishagni.catissueplus.core.common.Pair;
+import com.krishagni.catissueplus.core.common.access.SiteCpPair;
 import com.krishagni.catissueplus.core.common.errors.CommonErrorCode;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.AbstractListCriteria;
@@ -44,7 +44,7 @@ public class StorageContainerListCriteria extends AbstractListCriteria<StorageCo
 
 	private Set<String> dpShortTitles;
 
-	private Set<Pair<Long, Long>> siteCps;
+	private Set<SiteCpPair> siteCps;
 
 	private StorageContainer.UsageMode usageMode;
 	
@@ -210,11 +210,11 @@ public class StorageContainerListCriteria extends AbstractListCriteria<StorageCo
 		return self();
 	}
 
-	public Set<Pair<Long, Long>> siteCps() {
+	public Set<SiteCpPair> siteCps() {
 		return siteCps;
 	}
 
-	public StorageContainerListCriteria siteCps(Set<Pair<Long, Long>> siteCps) {
+	public StorageContainerListCriteria siteCps(Set<SiteCpPair> siteCps) {
 		this.siteCps = siteCps;
 		return self();
 	}

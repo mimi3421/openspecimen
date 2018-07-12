@@ -8,12 +8,12 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
@@ -45,15 +45,16 @@ import com.krishagni.catissueplus.core.administrative.repository.DpRequirementDa
 import com.krishagni.catissueplus.core.administrative.repository.UserListCriteria;
 import com.krishagni.catissueplus.core.administrative.services.DistributionProtocolService;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
+import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolSite;
 import com.krishagni.catissueplus.core.biospecimen.domain.ConsentStatement;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.ConsentStatementErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.SpecimenListErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.events.CollectionProtocolSummary;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.biospecimen.repository.impl.BiospecimenDaoHelper;
-import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
+import com.krishagni.catissueplus.core.common.access.SiteCpPair;
 import com.krishagni.catissueplus.core.common.domain.Notification;
 import com.krishagni.catissueplus.core.common.errors.ActivityStatusErrorCode;
 import com.krishagni.catissueplus.core.common.errors.ErrorType;
@@ -589,30 +590,37 @@ public class DistributionProtocolServiceImpl implements DistributionProtocolServ
 	}
 
 	private DpListCriteria addDpListCriteria(DpListCriteria crit) {
-		Set<Long> siteIds = AccessCtrlMgr.getInstance().getReadAccessDistributionProtocolSites();
-		if (siteIds != null && CollectionUtils.isEmpty(siteIds)) {
+		Set<SiteCpPair> sites = AccessCtrlMgr.getInstance().getReadAccessDistributionProtocolSites();
+		if (sites != null && sites.isEmpty()) {
 			throw OpenSpecimenException.userError(RbacErrorCode.ACCESS_DENIED);
 		}
 
+		Set<SiteCpPair> result = sites;
 		if (StringUtils.isNotBlank(crit.cpShortTitle())) {
 			CollectionProtocol cp = daoFactory.getCollectionProtocolDao().getCpByShortTitle(crit.cpShortTitle());
 			if (cp == null) {
 				return null;
 			}
 
-			Set<Long> cpSiteIds = Utility.collect(cp.getSites(), "site.id", true);
-			if (siteIds != null) {
-				siteIds = new HashSet<>(CollectionUtils.intersection(siteIds, cpSiteIds));
-				if (siteIds.isEmpty()) {
+			Set<SiteCpPair> cpSites = cp.getSites().stream()
+				.map(CollectionProtocolSite::getSite)
+				.map(site -> SiteCpPair.make(site.getInstitute().getId(), site.getId(), null))
+				.collect(Collectors.toSet());
+
+			if (sites != null) {
+				result = cpSites.stream()
+					.filter(siteCp -> sites.stream().anyMatch(s -> s.isAllowed(siteCp)))
+					.collect(Collectors.toSet());
+				if (result.isEmpty()) {
 					return null;
 				}
 			} else {
-				siteIds = cpSiteIds;
+				result = cpSites;
 			}
 		}
 
-		if (siteIds != null) {
-			crit.siteIds(siteIds);
+		if (result != null) {
+			crit.sites(result);
 		}
 		
 		return crit;
@@ -770,13 +778,13 @@ public class DistributionProtocolServiceImpl implements DistributionProtocolServ
 			DistributionProtocol dp = getDistributionProtocol(crit.dpId());
 			AccessCtrlMgr.getInstance().ensureReadDpRights(dp);
 		} else {
-			Set<Long> siteIds = AccessCtrlMgr.getInstance().getCreateUpdateAccessDistributionOrderSiteIds();
-			if (siteIds != null && CollectionUtils.isEmpty(siteIds)) {
+			Set<SiteCpPair> sites = AccessCtrlMgr.getInstance().getCreateUpdateAccessDistributionOrderSites();
+			if (sites != null && sites.isEmpty()) {
 				throw OpenSpecimenException.userError(RbacErrorCode.ACCESS_DENIED);
 			}
 			
-			if (siteIds != null) {
-				crit.siteIds(siteIds);
+			if (sites != null) {
+				crit.sites(sites);
 			}
 		}
 		
@@ -1129,7 +1137,7 @@ public class DistributionProtocolServiceImpl implements DistributionProtocolServ
 			return null;
 		}
 
-		List<Pair<Long, Long>> siteCps = AccessCtrlMgr.getInstance().getReadAccessSpecimenSiteCps();
+		List<SiteCpPair> siteCps = AccessCtrlMgr.getInstance().getReadAccessSpecimenSiteCps();
 		if (siteCps != null && siteCps.isEmpty()) {
 			throw OpenSpecimenException.userError(SpecimenListErrorCode.ACCESS_NOT_ALLOWED);
 		}

@@ -9,7 +9,7 @@ import org.apache.commons.lang3.BooleanUtils;
 
 import com.krishagni.catissueplus.core.administrative.services.ContainerSelectionRule;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenDetail;
-import com.krishagni.catissueplus.core.common.Pair;
+import com.krishagni.catissueplus.core.common.access.SiteCpPair;
 
 public class ContainerCriteria {
 	private SpecimenDetail specimen;
@@ -20,7 +20,7 @@ public class ContainerCriteria {
 
 	private int numContainers;
 
-	private Set<Pair<Long, Long>> siteCps;
+	private Set<SiteCpPair> siteCps;
 
 	private String ruleName;
 
@@ -80,11 +80,11 @@ public class ContainerCriteria {
 		return this;
 	}
 
-	public Set<Pair<Long, Long>> siteCps() {
+	public Set<SiteCpPair> siteCps() {
 		return siteCps;
 	}
 
-	public ContainerCriteria siteCps(Set<Pair<Long, Long>> siteCps) {
+	public ContainerCriteria siteCps(Set<SiteCpPair> siteCps) {
 		this.siteCps = siteCps;
 		return this;
 	}

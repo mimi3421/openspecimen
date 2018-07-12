@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.SessionFactory;
 import org.hibernate.type.LongType;
@@ -17,7 +16,7 @@ import com.krishagni.catissueplus.core.administrative.domain.StorageContainer;
 import com.krishagni.catissueplus.core.administrative.events.ContainerCriteria;
 import com.krishagni.catissueplus.core.administrative.services.ContainerSelectionStrategy;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
-import com.krishagni.catissueplus.core.common.Pair;
+import com.krishagni.catissueplus.core.common.access.SiteCpPair;
 
 @Configurable
 public class LeastEmptyContainerSelectionStrategy implements ContainerSelectionStrategy {
@@ -49,11 +48,11 @@ public class LeastEmptyContainerSelectionStrategy implements ContainerSelectionS
 		sql = beforeGroupBySql;
 
 		List<String> accessRestrictions = new ArrayList<>();
-		for (Pair<Long, Long> siteCp : crit.siteCps()) {
+		for (SiteCpPair siteCp : crit.siteCps()) {
 			accessRestrictions.add(new StringBuilder("(c.site_id = ")
-				.append(siteCp.first())
+				.append(siteCp.getSiteId())
 				.append(" and ")
-				.append("(allowed_cps.cp_id is null or allowed_cps.cp_id = ").append(siteCp.second()).append(")")
+				.append("(allowed_cps.cp_id is null or allowed_cps.cp_id = ").append(siteCp.getCpId()).append(")")
 				.append(")")
 				.toString()
 			);

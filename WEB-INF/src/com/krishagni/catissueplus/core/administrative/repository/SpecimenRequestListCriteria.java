@@ -3,6 +3,7 @@ package com.krishagni.catissueplus.core.administrative.repository;
 import java.util.Collection;
 import java.util.Date;
 
+import com.krishagni.catissueplus.core.common.access.SiteCpPair;
 import com.krishagni.catissueplus.core.common.events.AbstractListCriteria;
 
 public class SpecimenRequestListCriteria extends AbstractListCriteria<SpecimenRequestListCriteria> {
@@ -20,7 +21,7 @@ public class SpecimenRequestListCriteria extends AbstractListCriteria<SpecimenRe
 	//
 	// internally added restrictions
 	//
-	private Collection<Long> siteIds;
+	private Collection<SiteCpPair> sites;
 
 	private Long requestorId;
 
@@ -75,12 +76,12 @@ public class SpecimenRequestListCriteria extends AbstractListCriteria<SpecimenRe
 		return this;
 	}
 
-	public Collection<Long> siteIds() {
-		return siteIds;
+	public Collection<SiteCpPair> sites() {
+		return sites;
 	}
 
-	public SpecimenRequestListCriteria siteIds(Collection<Long> siteIds) {
-		this.siteIds = siteIds;
+	public SpecimenRequestListCriteria sites(Collection<SiteCpPair> sites) {
+		this.sites = sites;
 		return this;
 	}
 

@@ -37,9 +37,9 @@ import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.SpecimenErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.biospecimen.repository.SpecimenListCriteria;
-import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
+import com.krishagni.catissueplus.core.common.access.SiteCpPair;
 import com.krishagni.catissueplus.core.common.errors.ErrorType;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
@@ -295,7 +295,7 @@ public class ShipmentServiceImpl implements ShipmentService, ObjectAccessor {
 			throw OpenSpecimenException.userError(ShipmentErrorCode.CONT_NAMES_REQ);
 		}
 
-		Set<Pair<Long, Long>> siteCps = AccessCtrlMgr.getInstance().getReadAccessContainerSiteCps();
+		Set<SiteCpPair> siteCps = AccessCtrlMgr.getInstance().getReadAccessContainerSiteCps();
 		if (siteCps != null && siteCps.isEmpty()) {
 			throw  OpenSpecimenException.userError(RbacErrorCode.ACCESS_DENIED);
 		}
@@ -352,20 +352,20 @@ public class ShipmentServiceImpl implements ShipmentService, ObjectAccessor {
 	}
 
 	private ShipmentListCriteria addShipmentListCriteria(ShipmentListCriteria crit) {
-		Set<Long> siteIds = AccessCtrlMgr.getInstance().getReadAccessShipmentSiteIds();
-		if (siteIds != null && siteIds.isEmpty()) {
+		Set<SiteCpPair> sites = AccessCtrlMgr.getInstance().getReadAccessShipmentSites();
+		if (sites != null && sites.isEmpty()) {
 			throw OpenSpecimenException.userError(RbacErrorCode.ACCESS_DENIED);
 		}
 		
-		if (siteIds != null) {
-			crit.siteIds(siteIds);
+		if (sites != null) {
+			crit.sites(sites);
 		}
 		
 		return crit;
 	}
 
 	private List<Specimen> getValidSpecimens(List<Long> specimenIds, OpenSpecimenException ose) {
-		List<Pair<Long, Long>> siteCpPairs = AccessCtrlMgr.getInstance().getReadAccessSpecimenSiteCps();
+		List<SiteCpPair> siteCpPairs = AccessCtrlMgr.getInstance().getReadAccessSpecimenSiteCps();
 		if (siteCpPairs != null && siteCpPairs.isEmpty()) {
 			ose.addError(ShipmentErrorCode.INVALID_SPECIMENS);
 			return null;
@@ -456,7 +456,7 @@ public class ShipmentServiceImpl implements ShipmentService, ObjectAccessor {
 	}
 
 	private boolean ensureSpecimensAreAccessible(List<StorageContainer> containers, OpenSpecimenException ose) {
-		List<Pair<Long, Long>> siteCpPairs = AccessCtrlMgr.getInstance().getReadAccessSpecimenSiteCps();
+		List<SiteCpPair> siteCpPairs = AccessCtrlMgr.getInstance().getReadAccessSpecimenSiteCps();
 		if (siteCpPairs != null && siteCpPairs.isEmpty()) {
 			ose.addError(SpecimenErrorCode.ACCESS_DENIED, null, 0);
 			return false;
@@ -544,10 +544,11 @@ public class ShipmentServiceImpl implements ShipmentService, ObjectAccessor {
 	}
 
 	private void ensureValidSpecimenRecvSites(Map<Long, Specimen> specimenMap, Site receivingSite, OpenSpecimenException ose) {
-		Map<Long, Set<Long>> spmnSites = daoFactory.getSpecimenDao().getSpecimenSites(specimenMap.keySet());
+		Map<Long, Set<SiteCpPair>> spmnSites = daoFactory.getSpecimenDao().getSpecimenSites(specimenMap.keySet());
 
+		SiteCpPair recvInstituteSite = SiteCpPair.make(receivingSite.getInstitute().getId(), receivingSite.getId(), null);
 		String invalidSpmnLabels = spmnSites.entrySet().stream()
-			.filter(spmnSite -> !spmnSite.getValue().contains(receivingSite.getId()))
+			.filter(spmnSite -> !SiteCpPair.contains(spmnSite.getValue(), recvInstituteSite))
 			.map(spmnSite -> specimenMap.get(spmnSite.getKey()).getLabel())
 			.collect(Collectors.joining(", "));
 

@@ -5,14 +5,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.krishagni.catissueplus.core.common.access.SiteCpPair;
 import com.krishagni.catissueplus.core.common.events.AbstractListCriteria;
 
 public class DistributionOrderStatListCriteria extends AbstractListCriteria<DistributionOrderStatListCriteria> {
 	private Long dpId;
 	
-	private List<String> groupByAttrs = new ArrayList<String>();
+	private List<String> groupByAttrs = new ArrayList<>();
 	
-	private Set<Long> siteIds = new HashSet<Long>();
+	private Set<SiteCpPair> sites = new HashSet<>();
 	
 	@Override
 	public DistributionOrderStatListCriteria self() {
@@ -37,12 +38,12 @@ public class DistributionOrderStatListCriteria extends AbstractListCriteria<Dist
 		return self();
 	}
 	
-	public Set<Long> siteIds() {
-		return siteIds;
+	public Set<SiteCpPair> sites() {
+		return sites;
 	}
 	
-	public DistributionOrderStatListCriteria siteIds(Set<Long> siteIds) {
-		this.siteIds = siteIds;
+	public DistributionOrderStatListCriteria sites(Set<SiteCpPair> sites) {
+		this.sites = sites;
 		return self();
 	}
 }

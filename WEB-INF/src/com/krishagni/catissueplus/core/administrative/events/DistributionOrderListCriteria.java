@@ -3,13 +3,14 @@ package com.krishagni.catissueplus.core.administrative.events;
 import java.util.Date;
 import java.util.Set;
 
+import com.krishagni.catissueplus.core.common.access.SiteCpPair;
 import com.krishagni.catissueplus.core.common.events.AbstractListCriteria;
 
 
 public class DistributionOrderListCriteria extends AbstractListCriteria<DistributionOrderListCriteria> {
 	private Set<Long> instituteIds;
 	
-	private Set<Long> siteIds;
+	private Set<SiteCpPair> sites;
 	
 	private String dpShortTitle;
 	
@@ -41,12 +42,12 @@ public class DistributionOrderListCriteria extends AbstractListCriteria<Distribu
 		return self();
 	}
 	
-	public Set<Long> siteIds() {
-		return siteIds;
+	public Set<SiteCpPair> sites() {
+		return sites;
 	}
 	
-	public DistributionOrderListCriteria siteIds(Set<Long> siteIds) {
-		this.siteIds = siteIds;
+	public DistributionOrderListCriteria sites(Set<SiteCpPair> sites) {
+		this.sites = sites;
 		return self();
 	}
 	

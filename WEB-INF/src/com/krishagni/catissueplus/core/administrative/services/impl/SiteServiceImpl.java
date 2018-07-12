@@ -111,10 +111,6 @@ public class SiteServiceImpl implements SiteService, ObjectAccessor, Initializin
 	public ResponseEvent<SiteDetail> getSite(RequestEvent<SiteQueryCriteria> req) {
 		SiteQueryCriteria crit = req.getPayload();
 		Site site = getFromAccessibleSite(crit.getId(), crit.getName());
-		if (site == null) {
-			return ResponseEvent.userError(SiteErrorCode.NOT_FOUND);
-		}
-		
 		return ResponseEvent.response(SiteDetail.from(site));
 	}
 
@@ -237,10 +233,7 @@ public class SiteServiceImpl implements SiteService, ObjectAccessor, Initializin
 
 	@Override
 	public void ensureReadAllowed(Long id) {
-		Site site = getFromAccessibleSite(id, null);
-		if (site == null) {
-			throw OpenSpecimenException.userError(SiteErrorCode.NOT_FOUND);
-		}
+		getFromAccessibleSite(id, null);
 	}
 
 	@Override
@@ -401,65 +394,23 @@ public class SiteServiceImpl implements SiteService, ObjectAccessor, Initializin
 	}
 	
 	private List<Site> getAccessibleSites(SiteListCriteria criteria) {
-		Set<Site> accessibleSites = null;
-		if (StringUtils.isNotBlank(criteria.resource()) && StringUtils.isNotBlank(criteria.operation())) {
-			Resource resource = Resource.fromName(criteria.resource());
-			if (resource == null) {
-				throw OpenSpecimenException.userError(RbacErrorCode.RESOURCE_NOT_FOUND);
-			}
-			
-			Operation operation = Operation.fromName(criteria.operation());
-			if (operation == null) {
-				throw OpenSpecimenException.userError(RbacErrorCode.OPERATION_NOT_FOUND);
-			}
-			
-			accessibleSites = AccessCtrlMgr.getInstance().getSites(resource, operation);
-		} else {
-			accessibleSites = AccessCtrlMgr.getInstance().getRoleAssignedSites();
-		}
-
-		boolean noIds = CollectionUtils.isEmpty(criteria.ids());
-		boolean noIncTypes = CollectionUtils.isEmpty(criteria.includeTypes());
-		boolean noExlTypes = CollectionUtils.isEmpty(criteria.excludeTypes());
-		boolean noSearchTerm = StringUtils.isBlank(criteria.query());
-		return accessibleSites.stream()
-			.filter(site -> noIds || criteria.ids().contains(site.getId()))
-			.filter(site -> noIncTypes || criteria.includeTypes().contains(site.getType()))
-			.filter(site -> noExlTypes || !criteria.excludeTypes().contains(site.getType()))
-			.filter(site -> noSearchTerm || StringUtils.containsIgnoreCase(site.getName(), criteria.query()))
-			.sorted((site1, site2) -> site1.getName().compareTo(site2.getName()))
-			.collect(Collectors.toList());
+		return AccessCtrlMgr.getInstance().getAccessibleSites(criteria);
 	}
 	
 	private Site getFromAccessibleSite(Long siteId, String siteName) {
+		Site site = getSite(siteId, siteName);
+
 		if (AuthUtil.isAdmin()) {
-			return getSite(siteId, siteName);
+			return site;
 		}
 
-		Site result = null;
-		Set<Site> accessibleSites = AccessCtrlMgr.getInstance().getRoleAssignedSites();
-		for (Site site : accessibleSites) {
-			if (site.getId().equals(siteId)) {
-				result = site;
-			} else if (site.getName().equals(siteName)) {
-				result = site;
-			}
-			
-			if (result != null) {
-				break;
-			}
+		if (AccessCtrlMgr.getInstance().isAccessible(site)) {
+			return site;
 		}
 
-		if (result == null) {
-			try {
-				AccessCtrlMgr.getInstance().ensureCreateShipmentRights();
-				result = getSite(siteId, siteName);
-			} catch (OpenSpecimenException ose) {
-				
-			}
-		}
-		
-		return result;
+
+		AccessCtrlMgr.getInstance().ensureCreateShipmentRights();
+		return site;
 	}
 	
 	private SiteDetail curateBulkUpdateFields(SiteDetail input) {
@@ -500,16 +451,12 @@ public class SiteServiceImpl implements SiteService, ObjectAccessor, Initializin
 					return Collections.emptyList();
 				}
 
-				Collection<Site> sites;
-				if (AuthUtil.isAdmin()) {
-					sites = daoFactory.getSiteDao().getSites(new SiteListCriteria().startAt(startAt).ids(job.getRecordIds()));
-					startAt += sites.size();
+				int maxRecs = CollectionUtils.isNotEmpty(job.getRecordIds()) ? job.getRecordIds().size() : 100;
+				SiteListCriteria crit = new SiteListCriteria().ids(job.getRecordIds()).startAt(startAt).maxResults(maxRecs);
 
-					if (sites.isEmpty() || CollectionUtils.isNotEmpty(job.getRecordIds())) {
-						endOfSites = true;
-					}
-				} else {
-					sites = getAccessibleSites(new SiteListCriteria().ids(job.getRecordIds()));
+				Collection<Site> sites = daoFactory.getSiteDao().getSites(crit);
+				startAt += sites.size();
+				if (sites.isEmpty() || CollectionUtils.isNotEmpty(job.getRecordIds())) {
 					endOfSites = true;
 				}
 

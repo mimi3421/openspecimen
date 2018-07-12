@@ -2,6 +2,7 @@ package com.krishagni.catissueplus.core.administrative.repository;
 
 import java.util.Set;
 
+import com.krishagni.catissueplus.core.common.access.SiteCpPair;
 import com.krishagni.catissueplus.core.common.events.AbstractListCriteria;
 
 public class DpListCriteria extends AbstractListCriteria<DpListCriteria> {
@@ -16,7 +17,7 @@ public class DpListCriteria extends AbstractListCriteria<DpListCriteria> {
 
 	private String cpShortTitle;
 	
-	private Set<Long> siteIds;
+	private Set<SiteCpPair> sites;
 
 	private boolean excludeExpiredDps;
 	
@@ -72,12 +73,12 @@ public class DpListCriteria extends AbstractListCriteria<DpListCriteria> {
 		return self();
 	}
 	
-	public Set<Long> siteIds() {
-		return siteIds;
+	public Set<SiteCpPair> sites() {
+		return sites;
 	}
 	
-	public DpListCriteria siteIds(Set<Long> siteIds) {
-		this.siteIds = siteIds;
+	public DpListCriteria sites(Set<SiteCpPair> sites) {
+		this.sites = sites;
 		return self();
 	}
 

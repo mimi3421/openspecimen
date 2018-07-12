@@ -19,6 +19,7 @@ import com.krishagni.catissueplus.core.biospecimen.domain.BaseExtensionEntity;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.common.CollectionUpdater;
 import com.krishagni.catissueplus.core.common.Pair;
+import com.krishagni.catissueplus.core.common.access.SiteCpPair;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.util.Status;
@@ -199,6 +200,16 @@ public class DistributionProtocol extends BaseExtensionEntity {
 	}
 
 	@NotAudited
+	public Set<SiteCpPair> getAllowedDistributingSites() {
+		return getDistributingSites().stream().map(
+			(distSite) -> {
+				Long siteId = distSite.getSite() != null ? distSite.getSite().getId() : null;
+				return SiteCpPair.make(distSite.getInstitute().getId(), siteId, null);
+			}
+		).collect(Collectors.toSet());
+	}
+
+	@NotAudited
 	public Set<DpRequirement> getRequirements() {
 		return requirements;
 	}
@@ -268,19 +279,6 @@ public class DistributionProtocol extends BaseExtensionEntity {
 		setActivityStatus(Status.ACTIVITY_STATUS_DISABLED.getStatus());
 	}
 	
-	public Set<Site> getAllDistributingSites() {
-		Set<Site> sites = new HashSet<>();
-		for (DpDistributionSite distSite : getDistributingSites()) {
-			if (distSite.getSite() != null) {
-				sites.add(distSite.getSite());
-			} else {
-				sites.addAll(distSite.getInstitute().getSites());
-			}
-		}
-		
-		return sites;
-	}
-
 	public Set<Institute> getDistributingInstitutes() {
 		return getDistributingSites().stream().map(DpDistributionSite::getInstitute).collect(Collectors.toSet());
 	}

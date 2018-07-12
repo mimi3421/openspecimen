@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
@@ -25,7 +24,7 @@ import com.krishagni.catissueplus.core.administrative.events.ContainerCriteria;
 import com.krishagni.catissueplus.core.administrative.services.ContainerSelectionStrategy;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
-import com.krishagni.catissueplus.core.common.Pair;
+import com.krishagni.catissueplus.core.common.access.SiteCpPair;
 
 @Configurable
 public class RecentlyUsedContainerSelectionStrategy implements ContainerSelectionStrategy {
@@ -108,12 +107,12 @@ public class RecentlyUsedContainerSelectionStrategy implements ContainerSelectio
 		return query;
 	}
 
-	private Disjunction getSiteCpRestriction(Set<Pair<Long, Long>> siteCps) {
+	private Disjunction getSiteCpRestriction(Set<SiteCpPair> siteCps) {
 		Disjunction disjunction = Restrictions.disjunction();
-		for (Pair<Long, Long> siteCp : siteCps) {
+		for (SiteCpPair siteCp : siteCps) {
 			disjunction.add(Restrictions.and(
-					Restrictions.eq("site.id", siteCp.first()),
-					Restrictions.or(Restrictions.isNull("allowedCp.id"), Restrictions.eq("allowedCp.id", siteCp.second()))
+				Restrictions.eq("site.id", siteCp.getSiteId()),
+				Restrictions.or(Restrictions.isNull("allowedCp.id"), Restrictions.eq("allowedCp.id", siteCp.getCpId()))
 			));
 		}
 
