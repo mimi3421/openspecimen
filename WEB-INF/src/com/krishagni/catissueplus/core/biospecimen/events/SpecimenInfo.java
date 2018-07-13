@@ -20,7 +20,6 @@ import com.krishagni.catissueplus.core.common.ListenAttributeChanges;
 import com.krishagni.catissueplus.core.common.events.NameValuePair;
 import com.krishagni.catissueplus.core.common.util.NumUtil;
 
-@JsonSerialize(include= JsonSerialize.Inclusion.NON_NULL)
 @ListenAttributeChanges
 public class SpecimenInfo extends AttributeModifiedSupport implements Comparable<SpecimenInfo>, Serializable {
 	
@@ -101,6 +100,8 @@ public class SpecimenInfo extends AttributeModifiedSupport implements Comparable
 	private String distributionStatus;
 	
 	private Integer freezeThawCycles;
+
+	private String imageId;
 
 	private List<NameValuePair> externalIds;
 
@@ -408,6 +409,14 @@ public class SpecimenInfo extends AttributeModifiedSupport implements Comparable
 		this.freezeThawCycles = freezeThawCycles;
 	}
 
+	public String getImageId() {
+		return imageId;
+	}
+
+	public void setImageId(String imageId) {
+		this.imageId = imageId;
+	}
+
 	public List<NameValuePair> getExternalIds() {
 		return externalIds;
 	}
@@ -477,6 +486,7 @@ public class SpecimenInfo extends AttributeModifiedSupport implements Comparable
 		result.setCpId(specimen.getCollectionProtocol().getId());
 		result.setCpShortTitle(specimen.getCollectionProtocol().getShortTitle());
 		result.setFreezeThawCycles(specimen.getFreezeThawCycles());
+		result.setImageId(specimen.getImageId());
 		result.setExternalIds(specimen.getExternalIds().stream()
 			.map(externalId -> NameValuePair.create(externalId.getName(), externalId.getValue()))
 			.collect(Collectors.toList()));

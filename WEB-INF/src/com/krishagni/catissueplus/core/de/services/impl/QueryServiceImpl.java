@@ -355,12 +355,10 @@ public class QueryServiceImpl implements QueryService {
 					.setDbRowsCount(queryResult.getDbRowsCount())
 					.setColumnIndices(indices)
 			);
-		} catch (QueryParserException qpe) {
+		} catch (QueryParserException | IllegalArgumentException qpe) {
 			return ResponseEvent.userError(SavedQueryErrorCode.MALFORMED, qpe.getMessage());
 		} catch (QueryException qe) {
 			return ResponseEvent.userError(getErrorCode(qe.getErrorCode()), qe.getMessage());
-		} catch (IllegalArgumentException iae) {
-			return ResponseEvent.userError(SavedQueryErrorCode.MALFORMED, iae.getMessage());
 		} catch (IllegalAccessError iae) {
 			return ResponseEvent.userError(SavedQueryErrorCode.OP_NOT_ALLOWED, iae.getMessage());
 		} catch (OpenSpecimenException ose) {
@@ -432,12 +430,10 @@ public class QueryServiceImpl implements QueryService {
 		try {
 			queryCntIncremented = incConcurrentQueriesCnt();
 			return ResponseEvent.response(exportData(req.getPayload(), null, null));
-		} catch (QueryParserException qpe) {
+		} catch (QueryParserException | IllegalArgumentException qpe) {
 			return ResponseEvent.userError(SavedQueryErrorCode.MALFORMED, qpe.getMessage());
 		} catch (QueryException qe) {
 			return ResponseEvent.userError(getErrorCode(qe.getErrorCode()), qe.getMessage());
-		} catch (IllegalArgumentException iae) {
-			return ResponseEvent.userError(SavedQueryErrorCode.MALFORMED, iae.getMessage());
 		} catch (IllegalAccessError iae) {
 			return ResponseEvent.userError(SavedQueryErrorCode.OP_NOT_ALLOWED, iae.getMessage());
 		} catch (OpenSpecimenException ose) {
@@ -947,8 +943,8 @@ public class QueryServiceImpl implements QueryService {
 				
 				throw new IllegalAccessError("Access to cp is not permitted: " + cpId);
 			} else {
-				List<String> restrictions = new ArrayList<String>();
-				List<Long> cpIdList = new ArrayList<Long>(cpIds);
+				List<String> restrictions = new ArrayList<>();
+				List<Long> cpIdList = new ArrayList<>(cpIds);
 				
 				int startIdx = 0, numCpIds = cpIdList.size();
 				int chunkSize = 999;

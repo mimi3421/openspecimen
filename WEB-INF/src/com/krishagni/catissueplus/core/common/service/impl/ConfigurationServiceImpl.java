@@ -77,7 +77,7 @@ public class ConfigurationServiceImpl implements ConfigurationService, Initializ
 	public ResponseEvent<List<ConfigSettingDetail>> getSettings(RequestEvent<String> req) {
 		String module = req.getPayload();
 
-		List<ConfigSetting> settings = new ArrayList<ConfigSetting>();
+		List<ConfigSetting> settings = new ArrayList<>();
 		if (StringUtils.isBlank(module)) {
 			for (Map<String, ConfigSetting> moduleSettings : configSettings.values()) {
 				settings.addAll(moduleSettings.values());
@@ -98,13 +98,10 @@ public class ConfigurationServiceImpl implements ConfigurationService, Initializ
 		Pair<String, String> payload = req.getPayload();
 		try {
 			Map<String, ConfigSetting> moduleSettings = configSettings.get(payload.first());
-			if (moduleSettings == null) {
-				return ResponseEvent.userError(ConfigErrorCode.MODULE_NOT_FOUND);
-			}
 
-			ConfigSetting setting = moduleSettings.get(payload.second());
-			if (setting == null) {
-				return ResponseEvent.userError(ConfigErrorCode.SETTING_NOT_FOUND);
+			ConfigSetting setting;
+			if (moduleSettings == null || (setting = moduleSettings.get(payload.second())) == null) {
+				return ResponseEvent.response(new ConfigSettingDetail());
 			}
 
 			return ResponseEvent.response(ConfigSettingDetail.from(setting));

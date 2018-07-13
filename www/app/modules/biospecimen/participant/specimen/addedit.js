@@ -3,7 +3,7 @@ angular.module('os.biospecimen.specimen.addedit', [])
   .controller('AddEditSpecimenCtrl', function(
     $scope, $state, $parse, cp, cpr, visit, specimen, extensionCtxt,
     aliquotQtyReq, barcodingEnabled, spmnBarcodesAutoGen, hasDict, sysDict,
-    cpDict, layout, onValueChangeCb, spmnReq, defSpmns, createDerived,
+    cpDict, layout, onValueChangeCb, spmnReq, defSpmns, createDerived, imagingEnabled,
     Alerts, CpConfigSvc, PluginReg, Util, ParticipantSpecimensViewState,
     Specimen, CollectSpecimensSvc) {
 
@@ -18,7 +18,7 @@ angular.module('os.biospecimen.specimen.addedit', [])
         editMode: !!specimen.id, reqId: specimen.reqId, aliquotQtyReq: aliquotQtyReq,
         layout: layout, onValueChange: onValueChangeCb, mdInput: false,
         hasInfo: PluginReg.getTmpls('specimen-addedit', 'info').length > 0,
-        createDerived: createDerived
+        createDerived: createDerived, imagingEnabled: imagingEnabled
       }
 
       CpConfigSvc.getCommonCfg(cp.id, 'addSpecimen').then(

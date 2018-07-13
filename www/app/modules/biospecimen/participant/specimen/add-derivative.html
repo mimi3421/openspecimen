@@ -132,6 +132,14 @@
       </div>
     </div>
 
+    <div class="form-group" ng-if="imagingEnabled">
+      <label class="col-xs-3 control-label" translate="specimens.image_id">Image ID/URL</label>
+      <div class="col-xs-6">
+        <input ng-model="derivative.imageId" class="form-control"
+          type="text" placeholder="{{'specimens.image_id' | translate}}">
+      </div>
+    </div>
+
     <div class="form-group">
       <label class="col-xs-3 control-label" translate="specimens.qty">Initial Quantity</label>
       <div class="col-xs-6">

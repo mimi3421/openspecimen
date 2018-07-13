@@ -16,6 +16,7 @@ import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.service.TemplateService;
+import com.krishagni.catissueplus.core.common.util.ConfigUtil;
 import com.krishagni.catissueplus.core.de.domain.DeObject;
 import com.krishagni.catissueplus.core.de.domain.FormErrorCode;
 import com.krishagni.catissueplus.core.importer.domain.ObjectSchema;
@@ -91,6 +92,7 @@ public class CustomFieldsSchemaBuilder extends ExtensionSchemaBuilder {
 		Map<String, Object> params = new HashMap<>();
 		params.put("cp", cp);
 		params.put("schemaBuilder", this);
+		params.put("cfg", ConfigUtil.getInstance());
 		String template = templateService.render(schemaResource, params);
 		return new ByteArrayInputStream( template.getBytes() );
 	}

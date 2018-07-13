@@ -62,12 +62,21 @@ angular.module('os.biospecimen.specimen',
                 return (value === null || value === undefined || value === '') ? true : (value == true);
               }
             );
+          },
+
+          imagingEnabled: function(SettingUtil) {
+            return SettingUtil.getSetting('biospecimen', 'imaging').then(
+              function(setting) {
+                return setting.value == 'true' || setting.value == true;
+              }
+            );
           }
         },
-        controller: function($scope, participantSpmnsViewState, specimen) {
+        controller: function($scope, participantSpmnsViewState, specimen, imagingEnabled) {
           $scope.specimen = $scope.object = specimen;
           $scope.entityType = 'Specimen';
           $scope.extnState = 'specimen-detail.extensions.';
+          $scope.imagingEnabled = imagingEnabled;
 
           participantSpmnsViewState.selectSpecimen(specimen);
           $scope.$on('$destroy', function() { participantSpmnsViewState.unselectSpecimen(); });

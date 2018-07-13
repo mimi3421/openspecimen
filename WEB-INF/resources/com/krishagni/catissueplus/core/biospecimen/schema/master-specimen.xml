@@ -137,6 +137,13 @@
       <attribute>createdOn</attribute>
     </field>
 
+    #if ($cfg.getBoolSetting("biospecimen", "imaging", false))
+    <field>
+      <caption>#getMessage("specimen_image_id")</caption>
+      <attribute>imageId</attribute>
+    </field>
+    #end
+
     <field>
       <caption>#getMessage("specimen_comments")</caption>
       <attribute>comments</attribute>

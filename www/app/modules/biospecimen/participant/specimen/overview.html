@@ -1,6 +1,6 @@
 <div>
   <div class="os-page-commands">
-    <div class="left">
+    <div class="left" os-imaging>
       <button show-if-allowed="specimenResource.updateOpts" class="default" ui-sref="specimen-addedit"
         ng-if="!!visit.id && !specimen.reserved && (!specimen.activityStatus || specimen.activityStatus == 'Active')"
         ng-switch on="!!specimen.id">
@@ -61,6 +61,10 @@
             <span class="fa fa-caret-down"></span>
           </button>
           <ul class="dropdown-menu dropdown-menu-right">
+            <li>
+              <os-view-image image-id="specimen.imageId" show-text="true"></os-view-image>
+            </li>
+
             <li show-if-allowed="specimenResource.updateOpts"
               ng-if="!specimen.reserved && specimen.activityStatus == 'Active'">
               <a ui-sref="specimen-detail.events(
@@ -108,7 +112,7 @@
         </div>
       </div>
 
-      <os-specimen-tree title="specimens.child_specimens" cp="cp" cpr="cpr" visit="visit" specimens="treeSpecimens"
+      <os-specimen-tree cp="cp" cpr="cpr" visit="visit" specimens="treeSpecimens"
         allowed-ops="specimenAllowedOps" reload="reload()"
         pending-spmns-disp-interval="pendingSpmnsDispInterval">
       </os-specimen-tree>

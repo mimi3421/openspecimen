@@ -65,6 +65,8 @@ public class MasterSpecimenDetail {
 	private String label;
 
 	private String barcode;
+
+	private String imageId;
 	
 	private String specimenClass;
 	
@@ -352,6 +354,14 @@ public class MasterSpecimenDetail {
 
 	public void setBarcode(String barcode) {
 		this.barcode = barcode;
+	}
+
+	public String getImageId() {
+		return imageId;
+	}
+
+	public void setImageId(String imageId) {
+		this.imageId = imageId;
 	}
 
 	public String getSpecimenClass() {

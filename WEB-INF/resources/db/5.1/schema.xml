@@ -171,4 +171,10 @@
       baseTableName="OS_SAVED_QUERY_DEPS" baseColumnNames="SUB_QUERY_ID"
       referencedTableName="CATISSUE_SAVED_QUERIES" referencedColumnNames="IDENTIFIER"/>
   </changeSet>
+
+  <changeSet author="vpawar" id="Specimen image ID / URL">
+    <addColumn tableName="CATISSUE_SPECIMEN">
+      <column name="IMAGE_ID" type="${text.type}(255)"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

@@ -43,6 +43,8 @@
 
     <property name="freezeThawCycles" column="FREEZE_THAW_CYCLES"/>
 
+    <property name="imageId" column="IMAGE_ID"/>
+
     <set name="biohazards" table="OS_SPECIMEN_BIOHAZARDS" cascade="all-delete-orphan" batch-size="25">
       <key column="SPECIMEN_ID" />
       <element column="BIOHAZARD" type="string" />

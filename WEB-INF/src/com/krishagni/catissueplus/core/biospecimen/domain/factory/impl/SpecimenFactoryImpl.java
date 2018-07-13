@@ -143,6 +143,7 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 
 		setLabel(detail, existing, specimen, ose);
 		setBarcode(detail, existing, specimen, ose);
+		setImageId(detail, existing, specimen, ose);
 		setActivityStatus(detail, existing, specimen, ose);
 						
 		setAnatomicSite(detail, existing, specimen, ose);
@@ -188,6 +189,22 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 			setBarcode(detail, specimen, ose);
 		} else {
 			specimen.setBarcode(existing.getBarcode());
+		}
+	}
+
+	private void setImageId(SpecimenDetail detail, Specimen specimen, OpenSpecimenException ose) {
+		if (StringUtils.isBlank(detail.getImageId())) {
+			return;
+		}
+
+		specimen.setImageId(detail.getImageId());
+	}
+
+	private void setImageId(SpecimenDetail detail, Specimen existing, Specimen specimen, OpenSpecimenException ose) {
+		if (existing == null || detail.isAttrModified("imageId")) {
+			setImageId(detail, specimen, ose);
+		} else {
+			specimen.setImageId(existing.getImageId());
 		}
 	}
 

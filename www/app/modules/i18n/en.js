@@ -695,6 +695,7 @@
     "labels": "Labels",
     "labels_csv": "Comma separated list of specimen labels",
     "other": "Other",
+    "image_id": "Image ID / URL",
 
     "reason_for_closing": "Reason for closing",
 

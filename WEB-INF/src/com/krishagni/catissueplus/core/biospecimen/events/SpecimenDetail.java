@@ -23,7 +23,6 @@ import com.krishagni.catissueplus.core.common.ListenAttributeChanges;
 import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.catissueplus.core.de.events.ExtensionDetail;
 
-@JsonSerialize(include= JsonSerialize.Inclusion.NON_NULL)
 @ListenAttributeChanges
 public class SpecimenDetail extends SpecimenInfo {
 
@@ -158,26 +157,32 @@ public class SpecimenDetail extends SpecimenInfo {
 		this.specimensPool = specimensPool;
 	}
 
+	@JsonIgnore
 	public StorageLocationSummary getContainerLocation() {
 		return containerLocation;
 	}
 
+	@JsonProperty
 	public void setContainerLocation(StorageLocationSummary containerLocation) {
 		this.containerLocation = containerLocation;
 	}
 
+	@JsonIgnore
 	public Long getContainerTypeId() {
 		return containerTypeId;
 	}
 
+	@JsonProperty
 	public void setContainerTypeId(Long containerTypeId) {
 		this.containerTypeId = containerTypeId;
 	}
 
+	@JsonIgnore
 	public String getContainerTypeName() {
 		return containerTypeName;
 	}
 
+	@JsonProperty
 	public void setContainerTypeName(String containerTypeName) {
 		this.containerTypeName = containerTypeName;
 	}
@@ -198,18 +203,22 @@ public class SpecimenDetail extends SpecimenInfo {
 		this.comments = comments;
 	}
 
+	@JsonIgnore
 	public Boolean getCloseAfterChildrenCreation() {
 		return closeAfterChildrenCreation;
 	}
 
+	@JsonProperty
 	public void setCloseAfterChildrenCreation(Boolean closeAfterChildrenCreation) {
 		this.closeAfterChildrenCreation = closeAfterChildrenCreation;
 	}
 
+	@JsonIgnore
 	public Boolean getCloseParent() {
 		return closeParent;
 	}
 
+	@JsonProperty
 	public void setCloseParent(Boolean closeParent) {
 		this.closeParent = closeParent;
 	}
@@ -230,6 +239,7 @@ public class SpecimenDetail extends SpecimenInfo {
 		this.reqCode = reqCode;
 	}
 
+	@JsonIgnore
 	public boolean closeParent() {
 		return closeParent == null ? false : closeParent;
 	}
@@ -337,10 +347,12 @@ public class SpecimenDetail extends SpecimenInfo {
 		this.dpId = dpId;
 	}
 
+	@JsonIgnore
 	public StorageLocationSummary getHoldingLocation() {
 		return holdingLocation;
 	}
 
+	@JsonProperty
 	public void setHoldingLocation(StorageLocationSummary holdingLocation) {
 		this.holdingLocation = holdingLocation;
 	}

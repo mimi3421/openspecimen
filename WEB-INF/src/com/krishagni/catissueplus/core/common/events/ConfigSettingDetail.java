@@ -1,12 +1,11 @@
 package com.krishagni.catissueplus.core.common.events;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.krishagni.catissueplus.core.common.domain.ConfigProperty;
 import com.krishagni.catissueplus.core.common.domain.ConfigProperty.DataType;
@@ -123,7 +122,7 @@ public class ConfigSettingDetail implements Comparable<ConfigSettingDetail> {
 		result.setModule(module.getName());
 		result.setName(property.getName());
 		result.setType(property.getDataType());
-		result.setAllowedValues(new HashSet<String>(property.getAllowedValues()));
+		result.setAllowedValues(new HashSet<>(property.getAllowedValues()));
 		result.setDescCode(property.getDescCode());
 		result.setDisplayNameCode(property.getDisplayNameCode());
 		result.setSecured(property.isSecured());
@@ -133,13 +132,6 @@ public class ConfigSettingDetail implements Comparable<ConfigSettingDetail> {
 	}
 	
 	public static List<ConfigSettingDetail> from(Collection<ConfigSetting> settings) {
-		List<ConfigSettingDetail> result = new ArrayList<ConfigSettingDetail>();
-		
-		for (ConfigSetting cs :  settings) {
-			result.add(from(cs));
-		}
-		
-		Collections.sort(result);
-		return result;
+		return settings.stream().map(ConfigSettingDetail::from).sorted().collect(Collectors.toList());
 	}
 }

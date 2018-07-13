@@ -80,6 +80,14 @@ angular.module('os.biospecimen.models.specimen', ['os.common.models', 'os.biospe
         if (specimen.hasOnlyPendingChildren) {
           specimen.hasOnlyPendingChildren = hasOnlyPendingChildren(specimen.specimensPool);
         }
+
+        if (hasSpecimensPool) {
+          specimen.$$childrenHaveImg = hasImage(specimen.specimensPool);
+        }
+
+        if (!specimen.$$childrenHaveImg && hasChildren) {
+          specimen.$$childrenHaveImg = hasImage(specimen.children);
+        }
       });
 
       return result;
@@ -389,6 +397,14 @@ angular.module('os.biospecimen.models.specimen', ['os.common.models', 'os.biospe
       return specimens.every(
         function(spmn) {
           return !spmn.status || spmn.status == 'Pending';
+        }
+      );
+    }
+
+    function hasImage(specimens) {
+      return (specimens || []).some(
+        function(spmn) {
+          return !!spmn.imageId || !!spmn.$$childrenHaveImg;
         }
       );
     }

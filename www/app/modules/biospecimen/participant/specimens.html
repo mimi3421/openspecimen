@@ -58,7 +58,7 @@
             <th class="col col-xs-3" translate="specimens.location">Container</th>
           </tr>
         </thead>
-        <tbody class="os-table-body">
+        <tbody class="os-table-body" os-imaging>
           <tr class="row title" ng-class="{'selected': specimen.selected, 'os-pool-specimen': !!specimen.pooledSpecimen}"
             ng-repeat="specimen in specimens | openedTreeNodes" ng-if="!specimen.$$hideN">
             <td class="col col-xs-5">
@@ -70,6 +70,11 @@
                 <div style="margin-left: 12px;">
                   <div ng-style="{'padding-left': (specimen.hasChildren ? specimen.depth * 20 : specimen.depth * 20 + 16) + 'px'}">
                     <span ng-include="'modules/biospecimen/participant/specimens-tree-node-status.html'"></span>
+
+                    <span class="os-tree-image-icon" ng-style="!!specimen.imageId && {'color': 'red'}"
+                      ng-if="!!specimen.imageId || !!specimen.$$childrenHaveImg">
+                      <span class="fa fa-picture-o"></span>
+                    </span>
 
                     <a ui-sref="specimen-detail.overview({eventId: specimen.eventId, visitId: specimen.visitId,
                        specimenId: specimen.id, srId: specimen.reqId})">

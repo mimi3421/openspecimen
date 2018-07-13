@@ -10,6 +10,7 @@ import java.util.Map;
 import org.apache.commons.io.IOUtils;
 
 import com.krishagni.catissueplus.core.common.service.TemplateService;
+import com.krishagni.catissueplus.core.common.util.ConfigUtil;
 import com.krishagni.catissueplus.core.importer.domain.ObjectSchema;
 import com.krishagni.catissueplus.core.importer.services.ObjectSchemaBuilder;
 import com.krishagni.catissueplus.core.importer.services.ObjectSchemaFactory;
@@ -43,7 +44,7 @@ public class ObjectSchemaFactoryImpl implements ObjectSchemaFactory {
 	
 	@Override
 	public ObjectSchema getSchema(String name) {
-		return getSchema(name, Collections.<String, String>emptyMap());
+		return getSchema(name, Collections.emptyMap());
 	}
 	
 	@Override
@@ -93,7 +94,9 @@ public class ObjectSchemaFactoryImpl implements ObjectSchemaFactory {
 	}
 	
 	private InputStream preprocessSchema(String schemaResource) {
-		String template = templateService.render(schemaResource, new HashMap<String, Object>());
+		Map<String, Object> params = new HashMap<>();
+		params.put("cfg", ConfigUtil.getInstance());
+		String template = templateService.render(schemaResource, params);
 		return new ByteArrayInputStream( template.getBytes() );
 	}
 }

@@ -91,6 +91,8 @@ public class Specimen extends BaseExtensionEntity {
 
 	private Date createdOn;
 
+	private String imageId;
+
 	private BigDecimal availableQuantity;
 
 	private String collectionStatus;
@@ -373,6 +375,14 @@ public class Specimen extends BaseExtensionEntity {
 	public void setCreatedOn(Date createdOn) {
 		// For all specimens, the created on seconds and milliseconds should be reset to 0
 		this.createdOn = Utility.chopSeconds(createdOn);
+	}
+
+	public String getImageId() {
+		return imageId;
+	}
+
+	public void setImageId(String imageId) {
+		this.imageId = imageId;
 	}
 
 	public BigDecimal getAvailableQuantity() {
@@ -861,6 +871,7 @@ public class Specimen extends BaseExtensionEntity {
 		
 		setLabel(specimen.getLabel());
 		setBarcode(specimen.getBarcode());
+		setImageId(specimen.getImageId());
 		setInitialQuantity(specimen.getInitialQuantity());
 		setAvailableQuantity(specimen.getAvailableQuantity());
 		setConcentration((isPoolSpecimen() ? getPooledSpecimen() : specimen).getConcentration());

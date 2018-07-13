@@ -97,4 +97,11 @@
       <column name="externalIds_MOD" type="${boolean.type}"/>
     </addColumn>
   </changeSet>
+
+  <changeSet author="vpawar" id="Track changes to specimen image ID">
+    <addColumn tableName="CATISSUE_SPECIMEN_AUD">
+      <column name="IMAGE_ID" type="${text.type}(255)"/>
+      <column name="imageId_MOD" type="${boolean.type}"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

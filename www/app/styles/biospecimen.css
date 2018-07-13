@@ -451,3 +451,7 @@
   border: 1px solid #ddd;
 }
 
+.os-tree-image-icon {
+  color: inherit;
+  padding-right: 4px;
+}
