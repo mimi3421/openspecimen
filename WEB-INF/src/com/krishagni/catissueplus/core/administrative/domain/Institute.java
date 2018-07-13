@@ -85,6 +85,7 @@ public class Institute extends BaseEntity {
 		setActivityStatus(activityStatus);
 	}
 
+	@NotAudited
 	private Set<Site> getSites() {
 		return sites;
 	}
