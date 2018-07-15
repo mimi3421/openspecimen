@@ -177,4 +177,8 @@
       <column name="IMAGE_ID" type="${text.type}(255)"/>
     </addColumn>
   </changeSet>
+
+  <changeSet author="vpawar" id="Unique constraint on participant eMPI">
+    <addUniqueConstraint constraintName="PART_EMPI_ID_UQ" tableName="CATISSUE_PARTICIPANT" columnNames="EMPI_ID"/>
+  </changeSet>
 </databaseChangeLog>
