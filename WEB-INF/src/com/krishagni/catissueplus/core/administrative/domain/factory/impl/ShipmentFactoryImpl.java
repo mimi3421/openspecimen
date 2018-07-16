@@ -47,7 +47,7 @@ import com.krishagni.catissueplus.core.common.util.Status;
 import com.krishagni.catissueplus.core.importer.services.impl.ImporterContextHolder;
 
 public class ShipmentFactoryImpl implements ShipmentFactory {
-	private static final String RECV_QUALITY = "shipment_item_receive_quality";
+	private static final String RECV_QUALITY = "shipment_item_received_quality";
 
 	private DaoFactory daoFactory;
 	
