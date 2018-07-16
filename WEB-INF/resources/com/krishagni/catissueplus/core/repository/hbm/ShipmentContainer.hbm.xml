@@ -15,11 +15,6 @@
 
     <many-to-one name="container" column="CONTAINER_ID"/>
 
-    <property name="receivedQuality" column="RECEIVED_QUALITY">
-      <type name="org.hibernate.type.EnumType">
-        <param name="enumClass">com.krishagni.catissueplus.core.administrative.domain.Shipment$ItemReceiveQuality</param>
-        <param name="type">12</param>
-      </type>
-    </property>
+    <property name="receivedQuality" column="RECEIVED_QUALITY"/>
   </class>
 </hibernate-mapping>

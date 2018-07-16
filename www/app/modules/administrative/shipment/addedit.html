@@ -330,8 +330,9 @@
             </os-storage-position>
           </td>
           <td class="col" style="overflow: visible;" ng-if="shipment.status == 'Shipped'">
-            <os-select os-md-input name="quality" list="qualityStatuses" ng-model="item.receivedQuality" required>
-            </os-select>
+            <os-pvs os-md-input name="quality" attribute="shipment_item_receive_quality"
+              ng-model="item.receivedQuality" required>
+            </os-pvs>
             <div os-field-error field="sform.quality"></div>
           </td>
         </tr>
@@ -446,7 +447,9 @@
             </os-storage-position>
           </td>
           <td class="col" style="overflow: visible;" ng-if="shipment.status == 'Shipped'">
-            <os-select os-md-input name="quality" list="qualityStatuses" ng-model="item.receivedQuality" required></os-select>
+            <os-pvs os-md-input name="quality" attribute="shipment_item_receive_quality"
+              ng-model="item.receivedQuality" required>
+            </os-pvs>
             <div os-field-error field="cform.quality"></div>
           </td>
         </tr>

@@ -36,4 +36,18 @@
         name is not null or value is not null
     </sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="Update received quality of existing shipment containers and specimens">
+    <sql>update os_shipment_specimens set received_quality='Acceptable' where received_quality='ACCEPTABLE'</sql>
+    <sql>update os_shipment_specimens set received_quality='Unacceptable' where received_quality='UNACCEPTABLE'</sql>
+
+    <sql>update os_shipment_specimens_aud set received_quality='Acceptable' where received_quality = '0'</sql>
+    <sql>update os_shipment_specimens_aud set received_quality='Unacceptable' where received_quality = '1'</sql>
+
+    <sql>update os_shipment_containers set received_quality='Acceptable' where received_quality='ACCEPTABLE'</sql>
+    <sql>update os_shipment_containers set received_quality='Unacceptable' where received_quality='UNACCEPTABLE'</sql>
+
+    <sql>update os_shipment_containers_aud set received_quality='Acceptable' where received_quality = '0'</sql>
+    <sql>update os_shipment_containers_aud set received_quality='Unacceptable' where received_quality = '1'</sql>
+  </changeSet>
 </databaseChangeLog>

@@ -63,7 +63,7 @@
               <os-disp-storage-position position="specimen.storageLocation"></os-disp-storage-position>
             </td>
             <td class="col" ng-if="shipment.status == 'Received'">
-              <span>{{"shipments.quality." + item.receivedQuality | translate}}</span>
+              <span>{{item.receivedQuality}}</span>
             </td>
           </tr>
         </tbody>

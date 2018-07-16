@@ -60,10 +60,6 @@ public class Shipment extends BaseEntity {
 		SPECIMEN, CONTAINER
 	}
 
-	public enum ItemReceiveQuality {
-		ACCEPTABLE, UNACCEPTABLE
-	}
-
 	private String name;
 
 	private Type type;

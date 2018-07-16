@@ -66,11 +66,6 @@ angular.module('openspecimen')
       'Closed'
     ];
 
-    var qualityStatuses = [
-      'Acceptable',
-      'Unacceptable'
-    ];
-
     var visitNamePrintModes = [
       {name: 'PRE_PRINT', displayKey:'cp.visit_name_print_modes.PRE_PRINT'},
       {name: 'ON_COMPLETION', displayKey:'cp.visit_name_print_modes.ON_COMPLETION'},
@@ -114,7 +109,6 @@ angular.module('openspecimen')
       'specimen-status': specimenStatuses,
       'container-position-labeling-schemes': positionLabelingSchemes,
       'activity-status': activityStatuses,
-      'quality-status': qualityStatuses,
       'visit-name-print-modes': visitNamePrintModes,
       'specimen-label-pre-print-modes': spmnLabelPrePrintModes,
       'specimen-label-auto-print-modes': spmnLabelAutoPrintModes,

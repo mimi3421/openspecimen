@@ -18,7 +18,7 @@ public class ShipmentContainer extends BaseEntity {
 
 	private StorageContainer container;
 
-	private Shipment.ItemReceiveQuality receivedQuality;
+	private String receivedQuality;
 
 	public Shipment getShipment() {
 		return shipment;
@@ -36,11 +36,11 @@ public class ShipmentContainer extends BaseEntity {
 		this.container = container;
 	}
 
-	public Shipment.ItemReceiveQuality getReceivedQuality() {
+	public String getReceivedQuality() {
 		return receivedQuality;
 	}
 
-	public void setReceivedQuality(Shipment.ItemReceiveQuality receivedQuality) {
+	public void setReceivedQuality(String receivedQuality) {
 		this.receivedQuality = receivedQuality;
 	}
 

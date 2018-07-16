@@ -959,8 +959,7 @@
             <caption>#getMessage("specimen_shipment_recv_quality")</caption>
             <column>RECEIVED_QUALITY</column>
             <options>
-              <option><value>Acceptable</value></option>
-              <option><value>Unacceptable</value></option>
+              <sql>select value from catissue_permissible_value where public_id = 'shipment_item_receive_quality' order by value</sql>
             </options>
           </dropDown>
         </row>

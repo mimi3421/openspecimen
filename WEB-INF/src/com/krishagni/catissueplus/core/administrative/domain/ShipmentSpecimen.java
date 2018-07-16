@@ -21,7 +21,7 @@ public class ShipmentSpecimen extends BaseEntity {
 
 	private ShipmentContainer shipmentContainer;
 	
-	private Shipment.ItemReceiveQuality receivedQuality;
+	private String receivedQuality;
 
 	@Autowired
 	private SpecimenService spmnSvc;
@@ -50,11 +50,11 @@ public class ShipmentSpecimen extends BaseEntity {
 		this.shipmentContainer = shipmentContainer;
 	}
 
-	public Shipment.ItemReceiveQuality getReceivedQuality() {
+	public String getReceivedQuality() {
 		return receivedQuality;
 	}
 
-	public void setReceivedQuality(Shipment.ItemReceiveQuality receivedQuality) {
+	public void setReceivedQuality(String receivedQuality) {
 		this.receivedQuality = receivedQuality;
 	}
 
@@ -76,7 +76,7 @@ public class ShipmentSpecimen extends BaseEntity {
 		SpecimenShipmentReceivedEvent.createForShipmentItem(this).saveRecordEntry();
 	}
 
-	public void receive(Shipment.ItemReceiveQuality receivedQuality) {
+	public void receive(String receivedQuality) {
 		setReceivedQuality(receivedQuality);
 		SpecimenShipmentReceivedEvent.createForShipmentItem(this).saveRecordEntry();
 	}
@@ -93,7 +93,7 @@ public class ShipmentSpecimen extends BaseEntity {
 	}
 
 	private void updateSpecimen(ShipmentSpecimen other) {
-		if (!getShipment().isSpecimenShipment() || getReceivedQuality() != Shipment.ItemReceiveQuality.ACCEPTABLE) {
+		if (!getShipment().isSpecimenShipment()) {
 			return;
 		}
 

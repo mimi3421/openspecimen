@@ -1,7 +1,6 @@
 angular.module('os.administrative.shipment.receive', ['os.administrative.models'])
   .controller('ShipmentReceiveCtrl', function(
-    $scope, $state, shipment, shipmentItems, isSpmnRelabelingAllowed,
-    ShipmentUtil, Specimen, Container, PvManager) {
+    $scope, $state, shipment, shipmentItems, isSpmnRelabelingAllowed, ShipmentUtil, Specimen, Container) {
 
     function init() {
       $scope.ctx = {relabelSpmns: isSpmnRelabelingAllowed};
@@ -20,7 +19,6 @@ angular.module('os.administrative.shipment.receive', ['os.administrative.models'
         shipment.receivedDate = new Date();
       }
       
-      loadPvs();
       showOrHidePpidAndExtIds();
     }
 
@@ -30,10 +28,6 @@ angular.module('os.administrative.shipment.receive', ['os.administrative.models'
       } else {
         return {collName: 'shipmentContainers', itemKey: 'container', newItem: function(i) { return new Container(i) }};
       }
-    }
-
-    function loadPvs() {
-      $scope.qualityStatuses = PvManager.getPvs('quality-status');
     }
 
     function showOrHidePpidAndExtIds() {

@@ -2175,11 +2175,6 @@
       "Received": "Received"
     },
 
-    "quality": {
-      "ACCEPTABLE": "Acceptable",
-      "UNACCEPTABLE": "Unacceptable"
-    },
-
     "buttons": {
       "ship": "Ship",
       "save_draft": "Save Draft",

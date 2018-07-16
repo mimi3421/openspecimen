@@ -39,14 +39,16 @@ import com.krishagni.catissueplus.core.common.errors.ActivityStatusErrorCode;
 import com.krishagni.catissueplus.core.common.errors.ErrorType;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
+import com.krishagni.catissueplus.core.common.service.PvValidator;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.catissueplus.core.common.util.ConfigUtil;
 import com.krishagni.catissueplus.core.common.util.NumUtil;
 import com.krishagni.catissueplus.core.common.util.Status;
-import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.catissueplus.core.importer.services.impl.ImporterContextHolder;
 
 public class ShipmentFactoryImpl implements ShipmentFactory {
+	private static final String RECV_QUALITY = "shipment_item_receive_quality";
+
 	private DaoFactory daoFactory;
 	
 	private SpecimenFactory specimenFactory;
@@ -372,15 +374,12 @@ public class ShipmentFactoryImpl implements ShipmentFactory {
 			return null;
 		}
 		
-		Shipment.ItemReceiveQuality receivedQuality = null;
+		String receivedQuality = null;
 		if (shipment.isReceived()) {
 			receivedQuality = getReceivedQuality(detail.getReceivedQuality(), ose);
-			if (receivedQuality == null) {
-				return null;
-			}
 		}
 		
-		Specimen specimen = getSpecimen(shipment, detail.getSpecimen(), receivedQuality, ose);
+		Specimen specimen = getSpecimen(shipment, detail.getSpecimen(), ose);
 		if (specimen == null) {
 			return null;
 		}
@@ -400,15 +399,12 @@ public class ShipmentFactoryImpl implements ShipmentFactory {
 			return null;
 		}
 
-		Shipment.ItemReceiveQuality receivedQuality = null;
+		String receivedQuality = null;
 		if (shipment.isReceived()) {
 			receivedQuality = getReceivedQuality(detail.getReceivedQuality(), ose);
-			if (receivedQuality == null) {
-				return null;
-			}
 		}
 
-		StorageContainer container = getContainer(shipment, detail.getContainer(), receivedQuality, ose);
+		StorageContainer container = getContainer(shipment, detail.getContainer(), ose);
 		if (container == null) {
 			return null;
 		}
@@ -420,26 +416,19 @@ public class ShipmentFactoryImpl implements ShipmentFactory {
 		return shipmentContainer;
 	}
 
-	private Shipment.ItemReceiveQuality getReceivedQuality(String input, OpenSpecimenException ose) {
-		Shipment.ItemReceiveQuality receivedQuality = null;
-		try {
-			receivedQuality = Shipment.ItemReceiveQuality.valueOf(input.toUpperCase());
-		} catch (IllegalArgumentException iae) {
+	private String getReceivedQuality(String input, OpenSpecimenException ose) {
+		if (!PvValidator.isValid(RECV_QUALITY, input)) {
 			ose.addError(ShipmentErrorCode.INV_RECEIVED_QUALITY, input);
 		}
 
-		return receivedQuality;
+		return input;
 	}
 
-	private Specimen getSpecimen(Shipment shipment, SpecimenInfo info, Shipment.ItemReceiveQuality receivedQuality, OpenSpecimenException ose) {
+	private Specimen getSpecimen(Shipment shipment, SpecimenInfo info, OpenSpecimenException ose) {
 		Specimen existing = specimenResolver.getSpecimen(info.getId(), info.getCpShortTitle(), info.getLabel(), info.getBarcode(), ose);
-		if (existing == null) {
-			return null;
-		}
-
-		if (receivedQuality != Shipment.ItemReceiveQuality.ACCEPTABLE) {
+		if (existing == null || !shipment.isReceived()) {
 			return existing;
-		} 
+		}
 
 		//
 		// Assign location only if received quality is acceptable
@@ -468,7 +457,7 @@ public class ShipmentFactoryImpl implements ShipmentFactory {
 		return ConfigUtil.getInstance().getBoolSetting(ADMIN_MODULE, ALLOW_SPMN_RELABELING, false);
 	}
 
-	private StorageContainer getContainer(Shipment shipment, StorageContainerSummary info, Shipment.ItemReceiveQuality receivedQuality, OpenSpecimenException ose) {
+	private StorageContainer getContainer(Shipment shipment, StorageContainerSummary info, OpenSpecimenException ose) {
 		Object key = null;
 		StorageContainer existing = null;
 		if (info.getId() != null) {
@@ -488,11 +477,6 @@ public class ShipmentFactoryImpl implements ShipmentFactory {
 		if (existing == null || !shipment.isReceived()) {
 			return existing;
 		}
-
-		//
-		// We found the container and the shipment is in received state.
-		// TODO: what to do if received quality is not acceptable
-		//
 
 		StorageContainerDetail detail = new StorageContainerDetail();
 		detail.setId(existing.getId());
