@@ -6,6 +6,8 @@ public class ShipmentItemsListCriteria extends AbstractListCriteria<ShipmentItem
 
 	private Long shipmentId;
 
+	private Long containerId;
+
 	@Override
 	public ShipmentItemsListCriteria self() {
 		return this;
@@ -17,6 +19,15 @@ public class ShipmentItemsListCriteria extends AbstractListCriteria<ShipmentItem
 
 	public ShipmentItemsListCriteria shipmentId(Long shipmentId) {
 		this.shipmentId = shipmentId;
+		return self();
+	}
+
+	public Long containerId() {
+		return containerId;
+	}
+
+	public ShipmentItemsListCriteria containerId(Long containerId) {
+		this.containerId = containerId;
 		return self();
 	}
 }

@@ -96,13 +96,22 @@ public class ShipmentDaoImpl extends AbstractDao<Shipment> implements ShipmentDa
 	@Override
 	@SuppressWarnings("unchecked")
 	public List<ShipmentSpecimen> getShipmentSpecimens(ShipmentItemsListCriteria crit) {
-		return getCurrentSession().createCriteria(ShipmentSpecimen.class, "ss")
+		Criteria query = getCurrentSession().createCriteria(ShipmentSpecimen.class, "ss")
 			.createAlias("ss.shipment", "s")
 			.add(Restrictions.eq("s.id", crit.shipmentId()))
 			.setFirstResult(crit.startAt())
 			.setMaxResults(crit.maxResults())
-			.addOrder(Order.asc("ss.id"))
-			.list();
+			.addOrder(Order.asc("ss.id"));
+
+		if (crit.containerId() != null) {
+			query.createAlias("ss.specimen", "specimen")
+				.createAlias("specimen.position", "pos")
+				.createAlias("pos.container", "box")
+				.createAlias("box.ancestorContainers", "container")
+				.add(Restrictions.eq("container.id", crit.containerId()));
+		}
+
+		return query.list();
 	}
 
 	@Override

@@ -399,12 +399,6 @@ public class Shipment extends BaseEntity {
 			ShipmentContainer oldItem = existingItems.get(newItem.getContainer());
 			oldItem.receive(newItem);
 		}
-
-		for (ShipmentSpecimen shipmentSpecimen : getShipmentSpecimens()) {
-			Specimen spmn = shipmentSpecimen.getSpecimen();
-			StorageContainer container = spmn.getPosition().getContainer();
-			shipmentSpecimen.receive(existingItems.get(container).getReceivedQuality());
-		}
 	}
 
 	private void ensureShippedContainers(Shipment other) {

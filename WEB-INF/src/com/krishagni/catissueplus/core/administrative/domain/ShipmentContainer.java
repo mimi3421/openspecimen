@@ -5,6 +5,7 @@ import java.util.List;
 import org.hibernate.envers.Audited;
 
 import com.krishagni.catissueplus.core.administrative.domain.factory.StorageContainerErrorCode;
+import com.krishagni.catissueplus.core.administrative.events.ShipmentItemsListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.domain.BaseEntity;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
@@ -52,14 +53,16 @@ public class ShipmentContainer extends BaseEntity {
 	public void receive(ShipmentContainer other) {
 		setReceivedQuality(other.getReceivedQuality());
 		updatePosition(other);
+		receiveSpecimens(other.getReceivedQuality());
 	}
 
 	private void shipSpecimens() {
 		DaoFactory daoFactory = OpenSpecimenAppCtxProvider.getBean("biospecimenDaoFactory");
 
-		int startAt = 0, maxSpmns = 100;
+		int startAt = 0, maxSpmns = 50;
 		SpecimenListCriteria crit = new SpecimenListCriteria()
 			.ancestorContainerId(getContainer().getId())
+			.limitItems(true)
 			.maxResults(maxSpmns);
 
 		boolean endOfSpmns = false;
@@ -88,5 +91,26 @@ public class ShipmentContainer extends BaseEntity {
 		}
 
 		getContainer().moveTo(other.getContainer().getSite(), parentContainer, position);
+	}
+
+	private void receiveSpecimens(String receivedQuality) {
+		DaoFactory daoFactory = OpenSpecimenAppCtxProvider.getBean("biospecimenDaoFactory");
+
+		int startAt = 0, maxSpmns = 50;
+		ShipmentItemsListCriteria crit = new ShipmentItemsListCriteria()
+			.shipmentId(getShipment().getId())
+			.containerId(getContainer().getId());
+
+		boolean endOfSpmns = false;
+		while (!endOfSpmns) {
+			List<ShipmentSpecimen> spmns = daoFactory.getShipmentDao().getShipmentSpecimens(crit.startAt(startAt));
+			for (ShipmentSpecimen spmn : spmns) {
+				spmn.receive(receivedQuality);
+			}
+
+			startAt += spmns.size();
+			endOfSpmns = (spmns.size() < maxSpmns);
+			spmns.clear();
+		}
 	}
 }
