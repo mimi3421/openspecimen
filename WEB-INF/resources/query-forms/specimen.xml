@@ -207,6 +207,22 @@
     </row>
 
     <row>
+      <listBox>
+        <name>biohazards</name>
+        <udn>biohazards</udn>
+        <caption>#getMessage("specimen_biohazard")</caption>
+        <multiSelect>true</multiSelect>
+        <table>OS_SPECIMEN_BIOHAZARDS</table>
+        <column>BIOHAZARD</column>
+        <foreignKey>SPECIMEN_ID</foreignKey>
+        <parentKey>IDENTIFIER</parentKey>
+        <options>
+          <sql>select value from catissue_permissible_value where public_id = 'specimen_biohazard' order by value</sql>
+        </options>
+      </listBox>
+    </row>
+
+    <row>
       <dropDown>
         <name>collectionStatus</name>
         <udn>collectionStatus</udn>
@@ -350,6 +366,32 @@
               </numberField>
             </row>
           </subForm>
+        </row>
+      </subForm>
+    </row>
+
+    <row>
+      <subForm>
+        <name>externalIds</name>
+        <udn>externalIds</udn>
+        <caption>#getMessage("specimen_external_ids")</caption>
+        <table>OS_SPMN_EXTERNAL_IDS</table>
+        <primaryKey>IDENTIFIER</primaryKey>
+        <foreignKey>SPECIMEN_ID</foreignKey>
+        <parentKey>IDENTIFIER</parentKey>
+        <row>
+          <textField>
+            <name>name</name>
+            <udn>name</udn>
+            <caption>#getMessage("specimen_external_id_name")</caption>
+            <column>NAME</column>
+          </textField>
+          <textField>
+            <name>value</name>
+            <udn>value</udn>
+            <caption>#getMessage("specimen_external_id_value")</caption>
+            <column>VALUE</column>
+          </textField>
         </row>
       </subForm>
     </row>
@@ -527,22 +569,6 @@
       </subForm>
     </row>
     
-    <row>
-      <listBox>
-        <name>biohazards</name>
-        <udn>biohazards</udn>
-        <caption>#getMessage("specimen_biohazard")</caption>
-        <multiSelect>true</multiSelect>
-        <table>OS_SPECIMEN_BIOHAZARDS</table>
-        <column>BIOHAZARD</column>
-        <foreignKey>SPECIMEN_ID</foreignKey>
-        <parentKey>IDENTIFIER</parentKey>
-        <options>
-          <sql>select value from catissue_permissible_value where public_id = 'specimen_biohazard' order by value</sql>
-        </options>
-      </listBox>
-    </row>
-
     <row>
       <subForm>
         <name>specimenResv</name>
