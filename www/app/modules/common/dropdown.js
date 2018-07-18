@@ -1,15 +1,23 @@
 angular.module('openspecimen')
-  .directive('osSelect', function() {
+  .directive('osSelect', function($parse) {
     function linker(scope, element, attrs) {
-      var changeFn = undefined
-      if (attrs.onChange) {
-        changeFn = scope.$eval(attrs.onChange);
-        scope.$watch(attrs.ngModel, function(newVal, oldVal) {
-          if (newVal != oldVal) {
-            scope.$eval(attrs.onChange)(newVal);
-          }
-        });
+      if (!attrs.onChange && (attrs.required !== undefined)) {
+        return;
       }
+
+      scope.$watch(attrs.ngModel,
+        function(newVal, oldVal) {
+          if (newVal != oldVal) {
+            if (newVal == undefined) {
+              $parse(attrs.ngModel).assign(scope, null);
+            }
+
+            if (attrs.onChange) {
+              scope.$eval(attrs.onChange)(newVal);
+            }
+          }
+        }
+      );
     }
 
     function getItemDisplayValue(item, tAttrs) {
