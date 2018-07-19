@@ -12,7 +12,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -877,8 +876,12 @@ public class Specimen extends BaseExtensionEntity {
 		setAvailableQuantity(specimen.getAvailableQuantity());
 		setConcentration((isPoolSpecimen() ? getPooledSpecimen() : specimen).getConcentration());
 
-		if (isPrimary() && !Objects.equals(getVisit(), specimen.getVisit())) {
-			updateVisit(specimen.getVisit(), specimen.getSpecimenRequirement());
+		if (!getVisit().equals(specimen.getVisit())) {
+			if (isPrimary()) {
+				updateVisit(specimen.getVisit(), specimen.getSpecimenRequirement());
+			} else {
+				throw OpenSpecimenException.userError(SpecimenErrorCode.VISIT_CHG_NOT_ALLOWED, getLabel());
+			}
 		}
 
 		updateExternalIds(specimen.getExternalIds());
