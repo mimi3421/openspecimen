@@ -840,11 +840,7 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 		if (specimen == null) {
 			ensureEditAllowed(detail, existing);
 
-			if (existing != null) {
-				specimen = specimenFactory.createSpecimen(existing, detail, parent);
-			} else {
-				specimen = specimenFactory.createSpecimen(detail, parent);
-			}
+			specimen = specimenFactory.createSpecimen(existing, detail, parent);
 		} else {
 			ensureEditAllowed(specimen, existing);
 		}

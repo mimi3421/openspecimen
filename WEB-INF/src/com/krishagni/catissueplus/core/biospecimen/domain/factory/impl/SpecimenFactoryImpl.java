@@ -90,11 +90,6 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 	}
 
 	@Override
-	public Specimen createSpecimen(SpecimenDetail detail, Specimen parent) {
-		return createSpecimen(null, detail, parent);
-	}
-
-	@Override
 	public Specimen createSpecimen(Specimen existing, SpecimenDetail detail, Specimen parent) {
 		OpenSpecimenException ose = new OpenSpecimenException(ErrorType.USER_ERROR);
 
@@ -395,7 +390,13 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 		Long reqId = detail.getReqId();
 		String reqCode = detail.getReqCode();
 
-		SpecimenRequirement existingReq = existing != null ? existing.getSpecimenRequirement() : null;
+		SpecimenRequirement existingReq = null;
+		if (existing != null) {
+			if (!existing.isPrimary() || existing.getVisit().equals(visit)) {
+				existingReq = existing.getSpecimenRequirement();
+			}
+		}
+
 		if (reqId == null && !isReqCodeSpecified(detail, visit)) {
 			return existingReq;
 		}

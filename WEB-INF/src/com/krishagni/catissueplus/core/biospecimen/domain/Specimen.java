@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -876,6 +877,10 @@ public class Specimen extends BaseExtensionEntity {
 		setAvailableQuantity(specimen.getAvailableQuantity());
 		setConcentration((isPoolSpecimen() ? getPooledSpecimen() : specimen).getConcentration());
 
+		if (isPrimary() && !Objects.equals(getVisit(), specimen.getVisit())) {
+			updateVisit(specimen.getVisit(), specimen.getSpecimenRequirement());
+		}
+
 		updateExternalIds(specimen.getExternalIds());
 		updateEvent(getCollectionEvent(), specimen.getCollectionEvent());
 		updateEvent(getReceivedEvent(), specimen.getReceivedEvent());
@@ -1650,6 +1655,14 @@ public class Specimen extends BaseExtensionEntity {
 			//
 			parentSpmn.addToChildrenEvent(childSpmn);
 		}
+	}
+
+	private void updateVisit(Visit visit, SpecimenRequirement sr) {
+		setVisit(visit);
+		setCollectionProtocol(visit.getCollectionProtocol());
+		setSpecimenRequirement(sr);
+		getSpecimensPool().forEach(poolSpmn -> poolSpmn.updateVisit(visit, null));
+		getChildCollection().forEach(child -> child.updateVisit(visit, null));
 	}
 
 	private void updateExternalIds(Collection<SpecimenExternalIdentifier> otherExternalIds) {
