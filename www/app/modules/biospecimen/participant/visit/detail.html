@@ -50,7 +50,8 @@
           <span class="os-title" translate="visits.menu.overview">Overview</span>
         </a>
       </li>
-      <li show-if-allowed="sprResource.readOpts" ui-sref-active="active" ng-if="sprUploadAllowed">
+      <li show-if-allowed="sprResource.readOpts" ng-if="sprUploadAllowed" ui-sref-active="active"
+        ng-class="{'highlight': !!visit.sprName}">
         <a ui-sref=".spr">
           <span class="fa fa-file-text-o"></span>
           <span class="os-title" translate="visits.menu.spr_report">Surgical Pathology Report</span>

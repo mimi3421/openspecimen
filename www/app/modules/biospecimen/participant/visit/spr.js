@@ -36,7 +36,7 @@ angular.module('os.biospecimen.visit.spr', ['os.biospecimen.models'])
         function(filename) {
           Alerts.success("visits.spr_uploaded", {file: filename});
           $scope.uploadMode = false;
-          $scope.spr.name = filename;
+          visit.sprName = $scope.spr.name = filename;
           loadSpr();
         }
       )
@@ -59,7 +59,7 @@ angular.module('os.biospecimen.visit.spr', ['os.biospecimen.models'])
       visit.deleteSprFile().then(
         function(isDeleted) {
           if (isDeleted) {
-            $scope.spr.name = undefined;
+            visit.sprName = $scope.spr.name = undefined;
           }
         }
       );

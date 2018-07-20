@@ -58,6 +58,14 @@ ul.os-side-menu li a {
   text-align: center;
 }
 
+ul.os-side-menu li.highlight {
+  background: #428bca;
+}
+
+ul.os-side-menu li.highlight a {
+  color: #fff;
+}
+
 .os-side-menu-wrapper.opened ul.os-side-menu li a {
   text-align: left!important;
   padding-left: 10px;
@@ -77,6 +85,11 @@ ul.os-side-menu li:hover {
   background: #e0e0e0;
 }
 
+ul.os-side-menu li.highlight:hover a {
+  color: #fff;
+  background: #3071a9;
+}
+
 ul.os-side-menu li:hover a {
   text-decoration: none;
 }
@@ -93,6 +106,10 @@ ul.os-side-menu li.active a {
   color: rgb(66, 139, 202);
   padding-left: 0px;
   text-decoration: none;
+}
+
+ul.os-side-menu li.highlight.active {
+  background: inherit;
 }
 
 .os-side-menu-page-content {
