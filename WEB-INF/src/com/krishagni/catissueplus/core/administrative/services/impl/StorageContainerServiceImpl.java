@@ -508,21 +508,23 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 	public ResponseEvent<List<StorageContainerPositionDetail>> blockPositions(RequestEvent<PositionsDetail> req) {
 		try {
 			PositionsDetail opDetail = req.getPayload();
-			if (CollectionUtils.isEmpty(opDetail.getPositions())) {
-				return ResponseEvent.response(Collections.emptyList());
-			}
-
 			StorageContainer container = getContainer(opDetail.getContainerId(), opDetail.getContainerName());
 			AccessCtrlMgr.getInstance().ensureUpdateContainerRights(container);
 			if (container.isDimensionless()) {
 				return ResponseEvent.userError(StorageContainerErrorCode.DL_POS_BLK_NP, container.getName());
 			}
 
-			List<StorageContainerPosition> positions = opDetail.getPositions().stream()
+			List<StorageContainerPosition> positions = Utility.nullSafeStream(opDetail.getPositions())
 				.map(detail -> container.createPosition(detail.getPosOne(), detail.getPosTwo()))
 				.collect(Collectors.toList());
 
-			container.blockPositions(positions);
+			if (positions.isEmpty()) {
+				container.blockAllPositions();
+			} else {
+				container.blockPositions(positions);
+			}
+
+
 			daoFactory.getStorageContainerDao().saveOrUpdate(container, true);
 			return ResponseEvent.response(StorageContainerPositionDetail.from(container.getOccupiedPositions()));
 		} catch (OpenSpecimenException ose) {
@@ -537,21 +539,22 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 	public ResponseEvent<List<StorageContainerPositionDetail>> unblockPositions(RequestEvent<PositionsDetail> req) {
 		try {
 			PositionsDetail opDetail = req.getPayload();
-			if (CollectionUtils.isEmpty(opDetail.getPositions())) {
-				return ResponseEvent.response(Collections.emptyList());
-			}
-
 			StorageContainer container = getContainer(opDetail.getContainerId(), opDetail.getContainerName());
 			AccessCtrlMgr.getInstance().ensureUpdateContainerRights(container);
 			if (container.isDimensionless()) {
 				return ResponseEvent.userError(StorageContainerErrorCode.DL_POS_BLK_NP, container.getName());
 			}
 
-			List<StorageContainerPosition> positions = opDetail.getPositions().stream()
+			List<StorageContainerPosition> positions = Utility.nullSafeStream(opDetail.getPositions())
 				.map(detail -> container.createPosition(detail.getPosOne(), detail.getPosTwo()))
 				.collect(Collectors.toList());
 
-			container.unblockPositions(positions);
+			if (positions.isEmpty()) {
+				container.unblockAllPositions();
+			} else {
+				container.unblockPositions(positions);
+			}
+
 			daoFactory.getStorageContainerDao().saveOrUpdate(container, true);
 			return ResponseEvent.response(StorageContainerPositionDetail.from(container.getOccupiedPositions()));
 		} catch (OpenSpecimenException ose) {

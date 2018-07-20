@@ -1342,10 +1342,14 @@
       "VT_BOTTOM_UP_RIGHT_LEFT": "Vertical, bottom up, right to left"
     },
     "block": "Block",
+    "block_all": "Block All",
+    "block_all_help": "Block all the empty positions",
     "unblock": "Unblock",
+    "unblock_all": "Unblock All",
+    "unblock_all_help": "Free up all the blocked positions",
     "cell_blocked": "Blocked",
     "empty_cells_can_be_blocked": "Only empty positions can be blocked",
-    "blocked_cells_can_be_unblocked": "Only blocked positions can be unblocked",
+    "blocked_cells_can_be_unblocked": "Only blocked positions can be freed",
     "cell_display_prop": "Display in Map",
     "cell_display_props": {
       "SPECIMEN_LABEL": "Specimen Label",

@@ -1,5 +1,35 @@
 <div class="os-full-height-container" ng-class="{'row': !!lctx.entityInfo.id}">
   <div class="os-container-locations" ng-class="{'col-xs-8': !!lctx.entityInfo.id}">
+    <div class="os-page-commands" show-if-allowed="containerResource.updateOpts" ng-if="ctx.container.storeSpecimensEnabled">
+      <div class="left">
+        <span ng-if="!lctx.input.labels && lctx.selected.length == 0 && ctx.container.usedFor == 'STORAGE' &&
+          (lctx.hasFreeSlots || lctx.hasBlockedSlots)">
+          <button class="default" os-tooltip="{{'container.block_all_help' | translate}}"
+            ng-click="blockAllPositions()" ng-if="lctx.hasFreeSlots">
+            <span class="fa fa-ban"></span>
+            <span translate="container.block_all">Block All</span>
+          </button>
+          <button class="default" os-tooltip="{{'container.unblock_all_help' | translate}}"
+            ng-click="unblockAllPositions()" ng-if="lctx.hasBlockedSlots">
+            <span class="fa fa-undo"></span>
+            <span translate="container.unblock_all">Unblock All</span>
+          </button>
+        </span>
+        <span ng-if="lctx.selected.length > 0">
+          <span ng-if="ctx.container.usedFor == 'STORAGE'">
+            <button class="default" ng-click="blockPositions()">
+              <span class="fa fa-ban"></span>
+              <span translate="container.block">Block</span>
+            </button>
+            <button class="default" ng-click="unblockPositions()">
+              <span class="fa fa-undo"></span>
+              <span translate="container.unblock">Unblock</span>
+            </button>
+          </span>
+        </span>
+      </div>
+    </div>
+
     <div class="input-spmn-labels"
       ng-if="ctx.container.storeSpecimensEnabled && ctx.container.usedFor == 'STORAGE' && lctx.selected.length == 0">
       <div class="input-group" os-textarea-input-group>
@@ -31,22 +61,6 @@
             <span translate="container.vacate_positions">Vacate existing specimens</span>
           </div>
         </div>
-      </div>
-    </div>
-
-    <div class="os-page-commands" show-if-allowed="containerResource.updateOpts"
-      ng-if="ctx.container.storeSpecimensEnabled && lctx.selected.length > 0">
-      <div class="left">
-        <span ng-if="ctx.container.usedFor == 'STORAGE'">
-          <button class="default" ng-click="blockPositions()">
-            <span class="fa fa-ban"></span>
-            <span translate="container.block">Block</span>
-          </button>
-          <button class="default" ng-click="unblockPositions()">
-            <span class="fa fa-undo"></span>
-            <span translate="container.unblock">Unblock</span>
-          </button>
-        </span>
       </div>
     </div>
 

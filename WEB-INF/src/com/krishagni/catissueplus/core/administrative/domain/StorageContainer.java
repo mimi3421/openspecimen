@@ -1046,6 +1046,23 @@ public class StorageContainer extends BaseEntity {
 		}
 	}
 
+	public void blockAllPositions() {
+		if (isDimensionless()) {
+			throw OpenSpecimenException.userError(StorageContainerErrorCode.DL_POS_BLK_NP, getName());
+		}
+
+		StorageContainerPosition position = null;
+		Date reservationTime = Calendar.getInstance().getTime();
+		String reservationId = getReservationId();
+
+		while ((position = nextAvailablePosition(true)) != null) {
+			position.setBlocked(true);
+			position.setReservationTime(reservationTime);
+			position.setReservationId(reservationId);
+			addPosition(position);
+		}
+	}
+
 	public void unblockPositions(Collection<StorageContainerPosition> positions) {
 		if (isDimensionless()) {
 			throw OpenSpecimenException.userError(StorageContainerErrorCode.DL_POS_BLK_NP, getName());
@@ -1057,6 +1074,21 @@ public class StorageContainer extends BaseEntity {
 				occupied.vacate();
 			}
 		}
+	}
+
+	public void unblockAllPositions() {
+		if (isDimensionless()) {
+			throw OpenSpecimenException.userError(StorageContainerErrorCode.DL_POS_BLK_NP, getName());
+		}
+
+		List<StorageContainerPosition> blockedPositions = getOccupiedPositions().stream()
+			.filter(StorageContainerPosition::isBlocked)
+			.collect(Collectors.toList());
+
+		//
+		// Note this loop cannot be streamed concurrently in the above pipeline
+		//
+		blockedPositions.forEach(StorageContainerPosition::vacate);
 	}
 	
 	public StorageContainer copy() {
