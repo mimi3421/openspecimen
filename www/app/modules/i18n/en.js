@@ -567,13 +567,13 @@
 
     "names_print_job_created": "Visit names print job {{jobId}} created successfully",
 
-    "spr": "Surgical Pathology Report",
-    "upload_spr": "Upload Surgical Pathology Report",
-    "spr_uploaded": "Surgical pathology report {{file}} uploaded successfully.",
-    "deleting_spr": "Deleting Surgical Pathology Report",
+    "spr": "Path Report",
+    "upload_spr": "Upload Path Report",
+    "spr_uploaded": "Path report {{file}} uploaded successfully.",
+    "deleting_spr": "Deleting Path Report",
     "confirm_delete_spr": "Are you sure you want to delete {{sprName}} ?",
-    "spr_locked": "Surgical pathology report locked successfully.",
-    "spr_unlocked": "Surgical pathology report unlocked successfully.",
+    "spr_locked": "Path report locked successfully.",
+    "spr_unlocked": "Path report unlocked successfully.",
     "spr_pdf": "PDF",
     "spr_text": "Text",
     "non_text_spr": "Cannot display this report since it is not in text format.",
@@ -602,7 +602,7 @@
     "menu": {
       "overview": "Overview",
       "extensions": "Forms",
-      "spr_report": "Surgical Pathology Report"
+      "spr_report": "Path Report"
     }
   },
 
@@ -1467,7 +1467,7 @@
       "ParticipantPhi": "Participants (PHI)",
       "ParticipantDeid": "Participants (DeId)",
       "VisitAndSpecimen": "Visits and Specimens",
-      "SurgicalPathologyReport": "Surgical Pathology Report",
+      "SurgicalPathologyReport": "Path Report",
       "StorageContainer": "Storage Containers",
       "User": "Users",
       "ScheduledJob": "Jobs",
@@ -2459,7 +2459,7 @@
         "staged_part_cleanup_int_desc": "Number of days to retain the details of participant in staging table",
         "store_phi": "Anonymize Participants",
         "store_phi_desc": "Enable or disable feature to anonymize participant's PHI data.",
-        "store_spr": "Surgical Pathology Reports",
+        "store_spr": "Path Reports",
         "store_spr_desc": "Enable or disable uploading of surgical pathology reports for a visit.",
         "specimen_barcode_format": "Specimen Barcode Format",
         "specimen_barcode_format_desc": "The system-level format for auto-generation of specimen barcodes.",

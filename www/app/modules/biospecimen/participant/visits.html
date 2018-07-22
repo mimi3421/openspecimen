@@ -11,7 +11,7 @@
 
         <h5 class="list-group-item-heading">
           <span os-tooltip="{{'visits.spr_help' | translate}}" placement="right" class="fa fa-file-text-o"
-            ng-click="viewSpr($event, visit.id, visit.eventId)">
+            ng-click="viewSpr($event, visit.id, visit.eventId)" ng-if="!!visit.sprName">
           </span>
           <os-event-desc event-point="visit.eventPoint" event-point-unit="visit.eventPointUnit"
             event-label="visit.eventLabel"></os-event-desc>
