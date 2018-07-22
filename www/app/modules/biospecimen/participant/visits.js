@@ -31,6 +31,12 @@ angular.module('os.biospecimen.participant.visits', ['os.biospecimen.models'])
       $state.go('visit-detail.overview', {visitId: visitId, eventId: eventId});
     };
 
+    $scope.viewSpr = function(event, visitId, eventId) {
+      event.preventDefault();
+      event.stopPropagation();
+      $state.go('visit-detail.spr', {visitId: visitId, eventId: eventId});
+    }
+
     $scope.reload = function() {
       var visitDetail = {
         visitId: $stateParams.visitId,

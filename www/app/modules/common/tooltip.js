@@ -42,7 +42,7 @@ angular.module('openspecimen')
         tElem.attr({
           'bs-tooltip': '',
           'data-title': tooltip,
-          'trigger'   : 'hover focus',
+          'trigger'   : tAttrs.trigger || 'hover focus',
           'placement' : tAttrs.placement || 'auto',
           'html'      : (tAttrs.html == true || tAttrs.html == 'true')
         });

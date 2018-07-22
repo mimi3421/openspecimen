@@ -577,6 +577,7 @@
     "spr_pdf": "PDF",
     "spr_text": "Text",
     "non_text_spr": "Cannot display this report since it is not in text format.",
+    "spr_help": "Path report available. Click to view the report.",
     "reason": "Reason",
     "search_results": "Visit Search Result for {{key}}",
 

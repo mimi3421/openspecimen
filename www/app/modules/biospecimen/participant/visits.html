@@ -10,7 +10,9 @@
         ui-sref-active="active">
 
         <h5 class="list-group-item-heading">
-          <span ng-if="!!visit.sprName" class="fa fa-file-text-o"></span>
+          <span os-tooltip="{{'visits.spr_help' | translate}}" placement="right" class="fa fa-file-text-o"
+            ng-click="viewSpr($event, visit.id, visit.eventId)">
+          </span>
           <os-event-desc event-point="visit.eventPoint" event-point-unit="visit.eventPointUnit"
             event-label="visit.eventLabel"></os-event-desc>
         </h5>
