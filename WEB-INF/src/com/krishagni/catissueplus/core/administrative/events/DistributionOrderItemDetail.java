@@ -1,5 +1,6 @@
 package com.krishagni.catissueplus.core.administrative.events;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
@@ -8,7 +9,7 @@ import java.util.stream.Collectors;
 import com.krishagni.catissueplus.core.administrative.domain.DistributionOrderItem;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenInfo;
 
-public class DistributionOrderItemDetail {
+public class DistributionOrderItemDetail implements Serializable {
 	private Long id;
 
 	private String orderName;

@@ -1,5 +1,6 @@
 package com.krishagni.catissueplus.core.de.events;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,7 +14,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 import com.krishagni.catissueplus.core.de.domain.DeObject;
 import com.krishagni.catissueplus.core.de.domain.DeObject.Attr;
 
-public class ExtensionDetail {
+public class ExtensionDetail implements Serializable {
 	private Long id;
 	
 	private Long objectId;
@@ -138,7 +139,7 @@ public class ExtensionDetail {
 		return attrsMap;
 	}
 	
-	public static class AttrDetail {
+	public static class AttrDetail implements Serializable {
 		private String name;
 		
 		private String udn;

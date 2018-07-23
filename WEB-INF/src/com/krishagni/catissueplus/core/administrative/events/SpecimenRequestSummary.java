@@ -1,5 +1,6 @@
 package com.krishagni.catissueplus.core.administrative.events;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -8,7 +9,7 @@ import java.util.stream.Collectors;
 import com.krishagni.catissueplus.core.administrative.domain.SpecimenRequest;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
 
-public class SpecimenRequestSummary {
+public class SpecimenRequestSummary implements Serializable {
 	private Long id;
 
 	private Long catalogId;
