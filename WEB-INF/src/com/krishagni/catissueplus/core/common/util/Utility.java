@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
@@ -62,6 +63,12 @@ public class Utility {
 	private static final SecretKey secretKey = new SecretKeySpec(key.getBytes(), "AES");
 
 	private static FileTypeMap fileTypesMap = null;
+
+	//
+	// https://www.owasp.org/index.php/OWASP_Validation_Regex_Repository
+	//
+	private static Pattern VALID_EMAIL_PTRN =
+		Pattern.compile("^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$");
 
 	public static String getDisabledValue(String value, int maxLength) {
 		if (StringUtils.isBlank(value)) {
@@ -548,6 +555,10 @@ public class Utility {
 			IOUtils.closeQuietly(out);
 			IOUtils.closeQuietly(csvWriter);
 		}
+	}
+
+	public static boolean isValidEmail(String emailId) {
+		return StringUtils.isNotBlank(emailId) && VALID_EMAIL_PTRN.matcher(emailId).matches();
 	}
 
 	private static Map<String, Object> getExtnAttrValues(BaseExtensionEntity obj) {

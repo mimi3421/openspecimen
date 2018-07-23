@@ -4,6 +4,8 @@ import java.io.File;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -28,6 +30,7 @@ import com.krishagni.catissueplus.core.common.service.EmailService;
 import com.krishagni.catissueplus.core.common.service.TemplateService;
 import com.krishagni.catissueplus.core.common.util.ConfigUtil;
 import com.krishagni.catissueplus.core.common.util.MessageUtil;
+import com.krishagni.catissueplus.core.common.util.Utility;
 
 public class EmailServiceImpl implements EmailService, ConfigChangeListener, InitializingBean {
 	private static final Log logger = LogFactory.getLog(EmailServiceImpl.class);
@@ -123,15 +126,32 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 
 			final MimeMessage mimeMessage = mailSender.createMimeMessage();
 			final MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8"); // true = multipart
+
+			String[] toRcpts = filterInvalidEmails(mail.getToAddress());
+			if (toRcpts.length == 0) {
+				logger.error("Invalid email recipient addresses: " + toString(mail.getToAddress()));
+				return false;
+			}
+
 			message.setSubject(mail.getSubject());
-			message.setTo(mail.getToAddress());
+			message.setTo(toRcpts);
 			
 			if (mail.getBccAddress() != null) {
-				message.setBcc(mail.getBccAddress());
+				String[] bccRcpts = filterInvalidEmails(mail.getBccAddress());
+				if (bccRcpts.length == 0) {
+					logger.error("Invalid email BCC addresses: " + toString(mail.getBccAddress()));
+				}
+
+				message.setBcc(bccRcpts);
 			}
 			
 			if (mail.getCcAddress() != null) {
-				message.setCc(mail.getCcAddress());
+				String[] ccRcpts = filterInvalidEmails(mail.getCcAddress());
+				if (ccRcpts.length == 0) {
+					logger.error("Invalid email CC addresses: " + toString(mail.getCcAddress()));
+				}
+
+				message.setCc(ccRcpts);
 			}
 			
 			message.setText(mail.getBody(), true); // true = isHtml
@@ -239,6 +259,22 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 	
 	private String getFooterTmpl() {
 		return getTemplate(FOOTER_TMPL);
+	}
+
+	private String[] filterInvalidEmails(String[] emailIds) {
+		if (emailIds == null) {
+			return new String[0];
+		}
+
+		return Arrays.stream(emailIds).filter(Utility::isValidEmail).toArray(String[]::new);
+	}
+
+	private String toString(String[] arr) {
+		if (arr == null) {
+			return StringUtils.EMPTY;
+		}
+
+		return StringUtils.join(arr, ",");
 	}
 	
 	/**

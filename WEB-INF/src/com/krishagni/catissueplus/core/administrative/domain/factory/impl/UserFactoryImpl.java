@@ -15,11 +15,10 @@ import com.krishagni.catissueplus.core.administrative.domain.factory.UserFactory
 import com.krishagni.catissueplus.core.administrative.events.UserDetail;
 import com.krishagni.catissueplus.core.auth.domain.AuthDomain;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
-import com.krishagni.catissueplus.core.common.CommonValidator;
-import com.krishagni.catissueplus.core.common.errors.ActivityStatusErrorCode;
 import com.krishagni.catissueplus.core.common.errors.ErrorType;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.util.Status;
+import com.krishagni.catissueplus.core.common.util.Utility;
 
 public class UserFactoryImpl implements UserFactory {
 
@@ -221,7 +220,7 @@ public class UserFactoryImpl implements UserFactory {
 	
 	private void setEmailAddress(UserDetail detail, User user, OpenSpecimenException ose) {
 		String email = detail.getEmailAddress();
-		if (!CommonValidator.isEmailValid(email)) {
+		if (!Utility.isValidEmail(email)) {
 			ose.addError(UserErrorCode.INVALID_EMAIL);
 			return;
 		}
