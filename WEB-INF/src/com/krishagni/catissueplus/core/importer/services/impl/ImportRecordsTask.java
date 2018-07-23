@@ -190,7 +190,16 @@ public class ImportRecordsTask implements ScheduledTask {
 
 	private void move(File file, File destDir) {
 		try {
-			FileUtils.moveFileToDirectory(file, destDir, true);
+			int i = 0;
+			File srcFile = file;
+			while (new File(destDir, srcFile.getName()).exists()) {
+				File renameTo = new File(srcFile.getParent(), srcFile.getName() + "_" + System.currentTimeMillis() + "_" + i);
+				FileUtils.moveFile(srcFile, renameTo);
+				srcFile = renameTo;
+				++i;
+			}
+
+			FileUtils.moveFileToDirectory(srcFile, destDir, true);
 		} catch (Exception e) {
 			//
 			// TODO: this might create an infinite loop.

@@ -3,6 +3,7 @@ package com.krishagni.catissueplus.core.administrative.services.impl;
 import com.krishagni.catissueplus.core.administrative.events.DistributionOrderDetail;
 import com.krishagni.catissueplus.core.administrative.services.DistributionOrderService;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
+import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 import com.krishagni.catissueplus.core.importer.events.ImportObjectDetail;
@@ -31,6 +32,8 @@ public class DistributionOrderImporter implements ObjectImporter<DistributionOrd
 
 			resp.throwErrorIfUnsuccessful();
 			return resp;
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
 		} catch (Exception e) {
 			return ResponseEvent.serverError(e);
 		}

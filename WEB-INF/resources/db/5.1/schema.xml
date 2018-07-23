@@ -181,4 +181,23 @@
   <changeSet author="vpawar" id="Unique constraint on participant eMPI">
     <addUniqueConstraint constraintName="PART_EMPI_ID_UQ" tableName="CATISSUE_PARTICIPANT" columnNames="EMPI_ID"/>
   </changeSet>
+
+  <changeSet author="vpawar" id="Updated user view to include system user" runOnChange="true">
+    <sql>
+      create or replace view USER_VIEW as (
+        select
+          u.identifier as identifier, u.first_name as first_name, u.last_name as last_name,
+          u.email_address as email_address, concat(u.first_name, concat(' ', u.last_name)) as name,
+          i.name as institute_name, s.identifier as primary_site_id, s.name as primary_site_name
+        from
+          catissue_user u
+          left join catissue_institution i on i.identifier = u.institute_id
+          left join catissue_site s on s.identifier = u.primary_site_id
+        where
+          u.activity_status != 'Disabled' and
+          (u.login_name = '$system' or i.activity_status != 'Disabled') and
+          (s.identifier is null or s.activity_status != 'Disabled')
+      )
+    </sql>
+  </changeSet>
 </databaseChangeLog>
