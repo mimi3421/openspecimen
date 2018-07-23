@@ -200,4 +200,20 @@
       )
     </sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="Specimen requests view - used in query interface" runOnChange="true">
+    <createView viewName="os_specimen_requests_view" replaceIfExists="true">
+      select
+        ri.identifier as identifier, ri.specimen_id as specimen_id, r.identifier as request_id,
+        r.requestor_email_id as requestor_email_id, r.requestor_id as requestor_id,
+        r.request_date as req_date, r.screening_status as screening_status,
+        r.screening_date as screening_date, r.processing_date as processing_date,
+        r.activity_status as activity_status
+      from
+        os_specimen_requests r
+        inner join os_specimen_request_items ri on ri.request_id = r.identifier
+      where
+        r.activity_status != 'Disabled'
+    </createView>
+  </changeSet>
 </databaseChangeLog>

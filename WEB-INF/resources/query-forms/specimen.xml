@@ -614,6 +614,112 @@
 
     <row>
       <subForm>
+        <name>specimenRequests</name>
+        <udn>specimenRequests</udn>
+        <caption>#getMessage("specimen_requests")</caption>
+        <table>OS_SPECIMEN_REQUESTS_VIEW</table>
+        <foreignKey>SPECIMEN_ID</foreignKey>
+        <parentKey>IDENTIFIER</parentKey>
+
+        <row>
+          <numberField>
+            <name>id</name>
+            <udn>id</udn>
+            <caption>#getMessage("specimen_request_id")</caption>
+            <column>REQUEST_ID</column>
+            <recordUrl></recordUrl>
+          </numberField>
+        </row>
+
+        <row>
+          <textField>
+            <name>requestorEmailId</name>
+            <udn>requestorEmailId</udn>
+            <caption>#getMessage("specimen_request_requestor_email")</caption>
+            <column>REQUESTOR_EMAIL_ID</column>
+          </textField>
+        </row>
+
+        <row>
+          <subForm>
+            <name>requestor</name>
+            <udn>requestor</udn>
+            <caption>#getMessage("specimen_request_requestor")</caption>
+            <table>USER_VIEW</table>
+            <foreignKey>IDENTIFIER</foreignKey>
+            <parentKey>REQUESTOR_ID</parentKey>
+            <row>
+              <userField>
+                <name>name</name>
+                <udn>name</udn>
+                <caption>#getMessage("specimen_request_requestor_name")</caption>
+                <column>IDENTIFIER</column>
+              </userField>
+            </row>
+          </subForm>
+        </row>
+
+        <row>
+          <datePicker>
+            <name>requestDate</name>
+            <udn>requestDate</udn>
+            <caption>#getMessage("specimen_request_date")</caption>
+            <column>REQ_DATE</column>
+            <format>MM-dd-yyyy</format>
+          </datePicker>
+        </row>
+
+        <row>
+          <dropDown>
+            <name>screeningStatus</name>
+            <udn>screeningStatus</udn>
+            <caption>#getMessage("specimen_request_screening_status")</caption>
+            <column>SCREENING_STATUS</column>
+            <options>
+              <option><value>Pending</value></option>
+              <option><value>Approved</value></option>
+              <option><value>Rejected</value></option>
+            </options>
+          </dropDown>
+        </row>
+
+        <row>
+          <datePicker>
+            <name>screeningDate</name>
+            <udn>screeningDate</udn>
+            <caption>#getMessage("specimen_request_screening_date")</caption>
+            <column>SCREENING_DATE</column>
+            <format>MM-dd-yyyy</format>
+          </datePicker>
+        </row>
+
+        <row>
+          <datePicker>
+            <name>processingDate</name>
+            <udn>processingDate</udn>
+            <caption>#getMessage("specimen_request_processing_date")</caption>
+            <column>PROCESSING_DATE</column>
+            <format>MM-dd-yyyy</format>
+          </datePicker>
+        </row>
+
+        <row>
+          <dropDown>
+            <name>status</name>
+            <udn>status</udn>
+            <caption>#getMessage("specimen_request_status")</caption>
+            <column>ACTIVITY_STATUS</column>
+            <options>
+              <option><value>Active</value></option>
+              <option><value>Closed</value></option>
+            </options>
+          </dropDown>
+        </row>
+      </subForm>
+    </row>
+
+    <row>
+      <subForm>
         <name>specimenOrders</name>
         <udn>specimenOrders</udn>
         <caption>#getMessage("specimen_order_items_order")</caption>
