@@ -115,6 +115,7 @@
         <options>
           <option><value>Pending</value></option>
           <option><value>Complete</value></option>
+          <option><value>Not Collected</value></option>
           <option><value>Missed Collection</value></option>
         </options>
       </dropDown>

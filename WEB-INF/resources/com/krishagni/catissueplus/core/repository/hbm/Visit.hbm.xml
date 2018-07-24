@@ -197,7 +197,7 @@
           as plannedPrimarySpmnsColl,
         count(distinct case when t.lineage = 'New' and t.planned = 'N' and t.status = 'Collected' then t.id else null end)
           as unplannedPrimarySpmnsColl,
-        count(distinct case when t.lineage = 'New' and t.status = 'Missed Collection' then t.id else null end)
+        count(distinct case when t.lineage = 'New' and (t.status = 'Missed Collection' or t.status = 'Not Collected') then t.id else null end)
           as missedPrimarySpmnsColl,
         count(distinct case when t.spmn_stored = 'Y' then t.id else null end) as storedSpmns,
         count(distinct case when t.activity_status != 'Closed' and t.status = 'Collected' and

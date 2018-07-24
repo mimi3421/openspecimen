@@ -75,7 +75,7 @@
           <span ng-if="!ovCollapsed" class="fa fa-chevron-circle-down"></span>
           <span ng-if="ovCollapsed" class="fa fa-chevron-circle-right"></span>
         </button>
-        <h3 class="os-sub-section-title" translate="visits.missed_visits">Missed Visits</h3>
+        <h3 class="os-sub-section-title" translate="visits.missed_or_not_collected_visits">Missed Visits</h3>
         <div collapse="ovCollapsed">
           <div class="os-table os-table-muted-hdr os-border" ng-if="missedVisits.length > 0">
             <div class="os-table-head">
@@ -388,7 +388,7 @@
         <td>{{visit.unplannedPrimarySpmnsColl}}</td>
       </tr>
       <tr ng-if="!!visit.uncollectedPrimarySpmns">
-        <td translate="specimens.status.not_collected">Not Collected</td>
+        <td translate="specimens.status.missed_or_not_collected">Not Collected</td>
         <td>{{visit.uncollectedPrimarySpmns}}</td>
       </tr>
       <tr ng-if="!!visit.pendingPrimarySpmns">
