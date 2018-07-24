@@ -15,7 +15,7 @@
       </button>
 
       <span ng-if="!!specimen.id">
-        <div ng-if="!specimen.reserved && specimen.activityStatus == 'Active'"
+        <div ng-if="!specimen.reserved && specimen.activityStatus == 'Active' && specimen.status == 'Collected'"
           show-if-allowed="specimenResource.updateOpts" dropdown class="os-inline-btn">
           <button class="btn btn-default dropdown-toggle default">
             <span class="fa fa-plus"></span>
@@ -40,7 +40,7 @@
           </ul>
         </div>
 
-        <os-assign-to-spmn-list menu-align="left" on-add-to-list="addSpecimensToSpecimenList(list)" ng-if="!!specimen.id">
+        <os-assign-to-spmn-list menu-align="left" on-add-to-list="addSpecimensToSpecimenList(list)">
         </os-assign-to-spmn-list>
 
         <button show-if-allowed="specimenResource.updateOpts" class="default"
@@ -49,8 +49,7 @@
           <span translate="specimens.buttons.print">Print</span>
         </button>
 
-        <button show-if-allowed="specimenResource.deleteOpts" class="default"
-          ng-if="!!specimen.id" ng-click="deleteSpecimen()">
+        <button show-if-allowed="specimenResource.deleteOpts" class="default" ng-click="deleteSpecimen()">
           <span class="fa fa-trash"></span>
           <span translate="common.buttons.delete">Delete</span>
         </button>
@@ -61,12 +60,12 @@
             <span class="fa fa-caret-down"></span>
           </button>
           <ul class="dropdown-menu dropdown-menu-right">
-            <li>
+            <li ng-if="!!specimen.imageId">
               <os-view-image image-id="specimen.imageId" show-text="true"></os-view-image>
             </li>
 
             <li show-if-allowed="specimenResource.updateOpts"
-              ng-if="!specimen.reserved && specimen.activityStatus == 'Active'">
+              ng-if="!specimen.reserved && specimen.activityStatus == 'Active' && specimen.status == 'Collected'">
               <a ui-sref="specimen-detail.events(
                 {eventId: visit.eventId, visitId: visit.id, specimenId: specimen.id, srId: specimen.reqId})">
                 <span class="fa fa-calendar-o"></span>
@@ -140,6 +139,7 @@
           <ng-switch ng-switch-when="true" on="specimen.status">
             <span ng-switch-when="Collected" class="value value-md os-status-collected">Collected</span>
             <span ng-switch-when="Missed Collection" class="value value-md os-status-missed">Missed Collection</span>
+            <span ng-switch-when="Not Collected" class="value value-md os-status-missed">Not Collected</span>
             <span ng-switch-default class="value value-md os-status-pending">Pending</span>
           </ng-switch>
           <ng-switch ng-switch-when="false" on="specimen.distributionStatus">

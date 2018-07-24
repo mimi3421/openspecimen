@@ -3,7 +3,7 @@
 <div class="panel panel-default os-full-height-container">
   <div class="panel-heading">
     <span translate="{{title}}">Specimens</span>
-    <div class="os-action-btns" ng-if = "visit.status != 'Missed Collection'">
+    <div class="os-action-btns" ng-if="visit.status != 'Missed Collection' && visit.status != 'Not Collected'">
       <button ng-if="selection.anyPending && (!allowedOps || allowedOps.update)"
         class="btn btn-primary" ng-click="collectSpecimens()">
         <span class="fa fa-plus"></span>
@@ -46,7 +46,8 @@
           <tr class="row">
             <th class="col col-xs-5">
               <div class="clearfix">
-                <div class="pull-left os-select-specimen-cb" ng-if="visit.status != 'Missed Collection'">
+                <div class="pull-left os-select-specimen-cb"
+                  ng-if="visit.status != 'Missed Collection' && visit.status != 'Not Collected'">
                   <os-checkbox ng-model="selection.all" ng-change="toggleAllSpecimenSelect()"></os-checkbox>
                 </div>
                 <div class="pull-left" style="padding-left: 40px;">
@@ -63,7 +64,8 @@
             ng-repeat="specimen in specimens | openedTreeNodes" ng-if="!specimen.$$hideN">
             <td class="col col-xs-5">
               <div class="clearfix">
-                <div class="os-select-specimen-cb" ng-hide="specimen.status == 'Missed Collection'">
+                <div class="os-select-specimen-cb"
+                  ng-hide="specimen.status == 'Missed Collection' || specimen.status == 'Not Collected'">
                   <os-checkbox ng-change="toggleSpecimenSelect(specimen)" ng-model="specimen.selected"></os-checkbox>
                 </div>
 
@@ -111,7 +113,8 @@
           <tr class="row">
             <th class="col" ng-repeat="field in fields" ng-style="{'min-width': field.width}">
               <div class="clearfix" ng-if="$index == 0">
-                <div class="pull-left os-select-specimen-cb" ng-if="visit.status != 'Missed Collection'">
+                <div class="pull-left os-select-specimen-cb"
+                  ng-if="visit.status != 'Missed Collection' && visit.status != 'Not Collected'">
                   <os-checkbox ng-model="selection.all" ng-change="toggleAllSpecimenSelect()"></os-checkbox>
                 </div>
                 <div class="pull-left" style="padding-left: 40px;">
@@ -127,7 +130,8 @@
             ng-repeat="specimen in specimens | openedTreeNodes" ng-if="!specimen.$$hideN">
             <td class="col os-word-break" ng-repeat="field in specimen.$$treeFields">
               <div class="clearfix" ng-if="$index == 0">
-                <div class="os-select-specimen-cb" ng-hide="specimen.status == 'Missed Collection'">
+                <div class="os-select-specimen-cb"
+                  ng-hide="specimen.status == 'Missed Collection' || specimen.status == 'Not Collected'">
                   <os-checkbox ng-change="toggleSpecimenSelect(specimen)" ng-model="specimen.selected"></os-checkbox>
                 </div>
 

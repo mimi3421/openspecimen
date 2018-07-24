@@ -295,7 +295,7 @@ public class VisitFactoryImpl implements VisitFactory {
 		Site site = null;
 		String visitSite = visitDetail.getSite();
 		if (StringUtils.isBlank(visitSite)) {
-			if (visit.isMissed()) {
+			if (visit.isMissedOrNotCollected()) {
 				return;
 			}
 
@@ -337,6 +337,7 @@ public class VisitFactoryImpl implements VisitFactory {
 			visit.setMissedReason(null);
 			return;
 		}
+
 		String missedReason = detail.getMissedReason();
 		if (!isValid(MISSED_VISIT_REASON, missedReason)) {
 			ose.addError(VisitErrorCode.INVALID_MISSED_REASON);

@@ -441,11 +441,12 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 		if (StringUtils.isBlank(status)) {
 			status = Specimen.COLLECTED;
 		}
-		
+
 		if (!status.equals(Specimen.COLLECTED) && 
 			!status.equals(Specimen.PENDING) && 
-			!status.equals(Specimen.MISSED_COLLECTION)) {
-			ose.addError(SpecimenErrorCode.INVALID_COLL_STATUS);
+			!status.equals(Specimen.MISSED_COLLECTION) &&
+			!status.equals(Specimen.NOT_COLLECTED)) {
+			ose.addError(SpecimenErrorCode.INVALID_COLL_STATUS, status);
 			return;
 		}
 

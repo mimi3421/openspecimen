@@ -85,7 +85,7 @@
       <div class="col-xs-6">
         <input type="text" name="label" ng-model="inputSpmn.label" class="form-control"
           ng-disabled="inputSpmn.labelFmt && !opts.cp.manualSpecLabelEnabled"
-          ng-required="inputSpmn.status != 'Missed Collection'"
+          ng-required="inputSpmn.status != 'Missed Collection' && inputSpmn.status != 'Not Collected'"
           placeholder="{{'specimens.label' | translate}}"/>
         <div os-field-error field="sform.label"></div>
       </div>

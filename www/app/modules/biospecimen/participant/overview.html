@@ -269,7 +269,10 @@
       <tr class="row title" ng-repeat="visit in occurredVisits">
         <td class="col" ng-repeat="column in visit.$$columns">
           <span ng-if="$index == 0">
-            <span ng-if="!!visit.sprName" class="fa fa-file-text-o"></span>
+            <a class="os-tree-image-icon" ui-sref="visit-detail.spr({visitId: visit.id, eventId: visit.eventId})"
+              os-tooltip="{{'visits.spr_help' | translate}}" placement="right" ng-if="!!visit.sprName">
+              <span class="fa fa-file-text-o"></span>
+            </a>
             <a ui-sref="visit-detail.overview({visitId: visit.id, eventId: visit.eventId})">
               <span>{{column.value | osNoValue}}</span>
             </a>

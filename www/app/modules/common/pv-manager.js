@@ -50,12 +50,14 @@ angular.module('openspecimen')
     var visitStatuses = [
       'Complete',
       'Pending',
-      'Missed Collection'
+      'Missed Collection',
+      'Not Collected'
     ];
 
     var specimenStatuses = [
       'Collected',
       'Missed Collection',
+      'Not Collected',
       'Pending'
     ];
 

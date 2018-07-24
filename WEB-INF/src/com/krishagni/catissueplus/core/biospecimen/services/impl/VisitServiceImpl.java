@@ -579,6 +579,8 @@ public class VisitServiceImpl implements VisitService, ObjectAccessor, Initializ
 		if (existing == null) {
 			if (visit.isMissed()) {
 				visit.createMissedSpecimens();
+			} else if (visit.isNotCollected()) {
+				visit.createNotCollectedSpecimens();
 			}
 			
 			existing = visit;

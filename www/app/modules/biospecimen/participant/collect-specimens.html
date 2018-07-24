@@ -72,7 +72,8 @@
                 <span class="fa fa-circle"
                   ng-class="{'os-status-collected': specimen.existingStatus == 'Collected',
                              'os-status-pending': specimen.existingStatus == 'Pending' || !specimen.existingStatus,
-                             'os-status-not-collected': specimen.existingStatus == 'Missed Collection'}">
+                             'os-status-not-collected': specimen.existingStatus == 'Missed Collection' ||
+                                                        specimen.existingStatus == 'Not Collected'}">
                 </span>
                 <os-specimen-desc cp="cp" specimen="specimen" show-req-label="true"></os-specimen-desc>
 

@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.krishagni.catissueplus.core.common.CollectionUpdater;
 import org.apache.commons.collections.CollectionUtils;
@@ -49,6 +50,8 @@ public class Visit extends BaseExtensionEntity {
 	public static final String VISIT_STATUS_COMPLETED = "Complete";
 
 	public static final String VISIT_STATUS_MISSED = "Missed Collection";
+
+	public static final String VISIT_STATUS_NOT_COLLECTED = "Not Collected";
 
 	public static final String EXTN = "VisitExtension";
 
@@ -223,18 +226,7 @@ public class Visit extends BaseExtensionEntity {
 	}
 	
 	public Set<Specimen> getTopLevelSpecimens() {
-		Set<Specimen> result = new HashSet<Specimen>();
-		if (getSpecimens() == null) {
-			return null;
-		}
-		
-		for (Specimen specimen : getSpecimens()) {
-			if (specimen.getParentSpecimen() == null && specimen.getPooledSpecimen() == null) {
-				result.add(specimen);
-			}
-		}
-		
-		return result;
+		return Utility.nullSafeStream(getSpecimens()).filter(Specimen::isPrimary).collect(Collectors.toSet());
 	}
 
 	public Collection<Specimen> getOrderedTopLevelSpecimens() {
@@ -315,6 +307,14 @@ public class Visit extends BaseExtensionEntity {
 	
 	public boolean isMissed() {
 		return isMissed(getStatus());
+	}
+
+	public boolean isNotCollected() {
+		return isNotCollected(getStatus());
+	}
+
+	public boolean isMissedOrNotCollected() {
+		return isMissed() || isNotCollected();
 	}
 	
 	public boolean isUnplanned() {
@@ -422,7 +422,7 @@ public class Visit extends BaseExtensionEntity {
 		}
 		
 		setStatus(status);		
-		if (isMissed(status) || isPending(status)) {
+		if (isMissedOrNotCollected(status) || isPending(status)) {
 			updateSpecimenStatus(status);
 		}		
 	}
@@ -433,8 +433,8 @@ public class Visit extends BaseExtensionEntity {
 			specimen.updateCollectionStatus(status);
 		}
 
-		if (Specimen.isMissed(status)) {
-			createMissedSpecimens();
+		if (Specimen.isMissed(status) || Specimen.isNotCollected(status)) {
+			createSpecimens(status);
 		} else if (Specimen.isPending(status)) {
 			for (Specimen specimen : topLevelSpmns) {
 				if (!specimen.isPooled()) {
@@ -449,22 +449,11 @@ public class Visit extends BaseExtensionEntity {
 	}
 
 	public void createMissedSpecimens() {
-		Set<SpecimenRequirement> anticipated = getCpEvent().getTopLevelAnticipatedSpecimens();
-		for (Specimen specimen : getTopLevelSpecimens()) {
-			if (specimen.getSpecimenRequirement() != null) {
-				anticipated.remove(specimen.getSpecimenRequirement());
-			}
+		createSpecimens(Specimen.MISSED_COLLECTION);
+	}
 
-			addOrUpdateMissedPoolSpmns(specimen);
-		}
-
-		for (SpecimenRequirement sr : anticipated) {
-			Specimen specimen = sr.getSpecimen();
-			specimen.setVisit(this);
-			specimen.updateCollectionStatus(Specimen.MISSED_COLLECTION);
-			addSpecimen(specimen);
-			addOrUpdateMissedPoolSpmns(specimen);
-		}
+	public void createNotCollectedSpecimens() {
+		createSpecimens(Specimen.NOT_COLLECTED);
 	}
 
 	public void createPendingSpecimens() {
@@ -496,6 +485,14 @@ public class Visit extends BaseExtensionEntity {
 		return Visit.VISIT_STATUS_MISSED.equals(status);
 	}
 
+	public static boolean isNotCollected(String status) {
+		return Visit.VISIT_STATUS_NOT_COLLECTED.equals(status);
+	}
+
+	public static boolean isMissedOrNotCollected(String status) {
+		return isMissed(status) || isNotCollected(status);
+	}
+
 	public void printLabels(String prevStatus) {
 		printVisitName(prevStatus);
 		prePrintSpecimenLabels(prevStatus);
@@ -521,9 +518,9 @@ public class Visit extends BaseExtensionEntity {
 		}
 
 		if (StringUtils.isBlank(prevStatus)) {
-			return !isMissed();
+			return !isMissedOrNotCollected();
 		} else {
-			return isMissed(prevStatus) && !isMissed();
+			return isMissedOrNotCollected(prevStatus) && !isMissedOrNotCollected();
 		}
 	}
 	
@@ -573,15 +570,34 @@ public class Visit extends BaseExtensionEntity {
 		return count;
 	}
 
-	private void addOrUpdateMissedPoolSpmns(Specimen specimen) {
+	private void createSpecimens(String status) {
+		Set<SpecimenRequirement> anticipated = getCpEvent().getTopLevelAnticipatedSpecimens();
+		for (Specimen specimen : getTopLevelSpecimens()) {
+			if (specimen.getSpecimenRequirement() != null) {
+				anticipated.remove(specimen.getSpecimenRequirement());
+			}
+
+			addOrUpdatePoolSpmns(specimen, status);
+		}
+
+		for (SpecimenRequirement sr : anticipated) {
+			Specimen specimen = sr.getSpecimen();
+			specimen.setVisit(this);
+			specimen.updateCollectionStatus(status);
+			addSpecimen(specimen);
+			addOrUpdatePoolSpmns(specimen, status);
+		}
+	}
+
+	private void addOrUpdatePoolSpmns(Specimen specimen, String status) {
 		if (!specimen.isPooled()) {
 			return;
 		}
 
 		SpecimenRequirement sr = specimen.getSpecimenRequirement();
-		Set<SpecimenRequirement> anticipated = new HashSet<SpecimenRequirement>(sr.getSpecimenPoolReqs());
+		Set<SpecimenRequirement> anticipated = new HashSet<>(sr.getSpecimenPoolReqs());
 		for (Specimen poolSpecimen : specimen.getSpecimensPool()) {
-			poolSpecimen.updateCollectionStatus(Specimen.MISSED_COLLECTION);
+			poolSpecimen.updateCollectionStatus(status);
 			anticipated.remove(poolSpecimen.getSpecimenRequirement());
 		}
 
@@ -589,7 +605,7 @@ public class Visit extends BaseExtensionEntity {
 			Specimen poolSpecimen = poolSpecimenReq.getSpecimen();
 			poolSpecimen.setVisit(this);
 			specimen.addPoolSpecimen(poolSpecimen);
-			poolSpecimen.updateCollectionStatus(Specimen.MISSED_COLLECTION);
+			poolSpecimen.updateCollectionStatus(status);
 		}
 	}
 
@@ -644,13 +660,13 @@ public class Visit extends BaseExtensionEntity {
 	}
 
 	private boolean shouldPrintVisitName(String prevStatus) {
-		if (isMissed() || isUnplanned()) {
+		if (isMissedOrNotCollected() || isUnplanned()) {
 			return false;
 		}
 
 		switch (getCpEvent().getVisitNamePrintModeToUse()) {
 			case PRE_PRINT:
-				return StringUtils.isBlank(prevStatus) || isMissed(prevStatus);
+				return StringUtils.isBlank(prevStatus) || isMissedOrNotCollected(prevStatus);
 
 			case ON_COMPLETION:
 				return isCompleted() && !isCompleted(prevStatus);

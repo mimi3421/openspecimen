@@ -515,6 +515,8 @@ angular.module('os.biospecimen.participant.specimen-tree',
             status = 'collected';
           }
         } else if (specimen.status == 'Missed Collection') {
+          status = 'missed';
+        } else if (specimen.status == 'Not Collected') {
           status = 'not-collected';
         } else if (!specimen.status || specimen.status == 'Pending') {
           status = 'pending';

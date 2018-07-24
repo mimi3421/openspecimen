@@ -49,6 +49,8 @@ public enum SpecimenErrorCode implements ErrorCode {
 	COLL_OR_MISSED_PARENT_REQ,
 	
 	COLL_OR_PENDING_PARENT_REQ,
+
+	COLL_OR_NC_PARENT_REQ,
 	
 	SPECIMEN_CLASS_REQUIRED,
 	

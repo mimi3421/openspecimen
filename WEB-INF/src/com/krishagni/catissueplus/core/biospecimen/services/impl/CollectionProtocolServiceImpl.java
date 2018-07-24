@@ -1663,7 +1663,7 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 		CollectionProtocolEvent firstCpe = tgtCp.firstEvent();
 		for (Visit visit : srcCpr.getVisits()) {
 			visit.setCpEvent(firstCpe);
-			visit.getSpecimens().stream().forEach(s -> s.setSpecimenRequirement(null));
+			visit.getSpecimens().forEach(s -> s.setSpecimenRequirement(null));
 		}
 
 		//

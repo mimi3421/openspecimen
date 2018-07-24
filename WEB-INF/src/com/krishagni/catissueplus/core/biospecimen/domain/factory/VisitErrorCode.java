@@ -34,6 +34,8 @@ public enum VisitErrorCode implements ErrorCode {
 
 	COMPL_OR_MISSED_VISIT_REQ,
 
+	COMPL_OR_NC_VISIT_REQ,
+
 	NO_SPR_UPLOADED,
 
 	UNABLE_TO_LOCATE_SPR,

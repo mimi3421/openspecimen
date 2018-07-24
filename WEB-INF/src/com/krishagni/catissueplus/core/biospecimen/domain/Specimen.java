@@ -53,10 +53,12 @@ public class Specimen extends BaseExtensionEntity {
 	
 	public static final String COLLECTED = "Collected";
 	
-	public static final String MISSED_COLLECTION = "Missed Collection";
-	
 	public static final String PENDING = "Pending";
-	
+
+	public static final String MISSED_COLLECTION = "Missed Collection";
+
+	public static final String NOT_COLLECTED = "Not Collected";
+
 	public static final String ACCEPTABLE = "Acceptable";
 	
 	public static final String NOT_SPECIFIED = "Not Specified";
@@ -759,6 +761,14 @@ public class Specimen extends BaseExtensionEntity {
 		return isMissed(getCollectionStatus());
 	}
 
+	public boolean isNotCollected() {
+		return isNotCollected(getCollectionStatus());
+	}
+
+	public boolean isMissedOrNotCollected() {
+		return isMissed() || isNotCollected();
+	}
+
 	public Boolean isAvailable() {
 		return getAvailableQuantity() == null || NumUtil.greaterThanZero(getAvailableQuantity());
 	}
@@ -801,6 +811,10 @@ public class Specimen extends BaseExtensionEntity {
 
 	public static boolean isMissed(String status) {
 		return MISSED_COLLECTION.equals(status);
+	}
+
+	public static boolean isNotCollected(String status) {
+		return NOT_COLLECTED.equals(status);
 	}
 
 	public boolean isPrePrintEnabled() {
@@ -969,6 +983,15 @@ public class Specimen extends BaseExtensionEntity {
 			} else {
 				updateHierarchyStatus(collectionStatus);
 				createMissedChildSpecimens();
+			}
+		} else if (isNotCollected(collectionStatus)) {
+			if (!getVisit().isCompleted() && !getVisit().isNotCollected()) {
+				throw OpenSpecimenException.userError(VisitErrorCode.COMPL_OR_NC_VISIT_REQ);
+			} else if (getParentSpecimen() != null && !getParentSpecimen().isCollected() && !getParentSpecimen().isNotCollected()) {
+				throw OpenSpecimenException.userError(SpecimenErrorCode.COLL_OR_NC_PARENT_REQ);
+			} else {
+				updateHierarchyStatus(collectionStatus);
+				createNotCollectedSpecimens();
 			}
 		} else if (isPending(collectionStatus)) {
 			if (!getVisit().isCompleted() && !getVisit().isPending()) {
@@ -1212,7 +1235,7 @@ public class Specimen extends BaseExtensionEntity {
 	}
 	
 	public void setLabelIfEmpty() {
-		if (StringUtils.isNotBlank(label) || isMissed()) {
+		if (StringUtils.isNotBlank(label) || isMissedOrNotCollected()) {
 			return;
 		}
 		
@@ -1234,7 +1257,7 @@ public class Specimen extends BaseExtensionEntity {
 	}
 
 	public void setBarcodeIfEmpty() {
-		if (StringUtils.isNotBlank(barcode) || isMissed()) {
+		if (StringUtils.isNotBlank(barcode) || isMissedOrNotCollected()) {
 			return;
 		}
 
@@ -1584,7 +1607,7 @@ public class Specimen extends BaseExtensionEntity {
 
 		Specimen pooledSpmn = null;
 		if (isPooled()) {
-			if (isMissed() || isPending()) {
+			if (isMissedOrNotCollected() || isPending()) {
 				return;
 			}
 
@@ -1611,15 +1634,23 @@ public class Specimen extends BaseExtensionEntity {
 	}
 
 	private void createMissedChildSpecimens() {
+		createChildSpecimens(Specimen.MISSED_COLLECTION);
+	}
+
+	private void createNotCollectedSpecimens() {
+		createChildSpecimens(Specimen.NOT_COLLECTED);
+	}
+
+	private void createChildSpecimens(String status) {
 		if (getSpecimenRequirement() == null) {
 			return;
 		}
 
 		Set<SpecimenRequirement> anticipated = new HashSet<>(getSpecimenRequirement().getChildSpecimenRequirements());
-		for (Specimen childSpecimen : getChildCollection()) {
-			if (childSpecimen.getSpecimenRequirement() != null) {
-				anticipated.remove(childSpecimen.getSpecimenRequirement());
-				childSpecimen.createMissedChildSpecimens();
+		for (Specimen childSpmn : getChildCollection()) {
+			if (childSpmn.getSpecimenRequirement() != null) {
+				anticipated.remove(childSpmn.getSpecimenRequirement());
+				childSpmn.createChildSpecimens(status);
 			}
 		}
 
@@ -1627,10 +1658,10 @@ public class Specimen extends BaseExtensionEntity {
 			Specimen specimen = sr.getSpecimen();
 			specimen.setVisit(getVisit());
 			specimen.setParentSpecimen(this);
-			specimen.setCollectionStatus(Specimen.MISSED_COLLECTION);
+			specimen.setCollectionStatus(status);
 			getChildCollection().add(specimen);
 
-			specimen.createMissedChildSpecimens();
+			specimen.createChildSpecimens(status);
 		}
 	}
 

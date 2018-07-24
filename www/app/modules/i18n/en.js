@@ -584,7 +584,8 @@
     "status": {
       "pending": "Pending",
       "complete": "Complete",
-      "missed": "Missed Collection"
+      "missed": "Missed Collection",
+      "not_collected": "Not Collected"
     },
 
     "ctx_menu": {
@@ -864,7 +865,8 @@
       "virtual": "Not Stored",
       "unplanned": "Unplanned Collection",
       "collected": "Planned Collection",
-      "not-collected": "Missed Collection",
+      "missed": "Missed Collection",
+      "not-collected": "Not Collected",
       "pending": "Pending"
     }
   },

@@ -92,15 +92,15 @@ angular.module('os.biospecimen.models.visit', ['os.common.models', 'os.biospecim
     };
 
     Visit.completedVisits = function(visits) {
-      return visitFilter(visits, function(visit) { return visit.status == 'Complete'; });
+      return visitFilter(visits, function(v) { return v.status == 'Complete'; });
     };
 
     Visit.anticipatedVisits = function(visits) {
-      return visitFilter(visits, function(visit) { return !visit.status || visit.status == 'Pending'; });
+      return visitFilter(visits, function(v) { return !v.status || v.status == 'Pending'; });
     };
 
     Visit.missedVisits = function(visits) {
-      return visitFilter(visits, function(visit) { return visit.status == 'Missed Collection'; });
+      return visitFilter(visits, function(v) { return ['Not Collected', 'Missed Collection'].indexOf(v.status) != -1; });
     };
 
     Visit.collectVisitAndSpecimens = function(visitAndSpecimens) {

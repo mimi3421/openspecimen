@@ -38,6 +38,9 @@
           <span class="status" ng-if="visit.status == 'Missed Collection'">
             {{'visits.status.missed' | translate}} | {{visit.visitDate | date: global.dateFmt}}
           </span>
+          <span class="status" ng-if="visit.status == 'Not Collected'">
+            {{'visits.status.not_collected' | translate}} | {{visit.visitDate | date: global.dateFmt}}
+          </span>
         </p>
 
         <p class="os-more-options" ng-click="showVisitDetail($event, visit.id, visit.eventId)">
