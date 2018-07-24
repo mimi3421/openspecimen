@@ -1254,11 +1254,14 @@ public class QueryServiceImpl implements QueryService {
 		aqlFmtArgs.add(restrictionCond);
 
 		String aql = String.format(aqlFmt, aqlFmtArgs.toArray());
-		Query query = Query.createQuery();
-		query.wideRowMode(WideRowMode.OFF)
-			.compile(rootForm, aql, getRestriction(AuthUtil.getCurrentUser(), cpId));
-		QueryResponse queryResp = query.getData();
+		Query query = Query.createQuery()
+			.ic(true)
+			.dateFormat(ConfigUtil.getInstance().getDeDateFmt())
+			.timeFormat(ConfigUtil.getInstance().getTimeFmt())
+			.wideRowMode(WideRowMode.OFF);
+		query.compile(rootForm, aql, getRestriction(AuthUtil.getCurrentUser(), cpId));
 
+		QueryResponse queryResp = query.getData();
 		QueryResultData queryResult = queryResp.getResultData();
 		queryResult.setScreener(screener);
 
