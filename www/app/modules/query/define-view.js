@@ -623,7 +623,7 @@ angular.module('os.query.defineview', ['os.query.models'])
             sfSelectedFields.push(selectedFields[i]);
             ++i;
           }
-          orderAndSetSelectedFields(sfSelectedFields, fieldNode, level + 1);
+          orderAndSetSelectedFields(sfSelectedFields, fieldNode, currLevel + 1);
         } else {
           fieldNode.checked = true;
           if (typeof selectedFields[i] != "string") {
