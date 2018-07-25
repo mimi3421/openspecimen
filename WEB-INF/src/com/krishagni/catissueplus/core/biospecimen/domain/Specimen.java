@@ -1344,6 +1344,14 @@ public class Specimen extends BaseExtensionEntity {
 		return getPosition() != null && getPosition().getContainer().isDistributionContainer();
 	}
 
+	//
+	// HSEARCH-1350: https://hibernate.atlassian.net/browse/HSEARCH-1350
+	//
+	public void initCollections() {
+		getBiohazards().size();
+		getExternalIds().size();
+	}
+
 	public static String getDesc(String specimenClass, String type) {
 		StringBuilder desc = new StringBuilder();
 		if (StringUtils.isNotBlank(specimenClass)) {

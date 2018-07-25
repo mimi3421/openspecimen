@@ -492,7 +492,7 @@ public class ShipmentFactoryImpl implements ShipmentFactory {
 	//
 	private void initSpecimen(Shipment shipment, Specimen specimen) {
 		if (ImporterContextHolder.getInstance().isImportOp()) {
-			specimen.getBiohazards().size();
+			specimen.initCollections();
 		}
 	}
 

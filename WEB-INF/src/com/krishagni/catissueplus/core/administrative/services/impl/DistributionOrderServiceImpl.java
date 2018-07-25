@@ -441,7 +441,7 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 
 				for (DistributionOrderItem item : items) {
 					item.getSpecimen().updatePosition(null, retrievedBy, retrieveDate, detail.getComments());
-					item.getSpecimen().getBiohazards().size(); // HSEARCH-1350
+					item.getSpecimen().initCollections(); // HSEARCH-1350
 				}
 
 				retrievedSpmnsCount += items.size();
