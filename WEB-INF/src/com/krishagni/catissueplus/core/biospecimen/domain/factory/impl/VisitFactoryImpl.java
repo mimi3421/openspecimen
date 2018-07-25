@@ -333,7 +333,7 @@ public class VisitFactoryImpl implements VisitFactory {
 	}
 
 	private void setMissedReason(VisitDetail detail, Visit visit, OpenSpecimenException ose) {
-		if (!visit.isMissed()) {
+		if (!visit.isMissedOrNotCollected()) {
 			visit.setMissedReason(null);
 			return;
 		}
@@ -356,7 +356,7 @@ public class VisitFactoryImpl implements VisitFactory {
 	}
 
 	private void setMissedBy(VisitDetail detail, Visit visit, OpenSpecimenException ose) {
-		if (!visit.isMissed()) {
+		if (!visit.isMissedOrNotCollected()) {
 			visit.setMissedBy(null);
 			return;
 		}

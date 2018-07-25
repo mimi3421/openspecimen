@@ -147,9 +147,14 @@
       <span class="value value-md">{{visit.surgicalPathologyNumber | osNoValue}}</span>
     </li>
 
-    <li class="item" ng-if="visit.status == 'Missed Collection'">
+    <li class="item" ng-if="visit.status == 'Missed Collection' || visit.status == 'Not Collected'">
       <strong class="key key-sm" translate="visits.missed_by">Missed By</strong>
       <span class="value value-md">{{visit.missedBy.firstName}} {{visit.missedBy.lastName}}</span>
+    </li>
+
+    <li class="item" ng-if="visit.status == 'Missed Collection' || visit.status == 'Not Collected'">
+      <strong class="key key-sm" translate="visits.reason_for_missed_visit">Missed Reason</strong>
+      <span class="value value-md">{{visit.missedReason}}</span>
     </li>
   </ul>
 

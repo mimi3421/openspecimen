@@ -375,8 +375,8 @@ public class Visit extends BaseExtensionEntity {
 		setSite(visit.getSite());
 		updateStatus(visit.getStatus());		
 		setComments(visit.getComments());
-		setMissedReason(isMissed() ? visit.getMissedReason() : null);
-		setMissedBy(isMissed() ? visit.getMissedBy() : null);
+		setMissedReason(isMissedOrNotCollected() ? visit.getMissedReason() : null);
+		setMissedBy(isMissedOrNotCollected() ? visit.getMissedBy() : null);
 		setSurgicalPathologyNumber(visit.getSurgicalPathologyNumber());
 		setVisitDate(visit.getVisitDate());
 		setCohort(visit.getCohort());

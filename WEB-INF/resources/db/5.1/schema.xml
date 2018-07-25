@@ -216,4 +216,78 @@
         r.activity_status != 'Disabled'
     </createView>
   </changeSet>
+
+  <changeSet author="vpawar" id="Updating participant visits statistics to include not collected visits" runOnChange="true">
+    <createView viewName="OS_CPR_VISIT_STATS_VIEW" replaceIfExists="true">
+      select
+        cpr.identifier as identifier,
+        sum(case when visit.collection_status = 'Complete' then 1 else 0 end) as visits_completed,
+        sum(case when visit.collection_status = 'Missed Collection' then 1 else 0 end) as visits_missed,
+        sum(case when visit.collection_status = 'Not Collected' then 1 else 0 end) as visits_not_collected,
+        sum(case when ((visit.collection_status = 'Pending' or visit.identifier is null) and cpe.identifier is not null) then 1 else 0 end) as visits_pending
+      from
+        catissue_coll_prot_reg cpr
+        left join catissue_coll_prot_event cpe
+          on cpe.collection_protocol_id = cpr.collection_protocol_id and cpe.activity_status!= 'Disabled'
+        left join catissue_specimen_coll_group visit
+          on visit.collection_protocol_event_id = cpe.identifier and
+            visit.collection_protocol_reg_id = cpr.identifier and
+            visit.activity_status!= 'Disabled'
+      group by
+        cpr.identifier
+    </createView>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Updating participant specimen collection status to include not collected specimens" runOnChange="true">
+    <createView viewName="OS_CPR_SPMN_STATS_VIEW" replaceIfExists="true">
+      select
+        cpr.identifier as identifier,
+        count(distinct
+          case when spmn.collection_status = 'Collected' then
+            spmn.identifier
+          else
+            null
+          end
+        ) as specimens_collected,
+        count(distinct
+          case when spmn.collection_status = 'Missed Collection' then
+            spmn.identifier
+          else
+            null
+          end
+        ) as specimens_missed,
+        count(distinct
+          case when spmn.collection_status = 'Not Collected' then
+            spmn.identifier
+          else
+            null
+          end
+        ) as specimens_not_collected,
+        count(distinct
+          case when ((sr.identifier is not null and spmn.identifier is null) or spmn.collection_status = 'Pending') then
+            case when (spmn.identifier is not null and spmn.req_specimen_id is null) then
+              concat('s', spmn.identifier)
+            else
+              concat('sr', sr.identifier)
+            end
+          else
+            null
+          end
+        ) as specimens_pending
+      from
+        catissue_coll_prot_reg cpr
+        left join catissue_coll_prot_event cpe
+          on cpe.collection_protocol_id = cpr.collection_protocol_id
+        left join catissue_cp_req_specimen sr
+          on sr.collection_protocol_event_id = cpe.identifier and sr.activity_status != 'Disabled'
+        left join catissue_specimen_coll_group visit
+          on (visit.collection_protocol_event_id = cpe.identifier or visit.collection_protocol_event_id is null)
+            and visit.collection_protocol_reg_id = cpr.identifier and visit.activity_status != 'Disabled'
+        left join catissue_specimen spmn
+          on (spmn.req_specimen_id is null or spmn.req_specimen_id = sr.identifier)
+            and spmn.specimen_collection_group_id = visit.identifier and spmn.activity_status != 'Disabled'
+      group by
+        cpr.identifier
+    </createView>
+  </changeSet>
 </databaseChangeLog>

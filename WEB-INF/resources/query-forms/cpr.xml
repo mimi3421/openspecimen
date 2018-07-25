@@ -422,6 +422,13 @@
             <caption>#getMessage("number_of_visits_missed")</caption>
             <column>VISITS_MISSED</column>
           </numberField>
+
+          <numberField>
+            <name>notCollectedVisits</name>
+            <udn>notCollectedVisits</udn>
+            <caption>#getMessage("number_of_visits_not_collected")</caption>
+            <column>VISITS_NOT_COLLECTED</column>
+          </numberField>
       
           <numberField>
             <name>pendingVisits</name>
@@ -454,7 +461,14 @@
             <caption>#getMessage("number_of_specimens_missed")</caption>
             <column>SPECIMENS_MISSED</column>
           </numberField>
-       
+
+          <numberField>
+            <name>notCollectedSpecimens</name>
+            <udn>notCollectedSpecimens</udn>
+            <caption>#getMessage("number_of_specimens_not_collected")</caption>
+            <column>SPECIMENS_NOT_COLLECTED</column>
+          </numberField>
+
           <numberField>
             <name>pendingSpecimens</name>
             <udn>pendingSpecimens</udn>
