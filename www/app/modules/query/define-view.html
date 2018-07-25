@@ -33,6 +33,10 @@
         </div>
       </os-wizard-step>
 
+      <os-wizard-step on-finish="passThrough()" title="{{'queries.field_labels' | translate}}">
+        <div ng-include="'field-labels.html'"></div>
+      </os-wizard-step>
+
       <os-wizard-step on-finish="prepareReportingOpts()" title="{{'queries.aggregates' | translate}}">
         <div ng-include="'aggregate-functions.html'"></div>
       </os-wizard-step>
@@ -61,6 +65,33 @@
   </div>
 </div>
 
+<script type="text/ng-template" id="field-labels.html">
+  <div class="os-query-field-labels">
+    <table class="os-table os-table-fixed bulk-edit os-border os-table-muted-hdr">
+      <thead class="os-table-head">
+        <tr class="row">
+          <th class="col os-col-50">
+            <span translate="queries.field">Field</span>
+          </th>
+          <th class="col os-col-50">
+            <span translate="queries.label">Label</span>
+          </th>
+        </tr>
+      </thead>
+      <tbody class="os-table-body">
+        <tr class="row" ng-repeat="field in selectedFields" ng-show="field.name.indexOf('$temporal') != 0">
+          <td class="col">
+            <span>{{field.form}}: {{field.label}}</span>
+          </td>
+          <td class="col">
+            <input os-md-input ng-model="field.displayLabel">
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</script>
+
 <script type="text/ng-template" id="aggregate-functions.html">
   <div class="os-query-dv-aggregates"> 
     <div class="row">
@@ -85,8 +116,9 @@
             <span class="badge">
               {{(selectedField.aggFns | filter:{opted: true}).length}}
             </span>
-            <span> 
-              {{selectedField.form}}: {{selectedField.label}} 
+            <span ng-switch on="!!selectedField.displayLabel">
+              <span ng-switch-when="true">{{selectedField.displayLabel}}</span>
+              <span ng-switch-default>{{selectedField.form}} {{selectedField.label}}</span>
             </span>
           </a>
         </div>

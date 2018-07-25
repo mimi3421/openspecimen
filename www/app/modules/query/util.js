@@ -248,11 +248,14 @@ angular.module('os.query.util', ['os.query.models', 'os.query.save'])
       var addedIds = {}, result = "";
 
       angular.forEach(selectedFields, function(field) {
+        var selFieldName = null;
+
         if (typeof field == "string") {
-          field = getFieldExpr(filtersMap, field, true);
+          selFieldName = field;
+          field = getFieldExpr(filtersMap, {name: field}, true);
         } else if (typeof field != "string") {
           if (field.aggFns && field.aggFns.length > 0) {
-            var fieldExpr = getFieldExpr(filtersMap, field.name);
+            var fieldExpr = getFieldExpr(filtersMap, field);
             var fnExprs = "";
             for (var j = 0; j < field.aggFns.length; ++j) {
               if (fnExprs.length > 0) {
@@ -273,7 +276,8 @@ angular.module('os.query.util', ['os.query.models', 'os.query.save'])
 
             field = fnExprs;
           } else {
-            field = getFieldExpr(filtersMap, field.name, true);
+            selFieldName = field.name;
+            field = getFieldExpr(filtersMap, field, true);
           }
         }
 
@@ -284,7 +288,7 @@ angular.module('os.query.util', ['os.query.models', 'os.query.save'])
             }
 
             var idField = propIdFields[prop];
-            if (field != prop || addedIds[idField.expr]) {
+            if (selFieldName != prop || addedIds[idField.expr]) {
               continue;
             }
 
@@ -303,17 +307,27 @@ angular.module('os.query.util', ['os.query.models', 'os.query.save'])
       return result;
     };
 
-    function getFieldExpr(filtersMap, fieldName, includeDesc) {
+    function getFieldExpr(filtersMap, field, includeDesc) {
+      var fieldName = field.name;
       var temporalMarker = '$temporal.';
       if (fieldName.indexOf(temporalMarker) != 0) {
-        return fieldName;
+        var alias = '';
+        if (includeDesc && !!field.displayLabel) {
+          alias = ' as "' + field.displayLabel + '"';
+        }
+
+        return fieldName + alias;
       }
 
       var filterId = fieldName.substring(temporalMarker.length);
       var filter = filtersMap[filterId];
       var expr = getTemporalExprObj(filter.expr).lhs;
       if (includeDesc) {
-        expr += " as \"" + filter.desc + "\"";
+        if (!!field.displayLabel) {
+          expr += ' as "' + field.displayLabel + '"';
+        } else {
+          expr += ' as "' + filter.desc + '"';
+        }
       }
 
       return expr;

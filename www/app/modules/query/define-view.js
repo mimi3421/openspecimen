@@ -115,7 +115,7 @@ angular.module('os.query.defineview', ['os.query.models'])
 
     $scope.toggleAggFn = function(field, fn) {
       if (fn.opted && !fn.desc) {
-        fn.desc = field.label + " " + fn.label;
+        fn.desc = (field.displayLabel || field.label) + " " + fn.label;
       } else if (!fn.opted) {
         fn.desc = undefined;
       }
@@ -399,7 +399,11 @@ angular.module('os.query.defineview', ['os.query.models'])
         }
 
         if (!isAgg) {
-          reportFields.push({id: field.name, name:  field.name, value: field.form + ": " + field.label});
+          reportFields.push({
+            id   : field.name,
+            name : field.name,
+            value: (field.displayLabel || (field.form + ": " + field.label))
+          });
         }
       }
 
@@ -624,6 +628,7 @@ angular.module('os.query.defineview', ['os.query.models'])
           fieldNode.checked = true;
           if (typeof selectedFields[i] != "string") {
             fieldNode.aggFns = selectedFields[i].aggFns;
+            fieldNode.displayLabel = selectedFields[i].displayLabel;
           }
           ++i;
         }
@@ -656,7 +661,11 @@ angular.module('os.query.defineview', ['os.query.models'])
       for (var i = 0; i < forms.length; ++i) {
         if (forms[i].checked && forms[i].type == 'temporal') {
           var name = '$temporal.' + forms[i].form.id;
-          selected.push(incCaption ? {name: name, label: forms[i].val, form: forms[i].val} : name);
+          if (incCaption) {
+            selected.push({name: name, label: forms[i].val, displayLabel: forms[i].displayLabel, form: forms[i].val});
+          } else {
+            selected.push(name);
+          }
         } else if (forms[i].children) {
           var fields = forms[i].children;
           for (var j = 0; j < fields.length; ++j) {
@@ -669,6 +678,7 @@ angular.module('os.query.defineview', ['os.query.models'])
                   form: field.form, 
                   name: field.name, 
                   label: field.val, 
+                  displayLabel: field.displayLabel,
                   type: field.dataType, 
                   aggFns: field.aggFns
                 });
@@ -680,6 +690,7 @@ angular.module('os.query.defineview', ['os.query.models'])
                     form: field.form, 
                     name: field.name, 
                     label: field.val, 
+                    displayLabel: field.displayLabel,
                     type: field.dataType
                   });
                 }

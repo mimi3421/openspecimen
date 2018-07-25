@@ -478,3 +478,9 @@
   display: inline-block;
   margin-bottom: 5px;
 }
+
+
+.os-query-field-labels {
+  height: 340px;
+  overflow-y: auto;
+}

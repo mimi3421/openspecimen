@@ -104,11 +104,10 @@ public class AqlBuilder {
 				continue;
 			}
 
-			String fieldName = aggField.getName();
 			if (aggField.getAggFns() == null || aggField.getAggFns().isEmpty()) {
-				select.append(getFieldExpr(filterMap, fieldName, true)).append(", ");
+				select.append(getFieldExpr(filterMap, aggField, true)).append(", ");
 			} else {
-				String fieldExpr = getFieldExpr(filterMap, fieldName, false);
+				String fieldExpr = getFieldExpr(filterMap, aggField, false);
 					
 				StringBuilder fnExpr = new StringBuilder("");
 				for (Function fn : aggField.getAggFns()) {
@@ -133,9 +132,15 @@ public class AqlBuilder {
 		return select.substring(0, endIdx < 0 ? 0 : endIdx);
 	}
 	
-	private String getFieldExpr(Map<Integer, Filter> filterMap, String fieldName, boolean includeDesc) {
+	private String getFieldExpr(Map<Integer, Filter> filterMap, SelectField field, boolean includeDesc) {
+		String fieldName = field.getName();
 		if (!fieldName.startsWith("$temporal.")) {
-			return fieldName;
+			String alias = StringUtils.EMPTY;
+			if (includeDesc && StringUtils.isNotBlank(field.getDisplayLabel())) {
+				alias = " as \"" + field.getDisplayLabel() + "\"";
+			}
+
+			return fieldName + alias;
 		}
 
 		Integer filterId = Integer.parseInt(fieldName.substring("$temporal.".length()));
@@ -143,7 +148,11 @@ public class AqlBuilder {
 
 		String expr = getLhs(filter.getExpr());
 		if (includeDesc) {
-			expr += " as \"" + filter.getDesc() + "\"";
+			if (StringUtils.isNotBlank(field.getDisplayLabel())) {
+				expr += " as \"" + field.getDisplayLabel() + "\"";
+			} else {
+				expr += " as \"" + filter.getDesc() + "\"";
+			}
 		}
 
 		return expr;

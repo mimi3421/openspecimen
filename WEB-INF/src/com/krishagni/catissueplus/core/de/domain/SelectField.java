@@ -27,9 +27,11 @@ public class SelectField {
 		public void setDesc(String desc) {
 			this.desc = desc;
 		}
-	};
+	}
 		
 	private String name;
+
+	private String displayLabel;
 	
 	private List<Function> aggFns;
 		
@@ -39,6 +41,14 @@ public class SelectField {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getDisplayLabel() {
+		return displayLabel;
+	}
+
+	public void setDisplayLabel(String displayLabel) {
+		this.displayLabel = displayLabel;
 	}
 
 	public List<Function> getAggFns() {

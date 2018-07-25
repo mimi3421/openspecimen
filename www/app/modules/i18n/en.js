@@ -1690,6 +1690,10 @@
     "no_queries_selected": "No queries selected. Please select at least one query",
     "info": "Information",
 
+    "field_labels": "Field Labels",
+    "field": "Field",
+    "label": "Label",
+
     "report_type": "Report Type",
     "select_report_type": "Select Report Type",
     "total_fields": "Total Fields",
