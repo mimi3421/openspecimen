@@ -284,7 +284,8 @@ angular.module('os.biospecimen.specimen')
             onBulkDeletion: function() {
               ParticipantSpecimensViewState.specimensUpdated(scope, {inline: true});
               scope.initList();
-            }
+            },
+            askReason: true
           }
           DeleteUtil.bulkDelete({bulkDelete: Specimen.bulkDelete}, specimenIds, opts);
         }

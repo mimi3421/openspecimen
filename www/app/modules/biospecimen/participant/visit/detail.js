@@ -26,7 +26,7 @@ angular.module('os.biospecimen.visit.detail', ['os.biospecimen.models'])
     }
 
     $scope.deleteVisit = function() {
-      DeleteUtil.delete($scope.visit, {onDeletion: onVisitDeletion, forceDelete: true});
+      DeleteUtil.delete($scope.visit, {onDeletion: onVisitDeletion, forceDelete: true, askReason: true});
     }
 
     $scope.reload = function() {

@@ -75,8 +75,8 @@ angular.module('os.biospecimen.models.cp', ['os.common.models'])
       )
     }
 
-    CollectionProtocol.bulkDelete = function(cpIds) {
-      return $http.delete(CollectionProtocol.url(), {params: {id: cpIds, forceDelete: true}}).then(
+    CollectionProtocol.bulkDelete = function(cpIds, reason) {
+      return $http.delete(CollectionProtocol.url(), {params: {id: cpIds, forceDelete: true, reason: reason}}).then(
         function(result) {
           return result.data;
         }

@@ -160,11 +160,15 @@ public class CollectionProtocolRegistrationsController {
 			Long cprId,
 
 			@RequestParam(value = "forceDelete", required = false, defaultValue = "false")
-			boolean forceDelete) {
+			boolean forceDelete,
+
+			@RequestParam(value = "reason", required = false, defaultValue = "")
+			String reason) {
 
 		CpEntityDeleteCriteria crit = new CpEntityDeleteCriteria();
 		crit.setId(cprId);
 		crit.setForceDelete(forceDelete);
+		crit.setReason(reason);
 
 		ResponseEvent<CollectionProtocolRegistrationDetail> resp = cprSvc.deleteRegistration(getRequest(crit));
 		resp.throwErrorIfUnsuccessful();

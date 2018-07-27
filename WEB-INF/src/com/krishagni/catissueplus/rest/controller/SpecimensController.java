@@ -236,11 +236,15 @@ public class SpecimensController {
 			Long specimenId,
 
 			@RequestParam(value = "forceDelete", required = false, defaultValue = "false")
-			boolean forceDelete) {
+			boolean forceDelete,
+
+			@RequestParam(value = "reason", required = false, defaultValue = "")
+			String reason) {
 
 		CpEntityDeleteCriteria crit = new CpEntityDeleteCriteria();
 		crit.setId(specimenId);
 		crit.setForceDelete(forceDelete);
+		crit.setReason(reason);
 
 		ResponseEvent<List<SpecimenInfo>> resp = specimenSvc.deleteSpecimens(getRequest(Collections.singletonList(crit)));
 		resp.throwErrorIfUnsuccessful();
@@ -250,12 +254,19 @@ public class SpecimensController {
 	@RequestMapping(method = RequestMethod.DELETE)
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
-	public List<SpecimenInfo> deleteSpecimens(@RequestParam(value = "id") Long[] specimenIds) {
+	public List<SpecimenInfo> deleteSpecimens(
+			@RequestParam(value = "id")
+			Long[] specimenIds,
+
+			@RequestParam(value = "reason", required = false, defaultValue = "")
+			String reason) {
+
 		List<CpEntityDeleteCriteria> criteria = new ArrayList<>();
 		for (Long specimenId : specimenIds) {
 			CpEntityDeleteCriteria criterion = new CpEntityDeleteCriteria();
 			criterion.setId(specimenId);
 			criterion.setForceDelete(true);
+			criterion.setReason(reason);
 			criteria.add(criterion);
 		}
 

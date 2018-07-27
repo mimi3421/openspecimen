@@ -1571,7 +1571,8 @@
     "dependents_details": "Cannot delete {{entityType}} {{entityName}} because of following dependent objects",
     "force_delete": "Type 'DELETE ANYWAY' to continue.",
     "delete_anyway": "DELETE ANYWAY",
-    "delete_pending": "{{entityType}} {{entityName}} deletion taking longer time than anticipated. You'll receive an email when it gets completed"
+    "delete_pending": "{{entityType}} {{entityName}} deletion taking longer time than anticipated. You'll receive an email when it gets completed",
+    "specify_reason": "Specify the reason for deletion"
   },
 
   "queries": {

@@ -48,7 +48,7 @@ angular.module('os.biospecimen.participant.detail', ['os.biospecimen.models'])
     }
 
     $scope.deleteReg = function() {
-      DeleteUtil.delete($scope.cpr, {onDeleteState: 'participant-list', forceDelete: true});
+      DeleteUtil.delete($scope.cpr, {onDeleteState: 'participant-list', forceDelete: true, askReason: true});
     }
 
     init();

@@ -25,6 +25,7 @@ import org.springframework.beans.factory.InitializingBean;
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.administrative.domain.factory.UserErrorCode;
 import com.krishagni.catissueplus.core.administrative.events.StorageLocationSummary;
+import com.krishagni.catissueplus.core.audit.services.impl.DeleteLogUtil;
 import com.krishagni.catissueplus.core.biospecimen.ConfigParams;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
@@ -293,6 +294,12 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 
 				AccessCtrlMgr.getInstance().ensureCreateOrUpdateSpecimenRights(specimen, false);
 				specimen.updateStatus(detail.getStatus(), user, date, detail.getReason(), detail.isForceUpdate());
+
+				if (specimen.isDeleted()) {
+					specimen.setOpComments(detail.getReason());
+					DeleteLogUtil.getInstance().log(specimen);
+				}
+
 				result.add(SpecimenDetail.from(specimen));
 			}
 
@@ -317,7 +324,11 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 			}
 
 			AccessCtrlMgr.getInstance().ensureDeleteSpecimenRights(specimen);
+
+			specimen.setOpComments(criteria.getReason());
 			specimen.disable(!criteria.isForceDelete());
+
+			DeleteLogUtil.getInstance().log(specimen);
 			result.add(SpecimenInfo.from(specimen));
 		}
 
@@ -887,6 +898,11 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 		daoFactory.getSpecimenDao().saveOrUpdate(specimen);
 		specimen.addOrUpdateCollRecvEvents();
 		specimen.addOrUpdateExtension();
+
+		if (specimen.isDeleted()) {
+			DeleteLogUtil.getInstance().log(specimen);
+		}
+
 		EventPublisher.getInstance().publish(new SpecimenSavedEvent(specimen));
 		return specimen;
 	}

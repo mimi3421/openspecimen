@@ -314,11 +314,15 @@ public class CollectionProtocolsController {
 			Long id,
 
 			@RequestParam(value = "forceDelete", required = false, defaultValue = "false")
-			boolean forceDelete) {
+			boolean forceDelete,
+
+			@RequestParam(value = "reason", required = false, defaultValue = "")
+			String reason) {
 
 		BulkDeleteEntityOp crit = new BulkDeleteEntityOp();
 		crit.setIds(Collections.singleton(id));
 		crit.setForceDelete(forceDelete);
+		crit.setReason(reason);
 
 		ResponseEvent<BulkDeleteEntityResp<CollectionProtocolDetail>> resp = cpSvc.deleteCollectionProtocols(request(crit));
 		resp.throwErrorIfUnsuccessful();
@@ -334,11 +338,15 @@ public class CollectionProtocolsController {
 			Long[] ids,
 			
 			@RequestParam(value = "forceDelete", required = false, defaultValue = "false") 
-			boolean forceDelete) {
+			boolean forceDelete,
+
+			@RequestParam(value = "reason", required = false, defaultValue = "")
+			String reason) {
 
 		BulkDeleteEntityOp crit = new BulkDeleteEntityOp();
 		crit.setIds(new HashSet<>(Arrays.asList(ids)));
 		crit.setForceDelete(forceDelete);
+		crit.setReason(reason);
 
 		ResponseEvent<BulkDeleteEntityResp<CollectionProtocolDetail>> resp = cpSvc.deleteCollectionProtocols(request(crit));
 		resp.throwErrorIfUnsuccessful();

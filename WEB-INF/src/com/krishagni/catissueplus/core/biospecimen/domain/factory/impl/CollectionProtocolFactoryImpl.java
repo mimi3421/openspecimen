@@ -90,6 +90,8 @@ public class CollectionProtocolFactoryImpl implements CollectionProtocolFactory 
 		OpenSpecimenException ose = new OpenSpecimenException(ErrorType.USER_ERROR);
 
 		cp.setId(input.getId());
+		cp.setOpComments(input.getOpComments());
+
 		setSites(input, cp, ose);
 		setTitle(input, cp, ose);
 		setShortTitle(input, cp, ose);

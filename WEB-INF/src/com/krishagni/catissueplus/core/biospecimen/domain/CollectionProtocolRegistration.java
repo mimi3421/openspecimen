@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.administrative.domain.User;
+import com.krishagni.catissueplus.core.audit.services.impl.DeleteLogUtil;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.ParticipantErrorCode;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
@@ -223,8 +224,12 @@ public class CollectionProtocolRegistration extends BaseEntity {
 		this.forceDelete = forceDelete;
 	}
 
+	public boolean isDeleted() {
+		return Status.ACTIVITY_STATUS_DISABLED.getStatus().equals(getActivityStatus());
+	}
+
 	public boolean isActive() {
-		return Status.ACTIVITY_STATUS_ACTIVE.getStatus().equals(this.getActivityStatus());
+		return Status.ACTIVITY_STATUS_ACTIVE.getStatus().equals(getActivityStatus());
 	}
 
 	public void setActive() {
@@ -277,6 +282,8 @@ public class CollectionProtocolRegistration extends BaseEntity {
 
 	public void update(CollectionProtocolRegistration cpr) {
 		setForceDelete(cpr.isForceDelete());
+		setOpComments(cpr.getOpComments());
+
 		updateActivityStatus(cpr.getActivityStatus());
 		if (!isActive()) {
 			return;

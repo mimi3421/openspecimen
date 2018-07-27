@@ -98,7 +98,12 @@
     <field>
       <caption>#getMessage("visit_activity_status")</caption>
       <attribute>activityStatus</attribute>
-    </field>  
+    </field>
+
+    <field>
+      <caption>#getMessage("common_reason")</caption>
+      <attribute>opComments</attribute>
+    </field>
 
     <record type="customFields" entityType="VisitExtension">
       <attribute>extensionDetail</attribute>

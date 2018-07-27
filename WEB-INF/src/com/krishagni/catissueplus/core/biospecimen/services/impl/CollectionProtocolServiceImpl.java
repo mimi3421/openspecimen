@@ -37,6 +37,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainer;
 import com.krishagni.catissueplus.core.administrative.domain.User;
+import com.krishagni.catissueplus.core.audit.services.impl.DeleteLogUtil;
 import com.krishagni.catissueplus.core.biospecimen.ConfigParams;
 import com.krishagni.catissueplus.core.biospecimen.WorkflowUtil;
 import com.krishagni.catissueplus.core.biospecimen.domain.AliquotSpecimensRequirement;
@@ -409,7 +410,7 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 				AccessCtrlMgr.getInstance().ensureDeleteCpRights(cp);
 			}
 
-			boolean completed = crit.isForceDelete() ? forceDeleteCps(cps) : deleteCps(cps);
+			boolean completed = crit.isForceDelete() ? forceDeleteCps(cps, crit.getReason()) : deleteCps(cps, crit.getReason());
 			BulkDeleteEntityResp<CollectionProtocolDetail> resp = new BulkDeleteEntityResp<>();
 			resp.setCompleted(completed);
 			resp.setEntities(CollectionProtocolDetail.from(cps));
@@ -1711,7 +1712,7 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 		}
 	}
 
-	private boolean forceDeleteCps(final List<CollectionProtocol> cps)
+	private boolean forceDeleteCps(final List<CollectionProtocol> cps, final String reason)
 	throws Exception {
 		final Authentication auth = AuthUtil.getAuth();
 
@@ -1719,7 +1720,7 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 			@Override
 			public Boolean call() throws Exception {
 				SecurityContextHolder.getContext().setAuthentication(auth);
-				cps.forEach(cp -> forceDeleteCp(cp));
+				cps.forEach(cp -> forceDeleteCp(cp, reason));
 				return true;
 			}
 		});
@@ -1734,18 +1735,18 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 		return completed;
 	}
 
-	private void forceDeleteCp(final CollectionProtocol cp) {
+	private void forceDeleteCp(CollectionProtocol cp, String reason) {
 		while (deleteRegistrations(cp));
-		deleteCp(cp);
+		deleteCp(cp, reason);
 	}
 
-	private boolean deleteCps(List<CollectionProtocol> cps) {
-		cps.forEach(this::deleteCp);
+	private boolean deleteCps(List<CollectionProtocol> cps, String reason) {
+		cps.forEach(cp -> deleteCp(cp, reason));
 		return true;
 	}
 
 	@PlusTransactional
-	private boolean deleteCp(CollectionProtocol cp) {
+	private boolean deleteCp(CollectionProtocol cp, String reason) {
 		boolean success = false;
 		String stackTrace = null;
 		CollectionProtocol deletedCp = new CollectionProtocol();
@@ -1760,10 +1761,13 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 			addOrRemovePiCoordinatorRoles(cp, "DELETE", cp.getPrincipalInvestigator(), null, null, cp.getCoordinators());
 			removeCpRoles(cp);
 			BeanUtils.copyProperties(cp, deletedCp);
+
+			cp.setOpComments(reason);
 			cp.delete();
+
+			DeleteLogUtil.getInstance().log(cp);
 			success = true;
 		} catch (Exception ex) {
-			success = false;
 			stackTrace = ExceptionUtils.getStackTrace(ex);
 
 			if (ex instanceof OpenSpecimenException) {

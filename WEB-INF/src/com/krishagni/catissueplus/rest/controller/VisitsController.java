@@ -274,11 +274,15 @@ public class VisitsController {
 			Long visitId,
 
 			@RequestParam(value = "forceDelete", required = false, defaultValue = "false")
-			boolean forceDelete) {
+			boolean forceDelete,
+
+			@RequestParam(value = "reason", required = false, defaultValue = "")
+			String reason) {
 
 		CpEntityDeleteCriteria crit = new CpEntityDeleteCriteria();
 		crit.setId(visitId);
 		crit.setForceDelete(forceDelete);
+		crit.setReason(reason);
 
 		ResponseEvent<VisitDetail> resp = visitService.deleteVisit(request(crit));
 		resp.throwErrorIfUnsuccessful();

@@ -10,6 +10,8 @@ public class BaseEntity {
 	
 	protected transient List<Runnable> onSaveProcs;
 
+	protected transient String opComments;
+
 	public Long getId() {
 		return id;
 	}
@@ -32,6 +34,14 @@ public class BaseEntity {
 		}
 
 		onSaveProcs.add(onSaveProc);
+	}
+
+	public String getOpComments() {
+		return opComments;
+	}
+
+	public void setOpComments(String opComments) {
+		this.opComments = opComments;
 	}
 
 	@Override

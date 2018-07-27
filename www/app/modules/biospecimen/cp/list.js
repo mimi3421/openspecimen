@@ -52,7 +52,8 @@ angular.module('os.biospecimen.cp.list', ['os.biospecimen.models'])
         confirmDelete:  'cp.delete_cps',
         successMessage: 'cp.cps_deleted',
         pendingMessage: 'cp.cps_delete_pending',
-        onBulkDeletion: loadCollectionProtocols
+        onBulkDeletion: loadCollectionProtocols,
+        askReason:      true
       }
 
       DeleteUtil.bulkDelete({bulkDelete: CollectionProtocol.bulkDelete}, getCpIds(cps), opts);

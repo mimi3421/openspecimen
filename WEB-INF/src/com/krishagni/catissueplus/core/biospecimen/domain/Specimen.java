@@ -721,6 +721,10 @@ public class Specimen extends BaseExtensionEntity {
 		return isActive() || isClosed();
 	}
 
+	public boolean isDeleted() {
+		return Status.ACTIVITY_STATUS_DISABLED.getStatus().equals(getActivityStatus());
+	}
+
 	public boolean isReserved() {
 		return getReservedEvent() != null;
 	}
@@ -868,6 +872,7 @@ public class Specimen extends BaseExtensionEntity {
 
 		setForceDelete(specimen.isForceDelete());
 		setAutoCollectParents(specimen.isAutoCollectParents());
+		setOpComments(specimen.getOpComments());
 
 		String reason = null;
 		if (!StringUtils.equals(getComment(), specimen.getComment())) {

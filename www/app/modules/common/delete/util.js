@@ -14,7 +14,8 @@ angular.module('os.common.delete')
               entityName: object.getDisplayName(),
               entityType: $translate.instant("entities." + object.getType()),
               confirmDelete: confirmDelete,
-              forceDelete: !!props.forceDelete
+              forceDelete: !!props.forceDelete,
+              askReason: props.askReason
             }
           },
           dependentEntities: function() {
@@ -90,7 +91,8 @@ angular.module('os.common.delete')
               confirmDelete: confirmDelete,
               successMessage: successMessage,
               pendingMessage: pendingMessage,
-              bulkDelete: true
+              bulkDelete: true,
+              askReason: props.askReason
             }
           },
           dependentEntities: function() {

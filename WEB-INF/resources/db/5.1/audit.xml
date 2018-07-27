@@ -104,4 +104,35 @@
       <column name="imageId_MOD" type="${boolean.type}"/>
     </addColumn>
   </changeSet>
+
+  <changeSet author="vpawar" id="Keep track of who deleted the records and why">
+    <createTable tableName="OS_DELETE_AUDIT_LOGS">
+      <column name="IDENTIFIER" type="${int.type}" autoIncrement="${autoIncrement}">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="USER_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="DELETED_ON" type="${timestamp.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="ENTITY_TYPE" type="${text.type}(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="ENTITY_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="REASON" type="${text.type}(255)"/>
+    </createTable>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Delete logs sequence" dbms="oracle">
+    <createSequence sequenceName="OS_DELETE_AUDIT_LOGS_SEQ" startValue="1" incrementBy="1" ordered="true"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="FK on user who deleted the record/object">
+    <addForeignKeyConstraint constraintName="FK_AUDIT_LOGS_USER_ID"
+      baseTableName="OS_DELETE_AUDIT_LOGS" baseColumnNames="USER_ID"
+      referencedTableName="CATISSUE_USER" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
 </databaseChangeLog>

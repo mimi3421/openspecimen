@@ -286,7 +286,11 @@ public class Visit extends BaseExtensionEntity {
 	}
 
 	public boolean isActive() {
-		return Status.ACTIVITY_STATUS_ACTIVE.getStatus().equals(this.activityStatus);
+		return Status.ACTIVITY_STATUS_ACTIVE.getStatus().equals(getActivityStatus());
+	}
+
+	public boolean isDeleted() {
+		return Status.ACTIVITY_STATUS_DISABLED.getStatus().equals(getActivityStatus());
 	}
 
 	public boolean isUpdated() {
@@ -363,6 +367,8 @@ public class Visit extends BaseExtensionEntity {
 
 	public void update(Visit visit) {
 		setForceDelete(visit.isForceDelete());
+		setOpComments(visit.getOpComments());
+
 		updateActivityStatus(visit.getActivityStatus());
 		if (!isActive()) {
 			return;

@@ -4,9 +4,10 @@ package com.krishagni.catissueplus.core.biospecimen.events;
 import java.util.Date;
 
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
+import com.krishagni.catissueplus.core.common.AttributeModifiedSupport;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
 
-public class CollectionProtocolSummary implements Comparable<CollectionProtocolSummary> {
+public class CollectionProtocolSummary extends AttributeModifiedSupport implements Comparable<CollectionProtocolSummary> {
 	private Long id;
 
 	private String shortTitle;

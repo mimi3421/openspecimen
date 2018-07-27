@@ -8,6 +8,8 @@ public class AttributeModifiedSupport implements Serializable {
 	private static final long serialVersionUID = -6538288756745006122L;
 
 	private Set<String> modifiedAttrs = new HashSet<>();
+
+	private String opComments;
 	
 	public void attrModified(String attr) {
 		modifiedAttrs.add(attr);
@@ -32,5 +34,13 @@ public class AttributeModifiedSupport implements Serializable {
 		}
 
 		return modified == modifiedAttrs.size();
+	}
+
+	public String getOpComments() {
+		return opComments;
+	}
+
+	public void setOpComments(String opComments) {
+		this.opComments = opComments;
 	}
 }

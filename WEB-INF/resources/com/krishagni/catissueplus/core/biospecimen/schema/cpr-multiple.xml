@@ -53,6 +53,11 @@
         <attribute>activityStatus</attribute>
       </field>
 
+      <field>
+        <caption>#getMessage("common_reason")</caption>
+        <attribute>opComments</attribute>
+      </field>
+
       <record type="customFields" entityType="ParticipantExtension">
         <attribute>extensionDetail</attribute>
       </record>

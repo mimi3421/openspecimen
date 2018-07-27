@@ -9,6 +9,8 @@ public class BulkDeleteEntityOp {
 
 	private boolean forceDelete;
 
+	private String reason;
+
 	public BulkDeleteEntityOp() {}
 
 	public BulkDeleteEntityOp(Set<Long> ids) {
@@ -37,5 +39,13 @@ public class BulkDeleteEntityOp {
 
 	public void setForceDelete(boolean forceDelete) {
 		this.forceDelete = forceDelete;
+	}
+
+	public String getReason() {
+		return reason;
+	}
+
+	public void setReason(String reason) {
+		this.reason = reason;
 	}
 }

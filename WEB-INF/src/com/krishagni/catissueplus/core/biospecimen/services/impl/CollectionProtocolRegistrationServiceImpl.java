@@ -26,6 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
 
+import com.krishagni.catissueplus.core.audit.services.impl.DeleteLogUtil;
 import com.krishagni.catissueplus.core.biospecimen.ConfigParams;
 import com.krishagni.catissueplus.core.biospecimen.domain.AnonymizeEvent;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
@@ -276,8 +277,11 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 			CpEntityDeleteCriteria crit = req.getPayload();
 			CollectionProtocolRegistration cpr = getCpr(crit.getId(), null, crit.getCpShortTitle(), crit.getName());
 			raiseErrorIfSpecimenCentric(cpr);
+
 			AccessCtrlMgr.getInstance().ensureDeleteCprRights(cpr);
+			cpr.setOpComments(crit.getReason());
 			cpr.delete(!crit.isForceDelete());
+			DeleteLogUtil.getInstance().log(cpr);
 			return ResponseEvent.response(CollectionProtocolRegistrationDetail.from(cpr, false));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
@@ -644,6 +648,10 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 			addVisits(cpr, cpes == null ? cpr.getCollectionProtocol().getOrderedCpeList() : cpes, collectionSite);
 		}
 
+		if (cpr.isDeleted()) {
+			DeleteLogUtil.getInstance().log(cpr);
+		}
+
 		return cpr;
 	}
 
@@ -656,7 +664,7 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 		if (update) {
 			Participant existing = getParticipant(input);
 			if (Status.isDisabledStatus(inputParticipant.getActivityStatus())) {
-				return deleteParticipant(existing, inputParticipant.isForceDelete());
+				return deleteParticipant(existing, inputParticipant.isForceDelete(), inputParticipant.getOpComments());
 			}
 
 			AccessCtrlMgr.getInstance().ensureUpdateParticipantRights(existing);
@@ -838,11 +846,15 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 	//
 	// Deletes all registrations of participant
 	//
-	private ParticipantRegistrationsList deleteParticipant(Participant participant, boolean forceDelete) {
+	private ParticipantRegistrationsList deleteParticipant(Participant participant, boolean forceDelete, String reason) {
 		List<CollectionProtocolRegistrationDetail> registrations = new ArrayList<>();
 		for (CollectionProtocolRegistration cpr : participant.getCprs()) {
 			AccessCtrlMgr.getInstance().ensureDeleteCprRights(cpr);
+
 			cpr.delete(!forceDelete);
+			cpr.setOpComments(reason);
+			DeleteLogUtil.getInstance().log(cpr);
+
 			registrations.add(CollectionProtocolRegistrationDetail.from(cpr, true));
 		}
 

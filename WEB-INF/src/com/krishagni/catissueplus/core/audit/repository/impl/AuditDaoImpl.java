@@ -10,6 +10,7 @@ import org.hibernate.type.LongType;
 import org.hibernate.type.StringType;
 import org.hibernate.type.TimestampType;
 
+import com.krishagni.catissueplus.core.audit.domain.DeleteLog;
 import com.krishagni.catissueplus.core.audit.domain.UserApiCallLog;
 import com.krishagni.catissueplus.core.audit.events.AuditDetail;
 import com.krishagni.catissueplus.core.audit.events.RevisionDetail;
@@ -59,13 +60,17 @@ public class AuditDaoImpl extends AbstractDao<UserApiCallLog> implements AuditDa
 	@Override
 	@SuppressWarnings("unchecked")
 	public Date getLatestApiCallTime(Long userId, String token) {
-		List<Date> result = sessionFactory.getCurrentSession()
-				.getNamedQuery(GET_LATEST_API_CALL_TIME)
-				.setLong("userId", userId)
-				.setString("authToken", token)
-				.list();
+		List<Date> result = getCurrentSession().getNamedQuery(GET_LATEST_API_CALL_TIME)
+			.setLong("userId", userId)
+			.setString("authToken", token)
+			.list();
 
 		return result.isEmpty() ? null : result.get(0);
+	}
+
+	@Override
+	public void saveOrUpdate(DeleteLog log) {
+		getCurrentSession().saveOrUpdate(log);
 	}
 
 	@SuppressWarnings("unchecked")

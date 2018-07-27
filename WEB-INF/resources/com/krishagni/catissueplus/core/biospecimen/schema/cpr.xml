@@ -42,6 +42,11 @@
       <attribute>activityStatus</attribute>
     </field>
 
+    <field>
+      <caption>#getMessage("common_reason")</caption>
+      <attribute>opComments</attribute>
+    </field>
+
     <record>
       <attribute>participant</attribute>
    

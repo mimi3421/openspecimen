@@ -135,8 +135,8 @@ angular.module('os.biospecimen.models.specimen', ['os.common.models', 'os.biospe
       );
     }
 
-    Specimen.bulkDelete = function(specimenIds) {
-      return $http.delete(Specimen.url(), {params: {id: specimenIds}}).then(
+    Specimen.bulkDelete = function(specimenIds, reason) {
+      return $http.delete(Specimen.url(), {params: {id: specimenIds, reason: reason}}).then(
         function(result) {
           return result.data;
         }

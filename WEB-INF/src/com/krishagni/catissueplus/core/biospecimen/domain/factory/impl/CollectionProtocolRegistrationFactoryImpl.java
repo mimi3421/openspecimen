@@ -46,6 +46,8 @@ public class CollectionProtocolRegistrationFactoryImpl implements CollectionProt
 		
 		CollectionProtocolRegistration cpr = new CollectionProtocolRegistration();
 		cpr.setForceDelete(detail.isForceDelete());
+		cpr.setOpComments(detail.getOpComments());
+
 		setCollectionProtocol(detail, existing, cpr, ose);
 		setPpid(detail, existing, cpr, ose);
 		setBarcode(detail, existing, cpr, ose);

@@ -60,6 +60,8 @@ public class VisitFactoryImpl implements VisitFactory {
 				
 		visit.setId(visitDetail.getId());
 		visit.setName(visitDetail.getName());
+		visit.setOpComments(visitDetail.getOpComments());
+
 		setCpe(visitDetail, visit, ose);		
 		setCpr(visitDetail, visit, ose);
 		validateCprAndCpe(visit, ose);
@@ -89,6 +91,8 @@ public class VisitFactoryImpl implements VisitFactory {
 		
 		visit.setId(existing.getId());
 		visit.setForceDelete(detail.isForceDelete());
+		visit.setOpComments(detail.getOpComments());
+
 		if (detail.isAttrModified("name")) {
 			visit.setName(detail.getName());
 		} else {

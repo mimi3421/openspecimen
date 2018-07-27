@@ -7,7 +7,7 @@
   </span>
 </div>
 <div class="os-modal-body">
-  <div ng-if="!showDependents">
+  <div class="form-group" ng-if="!showDependents">
     {{ entityProps.confirmDelete | translate: entityProps }}
   </div>
   
@@ -33,7 +33,12 @@
     </div>
   </div>
 
-  <div ng-if="(entityProps.forceDelete && dependentEntities.length > 0) || entityProps.bulkDelete">
+  <div ng-if="!showDependents && entityProps.askReason">
+    <span translate="delete_entity.specify_reason">Specify the reason for deletion</span>
+    <textarea class="form-control" ng-model="entityProps.reason" rows="2"></textarea>
+  </div>
+
+  <div ng-if="!entityProps.askReason && ((entityProps.forceDelete && dependentEntities.length > 0) || entityProps.bulkDelete)">
     <span translate='delete_entity.force_delete' translate-values="entityProps">
       Type 'DELETE ANYWAY' in below textbox to delete entity including its dependent entities.
     </span>
@@ -46,7 +51,11 @@
       <button class="btn os-btn-text" ng-click="cancel()">
         <span translate="common.buttons.cancel">Cancel</span>
       </button>
-      <button class="btn btn-danger" ng-click="delete()"
+      <button class="btn btn-danger" ng-click="delete()" ng-if="entityProps.askReason"
+        ng-disabled="!entityProps.reason || entityProps.reason.length < 10">
+        <span translate="common.yes">Yes</span>
+      </button>
+      <button class="btn btn-danger" ng-click="delete()" ng-if="!entityProps.askReason"
         ng-disabled="(dependentEntities.length > 0 || entityProps.bulkDelete) && entityProps.deleteAnyway != ('delete_entity.delete_anyway' | translate)">
         <span translate="common.yes">Yes</span>
       </button>

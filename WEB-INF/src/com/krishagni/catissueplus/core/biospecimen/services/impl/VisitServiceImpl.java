@@ -18,6 +18,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.InitializingBean;
 
+import com.krishagni.catissueplus.core.audit.services.impl.DeleteLogUtil;
 import com.krishagni.catissueplus.core.biospecimen.ConfigParams;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
@@ -234,7 +235,11 @@ public class VisitServiceImpl implements VisitService, ObjectAccessor, Initializ
 			Visit visit = getVisit(crit.getId(), crit.getName());
 			raiseErrorIfSpecimenCentric(visit);
 			AccessCtrlMgr.getInstance().ensureDeleteVisitRights(visit);
+
 			visit.delete(!crit.isForceDelete());
+			visit.setOpComments(crit.getReason());
+
+			DeleteLogUtil.getInstance().log(visit);
 			return ResponseEvent.response(VisitDetail.from(visit));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
@@ -592,6 +597,11 @@ public class VisitServiceImpl implements VisitService, ObjectAccessor, Initializ
 		daoFactory.getVisitsDao().saveOrUpdate(existing);
 		existing.addOrUpdateExtension();
 		existing.printLabels(prevVisitStatus);
+
+		if (existing.isDeleted()) {
+			DeleteLogUtil.getInstance().log(existing);
+		}
+
 		EventPublisher.getInstance().publish(new VisitSavedEvent(existing));
 		return existing;
 	}

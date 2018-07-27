@@ -7,6 +7,8 @@ public class CpEntityDeleteCriteria extends DeleteEntityOp {
 
 	private String cpShortTitle;
 
+	private String reason;
+
 	public String getName() {
 		return name;
 	}
@@ -21,5 +23,13 @@ public class CpEntityDeleteCriteria extends DeleteEntityOp {
 
 	public void setCpShortTitle(String cpShortTitle) {
 		this.cpShortTitle = cpShortTitle;
+	}
+
+	public String getReason() {
+		return reason;
+	}
+
+	public void setReason(String reason) {
+		this.reason = reason;
 	}
 }
