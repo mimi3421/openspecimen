@@ -19,8 +19,16 @@
           <span translate="specimens.event_time">Date and Time</span>
         </label>
         <div class="col-xs-9">
-          <os-date-picker date="closeSpec.date" placeholder="{{'specimens.event_time' | translate}}">
-          </os-date-picker>
+          <div class="os-date-time clearfix">
+            <div class="os-col-70 input os-no-padding">
+              <os-date-picker date="closeSpec.date" placeholder="{{'specimens.event_time' | translate}}">
+              </os-date-picker>
+            </div>
+            <div class="os-col-30">
+              <timepicker ng-model="closeSpec.date" class="os-time-no-wheels" show-meridian="false">
+              </timepicker>
+            </div>
+          </div>
         </div>
       </div>
       <div class="form-group">
