@@ -699,7 +699,7 @@
     "other": "Other",
     "image_id": "Image ID / URL",
 
-    "reason_for_closing": "Reason for closing",
+    "reason_for_closing": "Reason",
 
     "hide_events": "Hide Events",
     "show_events": "Show Events",

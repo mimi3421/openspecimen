@@ -4,10 +4,35 @@
     <span translate="specimens.close">Close</span>
   </div>
   <div class="os-modal-body">
-    <div class="form-group">
-      <textarea class="form-control" rows="2" ng-model="closeSpec.reason"
-        placeholder="{{'specimens.reason_for_closing' | translate}}">
-      </textarea>
+    <div class="form-horizontal">
+      <div class="form-group">
+        <label class="col-xs-3 control-label">
+          <span translate="specimens.event_user">User</span>
+        </label>
+        <div class="col-xs-9">
+          <os-users ng-model="closeSpec.user" default-current-user placeholder="{{'specimens.event_user' | translate}}">
+          </os-users>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-xs-3 control-label">
+          <span translate="specimens.event_time">Date and Time</span>
+        </label>
+        <div class="col-xs-9">
+          <os-date-picker date="closeSpec.date" placeholder="{{'specimens.event_time' | translate}}">
+          </os-date-picker>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-xs-3 control-label">
+          <span translate="specimens.reason_for_closing">Comments</span>
+        </label>
+        <div class="col-xs-9">
+          <textarea class="form-control" ng-model="closeSpec.reason" rows="2"
+            placeholder="{{'specimens.reason_for_closing' | translate}}">
+          </textarea>
+        </div>
+      </div>
     </div>
   </div>
   <div class="os-modal-footer">

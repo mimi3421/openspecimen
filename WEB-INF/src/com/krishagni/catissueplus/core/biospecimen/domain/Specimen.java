@@ -831,7 +831,7 @@ public class Specimen extends BaseExtensionEntity {
 			return;
 		}
 
-		transferTo(holdingLocation, time, reason);
+		transferTo(holdingLocation, user, time, reason);
 		addDisposalEvent(user, time, reason);		
 		setActivityStatus(Status.ACTIVITY_STATUS_CLOSED.getStatus());
 	}
