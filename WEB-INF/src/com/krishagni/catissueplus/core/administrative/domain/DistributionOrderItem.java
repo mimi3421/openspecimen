@@ -3,12 +3,18 @@ package com.krishagni.catissueplus.core.administrative.domain;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.krishagni.catissueplus.core.biospecimen.domain.BaseEntity;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
+import com.krishagni.catissueplus.core.common.service.LabelGenerator;
 
+@Configurable
 @Audited
 public class DistributionOrderItem extends BaseEntity {
 	public enum Status {
@@ -18,6 +24,8 @@ public class DistributionOrderItem extends BaseEntity {
 
 		RETURNED
 	}
+
+	private static final String ENTITY_NAME = "distribution_order_item";
 	
 	private DistributionOrder order;
 	
@@ -45,7 +53,15 @@ public class DistributionOrderItem extends BaseEntity {
 
 	private BigDecimal cost;
 
+	private String label;
+
 	private transient SpecimenRequestItem requestItem;
+
+	private transient boolean printLabel;
+
+	@Autowired
+	@Qualifier("distributionLabelGenerator")
+	private LabelGenerator labelGenerator;
 
 	public DistributionOrder getOrder() {
 		return order;
@@ -151,6 +167,14 @@ public class DistributionOrderItem extends BaseEntity {
 		this.cost = cost;
 	}
 
+	public String getLabel() {
+		return label;
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
+	}
+
 	public boolean isDistributedAndClosed() {
 		return getStatus() == Status.DISTRIBUTED_AND_CLOSED;
 	}
@@ -162,6 +186,14 @@ public class DistributionOrderItem extends BaseEntity {
 
 	public void setRequestItem(SpecimenRequestItem requestItem) {
 		this.requestItem = requestItem;
+	}
+
+	public boolean isPrintLabel() {
+		return printLabel;
+	}
+
+	public void setPrintLabel(boolean printLabel) {
+		this.printLabel = printLabel;
 	}
 
 	public boolean isReturned() { return getStatus() == Status.RETURNED; }
@@ -176,11 +208,20 @@ public class DistributionOrderItem extends BaseEntity {
 		if (requestItem != null) {
 			requestItem.distribute(getOrder());
 		}
+
+		String labelFmt = getOrder().getDistributionProtocol().getOrderItemLabelFormat();
+		if (StringUtils.isNotBlank(labelFmt)) {
+			setLabel(labelGenerator.generateLabel(labelFmt, this));
+		}
 	}
 
 	public void returnSpecimen() {
 		specimen.returnSpecimen(this);
 		setStatus(Status.RETURNED);
+	}
+
+	public static String getEntityName() {
+		return ENTITY_NAME;
 	}
 
 	public static boolean isValidDistributionStatus(String status) {

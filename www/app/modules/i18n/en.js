@@ -1054,6 +1054,7 @@
     "distribute_all": "Distribute All",
     "cancel_reservation": "Cancel Reservation",
     "dist_inst_pre_selected": "Distributing institute {{institute}} already selected in row {{rowNo}}",
+    "label_fmt": "Label Format",
 
     "bulk_import": "Import Distribution Protocols",
     "req_bulk_import": "Import Requirements",
@@ -2021,6 +2022,7 @@
     "date": "Date",
     "status": "Status",
     "dispose": "Dispose",
+    "print_labels": "Print labels",
     "specimens": "Specimens",
     "distributor": "Distributor",
     "dist_date": "Distribution Date",
@@ -2047,6 +2049,9 @@
     "report_will_be_emailed": "Generating distribution order report is taking more time than anticipated. Link to download report will be sent to you by email",
     "bulk_import": "Bulk Import Orders",
     "bulk_import_jobs": "Import Orders Job List",
+
+    "labels_print_job_created": "Distribution labels print job {{jobId}} created successfully",
+    "labels_print_download": "Downloading labels print CSV file ...",
 
     "filters": "Filters",
 
@@ -2385,7 +2390,11 @@
         "max_order_spmns_ui_limit": "Order Specimens UI Limit",
         "max_order_spmns_ui_limit_desc": "Maximum number of specimens whose details can be edited at the time of distribution using UI.",
         "allow_spmn_relabeling": "Relabel Shipment Specimens",
-        "allow_spmn_relabeling_desc": "Enable to allow editing of specimen labels when shipments are received."
+        "allow_spmn_relabeling_desc": "Enable to allow editing of specimen labels when shipments are received.",
+        "download_labels_print_file": "Download Labels Print File",
+        "download_labels_print_file_desc": "Enable or disable downloading of specimen labels print integration data file. When enabled, a CSV file containing the specimens data to be printed on labels (stickers) is downloaded to the user computer. When disabled, the integration file is not downloaded.",
+        "allow_dist_label_printing": "Print Distribution Labels",
+        "allow_dist_label_printing_desc": "Enable to allow printing of labels when specimens are distributed."
       },
 
       "biospecimen": {
@@ -2473,9 +2482,7 @@
         "aliquot_label_format": "Aliquot Label Format",
         "aliquot_label_format_desc": "The system-level format for aliquot labels.",
         "mandatory_aliquot_qty": "Mandatory Aliquot Quantity",
-        "mandatory_aliquot_qty_desc": "Enable to make aliquots quantity a mandatory field.",
-        "download_labels_print_file": "Download Labels Print File",
-        "download_labels_print_file_desc": "Enable or disable downloading of specimen labels print integration data file. When enabled, a CSV file containing the specimens data to be printed on labels (stickers) is downloaded to the user computer. When disabled, the integration file is not downloaded."
+        "mandatory_aliquot_qty_desc": "Enable to make aliquots quantity a mandatory field."
       },
 
       "common": {

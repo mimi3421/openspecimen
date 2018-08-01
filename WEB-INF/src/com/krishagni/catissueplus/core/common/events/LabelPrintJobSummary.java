@@ -1,9 +1,8 @@
-package com.krishagni.catissueplus.core.biospecimen.events;
+package com.krishagni.catissueplus.core.common.events;
 
 import java.util.Date;
 
 import com.krishagni.catissueplus.core.common.domain.LabelPrintJob;
-import com.krishagni.catissueplus.core.common.events.UserSummary;
 
 public class LabelPrintJobSummary {
 	private Long id;

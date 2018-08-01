@@ -135,4 +135,18 @@
       baseTableName="OS_DELETE_AUDIT_LOGS" baseColumnNames="USER_ID"
       referencedTableName="CATISSUE_USER" referencedColumnNames="IDENTIFIER"/>
   </changeSet>
+
+  <changeSet author="vpawar" id="Track changes to distributed specimens label format">
+    <addColumn tableName="CAT_DISTRIBUTION_PROTOCOL_AUD">
+      <column name="ORDER_ITEM_LABEL_FORMAT" type="${text.type}(255)"/>
+      <column name="orderItemLabelFormat_MOD" type="${boolean.type}"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Track changes to distributed specimen label">
+    <addColumn tableName="OS_ORDER_ITEMS_AUD">
+      <column name="LABEL" type="${text.type}(255)"/>
+      <column name="label_MOD" type="${boolean.type}"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

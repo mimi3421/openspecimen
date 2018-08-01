@@ -23,8 +23,6 @@ public enum PrintRuleConfigErrorCode implements ErrorCode{
 
 	INVALID_CMD_FILES_DIR,
 
-	INVALID_CPS,
-
 	INVALID_USERS,
 
 	DESC_REQ;

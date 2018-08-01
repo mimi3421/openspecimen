@@ -149,7 +149,7 @@ angular.module('os.biospecimen.specimen')
 
     function distributeSpmns(scope, details, specimens) {
       if (details.editOrder) {
-        SpecimensHolder.setSpecimens(specimens, details.comments);
+        SpecimensHolder.setSpecimens(specimens, details);
         $state.go('order-addedit', {dpId: details.dp.id});
         return;
       }
@@ -163,7 +163,7 @@ angular.module('os.biospecimen.specimen')
         distributionProtocol: dp,
         requester: dp.principalInvestigator,
         siteName: dp.defReceivingSiteName,
-        orderItems: getOrderItems(specimens),
+        orderItems: getOrderItems(specimens, details.printLabels),
         comments: details.comments,
         status: 'EXECUTED'
       }).$saveOrUpdate().then(
@@ -175,13 +175,14 @@ angular.module('os.biospecimen.specimen')
       );
     }
 
-    function getOrderItems(specimens) {
+    function getOrderItems(specimens, printLabel) {
       return specimens.map(
         function(specimen) {
           return {
             specimen: specimen,
             quantity: specimen.availableQty,
-            status: 'DISTRIBUTED_AND_CLOSED'
+            status: 'DISTRIBUTED_AND_CLOSED',
+            printLabel: printLabel
           }
         }
       );

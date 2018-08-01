@@ -92,17 +92,17 @@
               placeholder="{{'dp.irb_id' | translate}}" ng-maxlength="255">
           </os-inline-edit>
         </li>
-        
+
         <li class="item">
           <strong class="key key-sm" translate="dp.custom_fields_form">Order Custom Fields</strong>
-          <span class="value value-md" title="{{distributionProtocol.orderExtnForm.caption | osNoValue}}">
+          <span class="value value-md">
             {{distributionProtocol.orderExtnForm.caption | osNoValue}}
           </span>
         </li>
 
         <li class="item">
           <strong class="key key-sm" translate="dp.order_report_query">Order Report Query</strong>
-          <span class="value value-md" title="{{distributionProtocol.report.title | osNoValue}}">
+          <span class="value value-md">
             {{distributionProtocol.report.title | osNoValue}}
           </span>
         </li>
@@ -112,6 +112,11 @@
           <span class="value value-md">
             {{distributionProtocol.disableEmailNotifs | osBoolValue: 'common.disabled': 'common.enabled'}}
           </span>
+        </li>
+
+        <li class="item">
+          <strong class="key key-sm" translate="dp.label_fmt">Label Format</strong>
+          <span class="value value-md">{{distributionProtocol.orderItemLabelFormat | osNoValue}}</span>
         </li>
       </ul>
   

@@ -11,25 +11,25 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import com.krishagni.catissueplus.core.biospecimen.events.PrintSpecimenLabelDetail;
-import com.krishagni.catissueplus.core.biospecimen.services.SpecimenService;
+import com.krishagni.catissueplus.core.administrative.events.PrintDistributionLabelDetail;
+import com.krishagni.catissueplus.core.administrative.services.DistributionOrderService;
 import com.krishagni.catissueplus.core.common.events.LabelPrintJobSummary;
 import com.krishagni.catissueplus.core.common.events.LabelTokenDetail;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 
 @Controller
-@RequestMapping("/specimen-label-printer")
-public class SpecimenLabelPrintController extends AbstractLabelPrinter {
-	
+@RequestMapping("/distribution-label-printer")
+public class DistributionLabelPrintController extends AbstractLabelPrinter {
+
 	@Autowired
-	private SpecimenService specimenSvc;
+	private DistributionOrderService orderSvc;
 
 	@RequestMapping(method = RequestMethod.GET, value = "/tokens")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
 	public List<LabelTokenDetail> getPrintTokens() {
-		ResponseEvent<List<LabelTokenDetail>> resp = specimenSvc.getPrintLabelTokens();
+		ResponseEvent<List<LabelTokenDetail>> resp = orderSvc.getPrintLabelTokens();
 		resp.throwErrorIfUnsuccessful();
 		return resp.getPayload();
 	}
@@ -37,9 +37,9 @@ public class SpecimenLabelPrintController extends AbstractLabelPrinter {
 	@RequestMapping(method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
-	public LabelPrintJobSummary printLabel(@RequestBody PrintSpecimenLabelDetail detail) {
-		RequestEvent<PrintSpecimenLabelDetail> req = new RequestEvent<>(detail);
-		ResponseEvent<LabelPrintJobSummary> resp = specimenSvc.printSpecimenLabels(req);
+	public LabelPrintJobSummary printLabels(@RequestBody PrintDistributionLabelDetail detail) {
+		RequestEvent<PrintDistributionLabelDetail> req = new RequestEvent<>(detail);
+		ResponseEvent<LabelPrintJobSummary> resp = orderSvc.printDistributionLabels(req);
 		resp.throwErrorIfUnsuccessful();
 		return resp.getPayload();
 	}

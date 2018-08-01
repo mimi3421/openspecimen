@@ -1,16 +1,13 @@
-package com.krishagni.catissueplus.core.biospecimen.services.impl;
+package com.krishagni.catissueplus.core.biospecimen.domain;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 
 import com.krishagni.catissueplus.core.administrative.domain.User;
-import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
-import com.krishagni.catissueplus.core.biospecimen.domain.Visit;
 import com.krishagni.catissueplus.core.common.domain.LabelPrintRule;
 
 public class SpecimenLabelPrintRule extends LabelPrintRule {
@@ -105,7 +102,7 @@ public class SpecimenLabelPrintRule extends LabelPrintRule {
 	@Override
 	protected Map<String, String> getDefMap() {
 		Map<String, String> ruleDef = new HashMap<>();
-		ruleDef.put("cps", getCps().stream().collect(Collectors.joining(",")));
+		ruleDef.put("cps", String.join(",", getCps()));
 		ruleDef.put("visitSite", getVisitSite());
 		ruleDef.put("specimenClass", getSpecimenClass());
 		ruleDef.put("specimenType", getSpecimenType());
@@ -115,7 +112,7 @@ public class SpecimenLabelPrintRule extends LabelPrintRule {
 
 	public String toString() {
 		return new StringBuilder(super.toString())
-			.append(", cp = ").append(getCps().stream().collect(Collectors.joining(",")))
+			.append(", cp = ").append(String.join(",", getCps()))
 			.append(", lineage = ").append(getLineage())
 			.append(", visit site = ").append(getVisitSite())
 			.append(", specimen class = ").append(getSpecimenClass())

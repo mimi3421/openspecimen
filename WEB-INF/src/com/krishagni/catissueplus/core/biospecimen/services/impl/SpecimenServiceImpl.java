@@ -1,7 +1,6 @@
 
 package com.krishagni.catissueplus.core.biospecimen.services.impl;
 
-import java.io.File;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -39,7 +38,6 @@ import com.krishagni.catissueplus.core.biospecimen.domain.factory.SpecimenFactor
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.VisitErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.events.CollectionEventDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.CpEntityDeleteCriteria;
-import com.krishagni.catissueplus.core.biospecimen.events.LabelPrintJobSummary;
 import com.krishagni.catissueplus.core.biospecimen.events.PrintSpecimenLabelDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.ReceivedEventDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenAliquotsSpec;
@@ -63,6 +61,7 @@ import com.krishagni.catissueplus.core.common.errors.ErrorType;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.BulkEntityDetail;
 import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
+import com.krishagni.catissueplus.core.common.events.LabelPrintJobSummary;
 import com.krishagni.catissueplus.core.common.events.LabelTokenDetail;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
@@ -74,7 +73,6 @@ import com.krishagni.catissueplus.core.common.service.LabelPrinter;
 import com.krishagni.catissueplus.core.common.service.ObjectAccessor;
 import com.krishagni.catissueplus.core.common.service.impl.EventPublisher;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
-import com.krishagni.catissueplus.core.common.util.ConfigUtil;
 import com.krishagni.catissueplus.core.common.util.NumUtil;
 import com.krishagni.catissueplus.core.common.util.Status;
 import com.krishagni.catissueplus.core.common.util.Utility;
@@ -505,7 +503,7 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 			return ResponseEvent.userError(SpecimenErrorCode.PRINT_ERROR);
 		}
 
-		generateLabelsDataFile(job);
+		job.generateLabelsDataFile();
 		return ResponseEvent.response(LabelPrintJobSummary.from(job));
 	}
 
@@ -1073,34 +1071,6 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 		}
 
 		return disposalDate;
-	}
-
-	private void generateLabelsDataFile(LabelPrintJob job) {
-		boolean downloadPrintLabelsFile = ConfigUtil.getInstance().getBoolSetting(
-			ConfigParams.MODULE, ConfigParams.DOWNLOAD_LABEL_PRINT_FILE, false);
-		if (!downloadPrintLabelsFile) {
-			return;
-		}
-
-		File jobDir = new File(getPrintJobsDir());
-		if (!jobDir.exists() && !jobDir.mkdirs()) {
-			logger.error("Error creating print jobs directory");
-		}
-
-		String outputFilePath = String.format(
-			"%s%s%d_%d.csv",
-			jobDir.getAbsolutePath(), File.separator, AuthUtil.getCurrentUser().getId(), job.getId());
-
-		List<Map<String, String>> labels = job.getItems().stream()
-			.map(item -> Collections.nCopies(item.getCopies(), item.getDataItems()))
-			.flatMap(List::stream)
-			.collect(Collectors.toList());
-
-		Utility.writeToCsv(outputFilePath, labels);
-	}
-
-	private String getPrintJobsDir() {
-		return ConfigUtil.getInstance().getDataDir() + File.separator + "print-jobs";
 	}
 
 	private Function<ExportJob, List<? extends Object>> getSpecimensGenerator() {

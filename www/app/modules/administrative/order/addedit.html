@@ -247,9 +247,14 @@
               <ng-include src="tmpl"></ng-include>
             </th>
             <th class="col os-width-100">
-              <div class="os-checkbox-container">
+              <div class="pull-left" os-tooltip="{{'orders.dispose' | translate}}" placement="left">
+                <div> <span class="fa fa-ban"></span> </div>
                 <os-checkbox ng-model="input.allItemStatus" ng-change="toggleAllItemStatus()"></os-checkbox>
-                <span class="os-checkbox-label" translate="orders.dispose">Dispose</span>
+              </div>
+              <div class="pull-left" os-tooltip="{{'orders.print_labels' | translate}}" placement="left"
+                style="margin-left: 12px;" ng-if="orctx.printDistLabels">
+                <div> <span class="fa fa-print"></span> </div>
+                <os-checkbox ng-model="input.allItemPrint" ng-change="toggleAllItemPrint()"></os-checkbox>
               </div>
             </th>
           </tr>
@@ -303,12 +308,18 @@
               <ng-include src="tmpl"></ng-include>
             </td>
             <td class="col clearfix">
-              <div class="os-checkbox-container pull-left">
+              <div class="pull-left">
                 <os-checkbox ng-model="item.status"
                   ng-true-value="'DISTRIBUTED_AND_CLOSED'" ng-false-value="'DISTRIBUTED'" ng-change="setHeaderStatus()"
                   ng-disabled="!!item.holdingLocation.name || item.quantity == specimen.availableQty">
                 </os-checkbox>
               </div>
+
+              <div class="pull-left" style="margin-left: 12px;" ng-if="orctx.printDistLabels">
+                <os-checkbox ng-model="item.printLabel" ng-change="setHeaderPrint(item)">
+                </os-checkbox>
+              </div>
+
               <button class="btn btn-xs btn-default" style="margin-left: 15px;"
                 ng-click="removeOrderItem(item)" ng-if="!order.request">
                 <span class="fa fa-remove"></span>

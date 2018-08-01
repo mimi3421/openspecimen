@@ -12,13 +12,26 @@ angular.module('os.administrative.order',
       .state('order-root', {
         abstract: true,
         template: '<div ui-view></div>',
-        controller: function($scope) {
+        controller: function($scope, printDistLabels) {
           // Storage Container Authorization Options
           $scope.orderResource = {
             createOpts: {resource: 'Order', operations: ['Create']},
             updateOpts: {resource: 'Order', operations: ['Update']},
             deleteOpts: {resource: 'Order', operations: ['Delete']},
             importOpts: {resource: 'Order', operations: ['Export Import']}
+          }
+
+          $scope.orctx = {
+            printDistLabels: printDistLabels
+          }
+        },
+        resolve: {
+          printDistLabels: function(SettingUtil) {
+            return SettingUtil.getSetting('administrative', 'allow_dist_label_printing').then(
+              function(setting) {
+                return setting.value == 'true' || setting.value == true;
+              }
+            );
           }
         },
         parent: 'signed-in'

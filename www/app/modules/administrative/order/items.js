@@ -1,11 +1,12 @@
 angular.module('os.administrative.order')
-  .controller('OrderItemsCtrl', function($scope, order, PluginReg, CommentsUtil) {
+  .controller('OrderItemsCtrl', function($scope, order, PluginReg, CommentsUtil, CheckList, DistributionLabelPrinter) {
   
     var ctx = {
       totalItems: 0,
       currPage: 1,
       itemsPerPage: 100,
       items: [],
+      checkList: new CheckList([]),
       loading: false,
       showRetrieveBtn: false,
       itemFieldsHdrTmpls:  PluginReg.getTmpls('order-detail', 'item-fields-header', ''),
@@ -56,12 +57,27 @@ angular.module('os.administrative.order')
           }
 
           ctx.items = orderItems;
+          ctx.checkList = new CheckList(orderItems);
           ctx.loading = false;
-          ctx.showLocations = orderItems.some(
-            function(item) {
-              return !!item.specimen.storageLocation && !!item.specimen.storageLocation.name;
+
+          var i = 0;
+          ctx.showLocations = false, ctx.showDistLabels = false;
+          for (var i = 0; i < orderItems.length; ++i) {
+            var item = orderItems[i];
+
+            if (!ctx.showLocations) {
+              ctx.showLocations = !!item.specimen.storageLocation && !!item.specimen.storageLocation.name;
             }
-          );
+
+            if (!ctx.showDistLabels) {
+              ctx.showDistLabels = !!item.label;
+            }
+
+            if (ctx.showLocations && ctx.showDistLabels) {
+              break;
+            }
+          }
+
         }
       );
     }
@@ -83,6 +99,17 @@ angular.module('os.administrative.order')
           );
         }
       );
+    }
+
+    $scope.printLabels = function() {
+      var items = ctx.checkList.getSelectedItems();
+      if (!items || items.length == 0) {
+        alert("No order items selected");
+        return;
+      }
+
+      var itemIds = items.map(function(item) { return item.id; });
+      DistributionLabelPrinter.printLabels({orderId: order.id, itemIds: itemIds}, order.name + '.csv');
     }
 
     init();

@@ -45,8 +45,17 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
       if (!$scope.input.spmnsFromList) {
         if (!order.id) {
           if (angular.isArray(SpecimensHolder.getSpecimens())) {
-            order.orderItems = getOrderItems(SpecimensHolder.getSpecimens());
-            order.comments = SpecimensHolder.getExtra() || order.comments;
+            var printLabels = false;
+            var extra = SpecimensHolder.getExtra();
+            if (typeof extra == 'string') {
+              order.comments = extra;
+            } else if (extra && typeof extra == 'object') {
+              order.comments = extra.comments;
+              printLabels = extra.printLabels;
+            }
+
+            order.orderItems = getOrderItems(SpecimensHolder.getSpecimens(), printLabels);
+            $scope.input.allItemPrint = printLabels;
             SpecimensHolder.setSpecimens(null);
           } else if (!!order.request) {
             order.orderItems = getOrderItemsFromReq(order.request.items, []);
@@ -112,7 +121,7 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
       );
     }
 
-    function getOrderItems(specimens) {
+    function getOrderItems(specimens, printLabel) {
       return specimens.filter(
         function(specimen) {
           return specimen.activityStatus == 'Active';
@@ -122,7 +131,8 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
           return {
             specimen: specimen,
             quantity: specimen.availableQty,
-            status: 'DISTRIBUTED_AND_CLOSED'
+            status: 'DISTRIBUTED_AND_CLOSED',
+            printLabel: printLabel
           }
         }
       );
@@ -498,6 +508,22 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
       }
 
       $scope.setStatus(item);
+    }
+
+    $scope.setHeaderPrint = function(item) {
+      if (!item.printLabel) {
+        $scope.input.allItemPrint = false;
+      } else {
+        $scope.input.allItemPrint = !(order.orderItems.some(function(oi) { return !oi.printLabel; }));
+      }
+    }
+
+    $scope.toggleAllItemPrint = function() {
+      angular.forEach($scope.order.orderItems,
+        function(item) {
+          item.printLabel = $scope.input.allItemPrint;
+        }
+      );
     }
 
     $scope.validateSpecimens = function(ctrl) {

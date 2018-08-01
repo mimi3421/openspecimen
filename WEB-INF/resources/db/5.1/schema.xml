@@ -290,4 +290,20 @@
         cpr.identifier
     </createView>
   </changeSet>
+
+  <changeSet author="vpawar" id="Label format for distributed specimens">
+    <addColumn tableName="CATISSUE_DISTRIBUTION_PROTOCOL">
+      <column name="ORDER_ITEM_LABEL_FORMAT" type="${text.type}(255)"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Distributed specimen label">
+    <addColumn tableName="OS_ORDER_ITEMS">
+      <column name="LABEL" type="${text.type}(255)"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Increase the width of print job item type column">
+    <modifyDataType tableName="OS_LABEL_PRINT_JOBS" columnName="ITEM_TYPE" newDataType="${text.type}(32)"/>
+  </changeSet>
 </databaseChangeLog>

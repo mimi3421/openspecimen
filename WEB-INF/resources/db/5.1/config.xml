@@ -44,4 +44,25 @@
       );
     </sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="Setting to enable or disable printing of distribution labels">
+    <sql>
+      call add_cfg_prop(
+        'administrative', 'allow_dist_label_printing',
+        'allow_dist_label_printing', 'allow_dist_label_printing_desc',
+        'BOOLEAN', 'false'
+      );
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Change the module of config settings that enables/disables download of print control files">
+    <sql>
+      update
+        os_cfg_props
+      set
+        module_id = (select identifier from os_modules where name = 'administrative')
+      where
+        name = 'download_labels_print_file';
+    </sql>
+  </changeSet>
 </databaseChangeLog>

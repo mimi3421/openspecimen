@@ -39,7 +39,11 @@ public enum DistributionProtocolErrorCode implements ErrorCode {
 	
 	DUP_CONSENT,
 
-	CONSENT_NOT_FOUND;
+	CONSENT_NOT_FOUND,
+
+	INV_OI_LABEL_FMT,
+
+	INV_DPS;
 
 	@Override
 	public String code() {

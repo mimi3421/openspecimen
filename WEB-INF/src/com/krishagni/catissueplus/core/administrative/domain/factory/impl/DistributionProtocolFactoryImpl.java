@@ -26,6 +26,7 @@ import com.krishagni.catissueplus.core.common.errors.ActivityStatusErrorCode;
 import com.krishagni.catissueplus.core.common.errors.ErrorType;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
+import com.krishagni.catissueplus.core.common.service.LabelGenerator;
 import com.krishagni.catissueplus.core.common.util.Status;
 import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.catissueplus.core.de.domain.DeObject;
@@ -40,12 +41,18 @@ public class DistributionProtocolFactoryImpl implements DistributionProtocolFact
 	
 	private com.krishagni.catissueplus.core.de.repository.DaoFactory deDaoFactory;
 
+	private LabelGenerator distributionLabelGenerator;
+
 	public void setDaoFactory(DaoFactory daoFactory) {
 		this.daoFactory = daoFactory;
 	}
 	
 	public void setDeDaoFactory(com.krishagni.catissueplus.core.de.repository.DaoFactory deDaoFactory) {
 		this.deDaoFactory = deDaoFactory;
+	}
+
+	public void setDistributionLabelGenerator(LabelGenerator distributionLabelGenerator) {
+		this.distributionLabelGenerator = distributionLabelGenerator;
 	}
 
 	@Override
@@ -72,6 +79,7 @@ public class DistributionProtocolFactoryImpl implements DistributionProtocolFact
 		setReport(detail, existing, dp, ose);
 		setOrderExtnForm(detail, existing, dp, ose);
 		setDisableEmailNotifs(detail, existing, dp, ose);
+		setOrderItemLabelFormat(detail, existing, dp, ose);
 		setDistributingSites(detail, existing, dp, ose);
 		setExtension(detail, existing, dp, ose);
 
@@ -332,6 +340,23 @@ public class DistributionProtocolFactoryImpl implements DistributionProtocolFact
 			dp.setDisableEmailNotifs(detail.getDisableEmailNotifs());
 		} else {
 			dp.setDisableEmailNotifs(existing.getDisableEmailNotifs());
+		}
+	}
+
+	private void setOrderItemLabelFormat(DistributionProtocolDetail detail, DistributionProtocol dp, OpenSpecimenException ose) {
+		String fmt = detail.getOrderItemLabelFormat();
+		if (StringUtils.isNotBlank(fmt) && !distributionLabelGenerator.isValidLabelTmpl(fmt)) {
+			ose.addError(DistributionProtocolErrorCode.INV_OI_LABEL_FMT, fmt);
+		}
+
+		dp.setOrderItemLabelFormat(fmt);
+	}
+
+	private void setOrderItemLabelFormat(DistributionProtocolDetail detail, DistributionProtocol existing, DistributionProtocol dp, OpenSpecimenException ose) {
+		if (existing == null || detail.isAttrModified("orderItemLabelFormat")) {
+			setOrderItemLabelFormat(detail, dp, ose);
+		} else {
+			dp.setOrderItemLabelFormat(existing.getOrderItemLabelFormat());
 		}
 	}
 

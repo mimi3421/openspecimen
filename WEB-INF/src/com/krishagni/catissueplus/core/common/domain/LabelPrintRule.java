@@ -158,7 +158,7 @@ public abstract class LabelPrintRule {
 	
 	public Map<String, String> getDataItems(PrintItem<?> printItem) {
 		try {
-			Map<String, String> dataItems = new LinkedHashMap<String, String>();
+			Map<String, String> dataItems = new LinkedHashMap<>();
 
 
 			if (!isWildCard(labelDesign)) {

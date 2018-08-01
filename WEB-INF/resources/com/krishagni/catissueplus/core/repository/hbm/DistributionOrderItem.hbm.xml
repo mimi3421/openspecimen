@@ -44,5 +44,7 @@
     <property name="returnComments" column="RETURN_COMMENTS"/>
 
     <property name="cost" column="COST"/>
+
+    <property name="label" column="LABEL"/>
   </class>
 </hibernate-mapping>

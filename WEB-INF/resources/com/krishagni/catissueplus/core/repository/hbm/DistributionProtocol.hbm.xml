@@ -40,6 +40,8 @@
 
     <property name="disableEmailNotifs" column="DISABLE_EMAIL_NOTIFS"/>
 
+    <property name="orderItemLabelFormat" column="ORDER_ITEM_LABEL_FORMAT"/>
+
     <set name="distributionOrders" cascade="none">
       <key column="DISTRIBUTION_PROTOCOL_ID"/>
       <one-to-many class="com.krishagni.catissueplus.core.administrative.domain.DistributionOrder"/>

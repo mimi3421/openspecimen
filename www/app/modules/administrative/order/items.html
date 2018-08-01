@@ -1,7 +1,11 @@
 <div>
-  <div class="os-page-commands" ng-if="ctx.showRetrieveBtn">
+  <div class="os-page-commands">
     <div class="left">
-      <button class="default" ng-click="retrieveSpecimens()">
+      <button class="default" ng-click="printLabels()" ng-if="orctx.printDistLabels">
+        <span class="fa fa-print"></span>
+        <span>Print</span>
+      </button>
+      <button class="default" ng-click="retrieveSpecimens()" ng-if="ctx.showRetrieveBtn">
         <span class="fa fa-reply"></span>
         <span translate="orders.buttons.retrieve">Retrieve</span>
       </button>
@@ -16,10 +20,17 @@
     <table class="os-table" ng-if="!ctx.loading">
       <thead class="os-table-head">
         <tr class="row">
+          <th class="col" ng-if="orctx.printDistLabels">
+            <os-checkbox ng-change="ctx.checkList.toggleSelectAll()" ng-model="ctx.checkList.allSelected">
+            </os-checkbox>
+          </th>
+          <th class="col" ng-if="ctx.showDistLabels">
+            <span>Distribution Label</span>
+          </th>
           <th class="col">
             <span translate="orders.spec.label">Label</span>
           </th>
-          <th class="col os-col-25">
+          <th class="col">
             <span translate="orders.spec.desc">Description</span>
           </th>
           <th class="col">
@@ -41,13 +52,21 @@
       </thead>
       <tbody class="os-table-body">
         <tr class="row" ng-repeat="item in ctx.items" ng-init="specimen = item.specimen">
+          <td class="col" ng-if="orctx.printDistLabels">
+            <os-checkbox ng-change="ctx.checkList.toggleSelectItem($index)"
+              ng-model="ctx.checkList.items[$index].selected">
+            </os-checkbox>
+          </td>
+          <td class="col" ng-if="ctx.showDistLabels">
+            <span>{{item.label | osNoValue}}</span>
+          </td>
           <td class="col">
             <a ui-sref="specimen({specimenId: specimen.id})">
               <span>{{specimen.label}}</span>
               <span ng-if="!!specimen.barcode">({{specimen.barcode}})</span>
             </a>
           </td>
-          <td class="col os-col-25">
+          <td class="col">
             <a ui-sref="specimen({specimenId: specimen.id})">
               <os-specimen-desc specimen="specimen" detailed="true"></os-specimen-desc>
             </a>

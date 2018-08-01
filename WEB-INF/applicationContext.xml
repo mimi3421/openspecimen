@@ -542,9 +542,43 @@
     <property name="containerTypeFactory" ref="containerTypeFactory"/>
   </bean>
 
+  <bean id="distributionLabelGenerator" class="com.krishagni.catissueplus.core.common.service.impl.LabelGeneratorImpl">
+    <property name="tokenRegistrar">
+      <bean class="com.krishagni.catissueplus.core.common.domain.DefaultLabelTmplTokenRegistrar">
+        <property name="tokens">
+          <list>
+            <bean class="com.krishagni.catissueplus.core.administrative.label.order.DpIdLabelToken"/>
+            <bean class="com.krishagni.catissueplus.core.administrative.label.order.DpShortTitleLabelToken"/>
+            <bean class="com.krishagni.catissueplus.core.administrative.label.order.DpUniqueIdLabelToken"/>
+            <bean class="com.krishagni.catissueplus.core.administrative.label.order.ItemUniqueIdLabelToken"/>
+            <bean class="com.krishagni.catissueplus.core.administrative.label.order.OrderIdLabelToken"/>
+            <bean class="com.krishagni.catissueplus.core.administrative.label.order.PathStatusLabelToken"/>
+          </list>
+        </property>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="distributionPrintLabelTokensRegistrar" class="com.krishagni.catissueplus.core.common.domain.DefaultLabelTmplTokenRegistrar">
+    <property name="tokens">
+      <list>
+        <bean class="com.krishagni.catissueplus.core.administrative.print.order.DistributionLabelPrintToken"/>
+        <bean class="com.krishagni.catissueplus.core.administrative.print.order.DpShortTitlePrintToken"/>
+        <bean class="com.krishagni.catissueplus.core.administrative.print.order.PathStatusPrintToken"/>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="defaultDistributionLabelPrinter" class="com.krishagni.catissueplus.core.administrative.services.impl.DefaultDistributionLabelPrinter"
+        depends-on="labelPrintRuleFactoryRegistrar">
+    <property name="daoFactory" ref="biospecimenDaoFactory"/>
+    <property name="printLabelTokensRegistrar" ref="distributionPrintLabelTokensRegistrar"/>
+  </bean>
+
   <bean id="distributionProtocolFactory" class="com.krishagni.catissueplus.core.administrative.domain.factory.impl.DistributionProtocolFactoryImpl">
     <property name="daoFactory"   ref="biospecimenDaoFactory"/>
     <property name="deDaoFactory" ref="deDaoFactory"/>
+    <property name="distributionLabelGenerator" ref="distributionLabelGenerator"/>
   </bean>
 
   <bean id="distributionProtocolService" class="com.krishagni.catissueplus.core.administrative.services.impl.DistributionProtocolServiceImpl">
@@ -570,6 +604,7 @@
     <property name="emailService"        ref="emailService"/>
     <property name="deDaoFactory"        ref="deDaoFactory"/>
     <property name="taskExecutor"        ref="taskExecutor"/>
+    <property name="labelPrinter"        ref="defaultDistributionLabelPrinter"/>
     <property name="validators">
       <list>
         <bean class="com.krishagni.catissueplus.core.administrative.services.impl.DistributionConsentValidator">
@@ -765,9 +800,15 @@
     <property name="printRuleFactories">
       <map>
         <entry key="SPECIMEN">
-          <bean class="com.krishagni.catissueplus.core.common.domain.factory.impl.SpecimenLabelPrintRuleFactoryImpl">
+          <bean class="com.krishagni.catissueplus.core.biospecimen.domain.factory.impl.SpecimenLabelPrintRuleFactoryImpl">
             <property name="daoFactory" ref="biospecimenDaoFactory"/>
             <property name="printLabelTokensRegistrar" ref="specimenPrintLabelTokensRegistrar"/>
+          </bean>
+        </entry>
+        <entry key="ORDER_ITEM">
+          <bean class="com.krishagni.catissueplus.core.administrative.domain.factory.impl.DistributionLabelPrintRuleFactoryImpl">
+            <property name="daoFactory" ref="biospecimenDaoFactory"/>
+            <property name="printLabelTokensRegistrar" ref="distributionPrintLabelTokensRegistrar"/>
           </bean>
         </entry>
       </map>

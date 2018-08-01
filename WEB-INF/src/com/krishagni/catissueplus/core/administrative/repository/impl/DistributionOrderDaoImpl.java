@@ -130,6 +130,9 @@ public class DistributionOrderDaoImpl extends AbstractDao<DistributionOrder> imp
 				.add(Restrictions.eq("orderItem.status", DistributionOrderItem.Status.DISTRIBUTED_AND_CLOSED));
 		}
 
+		if (CollectionUtils.isNotEmpty(crit.ids())) {
+			query.add(Restrictions.in("orderItem.id", crit.ids()));
+		}
 
 		return query.setFirstResult(crit.startAt())
 			.setMaxResults(crit.maxResults())

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,7 +31,6 @@ import com.krishagni.catissueplus.core.administrative.domain.DistributionOrder;
 import com.krishagni.catissueplus.core.administrative.domain.DistributionOrder.Status;
 import com.krishagni.catissueplus.core.administrative.domain.DistributionOrderItem;
 import com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol;
-import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.administrative.domain.SpecimenRequest;
 import com.krishagni.catissueplus.core.administrative.domain.SpecimenReservedEvent;
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainer;
@@ -47,6 +47,7 @@ import com.krishagni.catissueplus.core.administrative.events.DistributionOrderIt
 import com.krishagni.catissueplus.core.administrative.events.DistributionOrderItemListCriteria;
 import com.krishagni.catissueplus.core.administrative.events.DistributionOrderListCriteria;
 import com.krishagni.catissueplus.core.administrative.events.DistributionOrderSummary;
+import com.krishagni.catissueplus.core.administrative.events.PrintDistributionLabelDetail;
 import com.krishagni.catissueplus.core.administrative.events.ReserveSpecimensDetail;
 import com.krishagni.catissueplus.core.administrative.events.RetrieveSpecimensOp;
 import com.krishagni.catissueplus.core.administrative.events.ReturnedSpecimenDetail;
@@ -65,14 +66,19 @@ import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
 import com.krishagni.catissueplus.core.common.access.SiteCpPair;
+import com.krishagni.catissueplus.core.common.domain.LabelPrintJob;
 import com.krishagni.catissueplus.core.common.domain.Notification;
+import com.krishagni.catissueplus.core.common.domain.PrintItem;
 import com.krishagni.catissueplus.core.common.errors.ErrorCode;
 import com.krishagni.catissueplus.core.common.errors.ErrorType;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
+import com.krishagni.catissueplus.core.common.events.LabelPrintJobSummary;
+import com.krishagni.catissueplus.core.common.events.LabelTokenDetail;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
 import com.krishagni.catissueplus.core.common.service.EmailService;
+import com.krishagni.catissueplus.core.common.service.LabelPrinter;
 import com.krishagni.catissueplus.core.common.service.ObjectAccessor;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.catissueplus.core.common.util.ConfigUtil;
@@ -113,6 +119,8 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 
 	private List<EntityCrudListener<DistributionOrderDetail, DistributionOrder>> listeners = new ArrayList<>();
 
+	private LabelPrinter<DistributionOrderItem> labelPrinter;
+
 	public void setDaoFactory(DaoFactory daoFactory) {
 		this.daoFactory = daoFactory;
 	}
@@ -151,6 +159,10 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 	@Override
 	public void removeValidator(String name) {
 		this.validators.remove(name);
+	}
+
+	public void setLabelPrinter(LabelPrinter<DistributionOrderItem> labelPrinter) {
+		this.labelPrinter = labelPrinter;
 	}
 
 	@Override
@@ -455,6 +467,36 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 		} catch (Exception e) {
 			return ResponseEvent.serverError(e);
 		}
+	}
+
+	@Override
+	@PlusTransactional
+	public ResponseEvent<LabelPrintJobSummary> printDistributionLabels(RequestEvent<PrintDistributionLabelDetail> req) {
+		try {
+			PrintDistributionLabelDetail input = req.getPayload();
+
+			DistributionOrder order = getOrder(input.getOrderId(), input.getOrderName());
+			AccessCtrlMgr.getInstance().ensureReadDistributionOrderRights(order);
+
+			List<DistributionOrderItem> orderItems = daoFactory.getDistributionOrderDao()
+				.getOrderItems(new DistributionOrderItemListCriteria().orderId(order.getId()).ids(input.getItemIds()));
+			LabelPrintJob job = printDistributionLabels(orderItems, input.getCopies());
+			if (job == null) {
+				throw new IllegalArgumentException("General error"); // TODO
+			}
+
+			job.generateLabelsDataFile();
+			return ResponseEvent.response(LabelPrintJobSummary.from(job));
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
+		} catch (Exception e) {
+			return ResponseEvent.serverError(e);
+		}
+	}
+
+	@Override
+	public ResponseEvent<List<LabelTokenDetail>> getPrintLabelTokens() {
+		return ResponseEvent.response(LabelTokenDetail.from("print_", labelPrinter.getTokens()));
 	}
 
 	@Override
@@ -1074,6 +1116,7 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 		order.distribute();
 		daoFactory.getDistributionOrderDao().saveOrUpdate(order);
 		if (order.getSpecimenList() == null && !order.isForAllReservedSpecimens()) {
+			printDistributionLabels(order.getOrderItems());
 			return;
 		}
 
@@ -1083,7 +1126,13 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 		List<Specimen> specimens;
 		while (!endOfSpecimens) {
 			specimens = getSpecimens.apply(starAt);
-			specimens.forEach(spmn -> distributeSpecimen(order, spmn));
+
+			List<DistributionOrderItem> orderItems = new ArrayList<>();
+			for (Specimen specimen : specimens) {
+				orderItems.add(distributeSpecimen(order, specimen));
+			}
+
+			printDistributionLabels(orderItems);
 
 			starAt += specimens.size();
 			endOfSpecimens = (specimens.size() < maxSpmns);
@@ -1093,10 +1142,27 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 		}
 	}
 
-	private void distributeSpecimen(DistributionOrder order, Specimen specimen) {
+	private DistributionOrderItem distributeSpecimen(DistributionOrder order, Specimen specimen) {
 		DistributionOrderItem item = addRate(order, DistributionOrderItem.createOrderItem(order, specimen));
 		daoFactory.getDistributionOrderDao().saveOrUpdateOrderItem(item);
 		item.distribute();
+		return item;
+	}
+
+	private LabelPrintJob printDistributionLabels(Collection<DistributionOrderItem> orderItems) {
+		List<DistributionOrderItem> toPrintItems = orderItems.stream()
+			.filter(DistributionOrderItem::isPrintLabel)
+			.sorted(Comparator.comparing(DistributionOrderItem::getId))
+			.collect(Collectors.toList());
+		return printDistributionLabels(toPrintItems, 1);
+	}
+
+	private LabelPrintJob printDistributionLabels(List<DistributionOrderItem> orderItems, int copies) {
+		if (CollectionUtils.isEmpty(orderItems)) {
+			return null;
+		}
+
+		return labelPrinter.print(PrintItem.make(orderItems, copies));
 	}
 
 	private SavedQuery getReportQuery(DistributionOrder order) {

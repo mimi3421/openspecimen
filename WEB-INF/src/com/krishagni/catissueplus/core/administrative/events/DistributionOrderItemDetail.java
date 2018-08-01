@@ -20,7 +20,11 @@ public class DistributionOrderItemDetail implements Serializable {
 
 	private BigDecimal cost;
 
+	private String label;
+
 	private StorageLocationSummary holdingLocation;
+
+	private boolean printLabel;
 	
 	private String status;
 
@@ -64,12 +68,28 @@ public class DistributionOrderItemDetail implements Serializable {
 		this.cost = cost;
 	}
 
+	public String getLabel() {
+		return label;
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
+	}
+
 	public StorageLocationSummary getHoldingLocation() {
 		return holdingLocation;
 	}
 
 	public void setHoldingLocation(StorageLocationSummary holdingLocation) {
 		this.holdingLocation = holdingLocation;
+	}
+
+	public boolean isPrintLabel() {
+		return printLabel;
+	}
+
+	public void setPrintLabel(boolean printLabel) {
+		this.printLabel = printLabel;
 	}
 
 	public String getStatus() {
@@ -87,6 +107,7 @@ public class DistributionOrderItemDetail implements Serializable {
 		detail.setQuantity(orderItem.getQuantity());
 		detail.setSpecimen(SpecimenInfo.from(orderItem.getSpecimen()));
 		detail.setCost(orderItem.getCost());
+		detail.setLabel(orderItem.getLabel());
 		detail.setStatus(orderItem.getStatus().name());
 		return detail;
 	}

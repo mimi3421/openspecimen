@@ -12,7 +12,7 @@ angular.module('os.biospecimen.models.specimenlabelprinter', ['os.common.models'
 
     SpecimenLabelPrinter.printLabels = function(detail, outputFilename) {
       var printQ   = $http.post(SpecimenLabelPrinter.url(), detail);
-      var settingQ = SettingUtil.getSetting('biospecimen', 'download_labels_print_file');
+      var settingQ = SettingUtil.getSetting('administrative', 'download_labels_print_file');
       return $q.all([printQ, settingQ]).then(
         function(resps) {
           var job = resps[0].data;

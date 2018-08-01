@@ -100,6 +100,14 @@
       </div>
 
       <div class="form-group">
+        <label class="control-label col-xs-3" translate="dp.label_fmt">Label Format</label>
+        <div class="col-xs-6">
+          <input type="text" name="labelFmt" ng-model="distributionProtocol.orderItemLabelFormat"
+            class="form-control" placeholder="{{'dp.label_fmt' | translate}}">
+        </div>
+      </div>
+
+      <div class="form-group">
         <label class="control-label col-xs-3" translate="dp.custom_fields_form">Custom Fields Form</label>
         <div class="col-xs-6">
           <os-select name="extnForm" ng-model="distributionProtocol.orderExtnForm"
