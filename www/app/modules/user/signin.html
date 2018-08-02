@@ -1,4 +1,3 @@
-
 <div>
   <div class="os-custom-banner">
     <div style="height: 50px;"></div>
@@ -16,24 +15,35 @@
     </div>
     <form name="signinForm" class="os-no-label-form" ng-submit="login()">
       <div class="os-group-controls">
-        <input type="text" class="form-control" ng-model="loginData.loginName"
-          required placeholder="{{'user.login_name' | translate}}">
-        <input type="password" class="form-control" ng-model="loginData.password"
-          required placeholder="{{'user.password' | translate}}">
-
-        <os-plugin-hooks view-name="'sign-in'" sec-name="'input-fields'">
-        </os-plugin-hooks>
-
-        <div ng-if="domains.length > 1">
-          <os-select ng-model="loginData.domainName" list="domains" name="domain" ng-click="$event.stopPropagation()"
+        <div ng-if="domains.length > 1 && !!samlDomain">
+          <os-select ng-model="loginData.domainName" list="domains" select-prop="name" display-prop="name"
+            ng-click="$event.stopPropagation();" on-select="onDomainSelect($item)"
+            ng-class="{'os-no-border-bottom': !!loginData.domainName}"
             placeholder="{{'user.domain_name' | translate}}" required>
+          </os-select>
+        </div>
+
+        <span ng-if="!samlDomain || (!!loginData.domainName && loginData.domainName != samlDomain.name)">
+          <input type="text" class="form-control" ng-model="loginData.loginName"
+            required placeholder="{{'user.login_name' | translate}}">
+          <input type="password" class="form-control" ng-model="loginData.password"
+            required placeholder="{{'user.password' | translate}}">
+
+          <os-plugin-hooks view-name="'sign-in'" sec-name="'input-fields'">
+          </os-plugin-hooks>
+        </span>
+
+        <div ng-if="domains.length > 1 && !samlDomain">
+          <os-select ng-model="loginData.domainName" list="domains" ng-click="$event.stopPropagation()"
+            ng-class="{'os-no-border-top': !samlDomain}" placeholder="{{'user.domain_name' | translate}}" required>
           </os-select>
         </div>
       </div>
       <span class="os-error-msg" ng-if="loginError" translate="user.sign_in_failed">
         The username or password you entered is incorrect
       </span>
-      <button type="submit" class="btn btn-block btn-primary">
+      <button type="submit" class="btn btn-block btn-primary"
+        ng-if="!samlDomain || (!!loginData.domainName && loginData.domainName != samlDomain.name)">
         <span translate="user.sign_in">Sign in</span>
       </button>
       <div class="clearfix" style="padding-top: 5px;">

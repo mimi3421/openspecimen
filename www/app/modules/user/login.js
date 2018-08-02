@@ -37,12 +37,13 @@ angular.module('openspecimen')
     }
   })
   .controller('LoginCtrl', function(
-    $scope, $rootScope, $state, $stateParams, $q, $http, $location, $injector,
+    $scope, $rootScope, $state, $stateParams, $q, $http, $location, $injector, $window,
     Alerts, AuthDomain, AuthService) {
 
     function init() {
-      $scope.errors = [];
-      $scope.loginData = {};
+      $scope.errors     = [];
+      $scope.loginData  = {};
+      $scope.samlDomain = '';
       
       var logoutQ;
       if ($location.search().logout) {
@@ -79,17 +80,26 @@ angular.module('openspecimen')
 
     function loadDomains() {
       $scope.domains = [];
-      AuthDomain.getDomainNames().then(
+      AuthDomain.query().then(
         function(domains) {
+          $scope.samlDomain = domains.find(function(d) { return d.type == 'saml'; });
+
           var defaultDomain = $scope.global.appProps.default_domain;
           $scope.domains = domains;
           if (domains.length == 1) {
-            $scope.loginData.domainName = domains[0];
-          } else if (!!defaultDomain && domains.indexOf(defaultDomain) >= 0) {
+            $scope.loginData.domainName = domains[0].name;
+          } else if (!!defaultDomain && domains.some(function(d) { return d.name == defaultDomain; })) {
             $scope.loginData.domainName = defaultDomain;
+            if ($scope.samlDomain && $scope.samlDomain.name == defaultDomain) {
+              gotoIdp();
+            }
           }
         }
       );
+    }
+
+    function gotoIdp() {
+      $window.location.replace('saml/login');
     }
 
     function onLogin(result) {
@@ -118,6 +128,12 @@ angular.module('openspecimen')
         $scope.loginError = true;
       }
     };
+
+    $scope.onDomainSelect = function(domain) {
+      if (domain.type == 'saml') {
+        gotoIdp();
+      }
+    }
 
     $scope.login = function() {
       $scope.errors = [];
