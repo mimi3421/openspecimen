@@ -442,6 +442,7 @@ public class SpecimenDaoImpl extends AbstractDao<Specimen> implements SpecimenDa
 			query.add(labelOrBarcode);
 		}
 
+		addLastIdCond(query, crit);
 		addLineageCond(query, crit);
 		addCollectionStatusCond(query, crit);
 		addSiteCpsCond(query, crit);
@@ -455,6 +456,14 @@ public class SpecimenDaoImpl extends AbstractDao<Specimen> implements SpecimenDa
 		addAvailableSpecimenCond(query, crit);
 		addNoQtySpecimenCond(query, crit);
 		return detachedCriteria;
+	}
+
+	private void addLastIdCond(Criteria query, SpecimenListCriteria crit) {
+		if (crit.lastId() == null || crit.lastId() < 0L) {
+			return;
+		}
+
+		query.add(Restrictions.gt("id", crit.lastId()));
 	}
 
 	private void addLineageCond(Criteria query, SpecimenListCriteria crit) {

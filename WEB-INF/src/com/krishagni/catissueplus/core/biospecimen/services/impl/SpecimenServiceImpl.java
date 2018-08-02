@@ -1079,7 +1079,7 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 
 			private boolean paramsInited;
 
-			private int startAt;
+			private Long lastId;
 
 			private SpecimenListCriteria crit;
 
@@ -1091,14 +1091,15 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 					return Collections.emptyList();
 				}
 
-				List<Specimen> specimens = daoFactory.getSpecimenDao().getSpecimens(crit.startAt(startAt));
-				startAt += specimens.size();
+				List<Specimen> specimens = daoFactory.getSpecimenDao().getSpecimens(crit.lastId(lastId));
 				if (CollectionUtils.isNotEmpty(crit.labels()) || specimens.size() < 100) {
 					endOfSpecimens = true;
 				}
 
 				List<SpecimenDetail> records = new ArrayList<>();
 				for (Specimen specimen : specimens) {
+					lastId = specimen.getId();
+
 					try {
 						boolean hasPhi = AccessCtrlMgr.getInstance().ensureReadSpecimenRights(specimen, true);
 

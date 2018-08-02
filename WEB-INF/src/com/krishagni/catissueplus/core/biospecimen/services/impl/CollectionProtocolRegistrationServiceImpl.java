@@ -1199,7 +1199,7 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 
 		private CprListCriteria crit;
 
-		private int startAt;
+		private Long lastId;
 
 		private boolean paramsInited;
 
@@ -1210,10 +1210,13 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 				return Collections.emptyList();
 			}
 
-			List<CollectionProtocolRegistration> cprs = daoFactory.getCprDao().getCprs(crit.startAt(startAt));
-			startAt += cprs.size();
+			List<CollectionProtocolRegistration> cprs = daoFactory.getCprDao().getCprs(crit.lastId(lastId));
 			if (CollectionUtils.isNotEmpty(crit.ppids()) || cprs.size() < 100) {
 				endOfCprs = true;
+			}
+
+			if (!cprs.isEmpty()) {
+				lastId = cprs.get(cprs.size() - 1).getId();
 			}
 
 			return cprs;

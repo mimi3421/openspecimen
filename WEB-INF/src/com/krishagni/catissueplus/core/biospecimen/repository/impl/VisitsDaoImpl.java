@@ -276,6 +276,10 @@ public class VisitsDaoImpl extends AbstractDao<Visit> implements VisitsDao {
 			.setProjection(Projections.distinct(Projections.property("visit.id")));
 		Criteria query = detachedCriteria.getExecutableCriteria(getCurrentSession());
 
+		if (crit.lastId() != null && crit.lastId() >= 0L) {
+			query.add(Restrictions.gt("id", crit.lastId()));
+		}
+
 		String startAlias = "cpr";
 		if (crit.cpId() != null) {
 			startAlias = "cpSite";

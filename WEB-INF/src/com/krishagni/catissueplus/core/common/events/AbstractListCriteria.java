@@ -7,7 +7,9 @@ import org.codehaus.jackson.annotate.JsonProperty;
 import org.hibernate.criterion.MatchMode;
 
 
-public abstract class AbstractListCriteria<T extends ListCriteria<T>> implements ListCriteria<T> {	
+public abstract class AbstractListCriteria<T extends ListCriteria<T>> implements ListCriteria<T> {
+	private Long lastId;
+
 	private int startAt;
 	
 	private int maxResults;
@@ -23,7 +25,18 @@ public abstract class AbstractListCriteria<T extends ListCriteria<T>> implements
 	private boolean includeStat;
 	
 	private List<Long> ids = new ArrayList<>();
-	
+
+	@Override
+	public Long lastId() {
+		return lastId;
+	}
+
+	@Override
+	public T lastId(Long lastId) {
+		this.lastId = lastId;
+		return self();
+	}
+
 	@Override
 	public int startAt() {
 		return startAt <= 0 ? 0 : startAt;

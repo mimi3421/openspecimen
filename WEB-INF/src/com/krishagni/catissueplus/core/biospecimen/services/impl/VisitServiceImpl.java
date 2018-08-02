@@ -872,7 +872,7 @@ public class VisitServiceImpl implements VisitService, ObjectAccessor, Initializ
 
 			private VisitsListCriteria crit;
 
-			private int startAt;
+			private Long lastId;
 
 			@Override
 			public List<? extends Object> apply(ExportJob exportJob) {
@@ -882,14 +882,15 @@ public class VisitServiceImpl implements VisitService, ObjectAccessor, Initializ
 					return Collections.emptyList();
 				}
 
-				List<Visit> visits = daoFactory.getVisitsDao().getVisitsList(crit.startAt(startAt));
-				startAt += visits.size();
+				List<Visit> visits = daoFactory.getVisitsDao().getVisitsList(crit.lastId(lastId));
 				if (CollectionUtils.isNotEmpty(crit.names()) || visits.size() < 100) {
 					endOfVisits = true;
 				}
 
 				List<VisitDetail> records = new ArrayList<>();
 				for (Visit visit : visits) {
+					lastId = visit.getId();
+
 					try {
 						boolean hasPhi = AccessCtrlMgr.getInstance().ensureReadVisitRights(visit, true);
 						VisitDetail detail = VisitDetail.from(visit, false, !hasPhi);

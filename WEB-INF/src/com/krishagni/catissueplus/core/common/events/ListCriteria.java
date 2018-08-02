@@ -3,6 +3,10 @@ package com.krishagni.catissueplus.core.common.events;
 import java.util.List;
 
 public interface ListCriteria<T extends ListCriteria<T>> {
+	public Long lastId();
+
+	public T lastId(Long lastId);
+
 	public int startAt();
 	
 	public T startAt(int startAt);
