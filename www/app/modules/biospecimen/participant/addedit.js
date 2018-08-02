@@ -49,6 +49,7 @@ angular.module('os.biospecimen.participant.addedit', ['os.biospecimen.models', '
         initDisableFieldOpts(lockedFields);
       }
 
+      $scope.op         = !!$scope.cpr.id ? 'Update' : 'Create';
       $scope.deFormCtrl = {};
       $scope.extnOpts = ExtensionsUtil.getExtnOpts(
         $scope.cpr.participant, extensionCtxt, $scope.disableFieldOpts.customFields);
@@ -57,7 +58,6 @@ angular.module('os.biospecimen.participant.addedit', ['os.biospecimen.models', '
         $scope.cpr.participant.addPmi($scope.cpr.participant.newPmi());
         loadPvs();
       }
-
     };
 
     function onMatchSelect(match) {
@@ -127,7 +127,6 @@ angular.module('os.biospecimen.participant.addedit', ['os.biospecimen.models', '
     }
 
     function loadPvs() {
-      $scope.op            = !!$scope.cpr.id ? 'Update' : 'Create';
       $scope.genders       = PvManager.getPvs('gender');
       $scope.vitalStatuses = PvManager.getPvs('vital-status');
     };
