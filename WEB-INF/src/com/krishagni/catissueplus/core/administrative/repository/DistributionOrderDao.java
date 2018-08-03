@@ -1,5 +1,6 @@
 package com.krishagni.catissueplus.core.administrative.repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +19,8 @@ public interface DistributionOrderDao extends Dao<DistributionOrder> {
 	DistributionOrder getOrder(String name);
 
 	List<DistributionOrder> getOrders(List<String> names);
+
+	List<DistributionOrder> getUnpickedOrders(Date distSince, int startAt, int maxOrders);
 
 	List<DistributionOrderItem> getDistributedOrderItems(List<Long> specimenIds);
 

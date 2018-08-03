@@ -72,6 +72,31 @@
         (oi.status = 'DISTRIBUTED' or oi.status = 'DISTRIBUTED_AND_CLOSED')
     </query>
 
+    <query name="getUnpickedSpecimenOrders">
+      select
+        o
+      from
+        com.krishagni.catissueplus.core.administrative.domain.DistributionOrder o
+      where
+        o.id in (
+          select
+            distinct po.id
+          from
+            com.krishagni.catissueplus.core.administrative.domain.DistributionOrder po
+            join po.orderItems oi
+            join oi.specimen s
+            join s.position pos
+            join pos.container box
+          where
+            po.status = 'EXECUTED' and
+            po.executionDate &lt;= :distEarlierThan and
+            po.status != 'RETURNED' and
+            box.usedFor = 'DISTRIBUTION'
+        )
+      order by
+        o.id
+    </query>
+
     <sql-query name="getSpecimenCountByOrder">
       <return-scalar column="ordId"       type="long"/>
       <return-scalar column="specimenCnt" type="long"/>

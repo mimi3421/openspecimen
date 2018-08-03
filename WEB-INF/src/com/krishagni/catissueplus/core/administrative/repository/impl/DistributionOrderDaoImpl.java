@@ -91,6 +91,7 @@ public class DistributionOrderDaoImpl extends AbstractDao<DistributionOrder> imp
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public List<DistributionOrder> getOrders(List<String> names) {
 		return getSessionFactory().getCurrentSession()
 				.getNamedQuery(GET_ORDERS_BY_NAME)
@@ -99,6 +100,17 @@ public class DistributionOrderDaoImpl extends AbstractDao<DistributionOrder> imp
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
+	public List<DistributionOrder> getUnpickedOrders(Date distSince, int startAt, int maxOrders) {
+		return getCurrentSession().getNamedQuery(GET_UNPICKED_ORDERS)
+			.setDate("distEarlierThan", distSince)
+			.setFirstResult(startAt)
+			.setMaxResults(maxOrders)
+			.list();
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
 	public List<DistributionOrderItem> getDistributedOrderItems(List<Long> specimenIds) {
 		return getSessionFactory().getCurrentSession()
 				.getNamedQuery(GET_DISTRIBUTED_ITEMS_BY_SPMN_IDS)
@@ -346,6 +358,8 @@ public class DistributionOrderDaoImpl extends AbstractDao<DistributionOrder> imp
 	public static final String FQN  = DistributionOrder.class.getName();
 	
 	private static final String GET_ORDERS_BY_NAME = FQN + ".getOrdersByName";
+
+	private static final String GET_UNPICKED_ORDERS = FQN + ".getUnpickedSpecimenOrders";
 
 	private static final String GET_DISTRIBUTED_ITEMS_BY_SPMN_IDS = FQN + ".getDistributedItemsBySpmnIds";
 	
