@@ -34,8 +34,9 @@
         </span>
 
         <div ng-if="domains.length > 1 && !samlDomain">
-          <os-select ng-model="loginData.domainName" list="domains" ng-click="$event.stopPropagation()"
-            ng-class="{'os-no-border-top': !samlDomain}" placeholder="{{'user.domain_name' | translate}}" required>
+          <os-select ng-model="loginData.domainName" list="domains" select-prop="name" display-prop="name"
+            ng-click="$event.stopPropagation()" ng-class="{'os-no-border-top': !samlDomain}"
+            placeholder="{{'user.domain_name' | translate}}" required>
           </os-select>
         </div>
       </div>
