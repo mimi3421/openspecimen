@@ -1208,7 +1208,7 @@
   </bean>
   
   <bean id="upgradeLogUpdater" class="com.krishagni.catissueplus.core.init.UpgradeLogUpdater">
-    <property name="daoFactory" ref="biospecimenDaoFactory" />
+    <property name="daoFactory" ref="biospecimenDaoFactory"/>
     <property name="appProps" ref="appProps"/>
   </bean>
 
@@ -1229,6 +1229,9 @@
         <ref bean="instSvc"/>
         <ref bean="userSvc"/>
         <ref bean="containerTypeSvc"/>
+        <bean class="com.krishagni.catissueplus.core.administrative.services.impl.SpecimenRequestAccessor">
+          <property name="daoFactory" ref="biospecimenDaoFactory"/>
+        </bean>
       </list>
     </property>
   </bean>

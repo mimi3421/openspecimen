@@ -627,7 +627,7 @@
             <udn>id</udn>
             <caption>#getMessage("specimen_request_id")</caption>
             <column>REQUEST_ID</column>
-            <recordUrl></recordUrl>
+            <recordUrl>#/object-state-params-resolver?stateName=sc-req-detail.overview&amp;objectName=specimen_request&amp;key=id&amp;value={{$value}}</recordUrl>
           </numberField>
         </row>
 

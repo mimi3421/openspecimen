@@ -15,6 +15,8 @@ import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.catissueplus.core.common.util.Status;
 
 public class SpecimenRequest extends BaseExtensionEntity {
+	private static final String ENTITY_NAME = "specimen_request";
+
 	public enum ScreeningStatus {
 		PENDING,
 		APPROVED,
@@ -273,6 +275,10 @@ public class SpecimenRequest extends BaseExtensionEntity {
 		}
 
 		updateScreeningStatus(ScreeningStatus.PENDING, null, null, null);
+	}
+
+	public static String getEntityName() {
+		return ENTITY_NAME;
 	}
 
 	private void updateScreeningStatus(ScreeningStatus inputStatus, User user, Date time, String comments) {

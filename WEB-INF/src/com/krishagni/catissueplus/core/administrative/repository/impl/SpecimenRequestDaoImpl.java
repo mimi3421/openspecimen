@@ -1,8 +1,11 @@
 package com.krishagni.catissueplus.core.administrative.repository.impl;
 
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -37,6 +40,27 @@ public class SpecimenRequestDaoImpl extends AbstractDao<SpecimenRequest> impleme
 	public List<SpecimenRequestSummary> getSpecimenRequests(SpecimenRequestListCriteria crit) {
 		Criteria query = addSummaryFields(getListQuery(crit), CollectionUtils.isNotEmpty(crit.sites()));
 		return ((List<Object[]>)query.list()).stream().map(this::getRequest).collect(Collectors.toList());
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Map<String, Object> getRequestIds(String key, Object value) {
+		List<Object[]> rows = getCurrentSession().createCriteria(SpecimenRequest.class)
+			.add(Restrictions.eq(key, value))
+			.setProjection(Projections.projectionList()
+				.add(Projections.property("id"))
+				.add(Projections.property("catalogId")))
+			.list();
+
+		if (CollectionUtils.isEmpty(rows)) {
+			return Collections.emptyMap();
+		}
+
+		Object[] row = rows.iterator().next();
+		Map<String, Object> ids = new HashMap<>();
+		ids.put("requestId", row[0]);
+		ids.put("catalogId", row[1]);
+		return ids;
 	}
 
 	private Criteria getListQuery(SpecimenRequestListCriteria crit) {
