@@ -77,7 +77,7 @@ angular.module('os.biospecimen.specimen')
               cpShortTitle = scope.cp.shortTitle;
             }
 
-            if (ctx.defDps && (!searchTerm || ctx.defDps.length <= 100)) {
+            if (ctx.defDps && (!searchTerm || ctx.defDps.length < 100)) {
               ctx.dps = ctx.defDps;
               return;
             }
