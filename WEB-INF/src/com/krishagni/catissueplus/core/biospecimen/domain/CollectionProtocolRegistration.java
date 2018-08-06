@@ -139,7 +139,17 @@ public class CollectionProtocolRegistration extends BaseEntity {
 		}
 
 		return getVisits().stream()
-			.sorted((v1, v2) -> v1.getVisitDate().compareTo(v2.getVisitDate()))
+			.sorted((v1, v2) -> {
+				if (v1.getVisitDate() != null && v2.getVisitDate() != null) {
+					return v1.getVisitDate().compareTo(v2.getVisitDate());
+				} else if (v1.getVisitDate() != null) {
+					return -1;
+				} else if (v2.getVisitDate() != null) {
+					return 1;
+				} else {
+					return v1.getId().compareTo(v2.getId());
+				}
+			})
 			.collect(Collectors.toList());
 	}
 
