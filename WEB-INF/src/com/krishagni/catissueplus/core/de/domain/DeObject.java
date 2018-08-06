@@ -17,9 +17,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.dao.DataAccessException;
 
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.biospecimen.domain.BaseExtensionEntity;
+import com.krishagni.catissueplus.core.common.errors.CommonErrorCode;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.catissueplus.core.common.util.MessageUtil;
@@ -125,6 +127,8 @@ public abstract class DeObject {
 			attrs.addAll(getAttrs(formData));
 		} catch(IllegalArgumentException ex) {
 			throw OpenSpecimenException.userError(FormErrorCode.INVALID_DATA, ex.getMessage());
+		} catch (DataAccessException dae) {
+			throw OpenSpecimenException.userError(CommonErrorCode.SQL_EXCEPTION, dae.getMessage());
 		} catch (Exception e) {
 			throw OpenSpecimenException.serverError(e);
 		}

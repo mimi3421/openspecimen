@@ -18,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.dao.DataAccessException;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.krishagni.catissueplus.core.administrative.domain.User;
@@ -432,6 +433,8 @@ public class FormServiceImpl implements FormService, InitializingBean {
 			return ResponseEvent.response(FormDataDetail.ok(formData.getContainer().getId(), formData.getRecordId(), formData));
 		} catch(IllegalArgumentException ex) {
 			return ResponseEvent.userError(FormErrorCode.INVALID_DATA, ex.getMessage());
+		} catch (DataAccessException dae) {
+			return ResponseEvent.userError(CommonErrorCode.SQL_EXCEPTION, dae.getMessage());
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {
@@ -453,6 +456,8 @@ public class FormServiceImpl implements FormService, InitializingBean {
 			return ResponseEvent.response(savedFormDataList);
 		} catch(IllegalArgumentException ex) {
 			return ResponseEvent.userError(FormErrorCode.INVALID_DATA, ex.getMessage());
+		} catch (DataAccessException dae) {
+			return ResponseEvent.userError(CommonErrorCode.SQL_EXCEPTION, dae.getMessage());
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {
