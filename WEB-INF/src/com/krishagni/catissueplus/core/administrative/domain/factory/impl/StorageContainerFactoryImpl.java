@@ -609,11 +609,14 @@ public class StorageContainerFactoryImpl implements StorageContainerFactory {
 	}
 	
 	private void setCreatedBy(StorageContainerDetail detail, StorageContainer existing, StorageContainer container, OpenSpecimenException ose) {
-		if (detail.isAttrModified("createdBy") || existing == null) {
-			setCreatedBy(detail, container, ose);
-		} else {
-			container.setCreatedBy(existing.getCreatedBy());
+		if (container.getId() != null) {
+			return;
 		}
+
+		//
+		// OPSMN-4458: Created by is set only when a new container is being created which has no ID
+		//
+		setCreatedBy(detail, container, ose);
 	}
 	
 	private void setActivityStatus(StorageContainerDetail detail, StorageContainer container, OpenSpecimenException ose) {
