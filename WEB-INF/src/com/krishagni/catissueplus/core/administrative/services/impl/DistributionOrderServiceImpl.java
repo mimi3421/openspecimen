@@ -101,7 +101,7 @@ import edu.common.dynamicextensions.query.WideRowMode;
 public class DistributionOrderServiceImpl implements DistributionOrderService, ObjectAccessor {
 	private static final Log logger = LogFactory.getLog(DistributionOrderServiceImpl.class);
 
-	private static final long ASYNC_CALL_TIMEOUT = 5000;
+	private static final long ASYNC_CALL_TIMEOUT = 5000L;
 
 	private DaoFactory daoFactory;
 
@@ -666,19 +666,31 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 	}
 
 	private ResponseEvent<DistributionOrderDetail> saveOrUpdateOrder(Function<DistributionOrderDetail, ResponseEvent<DistributionOrderDetail>> workFn, DistributionOrderDetail input) {
+		long timeout = input.isAsync() ? ASYNC_CALL_TIMEOUT : 0L;
 		User currentUser = AuthUtil.getCurrentUser();
 		Future<ResponseEvent<DistributionOrderDetail>> result = taskExecutor.submit(
 				() -> {
 					try {
+						long t1 = System.currentTimeMillis();
 						AuthUtil.setCurrentUser(currentUser);
-						return workFn.apply(input);
+
+						ResponseEvent<DistributionOrderDetail> resp = workFn.apply(input);
+						if (!resp.isSuccessful() && timeout > 0 && (System.currentTimeMillis() - t1) > (timeout - 500)) {
+							//
+							// if the request was async and it took round about same time (+/- 500 ms) as the wait time
+							// then notify users about the errors via email notifications.
+							//
+							notifyFailedOrder(resp);
+						}
+
+						return resp;
 					} finally {
 						AuthUtil.clearCurrentUser();
 					}
 				}
 		);
 
-		return unwrap(result, input.isAsync() ? ASYNC_CALL_TIMEOUT : 0);
+		return unwrap(result, timeout);
 	}
 
 	private ResponseEvent<DistributionOrderDetail> unwrap(Future<ResponseEvent<DistributionOrderDetail>> result, long timeout) {
@@ -1289,6 +1301,24 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 		NotifUtil.getInstance().notify(notif, Collections.singletonMap("order-overview", rcpts));
 	}
 
+	private void notifyFailedOrder(ResponseEvent<?> resp) {
+		if (resp.isSuccessful()) {
+			return;
+		}
+
+		logger.error("Error saving/updating the order: " + resp.getError().getMessage());
+		User currentUser = AuthUtil.getCurrentUser();
+		if (currentUser == null || StringUtils.isBlank(currentUser.getEmailAddress())) {
+			return;
+		}
+
+		Map<String, Object> emailProps = new HashMap<>();
+		emailProps.put("$subject", new Object[0]);
+		emailProps.put("errorMsg", resp.getError().getMessage());
+		emailProps.put("rcpt", currentUser.formattedName());
+		emailService.sendEmail(ORDER_FAILED_EMAIL_TMPL, new String[] { currentUser.getEmailAddress() }, null, emailProps);
+	}
+
 	private DistributionOrder getOrder(Long orderId, String orderName) {
 		DistributionOrder order = null;
 		Object key = null;
@@ -1499,4 +1529,6 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 	}
 
 	private static final String ORDER_DISTRIBUTED_EMAIL_TMPL = "order_distributed";
+
+	private static final String ORDER_FAILED_EMAIL_TMPL = "order_failed";
 }
