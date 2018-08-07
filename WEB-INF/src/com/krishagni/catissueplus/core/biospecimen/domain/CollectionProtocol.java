@@ -804,7 +804,7 @@ public class CollectionProtocol extends BaseExtensionEntity {
 	}
 	
 	public List<CollectionProtocolEvent> getOrderedCpeList() {
-		List<CollectionProtocolEvent> events = new ArrayList<CollectionProtocolEvent>(getCollectionProtocolEvents());
+		List<CollectionProtocolEvent> events = new ArrayList<>(getCollectionProtocolEvents());
 		Collections.sort(events);
 		return events;
 	}

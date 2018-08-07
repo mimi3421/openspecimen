@@ -1105,6 +1105,22 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 			return;
 		}
 
+		Integer minOffset = null, maxOffset = null;
+		for (CollectionProtocolEvent cpe : cpes) {
+			Integer offset = Utility.getNoOfDays(cpe.getEventPoint(), cpe.getEventPointUnit());
+			if (offset == null) {
+				continue;
+			}
+
+			if (minOffset == null || offset < minOffset) {
+				minOffset = offset;
+			}
+
+			if (maxOffset == null || offset > maxOffset) {
+				maxOffset = offset;
+			}
+		}
+
 		boolean checkPermission = true;
 		for (CollectionProtocolEvent cpe : cpes) {
 			VisitDetail visitDetail = new VisitDetail();
@@ -1114,6 +1130,21 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 			visitDetail.setClinicalDiagnoses(Collections.singleton(cpe.getClinicalDiagnosis()));
 			visitDetail.setClinicalStatus(cpe.getClinicalStatus());
 			visitDetail.setStatus(Visit.VISIT_STATUS_PENDING);
+
+			int interval = 0;
+			if (minOffset != null) {
+				Integer offset = Utility.getNoOfDays(cpe.getEventPoint(), cpe.getEventPointUnit());
+				if (offset != null) {
+					interval = offset - minOffset;
+				} else {
+					interval = (maxOffset - minOffset) + 1;
+				}
+			}
+
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(cpr.getRegistrationDate());
+			cal.add(Calendar.DATE, interval);
+			visitDetail.setVisitDate(cal.getTime());
 
 			cpr.addVisit(visitSvc.addVisit(visitDetail, checkPermission));
 			checkPermission = false;
