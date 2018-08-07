@@ -52,7 +52,14 @@ public class AutomatedContainerContext {
 		ContainerStoreListItem item = new ContainerStoreListItem();
 		item.setSpecimen(specimen);
 		item.setStoreList(storeList);
-		daoFactory.getContainerStoreListDao().saveOrUpdateItem(item);
+
+
+		Runnable saveItem = () -> daoFactory.getContainerStoreListDao().saveOrUpdateItem(item);
+		if (specimen.getId() == null) {
+			specimen.addOnSaveProc(saveItem);
+		} else {
+			saveItem.run();
+		}
 	}
 
 	private String listLookupKey(StorageContainer container, ContainerStoreList.Op op) {
