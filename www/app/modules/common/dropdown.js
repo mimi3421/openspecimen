@@ -32,7 +32,7 @@ angular.module('openspecimen')
       restrict: 'E',
       compile: function(tElem, tAttrs) {
         var multiple = angular.isDefined(tAttrs.multiple);
-        var uiSelect = angular.element(multiple ? '<ui-select multiple/>' : '<ui-select/>')
+        var uiSelect = angular.element(multiple ? '<ui-select os-fix-dd multiple/>' : '<ui-select os-fix-dd />')
           .attr('ng-model', tAttrs.ngModel)
           .attr('ng-disabled', tAttrs.ngDisabled)
           .attr('ng-required', tAttrs.ngRequired)
@@ -98,4 +98,49 @@ angular.module('openspecimen')
         return linker;
       }
     };
+  })
+  .directive('osFixDd', function($timeout) {
+    return {
+      restrict: 'A',
+
+      link: function(scope, element, attrs) {
+        var dd = null;
+
+        var ddCont = new MutationObserver(
+          function(ddContMutations) {
+            if (!ddContMutations.some(function(r) { return r.attributeName == 'class' })) {
+              return;
+            }
+
+            //
+            // we are interested when 'direction-up' class is added to dropdown container
+            //
+            if (element.attr('class').indexOf('direction-up') != -1 && !dd) {
+              var ddEl = element.find('.ui-select-dropdown');
+              dd = new MutationObserver(
+                function(ddMutations) {
+                  if (!ddMutations.some(function(r) { return r.addedNodes.length != 0 || r.removedNodes.length != 0; })) {
+                    return;
+                  }
+
+                  //
+                  // the dropdown should be offset to the top by its height
+                  // so that the bottom appears stuck to the search input
+                  //
+                  ddEl[0].style.top = -1 * ddEl.outerHeight() + 'px';
+                }
+              );
+
+              dd.observe(ddEl[0], {childList: true, subtree: true});
+            } else if (element.attr('class').indexOf('direction-up') == -1 && dd) {
+              dd.disconnect();
+              dd = null;
+            }
+          }
+        );
+
+        ddCont.observe(element[0], {attributes: true});
+        element.on('remove', function() { ddCont.disconnect(); });
+      }
+    }
   });

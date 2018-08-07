@@ -133,7 +133,7 @@ angular.module('os.administrative.user.dropdown', ['os.administrative.models'])
 
         return angular.isDefined(tAttrs.multiple) ?
               '<div>' +
-                '<ui-select multiple ng-model="$parent.ngModel" reset-search-input="true"' +
+                '<ui-select multiple os-fix-dd ng-model="$parent.ngModel" reset-search-input="true"' +
                   (!!tAttrs.onSelect ? 'on-select="$parent.onSelect({user: $item})"' : '') +
                   ' append-to-body="' + bodyAppend + '" os-tabable="' + tabable + '">' +
                   '<ui-select-match placeholder="{{$parent.placeholder}}">' +
@@ -148,7 +148,7 @@ angular.module('os.administrative.user.dropdown', ['os.administrative.models'])
               :
 
               '<div>' +
-                '<ui-select ng-model="$parent.ngModel" reset-search-input="true"' + 
+                '<ui-select os-fix-dd ng-model="$parent.ngModel" reset-search-input="true"' +
                   (!!tAttrs.onSelect ? 'on-select="$parent.onSelect({user: $item})"' : '') +
                   ' append-to-body="' + bodyAppend + '" os-tabable="' + tabable + '">' +
                   '<ui-select-match placeholder="{{$parent.placeholder}}" allow-clear="'+ (tAttrs.required == undefined) +'">' +
