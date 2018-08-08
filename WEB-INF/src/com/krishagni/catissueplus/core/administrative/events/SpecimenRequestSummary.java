@@ -24,6 +24,10 @@ public class SpecimenRequestSummary implements Serializable {
 
 	private String dpShortTitle;
 
+	private Long cpId;
+
+	private String cpShortTitle;
+
 	private Date dateOfRequest;
 
 	private String screeningStatus;
@@ -74,6 +78,22 @@ public class SpecimenRequestSummary implements Serializable {
 
 	public void setIrbId(String irbId) {
 		this.irbId = irbId;
+	}
+
+	public Long getCpId() {
+		return cpId;
+	}
+
+	public void setCpId(Long cpId) {
+		this.cpId = cpId;
+	}
+
+	public String getCpShortTitle() {
+		return cpShortTitle;
+	}
+
+	public void setCpShortTitle(String cpShortTitle) {
+		this.cpShortTitle = cpShortTitle;
 	}
 
 	public Long getDpId() {
@@ -158,6 +178,11 @@ public class SpecimenRequestSummary implements Serializable {
 
 		if (request.getScreenedBy() != null) {
 			summary.setScreenedBy(UserSummary.from(request.getScreenedBy()));
+		}
+
+		if (request.getCp() != null) {
+			summary.setCpId(request.getCp().getCpId());
+			summary.setCpShortTitle(request.getCp().getShortTitle());
 		}
 
 		if (request.getDp() != null) {

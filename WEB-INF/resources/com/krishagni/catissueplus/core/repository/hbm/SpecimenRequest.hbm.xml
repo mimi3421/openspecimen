@@ -40,6 +40,8 @@
 
     <property name="dateOfProcessing" column="PROCESSING_DATE"/>
 
+    <many-to-one name="cp" column="CP_ID"/>
+
     <many-to-one name="dp" column="DP_ID"/>
 
     <property name="comments" column="COMMENTS"/>

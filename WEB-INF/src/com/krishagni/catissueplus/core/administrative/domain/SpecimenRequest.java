@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import com.krishagni.catissueplus.core.administrative.domain.factory.SpecimenRequestErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.BaseExtensionEntity;
+import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.catissueplus.core.common.util.Status;
@@ -46,6 +47,8 @@ public class SpecimenRequest extends BaseExtensionEntity {
 	private User processedBy;
 
 	private Date dateOfProcessing;
+
+	private CollectionProtocol cp;
 
 	private DistributionProtocol dp;
 
@@ -153,6 +156,14 @@ public class SpecimenRequest extends BaseExtensionEntity {
 
 	public void setDateOfProcessing(Date dateOfProcessing) {
 		this.dateOfProcessing = dateOfProcessing;
+	}
+
+	public CollectionProtocol getCp() {
+		return cp;
+	}
+
+	public void setCp(CollectionProtocol cp) {
+		this.cp = cp;
 	}
 
 	public DistributionProtocol getDp() {
