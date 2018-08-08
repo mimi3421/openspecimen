@@ -14,9 +14,7 @@ public class SpecimenRequestListCriteria extends AbstractListCriteria<SpecimenRe
 
 	private Date toReqDate;
 
-	private Boolean pendingReqs;
-
-	private Boolean closedReqs;
+	private String status;
 
 	//
 	// internally added restrictions
@@ -58,22 +56,13 @@ public class SpecimenRequestListCriteria extends AbstractListCriteria<SpecimenRe
 		return this;
 	}
 
-	public Boolean pendingReqs() {
-		return pendingReqs;
+	public String status() {
+		return status;
 	}
 
-	public SpecimenRequestListCriteria pendingReqs(Boolean pendingReqs) {
-		this.pendingReqs = pendingReqs;
-		return this;
-	}
-
-	public Boolean closedReqs() {
-		return closedReqs;
-	}
-
-	public SpecimenRequestListCriteria closedReqs(Boolean closedReqs) {
-		this.closedReqs = closedReqs;
-		return this;
+	public SpecimenRequestListCriteria status(String status) {
+		this.status = status;
+		return self();
 	}
 
 	public Collection<SiteCpPair> sites() {

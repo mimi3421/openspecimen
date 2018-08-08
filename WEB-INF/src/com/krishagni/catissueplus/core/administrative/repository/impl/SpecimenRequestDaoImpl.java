@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Disjunction;
@@ -26,6 +27,8 @@ import com.krishagni.catissueplus.core.administrative.events.SpecimenRequestSumm
 import com.krishagni.catissueplus.core.administrative.repository.SpecimenRequestDao;
 import com.krishagni.catissueplus.core.administrative.repository.SpecimenRequestListCriteria;
 import com.krishagni.catissueplus.core.common.access.SiteCpPair;
+import com.krishagni.catissueplus.core.common.errors.CommonErrorCode;
+import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
 import com.krishagni.catissueplus.core.common.repository.AbstractDao;
 import com.krishagni.catissueplus.core.common.util.Utility;
@@ -100,12 +103,31 @@ public class SpecimenRequestDaoImpl extends AbstractDao<SpecimenRequest> impleme
 	}
 
 	private Criteria addStatusConds(Criteria query, SpecimenRequestListCriteria crit) {
-		if (Boolean.TRUE.equals(crit.pendingReqs())) {
-			query.add(Restrictions.eq("activityStatus", "Active"));
+		if (StringUtils.isBlank(crit.status())) {
+			return query;
 		}
 
-		if (Boolean.TRUE.equals(crit.closedReqs())) {
-			query.add(Restrictions.eq("activityStatus", "Closed"));
+		if (crit.status().equals("PROCESSED")) {
+			//
+			// processed requests are those that are approved and closed
+			//
+			query.add(Restrictions.eq("screeningStatus", SpecimenRequest.ScreeningStatus.APPROVED))
+				.add(Restrictions.eq("activityStatus", "Closed"));
+		} else {
+			try {
+				SpecimenRequest.ScreeningStatus status = SpecimenRequest.ScreeningStatus.valueOf(crit.status());
+				if (status == SpecimenRequest.ScreeningStatus.APPROVED) {
+					//
+					// we need to add this condition to filter out the processed requests
+					// as they are also approved requests
+					//
+					query.add(Restrictions.eq("activityStatus", "Active"));
+				}
+
+				query.add(Restrictions.eq("screeningStatus", status));
+			} catch (Exception e) {
+				throw OpenSpecimenException.userError(CommonErrorCode.INVALID_INPUT, crit.status());
+			}
 		}
 
 		return query;
