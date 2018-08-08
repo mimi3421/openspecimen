@@ -282,6 +282,7 @@ angular.module('os.biospecimen.participant.addedit', ['os.biospecimen.models', '
         useSelectedMatch(matches[0]);
       } else {
         $scope.partCtx.step = 'chooseMatch';
+        $scope.partCtx.selectedMatch = null;
       }
     }
 
@@ -479,8 +480,18 @@ angular.module('os.biospecimen.participant.addedit', ['os.biospecimen.models', '
           match.$$selected = false;
         }
       );
-      $scope.partCtx.obj.cpr = $scope.cpr = angular.copy(inputParticipant);
-      $scope.partCtx.step = 'registerParticipant';
+
+      if (!lookupFieldsCfg.configured || $scope.partCtx.edit) {
+        registerParticipant();
+      } else {
+        var cpr = $scope.partCtx.obj.cpr = $scope.cpr = angular.copy(inputParticipant);
+        if (cpr.participant && typeof cpr.participant.birthDate == 'string') {
+          var bd = cpr.participant.birthDate.split('-');
+          cpr.participant.birthDate = new Date(+bd[0], +bd[1] - 1, bd[2]);
+        }
+
+        $scope.partCtx.step = 'registerParticipant';
+      }
     }
 
     $scope.previous = function() {
