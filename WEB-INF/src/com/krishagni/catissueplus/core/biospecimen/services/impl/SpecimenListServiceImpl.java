@@ -654,11 +654,9 @@ public class SpecimenListServiceImpl implements SpecimenListService, Initializin
 
 			@Override
 			public void headers(OutputStream out) {
-				String notSpecified = msg("common_not_specified");
-
 				Map<String, String> headers = new LinkedHashMap<String, String>() {{
-					put(msg(LIST_NAME), list.getName());
-					put(msg(LIST_DESC), StringUtils.isNotBlank(list.getDescription()) ? list.getDescription() : notSpecified);
+					put(msg(LIST_NAME), list.isDefaultList() ? msg("specimen_list_default_list", list.getOwner().formattedName()) : list.getName());
+					put(msg(LIST_DESC), StringUtils.isNotBlank(list.getDescription()) ? list.getDescription() : msg("common_not_specified"));
 				}};
 
 				Utility.writeKeyValuesToCsv(out, headers);
@@ -755,8 +753,8 @@ public class SpecimenListServiceImpl implements SpecimenListService, Initializin
 		return ListUtil.setListLimit(cfg, listReq);
 	}
 
-	private String msg(String code) {
-		return MessageUtil.getInstance().getMessage(code);
+	private String msg(String code, Object ... params) {
+		return MessageUtil.getInstance().getMessage(code, params);
 	}
 
 	private static final String LIST_NAME      = "specimen_list_name";

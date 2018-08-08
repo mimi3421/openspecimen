@@ -1,5 +1,5 @@
 angular.module('os.biospecimen.models.specimenlist', ['os.common.models'])
-  .factory('SpecimenList', function(osModel, $http, Specimen) {
+  .factory('SpecimenList', function(osModel, $http, $translate, Specimen) {
     var SpecimenList = osModel('specimen-lists',
       function(list) {
         if (list.specimens && list.specimens.length > 0) {
@@ -29,7 +29,12 @@ angular.module('os.biospecimen.models.specimenlist', ['os.common.models'])
     }
 
     SpecimenList.prototype.getDisplayName = function() {
-      return this.name;
+      var type = this.getListType(this.owner);
+      if (type == 'default_list') {
+        return $translate.instant('specimen_list.user_default_list', this.owner);
+      } else {
+        return this.name;
+      }
     }
 
     SpecimenList.prototype.getSpecimens = function(params) {

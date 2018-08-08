@@ -58,7 +58,7 @@ public class SpecimenListFactoryImpl implements SpecimenListFactory {
 		SpecimenList specimenList = new SpecimenList();
 		specimenList.setOwner(user);
 		specimenList.setName(SpecimenList.getDefaultListName(user));
-		specimenList.setDescription(MessageUtil.getInstance().getMessage("specimen_list_default_user_list"));
+		specimenList.setDescription(MessageUtil.getInstance().getMessage("specimen_list_default_list_desc"));
 		specimenList.setCreatedOn(Calendar.getInstance().getTime());
 		specimenList.setLastUpdatedOn(specimenList.getCreatedOn());
 		return specimenList;

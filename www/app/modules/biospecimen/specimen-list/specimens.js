@@ -110,7 +110,7 @@ angular.module('os.biospecimen.specimenlist')
     }
 
     $scope.downloadReport = function() {
-      Util.downloadReport(list, 'specimen_list');
+      Util.downloadReport(list, 'specimen_list', list.getDisplayName());
     }
 
     init();
