@@ -72,7 +72,7 @@ public class ObjectReader implements Closeable {
 	public Object next() {
 		if (csvReader.next()) {
 			currentRow = csvReader.getRow();
-			return parseObject();
+			return Arrays.stream(currentRow).allMatch(StringUtils::isBlank) ? next() : parseObject();
 		} else {
 			currentRow = null;
 			return null;
