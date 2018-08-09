@@ -84,7 +84,7 @@
 </div>
 
 <script type="text/ng-template" id="event-add-edit.html">
-  <form name="eventForm" os-form-validator="eventForm" novalidate>
+  <form name="eventForm" os-no-label-form os-form-validator="eventForm" novalidate>
     <div class="form-group clearfix" ng-if="codingEnabled ">
       <input os-md-input autofocus type="text" class="form-control" maxlength="16"
         placeholder="{{'cp.cpe_code' | translate}}" name="eventCode" ng-model="event.code">

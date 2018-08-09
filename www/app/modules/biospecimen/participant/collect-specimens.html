@@ -2,7 +2,7 @@
   <div ng-include="'modules/biospecimen/participant/collect-specimens-header.html'" os-replace-with-children></div>
 
   <div class="container">
-    <form name="collectionForm" os-form-validator="collectionForm" novalidate>
+    <form name="collectionForm" os-no-label-form os-form-validator="collectionForm" novalidate>
       <div ng-include src="'specimen_coll_visit_details.html'" ng-if="showCollVisitDetails"></div>
 
       <table class="os-table os-table-fixed os-table-tree bulk-edit os-border os-table-muted-hdr">

@@ -10,7 +10,8 @@
   </div>
 
   <div class="os-quick-search" ng-if="quickSearch.show">
-    <form name="searchForm" os-form-validator="searchForm" validator="searchFormValidator" class="form-horizontal" novalidate>
+    <form name="searchForm" os-no-label-form os-form-validator="searchForm" validator="searchFormValidator"
+      class="form-horizontal" novalidate>
       <div class="form-group">
         <div>
           <os-select name ="searchFor" list="ctx.entities" display-prop="caption" select-prop="name"

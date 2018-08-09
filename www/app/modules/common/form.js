@@ -3,16 +3,34 @@ function osRequired($timeout) {
     require: '^form',
     restrict: 'A',
     link: function(scope, element, attrs, ctrl) {
-      var setDirty = function() {
-        ctrl[attrs.name] && ctrl[attrs.name].$setDirty(true);
+      if (!ctrl._osFormEl) {
+        var formEl = ctrl._osFormEl = element.closest('form');
+        if (formEl.length == 0) {
+          formEl = ctrl._osFormEl = element.closest('ng-form');
+        }
+
+        ctrl._noLabelForm = formEl[0].hasAttribute('os-no-label-form');
       }
 
-      if (element.hasClass('os-select-container') || element.children().first().is('ui-select')) {
-        $timeout(function() {
-          element.find('.ui-select-focusser, .ui-select-search').bind('blur', setDirty);
-        })
+
+      var setDirty = function() { ctrl[attrs.name] && ctrl[attrs.name].$setDirty(true); }
+
+      if (element.hasClass('os-select-container')) {
+        $timeout(
+          function() {
+            element.find('.ui-select-focusser, .ui-select-search').bind('blur', setDirty);
+
+            if (!ctrl._noLabelForm) {
+              element.find('.ui-select-placeholder').addClass('os-italic').text('mandatory');
+              element.find('.ui-select-match, .ui-select-search').addClass('os-italic').attr('placeholder', 'mandatory');
+            }
+          }
+        );
       } else {
         element.bind('blur', setDirty);
+        if (!ctrl._noLabelForm) {
+          $timeout(function() { element.addClass('os-italic').attr('placeholder', 'mandatory'); });
+        }
       }
     }
   };

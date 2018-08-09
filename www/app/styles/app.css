@@ -1341,6 +1341,17 @@ form .form-group:empty {
   opacity: 0;
 }
 
+.ui-select-container.ng-invalid-required .ui-select-placeholder,
+.os-select-container.ng-invalid-required .ui-select-placeholder,
+.ng-invalid-required.form-control::placeholder {
+  opacity: 1;
+}
+
+.os-italic.ui-select-placeholder,
+.os-italic::placeholder {
+  font-style: italic;
+}
+
 .os-no-label-form *::placeholder,
 .os-no-label-form .ui-select-placeholder,
 .os-md-input .ui-select-placeholder,
