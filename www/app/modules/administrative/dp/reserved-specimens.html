@@ -22,8 +22,12 @@
           </button>
         </div>
 
-        <div class="right" ng-if="lctx.showSearch">
-          <button class="default" os-right-drawer-toggle title="{{'common.buttons.search' | translate}}">
+        <div class="right">
+          <div class="btn pull-left"> <!-- the button is added to make the text aligned to the search button -->
+            <os-list-pager opts="lctx.listCtrl.pagerOpts"></os-list-pager>
+          </div>
+
+          <button class="default" os-right-drawer-toggle ng-if="lctx.showSearch">
             <span class="fa fa-search"></span>
             <span translate="common.buttons.search">Search</span>
           </button>
