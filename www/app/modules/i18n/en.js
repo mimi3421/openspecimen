@@ -1319,6 +1319,7 @@
     "view_specimens": "View Specimens",
     "paste_specimen_labels": "Paste or input specimen labels or barcodes separated by comma, tab, or newline",
     "no_free_locs": "Container does not have enough free locations to accommodate input specimen labels",
+    "dup_labels": "Duplicate {{barcodes ? 'barcodes' : 'labels'}} entered: {{dups}}",
     "replicated_successfully": "Container {{name}} replicated successfully",
     "multiple_containers_created": "Successfully created {{count}} containers",
     "search": "Type storage container name to filter containers",
@@ -1328,7 +1329,7 @@
     "created_by": "Created By",
     "loading_map": "Loading container map. Please wait for a moment ...",
     "error_loading_map": "System encountered an error loading container map. Please report this incident to system administrator.",
-    "added_specimens": "Successfully added {{spmnsCount}} specimens to container",
+    "added_specimens": "Successfully added {{spmnsCount}} specimens to the container.",
     "position_labeling": "Position Labeling",
     "position_labeling_modes": {
       "LINEAR": "Linear",

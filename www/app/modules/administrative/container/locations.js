@@ -40,13 +40,13 @@ angular.module('os.administrative.container.locations', ['os.administrative.mode
       $scope.lctx.input.labels = undefined;
     }
 
-    function addSpecimens() {
-      var labels = Util.splitStr($scope.lctx.input.labels,/,|\t|\n/, false)
+    function addSpecimens(labels) {
       var filterOpts = {};
       if (!!$scope.lctx.input.useBarcode) {
         filterOpts.barcode = labels;
         labels = undefined;
       }
+
       SpecimenUtil.getSpecimens(labels, filterOpts).then(
         function(specimens) {
           if (!specimens) {
@@ -68,6 +68,20 @@ angular.module('os.administrative.container.locations', ['os.administrative.mode
           );
         }
       );
+    }
+
+    function getDupLabels(labels) {
+      var labelsMap = {}, result = [];
+      for (var i = 0; i < labels.length; ++i) {
+        var instance = labelsMap[labels[i]] || 0;
+        if (instance == 1) {
+          result.push(labels[i]);
+        }
+
+        labelsMap[labels[i]] = ++instance;
+      }
+
+      return result;
     }
 
     $scope.showInfo = function(entityType, entityId) {
@@ -130,8 +144,15 @@ angular.module('os.administrative.container.locations', ['os.administrative.mode
     }
 
     $scope.assignPositions = function() {
+      var labels = Util.splitStr($scope.lctx.input.labels, /,|\t|\n/, false);
+      var dups = getDupLabels(labels);
+      if (dups.length > 0) {
+        Alerts.error('container.dup_labels', {barcodes: $scope.lctx.input.useBarcode, dups: dups.join(', ')});
+        return;
+      }
+
       if ($scope.ctx.dimless) {
-        addSpecimens();
+        addSpecimens(labels);
         return;
       }
 
