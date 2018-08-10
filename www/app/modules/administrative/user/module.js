@@ -22,7 +22,7 @@ angular.module('os.administrative.user',
             createOpts: {resource: 'User', operations: ['Create']},
             updateOpts: {resource: 'User', operations: ['Update']},
             deleteOpts: {resource: 'User', operations: ['Delete']},
-            importOpts: {resource: 'User', operations: ['Bulk Import']}
+            importOpts: {resource: 'User', operations: ['Export Import']}
           }
         },
         parent: 'signed-in'
