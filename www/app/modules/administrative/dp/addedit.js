@@ -55,7 +55,7 @@ angular.module('os.administrative.dp.addedit', ['os.administrative.models', 'os.
         sites: []
       }];
 
-      $scope.onDistInstSelect(0);
+      $scope.onDistInstSelect(0, $scope.currentUser.instituteName);
     }
     
     function newDistSite() {
