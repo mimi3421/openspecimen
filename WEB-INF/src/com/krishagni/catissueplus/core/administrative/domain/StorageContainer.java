@@ -588,7 +588,13 @@ public class StorageContainer extends BaseEntity {
 
 	public List<StorageContainer> getChildContainersSortedByPosition() {
 		return getChildContainers().stream()
-			.sorted((c1, c2) -> c1.getPosition().getPosition() - c2.getPosition().getPosition())
+			.sorted((c1, c2) -> {
+				if (isDimensionless()) {
+					return c1.getId().compareTo(c2.getId());
+				} else {
+					return c1.getPosition().getPosition().compareTo(c2.getPosition().getPosition());
+				}
+			})
 			.collect(Collectors.toList());
 	}
 

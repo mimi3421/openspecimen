@@ -139,7 +139,8 @@ public class RecentlyUsedContainerSelectionStrategy implements ContainerSelectio
 		if (last != null) {
 			for (StorageContainer container : children) {
 				childIdx++;
-				if (container.getPosition().getPosition().equals(last.getPosition().getPosition())) {
+				if ((parent.isDimensionless() && container.getId().equals(last.getId())) ||
+					(!parent.isDimensionless() && container.getPosition().getPosition().equals(last.getPosition().getPosition()))) {
 					logger.info(String.format("Found container %s at %d", container.getName(), childIdx));
 					break;
 				}
