@@ -40,7 +40,7 @@
       <label class="col-xs-3 control-label" translate="dp.distribution_order.specimen_cnt">Specimen Count</label>
       <div class="col-xs-6">
         <input type="number" name="count" class="form-control" ng-model="dpr.specimenCount"
-          placeholder="{{'dp.distribution_order.specimen_cnt' | translate}}" ng-pattern="/^[1-9][0-9]*$/">
+          placeholder="{{'dp.distribution_order.specimen_cnt' | translate}}" ng-pattern="/^[0-9]*$/">
         <div os-field-error field="dprForm.count"></div>
       </div>
     </div>
