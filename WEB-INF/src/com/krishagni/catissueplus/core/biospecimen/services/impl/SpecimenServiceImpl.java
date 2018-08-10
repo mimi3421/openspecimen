@@ -832,7 +832,7 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 			return existing;
 		}
 
-		Set<Specimen> specimensPool = new HashSet<Specimen>();
+		Set<Specimen> specimensPool = new HashSet<>();
 		for (SpecimenDetail poolSpmnDetail : detail.getSpecimensPool()) {
 			specimensPool.add(collectSpecimen(poolSpmnDetail, null));
 		}

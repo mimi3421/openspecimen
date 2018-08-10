@@ -1488,6 +1488,10 @@ public class Specimen extends BaseExtensionEntity {
 			return;
 		}
 
+		if (!isEditAllowed()) {
+			throw OpenSpecimenException.userError(SpecimenErrorCode.EDIT_NOT_ALLOWED, getLabel());
+		}
+
 		SpecimenChildrenEvent currentEvent = childSpmn.isAliquot() ? aliquotEvent : derivativeEvent;
 		if (currentEvent == null) {
 			currentEvent = new SpecimenChildrenEvent();
