@@ -10,6 +10,9 @@ function osRequired($timeout) {
         }
 
         ctrl._noLabelForm = formEl[0].hasAttribute('os-no-label-form');
+        if (!ctrl._noLabelForm) {
+          ctrl._noLabelForm = formEl.hasClass('os-no-label-form');
+        }
       }
 
 

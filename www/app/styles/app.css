@@ -1359,6 +1359,16 @@ form .form-group:empty {
   opacity: 1;
 }
 
+.os-multi-parts-control label.control-label {
+  padding-top: 30px;
+}
+
+.os-multi-parts-control label.part-label {
+  font-size: 0.8em;
+  font-weight: normal;
+  color: #666;
+}
+
 .os-width-100 {
   width: 100px;
 }

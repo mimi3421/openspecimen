@@ -319,17 +319,20 @@
 
     <div class="os-divider"></div>
 
-    <div class="form-group">
+    <div class="form-group os-multi-parts-control">
       <label class="col-xs-3 control-label" translate="participant.name">Name</label>
       <div class="col-xs-2">
+        <label class="part-label" translate="participant.first_name"></label>
         <input type="text" ng-model="cpr.participant.firstName" class="form-control" 
           placeholder="{{'participant.first_name' | translate}}"/>
       </div>
       <div class="col-xs-2">
+        <label class="part-label" translate="participant.last_name"></label>
         <input type="text" ng-model="cpr.participant.lastName" class="form-control"
           placeholder="{{'participant.last_name' | translate}}"/>
       </div>
       <div class="col-xs-2">
+        <label class="part-label" translate="participant.middle_name"></label>
         <input type="text" ng-model="cpr.participant.middleName" class="form-control"
           placeholder="{{'participant.middle_name' | translate}}"/>
       </div>

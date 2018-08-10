@@ -85,14 +85,16 @@
         </div>
       </div>
     
-      <div class="form-group">
+      <div class="form-group os-multi-parts-control">
         <label class="control-label col-xs-3" translate="dp.date">Date</label>
         <div class="col-xs-3">
+          <label class="part-label" translate="dp.start_date"></label>
           <os-date-picker name="startDate" date="distributionProtocol.startDate"
             placeholder="{{'dp.start_date' | translate}}">
           </os-date-picker>
         </div>  
         <div class="col-xs-3">
+          <label class="part-label" translate="dp.end_date"></label>
           <os-date-picker name="endDate" date="distributionProtocol.endDate"
             placeholder="{{'dp.end_date' | translate}}">
           </os-date-picker>
