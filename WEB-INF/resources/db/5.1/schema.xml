@@ -306,4 +306,12 @@
   <changeSet author="vpawar" id="Increase the width of print job item type column">
     <modifyDataType tableName="OS_LABEL_PRINT_JOBS" columnName="ITEM_TYPE" newDataType="${text.type}(32)"/>
   </changeSet>
+
+  <changeSet author="vpawar" id="Specimen count is no longer mandatory in DP requirement">
+    <dropNotNullConstraint tableName="OS_DP_REQUIREMENTS" columnName="SPECIMEN_COUNT" columnDataType="${int.type}"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Specimen quantity is no longer mandatory in DP requirement">
+    <dropNotNullConstraint tableName="OS_DP_REQUIREMENTS" columnName="QUANTITY" columnDataType="${decimal.type}(24,8)"/>
+  </changeSet>
 </databaseChangeLog>

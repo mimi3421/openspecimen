@@ -207,12 +207,11 @@ public class DpRequirementFactoryImpl implements DpRequirementFactory {
 	private void setSpecimenCount(DpRequirementDetail detail, DpRequirement dpr, OpenSpecimenException ose) {
 		Long specimenCount = detail.getSpecimenCount();
 		if (specimenCount == null) {
-			ose.addError(DpRequirementErrorCode.SPECIMEN_COUNT_REQUIRED);
 			return;
 		}
 		
-		if (specimenCount <= 0L) {
-			ose.addError(DpRequirementErrorCode.INVALID_SPECIMEN_COUNT);
+		if (specimenCount < 0L) {
+			ose.addError(DpRequirementErrorCode.INVALID_SPECIMEN_COUNT, specimenCount);
 			return;
 		}
 		
@@ -230,12 +229,11 @@ public class DpRequirementFactoryImpl implements DpRequirementFactory {
 	private void setQuantity(DpRequirementDetail detail, DpRequirement dpr, OpenSpecimenException ose) {
 		BigDecimal quantity = detail.getQuantity();
 		if (quantity == null) {
-			ose.addError(DpRequirementErrorCode.QUANTITY_REQUIRED);
 			return;
 		}
 		
-		if (NumUtil.lessThanEqualsZero(quantity)) {
-			ose.addError(DpRequirementErrorCode.INVALID_QUANTITY);
+		if (NumUtil.lessThanZero(quantity)) {
+			ose.addError(DpRequirementErrorCode.INVALID_QUANTITY, quantity);
 			return;
 		}
 		

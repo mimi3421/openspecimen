@@ -9,11 +9,7 @@ public enum DpRequirementErrorCode implements ErrorCode {
 	
 	DP_REQUIRED,
 	
-	SPECIMEN_COUNT_REQUIRED,
-	
 	INVALID_SPECIMEN_COUNT,
-	
-	QUANTITY_REQUIRED,
 	
 	INVALID_QUANTITY,
 

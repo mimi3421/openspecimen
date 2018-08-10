@@ -57,8 +57,9 @@
             <td class="col">
               <span>{{dpr.clinicalDiagnosis | osNoValue}}</span>
             </td>
-            <td class="col">
-              <span>{{dpr.specimenCount * dpr.quantity}}</span>
+            <td class="col" ng-switch on="dpr.specimenCount !== null && dpr.quantity !== null">
+              <span ng-switch-when="true">{{dpr.specimenCount * dpr.quantity}}</span>
+              <span ng-switch-default> {{null | osNoValue}} </span>
             </td>
             <td class="col" ng-repeat="tmpl in ctx.cellTmpls">
               <ng-include src="tmpl"></ng-include>
