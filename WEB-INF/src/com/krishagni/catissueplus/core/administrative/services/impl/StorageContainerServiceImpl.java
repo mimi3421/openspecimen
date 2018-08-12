@@ -1501,17 +1501,21 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 			private List<StorageContainerDetail> toDetailList(List<StorageContainer> containers) {
 				return containers.stream()
 					.sorted((c1, c2) -> {
-						if (c1.getPosition() == null && c2.getPosition() == null) {
+						if (!hasPosition(c1) && !hasPosition(c2)) {
 							return c1.getId().intValue() - c2.getId().intValue();
-						} else if (c1.getPosition() == null) {
+						} else if (!hasPosition(c1)) {
 							return -1;
-						} else if (c2.getPosition() == null) {
+						} else if (!hasPosition(c2)) {
 							return 1;
 						} else {
 							return c1.getPosition().getPosition() - c2.getPosition().getPosition();
 						}
 					})
 					.map(StorageContainerDetail::from).collect(Collectors.toList());
+			}
+
+			private boolean hasPosition(StorageContainer c) {
+				return c.getPosition() != null && c.getPosition().getPosition() != null;
 			}
 		};
 	}
