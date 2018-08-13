@@ -783,6 +783,10 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 		Set<String> sources = new HashSet<>();
 		Set<SpecimenExternalIdentifier> externalIds = new HashSet<>();
 		for (NameValuePair id : detail.getExternalIds()) {
+			if (StringUtils.isBlank(id.getName()) && StringUtils.isBlank(id.getValue())) {
+				continue;
+			}
+
 			if (StringUtils.isBlank(id.getName()) || StringUtils.isBlank(id.getValue())) {
 				ose.addError(SpecimenErrorCode.EXT_ID_NO_NAME_VALUE);
 				break;

@@ -291,11 +291,11 @@ public class ParticipantFactoryImpl implements ParticipantFactory {
 			}
 		}
 		
-		Set<ParticipantMedicalIdentifier> newPmis = new HashSet<ParticipantMedicalIdentifier>();		
+		Set<ParticipantMedicalIdentifier> newPmis = new HashSet<>();
 		if (CollectionUtils.isEmpty(detail.getPmis())) {
 			participant.setPmis(newPmis);
 		} else {
-			Set<String> siteNames = new HashSet<String>();
+			Set<String> siteNames = new HashSet<>();
 			boolean dupSite = false;
 			
 			for (PmiDetail pmiDetail : detail.getPmis()) {
@@ -318,6 +318,10 @@ public class ParticipantFactoryImpl implements ParticipantFactory {
 	}
 
 	private ParticipantMedicalIdentifier getPmi(PmiDetail pmiDetail, OpenSpecimenException oce) {
+		if (StringUtils.isBlank(pmiDetail.getSiteName()) && StringUtils.isBlank(pmiDetail.getMrn())) {
+			return null;
+		}
+
 		Site site = daoFactory.getSiteDao().getSiteByName(pmiDetail.getSiteName());		
 		if (site == null) {
 			oce.addError(SiteErrorCode.NOT_FOUND);
