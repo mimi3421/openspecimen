@@ -323,6 +323,11 @@ angular.module('os.biospecimen.models.specimen', ['os.common.models', 'os.biospe
       sr.reqLabel = sr.name;
       sr.poolSpecimen = !!sr.pooledSpecimenReqId;
 
+      if (sr.lineage == 'New' && !sr.poolSpecimen) {
+        sr.collectionEvent = {user: sr.collector, procedure: sr.collectionProcedure, container: sr.collectionContainer};
+        sr.receivedEvent   = {user: sr.receiver, receivedQuality: 'Acceptable'};
+      }
+
       var attrs = [
         'id', 'name', 'pooledSpecimenReqId',
         'collector', 'collectionProcedure', 'collectionContainer',

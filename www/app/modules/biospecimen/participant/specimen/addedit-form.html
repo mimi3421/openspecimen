@@ -249,7 +249,7 @@
     </div>
 
     <div ng-if="inputSpmn.lineage == 'New' && !inputSpmn.poolSpecimen">
-      <div ng-if = "!inputSpmn.id && !inputSpmn.reqId">
+      <div>
         <div class="os-section-divider">
           <span translate="specimens.col_event.title">Collection Details</span>
         </div>
@@ -258,7 +258,7 @@
           <label class="col-xs-3 control-label"  translate="specimens.col_event.user_time">User and Time</label>
           <div class="col-xs-3">
             <os-users  name="collector" ng-model="inputSpmn.collectionEvent.user" 
-              placeholder="{{'specimens.col_event.user' | translate}}" required> 
+              default-current-user placeholder="{{'specimens.col_event.user' | translate}}" required>
             </os-users>
             <div os-field-error field="sform.collector"></div>
           </div>
@@ -307,7 +307,7 @@
           <label class="col-xs-3 control-label"  translate="specimens.recv_event.user">User and Time</label>
           <div class="col-xs-3">
             <os-users name="receiver" ng-model="inputSpmn.receivedEvent.user" 
-              placeholder="{{'specimens.recv_event.user_time' | translate}}" required> 
+              default-current-user placeholder="{{'specimens.recv_event.user_time' | translate}}" required>
             </os-users>
             <div os-field-error field="sform.receiver"></div>
           </div>
