@@ -360,7 +360,7 @@ public class SpecimenListServiceImpl implements SpecimenListService, Initializin
 
 	@Override
 	@PlusTransactional
-	public ResponseEvent<QueryDataExportResult> exportSpecimenList(RequestEvent<EntityQueryCriteria> req) {
+	public ResponseEvent<QueryDataExportResult> exportSpecimenList(RequestEvent<SpecimenListCriteria> req) {
 		try {
 			return ResponseEvent.response(exportSpecimenList0(req.getPayload(), null));
 		} catch (OpenSpecimenException ose) {
@@ -377,7 +377,7 @@ public class SpecimenListServiceImpl implements SpecimenListService, Initializin
 	}
 
 	@Override
-	public QueryDataExportResult exportSpecimenList(EntityQueryCriteria crit, BiConsumer<QueryResultData, OutputStream> qdConsumer) {
+	public QueryDataExportResult exportSpecimenList(SpecimenListCriteria crit, BiConsumer<QueryResultData, OutputStream> qdConsumer) {
 		return exportSpecimenList0(crit, qdConsumer);
 	}
 
@@ -615,8 +615,8 @@ public class SpecimenListServiceImpl implements SpecimenListService, Initializin
 		return specimenList;
 	}
 
-	private QueryDataExportResult exportSpecimenList0(EntityQueryCriteria crit, BiConsumer<QueryResultData, OutputStream> qdConsumer) {
-		final SpecimenList list = getSpecimenList(crit.getId(), crit.getName());
+	private QueryDataExportResult exportSpecimenList0(SpecimenListCriteria crit, BiConsumer<QueryResultData, OutputStream> qdConsumer) {
+		final SpecimenList list = getSpecimenList(crit.specimenListId(), null);
 
 		Integer queryId = ConfigUtil.getInstance().getIntSetting("common", "cart_specimens_rpt_query", -1);
 		if (queryId == -1) {
@@ -629,6 +629,11 @@ public class SpecimenListServiceImpl implements SpecimenListService, Initializin
 		}
 
 		String restriction = "Specimen.specimenCarts.name = \"" + list.getName() + "\"";
+		if (CollectionUtils.isNotEmpty(crit.ids())) {
+			restriction += " and Specimen.id in (" + StringUtils.join(crit.ids(), ",") + ")";
+		} else if (CollectionUtils.isNotEmpty(crit.labels())) {
+			restriction += " and Specimen.label in (" + StringUtils.join(crit.labels(), ",") + ")";
+		}
 
 		List<SiteCpPair> siteCps = AccessCtrlMgr.getInstance().getReadAccessSpecimenSiteCps();
 		String siteCpRestriction = BiospecimenDaoHelper.getInstance().getSiteCpsCondAql(

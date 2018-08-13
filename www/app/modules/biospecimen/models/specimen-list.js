@@ -82,8 +82,8 @@ angular.module('os.biospecimen.models.specimenlist', ['os.common.models'])
       );
     }
 
-    SpecimenList.prototype.generateReport = function() {
-      return $http.get(SpecimenList.url() + this.$id() + '/report').then(
+    SpecimenList.prototype.generateReport = function(params) {
+      return $http.get(SpecimenList.url() + this.$id() + '/report', {params: params}).then(
         function(resp) {
           return resp.data;
         }

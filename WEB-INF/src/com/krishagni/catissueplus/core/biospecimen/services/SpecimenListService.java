@@ -46,10 +46,10 @@ public interface SpecimenListService {
 
 	ResponseEvent<Boolean> addChildSpecimens(RequestEvent<Long> req);
 
-	ResponseEvent<QueryDataExportResult> exportSpecimenList(RequestEvent<EntityQueryCriteria> req);
+	ResponseEvent<QueryDataExportResult> exportSpecimenList(RequestEvent<SpecimenListCriteria> req);
 
 	//
 	// Used for internal consumption purpose.
 	//
-	QueryDataExportResult exportSpecimenList(EntityQueryCriteria crit, BiConsumer<QueryResultData, OutputStream> rptConsumer);
+	QueryDataExportResult exportSpecimenList(SpecimenListCriteria crit, BiConsumer<QueryResultData, OutputStream> rptConsumer);
 }

@@ -110,7 +110,13 @@ angular.module('os.biospecimen.specimenlist')
     }
 
     $scope.downloadReport = function() {
-      Util.downloadReport(list, 'specimen_list', list.getDisplayName());
+      var selectedSpmns = $scope.ctx.listCtrl.getSelectedItems();
+      var params = {};
+      if (selectedSpmns && selectedSpmns.length > 0) {
+        params.specimenId = selectedSpmns.map(function(spmn) { return spmn.hidden.specimenId; });
+      }
+
+      Util.downloadReport(list, 'specimen_list', list.getDisplayName(), params);
     }
 
     init();

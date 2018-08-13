@@ -207,9 +207,9 @@ angular.module('openspecimen')
       return value;
     }
 
-    function downloadReport(entity, msgClass, filename) {
+    function downloadReport(entity, msgClass, filename, params) {
       var alert = Alerts.info(msgClass + '.report_gen_initiated', {}, false);
-      entity.generateReport().then(
+      entity.generateReport(params).then(
         function(result) {
           Alerts.remove(alert);
           if (result.completed) {
