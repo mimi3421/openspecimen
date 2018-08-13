@@ -31,6 +31,7 @@ angular.module('os.biospecimen.models.participant', ['os.common.models'])
     var Participant = osModel(
       'participants',
       function(p) {
+        p.pmis = p.pmis || [];
         deserBirthDate(p);
       }
     );
