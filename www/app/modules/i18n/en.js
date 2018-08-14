@@ -1428,7 +1428,8 @@
     "create_container_type": "Create Container Type",
     "name_format": "Name Format",
     "can_hold": "Can Hold",
-
+    "bulk_import": "Import Container Types",
+    "bulk_import_jobs": "Import Container Types Jobs List",
 
     "tooltip": {
       "add": "Click to add new Container Type",
@@ -1862,6 +1863,7 @@
       "institute": "Institutes",
       "site": "Sites",
       "storageContainer": "Containers",
+      "storageContainerType": "Types",
       "cpr": "Collection Protocol Registrations",
       "cprMultiple": "Participant Registrations",
       "otherCpr": "Register to Other Protocols",

@@ -884,6 +884,7 @@
         <value>com/krishagni/catissueplus/core/administrative/schema/user.xml</value>
         <value>com/krishagni/catissueplus/core/administrative/schema/user-roles.xml</value>
         <value>com/krishagni/catissueplus/core/administrative/schema/container.xml</value>
+        <value>com/krishagni/catissueplus/core/administrative/schema/container-type.xml</value>
         <value>com/krishagni/catissueplus/core/administrative/schema/shipment.xml</value>
         <value>com/krishagni/catissueplus/core/administrative/schema/container-shipment.xml</value>
         <value>com/krishagni/catissueplus/core/administrative/schema/return-specimen.xml</value>
@@ -1005,6 +1006,12 @@
         <entry key="storageContainer">
           <bean class="com.krishagni.catissueplus.core.administrative.services.impl.StorageContainerImporter">
             <property name="containerSvc" ref="storageContainerSvc"/>
+          </bean>
+        </entry>
+
+        <entry key="storageContainerType">
+          <bean class="com.krishagni.catissueplus.core.administrative.services.impl.ContainerTypeImporter">
+            <property name="containerTypeSvc" ref="containerTypeSvc"/>
           </bean>
         </entry>
         

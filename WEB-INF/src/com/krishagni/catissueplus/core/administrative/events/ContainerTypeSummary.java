@@ -4,8 +4,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.krishagni.catissueplus.core.administrative.domain.ContainerType;
+import com.krishagni.catissueplus.core.common.AttributeModifiedSupport;
+import com.krishagni.catissueplus.core.common.ListenAttributeChanges;
 
-public class ContainerTypeSummary {
+@ListenAttributeChanges
+public class ContainerTypeSummary extends AttributeModifiedSupport {
 	private Long id;
 	
 	private String name;

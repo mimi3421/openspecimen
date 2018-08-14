@@ -40,6 +40,37 @@ angular.module('os.administrative.containertype',
         controller: 'ContainerTypeAddEditCtrl',
         parent: 'container-type-root'
       })
+      .state('container-type-import', {
+        url: '/container-types-import',
+        templateUrl: 'modules/common/import/add.html',
+        controller: 'ImportObjectCtrl',
+        resolve: {
+          importDetail: function() {
+            return {
+              breadcrumbs: [{state: 'container-type-list', title: 'container_type.list'}],
+              objectType: 'storageContainerType',
+              title: 'container_type.bulk_import',
+              onSuccess: {state: 'container-type-list'}
+            };
+          }
+        },
+        parent: 'container-type-root'
+      })
+      .state('container-type-import-jobs', {
+        url: '/container-types-import-jobs',
+        templateUrl: 'modules/common/import/list.html',
+        controller: 'ImportJobsListCtrl',
+        resolve: {
+          importDetail: function() {
+            return {
+              breadcrumbs: [{state: 'container-type-list', title: 'container_type.list'}],
+              title: 'container_type.bulk_import_jobs',
+              objectTypes: ['storageContainerType']
+            }
+          }
+        },
+        parent: 'container-type-root'
+      })
       .state('container-type-detail', {
         url: '/container-types/:containerTypeId',
         templateUrl: 'modules/administrative/container-type/detail.html',

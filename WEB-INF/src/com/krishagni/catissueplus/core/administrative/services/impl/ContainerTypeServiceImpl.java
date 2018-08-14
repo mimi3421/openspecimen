@@ -99,24 +99,15 @@ public class ContainerTypeServiceImpl implements ContainerTypeService, ObjectAcc
 	@Override
 	@PlusTransactional
 	public ResponseEvent<ContainerTypeDetail> updateContainerType(RequestEvent<ContainerTypeDetail> req) {
-		try {
-			AccessCtrlMgr.getInstance().ensureCreateOrUpdateContainerTypeRights();
-
-			ContainerTypeDetail input = req.getPayload();
-			ContainerType existing = getContainerType(input.getId(), input.getName());
-			ContainerType containerType = containerTypeFactory.createContainerType(input);
-			ensureUniqueConstraints(existing, containerType);
-			
-			existing.update(containerType);
-			daoFactory.getContainerTypeDao().saveOrUpdate(existing);
-			return ResponseEvent.response(ContainerTypeDetail.from(existing));
-		} catch (OpenSpecimenException ose) {
-			return ResponseEvent.error(ose);
-		} catch (Exception e) {
-			return ResponseEvent.serverError(e);
-		}
+		return updateContainerType(req, false);
 	}
-	
+
+	@Override
+	@PlusTransactional
+	public ResponseEvent<ContainerTypeDetail> patchContainerType(RequestEvent<ContainerTypeDetail> req) {
+		return updateContainerType(req, true);
+	}
+
 	@Override
 	@PlusTransactional
 	public ResponseEvent<List<DependentEntityDetail>> getDependentEntities(RequestEvent<Long> req) {
@@ -193,4 +184,22 @@ public class ContainerTypeServiceImpl implements ContainerTypeService, ObjectAcc
 		}
 	}
 
+	private ResponseEvent<ContainerTypeDetail> updateContainerType(RequestEvent<ContainerTypeDetail> req, boolean partial) {
+		try {
+			AccessCtrlMgr.getInstance().ensureCreateOrUpdateContainerTypeRights();
+
+			ContainerTypeDetail input = req.getPayload();
+			ContainerType existing = getContainerType(input.getId(), input.getName());
+			ContainerType containerType = containerTypeFactory.createContainerType(input, partial ? existing : null);
+			ensureUniqueConstraints(existing, containerType);
+
+			existing.update(containerType);
+			daoFactory.getContainerTypeDao().saveOrUpdate(existing);
+			return ResponseEvent.response(ContainerTypeDetail.from(existing));
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
+		} catch (Exception e) {
+			return ResponseEvent.serverError(e);
+		}
+	}
 }

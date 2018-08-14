@@ -2,7 +2,9 @@
 package com.krishagni.catissueplus.core.administrative.events;
 
 import com.krishagni.catissueplus.core.administrative.domain.ContainerType;
+import com.krishagni.catissueplus.core.common.ListenAttributeChanges;
 
+@ListenAttributeChanges
 public class ContainerTypeDetail extends ContainerTypeSummary {
 	private ContainerTypeSummary canHold;
 

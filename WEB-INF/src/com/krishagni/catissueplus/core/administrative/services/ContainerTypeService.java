@@ -11,18 +11,19 @@ import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 
 public interface ContainerTypeService {
-	public ResponseEvent<List<ContainerTypeSummary>> getContainerTypes(RequestEvent<ContainerTypeListCriteria> req);
+	ResponseEvent<List<ContainerTypeSummary>> getContainerTypes(RequestEvent<ContainerTypeListCriteria> req);
 
-	public ResponseEvent<Long> getContainerTypesCount(RequestEvent<ContainerTypeListCriteria> req);
+	ResponseEvent<Long> getContainerTypesCount(RequestEvent<ContainerTypeListCriteria> req);
 
-	public ResponseEvent<ContainerTypeDetail> getContainerType(RequestEvent<EntityQueryCriteria> req);
+	ResponseEvent<ContainerTypeDetail> getContainerType(RequestEvent<EntityQueryCriteria> req);
 
-	public ResponseEvent<ContainerTypeDetail> createContainerType(RequestEvent<ContainerTypeDetail> req);
+	ResponseEvent<ContainerTypeDetail> createContainerType(RequestEvent<ContainerTypeDetail> req);
 	
-	public ResponseEvent<ContainerTypeDetail> updateContainerType(RequestEvent<ContainerTypeDetail> req);
+	ResponseEvent<ContainerTypeDetail> updateContainerType(RequestEvent<ContainerTypeDetail> req);
+
+	ResponseEvent<ContainerTypeDetail> patchContainerType(RequestEvent<ContainerTypeDetail> req);
 	
-	public ResponseEvent<List<DependentEntityDetail>> getDependentEntities(RequestEvent<Long> req);
+	ResponseEvent<List<DependentEntityDetail>> getDependentEntities(RequestEvent<Long> req);
 	
-	public ResponseEvent<ContainerTypeDetail> deleteContainerType(RequestEvent<Long> req);
-	
+	ResponseEvent<ContainerTypeDetail> deleteContainerType(RequestEvent<Long> req);
 }
