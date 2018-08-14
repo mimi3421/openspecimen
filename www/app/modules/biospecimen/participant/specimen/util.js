@@ -488,7 +488,7 @@ angular.module('os.biospecimen.specimen')
       var spmn = object.specimen;
 
       var idProp, parentIdProp;
-      if (angular.isDefined(spmn.uid)) {
+      if (spmn.uid !== undefined && spmn.uid !== null) {
         idProp = 'uid';
         parentIdProp = 'parentUid';
       } else {

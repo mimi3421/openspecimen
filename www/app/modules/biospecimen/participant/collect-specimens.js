@@ -96,16 +96,29 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
     function allocatePositions(visit, specimens, reservationToCancel) {
       return CpConfigSvc.getWorkflowData(visit.cpId, 'auto-allocation').then(
         function(data) {
-          var resvOp = getReservePositionsOp(visit.cpId, visit.cprId, data.rules || [], specimens);
-          resvOp.reservationToCancel = reservationToCancel;
-          return Container.getReservedPositions(resvOp).then(
-            function(positions) {
-              if (positions.length > 0) {
-                assignReservedPositions(resvOp, positions);
-              }
-              return true;
+          if (!angular.equals(data, {})) {
+            return allocatePositions0(visit, specimens, reservationToCancel, data);
+          }
+
+          return CpConfigSvc.getWorkflowData(-1, 'auto-allocation').then(
+            function(sysData) {
+              return allocatePositions0(visit, specimens, reservationToCancel, sysData);
             }
-          )
+          );
+        }
+      );
+    }
+
+    function allocatePositions0(visit, specimens, reservationToCancel, data) {
+      var resvOp = getReservePositionsOp(visit.cpId, visit.cprId, data.rules || [], specimens);
+      resvOp.reservationToCancel = reservationToCancel;
+      return Container.getReservedPositions(resvOp).then(
+        function(positions) {
+          if (positions.length > 0) {
+            assignReservedPositions(resvOp, positions);
+          }
+
+          return true;
         }
       );
     }
@@ -128,16 +141,29 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
     function gotoCollectionPage(visit) {
       CpConfigSvc.getWorkflowData(visit.cpId, 'specimenCollection').then(
         function(wfData) {
-          var params = {cprId: visit.cprId, visitId: visit.id, eventId: visit.eventId};
-          var state = 'tree';
-          if (wfData.showCollectionTree == false || wfData.showCollectionTree == 'false') {
-            state = 'nth-step';
-            data.opts.hierarchical =  true;
+          if (wfData && !angular.equals(wfData, {})) {
+            gotoCollectionPage0(visit, wfData);
+            return;
           }
 
-          $state.go('participant-detail.collect-specimens.' + state, params);
+          CpConfigSvc.getWorkflowData(-1, 'specimenCollection').then(
+            function(wfData) {
+              gotoCollectionPage0(visit, wfData);
+            }
+          );
         }
       );
+    }
+
+    function gotoCollectionPage0(visit, wfData) {
+      var params = {cprId: visit.cprId, visitId: visit.id, eventId: visit.eventId};
+      var state = 'tree';
+      if (wfData.showCollectionTree == false || wfData.showCollectionTree == 'false') {
+        state = 'nth-step';
+        data.opts.hierarchical =  true;
+      }
+
+      $state.go('participant-detail.collect-specimens.' + state, params);
     }
 
     function isAnyChildOrPoolSpecimenPending(spmn) {
@@ -1044,7 +1070,7 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
       }
 
       $scope.selectPositionsManually = function(clearPositions) {
-        $q.when(vacateReservedPositions()).then(
+        $q.when(CollectSpecimensSvc.cancelReservation($scope.specimens)).then(
           function() {
             $scope.autoPosAllocate = false;
             angular.forEach($scope.specimens,

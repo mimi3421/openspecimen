@@ -612,7 +612,15 @@ angular.module('os.biospecimen.participant',
 
             return CpConfigSvc.getWorkflowData(cp.id, 'specimenCollection').then(
               function(data) {
-                return data || {};
+                if (data && !angular.equals(data, {})) {
+                  return data;
+                }
+
+                return CpConfigSvc.getWorkflowData(-1, 'specimenCollection').then(
+                  function(data) {
+                    return data || {};
+                  }
+                );
               }
             );
           }
