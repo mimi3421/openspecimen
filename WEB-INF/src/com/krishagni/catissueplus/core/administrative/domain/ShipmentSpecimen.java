@@ -64,7 +64,8 @@ public class ShipmentSpecimen extends BaseEntity {
 			StorageContainerPosition position = new StorageContainerPosition();
 			position.setContainer(shipment.getReceivingSite().getContainer());
 			position.setOccupyingSpecimen(getSpecimen());
-			getSpecimen().updatePosition(position, shipment.getShippedDate());
+			position.setSupressAccessChecks(true);
+			getSpecimen().updatePosition(position, null, shipment.getShippedDate(), "Shipment: " + shipment.getName());
 		}
 
 		shipment.addOnSaveProc(() -> addShippedEvent(this));

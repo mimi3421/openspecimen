@@ -1136,11 +1136,11 @@ public class Specimen extends BaseExtensionEntity {
 			return;
 		}
 
-		if (oldPosition != null) {
+		if (oldPosition != null && !oldPosition.isSupressAccessChecks()) {
 			AccessCtrlMgr.getInstance().ensureSpecimenStoreRights(oldPosition.getContainer());
 		}
 
-		if (newPosition != null) {
+		if (newPosition != null && !newPosition.isSupressAccessChecks()) {
 			AccessCtrlMgr.getInstance().ensureSpecimenStoreRights(newPosition.getContainer());
 		}
 
