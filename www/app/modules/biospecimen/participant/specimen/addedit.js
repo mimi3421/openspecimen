@@ -370,13 +370,22 @@ angular.module('os.biospecimen.specimen.addedit', [])
         }
 
         scope.addAnotherAliquot = function() {
-          spmnCtx.aliquots.push(new Specimen({lineage: 'Aliquot'}));
+          var aliquot = new Specimen({lineage: 'Aliquot'});
+          spmnCtx.aliquots.push(aliquot);
+
+          if (spmnCtx.opts.$$sdeFormFields) {
+            spmnCtx.opts.$$sdeFormFields.valueChanged(spmnCtx.obj, aliquot, 'aliquots.$onAdd', 'aliquots');
+          }
         }
 
         scope.removeAliquot = function(idx) {
-          spmnCtx.aliquots.splice(idx, 1);
+          var aliquots = spmnCtx.aliquots.splice(idx, 1);
+          if (spmnCtx.opts.$$sdeFormFields && aliquots.length > 0) {
+            spmnCtx.opts.$$sdeFormFields.valueChanged(spmnCtx.obj, aliquots[0], 'aliquots.$onRemove', 'aliquots');
+          }
+
           if (spmnCtx.aliquots.length == 0) {
-            spmnCtx.aliquots.push(new Specimen({lineage: 'Aliquot'}));
+            scope.addAnotherAliquot();
           }
         }
 
