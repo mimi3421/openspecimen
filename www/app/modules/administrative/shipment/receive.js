@@ -80,7 +80,9 @@ angular.module('os.administrative.shipment.receive', ['os.administrative.models'
     }
 
     $scope.copyFirstQualityToAll = function() {
+      var attrs = getItemAttrs();
       var quality = shipment[attrs.collName][0].receivedQuality;
+
       angular.forEach(shipment[attrs.collName],
         function(item) {
           item.receivedQuality = quality;
