@@ -1,5 +1,6 @@
 package com.krishagni.catissueplus.core.administrative.domain;
 
+import java.util.Calendar;
 import java.util.Date;
 
 import com.krishagni.catissueplus.core.biospecimen.domain.BaseEntity;
@@ -18,7 +19,7 @@ public class ContainerStoreListItem extends BaseEntity {
 
 	private Status status = Status.PENDING;
 
-	private Date ackTime;
+	private Date ackTime = Calendar.getInstance().getTime();
 
 	private String error;
 
