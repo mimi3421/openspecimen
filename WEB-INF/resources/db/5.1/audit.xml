@@ -149,4 +149,12 @@
       <column name="label_MOD" type="${boolean.type}"/>
     </addColumn>
   </changeSet>
+
+  <changeSet author="vpawar" id="Increase the width of shipment specimen received quality to match the PV width">
+    <modifyDataType tableName="OS_SHIPMENT_SPECIMENS_AUD" columnName="RECEIVED_QUALITY" newDataType="${text.type}(255)"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Increase the width of shipment container received quality to match the PV width">
+    <modifyDataType tableName="OS_SHIPMENT_CONTAINERS_AUD" columnName="RECEIVED_QUALITY" newDataType="${text.type}(255)"/>
+  </changeSet>
 </databaseChangeLog>

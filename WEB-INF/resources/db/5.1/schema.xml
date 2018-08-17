@@ -314,4 +314,12 @@
   <changeSet author="vpawar" id="Specimen quantity is no longer mandatory in DP requirement">
     <dropNotNullConstraint tableName="OS_DP_REQUIREMENTS" columnName="QUANTITY" columnDataType="${decimal.type}(24,8)"/>
   </changeSet>
+
+  <changeSet author="vpawar" id="Increase the width of shipment specimen received quality to match the PV width">
+    <modifyDataType tableName="OS_SHIPMENT_SPECIMENS" columnName="RECEIVED_QUALITY" newDataType="${text.type}(255)"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Increase the width of shipment container received quality to match the PV width">
+    <modifyDataType tableName="OS_SHIPMENT_CONTAINERS" columnName="RECEIVED_QUALITY" newDataType="${text.type}(255)"/>
+  </changeSet>
 </databaseChangeLog>
