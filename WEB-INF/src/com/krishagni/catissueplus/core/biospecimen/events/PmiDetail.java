@@ -1,11 +1,14 @@
 
 package com.krishagni.catissueplus.core.biospecimen.events;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.krishagni.catissueplus.core.biospecimen.domain.ParticipantMedicalIdentifier;
+import com.krishagni.catissueplus.core.common.util.Utility;
 
 public class PmiDetail {
 
@@ -28,6 +31,15 @@ public class PmiDetail {
 	public void setMrn(String mrn) {
 		this.mrn = mrn;
 	}
+
+	public String toString() {
+		String result = StringUtils.isNotBlank(getSiteName()) ? getSiteName() : "Not Specified";
+		if (StringUtils.isNotBlank(getMrn())) {
+			result += " (" + getMrn() + ")";
+		}
+
+		return result;
+	}
 	
 	public static PmiDetail from(ParticipantMedicalIdentifier pmi, boolean excludePhi) {
 		PmiDetail result = new PmiDetail();
@@ -37,11 +49,10 @@ public class PmiDetail {
 	}
 	
 	public static List<PmiDetail> from(Collection<ParticipantMedicalIdentifier> pmis, boolean excludePhi) {
-		List<PmiDetail> result = new ArrayList<PmiDetail>();
-		for (ParticipantMedicalIdentifier pmi : pmis) {
-			result.add(PmiDetail.from(pmi, excludePhi));
-		}
-		
-		return result;
+		return pmis.stream().map(pmi -> PmiDetail.from(pmi, excludePhi)).collect(Collectors.toList());
+	}
+
+	public static String toString(Collection<PmiDetail> pmis) {
+		return Utility.nullSafeStream(pmis).map(PmiDetail::toString).collect(Collectors.joining(", "));
 	}
 }

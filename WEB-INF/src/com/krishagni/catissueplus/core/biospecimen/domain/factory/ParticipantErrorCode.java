@@ -31,6 +31,10 @@ public enum ParticipantErrorCode implements ErrorCode {
 	DUP_MRN,
 	
 	DUP_MRN_SITE,
+
+	EMPI_MRN_DIFF,
+
+	MRN_DIFF,
 	
 	EMPI_REQUIRED,
 	
