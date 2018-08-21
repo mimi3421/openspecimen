@@ -856,6 +856,7 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 
 		AccessCtrlMgr.getInstance().ensureCreateOrUpdateSpecimenRights(specimen);
 
+		String prevStatus = existing != null ? existing.getCollectionStatus() : null;
 		OpenSpecimenException ose = new OpenSpecimenException(ErrorType.USER_ERROR);
 		ensureValidAndUniqueLabel(existing, specimen, ose);
 		ensureUniqueBarcode(existing, specimen, ose);
@@ -902,6 +903,7 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 		}
 
 		EventPublisher.getInstance().publish(new SpecimenSavedEvent(specimen));
+		specimen.prePrintChildrenLabels(prevStatus, getLabelPrinter());
 		return specimen;
 	}
 

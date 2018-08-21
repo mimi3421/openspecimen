@@ -77,6 +77,7 @@ angular.module('openspecimen')
     var spmnLabelPrePrintModes = [
       {name: 'ON_REGISTRATION', displayKey:'cp.spmn_label_pre_print_modes.ON_REGISTRATION'},
       {name: 'ON_VISIT', displayKey:'cp.spmn_label_pre_print_modes.ON_VISIT'},
+      {name: 'ON_PRIMARY_COLL', displayKey: 'cp.spmn_label_pre_print_modes.ON_PRIMARY_COLL'},
       {name: 'NONE', displayKey:'cp.spmn_label_pre_print_modes.NONE'}
     ];
 

@@ -13,7 +13,9 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.envers.Audited;
@@ -32,10 +34,14 @@ import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.SpecimenErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.SpecimenReturnEvent;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.VisitErrorCode;
+import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
+import com.krishagni.catissueplus.core.common.domain.PrintItem;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.service.LabelGenerator;
+import com.krishagni.catissueplus.core.common.service.LabelPrinter;
+import com.krishagni.catissueplus.core.common.service.impl.EventPublisher;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.catissueplus.core.common.util.NumUtil;
 import com.krishagni.catissueplus.core.common.util.Status;
@@ -162,6 +168,9 @@ public class Specimen extends BaseExtensionEntity {
 	@Autowired
 	@Qualifier("specimenBarcodeGenerator")
 	private LabelGenerator barcodeGenerator;
+
+	@Autowired
+	private DaoFactory daoFactory;
 
 	private transient boolean forceDelete;
 	
@@ -826,6 +835,87 @@ public class Specimen extends BaseExtensionEntity {
 			getSpecimenRequirement().getLabelAutoPrintModeToUse() == CollectionProtocol.SpecimenLabelAutoPrintMode.PRE_PRINT;
 	}
 
+	public void prePrintChildrenLabels(String prevStatus, LabelPrinter<Specimen> printer) {
+		if (getSpecimenRequirement() == null) {
+			//
+			// We pre-print child specimen labels of only planned specimens
+			//
+			return;
+		}
+
+		if (!isPrimary()) {
+			//
+			// We pre-print child specimen labels of only primary specimens
+			//
+			return;
+		}
+
+		if (!isCollected() || getCollectionProtocol().getSpmnLabelPrePrintMode() != CollectionProtocol.SpecimenLabelPrePrintMode.ON_PRIMARY_COLL) {
+			//
+			// specimen is either not collected or print on collection is not enabled
+			//
+			return;
+		}
+
+		if (Specimen.isCollected(prevStatus)) {
+			//
+			// specimen was previously collected. no need to print the child specimen labels
+			//
+			return;
+		}
+
+		if (getCollectionProtocol().isManualSpecLabelEnabled()) {
+			//
+			// no child labels are pre-printed in specimen labels are manually scanned
+			//
+			return;
+		}
+
+		if (CollectionUtils.isNotEmpty(getChildCollection())) {
+			//
+			// We quit if there is at least one child specimen created underneath the primary specimen
+			//
+			return;
+		}
+
+		List<PrintItem<Specimen>> printItems = createPendingSpecimens(getSpecimenRequirement(), this).stream()
+			.filter(spmn -> spmn.getParentSpecimen().equals(this))
+			.map(Specimen::getPrePrintItems)
+			.flatMap(List::stream)
+			.collect(Collectors.toList());
+		if (!printItems.isEmpty()) {
+			printer.print(printItems);
+		}
+	}
+
+	public List<PrintItem<Specimen>> getPrePrintItems() {
+		SpecimenRequirement requirement = getSpecimenRequirement();
+		if (requirement == null) {
+			//
+			// OPSMN-4227: We won't pre-print unplanned specimens
+			// This can happen when following state change transition happens:
+			// visit -> completed -> planned + unplanned specimens collected -> visit missed -> pending
+			//
+			return Collections.emptyList();
+		}
+
+		List<PrintItem<Specimen>> result = new ArrayList<>();
+		if (requirement.getLabelAutoPrintModeToUse() == CollectionProtocol.SpecimenLabelAutoPrintMode.PRE_PRINT) {
+			Integer printCopies = requirement.getLabelPrintCopiesToUse();
+			result.add(PrintItem.make(this, printCopies));
+		}
+
+		for (Specimen poolSpmn : getSpecimensPool()) {
+			result.addAll(poolSpmn.getPrePrintItems());
+		}
+
+		for (Specimen childSpmn : getChildCollection()) {
+			result.addAll(childSpmn.getPrePrintItems());
+		}
+
+		return result;
+	}
+
 	public void close(User user, Date time, String reason) {
 		if (!getActivityStatus().equals(Status.ACTIVITY_STATUS_ACTIVE.getStatus())) {
 			return;
@@ -1378,7 +1468,7 @@ public class Specimen extends BaseExtensionEntity {
 	// Useful for sorting specimens at same level
 	//
 	public static List<Specimen> sort(Collection<Specimen> specimens) {
-		List<Specimen> result = new ArrayList<Specimen>(specimens);
+		List<Specimen> result = new ArrayList<>(specimens);
 		Collections.sort(result, new Comparator<Specimen>() {
 			@Override
 			public int compare(Specimen s1, Specimen s2) {
@@ -1735,5 +1825,26 @@ public class Specimen extends BaseExtensionEntity {
 
 	private SpecimenExternalIdentifier getExternalIdByName(Collection<SpecimenExternalIdentifier> externalIds, String name) {
 		return externalIds.stream().filter(externalId -> StringUtils.equals(externalId.getName(), name)).findFirst().orElse(null);
+	}
+
+	private List<Specimen> createPendingSpecimens(SpecimenRequirement sr, Specimen parent) {
+		List<Specimen> result = new ArrayList<>();
+
+		for (SpecimenRequirement childSr : sr.getOrderedChildRequirements()) {
+			Specimen specimen = childSr.getSpecimen();
+			specimen.setParentSpecimen(parent);
+			specimen.setVisit(parent.getVisit());
+			specimen.setCollectionStatus(Specimen.PENDING);
+			specimen.setLabelIfEmpty();
+
+			parent.addChildSpecimen(specimen);
+			daoFactory.getSpecimenDao().saveOrUpdate(specimen);
+			EventPublisher.getInstance().publish(new SpecimenSavedEvent(specimen));
+
+			result.add(specimen);
+			result.addAll(createPendingSpecimens(childSr, specimen));
+		}
+
+		return result;
 	}
 }

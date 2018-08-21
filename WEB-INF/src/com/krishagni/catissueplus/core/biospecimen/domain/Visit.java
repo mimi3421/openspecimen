@@ -515,7 +515,8 @@ public class Visit extends BaseExtensionEntity {
 
 	public boolean isPrePrintSpecimenLabelEnabled() {
 		CollectionProtocol cp = getCollectionProtocol();
-		return cp.getSpmnLabelPrePrintMode() != SpecimenLabelPrePrintMode.NONE && !cp.isManualSpecLabelEnabled();
+		SpecimenLabelPrePrintMode mode = cp.getSpmnLabelPrePrintMode();
+		return (mode == SpecimenLabelPrePrintMode.ON_REGISTRATION || mode == SpecimenLabelPrePrintMode.ON_VISIT) && !cp.isManualSpecLabelEnabled();
 	}
 
 	public boolean shouldPrePrintSpecimenLabels(String prevStatus) {
@@ -620,11 +621,11 @@ public class Visit extends BaseExtensionEntity {
 		specimen.setParentSpecimen(parent);
 		specimen.setVisit(this);
 		specimen.setCollectionStatus(Specimen.PENDING);
-
 		specimen.setLabelIfEmpty();
 
 		addSpecimen(specimen);
 		daoFactory.getSpecimenDao().saveOrUpdate(specimen);
+		EventPublisher.getInstance().publish(new SpecimenSavedEvent(specimen));
 
 		for (SpecimenRequirement poolSr : sr.getOrderedSpecimenPoolReqs()) {
 			specimen.addPoolSpecimen(createPendingSpecimen(poolSr, null));
@@ -634,35 +635,14 @@ public class Visit extends BaseExtensionEntity {
 			specimen.addChildSpecimen(createPendingSpecimen(childSr, specimen));
 		}
 
-		EventPublisher.getInstance().publish(new SpecimenSavedEvent(specimen));
 		return specimen;
 	}
 
 	private List<PrintItem<Specimen>> getSpecimenPrintItems(Collection<Specimen> specimens) {
-		List<PrintItem<Specimen>> spmnPrintItems = new ArrayList<PrintItem<Specimen>>();
-		specimens = Specimen.sort(specimens);
-
-		for (Specimen specimen : specimens) {
-			SpecimenRequirement requirement = specimen.getSpecimenRequirement();
-			if (requirement == null) {
-				//
-				// OPSMN-4227: We won't pre-print unplanned specimens
-				// This can happen when following state change transition happens:
-				// visit -> completed -> planned + unplanned specimens collected -> visit missed -> pending
-				//
-				continue;
-			}
-
-			if (requirement.getLabelAutoPrintModeToUse() == SpecimenLabelAutoPrintMode.PRE_PRINT) {
-				Integer printCopies = requirement.getLabelPrintCopiesToUse();
-				spmnPrintItems.add(PrintItem.make(specimen, printCopies));
-			}
-
-			spmnPrintItems.addAll(getSpecimenPrintItems(specimen.getSpecimensPool()));
-			spmnPrintItems.addAll(getSpecimenPrintItems(specimen.getChildCollection()));
-		}
-		
-		return spmnPrintItems;
+		return Specimen.sort(specimens).stream()
+			.map(Specimen::getPrePrintItems)
+			.flatMap(List::stream)
+			.collect(Collectors.toList());
 	}
 
 	private boolean shouldPrintVisitName(String prevStatus) {
