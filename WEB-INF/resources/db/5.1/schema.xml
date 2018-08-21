@@ -322,4 +322,144 @@
   <changeSet author="vpawar" id="Increase the width of shipment container received quality to match the PV width">
     <modifyDataType tableName="OS_SHIPMENT_CONTAINERS" columnName="RECEIVED_QUALITY" newDataType="${text.type}(255)"/>
   </changeSet>
+
+  <changeSet author="vpawar" id="Initialize the visit dates for the pre-created records that do not have visit dates" dbms="oracle">
+    <sql>
+      merge into
+        catissue_specimen_coll_group dv
+      using (
+        select
+          v.identifier as visit_id,
+          case
+            when cpe.event_point_unit = 'DAYS' then r.registration_date + cpe.study_calendar_event_point
+            when cpe.event_point_unit = 'WEEKS' then r.registration_date + cpe.study_calendar_event_point * 7
+            when cpe.event_point_unit = 'MONTHS' then add_months(r.registration_date, cpe.study_calendar_event_point)
+            when cpe.event_point_unit = 'YEARS' then add_months(r.registration_date, cpe.study_calendar_event_point * 12)
+            else r.registration_date
+          end as visit_date
+        from
+          catissue_coll_prot_reg r
+          inner join catissue_specimen_coll_group v on v.collection_protocol_reg_id = r.identifier
+          left join catissue_coll_prot_event cpe on cpe.identifier = v.collection_protocol_event_id
+        where
+          v.collection_timestamp is null
+      ) sv on (sv.visit_id = dv.identifier)
+      when matched then
+        update set dv.collection_timestamp = sv.visit_date
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Initialize the visit dates for the pre-created records that do not have visit dates" dbms="mysql">
+    <sql>
+      update
+        catissue_specimen_coll_group v
+        inner join catissue_coll_prot_reg r on r.identifier = v.collection_protocol_reg_id
+        left join catissue_coll_prot_event cpe on cpe.identifier = v.collection_protocol_event_id
+      set
+        v.collection_timestamp = (
+          case
+            when cpe.event_point_unit = 'DAYS' then r.registration_date + cpe.study_calendar_event_point
+            when cpe.event_point_unit = 'WEEKS' then r.registration_date + cpe.study_calendar_event_point * 7
+            when cpe.event_point_unit = 'MONTHS' then adddate(r.registration_date, interval cpe.study_calendar_event_point month)
+            when cpe.event_point_unit = 'YEARS' then adddate(r.registration_date, interval cpe.study_calendar_event_point * 12 month)
+            else r.registration_date
+          end
+        )
+      where
+        v.collection_timestamp is null
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Add not null constraint on visit date column" dbms="mysql">
+    <addNotNullConstraint tableName="CATISSUE_SPECIMEN_COLL_GROUP" columnName="COLLECTION_TIMESTAMP" columnDataType="datetime"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Add not null constraint on visit date column" dbms="oracle">
+    <addNotNullConstraint tableName="CATISSUE_SPECIMEN_COLL_GROUP" columnName="COLLECTION_TIMESTAMP" columnDataType="date"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Initialize the created on dates of the collected primary specimens" dbms="oracle">
+    <sql>
+      merge into
+        catissue_specimen ds
+      using (
+        select
+          s.identifier as sid,
+          case
+            when r.event_timestamp is null then v.collection_timestamp
+            else r.event_timestamp
+          end as created_on
+        from
+          catissue_specimen s
+          inner join catissue_specimen_coll_group v on v.identifier = s.specimen_collection_group_id
+          left join catissue_form_record_entry re on re.object_id = s.identifier
+          left join catissue_received_event_param r on r.identifier = re.record_id
+        where
+          s.created_on is null and s.lineage = 'New' and s.collection_status = 'Collected'
+      ) ss on (ss.sid = ds.identifier)
+      when matched then
+        update set ds.created_on = ss.created_on
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Initialize the created on dates of the collected primary specimens" dbms="mysql">
+    <sql>
+      update
+        catissue_specimen s
+        inner join catissue_specimen_coll_group v on v.identifier = s.specimen_collection_group_id
+        left join catissue_form_record_entry re on re.object_id = s.identifier
+        left join catissue_received_event_param r on r.identifier = re.record_id
+      set
+        s.created_on = (
+          case
+            when r.event_timestamp is null then v.collection_timestamp
+            else r.event_timestamp
+          end
+        )
+      where
+        s.created_on is null and s.lineage = 'New' and s.collection_status = 'Collected'
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Initialize the created on dates of the collected derivatives or aliquots" dbms="oracle">
+    <sql>
+      merge into
+        catissue_specimen ds
+      using (
+        select
+          s.identifier as sid, max(a.created_on) as created_on
+        from
+          catissue_specimen s
+          left join catissue_specimen_hierarchy h on h.descendent_id = s.identifier
+          left join catissue_specimen a on a.identifier = h.ancestor_id
+        where
+          s.created_on is null and s.lineage in ('Derived', 'Aliquot') and s.collection_status = 'Collected'
+        group by
+          s.identifier
+      ) ss on (ss.sid = ds.identifier)
+      when matched then
+        update set ds.created_on = ss.created_on
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Initialize the created on dates of the collected derivatives or aliquots" dbms="mysql">
+    <sql>
+      update
+        catissue_specimen ds
+        inner join (
+          select
+            s.identifier as sid, max(a.created_on) as created_on
+          from
+            catissue_specimen s
+            left join catissue_specimen_hierarchy h on h.descendent_id = s.identifier
+            left join catissue_specimen a on a.identifier = h.ancestor_id
+          where
+            s.created_on is null and s.lineage in ('Derived', 'Aliquot') and s.collection_status = 'Collected'
+          group by
+            s.identifier
+        ) as ss on ss.sid = ds.identifier
+      set
+        ds.created_on = ss.created_on
+    </sql>
+  </changeSet>
 </databaseChangeLog>
