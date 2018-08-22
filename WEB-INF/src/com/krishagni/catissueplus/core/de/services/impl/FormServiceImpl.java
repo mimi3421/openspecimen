@@ -37,12 +37,15 @@ import com.krishagni.catissueplus.core.biospecimen.services.impl.SystemFormUpdat
 import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
+import com.krishagni.catissueplus.core.common.access.SiteCpPair;
 import com.krishagni.catissueplus.core.common.errors.CommonErrorCode;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.BulkDeleteEntityOp;
 import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.events.OpenSpecimenEvent;
+import com.krishagni.catissueplus.core.common.events.Operation;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
+import com.krishagni.catissueplus.core.common.events.Resource;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 import com.krishagni.catissueplus.core.common.service.impl.EventPublisher;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
@@ -753,7 +756,7 @@ public class FormServiceImpl implements FormService, InitializingBean {
 			return null;
 		} else if (!currUser.isAdmin() && currUser.getManageForms()) {
 			crit.userId(currUser.getId());
-			crit.cpIds(AccessCtrlMgr.getInstance().getReadableCpIds());
+			crit.siteCps(AccessCtrlMgr.getInstance().getReadableSiteCps());
 		}
 		
 		return crit;
@@ -1128,7 +1131,9 @@ public class FormServiceImpl implements FormService, InitializingBean {
 
 			private CollectionProtocol cp;
 
-			private Set<Long> cpIds;
+			private Long cpId;
+
+			private Set<SiteCpPair> siteCps;
 
 			private int startAt;
 
@@ -1187,33 +1192,35 @@ public class FormServiceImpl implements FormService, InitializingBean {
 				String cpIdStr = params.get("cpId");
 				if (StringUtils.isNotBlank(cpIdStr)) {
 					try {
-						Long cpId = Long.parseLong(cpIdStr);
-						if (cpId != -1L) {
-							cpIds = Collections.singleton(cpId);
-						}
+						cpId = Long.parseLong(cpIdStr);
 					} catch (Exception e) {
 						logger.error("Invalid CP ID: " + cpIdStr, e);
 					}
 				}
 
-				if (cpIds == null) {
-					cpIds = AccessCtrlMgr.getInstance().getReadableCpIds();
-				}
-
-				Function<Long, Boolean> hasEximRights = null;
+				boolean allowed = false;
 				if (entityType.equals("Participant") || entityType.equals("CommonParticipant")) {
-					hasEximRights = AccessCtrlMgr.getInstance()::hasCprEximRights;
-				} else if (entityType.equals("SpecimenCollectionGroup")) {
-					hasEximRights = AccessCtrlMgr.getInstance()::hasVisitSpecimenEximRights;
-				} else if (entityType.equals("Specimen") || entityType.equals("SpecimenEvent")) {
-					hasEximRights = AccessCtrlMgr.getInstance()::hasVisitSpecimenEximRights;
+					if (cpId != null && cpId != -1L) {
+						allowed = AccessCtrlMgr.getInstance().hasCprEximRights(cpId);
+					} else {
+						siteCps = AccessCtrlMgr.getInstance().getSiteCps(Resource.PARTICIPANT, Operation.EXIM);
+						if (siteCps != null && siteCps.isEmpty()) {
+							siteCps = AccessCtrlMgr.getInstance().getSiteCps(Resource.PARTICIPANT_DEID, Operation.EXIM);
+						}
+
+						allowed = (siteCps == null || !siteCps.isEmpty());
+					}
+				} else if (entityType.equals("SpecimenCollectionGroup") || entityType.equals("Specimen") || entityType.equals("SpecimenEvent")) {
+					if (cpId != null && cpId != -1L) {
+						allowed = AccessCtrlMgr.getInstance().hasVisitSpecimenEximRights(cpId);
+					} else {
+						siteCps = AccessCtrlMgr.getInstance().getSiteCps(Resource.VISIT_N_SPECIMEN, Operation.EXIM);
+						allowed = (siteCps == null || !siteCps.isEmpty());
+					}
 				}
 
-				if (hasEximRights == null) {
+				if (!allowed) {
 					endOfRecords = true;
-				} else {
-					cpIds = cpIds.stream().filter(hasEximRights::apply).collect(Collectors.toSet());
-					endOfRecords = cpIds.isEmpty();
 				}
 
 				paramsInited = true;
@@ -1227,9 +1234,9 @@ public class FormServiceImpl implements FormService, InitializingBean {
 					"ppids",
 					(ppids) -> {
 						if (entityType.equals("Participant")) {
-							return formDao.getRegistrationRecords(cpIds, form.getId(), ppids, startAt, 100);
+							return formDao.getRegistrationRecords(cpId, siteCps, form.getId(), ppids, startAt, 100);
 						} else {
-							return formDao.getParticipantRecords(cpIds, form.getId(), ppids, startAt, 100);
+							return formDao.getParticipantRecords(cpId, siteCps, form.getId(), ppids, startAt, 100);
 						}
 					},
 					"cprId",
@@ -1259,7 +1266,7 @@ public class FormServiceImpl implements FormService, InitializingBean {
 				return getRecords(
 					job,
 					"visitNames",
-					(visitNames) -> formDao.getVisitRecords(cpIds, form.getId(), visitNames, startAt, 100),
+					(visitNames) -> formDao.getVisitRecords(cpId, siteCps, form.getId(), visitNames, startAt, 100),
 					"visitId",
 					(visitId) -> daoFactory.getVisitsDao().getById(visitId),
 					(visit) -> AccessCtrlMgr.getInstance().ensureReadVisitRights((Visit) visit, true),
@@ -1281,7 +1288,7 @@ public class FormServiceImpl implements FormService, InitializingBean {
 				return getRecords(
 					job,
 					"specimenLabels",
-					(spmnLabels) -> formDao.getSpecimenRecords(cpIds, form.getId(), entityType, spmnLabels, startAt, 100),
+					(spmnLabels) -> formDao.getSpecimenRecords(cpId, siteCps, form.getId(), entityType, spmnLabels, startAt, 100),
 					"spmnId",
 					(specimenId) -> daoFactory.getSpecimenDao().getById(specimenId),
 					(specimen) -> AccessCtrlMgr.getInstance().ensureReadSpecimenRights((Specimen) specimen, true),

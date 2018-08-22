@@ -29,6 +29,8 @@ import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.domain.Visit;
 import com.krishagni.catissueplus.core.biospecimen.events.CollectionProtocolSummary;
 import com.krishagni.catissueplus.core.common.Pair;
+import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
+import com.krishagni.catissueplus.core.common.access.SiteCpPair;
 import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
 import com.krishagni.catissueplus.core.common.repository.AbstractDao;
@@ -680,9 +682,9 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 	}
 
 	@Override
-	public List<Map<String, Object>> getRegistrationRecords(Collection<Long> cpIds, Long formId, List<String> ppids, int startAt, int maxResults) {
+	public List<Map<String, Object>> getRegistrationRecords(Long cpId, Collection<SiteCpPair> siteCps, Long formId, List<String> ppids, int startAt, int maxResults) {
 		return getEntityRecords(
-			cpIds, formId, GET_REG_FORM_RECORDS,
+			cpId, siteCps, formId, GET_REG_FORM_RECORDS,
 			ppids, "ppids", "cpr.protocol_participant_id in (:ppids)", null,
 			startAt, maxResults,
 			row -> {
@@ -697,9 +699,9 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 	}
 
 	@Override
-	public List<Map<String, Object>> getParticipantRecords(Collection<Long> cpIds, Long formId, List<String> ppids, int startAt, int maxResults) {
+	public List<Map<String, Object>> getParticipantRecords(Long cpId, Collection<SiteCpPair> siteCps, Long formId, List<String> ppids, int startAt, int maxResults) {
 		return getEntityRecords(
-			cpIds, formId, GET_PART_FORM_RECORDS,
+			cpId, siteCps, formId, GET_PART_FORM_RECORDS,
 			ppids, "ppids", "cpr.protocol_participant_id in (:ppids)", null,
 			startAt, maxResults,
 			row -> {
@@ -715,9 +717,9 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 	}
 
 	@Override
-	public List<Map<String, Object>> getVisitRecords(Collection<Long> cpIds, Long formId, List<String> visitNames, int startAt, int maxResults) {
+	public List<Map<String, Object>> getVisitRecords(Long cpId, Collection<SiteCpPair> siteCps, Long formId, List<String> visitNames, int startAt, int maxResults) {
 		return getEntityRecords(
-			cpIds, formId, GET_VISIT_FORM_RECORDS,
+			cpId, siteCps, formId, GET_VISIT_FORM_RECORDS,
 			visitNames, "visitNames", "v.name in (:visitNames)", null,
 			startAt, maxResults,
 			row -> {
@@ -733,9 +735,9 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Map<String, Object>> getSpecimenRecords(Collection<Long> cpIds, Long formId, String entityType, List<String> spmnLabels, int startAt, int maxResults) {
+	public List<Map<String, Object>> getSpecimenRecords(Long cpId, Collection<SiteCpPair> siteCps, Long formId, String entityType, List<String> spmnLabels, int startAt, int maxResults) {
 		return getEntityRecords(
-			cpIds, formId, GET_SPMN_FORM_RECORDS,
+			cpId, siteCps, formId, GET_SPMN_FORM_RECORDS,
 			spmnLabels, "spmnLabels", "s.label in (:spmnLabels)",
 			Collections.singletonMap("entityType", entityType),
 			startAt, maxResults,
@@ -760,10 +762,6 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 		
 		if (crit.userId() != null) {
 			query.setParameter("userId", crit.userId());
-			
-			if (CollectionUtils.isNotEmpty(crit.cpIds())) {
-				query.setParameterList("cpList", crit.cpIds());
-			}
 		}
 		
 		if (crit.excludeSysForm() != null) {
@@ -794,8 +792,12 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 		return getCurrentSession().createSQLQuery(getListFormsSql(crit, true));
 	}
 
+	private String getCpIdsSql(Collection<SiteCpPair> siteCps) {
+		return AccessCtrlMgr.getInstance().getAllowedCpIdsSql(siteCps);
+	}
+
 	private String getListFormsSql(FormListCriteria crit, boolean countReq) {
-		boolean joinCps = CollectionUtils.isNotEmpty(crit.cpIds());
+		boolean joinCps = CollectionUtils.isNotEmpty(crit.siteCps());
 		String cpFormsSql =  joinCps ? CP_FORMS_JOIN : "";
 		String proj = String.format(countReq ? GET_FORMS_COUNT_PROJ : GET_FORMS_LIST_PROJ, joinCps ? " distinct " : "");
 		String whereClause = "";
@@ -811,8 +813,8 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 		if (crit.userId() != null) {
 			sqlBuilder.append(" and (c.created_by = :userId ");
 			
-			if (CollectionUtils.isNotEmpty(crit.cpIds())) {
-				sqlBuilder.append(" or cp.identifier in (:cpList) ");
+			if (joinCps) {
+				sqlBuilder.append(" or cp.identifier in (").append(getCpIdsSql(crit.siteCps())).append(")");
 			}
 
 			sqlBuilder.append(")");
@@ -1002,7 +1004,7 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
  	}
 
 	private List<Map<String, Object>> getEntityRecords(
-		Collection<Long> cpIds, Long formId, String queryName,
+		Long cpId, Collection<SiteCpPair> siteCps, Long formId, String queryName,
 		List<String> names, String namesVar, String namesCond,
 		Map<String, Object> params,
 		int startAt, int maxResults,
@@ -1014,9 +1016,18 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 			sql = sql.substring(0, orderByIdx) + " and " + namesCond + " " + sql.substring(orderByIdx);
 		}
 
+		if (cpId != null && cpId != -1L) {
+			int orderByIdx = sql.lastIndexOf("order by");
+			sql = sql.substring(0, orderByIdx) + " and cp.identifier = " + cpId + " " + sql.substring(orderByIdx);
+		}
+
+		if (CollectionUtils.isNotEmpty(siteCps)) {
+			int orderByIdx = sql.lastIndexOf("order by");
+			sql = sql.substring(0, orderByIdx) + " and cp.identifier in (" + getCpIdsSql(siteCps) + ") " + sql.substring(orderByIdx);
+		}
+
 		Query query = getCurrentSession().createSQLQuery(sql)
 			.setParameter("formId", formId)
-			.setParameterList("cpIds", cpIds)
 			.setFirstResult(startAt)
 			.setMaxResults(maxResults);
 
@@ -1187,7 +1198,6 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 	private static final String SYS_FORM_COND = " and ctxt.is_sys_form = :sysForm";
 
 	private static final String NON_SYS_FORM_COND = " and (ctxt.is_sys_form is null or ctxt.is_sys_form = :sysForm) ";
-
 
 	//
 	// used for form records export

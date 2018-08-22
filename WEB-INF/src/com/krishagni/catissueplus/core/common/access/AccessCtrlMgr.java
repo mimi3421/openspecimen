@@ -259,8 +259,41 @@ public class AccessCtrlMgr {
 	//          Collection Protocol object access control helper methods                //
 	//                                                                                  //
 	//////////////////////////////////////////////////////////////////////////////////////
-	public Set<Long> getReadableCpIds() {
-		return getEligibleCpIds(Resource.CP.getName(), new String[] {Operation.READ.getName()}, null);
+	public Set<SiteCpPair> getReadableSiteCps() {
+		return getSiteCps(Resource.CP, Operation.READ);
+	}
+
+	public String getAllowedCpIdsSql(Collection<SiteCpPair> siteCps) {
+		if (siteCps == null) {
+			return "";
+		}
+
+		if (siteCps.isEmpty()) {
+			throw OpenSpecimenException.userError(RbacErrorCode.ACCESS_DENIED);
+		}
+
+		List<String> conds = new ArrayList<>();
+		for (SiteCpPair siteCp : siteCps) {
+			if (siteCp.getCpId() != null) {
+				conds.add("icp.identifier = " + siteCp.getCpId());
+			} else if (siteCp.getSiteId() != null) {
+				conds.add("site.identifier = " + siteCp.getSiteId());
+			} else {
+				conds.add("institute.identifier = " + siteCp.getInstituteId());
+			}
+		}
+
+		return
+			"select " +
+			"  distinct icp.identifier " +
+			"from " +
+			"  catissue_collection_protocol icp " +
+			"  inner join catissue_site_cp cp_site on cp_site.collection_protocol_id = icp.identifier " +
+			"  inner join catissue_site site on site.identifier = cp_site.site_id " +
+			"  inner join catissue_institution institute on institute.identifier = site.institute_id " +
+			"where " +
+			"  icp.activity_status != 'Disabled' and " +
+			"  (" + StringUtils.join(conds, " or ") + ")";
 	}
 
 	public Set<Long> getRegisterEnabledCpIds(List<String> siteNames) {
@@ -282,6 +315,15 @@ public class AccessCtrlMgr {
 
 	public void ensureCreateCpRights(CollectionProtocol cp) {
 		ensureCpObjectRights(cp, Operation.CREATE);
+	}
+
+	public void ensureReadCpRights(Long cpId) {
+		CollectionProtocol cp = daoFactory.getCollectionProtocolDao().getById(cpId);
+		if (cp == null) {
+			throw OpenSpecimenException.userError(CpErrorCode.NOT_FOUND, cpId);
+		}
+
+		ensureReadCpRights(cp);
 	}
 
 	public void ensureReadCpRights(CollectionProtocol cp) {

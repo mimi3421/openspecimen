@@ -44,6 +44,7 @@ import com.krishagni.catissueplus.core.administrative.repository.UserDao;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr.ParticipantReadAccess;
+import com.krishagni.catissueplus.core.common.access.SiteCpPair;
 import com.krishagni.catissueplus.core.common.domain.Notification;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
@@ -86,6 +87,7 @@ import com.krishagni.catissueplus.core.de.repository.DaoFactory;
 import com.krishagni.catissueplus.core.de.repository.SavedQueryDao;
 import com.krishagni.catissueplus.core.de.services.QueryService;
 import com.krishagni.catissueplus.core.de.services.SavedQueryErrorCode;
+import com.krishagni.rbac.common.errors.RbacErrorCode;
 
 import edu.common.dynamicextensions.domain.nui.Container;
 import edu.common.dynamicextensions.domain.nui.Control;
@@ -930,49 +932,33 @@ public class QueryServiceImpl implements QueryService {
 			if (cpId != null && cpId != -1) {
 				return cpForm + ".id = " + cpId;
 			}
-		} else {			
-			Set<Long> cpIds = AccessCtrlMgr.getInstance().getReadableCpIds();
-			if (cpIds == null || cpIds.isEmpty()) {
-				throw new IllegalAccessError("User does not have access to any CP");
-			}
-						
+		} else {
 			if (cpId != null && cpId != -1) {
-				if (cpIds.contains(cpId)) {
-					return cpForm + ".id = " + cpId; 
-				}
-				
-				throw new IllegalAccessError("Access to cp is not permitted: " + cpId);
+				AccessCtrlMgr.getInstance().ensureReadCpRights(cpId);
+				return cpForm + ".id = " + cpId;
 			} else {
-				List<String> restrictions = new ArrayList<>();
-				List<Long> cpIdList = new ArrayList<>(cpIds);
-				
-				int startIdx = 0, numCpIds = cpIdList.size();
-				int chunkSize = 999;
-				while (startIdx < numCpIds) {
-					int endIdx = startIdx + chunkSize;
-					if (endIdx > numCpIds) {
-						endIdx = numCpIds;
-					}
-					
-					restrictions.add(getCpIdRestriction(cpIdList.subList(startIdx, endIdx)));
-					startIdx = endIdx;
+				Set<SiteCpPair> siteCps = AccessCtrlMgr.getInstance().getReadableSiteCps();
+				if (CollectionUtils.isEmpty(siteCps)) {
+					throw OpenSpecimenException.userError(RbacErrorCode.ACCESS_DENIED);
 				}
-				
-				return "(" + StringUtils.join(restrictions, " or ") + ")";
+
+				List<String> cpSitesConds = new ArrayList<>(); // joined by or
+				for (SiteCpPair siteCp : siteCps) {
+					String cond = getAqlSiteIdRestriction("CollectionProtocol.cpSites.siteId", siteCp);
+					if (siteCp.getCpId() != null) {
+						cond += " and CollectionProtocol.id = " + siteCp.getCpId();
+					}
+
+					cpSitesConds.add("(" + cond + ")");
+				}
+
+				return "(" + StringUtils.join(cpSitesConds, " or ") + ")";
 			}
 		}
 		
 		return null;
 	}
 	
-	private String getCpIdRestriction(List<Long> cpIds) {
-		return new StringBuilder(cpForm)
-			.append(".id in (")
-			.append(StringUtils.join(cpIds, ", "))
-			.append(")")
-			.toString();
-	}
-			
 	private String getAqlWithCpIdInSelect(User user, boolean isCount, String aql) {
 		if (user.isAdmin() || isCount) {
 			return aql;
@@ -1416,4 +1402,20 @@ public class QueryServiceImpl implements QueryService {
 			}
 		}
 	}
+
+	private String getAqlSiteIdRestriction(String property, SiteCpPair siteCp) {
+		if (siteCp.getSiteId() != null) {
+			return property + " = " + siteCp.getSiteId();
+		} else {
+			return property + " in " + sql(String.format(INSTITUTE_SITE_IDS_SQL, siteCp.getInstituteId()));
+		}
+	}
+
+	private String sql(String sql) {
+		return "sql(\"" + sql + "\")";
+	}
+
+	private static final String INSTITUTE_SITE_IDS_SQL =
+		"select identifier from catissue_site where institute_id = %d and activity_status != 'Disabled'";
+
 }

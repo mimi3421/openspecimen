@@ -96,8 +96,7 @@
         cpr.activity_status != 'Disabled' and
         fc.deleted_on is null and
         re.activity_status = 'ACTIVE' and
-        fc.container_id = :formId and
-        (:cpIds is null or cp.identifier in (:cpIds))
+        fc.container_id = :formId
       order by
         cprId, recordId
     </sql-query>
@@ -115,8 +114,7 @@
         cpr.activity_status != 'Disabled' and
         fc.deleted_on is null and
         re.activity_status = 'ACTIVE' and
-        fc.container_id = :formId and
-        (:cpIds is null or cp.identifier in (:cpIds))
+        fc.container_id = :formId
       order by
         participantId, recordId
     </sql-query>
@@ -135,8 +133,7 @@
         v.activity_status != 'Disabled' and
         fc.deleted_on is null and
         re.activity_status = 'ACTIVE' and
-        fc.container_id = :formId and
-        (:cpIds is null or cp.identifier in (:cpIds))
+        fc.container_id = :formId
       order by
         visitId, recordId
     </sql-query>
@@ -155,8 +152,7 @@
         s.activity_status != 'Disabled' and
         fc.deleted_on is null and
         re.activity_status = 'ACTIVE' and
-        fc.container_id = :formId and
-        (:cpIds is null or cp.identifier in (:cpIds))
+        fc.container_id = :formId
       order by
         spmnId, recordId
     </sql-query>

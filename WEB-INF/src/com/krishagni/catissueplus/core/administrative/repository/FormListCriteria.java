@@ -2,6 +2,7 @@ package com.krishagni.catissueplus.core.administrative.repository;
 
 import java.util.Set;
 
+import com.krishagni.catissueplus.core.common.access.SiteCpPair;
 import com.krishagni.catissueplus.core.common.events.AbstractListCriteria;
 
 public class FormListCriteria extends AbstractListCriteria<FormListCriteria> {
@@ -11,7 +12,7 @@ public class FormListCriteria extends AbstractListCriteria<FormListCriteria> {
 
 	private Boolean excludeSysForm;
 
-	private Set<Long> cpIds;
+	private Set<SiteCpPair> siteCps;
 	
 	@Override
 	public FormListCriteria self() {
@@ -45,12 +46,12 @@ public class FormListCriteria extends AbstractListCriteria<FormListCriteria> {
 		return self();
 	}
 
-	public Set<Long> cpIds() {
-		return cpIds;
+	public Set<SiteCpPair> siteCps() {
+		return siteCps;
 	}
 
-	public FormListCriteria cpIds(Set<Long> cpIds) {
-		this.cpIds = cpIds;
+	public FormListCriteria siteCps(Set<SiteCpPair> siteCps) {
+		this.siteCps = siteCps;
 		return self();
 	}
 }

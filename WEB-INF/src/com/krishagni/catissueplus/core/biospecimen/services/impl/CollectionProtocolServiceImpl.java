@@ -1212,14 +1212,8 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 	}
 
 	private CpListCriteria addCpListCriteria(CpListCriteria crit) {
-		Set<Long> cpIds = AccessCtrlMgr.getInstance().getReadableCpIds();
-		if (cpIds != null && cpIds.isEmpty()) {
-			return null;
-		} else if (cpIds != null) {
-			crit.ids(new ArrayList<>(cpIds));
-		}
-
-		return crit;
+		Set<SiteCpPair> siteCps = AccessCtrlMgr.getInstance().getReadableSiteCps();
+		return siteCps != null && siteCps.isEmpty() ? null : crit.siteCps(siteCps);
 	}
 
 	private CprListCriteria addCprListCriteria(CprListCriteria listCrit) {
