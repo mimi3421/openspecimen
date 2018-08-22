@@ -480,9 +480,10 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 
 			List<DistributionOrderItem> orderItems = daoFactory.getDistributionOrderDao()
 				.getOrderItems(new DistributionOrderItemListCriteria().orderId(order.getId()).ids(input.getItemIds()));
+
 			LabelPrintJob job = printDistributionLabels(orderItems, input.getCopies());
 			if (job == null) {
-				throw new IllegalArgumentException("General error"); // TODO
+				return ResponseEvent.userError(DistributionOrderErrorCode.NO_ITEMS_PRINTED);
 			}
 
 			job.generateLabelsDataFile();

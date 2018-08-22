@@ -83,7 +83,9 @@ public enum DistributionOrderErrorCode implements ErrorCode {
 
 	SPMNS_DENIED,
 
-	NO_SPMNS_RESV_FOR_DP;
+	NO_SPMNS_RESV_FOR_DP,
+
+	NO_ITEMS_PRINTED;
 
 	@Override
 	public String code() {
