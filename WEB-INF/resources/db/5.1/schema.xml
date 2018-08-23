@@ -378,20 +378,21 @@
     <addNotNullConstraint tableName="CATISSUE_SPECIMEN_COLL_GROUP" columnName="COLLECTION_TIMESTAMP" columnDataType="date"/>
   </changeSet>
 
-  <changeSet author="vpawar" id="Initialize the created on dates of the collected primary specimens - 1" dbms="oracle">
+  <changeSet author="vpawar" id="Initialize the created on dates of the collected primary specimens - 1 (dup events)" dbms="oracle">
     <sql>
       merge into
         catissue_specimen ds
       using (
         select
-          s.identifier as sid,
-          r.event_timestamp as created_on
+          s.identifier as sid, max(r.event_timestamp) as created_on
         from
           catissue_specimen s
           inner join catissue_form_record_entry re on re.object_id = s.identifier
           inner join catissue_received_event_param r on r.identifier = re.record_id
         where
           s.created_on is null and s.lineage = 'New' and s.collection_status = 'Collected'
+        group by
+          s.identifier
       ) ss on (ss.sid = ds.identifier)
       when matched then
         update set ds.created_on = ss.created_on
