@@ -1047,8 +1047,13 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
 
       $scope.reallocatePositions = function() {
         var specimens = [];
+        var reservationId = undefined;
         for (var i = 0; i < $scope.specimens.length; ++i) {
           var spmn = $scope.specimens[i];
+          if (!reservationId && spmn.storageLocation) {
+            reservationId = spmn.storageLocation.reservationId
+          }
+
           if (spmn.existingStatus == 'Collected') {
             continue;
           }
@@ -1065,7 +1070,7 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
           angular.forEach(specimens, function(spmn) { spmn.status = 'Collected'; });
         }
 
-        CollectSpecimensSvc.allocatePositions(visit, specimens, getReservationToCancel())
+        CollectSpecimensSvc.allocatePositions(visit, specimens, reservationId)
           .then(reassignSelectedStatus, reassignSelectedStatus);
       }
 
