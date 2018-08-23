@@ -19,7 +19,11 @@ angular.module('openspecimen')
             cpId: cpId
           }
         } else if (entityType == 'storage_container') {
-          $scope.listOpts.criteria = { site: entity.siteName };
+          $scope.listOpts.criteria = {
+            site: entity.siteName,
+            canHold: entity.typeName,
+            usageMode: entity.usedFor || 'STORAGE'
+          }
         } else if (entityType == 'order_item') {
           $scope.listOpts.criteria = {
             storeSpecimensEnabled: true,
