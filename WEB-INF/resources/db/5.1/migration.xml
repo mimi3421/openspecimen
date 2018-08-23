@@ -169,4 +169,12 @@
     </preConditions>
     <dropTable tableName="catissue_shipment_containr_rel"/>
   </changeSet>
+
+  <changeSet author="vpawar" id="Drop the older shipments view">
+    <preConditions onFail="MARK_RAN">
+      <viewExists viewName="specimen_shipment_view"/>
+    </preConditions>
+
+    <dropView viewName="specimen_shipment_view"/>
+  </changeSet>
 </databaseChangeLog>
