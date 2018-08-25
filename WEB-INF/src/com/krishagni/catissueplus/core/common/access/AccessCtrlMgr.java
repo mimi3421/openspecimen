@@ -260,7 +260,7 @@ public class AccessCtrlMgr {
 	//                                                                                  //
 	//////////////////////////////////////////////////////////////////////////////////////
 	public Set<SiteCpPair> getReadableSiteCps() {
-		return getSiteCps(Resource.CP, Operation.READ);
+		return getSiteCps(Resource.CP, Operation.READ, false);
 	}
 
 	public String getAllowedCpIdsSql(Collection<SiteCpPair> siteCps) {
