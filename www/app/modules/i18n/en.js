@@ -1576,7 +1576,7 @@
     "force_delete": "Type 'DELETE ANYWAY' to continue.",
     "delete_anyway": "DELETE ANYWAY",
     "delete_pending": "{{entityType}} {{entityName}} deletion taking longer time than anticipated. You'll receive an email when it gets completed",
-    "specify_reason": "Specify the reason for deletion"
+    "specify_reason": "Specify the reason, at least 10 characters in length, for deletion:"
   },
 
   "queries": {
