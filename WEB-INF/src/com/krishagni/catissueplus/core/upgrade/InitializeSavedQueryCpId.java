@@ -3,7 +3,12 @@ package com.krishagni.catissueplus.core.upgrade;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.de.domain.SavedQuery;
@@ -45,6 +50,8 @@ public class InitializeSavedQueryCpId implements CustomTaskChange {
 			DatabaseConnection conn = database.getConnection();
 			boolean isOracle = conn.getDatabaseProductName().toLowerCase().contains("oracle");
 
+			Set<Long> cpIds = getCpIds((JdbcConnection) conn);
+
 			int startAt = 0, maxResults = 100;
 			boolean endOfQueries = false;
 			while (!endOfQueries) {
@@ -52,10 +59,25 @@ public class InitializeSavedQueryCpId implements CustomTaskChange {
 				endOfQueries = (queryCpIds.size() < maxResults);
 				startAt += maxResults;
 
-				updateQueryCpIds((JdbcConnection) conn, queryCpIds);
+				updateQueryCpIds((JdbcConnection) conn, cpIds, queryCpIds);
 			}
 		} catch (Exception e) {
 			throw new RuntimeException("Error running the migration", e);
+		}
+	}
+
+	private Set<Long> getCpIds(JdbcConnection conn)
+	throws Exception {
+		try (
+			PreparedStatement stmt = conn.prepareStatement(GET_CP_IDS_SQL);
+			ResultSet rs = stmt.executeQuery()
+		) {
+			Set<Long> cpIds = new HashSet<>();
+			while (rs.next()) {
+				cpIds.add(rs.getLong(1));
+			}
+
+			return cpIds;
 		}
 	}
 
@@ -85,20 +107,32 @@ public class InitializeSavedQueryCpId implements CustomTaskChange {
 		}
 	}
 
-	private void updateQueryCpIds(JdbcConnection conn, List<Pair<Long, Long>> queryCpIds)
+	private void updateQueryCpIds(JdbcConnection conn, Set<Long> cpIds, List<Pair<Long, Long>> queryCpIds)
 	throws Exception {
 		try (PreparedStatement pstmt = conn.prepareStatement(UPDATE_CP_ID_SQL)) {
 			for (Pair<Long, Long> queryCpId : queryCpIds) {
-				if (queryCpId.second() != null) {
-					pstmt.setLong(1, queryCpId.second());
-					pstmt.setLong(2, queryCpId.first());
-					pstmt.addBatch();
+				if (queryCpId.second() == null) {
+					continue;
 				}
+
+				if (!cpIds.contains(queryCpId.second())) {
+					logger.error("Query " + queryCpId.first() + " refers to a non-existent CP " + queryCpId.second());
+					continue;
+				}
+
+
+				pstmt.setLong(1, queryCpId.second());
+				pstmt.setLong(2, queryCpId.first());
+				pstmt.addBatch();
 			}
 
 			pstmt.executeBatch();
 		}
 	}
+
+	private static final Log logger = LogFactory.getLog(InitializeSavedQueryCpId.class);
+
+	private static final String GET_CP_IDS_SQL = "select identifier from catissue_collection_protocol";
 
 	private static final String GET_QUERIES_MYSQL = "select identifier, query_def from catissue_saved_queries limit %d, %d";
 
