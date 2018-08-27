@@ -364,7 +364,11 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 			}
 
 			getLabelPrinter().print(getSpecimenPrintItems(specimens));
-			return ResponseEvent.response(SpecimenDetail.from(specimens));
+			return ResponseEvent.response(
+				specimens.stream()
+					.map(spmn -> SpecimenDetail.from(spmn, false, false))
+					.collect(Collectors.toList())
+			);
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {
