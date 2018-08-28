@@ -58,6 +58,7 @@ public class SamlFilter extends FilterChainProxy {
 		try {
 			boolean samlEnabled = enableSaml();
 			if (samlEnabled && !isAuthenticated(httpReq)) {
+				AuthUtil.clearTokenCookie(httpReq, httpResp);
 				super.doFilter(request, response, chain);
 			} else {
 				httpResp.sendRedirect(appUrl + "/");

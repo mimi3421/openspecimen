@@ -20,12 +20,10 @@ import com.krishagni.catissueplus.core.auth.events.LoginDetail;
 import com.krishagni.catissueplus.core.auth.services.AuthenticationService;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
+import com.krishagni.catissueplus.core.common.util.AuthUtil;
 
 @Configurable
 public class SamlAuthenticationServiceImpl extends SimpleUrlAuthenticationSuccessHandler implements AuthenticationService {
-
-	private static final String OS_AUTH_TOKEN = "osAuthToken";
-
 	@Autowired
 	private UserAuthenticationServiceImpl userAuthService;
 
@@ -62,11 +60,7 @@ public class SamlAuthenticationServiceImpl extends SimpleUrlAuthenticationSucces
 		loginDetail.setRequestMethod(RequestMethod.POST.name());
 
 		String encodedToken = userAuthService.generateToken(user, loginDetail);
-		Cookie cookie = new Cookie(OS_AUTH_TOKEN, encodedToken);
-		cookie.setMaxAge(-1);
-		cookie.setPath(req.getContextPath());
-		resp.addCookie(cookie);
-	
+		AuthUtil.setTokenCookie(req, resp, encodedToken);
 		getRedirectStrategy().sendRedirect(req, resp, getDefaultTargetUrl());
 	}
 
