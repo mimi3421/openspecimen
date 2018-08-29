@@ -412,8 +412,9 @@ angular.module('os.biospecimen.specimen')
 
           var expr = $parse(exprs.join(group.criteria.op == 'AND' ? ' && ' : ' || '));
           for (var j = specimens.length - 1; j >= 0; j--) {
-            if (expr({specimen: specimens[j]})) {
-              selectedSpmns.unshift(sdeGroupInput(ctxtObjs)(specimens[j]));
+            var input = sdeGroupInput(ctxtObjs)(specimens[j]);
+            if (expr(input)) {
+              selectedSpmns.unshift(input);
 
               var uidx = unmatched.indexOf(specimens[j]);
               if (uidx > -1) {
