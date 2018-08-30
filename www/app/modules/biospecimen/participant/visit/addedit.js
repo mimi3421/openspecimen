@@ -77,7 +77,7 @@ angular.module('os.biospecimen.visit.addedit', [])
         function(result) {
           ParticipantSpecimensViewState.specimensUpdated($scope);
 
-          angular.extend($scope.visit, result);
+          angular.extend($scope.visit, angular.extend({clinicalStatus: null, cohort: null}, result));
           $state.go('visit-detail.overview', {visitId: result.id, eventId: result.eventId});
         }
       );
