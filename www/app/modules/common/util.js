@@ -5,6 +5,12 @@ angular.module('openspecimen')
     $parse, $modal, $translate, $http, osRightDrawerSvc, ApiUrls, Alerts) {
 
     var isoDateRe = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*))(?:Z|(\+|-)([\d|:]*))?$/;
+
+    var fileTypes = [
+      'csv', 'css', 'doc', 'docx', 'html', 'jar', 'java',
+      'js', 'json', 'pdf', 'txt', 'xls', 'xlsx', 'xml', 'zip'
+    ];
+
     function clear(input) {
       input.splice(0, input.length);
     };
@@ -216,8 +222,10 @@ angular.module('openspecimen')
             Alerts.info(msgClass + '.downloading_report');
 
             filename = (filename || entity.name);
-            if (!filename.slice((filename.lastIndexOf('.') - 1 >>> 0) + 2)) {
-              // no extension, by default, append .csv
+
+            var extn = filename.substr(filename.lastIndexOf('.') + 1);
+            if (fileTypes.indexOf(extn) == -1) {
+              // no known extension, by default, append .csv
               filename += '.csv';
             }
 
