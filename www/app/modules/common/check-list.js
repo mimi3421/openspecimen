@@ -43,7 +43,7 @@ angular.module('openspecimen')
       var result = [];
       angular.forEach(this.items,
         function(item, idx) {
-          if (item.selected) {
+          if (item.selected && !!list[idx]) {
             result.push(list[idx]);
           }
         }
