@@ -25,7 +25,7 @@ angular.module('openspecimen')
 
       if (!!filters) {
         try {
-          angular.extend(opts, angular.fromJson(atob(filters)));
+          angular.extend(opts, angular.fromJson(decodeURIComponent(atob(filters))));
           osRightDrawerSvc.open();
         } catch (e) {
           console.log("Invalid filter");
@@ -60,7 +60,7 @@ angular.module('openspecimen')
 
             var fb = undefined;
             if (Object.keys(filters).length > 0) {
-              fb = btoa(JSON.stringify(filters));
+              fb = btoa(encodeURIComponent(JSON.stringify(filters)));
             }
 
             $stateParams.filters = fb;
