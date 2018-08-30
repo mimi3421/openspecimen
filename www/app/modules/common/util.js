@@ -7,8 +7,8 @@ angular.module('openspecimen')
     var isoDateRe = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*))(?:Z|(\+|-)([\d|:]*))?$/;
 
     var fileTypes = [
-      'csv', 'css', 'doc', 'docx', 'html', 'jar', 'java',
-      'js', 'json', 'pdf', 'txt', 'xls', 'xlsx', 'xml', 'zip'
+      'bmp', 'csv', 'css', 'doc', 'docx', 'gif', 'html', 'jar', 'java', 'jpeg', 'jpg',
+      'js', 'json', 'pdf', 'png', 'tif', 'tiff', 'txt', 'xls', 'xlsx', 'xml', 'zip'
     ];
 
     function clear(input) {
@@ -223,7 +223,7 @@ angular.module('openspecimen')
 
             filename = (filename || entity.name);
 
-            var extn = filename.substr(filename.lastIndexOf('.') + 1);
+            var extn = filename.substr(filename.lastIndexOf('.') + 1).toLowerCase();
             if (fileTypes.indexOf(extn) == -1) {
               // no known extension, by default, append .csv
               filename += '.csv';
