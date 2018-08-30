@@ -74,17 +74,19 @@
         </div>
       </div>
 
-      <div class="form-group" ng-if="containerType.positionLabelingMode == 'TWO_D'">
+      <div class="form-group os-multi-parts-control" ng-if="containerType.positionLabelingMode == 'TWO_D'">
         <label class="col-xs-3 control-label">
           <span translate="container.labeling_scheme">Labeling Scheme</span>
         </label>
         <div class="col-xs-3">
+          <label class="part-label" translate="container.vertical_labeling_scheme"></label>
           <os-select ng-model="containerType.rowLabelingScheme" list="positionLabelingSchemes"
             name="rowLabelingScheme" placeholder="{{'container.vertical_labeling_scheme' | translate}}" required>
           </os-select>
           <div os-field-error field="ctform.rowLabelingScheme"></div>
         </div>
         <div class="col-xs-3">
+          <label class="part-label" translate="container.horizontal_labeling_scheme"></label>
           <os-select ng-model="containerType.columnLabelingScheme" list="positionLabelingSchemes"
             name="columnLabelingScheme" placeholder="{{'container.horizontal_labeling_scheme' | translate}}" required>
           </os-select>
