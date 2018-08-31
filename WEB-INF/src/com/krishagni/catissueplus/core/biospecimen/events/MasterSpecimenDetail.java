@@ -16,6 +16,10 @@ public class MasterSpecimenDetail {
 	private String ppid;
 	
 	private Date registrationDate;
+
+	private String regSite;
+
+	private String externalSubjectId;
 	
 	private String firstName;
 
@@ -145,6 +149,22 @@ public class MasterSpecimenDetail {
 
 	public void setRegistrationDate(Date registrationDate) {
 		this.registrationDate = registrationDate;
+	}
+
+	public String getRegSite() {
+		return regSite;
+	}
+
+	public void setRegSite(String regSite) {
+		this.regSite = regSite;
+	}
+
+	public String getExternalSubjectId() {
+		return externalSubjectId;
+	}
+
+	public void setExternalSubjectId(String externalSubjectId) {
+		this.externalSubjectId = externalSubjectId;
 	}
 
 	public String getFirstName() {

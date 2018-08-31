@@ -115,6 +115,8 @@ public class MasterSpecimenImporter implements ObjectImporter<MasterSpecimenDeta
 		cprDetail.setPpid(detail.getPpid());
 		cprDetail.setCpShortTitle(detail.getCpShortTitle());
 		cprDetail.setRegistrationDate(detail.getRegistrationDate());
+		cprDetail.setSite(detail.getRegSite());
+		cprDetail.setExternalSubjectId(detail.getExternalSubjectId());
 		setParticipant(detail, cprDetail);
 		
 		ResponseEvent<CollectionProtocolRegistrationDetail> resp = cprSvc.createRegistration(request(cprDetail));
