@@ -2,8 +2,11 @@ package com.krishagni.catissueplus.core.biospecimen.events;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.apache.commons.collections.CollectionUtils;
 
 import com.krishagni.catissueplus.core.de.events.ExtensionDetail;
 
@@ -34,7 +37,7 @@ public class MasterSpecimenDetail {
 
 	private String sexGenotype;
 
-	private String ethnicity;
+	private Set<String> ethnicities;
 
 	private String uid;
 
@@ -225,11 +228,23 @@ public class MasterSpecimenDetail {
 	}
 
 	public String getEthnicity() {
-		return ethnicity;
+		return CollectionUtils.isNotEmpty(ethnicities) ? ethnicities.iterator().next() : null;
 	}
 
 	public void setEthnicity(String ethnicity) {
-		this.ethnicity = ethnicity;
+		if (ethnicities == null) {
+			ethnicities = new HashSet<>();
+		}
+
+		ethnicities.add(ethnicity);
+	}
+
+	public Set<String> getEthnicities() {
+		return ethnicities;
+	}
+
+	public void setEthnicities(Set<String> ethnicities) {
+		this.ethnicities = ethnicities;
 	}
 
 	public String getUid() {
