@@ -271,6 +271,10 @@ angular.module('os.biospecimen.specimen.addedit', [])
             var types = [], typeSpecs = {};
             angular.forEach(spmnCtx.aliquots,
               function(spec) {
+                if (!spec.type) {
+                  return;
+                }
+
                 if (types.indexOf(spec.type) == -1) {
                   types.push(spec.type);
                 }
