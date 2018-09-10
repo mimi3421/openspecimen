@@ -147,11 +147,7 @@ angular.module('openspecimen')
     }
 
     $scope.logout = function() {
-      if ($http.defaults.headers.common['X-OS-API-TOKEN']) {
-        return AuthService.logout();
-      }
-
-      return undefined;
+      return AuthService.logout();
     }
 
     init();

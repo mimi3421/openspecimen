@@ -61,7 +61,7 @@ public class SamlFilter extends FilterChainProxy {
 				AuthUtil.clearTokenCookie(httpReq, httpResp);
 				super.doFilter(request, response, chain);
 			} else {
-				httpResp.sendRedirect(appUrl + "/");
+				httpResp.sendRedirect(appUrl + "/#/home");
 			}
 		} catch (UsernameNotFoundException use) {
 			httpResp.sendRedirect(appUrl + SHOW_ERROR + "?redirectTo=login&type=danger&msg=" + use.getMessage());

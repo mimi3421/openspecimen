@@ -334,7 +334,9 @@ public class SamlBootstrap {
 	 * SAML 2.0 WebSSO Assertion Consumer
 	 */
 	private WebSSOProfileConsumer getWebSSOprofileConsumer() {
-		return new WebSSOProfileConsumerImpl();
+		WebSSOProfileConsumerImpl consumer = new WebSSOProfileConsumerImpl();
+		consumer.setMaxAuthenticationAge(24 * 60 * 60);
+		return consumer;
 	}
 
 	private HTTPArtifactBinding getArtifactBinding(HTTPSOAP11Binding soapBinding, ParserPool parserPool, VelocityEngine velocityEngine) {
