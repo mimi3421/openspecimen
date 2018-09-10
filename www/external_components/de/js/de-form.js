@@ -735,7 +735,7 @@ edu.common.de.TextField = function(id, field) {
 
   this.render = function() {
     this.inputEl = $("<input/>")
-      .prop({id: id, type: 'text', title: field.toolTip, value: field.defaultValue})
+      .prop({id: id, type: 'text', title: field.toolTip})
       .addClass("form-control");
 
     this.validator = new edu.common.de.FieldValidator(field.validationRules, this);
@@ -743,6 +743,9 @@ edu.common.de.TextField = function(id, field) {
   };
 
   this.postRender = function() {
+    if (!this.recId && this.inputEl.val().trim().length == 0 && field.defaultValue) {
+      this.inputEl.val(field.defaultValue);
+    }
   };
 
   this.getName = function() {
@@ -797,6 +800,9 @@ edu.common.de.NumberField = function(id, field) {
   };
 
   this.postRender = function() {
+    if (!this.recId && this.inputEl.val().trim().length == 0 && field.defaultValue) {
+      this.inputEl.val(field.defaultValue);
+    }
   };
 
   this.getName = function() {
@@ -854,6 +860,9 @@ edu.common.de.TextArea = function(id, field) {
   };
 
   this.postRender = function() {
+    if (!this.recId && this.inputEl.val().trim().length == 0 && field.defaultValue) {
+      this.inputEl.val(field.defaultValue);
+    }
   };
 
   this.getName = function() {
@@ -1077,6 +1086,10 @@ edu.common.de.BooleanCheckbox = function(id, field) {
   };
 
   this.postRender = function() {
+    if (!this.recId && this.dataEl.val() != 'true' && field.defaultChecked == true) {
+      this.dataEl.val('true');
+      this.dataEl.prop('checked', true);
+    }
   };
 
   this.getName = function() {
@@ -1274,7 +1287,22 @@ edu.common.de.SelectField = function(id, field, args) {
     this.control = new Select2Search(this.inputEl, {multiple: this.isMultiSelect});
     this.control.onQuery(qFunc).onChange(onChange);
     this.control.onInitSelection(initSelection).render();
-    this.control.setValue(this.value);
+
+    var hasValue = false;
+    if (this.isMultiSelect) {
+      if (this.value instanceof Array && this.value.length > 0) {
+        this.setValue(this.recId, this.value);
+        hasValue = true;
+      }
+    } else if (this.value) {
+      this.setValue(this.recId, this.value);
+      hasValue = true;
+    }
+
+    var defValue = field.defaultValue && field.defaultValue.value;
+    if (!hasValue && !this.recId && defValue) {
+      this.setValue(this.recId, this.isMultiSelect ? [defValue] : defValue);
+    }
   };
 
   this.getName = function() {
@@ -1368,6 +1396,16 @@ edu.common.de.GroupField = function(id, field) {
   };
 
   this.postRender = function() {
+    if (!this.recId && field.defaultValue && field.defaultValue.value) {
+      var value = this.getValue().value;
+      if (value instanceof Array) {
+        if (value.length == 0) {
+          this.setValue(this.recId, [field.defaultValue.value]);
+        }
+      } else if (!value || value.trim().length == 0) {
+        this.setValue(this.recId, field.defaultValue.value);
+      }
+    }
   };
 
   this.getName = function() {
