@@ -5,8 +5,7 @@
 
 <hibernate-mapping auto-import="false">
 
-  <class name="com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolEvent"
-    table="CATISSUE_COLL_PROT_EVENT">
+  <class name="com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolEvent" table="CATISSUE_COLL_PROT_EVENT">
 
     <id name="id" column="IDENTIFIER">
       <generator class="native">
@@ -76,8 +75,7 @@
       table="CATISSUE_SPECIMEN_COLL_GROUP"
       lazy="true"
       inverse="true"
-      cascade="save-update"
-      sort="unsorted">
+      cascade="save-update">
       <key column="COLLECTION_PROTOCOL_EVENT_ID"/>
       <one-to-many class="com.krishagni.catissueplus.core.biospecimen.domain.Visit"/>
     </set>

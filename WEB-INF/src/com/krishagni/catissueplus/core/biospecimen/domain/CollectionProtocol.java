@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -138,13 +139,13 @@ public class CollectionProtocol extends BaseExtensionEntity {
 	
 	private Boolean consentsWaived;
 
-	private Set<CpConsentTier> consentTier = new HashSet<>();
+	private Set<CpConsentTier> consentTier = new LinkedHashSet<>();
 	
 	private Set<User> coordinators = new HashSet<>();
 	
 	private Set<CollectionProtocolSite> sites = new HashSet<>();
 	
-	private Set<CollectionProtocolEvent> collectionProtocolEvents = new HashSet<>();
+	private Set<CollectionProtocolEvent> collectionProtocolEvents = new LinkedHashSet<>();
 
 	private Set<StorageContainer> storageContainers = new HashSet<>();
 	
@@ -669,7 +670,7 @@ public class CollectionProtocol extends BaseExtensionEntity {
 	}
 	
 	public void copyEventsTo(CollectionProtocol cp) {
-		for (CollectionProtocolEvent cpe : getCollectionProtocolEvents()) {
+		for (CollectionProtocolEvent cpe : getOrderedCpeList()) {
 			cp.addCpe(cpe.deepCopy());
 		}
 	}
@@ -805,9 +806,7 @@ public class CollectionProtocol extends BaseExtensionEntity {
 	}
 	
 	public List<CollectionProtocolEvent> getOrderedCpeList() {
-		List<CollectionProtocolEvent> events = new ArrayList<>(getCollectionProtocolEvents());
-		Collections.sort(events);
-		return events;
+		return getCollectionProtocolEvents().stream().sorted().collect(Collectors.toList());
 	}
 
 	public String getPpid() {
