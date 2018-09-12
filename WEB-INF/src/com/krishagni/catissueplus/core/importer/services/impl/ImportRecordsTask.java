@@ -53,9 +53,9 @@ public class ImportRecordsTask implements ScheduledTask {
 
 	@Override
 	public void doJob(ScheduledJobRun jobRun) throws Exception {
-		logger.info("Woken up to bulk import records");
+		logger.debug("Woken up to bulk import records");
 		if (!getScheduledImportDir().exists()) {
-			logger.info("Scheduled import directory does not exist. Therefore sleeping until next time");
+			logger.debug("Scheduled import directory does not exist. Therefore sleeping until next time");
 			return;
 		}
 
@@ -65,7 +65,7 @@ public class ImportRecordsTask implements ScheduledTask {
 	}
 
 	private List<File> getImportFilesList() {
-		logger.info("Initialising list of files to bulk import");
+		logger.debug("Initialising list of files to bulk import");
 
 		SimpleDateFormat sdf = new SimpleDateFormat(TSTAMP_FMT);
 		File[] files = getScheduledImportDir().listFiles();
