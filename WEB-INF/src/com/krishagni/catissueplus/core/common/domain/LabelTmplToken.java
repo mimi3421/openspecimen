@@ -1,13 +1,16 @@
 package com.krishagni.catissueplus.core.common.domain;
 
 public interface LabelTmplToken {
-	public static final String EMPTY_VALUE = "##!EMPTY_VALUE!##";
+	String EMPTY_VALUE = "##!EMPTY_VALUE!##";
 
-	public String getName();
+	String getName();
 
-	public String getReplacement(Object object);
+	boolean areArgsValid(String ... args);
 
-	public String getReplacement(Object object, String ... args);
+	String getReplacement(Object object);
 
-	public int validate(Object object, String input, int startIdx, String ... args);
+	String getReplacement(Object object, String ... args);
+
+	int validate(Object object, String input, int startIdx, String ... args);
 }
+

@@ -11,6 +11,27 @@ public abstract class AbstractUniqueIdToken<T> extends AbstractLabelTmplToken {
 	}
 
 	@Override
+	public boolean areArgsValid(String ... args) {
+		if (args == null || args.length == 0) {
+			// no args
+			return true;
+		} else if (args.length > 1) {
+			// more than one args
+			return false;
+		} else if (StringUtils.isBlank(args[0])) {
+			// empty arg
+			return true;
+		} else {
+			// one non-empty arg, it has to be a integer
+			try {
+				return Integer.parseInt(args[0]) > 0;
+			} catch (NumberFormatException e) {
+				return false;
+			}
+		}
+	}
+
+	@Override
 	public String getReplacement(Object object) {
 		return null;
 	}

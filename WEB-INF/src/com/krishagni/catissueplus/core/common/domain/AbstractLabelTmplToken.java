@@ -6,6 +6,11 @@ import java.util.regex.Pattern;
 public abstract class AbstractLabelTmplToken implements LabelTmplToken {
 
 	@Override
+	public boolean areArgsValid(String ... args) {
+		return true;
+	}
+
+	@Override
 	public String getReplacement(Object object, String ... args) {
 		return getReplacement(object);
 	}

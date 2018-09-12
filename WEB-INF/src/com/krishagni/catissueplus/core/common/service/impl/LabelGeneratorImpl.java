@@ -41,7 +41,7 @@ public class LabelGeneratorImpl implements LabelGenerator {
 
 			Pair<String, String[]> tokenArgs = getTokenNameArgs(matcher.group(1));
 			LabelTmplToken token = tokenRegistrar.getToken(tokenArgs.first());
-			if (token == null) {
+			if (token == null || !token.areArgsValid(tokenArgs.second())) {
 				valid = false;
 				break;
 			}			
