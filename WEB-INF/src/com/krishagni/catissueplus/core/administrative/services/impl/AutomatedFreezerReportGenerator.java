@@ -19,9 +19,10 @@ public class AutomatedFreezerReportGenerator implements ScheduledTask {
 	private StorageContainerService storageContainerSvc;
 
 	@Override
-	public void doJob(ScheduledJobRun jobRun) throws Exception {
+	public void doJob(ScheduledJobRun jobRun)
+	throws Exception {
 		try {
-			storageContainerSvc.generateAutoFreezerReport(new RequestEvent<>(new AutoFreezerReportDetail()));
+			storageContainerSvc.generateAutoFreezerReport(new AutoFreezerReportDetail());
 		} catch (Exception e) {
 			logger.error("Error generating automated freezer report", e);
 		}

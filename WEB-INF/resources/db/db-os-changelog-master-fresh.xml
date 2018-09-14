@@ -96,4 +96,6 @@
   <include file="db/5.1/audit.xml"/>
   <include file="db/5.1/permissible-values.xml"/>
   <include file="db/5.1/migration.xml"/>
+
+  <include file="db/5.2/config.xml"/>
 </databaseChangeLog>

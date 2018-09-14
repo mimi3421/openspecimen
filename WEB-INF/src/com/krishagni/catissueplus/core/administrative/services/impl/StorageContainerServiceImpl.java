@@ -15,6 +15,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -771,14 +772,34 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 	// Automated freezer related APIs
 	//
 	@Override
+	public void processStoreLists(Supplier<List<ContainerStoreList>> supplier) {
+		List<Long> failedStoreListIds = new ArrayList<>();
+
+		List<ContainerStoreList> storeLists;
+		while ((storeLists = supplier.get()) != null && !storeLists.isEmpty()) {
+			for (ContainerStoreList storeList : storeLists) {
+				boolean firstAttempt = (storeList.getNoOfRetries() == 0);
+				ContainerStoreList.Status status = storeList.process();
+				if (status == ContainerStoreList.Status.FAILED && firstAttempt) {
+					failedStoreListIds.add(storeList.getId());
+				}
+			}
+		}
+
+		if (!failedStoreListIds.isEmpty()) {
+			generateAutoFreezerReport(new AutoFreezerReportDetail(failedStoreListIds));
+		}
+	}
+
+	@Override
 	@PlusTransactional
-	public ResponseEvent<File> generateAutoFreezerReport(RequestEvent<AutoFreezerReportDetail> req) {
+	public File generateAutoFreezerReport(AutoFreezerReportDetail input) {
 		if (!AuthUtil.isAdmin()) {
-			return ResponseEvent.userError(RbacErrorCode.ADMIN_RIGHTS_REQUIRED);
+			throw OpenSpecimenException.userError(RbacErrorCode.ADMIN_RIGHTS_REQUIRED);
 		}
 
 		try {
-			AutoFreezerReportDetail detail = generateStoreListsFailureReport(req.getPayload());
+			AutoFreezerReportDetail detail = generateStoreListsFailureReport(input);
 			if (!detail.reportForFailedOps()) {
 				Map<ContainerStoreList.Op, Integer> itemsCnt = daoFactory.getContainerStoreListDao()
 					.getStoreListItemsCount(detail.getFromDate(), detail.getToDate());
@@ -787,10 +808,10 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 			}
 
 			sendAutoFreezerReport(detail);
-			return ResponseEvent.response(detail.getReport());
+			return detail.getReport();
 		} catch (Exception e) {
 			logger.error("Error generating automated freezer report", e);
-			return ResponseEvent.serverError(e);
+			throw OpenSpecimenException.serverError(e);
 		}
 	}
 

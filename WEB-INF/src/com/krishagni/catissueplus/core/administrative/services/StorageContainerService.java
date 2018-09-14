@@ -4,7 +4,9 @@ import java.io.File;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
+import com.krishagni.catissueplus.core.administrative.domain.ContainerStoreList;
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainer;
 import com.krishagni.catissueplus.core.administrative.events.AutoFreezerReportDetail;
 import com.krishagni.catissueplus.core.administrative.events.PositionsDetail;
@@ -99,7 +101,9 @@ public interface StorageContainerService {
 	//
 	// Auto freezer APIs
 	//
-	ResponseEvent<File> generateAutoFreezerReport(RequestEvent<AutoFreezerReportDetail> req);
+	void processStoreLists(Supplier<List<ContainerStoreList>> supplier);
+
+	File generateAutoFreezerReport(AutoFreezerReportDetail reportDetail);
 
 	//
 	// Internal APIs

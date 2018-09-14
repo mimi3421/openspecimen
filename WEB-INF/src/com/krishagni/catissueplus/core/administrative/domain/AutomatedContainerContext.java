@@ -2,18 +2,29 @@ package com.krishagni.catissueplus.core.administrative.domain;
 
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import com.krishagni.catissueplus.core.administrative.repository.ContainerStoreListCriteria;
+import com.krishagni.catissueplus.core.administrative.services.StorageContainerService;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
+import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.TransactionalThreadLocals;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
 
 @Configurable
 public class AutomatedContainerContext {
+	private static final Log logger = LogFactory.getLog(AutomatedContainerContext.class);
+
 	private static AutomatedContainerContext instance = new AutomatedContainerContext();
 
 	private ThreadLocal<Map<String, ContainerStoreList>> listsCtx = new ThreadLocal<Map<String, ContainerStoreList>>() {
@@ -22,10 +33,66 @@ public class AutomatedContainerContext {
 			TransactionalThreadLocals.getInstance().register(this);
 			return new HashMap<>();
 		}
+
+		@Override
+		public void remove() {
+			Map<String, ContainerStoreList> storeLists = get();
+			super.remove();
+
+			if (storeLists == null || storeLists.isEmpty()) {
+				return;
+			}
+
+			taskExecutor.execute(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						logger.debug("Executing the queued container store lists");
+
+						setupUserAuthContext();
+						storageContainerSvc.processStoreLists(new Supplier<List<ContainerStoreList>>() {
+							private boolean supplied = false;
+
+							@Override
+							public List<ContainerStoreList> get() {
+								if (supplied) {
+									return null;
+								}
+
+								supplied = true;
+								return getStoreLists();
+							}
+						});
+					} catch (Throwable t) {
+						logger.error("Error executing the container store lists", t);
+					}
+				}
+
+				@PlusTransactional
+				private void setupUserAuthContext() {
+					AuthUtil.setCurrentUser(daoFactory.getUserDao().getSystemUser());
+				}
+
+				@PlusTransactional
+				private List<ContainerStoreList> getStoreLists() {
+					ContainerStoreListCriteria crit = new ContainerStoreListCriteria()
+						.ids(storeLists.values().stream().map(ContainerStoreList::getId).collect(Collectors.toList()));
+					List<ContainerStoreList> dbStoreLists = daoFactory.getContainerStoreListDao().getStoreLists(crit);
+					dbStoreLists.forEach(list -> list.getContainer().getAutoFreezerProvider().getImplClass());
+					return dbStoreLists;
+				}
+			});
+		}
 	};
 
 	@Autowired
 	private DaoFactory daoFactory;
+
+	@Autowired
+	private ThreadPoolTaskExecutor taskExecutor;
+
+	@Autowired
+	private StorageContainerService storageContainerSvc;
 
 	public static AutomatedContainerContext getInstance() {
 		return instance;
