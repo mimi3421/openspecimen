@@ -482,7 +482,8 @@ public class CollectionProtocolRegistrationDaoImpl extends AbstractDao<Collectio
 		}
 
 		DetachedCriteria subQuery = DetachedCriteria.forClass(Site.class)
-			.add(Restrictions.eq("institute.id", siteCp.getInstituteId()));
+			.add(Restrictions.eq("institute.id", siteCp.getInstituteId()))
+			.setProjection(Projections.property("id"));
 		return Subqueries.propertyIn(property, subQuery);
 	}
 	
