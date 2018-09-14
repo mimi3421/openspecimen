@@ -17,7 +17,8 @@ public class EventUniqueIdLabelToken extends AbstractUniqueIdToken<Visit> {
 
 	@Override
 	public Number getUniqueId(Visit visit, String... args) {
-		String key = visit.getRegistration().getPpid() + "_" + visit.getCpEvent().getId();
+		Long id = visit.getCpEvent() != null ? visit.getCpEvent().getId() : -1L;
+		String key = visit.getRegistration().getPpid() + "_" + id;
 		return daoFactory.getUniqueIdGenerator().getUniqueId(name, key);
 	}
 }

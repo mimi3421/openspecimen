@@ -2,6 +2,7 @@ package com.krishagni.catissueplus.core.biospecimen.label.visit;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolEvent;
 import com.krishagni.catissueplus.core.biospecimen.domain.Visit;
 
 public class EventCodeLabelToken extends AbstractVisitLabelToken {
@@ -12,11 +13,7 @@ public class EventCodeLabelToken extends AbstractVisitLabelToken {
 
 	@Override
 	public String getLabel(Visit visit, String... args) {
-		String code = visit.getCpEvent().getCode();
-		if (StringUtils.isBlank(code)) {
-			code = StringUtils.EMPTY;
-		}
-
-		return code;
+		CollectionProtocolEvent cpe = visit.getCpEvent();
+		return cpe != null && StringUtils.isNotBlank(cpe.getCode()) ? cpe.getCode() : StringUtils.EMPTY;
 	}
 }

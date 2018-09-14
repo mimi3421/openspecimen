@@ -1,5 +1,8 @@
 package com.krishagni.catissueplus.core.biospecimen.label.specimen;
 
+import org.apache.commons.lang3.StringUtils;
+
+import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolEvent;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 
 public class EventLabelToken extends AbstractSpecimenLabelToken {
@@ -10,6 +13,7 @@ public class EventLabelToken extends AbstractSpecimenLabelToken {
 
 	@Override
 	public String getLabel(Specimen specimen) {
-		return specimen.getVisit().getCpEvent().getEventLabel();
+		CollectionProtocolEvent cpe = specimen.getVisit().getCpEvent();
+		return cpe != null && StringUtils.isNotBlank(cpe.getEventLabel()) ? cpe.getEventLabel() : StringUtils.EMPTY;
 	}
 }
