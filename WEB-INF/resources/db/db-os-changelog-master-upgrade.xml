@@ -93,6 +93,7 @@
   <include file="db/5.0/audit.xml"/>
 
   <include file="db/5.1/schema.xml"/>
+  <include file="db/5.1/seed-data.xml"/>
   <include file="db/5.1/config.xml"/>
   <include file="db/5.1/audit.xml"/>
   <include file="db/5.1/permissible-values.xml"/>
