@@ -4,7 +4,7 @@ angular.module('openspecimen')
       restrict: 'E',
       replace: true,
       template:
-        '<li class="dropdown">' +
+        '<li dropdown>' +
           '<a class="dropdown-toggle">' +
             '<span class="fa fa-info-circle"></span>' +
           '</a>' +

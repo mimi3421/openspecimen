@@ -258,8 +258,8 @@
     "cpe_list": "Events",
     "cpe_code": "Event Code",
     "cpe_point": "Event Point",
-    "cpe_point_unit": "Event Point Unit",
-    "cpe_point_label": "Event Point Label",
+    "cpe_point_unit": "Unit",
+    "cpe_point_label": "Event Label",
     "deleting_event": "Deleting Event ...",
     "confirm_delete_event": "Collection Protocol Event and its specimen requirements will be deleted. Are you sure you want to proceed?",
 

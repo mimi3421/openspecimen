@@ -143,4 +143,44 @@ angular.module('openspecimen')
         element.on('remove', function() { ddCont.disconnect(); });
       }
     }
+  })
+
+  .directive('dropdownToggle', function() {
+    /* Copied from angular-ui-bootstrap to make the dropdown-toggle work for class as well */
+
+    return {
+      require: '?^dropdown',
+      restrict: 'AC',
+      link: function(scope, element, attrs, dropdownCtrl) {
+        if (!dropdownCtrl) {
+          return;
+        }
+
+        element.addClass('dropdown-toggle');
+
+        dropdownCtrl.toggleElement = element;
+
+        var toggleDropdown = function(event) {
+          event.preventDefault();
+
+          if (!element.hasClass('disabled') && !attrs.disabled) {
+            scope.$apply(function() {
+              dropdownCtrl.toggle();
+            });
+          }
+        };
+
+        element.bind('click', toggleDropdown);
+
+        // WAI-ARIA
+        element.attr({ 'aria-haspopup': true, 'aria-expanded': false });
+        scope.$watch(dropdownCtrl.isOpen, function( isOpen ) {
+          element.attr('aria-expanded', !!isOpen);
+        });
+
+        scope.$on('$destroy', function() {
+          element.unbind('click', toggleDropdown);
+        });
+      }
+    };
   });

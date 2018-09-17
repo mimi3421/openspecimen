@@ -146,6 +146,11 @@
 }
 
 /** Used in CP events **/
+
+.os-cpe-container {
+  height: calc(100% - 10px);
+}
+
 .os-cpe-item {
   position: relative;
 }
