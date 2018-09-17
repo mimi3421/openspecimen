@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+  http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+  <changeSet author="vpawar" id="Instead of every minute, make the store list executor run every night at 11:50 pm">
+    <sql>
+      update
+        os_scheduled_jobs
+      set
+        scheduled_minute = 0,
+        scheduled_hour = 23,
+        repeat_schedule = 'DAILY'
+      where
+        task_impl_fqn = 'com.krishagni.catissueplus.core.administrative.services.impl.ContainerStoreListExecutor'
+    </sql>
+  </changeSet>
+</databaseChangeLog>
