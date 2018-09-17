@@ -206,8 +206,7 @@ public class CollectionProtocolsController {
 	public CollectionProtocolDetail importCpDef(@PathVariable("file") MultipartFile file) 
 	throws IOException {
 		CollectionProtocolDetail cp = new ObjectMapper().readValue(file.getBytes(), CollectionProtocolDetail.class);
-		RequestEvent<CollectionProtocolDetail> req = new RequestEvent<CollectionProtocolDetail>(cp);
-		ResponseEvent<CollectionProtocolDetail> resp = cpSvc.importCollectionProtocol(req);
+		ResponseEvent<CollectionProtocolDetail> resp = cpSvc.importCollectionProtocol(new RequestEvent<>(cp));
 		resp.throwErrorIfUnsuccessful();
 		
 		return resp.getPayload();

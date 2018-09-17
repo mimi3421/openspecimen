@@ -486,9 +486,11 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 			
 			ResponseEvent<CollectionProtocolDetail> resp = createCollectionProtocol(req);
 			resp.throwErrorIfUnsuccessful();
-						
-			importConsents(resp.getPayload().getId(), cpDetail.getConsents());
+
+			Long cpId = resp.getPayload().getId();
+			importConsents(cpId, cpDetail.getConsents());
 			importEvents(cpDetail.getTitle(), cpDetail.getEvents());
+			importWorkflows(cpId, cpDetail.getWorkflows());
 			
 			return resp;
 		} catch (OpenSpecimenException ose) {
@@ -1250,10 +1252,11 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 
 		daoFactory.getCollectionProtocolDao().saveOrUpdate(cp, true);
 		cp.addOrUpdateExtension();
-		
+
 		//Assign default roles to PI and Coordinators
 		addOrRemovePiCoordinatorRoles(cp, "CREATE", null, cp.getPrincipalInvestigator(), cp.getCoordinators(), null);
 		fixSopDocumentName(cp);
+		copyWorkflows(existing, cp);
 		return cp;
 	}
 
@@ -1383,9 +1386,8 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 			addOp.setConsentTier(consent);
 			addOp.setCpId(cpId);
 			addOp.setOp(OP.ADD);
-			
-			RequestEvent<ConsentTierOp> req = new RequestEvent<ConsentTierOp>(addOp);					
-			ResponseEvent<ConsentTierDetail> resp = updateConsentTier(req);
+
+			ResponseEvent<ConsentTierDetail> resp = updateConsentTier(new RequestEvent<>(addOp));
 			resp.throwErrorIfUnsuccessful();
 		}
 	}
@@ -1397,8 +1399,7 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 		
 		for (CollectionProtocolEventDetail event : events) {
 			event.setCollectionProtocol(cpTitle);
-			RequestEvent<CollectionProtocolEventDetail> req = new RequestEvent<CollectionProtocolEventDetail>(event);
-			ResponseEvent<CollectionProtocolEventDetail> resp = addEvent(req);
+			ResponseEvent<CollectionProtocolEventDetail> resp = addEvent(new RequestEvent<>(event));
 			resp.throwErrorIfUnsuccessful();
 			
 			Long eventId = resp.getPayload().getId();
@@ -1439,6 +1440,15 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 		}
 	}
 
+	private void importWorkflows(Long cpId, Map<String, WorkflowDetail> workflows) {
+		CpWorkflowCfgDetail input = new CpWorkflowCfgDetail();
+		input.setCpId(cpId);
+		input.setWorkflows(workflows);
+
+		ResponseEvent<CpWorkflowCfgDetail> resp = saveWorkflows(new RequestEvent<>(input));
+		resp.throwErrorIfUnsuccessful();
+	}
+
 	private List<SpecimenRequirement> createAliquots(AliquotSpecimensRequirement requirement) {
 		List<SpecimenRequirement> aliquots = srFactory.createAliquots(requirement);
 		SpecimenRequirement aliquot = aliquots.iterator().next();
@@ -1452,6 +1462,20 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 		parent.addChildRequirements(aliquots);
 		daoFactory.getSpecimenRequirementDao().saveOrUpdate(parent, true);
 		return aliquots;
+	}
+
+	private void copyWorkflows(CollectionProtocol srcCp, CollectionProtocol dstCp) {
+		if (srcCp == null) {
+			return;
+		}
+
+		CpWorkflowConfig srcWfCfg = daoFactory.getCollectionProtocolDao().getCpWorkflows(srcCp.getId());
+		if (srcWfCfg != null) {
+			CpWorkflowConfig newConfig = new CpWorkflowConfig();
+			newConfig.setCp(dstCp);
+			newConfig.setWorkflows(srcWfCfg.getWorkflows());
+			daoFactory.getCollectionProtocolDao().saveCpWorkflows(newConfig);
+		}
 	}
 
 	private void addOrRemovePiCoordinatorRoles(CollectionProtocol cp, String cpOp, User oldPi, User newPi, Collection<User> newCoord, Collection<User> removedCoord) {

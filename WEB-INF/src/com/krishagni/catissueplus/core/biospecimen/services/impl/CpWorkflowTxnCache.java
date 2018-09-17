@@ -29,7 +29,7 @@ public class CpWorkflowTxnCache {
 		return instance;
 	}
 
-	public CpWorkflowConfig.Workflow getWorkflow(Long cpId, String name) {
+	public CpWorkflowConfig getWorkflows(Long cpId) {
 		CpWorkflowConfig config = cpWorkflows.get().get(cpId);
 		if (config == null) {
 			config = daoFactory.getCollectionProtocolDao().getCpWorkflows(cpId);
@@ -39,6 +39,11 @@ public class CpWorkflowTxnCache {
 			}
 		}
 
+		return config;
+	}
+
+	public CpWorkflowConfig.Workflow getWorkflow(Long cpId, String name) {
+		CpWorkflowConfig config = getWorkflows(cpId);
 		return config.getWorkflows().get(name);
 	}
 }

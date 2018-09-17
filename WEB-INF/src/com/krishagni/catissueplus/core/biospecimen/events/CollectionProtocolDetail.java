@@ -2,6 +2,7 @@ package com.krishagni.catissueplus.core.biospecimen.events;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
@@ -9,6 +10,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.krishagni.catissueplus.core.administrative.events.DistributionProtocolSummary;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
+import com.krishagni.catissueplus.core.biospecimen.domain.CpWorkflowConfig;
+import com.krishagni.catissueplus.core.biospecimen.services.impl.CpWorkflowTxnCache;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
 import com.krishagni.catissueplus.core.de.events.ExtensionDetail;
 
@@ -74,15 +77,17 @@ public class CollectionProtocolDetail extends CollectionProtocolSummary {
 	private Long catalogId;
 
 	private String activityStatus;
-	
+
+	private ExtensionDetail extensionDetail;
+
 	//
 	// mostly used for export and import of CP
 	// 
 	private List<ConsentTierDetail> consents;
 	
 	private List<CollectionProtocolEventDetail> events;
-	
-	private ExtensionDetail extensionDetail;
+
+	private Map<String, CpWorkflowCfgDetail.WorkflowDetail> workflows;
 
 	public List<UserSummary> getCoordinators() {
 		return coordinators;
@@ -324,6 +329,14 @@ public class CollectionProtocolDetail extends CollectionProtocolSummary {
 		this.activityStatus = activityStatus;
 	}
 
+	public ExtensionDetail getExtensionDetail() {
+		return extensionDetail;
+	}
+
+	public void setExtensionDetail(ExtensionDetail extensionDetail) {
+		this.extensionDetail = extensionDetail;
+	}
+
 	public List<ConsentTierDetail> getConsents() {
 		return consents;
 	}
@@ -340,12 +353,12 @@ public class CollectionProtocolDetail extends CollectionProtocolSummary {
 		this.events = events;
 	}
 
-	public ExtensionDetail getExtensionDetail() {
-		return extensionDetail;
+	public Map<String, CpWorkflowCfgDetail.WorkflowDetail> getWorkflows() {
+		return workflows;
 	}
 
-	public void setExtensionDetail(ExtensionDetail extensionDetail) {
-		this.extensionDetail = extensionDetail;
+	public void setWorkflows(Map<String, CpWorkflowCfgDetail.WorkflowDetail> workflows) {
+		this.workflows = workflows;
 	}
 
 	public static CollectionProtocolDetail from(CollectionProtocol cp) {
@@ -392,6 +405,11 @@ public class CollectionProtocolDetail extends CollectionProtocolSummary {
 		if (fullObject) {
 			result.setConsents(ConsentTierDetail.from(cp.getConsentTier()));
 			result.setEvents(CollectionProtocolEventDetail.from(cp.getOrderedCpeList(), true));
+
+			CpWorkflowConfig config = CpWorkflowTxnCache.getInstance().getWorkflows(cp.getId());
+			if (config.getCp() != null) {
+				result.setWorkflows(CpWorkflowCfgDetail.from(config).getWorkflows());
+			}
 		}
 		
 		return result;
