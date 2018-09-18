@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,6 +29,7 @@ import org.hibernate.criterion.Subqueries;
 import org.hibernate.sql.JoinType;
 
 import com.krishagni.catissueplus.core.administrative.domain.Site;
+import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
 import com.krishagni.catissueplus.core.biospecimen.events.CprSummary;
 import com.krishagni.catissueplus.core.biospecimen.events.ParticipantSummary;
@@ -55,8 +57,9 @@ public class CollectionProtocolRegistrationDaoImpl extends AbstractDao<Collectio
 		
 		List<CprSummary> cprs = new ArrayList<>();
 		Map<Long, CprSummary> cprMap = new HashMap<>();
-		Set<Long> phiCps = crit.phiCps();
+
 		boolean allCpsAccess = CollectionUtils.isEmpty(crit.siteCps());
+		Set<Long> phiCps = getPhiCps(crit.phiSiteCps());
 		for (Object[] row : (List<Object[]>)query.list()) {
 			CprSummary cpr = getCprSummary(row, allCpsAccess, phiCps);
 			if (crit.includeStat()) {
@@ -382,6 +385,39 @@ public class CollectionProtocolRegistrationDaoImpl extends AbstractDao<Collectio
 		}
 
 		query.add(cpSitesCond);
+	}
+
+	@SuppressWarnings("unchecked")
+	private Set<Long> getPhiCps(Collection<SiteCpPair> siteCps) {
+		Set<Long> result = new HashSet<>();
+		if (CollectionUtils.isEmpty(siteCps)) {
+			return result;
+		}
+
+		Disjunction criteria = Restrictions.disjunction();
+		for (SiteCpPair siteCp : siteCps) {
+			if (siteCp.getCpId() != null) {
+				result.add(siteCp.getCpId());
+			} else if (siteCp.getSiteId() != null) {
+				criteria.add(Restrictions.eq("site.id", siteCp.getSiteId()));
+			} else if (siteCp.getInstituteId() != null) {
+				criteria.add(Restrictions.eq("institute.id", siteCp.getInstituteId()));
+			}
+		}
+
+		if (!criteria.conditions().iterator().hasNext()) {
+			return result;
+		}
+
+		List<Long> cpIds = (List<Long>) getCurrentSession().createCriteria(CollectionProtocol.class, "cp")
+			.createAlias("cp.sites", "cpSite")
+			.createAlias("cpSite.site", "site")
+			.createAlias("site.institute", "institute")
+			.setProjection(Projections.distinct(Projections.property("cp.id")))
+			.add(criteria)
+			.list();
+		result.addAll(cpIds);
+		return result;
 	}
 
 	private Projection getCprSummaryFields(CprListCriteria cprCrit) {
