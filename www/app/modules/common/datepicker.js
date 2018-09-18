@@ -1,62 +1,48 @@
 angular.module('openspecimen')
   .directive('datepickerPopup', function ($filter, $timeout, dateParser) {
     function link(scope, element, attrs, ngModel) {
-      function parseDate(viewValue) {
-        if (angular.isNumber(viewValue)) {
-          viewValue = new Date(viewValue);
-        } else if (angular.isString(viewValue) && !isNaN(parseInt(viewValue))) {
-          viewValue = new Date(parseInt(viewValue));
+      function validator(modelValue, viewValue) {
+        var value = modelValue || viewValue;
+
+        if (!attrs.ngRequired && !value) {
+          return true;
         }
 
-        if (!viewValue) {
-          ngModel.$setValidity('date', true);
-          return null;
-        } else if (angular.isDate(viewValue) && !isNaN(viewValue)) {
-          ngModel.$setValidity('date', true);
-          return viewValue;
-        } else if (angular.isString(viewValue)) {
-          var date = new Date(viewValue);
-          if (isNaN(date)) {
-            ngModel.$setValidity('date', false);
-            return undefined;
-          } else {
-            ngModel.$setValidity('date', true);
-            return date;
-          }
+        if (angular.isNumber(value)) {
+          value = new Date(value);
+        } else if (angular.isString(value) && !isNaN(parseInt(value))) {
+          value = new Date(parseInt(value));
+        }
+
+        if (!value) {
+          return true;
+        } else if (angular.isDate(value) && !isNaN(value)) {
+          return true;
+        } else if (angular.isString(value)) {
+          var date = new Date(value);
+          return !isNaN(date);
         } else {
-          ngModel.$setValidity('date', false);
-          return undefined;
+          return false;
         }
       }
 
-      scope.$watch(attrs.ngModel, function(val) {
-        $timeout(function() { parseDate(val); });
-      });
-
-      ngModel.$formatters.unshift(function (value) {
-        if (!value) {
-          return "";
-        }
-         
-        if (!isNaN(parseInt(value))) {
-          value = parseInt(value);
-        }
-        
-        return new Date(value).toISOString();
-      });
-
-
       // View -> Model
       $timeout(function() {
-        ngModel.$parsers.unshift(function(viewValue) {
-          if (viewValue == '' || viewValue == undefined || viewValue == null) {
-            return viewValue;
-          }
+        ngModel.$parsers.unshift(
+          function(viewValue) {
+            if (viewValue == '' || viewValue == undefined || viewValue == null) {
+              return viewValue;
+            }
 
-          var result = dateParser.parse(viewValue, attrs.datepickerPopup);
-          return !!result ? viewValue : 420;
-        });
+            var result = dateParser.parse(viewValue, attrs.datepickerPopup);
+            return !!result ? viewValue : 420;
+          }
+        );
+
+        ngModel.$validators.date = validator;
       });
+
+
 
       ngModel.$parsers.push(function(val) {
         try {
