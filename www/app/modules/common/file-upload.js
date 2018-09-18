@@ -67,7 +67,9 @@ angular.module('openspecimen')
           element.find('input').fileupload({
             dataType: 'json',
             beforeSend: function(xhr) {
-              xhr.setRequestHeader('X-OS-API-TOKEN', $http.defaults.headers.common['X-OS-API-TOKEN']);
+              if ($http.defaults.headers.common['X-OS-API-TOKEN']) {
+                xhr.setRequestHeader('X-OS-API-TOKEN', $http.defaults.headers.common['X-OS-API-TOKEN']);
+              }
             },
             add: function (e, data) {
               element.find('span').text(data.files[0].name);

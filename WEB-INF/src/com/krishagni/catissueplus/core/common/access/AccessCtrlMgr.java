@@ -460,23 +460,23 @@ public class AccessCtrlMgr {
 		}
 
 		Long userId = AuthUtil.getCurrentUser().getId();
-		String resource = Resource.PARTICIPANT.getName();
-		String[] ops = {Operation.READ.getName()};
-		List<SubjectAccess> accessList = daoFactory.getSubjectDao().getAccessList(userId, cpId, resource, ops);
-		if (accessList.isEmpty()) {
-			resource = Resource.PARTICIPANT_DEID.getName();
-			accessList = daoFactory.getSubjectDao().getAccessList(userId, cpId, resource, ops);
-			result.phiAccess = false;
-		}
-
 		Long instituteId = AuthUtil.getCurrentUserInstitute().getId();
-		for (SubjectAccess access : accessList) {
+		String[] ops = {Operation.READ.getName()};
+
+		String resource = Resource.PARTICIPANT.getName();
+		List<SubjectAccess> phiAccessList = daoFactory.getSubjectDao().getAccessList(userId, cpId, resource, ops);
+		result.phiAccess = !phiAccessList.isEmpty();
+		for (SubjectAccess access : phiAccessList) {
 			Long siteId = access.getSite() != null ? access.getSite().getId() : null;
 			result.siteCps.add(SiteCpPair.make(instituteId, siteId, cpId));
+			result.phiSiteCps.add(SiteCpPair.make(instituteId, siteId, cpId));
 		}
 
-		if (result.phiAccess) {
-			result.phiSiteCps = result.siteCps;
+		resource = Resource.PARTICIPANT_DEID.getName();
+		List<SubjectAccess> deidAccessList = daoFactory.getSubjectDao().getAccessList(userId, cpId, resource, ops);
+		for (SubjectAccess access : deidAccessList) {
+			Long siteId = access.getSite() != null ? access.getSite().getId() : null;
+			result.siteCps.add(SiteCpPair.make(instituteId, siteId, cpId));
 		}
 
 		return result;
