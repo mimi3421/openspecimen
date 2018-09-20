@@ -224,7 +224,7 @@ public class Visit extends BaseExtensionEntity {
 	}
 	
 	public Set<Specimen> getTopLevelSpecimens() {
-		return Utility.nullSafeStream(getSpecimens()).filter(Specimen::isPrimary).collect(Collectors.toSet());
+		return Utility.nullSafeStream(getSpecimens()).filter(s -> s.isPrimary() && !s.isPoolSpecimen()).collect(Collectors.toSet());
 	}
 
 	public Collection<Specimen> getOrderedTopLevelSpecimens() {
