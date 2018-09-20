@@ -284,19 +284,26 @@ public class SiteServiceImpl implements SiteService, ObjectAccessor, Initializin
 		ensureUniqueConstraint(site, existing, ose);
 		ose.checkAndThrow();
 
-		Collection<User> addedCoordinators =
-			CollectionUtils.subtract(site.getCoordinators(), existing.getCoordinators());
-		Collection<User> removedCoordinators =
-			CollectionUtils.subtract(existing.getCoordinators(), site.getCoordinators());
+		Set<User> addedCoordinators   = Utility.subtract(site.getCoordinators(), existing.getCoordinators());
+		Set<User> removedCoordinators = Utility.subtract(existing.getCoordinators(), site.getCoordinators());
+		if (Status.isClosedOrDisabledStatus(site.getActivityStatus())) {
+			removedCoordinators.addAll(existing.getCoordinators());
+			addedCoordinators = Collections.emptySet();
+		}
+
+		//
+		// OPSMN-4614: To prevent the mismatch between the site institute and that of the removed coordinators,
+		// the roles of the removed coordinators are updated before doing site update
+		//
+		if (!removedCoordinators.isEmpty()) {
+			removeDefaultCoordinatorRoles(existing, removedCoordinators, "UPDATE");
+		}
 
 		existing.update(site);
 		daoFactory.getSiteDao().saveOrUpdate(existing);
 		existing.addOrUpdateExtension();
 
-		if (Status.isClosedOrDisabledStatus(existing.getActivityStatus())) {
-			removeDefaultCoordinatorRoles(existing, existing.getCoordinators(), "UPDATE");
-		} else {
-			removeDefaultCoordinatorRoles(existing, removedCoordinators, "UPDATE");
+		if (!addedCoordinators.isEmpty()) {
 			addDefaultCoordinatorRoles(existing, addedCoordinators, "UPDATE");
 		}
 

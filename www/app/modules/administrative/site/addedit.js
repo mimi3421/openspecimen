@@ -15,7 +15,6 @@ angular.module('os.administrative.site.addedit', ['os.administrative.models'])
 
 
     $scope.onInstituteSelect = function() {
-      $scope.site.coordinators = undefined;
       $scope.coordFilterOpts = {institute: $scope.site.instituteName};
     }
 

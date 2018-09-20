@@ -160,6 +160,13 @@ public class SiteFactoryImpl implements SiteFactory {
 		if (detail.isAttrModified("coordinators")) {
 			setCoordinators(detail, site, ose);
 		} else {
+			Institute institute = site.getInstitute();
+			if (institute != null) {
+				existing.getCoordinators().stream()
+					.filter(user -> !user.getInstitute().equals(institute))
+					.forEach(user -> ose.addError(SiteErrorCode.INVALID_COORDINATOR, user.formattedName(), institute.getName()));
+			}
+
 			site.setCoordinators(existing.getCoordinators());
 		}
 	}
