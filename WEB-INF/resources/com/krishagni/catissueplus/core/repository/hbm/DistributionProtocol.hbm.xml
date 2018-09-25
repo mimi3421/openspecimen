@@ -68,7 +68,7 @@
     <set name="distributionContainers" table="OS_STOR_CONTAINER_DPS">
       <key column="DP_ID"/>
       <many-to-many class="com.krishagni.catissueplus.core.administrative.domain.StorageContainer" column="STORAGE_CONTAINER_ID">
-        <filter name="activeEntity"/>
+        <filter name="activeEntity" condition="activity_status != 'Disabled'"/>
       </many-to-many>
     </set>
 

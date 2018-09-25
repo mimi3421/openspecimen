@@ -6,15 +6,15 @@
   xmlns:security="http://www.springframework.org/schema/security"
   xmlns:task="http://www.springframework.org/schema/task"
   xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+    http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
     http://www.springframework.org/schema/aop 
-    http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+    http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
     http://www.springframework.org/schema/security 
-    http://www.springframework.org/schema/security/spring-security-3.2.xsd
+    http://www.springframework.org/schema/security/spring-security-4.2.xsd
     http://www.springframework.org/schema/task
-    http://www.springframework.org/schema/task/spring-task-3.2.xsd
+    http://www.springframework.org/schema/task/spring-task-4.3.xsd
     http://www.springframework.org/schema/context 
-    http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+    http://www.springframework.org/schema/context/spring-context-4.3.xsd">
 
   <bean id="placeholderConfig" class="com.krishagni.catissueplus.core.init.AppPropertyPlaceholderConfigurer"/>
 
@@ -34,7 +34,7 @@
     <property name="changeLog" value="classpath:db/db-os-changelog-master-${datasource.type}.xml" />
   </bean>
 
-  <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+  <bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
     <property name="dataSource" ref="dataSource" />
     <property name="mappingLocations">
       <list>
@@ -53,7 +53,7 @@
     </property>
   </bean>
 
-  <bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+  <bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="entityInterceptor">
       <bean class="com.krishagni.catissueplus.core.common.TransactionAwareInterceptor"/>

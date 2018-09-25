@@ -19,9 +19,7 @@
     
     <property name="printMode" column="PRINT_MODE">
       <type name="org.hibernate.type.EnumType">
-        <param name="enumClass">
-          com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol$SpecimenLabelAutoPrintMode
-        </param>
+        <param name="enumClass">com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol$SpecimenLabelAutoPrintMode</param>
         <param name="type">12</param>
       </type>
     </property>

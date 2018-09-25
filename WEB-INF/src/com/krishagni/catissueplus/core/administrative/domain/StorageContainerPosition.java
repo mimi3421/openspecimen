@@ -131,7 +131,7 @@ public class StorageContainerPosition implements Comparable<StorageContainerPosi
 		this.blocked = blocked;
 	}
 
-	public boolean isBlocked() {
+	public Boolean isBlocked() {
 		return blocked != null && blocked;
 	}
 

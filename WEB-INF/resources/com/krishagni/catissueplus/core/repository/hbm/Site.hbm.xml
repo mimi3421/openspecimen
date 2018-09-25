@@ -46,14 +46,14 @@
     <set name="collectionProtocols" table="CATISSUE_SITE_CP" inverse="true" cascade="none" sort="unsorted">
       <key column="SITE_ID"/>
       <many-to-many class="com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol" column="COLLECTION_PROTOCOL_ID">
-        <filter name="activeEntity"/>
+        <filter name="activeEntity" condition="activity_status != 'Disabled'"/>
       </many-to-many>
     </set>
 
     <set name="participants" table="CATISSUE_PART_MEDICAL_ID" inverse="false" cascade="none" sort="unsorted">
       <key column="SITE_ID"/>
       <many-to-many class="com.krishagni.catissueplus.core.biospecimen.domain.Participant" column="PARTICIPANT_ID">
-        <filter name="activeEntity"/>
+        <filter name="activeEntity" condition="activity_status != 'Disabled'"/>
       </many-to-many>
     </set>
 

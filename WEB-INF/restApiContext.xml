@@ -12,7 +12,7 @@
 
   <mvc:annotation-driven>
     <mvc:message-converters>
-      <bean class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter"/>
+      <bean class="com.krishagni.catissueplus.core.common.CustomHttpMessageConverter"/>
     </mvc:message-converters>
   </mvc:annotation-driven>
   

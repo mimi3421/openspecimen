@@ -2,6 +2,7 @@
 package com.krishagni.catissueplus.core.administrative.repository.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -228,12 +229,8 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 		return criteria;
 	}
 
-	private String[] excludeUsersList() {
-		return new String[] {
-			User.SYS_USER,
-			"public_catalog_user",
-			"public_dashboard_user"
-		};
+	private List<String> excludeUsersList() {
+		return Arrays.asList(User.SYS_USER, "public_catalog_user", "public_dashboard_user");
 	}
 
 	@SuppressWarnings("unchecked")

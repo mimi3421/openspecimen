@@ -21,9 +21,7 @@
 
     <property name="eventPointUnit" column="EVENT_POINT_UNIT">
       <type name="org.hibernate.type.EnumType">
-        <param name="enumClass">
-          com.krishagni.catissueplus.core.common.domain.IntervalUnit
-        </param>
+        <param name="enumClass">com.krishagni.catissueplus.core.common.domain.IntervalUnit</param>
         <param name="type">12</param>
       </type>
     </property>
@@ -48,9 +46,7 @@
 
     <property name="visitNamePrintMode" column="VISIT_NAME_PRINT_MODE">
       <type name="org.hibernate.type.EnumType">
-        <param name="enumClass">
-          com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol$VisitNamePrintMode
-        </param>
+        <param name="enumClass">com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol$VisitNamePrintMode</param>
         <param name="type">12</param>
       </type>
     </property>

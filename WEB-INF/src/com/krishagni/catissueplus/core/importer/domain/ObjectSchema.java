@@ -2,7 +2,6 @@ package com.krishagni.catissueplus.core.importer.domain;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -10,6 +9,8 @@ import java.util.stream.Collectors;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProvider;
 import com.thoughtworks.xstream.io.xml.Dom4JDriver;
+import com.thoughtworks.xstream.security.AnyTypePermission;
+import com.thoughtworks.xstream.security.NoTypePermission;
 
 public class ObjectSchema {	
 	private String name;
@@ -61,7 +62,9 @@ public class ObjectSchema {
 	
 	private static XStream getSchemaParser() {
 		XStream xstream = new XStream(new PureJavaReflectionProvider(), new Dom4JDriver());
-		
+		xstream.addPermission(NoTypePermission.NONE);
+		xstream.addPermission(AnyTypePermission.ANY);
+
 		xstream.alias("object-schema", ObjectSchema.class);
 		
 		xstream.alias("record", Record.class);

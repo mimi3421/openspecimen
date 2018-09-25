@@ -71,18 +71,14 @@
 
     <property name="visitCollectionMode" column="VISIT_COLLECTION_MODE">
       <type name="org.hibernate.type.EnumType">
-        <param name="enumClass">
-          com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol$VisitCollectionMode
-        </param>
+        <param name="enumClass">com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol$VisitCollectionMode</param>
         <param name="type">12</param>
       </type>
     </property>
 
     <property name="visitNamePrintMode" column="VISIT_NAME_PRINT_MODE">
       <type name="org.hibernate.type.EnumType">
-        <param name="enumClass">
-          com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol$VisitNamePrintMode
-        </param>
+        <param name="enumClass">com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol$VisitNamePrintMode</param>
         <param name="type">12</param>
       </type>
     </property>
@@ -91,9 +87,7 @@
 
     <property name="spmnLabelPrePrintMode" column="SPMN_LABEL_PRE_PRINT_MODE">
       <type name="org.hibernate.type.EnumType">
-        <param name="enumClass">
-          com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol$SpecimenLabelPrePrintMode
-        </param>
+        <param name="enumClass">com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol$SpecimenLabelPrePrintMode</param>
         <param name="type">12</param>
       </type>
     </property>
@@ -138,14 +132,14 @@
     <set name="storageContainers" table="OS_STOR_CONTAINER_CPS" inverse="false">
       <key column="CP_ID"/>
       <many-to-many class="com.krishagni.catissueplus.core.administrative.domain.StorageContainer" column="STORAGE_CONTAINER_ID">
-        <filter name="activeEntity"/>
+        <filter name="activeEntity" condition="activity_status != 'Disabled'"/>
       </many-to-many>
     </set>
 
     <set name="distributionProtocols" table="OS_CP_ALLOWED_DPS">
       <key column="CP_ID"/>
       <many-to-many class="com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol" column="DP_ID">
-        <filter name="activeEntity"/>
+        <filter name="activeEntity" condition="activity_status != 'Disabled'"/>
       </many-to-many>
     </set>
     

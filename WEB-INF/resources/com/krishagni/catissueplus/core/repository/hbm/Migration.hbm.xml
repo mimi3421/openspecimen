@@ -17,34 +17,22 @@
 
     <property name="versionFrom" column="VERSION_FROM" not-null="true">
       <type name="org.hibernate.type.EnumType">
-        <param name="enumClass">
-          com.krishagni.openspecimen.core.migration.domain.Migration$Version
-        </param>
-        <param name="type">
-          12
-        </param>
+        <param name="enumClass">com.krishagni.openspecimen.core.migration.domain.Migration$Version</param>
+        <param name="type">12</param>
       </type>
     </property>
 
     <property name="versionTo" column="VERSION_TO" not-null="true">
       <type name="org.hibernate.type.EnumType">
-        <param name="enumClass">
-          com.krishagni.openspecimen.core.migration.domain.Migration$Version
-        </param>
-        <param name="type">
-          12
-        </param>
+        <param name="enumClass">com.krishagni.openspecimen.core.migration.domain.Migration$Version</param>
+        <param name="type">12</param>
       </type>
     </property>
 	
     <property name="status" column="STATUS" not-null="true">
       <type name="org.hibernate.type.EnumType">
-        <param name="enumClass">
-          com.krishagni.openspecimen.core.migration.domain.Migration$Status
-        </param>
-        <param name="type">
-          12
-        </param>
+        <param name="enumClass">com.krishagni.openspecimen.core.migration.domain.Migration$Status</param>
+        <param name="type">12</param>
       </type>
     </property>
 
@@ -58,7 +46,6 @@
       where 
         mg.name = :name and mg.versionFrom =:versionFrom and mg.versionTo =:versionTo
     </query>
-
   </class>
 </hibernate-mapping>
         

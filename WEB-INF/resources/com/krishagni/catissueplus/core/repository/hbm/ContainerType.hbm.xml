@@ -24,18 +24,14 @@
 
     <property name="positionLabelingMode" column="POS_LABELING_MODE" not-null="true">
       <type name="org.hibernate.type.EnumType">
-        <param name="enumClass">
-          com.krishagni.catissueplus.core.administrative.domain.StorageContainer$PositionLabelingMode
-        </param>
+        <param name="enumClass">com.krishagni.catissueplus.core.administrative.domain.StorageContainer$PositionLabelingMode</param>
         <param name="type">12</param>
       </type>
     </property>
 
     <property name="positionAssignment" column="POS_ASSIGNMENT" not-null="true">
       <type name="org.hibernate.type.EnumType">
-        <param name="enumClass">
-          com.krishagni.catissueplus.core.administrative.domain.StorageContainer$PositionAssignment
-        </param>
+        <param name="enumClass">com.krishagni.catissueplus.core.administrative.domain.StorageContainer$PositionAssignment</param>
         <param name="type">12</param>
       </type>
     </property>

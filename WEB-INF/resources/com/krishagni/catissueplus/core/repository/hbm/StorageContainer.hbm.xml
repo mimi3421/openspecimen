@@ -17,9 +17,7 @@
 
     <property name="usedFor" column="USED_FOR">
       <type name="org.hibernate.type.EnumType">
-        <param name="enumClass">
-          com.krishagni.catissueplus.core.administrative.domain.StorageContainer$UsageMode
-        </param>
+        <param name="enumClass">com.krishagni.catissueplus.core.administrative.domain.StorageContainer$UsageMode</param>
         <param name="type">12</param>
       </type>
     </property>
@@ -32,18 +30,14 @@
 
     <property name="positionLabelingMode" column="POS_LABELING_MODE" not-null="true">
       <type name="org.hibernate.type.EnumType">
-        <param name="enumClass">
-          com.krishagni.catissueplus.core.administrative.domain.StorageContainer$PositionLabelingMode
-        </param>
+        <param name="enumClass">com.krishagni.catissueplus.core.administrative.domain.StorageContainer$PositionLabelingMode</param>
         <param name="type">12</param>
       </type>
     </property>
 
     <property name="positionAssignment" column="POS_ASSIGNMENT" not-null="true">
       <type name="org.hibernate.type.EnumType">
-        <param name="enumClass">
-          com.krishagni.catissueplus.core.administrative.domain.StorageContainer$PositionAssignment
-        </param>
+        <param name="enumClass">com.krishagni.catissueplus.core.administrative.domain.StorageContainer$PositionAssignment</param>
         <param name="type">12</param>
       </type>
     </property>
@@ -66,9 +60,7 @@
 
     <property name="cellDisplayProp" column="CELL_DISPLAY_PROP">
       <type name="org.hibernate.type.EnumType">
-        <param name="enumClass">
-          com.krishagni.catissueplus.core.administrative.domain.StorageContainer$CellDisplayProp
-        </param>
+        <param name="enumClass">com.krishagni.catissueplus.core.administrative.domain.StorageContainer$CellDisplayProp</param>
         <param name="type">12</param>
       </type>
     </property>
@@ -90,14 +82,14 @@
     <set name="ancestorContainers" table="OS_CONTAINERS_HIERARCHY">
       <key column="DESCENDENT_ID"/>
       <many-to-many class="com.krishagni.catissueplus.core.administrative.domain.StorageContainer" column="ANCESTOR_ID">
-        <filter name="activeEntity"/>
+        <filter name="activeEntity" condition="activity_status != 'Disabled'"/>
       </many-to-many>
     </set>
 
     <set name="descendentContainers" table="OS_CONTAINERS_HIERARCHY">
       <key column="ANCESTOR_ID"/>
       <many-to-many class="com.krishagni.catissueplus.core.administrative.domain.StorageContainer" column="DESCENDENT_ID">
-        <filter name="activeEntity"/>
+        <filter name="activeEntity" condition="activity_status != 'Disabled'"/>
       </many-to-many>
     </set>
 
