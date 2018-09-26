@@ -18,10 +18,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.HttpHeaders;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.filter.GenericFilterBean;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.audit.domain.UserApiCallLog;
 import com.krishagni.catissueplus.core.audit.services.AuditService;
@@ -33,6 +36,7 @@ import com.krishagni.catissueplus.core.auth.services.UserAuthenticationService;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
+import com.krishagni.catissueplus.rest.RestErrorController;
 
 public class AuthTokenFilter extends GenericFilterBean {
 	private static final String OS_CLIENT_HDR = "X-OS-API-CLIENT";
@@ -43,7 +47,7 @@ public class AuthTokenFilter extends GenericFilterBean {
 	
 	private UserAuthenticationService authService;
 	
-	private Map<String, List<String>> excludeUrls = new HashMap<String, List<String>>();
+	private Map<String, List<String>> excludeUrls = new HashMap<>();
 	
 	private AuditService auditService;
 	
@@ -64,12 +68,7 @@ public class AuthTokenFilter extends GenericFilterBean {
 	}
 
 	public void addExcludeUrl(String method, String resourceUrl) {
-		List<String> urls = excludeUrls.get(method);
-		if (urls == null) {
-			urls = new ArrayList<String>();
-			excludeUrls.put(method, urls);
-		}
-
+		List<String> urls = excludeUrls.computeIfAbsent(method, (key) -> new ArrayList<>());
 		if (urls.indexOf(resourceUrl) == -1) {
 			urls.add(resourceUrl);
 		}
@@ -79,12 +78,21 @@ public class AuthTokenFilter extends GenericFilterBean {
 		this.auditService = auditService;
 	}
 
-	public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) 
-	throws IOException, ServletException {
+	public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain)
+	throws IOException {
 		if (!(req instanceof HttpServletRequest)) {
 			throw new IllegalAccessError("Unknown protocol request");
 		}
-		
+
+		try {
+			doFilter0(req, resp, chain);
+		} catch (Exception e) {
+			sendError((HttpServletRequest) req, (HttpServletResponse) resp, e);
+		}
+	}
+
+	private void doFilter0(ServletRequest req, ServletResponse resp, FilterChain chain)
+	throws IOException, ServletException {
 		HttpServletRequest httpReq = (HttpServletRequest)req;
 		HttpServletResponse httpResp = (HttpServletResponse)resp;
 		
@@ -99,7 +107,7 @@ public class AuthTokenFilter extends GenericFilterBean {
 		httpResp.setDateHeader("Expires", 0);
 
 		if (httpReq.getMethod().equalsIgnoreCase("options")) {
-			httpResp.setStatus(HttpServletResponse.SC_OK);	
+			httpResp.setStatus(HttpServletResponse.SC_OK);
 			return;
 		}
 
@@ -142,7 +150,7 @@ public class AuthTokenFilter extends GenericFilterBean {
 		if (isRecordableApi(httpReq)) {
 			UserApiCallLog userAuditLog = new UserApiCallLog();
 			userAuditLog.setUser(userDetails);
-			userAuditLog.setUrl(httpReq.getRequestURI().toString());
+			userAuditLog.setUrl(httpReq.getRequestURI());
 			userAuditLog.setMethod(httpReq.getMethod());
 			userAuditLog.setCallStartTime(callStartTime);
 			userAuditLog.setCallEndTime(Calendar.getInstance().getTime());
@@ -151,7 +159,7 @@ public class AuthTokenFilter extends GenericFilterBean {
 			auditService.insertApiCallLog(userAuditLog);
 		}
 	}
-	
+
 	private User doBasicAuthentication(HttpServletRequest httpReq, HttpServletResponse httpResp) throws UnsupportedEncodingException {
 		String header = httpReq.getHeader(HttpHeaders.AUTHORIZATION);
 		if (header == null || !header.startsWith(BASIC_AUTH)) {
@@ -241,5 +249,30 @@ public class AuthTokenFilter extends GenericFilterBean {
 		}
 
 		return url;
+	}
+
+	private void sendError(HttpServletRequest httpReq, HttpServletResponse httpResp, Exception e)
+	throws IOException {
+		ResponseEntity<Object> resp = new RestErrorController().handleOtherException(e, new ServletWebRequest(httpReq));
+
+		httpResp.setContentType("application/json");
+		httpResp.setStatus(resp.getStatusCodeValue());
+		httpResp.getOutputStream().write(toJsonString(resp.getBody()).getBytes());
+		httpResp.getOutputStream().flush();
+		httpResp.getOutputStream().close();
+	}
+
+	private String toJsonString(Object body) {
+		String unknownError = "[{\"message\": \"Unknown error\"}]";
+		if (body == null) {
+			return unknownError;
+		}
+
+		try {
+			return new ObjectMapper().writeValueAsString(body);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return unknownError;
+		}
 	}
 }

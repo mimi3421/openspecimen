@@ -1,31 +1,32 @@
 package com.krishagni.catissueplus.rest;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.TypeMismatchException;
+import org.springframework.core.NestedExceptionUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import com.krishagni.catissueplus.core.common.errors.CommonErrorCode;
 import com.krishagni.catissueplus.core.common.errors.ErrorCode;
 import com.krishagni.catissueplus.core.common.errors.ErrorType;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.errors.ParameterizedError;
+import com.krishagni.catissueplus.core.common.util.MessageUtil;
 
 @ControllerAdvice
 public class RestErrorController extends ResponseEntityExceptionHandler {
-
-	@Autowired
-	private MessageSource messageSource;
 
 	private static final String INTERNAL_ERROR = "internal_error";
 
@@ -56,13 +57,34 @@ public class RestErrorController extends ResponseEntityExceptionHandler {
 			}
 		} else {
 			logger.error("Error handling request", exception);
-			errorMsgs.add(getMessage(INTERNAL_ERROR, new Object[] { exception.getMessage() }));
+
+			Throwable rootCause = NestedExceptionUtils.getMostSpecificCause(exception);
+			String msg = rootCause.getClass().getSimpleName() + ":" + rootCause.getMessage();
+			errorMsgs.add(getMessage(INTERNAL_ERROR, new Object[] { msg }));
 		}
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 
 		return handleExceptionInternal(exception, errorMsgs, headers, status, request);
+	}
+
+	@Override
+	public ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+		String msg = ex.getMessage();
+		if (StringUtils.isNotBlank(msg)) {
+			int idx = msg.indexOf('(');
+			msg = msg.substring(0, idx);
+		}
+
+		ErrorMessage err = new ErrorMessage(CommonErrorCode.INVALID_REQUEST.name(), msg);
+		return handleExceptionInternal(ex, Collections.singletonList(err), headers, status, request);
+	}
+
+	@Override
+	public ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+		ErrorMessage err = new ErrorMessage(CommonErrorCode.INVALID_REQUEST.name(), ex.getMessage());
+		return handleExceptionInternal(ex, Collections.singletonList(err), headers, status, request);
 	}
 
 	private HttpStatus getHttpStatus(ErrorType type) {
@@ -89,10 +111,7 @@ public class RestErrorController extends ResponseEntityExceptionHandler {
 	}
 
 	private ErrorMessage getMessage(String code, Object[] params) {
-		String message = messageSource.getMessage(
-				code.toLowerCase(), 
-				params,
-				Locale.getDefault());
+		String message = MessageUtil.getInstance().getMessage(code.toLowerCase(), params);
 		return new ErrorMessage(code, message);
 	}
 	

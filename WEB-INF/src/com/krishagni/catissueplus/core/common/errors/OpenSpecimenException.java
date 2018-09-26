@@ -6,7 +6,9 @@ import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.hibernate.JDBCException;
+import org.springframework.core.NestedExceptionUtils;
 
 import com.krishagni.catissueplus.core.common.util.MessageUtil;
 
@@ -40,13 +42,17 @@ public class OpenSpecimenException extends RuntimeException {
 		this.exception = t;
 
 		if (t instanceof JDBCException) {
-			JDBCException je = (JDBCException)t;
+			JDBCException je = (JDBCException) t;
 			String dbMsg = je.getCause().getMessage();
 			if (StringUtils.isBlank(dbMsg)) {
 				dbMsg = je.getSQLException().getMessage();
 			}
 
 			errors.add(new ParameterizedError(CommonErrorCode.SQL_EXCEPTION, dbMsg));
+		} else if (t != null) {
+			Throwable rootCause = NestedExceptionUtils.getMostSpecificCause(t);
+			String msg = rootCause.getClass().getSimpleName() + ":" + rootCause.getMessage();
+			errors.add(new ParameterizedError(CommonErrorCode.SERVER_ERROR, msg));
 		}
 	}
 	
@@ -104,7 +110,11 @@ public class OpenSpecimenException extends RuntimeException {
 			}
 			errorMsg.delete(errorMsg.length() - 2, errorMsg.length());
 		} else if (exception != null) {
-			errorMsg.append(exception.getMessage());
+			if (StringUtils.isNotBlank(exception.getMessage())) {
+				errorMsg.append(exception.getMessage());
+			} else {
+				errorMsg.append(ExceptionUtils.getStackTrace(exception));
+			}
 		} else {
 			errorMsg.append(MessageUtil.getInstance().getMessage("internal_error"));
 		}
