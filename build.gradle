@@ -13,7 +13,8 @@ archivesBaseName = 'openspecimen'
 Properties props = new Properties()
 props.load(new FileInputStream("build.properties"))
 
-def springVersion = "3.2.13.RELEASE"
+def springVersion    = "4.3.19.RELEASE"
+def springSecVersion = "4.2.8.RELEASE"
 
 def deploymentLocation = props.app_home + "/server/default/deploy"
 
@@ -76,12 +77,11 @@ dependencies {
   ajc       "org.aspectj:aspectjtools:1.8.6"
   compile   "org.aspectj:aspectjrt:1.8.6"
   compile   "javax.persistence:persistence-api:1.0.2"
-  aspects   "org.springframework:spring-aspects:3.2.13.RELEASE"
+  aspects   "org.springframework:spring-aspects:4.3.19.RELEASE"
 
-  compile fileTree(dir: 'lib', include: ['DynamicExtensions.jar'])
+  compile fileTree(dir: 'lib', include: ['DynamicExtensions.jar', 'not-yet-commons-ssl-0.3.17.jar'])
   
-  providedCompile group: 'javax.servlet', name: 'javax.servlet-api', version:'3.0.1'
-  
+  compile group: 'javax', name: 'javaee-api', version: '8.0'
   compile group: 'org.antlr', name: 'antlr4', version:'4.5.1'
   compile group: 'aopalliance', name: 'aopalliance', version:'1.0'
   compile group: 'asm', name: 'asm', version:'3.3.1'
@@ -91,35 +91,38 @@ dependencies {
   compile group: 'commons-codec', name: 'commons-codec', version:'1.10'
   compile group: 'commons-collections', name: 'commons-collections', version:'3.2.2'
   compile group: 'commons-dbcp', name: 'commons-dbcp', version:'1.4'
-  compile group: 'commons-fileupload', name: 'commons-fileupload', version:'1.3.1'
+  compile group: 'commons-fileupload', name: 'commons-fileupload', version:'1.3.3'
   compile group: 'commons-httpclient', name: 'commons-httpclient', version:'3.1'
   compile group: 'commons-io', name: 'commons-io', version:'2.4'
   compile group: 'commons-lang', name: 'commons-lang', version:'2.6'
   compile group: 'commons-logging', name: 'commons-logging', version:'1.2'
   compile group: 'org.apache.commons', name: 'commons-digester3', version:'3.2'
   compile group: 'org.apache.commons', name: 'commons-lang3', version:'3.4'
-  compile group: 'org.apache.tika', name: 'tika-parsers', version: '1.13'
+  compile group: 'org.apache.taglibs', name: 'taglibs-standard-impl', version: '1.2.5'
+  compile group: 'org.apache.tika', name: 'tika-parsers', version: '1.18'
   compile group: 'net.sf.kxml', name: 'kxml2-min', version:'2.3.0'
   compile group: 'net.sf.ehcache', name: 'ehcache', version:'1.2.3'
   compile group: 'net.sf.opencsv', name: 'opencsv', version:'2.3'
   compile group: 'com.google.code.gson', name: 'gson', version:'2.3.1'
-  compile group: 'org.hibernate', name: 'hibernate-commons-annotations', version:'3.2.0.Final'
-  compile group: 'org.hibernate', name: 'hibernate-core', version:'4.2.18.Final'
-  compile group: 'org.hibernate', name: 'hibernate-envers', version:'4.2.18.Final'
-  compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version:'2.5.3'
-  compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version:'2.5.3'
-  compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version:'2.5.3'
+  compile group: 'org.hibernate.common', name: 'hibernate-commons-annotations', version:'5.0.4.Final'
+  compile group: 'org.hibernate', name: 'hibernate-core', version:'5.3.6.Final'
+  compile group: 'org.hibernate', name: 'hibernate-envers', version:'5.3.6.Final'
+  compile group: 'net.bytebuddy', name: 'byte-buddy', version: '1.8.22'
+  compile group: 'com.fasterxml', name: 'classmate', version: '1.4.0'
+  compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version:'2.9.6'
+  compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version:'2.9.6'
+  compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version:'2.9.6'
   compile group: 'org.codehaus.jackson', name: 'jackson-mapper-asl', version:'1.9.13'
   compile group: 'org.codehaus.jackson', name: 'jackson-core-asl', version:'1.9.13'
   compile group: 'org.javassist', name: 'javassist', version:'3.19.0-GA'
-  compile group: 'com.sun.xml.bind', name: 'jaxb-impl', version:'2.2.11'
+  compile group: 'com.sun.xml.bind', name: 'jaxb-core', version: '2.3.0.1'
+  compile group: 'com.sun.xml.bind', name: 'jaxb-impl', version:'2.3.0.1'
+  compile group: 'com.sun.xml.bind', name: 'jaxb-xjc', version:'2.3.0.1'
   compile group: 'com.sun.xml.bind', name: 'jaxb-libs', version:'1.0.6'
-  compile group: 'com.sun.xml.bind', name: 'jaxb-xjc', version:'2.2.11'
-  compile group: 'org.jboss.logging', name: 'jboss-logging', version:'3.1.1.GA'
+  compile group: 'org.jboss.logging', name: 'jboss-logging', version:'3.3.2.Final'
   compile group: 'org.scijava', name: 'jep', version:'2.4.2'
   compile group: 'org.json', name: 'json', version:'20140107'
   compile group: 'javax.ws.rs', name: 'jsr311-api', version:'1.1.1'
-  compile group: 'javax.servlet', name: 'jstl', version:'1.2'
   compile group: 'javax.transaction', name: 'jta', version:'1.1'
   compile group: 'javax.mail', name: 'mail', version:'1.4.7'
   compile group: 'org.liquibase', name: 'liquibase-core', version:'3.3.3'
@@ -130,7 +133,7 @@ dependencies {
   compile group: 'org.springframework', name: 'spring-aop', version:springVersion
   compile group: 'org.springframework', name: 'spring-beans', version:springVersion
   compile group: 'org.springframework', name: 'spring-context', version:springVersion
-  compile group: 'org.springframework', name: 'spring-context-support', version:'3.1.2.RELEASE'
+  compile group: 'org.springframework', name: 'spring-context-support', version:springVersion
   compile group: 'org.springframework', name: 'spring-core', version:springVersion
   compile group: 'org.springframework', name: 'spring-expression', version:springVersion
   compile group: 'org.springframework', name: 'spring-instrument', version:springVersion
@@ -139,32 +142,31 @@ dependencies {
   compile group: 'org.springframework', name: 'spring-web', version:springVersion
   compile group: 'org.springframework', name: 'spring-webmvc', version:springVersion
   compile group: 'org.springframework', name: 'spring-orm', version:springVersion
-  compile group: 'org.springframework.ldap', name: 'spring-ldap-core', version:'2.0.3.RELEASE'
-  compile group: 'org.springframework.security', name: 'spring-security-config', version:'3.2.7.RELEASE'
-  compile group: 'org.springframework.security', name: 'spring-security-core', version:'3.2.7.RELEASE'
-  compile group: 'org.springframework.security', name: 'spring-security-ldap', version:'3.2.7.RELEASE'
-  compile group: 'org.springframework.security', name: 'spring-security-web', version:'3.2.7.RELEASE'
+  compile group: 'org.springframework.ldap', name: 'spring-ldap-core', version:'2.3.2.RELEASE'
+  compile group: 'org.springframework.security', name: 'spring-security-config', version:springSecVersion
+  compile group: 'org.springframework.security', name: 'spring-security-core', version:springSecVersion
+  compile group: 'org.springframework.security', name: 'spring-security-ldap', version:springSecVersion
+  compile group: 'org.springframework.security', name: 'spring-security-web', version:springSecVersion
   // compile group: 'velocity', name: 'velocity-dep', version:'1.4'
-  compile group: 'com.thoughtworks.xstream', name: 'xstream', version:'1.4.8'
+  compile group: 'com.thoughtworks.xstream', name: 'xstream', version:'1.4.10'
   compile group: 'com.itextpdf', name: 'itextpdf', version:'5.5.6'
   compile group: 'dom4j', name: 'dom4j', version: '1.6.1'
   compile group: 'com.jcraft', name: 'jsch', version: '0.1.54'
 
   //SAML dependencies lib
-  compile group: 'org.springframework.security.extensions', name: 'spring-security-saml2-core', version:'1.0.0.RELEASE'
-  compile group: 'org.opensaml', name: 'opensaml', version: '2.6.1'
+  compile group: 'org.springframework.security.extensions', name: 'spring-security-saml2-core', version:'1.0.4.RELEASE'
+  compile group: 'org.opensaml', name: 'opensaml', version: '2.6.4'
   compile group: 'org.opensaml', name: 'openws', version: '1.5.4'
-  compile group: 'org.opensaml', name: 'xmltooling', version: '1.3.1'
+  compile group: 'org.opensaml', name: 'xmltooling', version: '1.4.4'
   compile group: 'xml-security', name: 'xmlsec', version: '1.3.0'
   compile group: 'xml-apis', name: 'xml-apis', version: '1.4.01'
-  compile group: 'org.owasp.esapi', name: 'esapi', version: '2.1.0'
-  compile group: 'xerces', name: 'xercesImpl', version: '2.11.0'
+  compile group: 'org.owasp.esapi', name: 'esapi', version: '2.1.0.1'
+  compile group: 'xerces', name: 'xercesImpl', version: '2.12.0'
   compile group: 'xalan', name: 'xalan', version: '2.7.2'
   compile group: 'xalan', name: 'serializer', version: '2.7.2'
-  compile group: 'org.bouncycastle', name: 'bcprov-jdk15', version: '1.46'
-  compile group: 'joda-time', name: 'joda-time', version: '2.1'
+  compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.60'
+  compile group: 'joda-time', name: 'joda-time', version: '2.10'
   compile group: 'org.apache.velocity', name: 'velocity', version:'1.7'
-  compile group: 'ca.juliusdavies', name: 'not-yet-commons-ssl', version: '0.3.9'
 
   runtime group: 'antlr', name: 'antlr', version: '2.7.7'
   runtime group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.12'
