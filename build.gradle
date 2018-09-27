@@ -76,7 +76,6 @@ configurations.all {
 dependencies {
   ajc       "org.aspectj:aspectjtools:1.8.6"
   compile   "org.aspectj:aspectjrt:1.8.6"
-  compile   "javax.persistence:persistence-api:1.0.2"
   aspects   "org.springframework:spring-aspects:4.3.19.RELEASE"
 
   compile fileTree(dir: 'lib', include: ['DynamicExtensions.jar', 'not-yet-commons-ssl-0.3.17.jar'])
