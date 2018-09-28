@@ -12,7 +12,7 @@ import org.hibernate.envers.RevisionTimestamp;
 import com.krishagni.catissueplus.core.audit.services.impl.EntityRevisionListenerImpl;
 
 @RevisionEntity(EntityRevisionListenerImpl.class)
-public class EntityRevision {
+public class Revision {
 	
 	@RevisionNumber
 	private long id;
@@ -26,6 +26,8 @@ public class EntityRevision {
 
 	@ModifiedEntityNames
 	private Set<String> entityNames;
+
+	private Set<RevisionEntityRecord> entityRecords = new HashSet<>();
 
 	public long getId() {
 		return id;
@@ -65,5 +67,17 @@ public class EntityRevision {
 
 	public void setEntityNames(Set<String> entityNames) {
 		this.entityNames = entityNames;
+	}
+
+	public Set<RevisionEntityRecord> getEntityRecords() {
+		return entityRecords;
+	}
+
+	public void setEntityRecords(Set<RevisionEntityRecord> entityRecords) {
+		this.entityRecords = entityRecords;
+	}
+
+	public void addEntityRecord(RevisionEntityRecord record) {
+		entityRecords.add(record);
 	}
 }

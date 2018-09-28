@@ -1,13 +1,3 @@
-/**
- * <p>Title: ConsentTierResponse Class>
- * <p>Description:   Class for Consent Tier Responses.</p>
- * Copyright:    Copyright (c) year
- * Company: Washington University, School of Medicine, St. Louis.
- * @author Ashish Gupta
- * @version 1.00
- * Created on November 21,2006
- */
-
 package com.krishagni.catissueplus.core.biospecimen.domain;
 
 import org.hibernate.envers.AuditTable;

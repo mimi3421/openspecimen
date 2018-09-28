@@ -4,22 +4,22 @@
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping auto-import="false">
-  <class name="com.krishagni.catissueplus.core.audit.domain.EntityRevision" table="OS_REVISIONS">
+  <class name="com.krishagni.catissueplus.core.audit.domain.Revision" table="OS_REVISIONS">
     <id name="id" column="REV">
       <generator class="native">
         <param name="sequence">OS_REVISIONS_SEQ</param>
       </generator>
     </id>
 
-    <property name="revtstmp" column="REVTSTMP" />
+    <property name="revtstmp" column="REVTSTMP"/>
 
-    <property name="userId" column="USER_ID" />
+    <property name="userId" column="USER_ID"/>
     
-    <property name="ipAddress" column="IP_ADDRESS" />
-    
-    <set name="entityNames" table="OS_REVISION_ENTITIES">
+    <property name="ipAddress" column="IP_ADDRESS"/>
+
+    <set name="entityRecords" table="OS_REVISION_ENTITY_RECORDS" inverse="true" cascade="all-delete-orphan">
       <key column="REV"/>
-      <element column="ENTITYNAME" type="string"></element>
+      <one-to-many class="com.krishagni.catissueplus.core.audit.domain.RevisionEntityRecord"/>
     </set>
   </class>
 </hibernate-mapping>
