@@ -300,6 +300,7 @@
   <bean id="auditService" class="com.krishagni.catissueplus.core.audit.services.impl.AuditServiceImpl">
     <property name="daoFactory" ref="biospecimenDaoFactory"/>
     <property name="objectAccessorFactory" ref="objectAccessorFactory"/>
+    <property name="taskExecutor" ref="taskExecutor"/>
   </bean>
 
   <bean id="userAuthService" class="com.krishagni.catissueplus.core.auth.services.impl.UserAuthenticationServiceImpl">
@@ -1277,4 +1278,5 @@
   <import resource="migrationContext.xml"/>
   <import resource="classpath:com/krishagni/openspecimen/**/context.xml"/>
   <import resource="classpath*:pluginContext.xml"/>
+  <import resource="postInitContext.xml"/>
 </beans>

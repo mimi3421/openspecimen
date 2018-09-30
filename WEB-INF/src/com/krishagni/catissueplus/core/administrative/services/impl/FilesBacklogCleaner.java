@@ -19,6 +19,8 @@ public class FilesBacklogCleaner implements ScheduledTask {
 
 	private static final String LOG_FILES_DIR = "logs";
 
+	private static final String AUDIT_FILES_DIR = "audit";
+
 	private static final int period = 30; //30 days
 	
 	@Override
@@ -26,6 +28,7 @@ public class FilesBacklogCleaner implements ScheduledTask {
 	throws Exception {
 		cleanupOlderFiles(getQueryExportDataDir(), period, null);
 		cleanupOlderFiles(getLogFilesDir(), getLogFilesRetainPeriod(), null);
+		cleanupOlderFiles(getAuditFilesDir(), period, null);
 		cleanupOlderFiles(getDataDir(), period, (dir, name) -> !new File(dir, name).isDirectory() && name.endsWith(".csv"));
 	}
 
@@ -34,15 +37,15 @@ public class FilesBacklogCleaner implements ScheduledTask {
 	}
 
 	private String getQueryExportDataDir() {
-		return new StringBuilder(getDataDir()).append(File.separator)
-			.append(QUERY_EXPORT_DIR).append(File.separator)
-			.toString();
+		return new File(getDataDir(), QUERY_EXPORT_DIR).getAbsolutePath();
 	}
 
 	private String getLogFilesDir() {
-		return new StringBuilder(getDataDir()).append(File.separator)
-			.append(LOG_FILES_DIR).append(File.separator)
-			.toString();
+		return new File(getDataDir(), LOG_FILES_DIR).getAbsolutePath();
+	}
+
+	private String getAuditFilesDir() {
+		return new File(getDataDir(), AUDIT_FILES_DIR).getAbsolutePath();
 	}
 
 	private int getLogFilesRetainPeriod() {

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+  http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+  <changeSet author="vpawar" id="Revision entity records">
+    <createTable tableName="OS_REVISION_ENTITY_RECORDS">
+      <column name="IDENTIFIER" type="${int.type}" autoIncrement="${autoIncrement}">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="REV" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="REV_TYPE" type="${tinyint.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="ENTITY_NAME" type="${text.type}(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="ENTITY_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Entity audit revision details sequence" dbms="oracle">
+    <createSequence sequenceName="OS_REV_ENTITY_RECS_SEQ" startValue="1" incrementBy="1" ordered="true"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Adjust the revision entity record IDs" dbms="mysql">
+    <sql>
+      insert into os_revision_entity_records
+        (rev, rev_type, entity_name, entity_id)
+      select
+        rev, rev_type, entity_name, entity_id
+      from
+        os_rev_entity_recs_tmp
+      order by
+        rev, entity_name
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Adjust the revision entity record IDs" dbms="oracle">
+    <sql>
+      insert into os_revision_entity_records
+        (identifier, rev, rev_type, entity_name, entity_id)
+      select
+        os_rev_entity_recs_seq.nextval, rev, rev_type, entity_name, entity_id
+      from
+        os_rev_entity_recs_tmp
+      order by
+        rev, entity_name
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Foreign key on revision of revision entity records">
+    <addForeignKeyConstraint constraintName="FK_REV_ENTITY"
+      baseTableName="OS_REVISION_ENTITY_RECORDS" baseColumnNames="REV"
+      referencedTableName="OS_REVISIONS" referencedColumnNames="REV"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Index on entity record revision number" dbms="oracle">
+    <createIndex indexName="OS_REV_ENTITY_IDX" tableName="OS_REVISION_ENTITY_RECORDS">
+      <column name="REV"/>
+    </createIndex>
+  </changeSet>
+</databaseChangeLog>

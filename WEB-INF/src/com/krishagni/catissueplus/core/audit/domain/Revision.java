@@ -9,18 +9,19 @@ import org.hibernate.envers.RevisionEntity;
 import org.hibernate.envers.RevisionNumber;
 import org.hibernate.envers.RevisionTimestamp;
 
+import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.audit.services.impl.EntityRevisionListenerImpl;
 
 @RevisionEntity(EntityRevisionListenerImpl.class)
 public class Revision {
 	
 	@RevisionNumber
-	private long id;
+	private Long id;
 	  
 	@RevisionTimestamp
 	private Date revtstmp;
 	
-	private Long userId;
+	private User user;
 	
 	private String ipAddress;
 
@@ -29,11 +30,11 @@ public class Revision {
 
 	private Set<RevisionEntityRecord> entityRecords = new HashSet<>();
 
-	public long getId() {
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 	
@@ -45,12 +46,12 @@ public class Revision {
 		this.revtstmp = revtstmp;
 	}
 
-	public Long getUserId() {
-		return userId;
+	public User getUser() {
+		return user;
 	}
 	
-	public void setUserId(Long userId) {
-		this.userId = userId;
+	public void setUser(User user) {
+		this.user = user;
 	}
 	
 	public String getIpAddress() {

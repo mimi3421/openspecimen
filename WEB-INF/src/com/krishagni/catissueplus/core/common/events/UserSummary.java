@@ -2,13 +2,16 @@
 package com.krishagni.catissueplus.core.common.events;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.krishagni.catissueplus.core.administrative.domain.User;
+import com.krishagni.catissueplus.core.common.util.Utility;
 
 @JsonFilter("withoutId")
 public class UserSummary implements Serializable {
@@ -145,6 +148,23 @@ public class UserSummary implements Serializable {
 		this.creationDate = creationDate;
 	}
 
+	public String formattedName() {
+		StringBuilder name = new StringBuilder();
+		if (StringUtils.isNotBlank(firstName)) {
+			name.append(firstName);
+		}
+
+		if (StringUtils.isNotBlank(lastName)) {
+			if (name.length() > 0) {
+				name.append(" ");
+			}
+
+			name.append(lastName);
+		}
+
+		return name.toString();
+	}
+
 	public static UserSummary from(User user) {
 		UserSummary userSummary = new UserSummary();
 		userSummary.setId(user.getId());
@@ -170,15 +190,6 @@ public class UserSummary implements Serializable {
 	}
 	
 	public static List<UserSummary> from(Collection<User> users) {
-		List<UserSummary> result = new ArrayList<UserSummary>();
-		if (users == null) {
-			return result;
-		}	
-
-		for (User user : users) {
-			result.add(UserSummary.from(user));
-		}
-		
-		return result;
+		return Utility.nullSafeStream(users).map(UserSummary::from).collect(Collectors.toList());
 	}
 }

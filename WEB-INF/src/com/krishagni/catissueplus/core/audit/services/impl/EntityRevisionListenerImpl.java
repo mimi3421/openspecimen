@@ -16,7 +16,7 @@ public class EntityRevisionListenerImpl implements EntityTrackingRevisionListene
 		Revision revision = (Revision) revisionEntity;
 		
 		if (AuthUtil.getCurrentUser() != null) {
-			revision.setUserId(AuthUtil.getCurrentUser().getId());
+			revision.setUser(AuthUtil.getCurrentUser());
 		}
 
 		revision.setIpAddress(AuthUtil.getRemoteAddr());

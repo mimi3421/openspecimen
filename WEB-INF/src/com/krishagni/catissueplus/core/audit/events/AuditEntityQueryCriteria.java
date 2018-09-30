@@ -1,6 +1,6 @@
 package com.krishagni.catissueplus.core.audit.events;
 
-public class AuditQueryCriteria {
+public class AuditEntityQueryCriteria {
 	private String objectName;
 
 	private Long objectId;

@@ -5,8 +5,8 @@
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
 
-  <changeSet author="vpawar" id="Revision entity records">
-    <createTable tableName="OS_REVISION_ENTITY_RECORDS">
+  <changeSet author="vpawar" id="Revision entity records - staging area">
+    <createTable tableName="OS_REV_ENTITY_RECS_TMP">
       <column name="IDENTIFIER" type="${int.type}" autoIncrement="${autoIncrement}">
         <constraints nullable="false" primaryKey="true"/>
       </column>
@@ -26,7 +26,7 @@
   </changeSet>
 
   <changeSet author="vpawar" id="Entity audit revision details sequence" dbms="oracle">
-    <createSequence sequenceName="OS_REV_ENTITY_RECS_SEQ" startValue="1" incrementBy="1" ordered="true"/>
+    <createSequence sequenceName="OS_REV_ENTITY_RECS_TMP_SEQ" startValue="1" incrementBy="1" ordered="true"/>
   </changeSet>
 
   <changeSet author="vpawar" id="Procedure to initialize revision entity records" runOnChange="true" dbms="mysql">
@@ -41,7 +41,7 @@
       )
       begin
         select concat(
-          'insert into os_revision_entity_records',
+          'insert into os_rev_entity_recs_tmp',
           '  (rev, rev_type, entity_name, entity_id) ',
           'select ',
           '  o.rev as rev, o.revtype as rev_type, re.entityname as entity_name, ',
@@ -70,10 +70,10 @@
       ) is
       begin
         execute immediate
-          'insert into os_revision_entity_records
+          'insert into os_rev_entity_recs_tmp
              (identifier, rev, rev_type, entity_name, entity_id)
            select
-             os_rev_entity_recs_seq.nextval as identifier, o.rev as rev, o.revtype as rev_type,
+             os_rev_entity_recs_tmp_seq.nextval as identifier, o.rev as rev, o.revtype as rev_type,
              re.entityname as entity_name, o.identifier as entity_id
            from
              os_revisions r
@@ -84,7 +84,7 @@
     </sql>
   </changeSet>
 
-  <changeSet author="vpawar" id="Load storage container and type revision entity records">
+  <changeSet author="vpawar" id="Stage storage container and type revision entity records">
     <sql endDelimiter="//">
       call load_revision_entity_records(
         'com.krishagni.catissueplus.core.administrative.domain.ContainerType',
@@ -102,7 +102,7 @@
     </sql>
   </changeSet>
 
-  <changeSet author="vpawar" id="Load institute, department, site, and user revision entity records">
+  <changeSet author="vpawar" id="Stage institute, department, site, and user revision entity records">
     <sql endDelimiter="//">
       call load_revision_entity_records(
         'com.krishagni.catissueplus.core.administrative.domain.Institute',
@@ -136,7 +136,7 @@
     </sql>
   </changeSet>
 
-  <changeSet author="vpawar" id="Load distribution protocol, requirement and order revision entity records">
+  <changeSet author="vpawar" id="Stage distribution protocol, requirement and order revision entity records">
     <sql endDelimiter="//">
       call load_revision_entity_records(
         'com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol',
@@ -178,7 +178,7 @@
     </sql>
   </changeSet>
 
-  <changeSet author="vpawar" id="Load shipment and shipment item revision entity records">
+  <changeSet author="vpawar" id="Stage shipment and shipment item revision entity records">
     <sql endDelimiter="//">
       call load_revision_entity_records(
         'com.krishagni.catissueplus.core.administrative.domain.Shipment',
@@ -204,7 +204,7 @@
     </sql>
   </changeSet>
 
-  <changeSet author="vpawar" id="Load specimen request and request item revision entity records">
+  <changeSet author="vpawar" id="Stage specimen request and request item revision entity records">
     <sql endDelimiter="//">
       call load_revision_entity_records(
         'com.krishagni.catissueplus.core.administrative.domain.SpecimenRequest',
@@ -222,7 +222,7 @@
     </sql>
   </changeSet>
 
-  <changeSet author="vpawar" id="Load collection protocols, sites, events, requirement, and consent revision entity records">
+  <changeSet author="vpawar" id="Stage collection protocols, sites, events, requirement, and consent revision entity records">
     <sql endDelimiter="//">
       call load_revision_entity_records(
         'com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol',
@@ -280,7 +280,7 @@
     </sql>
   </changeSet>
 
-  <changeSet author="vpawar" id="Load registration, participant, pmi, visit, specimen, and related revision entity records">
+  <changeSet author="vpawar" id="Stage registration, participant, pmi, visit, specimen, and related revision entity records">
     <sql endDelimiter="//">
       call load_revision_entity_records(
         'com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration',
@@ -354,7 +354,7 @@
     </sql>
   </changeSet>
 
-  <changeSet id="vpawar" author="Load specimen cart revision entity records">
+  <changeSet id="vpawar" author="Stage specimen cart revision entity records">
     <sql endDelimiter="//">
       call load_revision_entity_records(
         'com.krishagni.catissueplus.core.biospecimen.domain.SpecimenList',
@@ -364,7 +364,7 @@
     </sql>
   </changeSet>
 
-  <changeSet id="vpawar" author="Load consent statement revision entity records">
+  <changeSet id="vpawar" author="Stage consent statement revision entity records">
     <sql endDelimiter="//">
       call load_revision_entity_records(
         'com.krishagni.catissueplus.core.biospecimen.domain.ConsentStatement',
@@ -372,17 +372,5 @@
       )
       //
     </sql>
-  </changeSet>
-
-  <changeSet author="vpawar" id="Foreign key on revision of revision entity records">
-    <addForeignKeyConstraint constraintName="FK_REV_ENTITY"
-      baseTableName="OS_REVISION_ENTITY_RECORDS" baseColumnNames="REV"
-      referencedTableName="OS_REVISIONS" referencedColumnNames="REV"/>
-  </changeSet>
-
-  <changeSet author="vpawar" id="Index on entity record revision number" dbms="oracle">
-    <createIndex indexName="OS_REV_ENTITY_IDX" tableName="OS_REVISION_ENTITY_RECORDS">
-      <column name="REV"/>
-    </createIndex>
   </changeSet>
 </databaseChangeLog>
