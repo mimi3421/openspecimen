@@ -11,7 +11,15 @@ angular.module('os.common.audit')
     }
 
     Audit.getRevisions = function(objectsList) {
-      return $http.post(Audit.url() + "/revisions", objectsList).then(
+      return $http.post(Audit.url() + '/revisions', objectsList).then(
+        function(resp) {
+          return resp.data;
+        }
+      );
+    }
+
+    Audit.exportRevisions = function(input) {
+      return $http.post(Audit.url() + '/export-revisions', input || {}).then(
         function(resp) {
           return resp.data;
         }

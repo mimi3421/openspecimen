@@ -1,3 +1,6 @@
+#set ( $apiUrl = "$appUrl/rest/ng/audit/revisions-file?fileId=$fileId" )
+#set ( $downloadUrl = "$appUrl/#/file-download?downloadUrl=$urlEncoder.encode($apiUrl)" )
+
 <table cellspacing="0" cellpadding="0" border="0" width="100%" style="border-spacing:0;border-collapse:separate">
   <tbody>
     <tr>
@@ -17,14 +20,6 @@
             <tr>
               <td>
                 <table>
-                  <tr>
-                    <td> Record Types </td>
-                    <td> :
-                      #if ( $entities )
-                        $entities
-                      #else
-                        Not Specified
-                      #end
                   <tr>
                     <td> Revisions By </td>
                     <td> :
@@ -60,7 +55,7 @@
             </tr>
             <tr>
               <td>
-                <a style="display: inline-block; text-decoration: none; padding: 10px; border: 1px solid #357ebd; border-radius: 5px; background-color: #428bca; color: #fff; margin: 10px auto;" href=$appUrl/rest/ng/audit/revisions-file?fileId=$fileId>
+                <a style="display: inline-block; text-decoration: none; padding: 10px; border: 1px solid #357ebd; border-radius: 5px; background-color: #428bca; color: #fff; margin: 10px auto;" href="$downloadUrl">
                   Download Report
                 </a>
               </td>

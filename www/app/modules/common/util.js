@@ -242,27 +242,9 @@ angular.module('openspecimen')
     }
 
     function downloadFile(fileUrl) {
-      $http({method: 'GET', url: fileUrl, responseType: 'arraybuffer'}).then(
-        function(resp) {
-          var headers = resp.headers;
-
-          var contentType = headers('content-type');
-          var filename = headers('content-disposition');
-          filename = filename.substr(filename.indexOf('=') + 1);
-
-          var link = angular.element('<a/>');
-          try {
-            var blob = new Blob([resp.data], { type: contentType });
-            var url = window.URL.createObjectURL(blob);
-
-            link.attr({href: url, download: filename});
-            var clickEvent = new MouseEvent("click", {"view": window, "bubbles": true, "cancelable": false});
-            link[0].dispatchEvent(clickEvent);
-          } catch (ex) {
-            console.log(ex);
-          }
-        }
-      );
+      var link = angular.element('<a/>').attr({href: fileUrl});
+      var clickEvent = new MouseEvent('click', {view: window, bubbles: true, cancelable: false});
+      link[0].dispatchEvent(clickEvent);
     }
 
     function booleanPromise(condition) {
