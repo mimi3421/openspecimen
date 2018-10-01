@@ -47,11 +47,16 @@
       insert into os_revision_entity_records
         (identifier, rev, rev_type, entity_name, entity_id)
       select
-        os_rev_entity_recs_seq.nextval, rev, rev_type, entity_name, entity_id
+        os_rev_entity_recs_seq.nextval, t.rev, t.rev_type, t.entity_name, t.entity_id
       from
-        os_rev_entity_recs_tmp
-      order by
-        rev, entity_name
+        (
+          select
+            rev, rev_type, entity_name, entity_id
+          from
+            os_rev_entity_recs_tmp
+          order by
+            rev, entity_name
+        ) t
     </sql>
   </changeSet>
 
