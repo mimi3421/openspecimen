@@ -254,6 +254,7 @@ task create_war(type: War) {
     include 'restApiContext.xml'
     include 'pluginUiContext.xml'
     include 'migrationContext.xml'
+    include 'postInitContext.xml'
     include 'web.xml'
     
     into 'WEB-INF/'
