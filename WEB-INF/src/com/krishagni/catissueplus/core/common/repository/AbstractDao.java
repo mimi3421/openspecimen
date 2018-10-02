@@ -16,7 +16,10 @@ import org.hibernate.criterion.Restrictions;
 
 import com.krishagni.catissueplus.core.biospecimen.domain.BaseEntity;
 
+import edu.common.dynamicextensions.ndao.DbSettingsFactory;
+
 public class AbstractDao<T> implements Dao<T> {
+	private static final String LIMIT_SQL = "select * from (select tab.*, rownum rnum from (%s) tab where rownum <= %d) where rnum >= %d";
 
 	protected SessionFactory sessionFactory;
 
@@ -126,5 +129,13 @@ public class AbstractDao<T> implements Dao<T> {
 		}
 
 		return Collections.singletonMap(propName, rows.iterator().next());
+	}
+
+	protected String getLimitSql(String baseSql, int startAt, int maxResults, boolean oracle) {
+		if (oracle) {
+			return String.format(LIMIT_SQL, baseSql, maxResults, startAt);
+		} else {
+			return baseSql + "limit " + startAt + ", " + maxResults;
+		}
 	}
 }

@@ -6,10 +6,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.query.Query;
 import org.hibernate.type.IntegerType;
 import org.hibernate.type.LongType;
 import org.hibernate.type.StringType;
@@ -19,12 +21,15 @@ import com.krishagni.catissueplus.core.audit.domain.DeleteLog;
 import com.krishagni.catissueplus.core.audit.domain.RevisionEntityRecord;
 import com.krishagni.catissueplus.core.audit.domain.UserApiCallLog;
 import com.krishagni.catissueplus.core.audit.events.AuditDetail;
+import com.krishagni.catissueplus.core.audit.events.FormDataRevisionDetail;
 import com.krishagni.catissueplus.core.audit.events.RevisionDetail;
 import com.krishagni.catissueplus.core.audit.events.RevisionEntityRecordDetail;
 import com.krishagni.catissueplus.core.audit.repository.AuditDao;
 import com.krishagni.catissueplus.core.audit.repository.RevisionsListCriteria;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
 import com.krishagni.catissueplus.core.common.repository.AbstractDao;
+
+import edu.common.dynamicextensions.ndao.DbSettingsFactory;
 
 public class AuditDaoImpl extends AbstractDao<UserApiCallLog> implements AuditDao {
 
@@ -80,6 +85,35 @@ public class AuditDaoImpl extends AbstractDao<UserApiCallLog> implements AuditDa
 
 		List<Object[]> rows = (List<Object[]>) query.list();
 		return getRevisions(rows);
+	}
+
+	@Override
+	public List<FormDataRevisionDetail> getFormDataRevisions(RevisionsListCriteria criteria) {
+		List<Object[]> rows = buildFormDataRevisionsQuery(criteria).list();
+
+		List<FormDataRevisionDetail> result = new ArrayList<>();
+		for (Object[] row : rows) {
+			int idx = 0;
+			FormDataRevisionDetail detail = new FormDataRevisionDetail();
+			detail.setId((Long) row[idx++]);
+			detail.setTime((Date) row[idx++]);
+			detail.setOp((String) row[idx++]);
+			detail.setEntityId((Long) row[idx++]);
+			detail.setRecordId((Long) row[idx++]);
+			detail.setEntityType((String) row[idx++]);
+			detail.setFormName((String) row[idx++]);
+
+			UserSummary user = new UserSummary();
+			user.setId((Long) row[idx++]);
+			user.setFirstName((String) row[idx++]);
+			user.setLastName((String) row[idx++]);
+			user.setEmailAddress((String) row[idx++]);
+			detail.setUser(user);
+
+			result.add(detail);
+		}
+
+		return result;
 	}
 
 	@Override
@@ -155,10 +189,6 @@ public class AuditDaoImpl extends AbstractDao<UserApiCallLog> implements AuditDa
 	}
 
 	private Criteria buildRevisionsListQuery(Criteria query, RevisionsListCriteria criteria) {
-		if (CollectionUtils.isNotEmpty(criteria.entityNames())) {
-			query.add(Restrictions.in("re.entityName", criteria.entityNames()));
-		}
-
 		if (criteria.startDate() != null) {
 			query.add(Restrictions.ge("r.revtstmp", criteria.startDate()));
 		}
@@ -215,6 +245,68 @@ public class AuditDaoImpl extends AbstractDao<UserApiCallLog> implements AuditDa
 		return revisions;
 	}
 
+	private Query buildFormDataRevisionsQuery(RevisionsListCriteria criteria) {
+		String sql = String.format(GET_FORM_DATA_AUD_EVENTS_SQL, buildBaseFormDataRevisionsQuery(criteria));
+		Query query = getCurrentSession().createSQLQuery(sql)
+			.addScalar("identifier", LongType.INSTANCE)
+			.addScalar("event_timestamp", TimestampType.INSTANCE)
+			.addScalar("event_type", StringType.INSTANCE)
+			.addScalar("object_id", LongType.INSTANCE)
+			.addScalar("record_id", LongType.INSTANCE)
+			.addScalar("entity_type", StringType.INSTANCE)
+			.addScalar("caption", StringType.INSTANCE)
+			.addScalar("user_id", LongType.INSTANCE)
+			.addScalar("first_name", StringType.INSTANCE)
+			.addScalar("last_name", StringType.INSTANCE)
+			.addScalar("email_address", StringType.INSTANCE);
+
+		if (criteria.userId() != null) {
+			query.setParameter("userId", criteria.userId());
+		}
+
+		if (criteria.startDate() != null) {
+			query.setParameter("startDate", criteria.startDate());
+		}
+
+		if (criteria.endDate() != null) {
+			query.setParameter("endDate", criteria.endDate());
+		}
+
+		if (criteria.lastId() != null) {
+			query.setParameter("lastId", criteria.lastId());
+		}
+
+		return query;
+	}
+
+	private String buildBaseFormDataRevisionsQuery(RevisionsListCriteria criteria) {
+		List<String> whereClauses = new ArrayList<>();
+
+		if (criteria.userId() != null) {
+			whereClauses.add("e.user_id = :userId");
+		}
+
+		if (criteria.startDate() != null) {
+			whereClauses.add("e.event_timestamp >= :startDate");
+		}
+
+		if (criteria.endDate() != null) {
+			whereClauses.add("e.event_timestamp <= :endDate");
+		}
+
+		if (criteria.lastId() != null) {
+			whereClauses.add("e.identifier < :lastId");
+		}
+
+		String result = GET_FORM_DATA_AUD_EVENTS_BASE_SQL;
+		if (!whereClauses.isEmpty()) {
+			result += " where " + StringUtils.join(whereClauses, " and ");
+		}
+
+		result += " order by e.identifier desc ";
+		return getLimitSql(result, criteria.startAt(), criteria.maxResults(), DbSettingsFactory.isOracle());
+	}
+
 	private static final String FQN = UserApiCallLog.class.getName();
 
 	private static final String GET_REV_INFO_SQL =
@@ -231,7 +323,33 @@ public class AuditDaoImpl extends AbstractDao<UserApiCallLog> implements AuditDa
 		"order by " +
 		"  r.revtstmp desc";
 
-	private static final String GET_REV_COUNT_SQL = "select count(t.rev) as revisions from %s t where t.identifier = :objectId";
+	private static final String GET_REV_COUNT_SQL =
+		"select " +
+		"  count(t.rev) as revisions " +
+		"from " +
+		"  %s t " +
+		"where " +
+		"  t.identifier = :objectId";
+
+	private static final String GET_FORM_DATA_AUD_EVENTS_BASE_SQL =
+		"select" +
+		"  e.identifier, e.event_timestamp, e.user_id, e.event_type, e.record_id, e.form_id " +
+		"from " +
+		"  dyextn_audit_events e";
+
+	private static final String GET_FORM_DATA_AUD_EVENTS_SQL =
+		"select" +
+		"  t.identifier, t.event_timestamp, t.event_type, fre.object_id, t.record_id, " +
+		"  fc.entity_type, f.caption, " +
+		"  t.user_id, u.first_name, u.last_name, u.email_address " +
+		"from " +
+		"  (%s) t " +
+		"  inner join dyextn_containers f on f.identifier = t.form_id " +
+		"  inner join catissue_form_context fc on fc.container_id = f.identifier " +
+		"  inner join catissue_form_record_entry fre on fre.record_id = t.record_id and fre.form_ctxt_id = fc.identifier " +
+		"  inner join catissue_user u on u.identifier = t.user_id " +
+		"order by " +
+		" t.identifier desc";
 
 	private static final String GET_LATEST_API_CALL_TIME = FQN + ".getLatestApiCallTime";
 }

@@ -120,8 +120,8 @@ public class AuditController {
 		ResponseEvent<File> resp = auditService.getExportedRevisionsFile(new RequestEvent<>(fileId));
 		resp.throwErrorIfUnsuccessful();
 
-		httpResp.setContentType("application/csv");
-		httpResp.setHeader("Content-Disposition", "attachment;filename=audit_entity_revisions.csv");
+		httpResp.setContentType("application/zip");
+		httpResp.setHeader("Content-Disposition", "attachment;filename=audit_entity_revisions.zip");
 
 		InputStream in = null;
 		try {

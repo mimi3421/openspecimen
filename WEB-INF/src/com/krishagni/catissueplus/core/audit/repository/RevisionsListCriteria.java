@@ -8,8 +8,6 @@ import com.krishagni.catissueplus.core.common.events.AbstractListCriteria;
 
 public class RevisionsListCriteria extends AbstractListCriteria<RevisionsListCriteria> {
 
-	private List<String> entityNames;
-
 	private Date startDate;
 
 	private Date endDate;
@@ -19,16 +17,6 @@ public class RevisionsListCriteria extends AbstractListCriteria<RevisionsListCri
 	@Override
 	public RevisionsListCriteria self() {
 		return this;
-	}
-
-	public List<String> entityNames() {
-		return entityNames;
-	}
-
-	@JsonProperty("entityNames")
-	public RevisionsListCriteria entityNames(List<String> entityNames) {
-		this.entityNames = entityNames;
-		return self();
 	}
 
 	public Date startDate() {
