@@ -2,6 +2,7 @@ package com.krishagni.catissueplus.core.audit.services.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
@@ -184,11 +185,11 @@ public class AuditServiceImpl implements AuditService {
 		AuthUtil.setCurrentUser(exportedBy);
 
 		String baseDir = UUID.randomUUID().toString();
+		Date exportedOn = Calendar.getInstance().getTime();
+		File coreObjectsRevs = new CoreObjectsRevisionExporter(criteria, exportedBy, exportedOn, revisionsBy).export(baseDir);
+		File formsDataRevs   = new FormsDataRevisionExporter(criteria, exportedBy, exportedOn, revisionsBy).export(baseDir);
 
-		File coreObjectsRevs = new CoreObjectsRevisionExporter(criteria, exportedBy, revisionsBy).export(baseDir);
-		File formsDataRevs   = new FormsDataRevisionExporter(criteria, exportedBy, revisionsBy).export(baseDir);
-
-		File result = new File(getAuditDir(), baseDir + "_" + exportedBy.getId());
+		File result = new File(getAuditDir(), baseDir + "_" + getTs(exportedOn) + "_" + exportedBy.getId());
 		List<String> inputFiles = Arrays.asList(coreObjectsRevs.getAbsolutePath(), formsDataRevs.getAbsolutePath());
 		Utility.zipFiles(inputFiles, result.getAbsolutePath());
 
@@ -225,11 +226,14 @@ public class AuditServiceImpl implements AuditService {
 
 		private User exportedBy;
 
+		private Date exportedOn;
+
 		private User revisionsBy;
 
-		public CoreObjectsRevisionExporter(RevisionsListCriteria criteria, User exportedBy, User revisionsBy) {
+		public CoreObjectsRevisionExporter(RevisionsListCriteria criteria, User exportedBy, Date exportedOn, User revisionsBy) {
 			this.criteria = criteria;
 			this.exportedBy = exportedBy;
+			this.exportedOn = exportedOn;
 			this.revisionsBy = revisionsBy;
 		}
 
@@ -280,15 +284,16 @@ public class AuditServiceImpl implements AuditService {
 		}
 
 		private File getOutputFile(String dir) {
-			return new File(getAuditDir(dir), "core_objects_revisions.csv");
+			return new File(getAuditDir(dir), "os_core_objects_revisions_" + getTs(exportedOn) + ".csv");
 		}
 
 		private void writeHeader(CsvWriter writer) {
+			writeExportHeader(writer, criteria, exportedBy, exportedOn, revisionsBy);
+
 			String[] keys = {
 				"audit_rev_id", "audit_rev_tstmp", "audit_rev_user", "audit_rev_user_email",
 				"audit_rev_entity_op", "audit_rev_entity_name", "audit_rev_entity_id"
 			};
-
 			writer.writeNext(Stream.of(keys).map(MessageUtil.getInstance()::getMessage).toArray(String[]::new));
 		}
 
@@ -348,11 +353,14 @@ public class AuditServiceImpl implements AuditService {
 
 		private User exportedBy;
 
+		private Date exportedOn;
+
 		private User revisionsBy;
 
-		public FormsDataRevisionExporter(RevisionsListCriteria criteria, User exportedBy, User revisionsBy) {
+		public FormsDataRevisionExporter(RevisionsListCriteria criteria, User exportedBy, Date exportedOn, User revisionsBy) {
 			this.criteria = criteria;
 			this.exportedBy = exportedBy;
+			this.exportedOn = exportedOn;
 			this.revisionsBy = revisionsBy;
 		}
 
@@ -405,16 +413,17 @@ public class AuditServiceImpl implements AuditService {
 		}
 
 		private File getOutputFile(String dir) {
-			return new File(getAuditDir(dir), "forms_data_revisions.csv");
+			return new File(getAuditDir(dir), "os_forms_data_revisions_" + getTs(exportedOn) + ".csv");
 		}
 
 		private void writeHeader(CsvWriter writer) {
+			writeExportHeader(writer, criteria, exportedBy, exportedOn, revisionsBy);
+
 			String[] keys = {
 				"audit_rev_id", "audit_rev_tstmp", "audit_rev_user", "audit_rev_user_email",
 				"audit_rev_entity_op", "audit_rev_entity_name", "audit_rev_form_name",
 				"audit_rev_parent_entity_id", "audit_rev_entity_id"
 			};
-
 			writer.writeNext(Stream.of(keys).map(MessageUtil.getInstance()::getMessage).toArray(String[]::new));
 		}
 
@@ -475,6 +484,29 @@ public class AuditServiceImpl implements AuditService {
 		return dt != null ? Utility.getDateTimeString(dt) : null;
 	}
 
+	private void writeExportHeader(CsvWriter writer, RevisionsListCriteria criteria, User exportedBy, Date exportedOn, User revisionUser) {
+		writeRow(writer, toMsg("audit_rev_exported_by"), exportedBy.formattedName());
+		writeRow(writer, toMsg("audit_rev_exported_on"), getDateTimeString(exportedOn));
+
+		if (revisionUser != null) {
+			writeRow(writer, toMsg("audit_rev_audited_user"), revisionUser.formattedName());
+		}
+
+		if (criteria.startDate() != null) {
+			writeRow(writer, toMsg("audit_rev_start_date"), getDateTimeString(criteria.startDate()));
+		}
+
+		if (criteria.endDate() != null) {
+			writeRow(writer, toMsg("audit_rev_end_date"), getDateTimeString(criteria.endDate()));
+		}
+
+		writeRow(writer, "");
+	}
+
+	private void writeRow(CsvWriter writer, String ... columns) {
+		writer.writeNext(columns);
+	}
+
 	private String toMsg(String key) {
 		try {
 			int idx = key.indexOf("-");
@@ -486,5 +518,9 @@ public class AuditServiceImpl implements AuditService {
 		} catch (Exception e) {
 			return key;
 		}
+	}
+
+	private String getTs(Date date) {
+		return new SimpleDateFormat("yyyyMMdd_HHmm").format(date);
 	}
 }

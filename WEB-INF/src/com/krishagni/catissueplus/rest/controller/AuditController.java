@@ -120,8 +120,10 @@ public class AuditController {
 		ResponseEvent<File> resp = auditService.getExportedRevisionsFile(new RequestEvent<>(fileId));
 		resp.throwErrorIfUnsuccessful();
 
+		String[] parts = resp.getPayload().getName().split("_"); // <UUID>_<date>_<time>_<userid>
+		String filename = "os_audit_revisions_" + parts[1] + "_" + parts[2]+ ".zip";
 		httpResp.setContentType("application/zip");
-		httpResp.setHeader("Content-Disposition", "attachment;filename=audit_entity_revisions.zip");
+		httpResp.setHeader("Content-Disposition", "attachment;filename=" + filename);
 
 		InputStream in = null;
 		try {
