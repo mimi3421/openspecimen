@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 
+import com.krishagni.catissueplus.core.common.events.NameValuePair;
 import com.krishagni.catissueplus.core.de.events.ExtensionDetail;
 
 public class MasterSpecimenDetail {
@@ -118,7 +119,9 @@ public class MasterSpecimenDetail {
 	private String receivedQuality;
 	
 	private String receiver;
-	
+
+	private List<NameValuePair> externalIds;
+
 	private ExtensionDetail extensionDetail;
 
 	public String getCpShortTitle() {
@@ -573,6 +576,14 @@ public class MasterSpecimenDetail {
 
 	public void setReceiver(String receiver) {
 		this.receiver = receiver;
+	}
+
+	public List<NameValuePair> getExternalIds() {
+		return externalIds;
+	}
+
+	public void setExternalIds(List<NameValuePair> externalIds) {
+		this.externalIds = externalIds;
 	}
 
 	public ExtensionDetail getExtensionDetail() {
