@@ -486,4 +486,61 @@
         ds.created_on = ss.created_on
     </sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="Rename duplicate CP short titles" dbms="mysql">
+    <sql>
+      update
+        catissue_collection_protocol ocp
+        inner join (
+          select
+            cp.identifier, cp.short_title, t.min_cp_id
+          from
+            catissue_collection_protocol cp
+            inner join (
+              select
+                short_title, min(identifier) as min_cp_id
+              from
+                catissue_collection_protocol
+              group by
+                short_title
+              having
+                count(*) > 1
+            ) t on t.short_title = cp.short_title and t.min_cp_id != cp.identifier
+        ) dup_cp on dup_cp.identifier = ocp.identifier
+      set
+        ocp.short_title = concat(ocp.short_title, concat('_', ocp.identifier))
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Rename duplicate CP short titles" dbms="oracle">
+    <sql>
+      merge into catissue_collection_protocol ocp
+      using (
+        select
+          cp.identifier, cp.short_title, t.min_cp_id
+        from
+          catissue_collection_protocol cp
+          inner join (
+            select
+              short_title, min(identifier) as min_cp_id
+            from
+              catissue_collection_protocol
+            group by
+              short_title
+            having
+              count(*) > 1
+          ) t on t.short_title = cp.short_title and t.min_cp_id != cp.identifier
+      ) dup_cp on (dup_cp.identifier = ocp.identifier)
+      when matched then
+        update set ocp.short_title = concat(ocp.short_title, concat('_', ocp.identifier))
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Initialise null CP short titles to their respective CP identifier">
+    <sql>update catissue_collection_protocol set short_title = concat('', identifier) where short_title is null</sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Add unique constraint on CP short title">
+    <addUniqueConstraint tableName="catissue_collection_protocol" columnNames="short_title"/>
+  </changeSet>
 </databaseChangeLog>
