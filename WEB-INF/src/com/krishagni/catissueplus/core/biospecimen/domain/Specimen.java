@@ -969,7 +969,7 @@ public class Specimen extends BaseExtensionEntity {
 			reason = specimen.getComment();
 		}
 
-		updateStatus(specimen.getActivityStatus(), reason);
+		updateStatus(specimen, reason);
 
 		//
 		// NOTE: This has been commented to allow retrieving distributed specimens from the holding tanks
@@ -1037,10 +1037,19 @@ public class Specimen extends BaseExtensionEntity {
 		setUpdated(true);
 	}
 	
-	public void updateStatus(String activityStatus, String reason){
-		updateStatus(activityStatus, AuthUtil.getCurrentUser(), Calendar.getInstance().getTime(), reason, isForceDelete());
+	public void updateStatus(Specimen otherSpecimen, String reason) {
+		updateStatus(otherSpecimen.getActivityStatus(), AuthUtil.getCurrentUser(), Calendar.getInstance().getTime(), reason, isForceDelete());
+
+		//
+		// OPSMN-4629
+		// the specimen is in closed state and has no position.
+		// ensure the new updatable specimen has no position either.
+		//
+		if (!isActive()) {
+			otherSpecimen.setPosition(null);
+		}
 	}
-	
+
 	//
 	// TODO: Modify to accommodate pooled specimens
 	//	
