@@ -1,25 +1,26 @@
 
 angular.module('os.common.search.ctrl', [])
-  .controller('QuickSearchCtrl', function($scope, $document, $timeout, QuickSearchSvc) {
+  .controller('QuickSearchCtrl', function($scope, $document, $timeout, $q, QuickSearchSvc) {
 
     function init() {
       $scope.quickSearch = {};
 
-      var entities = QuickSearchSvc.getEntities();
-      var numEntities = entities.length;
+      var result = QuickSearchSvc.getEntities();
+      var ctx = $scope.ctx = { entities: result.entities, tmpl: '', names: '' };
 
-      var placeholder = entities.map(function(entity) { return entity.caption; });
-      if (numEntities > 2) {
-        placeholder = placeholder.slice(0, numEntities - 1).join(', ') + ', or ' + placeholder[numEntities - 1];
-      } else {
-        placeholder = placeholder.join(' or ');
-      }
+      $q.all(result.qs).then(
+        function() {
+          var placeholder = result.entities.map(function(entity) { return entity.caption; });
+          var numEntities = result.entities.length;
+          if (numEntities > 2) {
+            placeholder = placeholder.slice(0, numEntities - 1).join(', ') + ', or ' + placeholder[numEntities - 1];
+          } else {
+            placeholder = placeholder.join(' or ');
+          }
 
-      var ctx = $scope.ctx = {
-        entities: entities,
-        tmpl: '',
-        names: placeholder
-      };
+          ctx.names = placeholder;
+        }
+      );
 
       $scope.searchData = {};
     }

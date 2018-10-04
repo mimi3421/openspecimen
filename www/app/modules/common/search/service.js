@@ -1,5 +1,5 @@
 angular.module('os.common.search.service', [])
-  .factory('QuickSearchSvc', function($translate) {
+  .factory('QuickSearchSvc', function($translate, $q) {
     var entitySearchMap = {}
 
     function register(entityName, searchOpts) {
@@ -22,14 +22,25 @@ angular.module('os.common.search.service', [])
     }
 
     function getEntities() {
-      var results = [];
+      var result = {entities: [], qs: []};
+
       angular.forEach(entitySearchMap, function(value, key) {
-        results.push({name: key, caption: $translate.instant(value.caption), order: value.order});
+        var entity = {name: key, caption: value.caption, order: value.order};
+
+        var q = $q.defer();
+        $translate(value.caption).then(
+          function(caption) {
+            entity.caption = caption;
+            q.resolve(caption);
+          }
+        );
+
+        result.entities.push(entity);
+        result.qs.push(q.promise);
       });
 
-      results = results.sort(function(a, b) {return (a.order > b.order) - (b.order > a.order);});
-
-      return results;
+      result.entities = result.entities.sort(function(a, b) {return (a.order > b.order) - (b.order > a.order);});
+      return result;
     }
 
     return {
