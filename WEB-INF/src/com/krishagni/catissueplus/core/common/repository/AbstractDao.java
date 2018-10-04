@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.hibernate.Criteria;
@@ -15,6 +16,7 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 import com.krishagni.catissueplus.core.biospecimen.domain.BaseEntity;
+import com.krishagni.catissueplus.core.common.util.Utility;
 
 public class AbstractDao<T> implements Dao<T> {
 
@@ -126,5 +128,9 @@ public class AbstractDao<T> implements Dao<T> {
 		}
 
 		return Collections.singletonMap(propName, rows.iterator().next());
+	}
+
+	protected Collection<String> toUpper(Collection<String> inputList) {
+		return Utility.nullSafeStream(inputList).map(String::toUpperCase).collect(Collectors.toList());
 	}
 }

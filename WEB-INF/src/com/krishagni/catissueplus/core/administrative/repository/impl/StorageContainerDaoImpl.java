@@ -74,7 +74,7 @@ public class StorageContainerDaoImpl extends AbstractDao<StorageContainer> imple
 	public StorageContainer getByName(String name) {
 		List<StorageContainer> result = sessionFactory.getCurrentSession()
 				.createCriteria(StorageContainer.class)
-				.add(Restrictions.eq("name", name))
+				.add(Restrictions.eq("name", name).ignoreCase())
 				.add(Restrictions.eq("activityStatus", Status.ACTIVITY_STATUS_ACTIVE.getStatus()))
 				.list();
 
@@ -85,7 +85,7 @@ public class StorageContainerDaoImpl extends AbstractDao<StorageContainer> imple
 	public StorageContainer getByBarcode(String barcode) {		
 		List<StorageContainer> result = sessionFactory.getCurrentSession()
 				.createCriteria(StorageContainer.class)
-				.add(Restrictions.eq("barcode", barcode))
+				.add(Restrictions.eq("barcode", barcode).ignoreCase())
 				.add(Restrictions.eq("activityStatus", Status.ACTIVITY_STATUS_ACTIVE.getStatus()))
 				.list();
 
