@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -204,6 +205,11 @@ public class Specimen extends BaseExtensionEntity {
 	private transient SpecimenChildrenEvent derivativeEvent;
 
 	private transient SpecimenChildrenEvent aliquotEvent;
+
+	//
+	// OPSMN-4636: To ensure the same set of specimens are not created twice
+	//
+	private transient Map<Long, Specimen> preCreatedSpmnsMap;
 
 	public static String getEntityName() {
 		return ENTITY_NAME;
@@ -710,6 +716,10 @@ public class Specimen extends BaseExtensionEntity {
 		this.dp = dp;
 	}
 
+	public Map<Long, Specimen> getPreCreatedSpmnsMap() {
+		return preCreatedSpmnsMap;
+	}
+
 	public boolean isPrintLabel() {
 		return printLabel;
 	}
@@ -878,7 +888,11 @@ public class Specimen extends BaseExtensionEntity {
 			return;
 		}
 
-		List<PrintItem<Specimen>> printItems = createPendingSpecimens(getSpecimenRequirement(), this).stream()
+
+		List<Specimen> pendingSpecimens = createPendingSpecimens(getSpecimenRequirement(), this);
+		preCreatedSpmnsMap = pendingSpecimens.stream().collect(Collectors.toMap(s -> s.getSpecimenRequirement().getId(), s -> s));
+
+		List<PrintItem<Specimen>> printItems = pendingSpecimens.stream()
 			.filter(spmn -> spmn.getParentSpecimen().equals(this))
 			.map(Specimen::getPrePrintItems)
 			.flatMap(List::stream)
