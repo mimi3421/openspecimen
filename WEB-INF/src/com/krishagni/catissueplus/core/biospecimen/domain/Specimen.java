@@ -1014,10 +1014,11 @@ public class Specimen extends BaseExtensionEntity {
 		updatePosition(specimen.getPosition(), null, specimen.getTransferTime(), specimen.getTransferComments());
 
 		if (isCollected()) {
+			Date createdOn = specimen.getCreatedOn();
 			if (isPrimary()) {
-				updateCreatedOn(Utility.chopSeconds(getReceivedEvent().getTime()));
+				updateCreatedOn(createdOn != null ? createdOn : getReceivedEvent().getTime());
 			} else {
-				updateCreatedOn(specimen.getCreatedOn() != null ? specimen.getCreatedOn() : Calendar.getInstance().getTime());
+				updateCreatedOn(createdOn != null ? createdOn : Calendar.getInstance().getTime());
 
 				if (!wasCollected) {
 					getParentSpecimen().addToChildrenEvent(this);
@@ -1344,12 +1345,12 @@ public class Specimen extends BaseExtensionEntity {
 	}
 	
 	public void addOrUpdateCollRecvEvents() {
-		if (!isCollected()) {
+		if (!isCollected() || isAliquot() || isDerivative()) {
 			return;
 		}
-		
-		addOrUpdateCollectionEvent();
-		addOrUpdateReceivedEvent();
+
+		getCollectionEvent().saveOrUpdate();
+		getReceivedEvent().saveOrUpdate();
 	}
 	
 	public void setLabelIfEmpty() {
@@ -1659,23 +1660,6 @@ public class Specimen extends BaseExtensionEntity {
 		return count;
 	}
 			
-	private void addOrUpdateCollectionEvent() {
-		if (isAliquot() || isDerivative()) {
-			return;
-		}
-		
-		getCollectionEvent().saveOrUpdate();		
-	}
-	
-	private void addOrUpdateReceivedEvent() {
-		if (isAliquot() || isDerivative()) {
-			return;
-		}
-		
-		getReceivedEvent().saveOrUpdate();
-		setCreatedOn(getReceivedEvent().getTime());
-	}
-	
 	private void deleteEvents() {
 		if (!isAliquot() && !isDerivative()) {
 			getCollectionEvent().delete();

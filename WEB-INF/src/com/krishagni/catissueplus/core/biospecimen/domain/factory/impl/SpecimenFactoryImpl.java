@@ -696,8 +696,8 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 			specimen.setSpecimenType(existing.getSpecimenType());
 		}
 	}
-	
-	private void setCreatedOn(SpecimenDetail detail, Specimen specimen, OpenSpecimenException ose) {
+
+	private void setCreatedOn(SpecimenDetail detail, Specimen existing, Specimen specimen, OpenSpecimenException ose) {
 		if (!specimen.isCollected()) {
 			//
 			// Created on date/time doesn't have any meaning unless the specimen is collected
@@ -705,20 +705,30 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 			return;
 		}
 
-		if (specimen.isPrimary() && detail.getReceivedEvent() != null) {
-			specimen.setCreatedOn(detail.getReceivedEvent().getTime());
-		} else if (detail.getCreatedOn() != null) {
+		//
+		// user specified date is preferred
+		//
+		if (detail.getCreatedOn() != null) {
 			specimen.setCreatedOn(detail.getCreatedOn());
+			return;
+		}
+
+		//
+		// existing date is copied
+		//
+		if (existing != null && existing.isCollected()) {
+			specimen.setCreatedOn(existing.getCreatedOn());
+			return;
+		}
+
+		//
+		// there is either no pre-existing specimen or the pre-existing specimen is not collected
+		//
+		ReceivedEventDetail recvEvent = detail.getReceivedEvent();
+		if (specimen.isPrimary() && recvEvent != null && recvEvent.getTime() != null) {
+			specimen.setCreatedOn(recvEvent.getTime());
 		} else {
 			specimen.setCreatedOn(Calendar.getInstance().getTime());
-		}
-	}
-	
-	private void setCreatedOn(SpecimenDetail detail, Specimen existing, Specimen specimen, OpenSpecimenException ose) {
-		if (existing == null || detail.isAttrModified("createdOn")) {
-			setCreatedOn(detail, specimen, ose); 
-		} else {
-			specimen.setCreatedOn(existing.getCreatedOn());
 		}
 	}
 	
