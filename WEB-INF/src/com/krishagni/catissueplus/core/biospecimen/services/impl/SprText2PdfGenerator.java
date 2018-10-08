@@ -92,12 +92,19 @@ public class SprText2PdfGenerator implements SprPdfGenerator {
 				AuthUtil.getCurrentUser().getLastName() + ", " + AuthUtil.getCurrentUser().getFirstName());
 		headerInfo.put(getMessage("spr_visit_name"), visit.getName());
 		headerInfo.put(getMessage("spr_ppid"), visit.getRegistration().getPpid());
+
 		Integer ageAtColl = Utility.yearsBetween(visit.getRegistration().getParticipant().getBirthDate(), visit.getVisitDate());
-		headerInfo.put(getMessage("spr_age_at_collection"), (ageAtColl != null) ? ageAtColl.toString() : "-");
+		String ageRangeStr = "-";
+		if (ageAtColl != null) {
+			ageAtColl = (ageAtColl / 10) * 10;
+			ageRangeStr = ageAtColl + " - " + (ageAtColl + 9);
+		}
+		headerInfo.put(getMessage("spr_age_at_collection"), ageRangeStr);
+
 		headerInfo.put(getMessage("spr_printed_on_date"), Utility.getDateString(new Date()));
 		headerInfo.put(getMessage("spr_participant_race"), 
 				Utility.stringListToCsv(visit.getRegistration().getParticipant().getRaces(), false));
-		headerInfo.put(getMessage("spr_visit_date"), Utility.getDateString(visit.getVisitDate()));
+		headerInfo.put(getMessage("spr_visit_date"), Utility.getYear(visit.getVisitDate()).toString());
 		
 		for (Map.Entry<String, String> entry : headerInfo.entrySet()) {
 			Paragraph paragraph = new Paragraph();

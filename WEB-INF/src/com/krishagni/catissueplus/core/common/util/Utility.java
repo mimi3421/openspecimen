@@ -322,6 +322,16 @@ public class Utility {
 		return new SimpleDateFormat(ConfigUtil.getInstance().getDateTimeFmt()).format(date);
 	}
 
+	public static Integer getYear(Date date) {
+		if (date == null) {
+			return null;
+		}
+
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		return cal.get(Calendar.YEAR);
+	}
+
 	public static Date chopSeconds(Date date) {
 		if (date == null) {
 			return null;

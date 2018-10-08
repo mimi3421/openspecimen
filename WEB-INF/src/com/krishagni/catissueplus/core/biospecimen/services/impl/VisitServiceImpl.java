@@ -325,7 +325,7 @@ public class VisitServiceImpl implements VisitService, ObjectAccessor, Initializ
 			
 			String fileExtension = file.getName().substring(file.getName().lastIndexOf('.'));
 			if (isPdfType(detail.getType()) && isTextFile(file)) {
-				Map<String, Object> props = Collections.<String, Object>singletonMap("visit", visit);
+				Map<String, Object> props = Collections.singletonMap("visit", visit);
 				file = sprText2PdfGenerator.generate(file, props);
 				fileExtension = ".pdf";
 			}
