@@ -99,6 +99,7 @@
   <include file="db/5.1/permissible-values.xml"/>
   <include file="db/5.1/migration.xml"/>
 
+  <include file="db/5.2/schema.xml"/>
   <include file="db/5.2/config.xml"/>
   <include file="db/5.2/audit.xml"/>
 </databaseChangeLog>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+  http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+  <changeSet author="vpawar" id="External app IDs">
+    <createTable tableName="OS_EXTERNAL_APP_IDS">
+      <column name="IDENTIFIER" type="${int.type}" autoIncrement="${autoIncrement}">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="APP_NAME" type="${text.type}(32)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="ENTITY_NAME" type="${text.type}(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="EXTERNAL_ID" type="${text.type}(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="OS_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet author="vpawar" id="External app ID sequence" dbms="oracle">
+    <createSequence sequenceName="OS_EXTERNAL_APP_IDS_SEQ" startValue="1" incrementBy="1" ordered="true"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Index on external app name + entity name + external ID">
+    <createIndex tableName="OS_EXTERNAL_APP_IDS" indexName="OS_EXT_APP_IDX">
+      <column name="APP_NAME"/>
+      <column name="ENTITY_NAME"/>
+      <column name="EXTERNAL_ID"/>
+    </createIndex>
+  </changeSet>
+</databaseChangeLog>
