@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.hibernate.Criteria;
@@ -15,8 +16,7 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 import com.krishagni.catissueplus.core.biospecimen.domain.BaseEntity;
-
-import edu.common.dynamicextensions.ndao.DbSettingsFactory;
+import com.krishagni.catissueplus.core.common.util.Utility;
 
 public class AbstractDao<T> implements Dao<T> {
 	private static final String LIMIT_SQL = "select * from (select tab.*, rownum rnum from (%s) tab where rownum <= %d) where rnum >= %d";
@@ -137,5 +137,9 @@ public class AbstractDao<T> implements Dao<T> {
 		} else {
 			return baseSql + "limit " + startAt + ", " + maxResults;
 		}
+	}
+
+	protected Collection<String> toUpper(Collection<String> inputList) {
+		return Utility.nullSafeStream(inputList).map(String::toUpperCase).collect(Collectors.toList());
 	}
 }

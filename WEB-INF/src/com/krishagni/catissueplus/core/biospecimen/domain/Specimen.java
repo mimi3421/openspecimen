@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -204,6 +205,11 @@ public class Specimen extends BaseExtensionEntity {
 	private transient SpecimenChildrenEvent derivativeEvent;
 
 	private transient SpecimenChildrenEvent aliquotEvent;
+
+	//
+	// OPSMN-4636: To ensure the same set of specimens are not created twice
+	//
+	private transient Map<Long, Specimen> preCreatedSpmnsMap;
 
 	public static String getEntityName() {
 		return ENTITY_NAME;
@@ -710,6 +716,10 @@ public class Specimen extends BaseExtensionEntity {
 		this.dp = dp;
 	}
 
+	public Map<Long, Specimen> getPreCreatedSpmnsMap() {
+		return preCreatedSpmnsMap;
+	}
+
 	public boolean isPrintLabel() {
 		return printLabel;
 	}
@@ -878,7 +888,11 @@ public class Specimen extends BaseExtensionEntity {
 			return;
 		}
 
-		List<PrintItem<Specimen>> printItems = createPendingSpecimens(getSpecimenRequirement(), this).stream()
+
+		List<Specimen> pendingSpecimens = createPendingSpecimens(getSpecimenRequirement(), this);
+		preCreatedSpmnsMap = pendingSpecimens.stream().collect(Collectors.toMap(s -> s.getSpecimenRequirement().getId(), s -> s));
+
+		List<PrintItem<Specimen>> printItems = pendingSpecimens.stream()
 			.filter(spmn -> spmn.getParentSpecimen().equals(this))
 			.map(Specimen::getPrePrintItems)
 			.flatMap(List::stream)
@@ -969,7 +983,7 @@ public class Specimen extends BaseExtensionEntity {
 			reason = specimen.getComment();
 		}
 
-		updateStatus(specimen.getActivityStatus(), reason);
+		updateStatus(specimen, reason);
 
 		//
 		// NOTE: This has been commented to allow retrieving distributed specimens from the holding tanks
@@ -1000,10 +1014,11 @@ public class Specimen extends BaseExtensionEntity {
 		updatePosition(specimen.getPosition(), null, specimen.getTransferTime(), specimen.getTransferComments());
 
 		if (isCollected()) {
+			Date createdOn = specimen.getCreatedOn();
 			if (isPrimary()) {
-				updateCreatedOn(Utility.chopSeconds(getReceivedEvent().getTime()));
+				updateCreatedOn(createdOn != null ? createdOn : getReceivedEvent().getTime());
 			} else {
-				updateCreatedOn(specimen.getCreatedOn() != null ? specimen.getCreatedOn() : Calendar.getInstance().getTime());
+				updateCreatedOn(createdOn != null ? createdOn : Calendar.getInstance().getTime());
 
 				if (!wasCollected) {
 					getParentSpecimen().addToChildrenEvent(this);
@@ -1037,10 +1052,19 @@ public class Specimen extends BaseExtensionEntity {
 		setUpdated(true);
 	}
 	
-	public void updateStatus(String activityStatus, String reason){
-		updateStatus(activityStatus, AuthUtil.getCurrentUser(), Calendar.getInstance().getTime(), reason, isForceDelete());
+	public void updateStatus(Specimen otherSpecimen, String reason) {
+		updateStatus(otherSpecimen.getActivityStatus(), AuthUtil.getCurrentUser(), Calendar.getInstance().getTime(), reason, isForceDelete());
+
+		//
+		// OPSMN-4629
+		// the specimen is in closed state and has no position.
+		// ensure the new updatable specimen has no position either.
+		//
+		if (!isActive()) {
+			otherSpecimen.setPosition(null);
+		}
 	}
-	
+
 	//
 	// TODO: Modify to accommodate pooled specimens
 	//	
@@ -1321,12 +1345,12 @@ public class Specimen extends BaseExtensionEntity {
 	}
 	
 	public void addOrUpdateCollRecvEvents() {
-		if (!isCollected()) {
+		if (!isCollected() || isAliquot() || isDerivative()) {
 			return;
 		}
-		
-		addOrUpdateCollectionEvent();
-		addOrUpdateReceivedEvent();
+
+		getCollectionEvent().saveOrUpdate();
+		getReceivedEvent().saveOrUpdate();
 	}
 	
 	public void setLabelIfEmpty() {
@@ -1636,23 +1660,6 @@ public class Specimen extends BaseExtensionEntity {
 		return count;
 	}
 			
-	private void addOrUpdateCollectionEvent() {
-		if (isAliquot() || isDerivative()) {
-			return;
-		}
-		
-		getCollectionEvent().saveOrUpdate();		
-	}
-	
-	private void addOrUpdateReceivedEvent() {
-		if (isAliquot() || isDerivative()) {
-			return;
-		}
-		
-		getReceivedEvent().saveOrUpdate();
-		setCreatedOn(getReceivedEvent().getTime());
-	}
-	
 	private void deleteEvents() {
 		if (!isAliquot() && !isDerivative()) {
 			getCollectionEvent().delete();

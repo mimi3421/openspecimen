@@ -1,17 +1,14 @@
 
 package com.krishagni.catissueplus.core.biospecimen.repository.impl;
 
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
@@ -23,9 +20,7 @@ import com.krishagni.catissueplus.core.biospecimen.domain.Visit;
 import com.krishagni.catissueplus.core.biospecimen.events.VisitSummary;
 import com.krishagni.catissueplus.core.biospecimen.repository.VisitsDao;
 import com.krishagni.catissueplus.core.biospecimen.repository.VisitsListCriteria;
-import com.krishagni.catissueplus.core.common.domain.IntervalUnit;
 import com.krishagni.catissueplus.core.common.repository.AbstractDao;
-import com.krishagni.catissueplus.core.common.util.Utility;
 
 public class VisitsDaoImpl extends AbstractDao<Visit> implements VisitsDao {
 	
@@ -33,94 +28,6 @@ public class VisitsDaoImpl extends AbstractDao<Visit> implements VisitsDao {
 	public Class<Visit> getType() {
 		return Visit.class;
 	}
-
-	//
-	// TODO: VP: Below getVisits() method should be removed before v5.0 RC
-	//
-
-//	@Override
-//	@SuppressWarnings("unchecked")
-//	public List<VisitSummary> getVisits(VisitsListCriteria crit) {
-//		List<Object[]> rows = getCurrentSession().getNamedQuery(GET_VISITS_SUMMARY_BY_CPR_ID)
-//			.setLong("cprId", crit.cprId())
-//			.list();
-//
-//		List<VisitSummary> visits = new ArrayList<>();
-//		Map<Long, VisitSummary> createdVisits = new HashMap<>();      // visitId: key
-//		Map<Long, VisitSummary> anticipatedVisits = new HashMap<>();  // eventId: key
-//
-//		Date regDate = null;
-//		int minEventPoint = 0, minEventPointInDays = 0;
-//		IntervalUnit minEventPointUnit = IntervalUnit.DAYS;
-//		for (Object[] row : rows) {
-//			Long visitId = (Long)row[0];
-//			String eventStatus = (String)row[3];
-//			if (visitId == null && StringUtils.isNotBlank(eventStatus) && eventStatus.equals("Disabled")) {
-//				continue;
-//			}
-//
-//			VisitSummary visit = new VisitSummary();
-//			visit.setId(visitId);
-//			visit.setEventId((Long)row[1]);
-//			visit.setName((String)row[2]);
-//			visit.setEventLabel((String)row[4]);
-//			visit.setEventPoint((Integer)row[5]);
-//
-//			String eventPointUnit = (String) row[6];
-//			if (StringUtils.isNotBlank(eventPointUnit)) {
-//				visit.setEventPointUnit(IntervalUnit.valueOf(eventPointUnit));
-//			}
-//
-//			visit.setStatus((String)row[7]);
-//			visit.setVisitDate((Date)row[8]);
-//			regDate = (Date)row[9];
-//			visit.setMissedReason((String)row[10]);
-//			visit.setCpId((Long)row[11]);
-//			visits.add(visit);
-//
-//			if (crit.includeStat()) {
-//				if (visit.getId() != null) {
-//					createdVisits.put(visitId, visit);
-//				} else {
-//					anticipatedVisits.put(visit.getEventId(), visit);
-//				}
-//			}
-//
-//			if (visit.getEventPoint() != null) {
-//				Integer interval = Utility.getNoOfDays(visit.getEventPoint(), visit.getEventPointUnit());
-//				if (interval < minEventPointInDays) {
-//					minEventPoint = visit.getEventPoint();
-//					minEventPointInDays = interval;
-//					minEventPointUnit = visit.getEventPointUnit();
-//				}
-//			}
-//		}
-//
-//		Calendar cal = Calendar.getInstance();
-//		for (VisitSummary visit : visits) {
-//			if (visit.getEventPoint() == null) {
-//				continue;
-//			}
-//
-//			cal.setTime(regDate);
-//			setAnticipatedVisitDateInCalender(cal, visit.getEventPoint(), visit.getEventPointUnit());
-//			setAnticipatedVisitDateInCalender(cal, -minEventPoint, minEventPointUnit);
-//			visit.setAnticipatedVisitDate(cal.getTime());
-//		}
-//
-//		if (crit.includeStat()) {
-//			if (!createdVisits.isEmpty()) {
-//				loadCreatedVisitStats(createdVisits);
-//			}
-//
-//			if (!anticipatedVisits.isEmpty()) {
-//				loadAnticipatedVisitStats(anticipatedVisits);
-//			}
-//		}
-//
-//		Collections.sort(visits);
-//		return visits;
-//	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -193,7 +100,7 @@ public class VisitsDaoImpl extends AbstractDao<Visit> implements VisitsDao {
 	public List<Visit> getByName(Collection<String> names) {
 		return sessionFactory.getCurrentSession()
 			.getNamedQuery(GET_VISIT_BY_NAME)
-			.setParameterList("names", names)
+			.setParameterList("names", toUpper(names))
 			.list();
 	}
 
@@ -211,7 +118,7 @@ public class VisitsDaoImpl extends AbstractDao<Visit> implements VisitsDao {
 	public List<Visit> getBySpr(String sprNumber) {
 		return sessionFactory.getCurrentSession()
 			.getNamedQuery(GET_VISIT_BY_SPR)
-			.setString("sprNumber", sprNumber)
+			.setParameter("sprNumber", sprNumber.toUpperCase())
 			.list();
 	}
 

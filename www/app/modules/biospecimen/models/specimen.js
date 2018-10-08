@@ -316,7 +316,6 @@ angular.module('os.biospecimen.models.specimen', ['os.common.models', 'os.biospe
         )
       }
 
-      this.createdOn = formData.time
       angular.extend(this.receivedEvent, eventData);
     }
 

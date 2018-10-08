@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -359,7 +360,7 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 		try {
 			Collection<Specimen> specimens = new ArrayList<>();
 			for (SpecimenDetail detail : req.getPayload()) {
-				Specimen specimen = collectSpecimen(detail, null);
+				Specimen specimen = collectSpecimen(detail, null, new HashMap<>());
 				specimens.add(specimen);
 			}
 
@@ -795,9 +796,15 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 		}
 	}
 
-	private Specimen collectSpecimen(SpecimenDetail detail, Specimen parent) {
+	private Specimen collectSpecimen(SpecimenDetail detail, Specimen parent, Map<Long, Specimen> reqSpmnsMap) {
 		Specimen existing = null;
-		if (detail.getId() != null) {
+
+		if (detail.getId() == null && detail.getReqId() != null) {
+			existing = reqSpmnsMap.get(detail.getReqId());
+			if (existing != null) {
+				detail.setId(existing.getId());
+			}
+		} else if (detail.getId() != null) {
 			existing = daoFactory.getSpecimenDao().getById(detail.getId());
 			if (existing == null) {
 				throw OpenSpecimenException.userError(SpecimenErrorCode.NOT_FOUND, detail.getId());
@@ -806,11 +813,15 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 
 		Specimen specimen = existing;
 		if (existing == null || !existing.isCollected()) {
-			existing = collectPoolSpecimens(detail, existing);
+			existing = collectPoolSpecimens(detail, existing, reqSpmnsMap);
 			specimen = saveOrUpdate(detail, null, existing, parent);
+
+			if (specimen.isPrimary() && specimen.getPreCreatedSpmnsMap() != null) {
+				reqSpmnsMap.putAll(specimen.getPreCreatedSpmnsMap());
+			}
 		} else {
 			existing.setUid(detail.getUid());
-			collectPoolSpecimens(detail, existing);
+			collectPoolSpecimens(detail, existing, reqSpmnsMap);
 		}
 
 		if (CollectionUtils.isNotEmpty(detail.getChildren())) {
@@ -819,7 +830,7 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 					childDetail.setCreatedOn(specimen.getCreatedOn());
 				}
 
-				collectSpecimen(childDetail, specimen);
+				collectSpecimen(childDetail, specimen, reqSpmnsMap);
 			}
 		}
 
@@ -830,7 +841,7 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 		return specimen;
 	}
 
-	private Specimen collectPoolSpecimens(SpecimenDetail detail, Specimen existing) {
+	private Specimen collectPoolSpecimens(SpecimenDetail detail, Specimen existing, Map<Long, Specimen> reqSpmnsMap) {
 		// If not pooled specimen then return existing specimen
 		if (CollectionUtils.isEmpty(detail.getSpecimensPool())) {
 			return existing;
@@ -838,7 +849,7 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 
 		Set<Specimen> specimensPool = new HashSet<>();
 		for (SpecimenDetail poolSpmnDetail : detail.getSpecimensPool()) {
-			specimensPool.add(collectSpecimen(poolSpmnDetail, null));
+			specimensPool.add(collectSpecimen(poolSpmnDetail, null, reqSpmnsMap));
 		}
 
 		if (existing == null) {

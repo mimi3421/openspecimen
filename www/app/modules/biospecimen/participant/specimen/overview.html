@@ -265,6 +265,8 @@
       </strong>
       <span class="value value-md">{{specimen.comments}}</span>
     </div>
+
+    <div ng-include="'modules/biospecimen/participant/specimen/external-ids.html'"></div>
   </div>
 </script>
 
@@ -324,3 +326,37 @@
     </div>
   </div>
 </script>
+
+<script type="text/ng-template" id="modules/biospecimen/participant/specimen/external-ids.html">
+  <div class="os-section" ng-init="extIdsCollapsed=false" ng-if="specimen.externalIds.length > 0">
+    <button class="os-btn-section-collapse os-btn-transparent" ng-click="extIdsCollapsed=!extIdsCollapsed">
+      <span class="fa" ng-class="{true: 'fa-chevron-circle-right', false: 'fa-chevron-circle-down'}[extIdsCollapsed]"></span>
+    </button>
+    <h3 class="os-sub-section-title" translate="specimens.external_ids">External IDs</h3>
+    <div collapse="extIdsCollapsed">
+      <table class="os-table os-table-muted-hdr os-border">
+        <thead class="os-table-head">
+          <tr class="row">
+            <th class="col col-xs-6">
+              <span translate="common.name">Name</span>
+            </th>
+            <th class="col col-xs-6">
+              <span translate="common.value">Value</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="os-table-body">
+          <tr class="row" ng-repeat="extId in specimen.externalIds">
+            <td class="col col-xs-6">
+              <span>{{extId.name | osNoValue}}</span>
+            </td>
+            <td class="col col-xs-6">
+              <span>{{extId.value | osNoValue}}</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</script>
+

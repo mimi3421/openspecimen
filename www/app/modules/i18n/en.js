@@ -82,6 +82,8 @@
     "use_system_setting": "Use System Setting",
     "search_user_manual": "Search user manual",
     "invalid_expr": "Invalid expression: {{expr}}",
+    "name": "Name",
+    "value": "Value",
 
     "interval_units": {
       "DAYS": "Days",
@@ -659,6 +661,7 @@
     "freeze_thaw_cycles": "Freeze/Thaw Cycles",
     "increment_parent_freeze_thaw": "Increment parent specimen's Freeze/Thaw cycles?",
     "external_id": "External ID",
+    "external_ids": "External IDs",
     "comments": "Comments",
     "qty": "Quantity",
     "count": "Count",

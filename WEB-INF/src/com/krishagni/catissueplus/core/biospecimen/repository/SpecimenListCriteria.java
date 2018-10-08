@@ -44,10 +44,6 @@ public class SpecimenListCriteria extends AbstractListCriteria<SpecimenListCrite
 
 	private Long reservedForDp;
 
-	public SpecimenListCriteria() {
-		exactMatch(true);
-	}
-	
 	@Override
 	public SpecimenListCriteria self() {		
 		return this;
