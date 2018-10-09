@@ -3,7 +3,7 @@ angular.module('os.biospecimen.cp.events', ['os.biospecimen.models'])
   .controller('CpEventsCtrl', function(
      $scope, $state, $stateParams, $modal,
      cp, events, 
-     CollectionProtocolEvent, PvManager) {
+     Alerts, CollectionProtocolEvent, PvManager) {
 
     var pvsLoaded = false;
 
@@ -16,7 +16,7 @@ angular.module('os.biospecimen.cp.events', ['os.biospecimen.models'])
          
       $scope.event = {};
       $scope.selected = {};
-    };
+    }
 
     function loadPvs() {
       if (pvsLoaded) {
@@ -26,7 +26,7 @@ angular.module('os.biospecimen.cp.events', ['os.biospecimen.models'])
       $scope.eventPointUnits     = PvManager.getPvs('interval-units');
       $scope.visitNamePrintModes = PvManager.getPvs('visit-name-print-modes');
       pvsLoaded = true;
-    };
+    }
 
     function loadSpecimenRequirements(event) {
       if ($scope.selected.id == event.id) {
@@ -35,7 +35,7 @@ angular.module('os.biospecimen.cp.events', ['os.biospecimen.models'])
 
       $scope.selected = event;
       $state.go('cp-detail.specimen-requirements', {eventId: event.id});
-    };
+    }
 
     $scope.selectEvent = function(event) { 
       loadSpecimenRequirements(event);
@@ -81,7 +81,7 @@ angular.module('os.biospecimen.cp.events', ['os.biospecimen.models'])
 
       ret.then(
         function(result) {
-          $scope.events.push(result);
+          events.push(result);
           $scope.event = {};
           $scope.mode = undefined;
           loadSpecimenRequirements(result);
@@ -92,9 +92,9 @@ angular.module('os.biospecimen.cp.events', ['os.biospecimen.models'])
     $scope.editEvent = function() {
       $scope.event.$saveOrUpdate().then(
         function(result) {
-          for (var i = 0; i < $scope.events.length; ++i) {
-            if ($scope.events[i].id == result.id) {
-              $scope.events[i] = result;
+          for (var i = 0; i < events.length; ++i) {
+            if (events[i].id == result.id) {
+              events[i] = result;
               break;
             }
           }
@@ -122,16 +122,40 @@ angular.module('os.biospecimen.cp.events', ['os.biospecimen.models'])
         function() {
           evt.delete().then(
             function() {
-              var idx = $scope.events.indexOf(evt);
-              $scope.events.splice(idx, 1);
-              if ($scope.events.length > 0) {
-                $scope.selectEvent($scope.events[0]);           
+              var idx = events.indexOf(evt);
+              events.splice(idx, 1);
+              if (events.length > 0) {
+                $scope.selectEvent(events[0]);
               }
             }
           );
         }
       );
     }; 
+
+    $scope.closeEvent = function(evt) {
+      var toClose = angular.copy(evt);
+      toClose.activityStatus = 'Closed';
+
+      toClose.$saveOrUpdate().then(
+        function(closedEvt) {
+          angular.extend(evt, closedEvt);
+          Alerts.success('cp.cpe_closed', closedEvt);
+        }
+      );
+    }
+
+    $scope.reopenEvent = function(evt) {
+      var toOpen = angular.copy(evt);
+      toOpen.activityStatus = 'Active';
+
+      toOpen.$saveOrUpdate().then(
+        function(openedEvt) {
+          angular.extend(evt, openedEvt);
+          Alerts.success('cp.cpe_reopened', openedEvt);
+        }
+      );
+    }
 
     init();
   });

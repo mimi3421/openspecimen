@@ -23,7 +23,9 @@ public enum CpeErrorCode implements ErrorCode {
 	
 	CP_REQUIRED,
 
-	IDS_OR_LABELS_REQUIRED;
+	IDS_OR_LABELS_REQUIRED,
+
+	CLOSED;
 
 	@Override
 	public String code() {

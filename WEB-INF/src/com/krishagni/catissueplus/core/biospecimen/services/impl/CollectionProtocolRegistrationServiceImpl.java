@@ -452,7 +452,10 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 			//
 			// Step 1: Fetch all created visit records along with their custom fields and stats
 			//
-			Collection<Visit> visits = cpr.getVisits();
+			Collection<Visit> visits = cpr.getVisits().stream()
+				.filter((v) -> v.getCpEvent() == null || !v.getCpEvent().isClosed() || !v.isPending())
+				.collect(Collectors.toList());
+
 			DeObject.createExtensions(true, Visit.EXTN, cpr.getCollectionProtocol().getId(), visits);
 			Map<Long, VisitDetail> visitsMap = visits.stream()
 				.collect(Collectors.toMap(Visit::getId, v -> VisitDetail.from(v, false, !hasPhiAccess)));
@@ -467,7 +470,8 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 				.map(Visit::getCpEvent).filter(Objects::nonNull).map(CollectionProtocolEvent::getId)
 				.collect(Collectors.toSet());
 			Set<CollectionProtocolEvent> unoccurredEvents = cpr.getCollectionProtocol().getCollectionProtocolEvents()
-				.stream().filter(cpe -> !occurredEvents.contains(cpe.getId())).collect(Collectors.toSet());
+				.stream().filter(cpe -> !cpe.isClosed() && !occurredEvents.contains(cpe.getId()))
+				.collect(Collectors.toSet());
 			Map<Long, VisitDetail> anticipatedVisitsMap = unoccurredEvents.stream()
 				.collect(Collectors.toMap(CollectionProtocolEvent::getId, VisitDetail::from));
 			if (crit.includeStat()) {
@@ -950,6 +954,7 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 
 	private List<SpecimenDetail> getSpecimensByCpr(CollectionProtocolRegistration cpr, boolean excludePhi) {
 		Map<Long, CollectionProtocolEvent> eventsMap = cpr.getCollectionProtocol().getOrderedCpeList().stream()
+			.filter(cpe -> !cpe.isClosed())
 			.collect(Collectors.toMap(
 				CollectionProtocolEvent::getId,
 				Function.identity(),
@@ -973,6 +978,10 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 	}
 
 	private List<SpecimenDetail> getSpecimensByVisit(Visit visit, boolean excludePhi) {
+		if (visit.isPending() && visit.isPlanned() && visit.getCpEvent().isClosed()) {
+			return Collections.emptyList();
+		}
+
 		Set<SpecimenRequirement> anticipatedSpecimens = visit.isUnplanned() ? Collections.EMPTY_SET : visit.getCpEvent().getTopLevelAnticipatedSpecimens();
 		Set<Specimen> specimens = visit.getTopLevelSpecimens();
 
@@ -1107,6 +1116,10 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 
 		Integer minOffset = null, maxOffset = null;
 		for (CollectionProtocolEvent cpe : cpes) {
+			if (cpe.isClosed()) {
+				continue;
+			}
+
 			Integer offset = Utility.getNoOfDays(cpe.getEventPoint(), cpe.getEventPointUnit());
 			if (offset == null) {
 				continue;
@@ -1123,6 +1136,10 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 
 		boolean checkPermission = true;
 		for (CollectionProtocolEvent cpe : cpes) {
+			if (cpe.isClosed()) {
+				continue;
+			}
+
 			VisitDetail visitDetail = new VisitDetail();
 			visitDetail.setCprId(cpr.getId());
 			visitDetail.setEventId(cpe.getId());
@@ -1197,6 +1214,14 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 
 		if (CollectionUtils.isNotEmpty(notFoundEvents)) {
 			throw OpenSpecimenException.userError(CpeErrorCode.NOT_FOUND, notFoundEvents, notFoundEvents.size());
+		}
+
+		String closedEvents = result.stream()
+			.filter(CollectionProtocolEvent::isClosed)
+			.map(CollectionProtocolEvent::getEventLabel)
+			.collect(Collectors.joining(", "));
+		if (!closedEvents.isEmpty()) {
+			throw OpenSpecimenException.userError(CpeErrorCode.CLOSED, closedEvents);
 		}
 
 		return result;

@@ -252,9 +252,11 @@
     "clinical_diagnosis": "Clinical Diagnosis",
     "clinical_status": "Clinical Status",
 
-    "edit_cpe": "Edit Event",
-    "copy_cpe": "Copy Event",
-    "remove_cpe": "Delete Event",
+    "edit_cpe": "Edit",
+    "copy_cpe": "Copy",
+    "remove_cpe": "Delete",
+    "close_cpe": "Close",
+    "reopen_cpe": "Reopen",
     "no_cpes": "There are no collection protocol events to show. Please create an event by clicking on Add Event ...",
     "add_cpe": "Add Event ...",
     "cpe_list": "Events",
@@ -264,6 +266,8 @@
     "cpe_point_label": "Event Label",
     "deleting_event": "Deleting Event ...",
     "confirm_delete_event": "Collection Protocol Event and its specimen requirements will be deleted. Are you sure you want to proceed?",
+    "cpe_closed": "Event <b>{{eventLabel}}</b> closed.",
+    "cpe_reopened": "Event <b>{{eventLabel}}</b> reopened.",
 
     "bulk_import": "Biospecimen Data",
     "bulk_import_biospecimen_obj_jobs": "Import Biospecimen Objects Job List",

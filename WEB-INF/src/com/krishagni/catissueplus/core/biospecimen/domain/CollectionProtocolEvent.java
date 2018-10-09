@@ -168,6 +168,10 @@ public class CollectionProtocolEvent implements Comparable<CollectionProtocolEve
 		this.activityStatus = activityStatus;
 	}
 
+	public boolean isClosed() {
+		return Status.isClosedStatus(getActivityStatus());
+	}
+
 	@NotAudited
 	public Set<SpecimenRequirement> getSpecimenRequirements() {
 		return specimenRequirements;
@@ -251,7 +255,7 @@ public class CollectionProtocolEvent implements Comparable<CollectionProtocolEve
 	}
 	
 	public void copySpecimenRequirementsTo(CollectionProtocolEvent cpe) {
-		List<SpecimenRequirement> topLevelSrs = new ArrayList<SpecimenRequirement>(getTopLevelAnticipatedSpecimens());
+		List<SpecimenRequirement> topLevelSrs = new ArrayList<>(getTopLevelAnticipatedSpecimens());
 		Collections.sort(topLevelSrs);
 
 		int order = 1;

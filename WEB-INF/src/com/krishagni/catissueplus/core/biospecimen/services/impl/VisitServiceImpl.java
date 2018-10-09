@@ -25,6 +25,7 @@ import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.domain.Visit;
 import com.krishagni.catissueplus.core.biospecimen.domain.VisitSavedEvent;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.CpErrorCode;
+import com.krishagni.catissueplus.core.biospecimen.domain.factory.CpeErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.VisitErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.VisitFactory;
 import com.krishagni.catissueplus.core.biospecimen.events.CpEntityDeleteCriteria;
@@ -580,8 +581,12 @@ public class VisitServiceImpl implements VisitService, ObjectAccessor, Initializ
 		OpenSpecimenException ose = new OpenSpecimenException(ErrorType.USER_ERROR);
 		ensureValidAndUniqueVisitName(existing, visit, ose);
 		ose.checkAndThrow();
-		
+
 		if (existing == null) {
+			if (visit.isEventClosed()) {
+				throw OpenSpecimenException.userError(CpeErrorCode.CLOSED, visit.getCpEvent().getEventLabel());
+			}
+
 			if (visit.isMissed()) {
 				visit.createMissedSpecimens();
 			} else if (visit.isNotCollected()) {

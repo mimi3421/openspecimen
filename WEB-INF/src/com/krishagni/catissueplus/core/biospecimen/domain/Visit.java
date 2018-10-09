@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol.SpecimenLabelPrePrintMode;
+import com.krishagni.catissueplus.core.biospecimen.domain.factory.CpeErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.SpecimenErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.VisitErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
@@ -212,6 +213,10 @@ public class Visit extends BaseExtensionEntity {
 
 	public void setCpEvent(CollectionProtocolEvent cpEvent) {
 		this.cpEvent = cpEvent;
+	}
+
+	public boolean isEventClosed() {
+		return getCpEvent() != null && getCpEvent().isClosed();
 	}
 
 	@NotAudited
@@ -424,11 +429,13 @@ public class Visit extends BaseExtensionEntity {
 		if (status.equals(getStatus())) {
 			return;
 		}
-		
-		setStatus(status);		
+
+		setStatus(status);
 		if (isMissedOrNotCollected(status) || isPending(status)) {
 			updateSpecimenStatus(status);
-		}		
+		} else if (isEventClosed()) {
+			throw OpenSpecimenException.userError(CpeErrorCode.CLOSED, getCpEvent().getEventLabel());
+		}
 	}
 	
 	public void updateSpecimenStatus(String status) {

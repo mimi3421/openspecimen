@@ -492,7 +492,11 @@ angular.module('os.biospecimen.participant',
         controller: 'BulkRegistrationCtrl',
         resolve: {
           events: function(cp, CollectionProtocolEvent) {
-            return CollectionProtocolEvent.listFor(cp.id);
+            return CollectionProtocolEvent.listFor(cp.id).then(
+              function(events) {
+                return events.filter(function(event) { return event.activityStatus != 'Closed'; });
+              }
+            );
           }
         },
         parent: 'participant-root'

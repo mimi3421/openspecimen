@@ -15,6 +15,7 @@
         <div ng-if="evt.id != event.id">
           <div class="list-group-item" ng-class="{'active': selected.id == evt.id}">
             <div ng-click="selectEvent(evt)">
+              <span ng-if="evt.activityStatus == 'Closed'" class="fa fa-circle os-status-closed"></span>
               <os-event-desc event-point="evt.eventPoint" event-point-unit="evt.eventPointUnit"
                 event-label="evt.eventLabel" event-code="evt.code" coding-enabled="codingEnabled">
               </os-event-desc>
@@ -26,22 +27,34 @@
               </div>
 
               <ul class="dropdown-menu">
-                <li>
+                <li ng-if="evt.activityStatus != 'Closed'">
                   <a ng-click="showEditEvent(evt)">
-                    <i class="fa fa-pencil"></i>
+                    <span class="fa fa-pencil"></span>
                     <span translate="cp.edit_cpe">Edit</span>
                   </a>
                 </li>
-                <li>
+                <li ng-if="evt.activityStatus != 'Closed'">
                   <a ng-click="showCopyEvent(evt)">
-                    <i class="fa fa-copy"></i>
+                    <span class="fa fa-copy"></span>
                     <span translate="cp.copy_cpe">Copy</span>
                   </a>
                 </li>
                 <li>
                   <a ng-click="deleteEvent(evt)">
-                    <i class="fa fa-trash"></i>
+                    <span class="fa fa-trash"></span>
                     <span translate="cp.remove_cpe">Remove</span>
+                  </a>
+                </li>
+                <li ng-if="evt.activityStatus != 'Closed'">
+                  <a ng-click="closeEvent(evt)">
+                    <span class="fa fa-close"></span>
+                    <span translate="cp.close_cpe">Close</span>
+                  </a>
+                </li>
+                <li ng-if="evt.activityStatus == 'Closed'">
+                  <a ng-click="reopenEvent(evt)">
+                    <span class="fa fa-check"></span>
+                    <span translate="cp.reopen_cpe">Reopen</span>
                   </a>
                 </li>
               </ul>
