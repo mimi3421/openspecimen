@@ -15,7 +15,9 @@
         <div ng-if="evt.id != event.id">
           <div class="list-group-item" ng-class="{'active': selected.id == evt.id}">
             <div ng-click="selectEvent(evt)">
-              <span ng-if="evt.activityStatus == 'Closed'" class="fa fa-circle os-status-closed"></span>
+              <span ng-if="evt.activityStatus == 'Closed'" class="fa fa-circle os-status-closed"
+                os-tooltip="{{'common.closed' | translate}}">
+              </span>
               <os-event-desc event-point="evt.eventPoint" event-point-unit="evt.eventPointUnit"
                 event-label="evt.eventLabel" event-code="evt.code" coding-enabled="codingEnabled">
               </os-event-desc>

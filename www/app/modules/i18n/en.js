@@ -73,6 +73,7 @@
     "close": "Close",
     "close_reason": "Reason for closing",
     "copy_first_to_all": "Copy first to all",
+    "closed": "Closed",
     "show_all": "Show all",
     "show_only_first": "Show first",
     "confirm_navigation": " You've unsaved form changes. If you navigate away from this page without submitting form, the changes will be lost. Are you sure you want to leave this page?",
