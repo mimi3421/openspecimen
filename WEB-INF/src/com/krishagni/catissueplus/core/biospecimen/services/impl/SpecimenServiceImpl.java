@@ -800,10 +800,7 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 		Specimen existing = null;
 
 		if (detail.getId() == null && detail.getReqId() != null) {
-			existing = reqSpmnsMap.get(detail.getReqId());
-			if (existing != null) {
-				detail.setId(existing.getId());
-			}
+			existing = initSpecimenIds(detail, reqSpmnsMap);
 		} else if (detail.getId() != null) {
 			existing = daoFactory.getSpecimenDao().getById(detail.getId());
 			if (existing == null) {
@@ -857,6 +854,24 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 		}
 
 		existing.getSpecimensPool().addAll(specimensPool);
+		return existing;
+	}
+
+	private Specimen initSpecimenIds(SpecimenDetail detail, Map<Long, Specimen> reqSpmnsMap) {
+		Specimen existing = reqSpmnsMap.get(detail.getReqId());
+		if (existing == null) {
+			return null;
+		}
+
+		detail.setId(existing.getId());
+		if (StringUtils.isBlank(detail.getLabel()) && StringUtils.isNotBlank(existing.getLabel())) {
+			detail.setLabel(existing.getLabel());
+		}
+
+		if (StringUtils.isBlank(detail.getBarcode()) && StringUtils.isNotBlank(existing.getBarcode())) {
+			detail.setBarcode(existing.getBarcode());
+		}
+
 		return existing;
 	}
 
