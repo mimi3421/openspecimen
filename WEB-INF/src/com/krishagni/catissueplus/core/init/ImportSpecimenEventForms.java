@@ -12,10 +12,17 @@ import krishagni.catissueplus.beans.FormContextBean;
 
 import org.apache.commons.io.IOUtils;
 
+import com.krishagni.catissueplus.core.common.service.ConfigurationService;
 import com.krishagni.catissueplus.core.common.util.Utility;
 
 public class ImportSpecimenEventForms extends ImportForms {
-	private Map<String, Boolean[]> eventFormsInfo = new HashMap<String, Boolean[]>();
+	private Map<String, Boolean[]> eventFormsInfo = new HashMap<>();
+
+	private ConfigurationService cfgSvc;
+
+	public void setCfgSvc(ConfigurationService cfgSvc) {
+		this.cfgSvc = cfgSvc;
+	}
 
 	@Override
 	protected Collection<String> listFormFiles() throws IOException {
@@ -73,6 +80,13 @@ public class ImportSpecimenEventForms extends ImportForms {
 		formCtx.setMultiRecord(eventInfo[1]);
 		formCtx.setSortOrder(null);		
 		return formCtx;		
+	}
+
+	@Override
+	protected Map<String, Object> getTemplateProps() {
+		Map<String, Object> props = new HashMap<>();
+		props.put("cfgSvc", cfgSvc);
+		return props;
 	}
 	
 	@Override

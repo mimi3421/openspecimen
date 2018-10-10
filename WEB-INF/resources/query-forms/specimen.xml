@@ -1,4 +1,5 @@
 #macro(getMessage $code)$messageSource.getMessage($code, null, $locale)#end
+#macro(getPrecision)$cfgSvc.getIntSetting("query", "floating_point_precision", 0)#end
 
 <form>
   <view>
@@ -182,7 +183,7 @@
         <udn>initialQty</udn>
         <caption>#getMessage("specimen_initial_quantity")</caption>
         <column>INITIAL_QUANTITY</column>
-        <noOfDigitsAfterDecimal>2</noOfDigitsAfterDecimal>
+        <noOfDigitsAfterDecimal>#getPrecision()</noOfDigitsAfterDecimal>
       </numberField>
     </row>
 
@@ -192,7 +193,7 @@
         <udn>availableQty</udn>
         <caption>#getMessage("specimen_available_quantity")</caption>
         <column>AVAILABLE_QUANTITY</column>
-        <noOfDigitsAfterDecimal>2</noOfDigitsAfterDecimal>
+        <noOfDigitsAfterDecimal>#getPrecision()</noOfDigitsAfterDecimal>
       </numberField>
     </row>
 
@@ -202,7 +203,7 @@
         <udn>concentration</udn>
         <caption>#getMessage("specimen_concentration")</caption>
         <column>CONCENTRATION</column>
-        <noOfDigitsAfterDecimal>2</noOfDigitsAfterDecimal>
+        <noOfDigitsAfterDecimal>#getPrecision()</noOfDigitsAfterDecimal>
       </numberField>
     </row>
 
@@ -916,7 +917,7 @@
             <udn>quantity</udn>
             <caption>#getMessage("specimen_distribution_quantity")</caption>
             <column>QUANTITY</column>
-            <noOfDigitsAfterDecimal>2</noOfDigitsAfterDecimal>
+            <noOfDigitsAfterDecimal>#getPrecision()</noOfDigitsAfterDecimal>
           </numberField>
         </row>
 

@@ -1,6 +1,7 @@
 package com.krishagni.catissueplus.core.de.services.impl;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.administrative.repository.UserDao;
+import com.krishagni.catissueplus.core.common.OpenSpecimenAppCtxProvider;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr.ParticipantReadAccess;
@@ -87,6 +89,8 @@ import com.krishagni.catissueplus.core.de.repository.DaoFactory;
 import com.krishagni.catissueplus.core.de.repository.SavedQueryDao;
 import com.krishagni.catissueplus.core.de.services.QueryService;
 import com.krishagni.catissueplus.core.de.services.SavedQueryErrorCode;
+import com.krishagni.catissueplus.core.init.ImportQueryForms;
+import com.krishagni.catissueplus.core.init.ImportSpecimenEventForms;
 import com.krishagni.rbac.common.errors.RbacErrorCode;
 
 import edu.common.dynamicextensions.domain.nui.Container;
@@ -181,6 +185,26 @@ public class QueryServiceImpl implements QueryService {
 			@Override
 			public void onConfigChange(String name, String value) {
 				refreshConfig();
+
+				if (!StringUtils.equals(name, "floating_point_precision")) {
+					return;
+				}
+
+				try {
+					logger.info("Reloading query forms ...");
+					ImportQueryForms importQueryForms = OpenSpecimenAppCtxProvider.getBean("importQueryForms");
+					importQueryForms.afterPropertiesSet();
+				} catch (Exception e) {
+					logger.error("Error reloading query forms ... ", e);
+				}
+
+				try {
+					logger.info("Reloading specimen event forms ...");
+					ImportSpecimenEventForms importSpeForms = OpenSpecimenAppCtxProvider.getBean("importSpeForms");
+					importSpeForms.afterPropertiesSet();
+				} catch (Exception e) {
+					logger.error("Error reloading specimen event forms ...", e);
+				}
 			}
 		});
 	}
@@ -851,8 +875,10 @@ public class QueryServiceImpl implements QueryService {
 				String filename = "query-forms/" + dirName + "/" + resource.getFilename();
 				templates.append(templateService.render(filename, new HashMap<>()));
 			}
+		} catch (FileNotFoundException fe) {
+			logger.debug("Error rendering custom query forms", fe);
 		} catch (Exception e) {
-			logger.error("Error rendering query forms", e);
+			logger.error("Error rendering custom query forms", e);
 		}
 		
 		return templates.toString();

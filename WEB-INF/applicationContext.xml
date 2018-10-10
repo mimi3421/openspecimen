@@ -850,6 +850,7 @@
     <property name="deInitializer" ref="deInitializer"/>
     <property name="templateService" ref="templateService"/>
     <property name="querySvc" ref="querySvc"/>
+    <property name="cfgSvc" ref="cfgSvc"/>
   </bean>
 
   <bean id="importSpeForms" class="com.krishagni.catissueplus.core.init.ImportSpecimenEventForms">
@@ -858,6 +859,7 @@
     <property name="daoFactory" ref="deDaoFactory"/>
     <property name="deInitializer" ref="deInitializer"/>
     <property name="templateService" ref="templateService"/>
+    <property name="cfgSvc" ref="cfgSvc"/>
   </bean>
 
   <bean id="importContainerTypes" class="com.krishagni.catissueplus.core.init.ImportContainerTypes">

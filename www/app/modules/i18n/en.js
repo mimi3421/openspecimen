@@ -2611,7 +2611,9 @@
         "max_recs_in_memory": "In-memory Records Limit",
         "max_recs_in_memory_desc": "Maximum number of query records that are allowed to be cached in-memory. When limit is reached, excessive records are spooled to disk",
         "default_result_view": "Default Result View Fields",
-        "default_result_view_desc": "List of field values to be displayed in default query result view."
+        "default_result_view_desc": "List of field values to be displayed in default query result view.",
+        "floating_point_precision": "Real Numbers Precision",
+        "floating_point_precision_desc": "Number of digits to display after the decimal point. When 0 or no value is specified, values stored in the database are displayed as is."
       },
 
       "training": {

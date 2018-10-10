@@ -100,4 +100,14 @@
       //
     </sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="Precision of floating point numbers">
+    <sql>
+      call add_cfg_prop(
+        'query', 'floating_point_precision',
+        'floating_point_precision', 'floating_point_precision_desc',
+        'INT', '2'
+      );
+    </sql>
+  </changeSet>
 </databaseChangeLog>
