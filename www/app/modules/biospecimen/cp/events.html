@@ -53,12 +53,6 @@
                     <span translate="cp.close_cpe">Close</span>
                   </a>
                 </li>
-                <li ng-if="evt.activityStatus == 'Closed'">
-                  <a ng-click="reopenEvent(evt)">
-                    <span class="fa fa-check"></span>
-                    <span translate="cp.reopen_cpe">Reopen</span>
-                  </a>
-                </li>
               </ul>
             </div>
           </div>
@@ -174,17 +168,28 @@
   </form>
 </script>
 
-<script type="text/ng-template" id="cp_event_delete.html">
+<script type="text/ng-template" id="modules/biospecimen/cp/event_delete.html">
   <div class="os-modal-header">
     <span translate="cp.deleting_event">Deleting Event</span>
   </div>
   <div class="os-modal-body">
-    <span translate="cp.confirm_delete_event">
-      Collection Protocol Event and its specimen requirements will be deleted. Are you sure you want to proceed?
-    </span>
+    <span>{{'cp.confirm_delete_event' | translate: event}}</span>
   </div>
   <div class="os-modal-footer">
-    <button class="btn os-btn-text" ng-click="no()" translate="common.buttons.cancel">Cancel</button>
-    <button class="btn btn-danger" ng-click="yes()" translate="common.yes">Yes</button>
+    <button class="btn os-btn-text" ng-click="cancel()" translate="common.buttons.cancel">Cancel</button>
+    <button class="btn btn-danger" ng-click="ok()" translate="common.yes">Yes</button>
+  </div>
+</script>
+
+<script type="text/ng-template" id="modules/biospecimen/cp/event_close.html">
+  <div class="os-modal-header">
+    <span translate="cp.closing_event">Deleting Event</span>
+  </div>
+  <div class="os-modal-body">
+    <span>{{'cp.confirm_close_event' | translate: event}}</span>
+  </div>
+  <div class="os-modal-footer">
+    <button class="btn os-btn-text" ng-click="cancel()" translate="common.buttons.cancel">Cancel</button>
+    <button class="btn btn-danger" ng-click="ok()" translate="common.yes">Yes</button>
   </div>
 </script>

@@ -9,13 +9,13 @@ import com.krishagni.catissueplus.core.biospecimen.events.SpecimenPoolRequiremen
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenRequirementDetail;
 
 public interface SpecimenRequirementFactory {
-	public SpecimenRequirement createSpecimenRequirement(SpecimenRequirementDetail detail);
+	SpecimenRequirement createSpecimenRequirement(SpecimenRequirementDetail detail);
 	
-	public SpecimenRequirement createDerived(DerivedSpecimenRequirement req);
+	SpecimenRequirement createDerived(DerivedSpecimenRequirement req);
 	
-	public SpecimenRequirement createForUpdate(String lineage, SpecimenRequirementDetail req);
+	SpecimenRequirement createForUpdate(String lineage, SpecimenRequirementDetail req);
 	
-	public List<SpecimenRequirement> createAliquots(AliquotSpecimensRequirement req);
+	List<SpecimenRequirement> createAliquots(AliquotSpecimensRequirement req);
 	
-	public List<SpecimenRequirement> createSpecimenPoolReqs(SpecimenPoolRequirements req);
+	List<SpecimenRequirement> createSpecimenPoolReqs(SpecimenPoolRequirements req);
 }

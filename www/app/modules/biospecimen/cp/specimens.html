@@ -33,17 +33,15 @@
             <div class="col col-xs-6 os-ellipsis">
               <div ng-style="{'padding-left': (sr.hasChildren ? sr.depth * 20 : sr.depth * 20 + 16) + 'px'}">
                 <a ng-if="sr.hasChildren && sr.isOpened" 
-                   class="fa fa-chevron-circle-down"
-                   ng-click="closeSpecimenNode(sr)">
+                  class="fa fa-chevron-circle-down"
+                  ng-click="closeSpecimenNode(sr)">
                 </a>
                 <a ng-if="sr.hasChildren && !sr.isOpened" 
-                   class="fa fa-chevron-circle-right"
-                   ng-click="openSpecimenNode(sr)">
+                  class="fa fa-chevron-circle-right"
+                  ng-click="openSpecimenNode(sr)">
                 </a>
                 <span class="fa fa-circle" 
-                      ng-class="{'os-lineage-new': sr.lineage == 'New',
-                                 'os-lineage-aliquot': sr.lineage == 'Aliquot',
-                                 'os-lineage-derivative': sr.lineage == 'Derived'}">
+                  ng-class="{true: 'os-status-pending', false: 'os-status-closed'}[sr.activityStatus != 'Closed']">
                 </span>
                 <a ng-click="viewSr(sr)">
                   <os-specimen-desc specimen="sr" show-req-label="true"></os-specimen-desc>
@@ -66,48 +64,53 @@
                 <ul class="dropdown-menu dropdown-menu-right" role="menu">
                   <li>
                     <a ng-click="viewSr(sr)">
-                      <i class="fa fa-eye"></i>
-                      <span translate="srs.ctx_menu.view_sr">View Requirement</span>
+                      <span class="fa fa-eye"></span>
+                      <span translate="srs.ctx_menu.view">View Requirement</span>
                     </a>
                   </li>
-                  <li show-if-allowed="cpResource.updateOpts">
+                  <li ng-if="sr.activityStatus != 'Closed'" show-if-allowed="cpResource.updateOpts">
                     <a ng-click="showEditSr(sr)">
-                      <i class="fa fa-pencil"></i>
-                      <span translate="srs.ctx_menu.edit_sr">Edit Requirement</span>
+                      <span class="fa fa-pencil"></span>
+                      <span translate="srs.ctx_menu.edit">Edit Requirement</span>
                     </a>
                   </li>
-                  <li show-if-allowed="cpResource.updateOpts">
-                    <a ng-click="copyRequirement(sr)">
-                      <i class="fa fa-copy"></i>
-                      <span translate="srs.ctx_menu.copy_sr">Copy Requirement</span>
+                  <li ng-if="sr.activityStatus != 'Closed'" show-if-allowed="cpResource.updateOpts">
+                    <a ng-click="copySr(sr)">
+                      <span class="fa fa-copy"></span>
+                      <span translate="srs.ctx_menu.copy">Copy Requirement</span>
                     </a>
                   </li>
                   <li class="divider"></li>
-                  <li ng-if="!sr.pooledSpecimen" show-if-allowed="cpResource.updateOpts">
+                  <li ng-if="!sr.pooledSpecimen && sr.activityStatus != 'Closed'" show-if-allowed="cpResource.updateOpts">
                     <a ng-click="showCreateAliquots(sr)">
-                      <i class="fa fa-share-alt"></i>
+                      <span class="fa fa-share-alt"></span>
                       <span translate="srs.ctx_menu.create_aliquots">Create Aliquots</span>
                     </a>
                   </li>
-                  <li ng-if="!sr.pooledSpecimen" show-if-allowed="cpResource.updateOpts">
+                  <li ng-if="!sr.pooledSpecimen && sr.activityStatus != 'Closed'" show-if-allowed="cpResource.updateOpts">
                     <a ng-click="showCreateDerived(sr)">
-                      <i class="fa fa-flask"></i>
+                      <span class="fa fa-flask"></span>
                       <span translate="srs.ctx_menu.create_derivatives">Create Derivative</span>
                     </a>
                   </li>
-                  <li ng-if="sr.specimensPool.length > 0" show-if-allowed="cpResource.updateOpts">
+                  <li ng-if="sr.specimensPool.length > 0 && sr.activityStatus != 'Closed'"
+                    show-if-allowed="cpResource.updateOpts">
                     <a ng-click="showCreatePoolSpecimen(sr)">
-                      <i class="fa fa-plus-square-o"></i>
+                      <span class="fa fa-plus-square-o"></span>
                       <span translate="srs.ctx_menu.create_pool_spmn"> Create Pool Specimen </span>
                     </a>
                   </li>
                   <li class="divider" ng-if="!sr.pooledSpecimen"></li>
                   <li show-if-allowed="cpResource.updateOpts">
-                    <a ng-click="deleteRequirement(sr)">
-                      <i class="fa fa-trash"></i>
-                      <span translate="srs.ctx_menu.delete">
-                        Delete
-                      </span>
+                    <a ng-click="deleteSr(sr)">
+                      <span class="fa fa-trash"></span>
+                      <span translate="srs.ctx_menu.delete"> Delete </span>
+                    </a>
+                  </li>
+                  <li ng-if="sr.activityStatus != 'Closed'" show-if-allowed="cpResource.updateOpts">
+                    <a ng-click="closeSr(sr)">
+                      <span class="fa fa-close"></span>
+                      <span translate="srs.ctx_menu.close"> Close </span>
                     </a>
                   </li>
                 </ul>
@@ -135,15 +138,16 @@
     </div>
   </div>
 
-  <a class="list-group-item" ng-click="showAddSr()" translate="srs.buttons.add_sr" show-if-allowed="cpResource.updateOpts">
-    Add Specimen Requirement... 
+  <a class="list-group-item" ng-if="selectedEvent.activityStatus != 'Closed'"
+    show-if-allowed="cpResource.updateOpts" ng-click="showAddSr()">
+    <span translate="srs.buttons.add_sr">Add Specimen Requirement...</span>
   </a>
 </div>
 
 <div ng-include="'modules/biospecimen/cp/addedit-sr.html'" ng-if="view == 'addedit_sr'"> 
 </div>
 
-<script type="text/ng-template" id="delete_sr.html">
+<script type="text/ng-template" id="modules/biospecimen/cp/delete_sr.html">
   <div class="os-modal-header">
     <span translate="srs.deleting_sr">Deleting Specimen Requirement</span>
   </div>
@@ -153,7 +157,22 @@
     </span>
   </div>
   <div class="os-modal-footer">
-    <button class="btn os-btn-text" ng-click="no()" translate="common.buttons.cancel">Cancel</button>
-    <button class="btn btn-danger" ng-click="yes()" translate="common.yes">Yes</button>
+    <button class="btn os-btn-text" ng-click="cancel()" translate="common.buttons.cancel">Cancel</button>
+    <button class="btn btn-danger" ng-click="ok()" translate="common.yes">Yes</button>
+  </div>
+</script>
+
+<script type="text/ng-template" id="modules/biospecimen/cp/close_sr.html">
+  <div class="os-modal-header">
+    <span translate="srs.closing_sr">Closing Specimen Requirement</span>
+  </div>
+  <div class="os-modal-body">
+    <span translate="srs.confirm_close_sr">
+      Selected requirement and all its children will be closed. Are you sure you want to proceed?
+    </span>
+  </div>
+  <div class="os-modal-footer">
+    <button class="btn os-btn-text" ng-click="cancel()" translate="common.buttons.cancel">Cancel</button>
+    <button class="btn btn-danger" ng-click="ok()" translate="common.yes">Yes</button>
   </div>
 </script>

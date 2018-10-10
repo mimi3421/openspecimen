@@ -866,7 +866,8 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 			DerivedSpecimenRequirement requirement = req.getPayload();
 			SpecimenRequirement derived = srFactory.createDerived(requirement);						
 			AccessCtrlMgr.getInstance().ensureUpdateCpRights(derived.getCollectionProtocol());
-			
+			ensureSrIsNotClosed(derived.getParentSpecimenRequirement());
+
 			if (StringUtils.isNotBlank(derived.getCode())) {
 				if (derived.getCollectionProtocolEvent().getSrByCode(derived.getCode()) != null) {
 					return ResponseEvent.userError(SrErrorCode.DUP_CODE, derived.getCode());
@@ -1440,13 +1441,21 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 		}
 	}
 
-	private void importWorkflows(Long cpId, Map<String, WorkflowDetail> workflows) {
-		CpWorkflowCfgDetail input = new CpWorkflowCfgDetail();
-		input.setCpId(cpId);
-		input.setWorkflows(workflows);
+	private void ensureSrIsNotClosed(SpecimenRequirement sr) {
+		if (!sr.isClosed()) {
+			return;
+		}
 
-		ResponseEvent<CpWorkflowCfgDetail> resp = saveWorkflows(new RequestEvent<>(input));
-		resp.throwErrorIfUnsuccessful();
+		String key = sr.getCode();
+		if (StringUtils.isBlank(key)) {
+			key = sr.getName();
+		}
+
+		if (StringUtils.isBlank(key)) {
+			key = sr.getId().toString();
+		}
+
+		throw OpenSpecimenException.userError(SrErrorCode.CLOSED, key);
 	}
 
 	private List<SpecimenRequirement> createAliquots(AliquotSpecimensRequirement requirement) {
@@ -1462,6 +1471,15 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 		parent.addChildRequirements(aliquots);
 		daoFactory.getSpecimenRequirementDao().saveOrUpdate(parent, true);
 		return aliquots;
+	}
+
+	private void importWorkflows(Long cpId, Map<String, WorkflowDetail> workflows) {
+		CpWorkflowCfgDetail input = new CpWorkflowCfgDetail();
+		input.setCpId(cpId);
+		input.setWorkflows(workflows);
+
+		ResponseEvent<CpWorkflowCfgDetail> resp = saveWorkflows(new RequestEvent<>(input));
+		resp.throwErrorIfUnsuccessful();
 	}
 
 	private void copyWorkflows(CollectionProtocol srcCp, CollectionProtocol dstCp) {

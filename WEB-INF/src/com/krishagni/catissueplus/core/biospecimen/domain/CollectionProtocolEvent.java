@@ -16,6 +16,7 @@ import org.springframework.beans.BeanUtils;
 
 import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol.VisitNamePrintMode;
+import com.krishagni.catissueplus.core.biospecimen.domain.factory.CpeErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.SrErrorCode;
 import com.krishagni.catissueplus.core.common.domain.IntervalUnit;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
@@ -222,7 +223,11 @@ public class CollectionProtocolEvent implements Comparable<CollectionProtocolEve
 	}
 
 	// updates all but specimen requirements
-	public void update(CollectionProtocolEvent other) { 
+	public void update(CollectionProtocolEvent other) {
+		if (isClosed()) {
+			throw OpenSpecimenException.userError(CpeErrorCode.CLOSED, getEventLabel());
+		}
+
 		setEventPoint(other.getEventPoint());
 		setEventPointUnit(other.getEventPointUnit());
 		setEventLabel(other.getEventLabel());
@@ -233,10 +238,18 @@ public class CollectionProtocolEvent implements Comparable<CollectionProtocolEve
 		setClinicalStatus(other.getClinicalStatus());
 		setVisitNamePrintMode(other.getVisitNamePrintMode());
 		setVisitNamePrintCopies(other.getVisitNamePrintCopies());
+
 		setActivityStatus(other.getActivityStatus());
+		if (isClosed()) {
+			getTopLevelAnticipatedSpecimens().forEach(SpecimenRequirement::close);
+		}
 	}
 	
 	public void addSpecimenRequirement(SpecimenRequirement sr) {
+		if (isClosed()) {
+			throw OpenSpecimenException.userError(CpeErrorCode.CLOSED, getEventLabel());
+		}
+
 		ensureUniqueSrCode(sr);
 		getSpecimenRequirements().add(sr);
 		sr.setCollectionProtocolEvent(this);

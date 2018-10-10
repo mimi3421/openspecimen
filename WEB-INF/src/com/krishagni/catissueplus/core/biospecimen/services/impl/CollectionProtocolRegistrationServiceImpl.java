@@ -452,10 +452,7 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 			//
 			// Step 1: Fetch all created visit records along with their custom fields and stats
 			//
-			Collection<Visit> visits = cpr.getVisits().stream()
-				.filter((v) -> v.getCpEvent() == null || !v.getCpEvent().isClosed() || !v.isPending())
-				.collect(Collectors.toList());
-
+			Collection<Visit> visits = cpr.getVisits();
 			DeObject.createExtensions(true, Visit.EXTN, cpr.getCollectionProtocol().getId(), visits);
 			Map<Long, VisitDetail> visitsMap = visits.stream()
 				.collect(Collectors.toMap(Visit::getId, v -> VisitDetail.from(v, false, !hasPhiAccess)));
@@ -978,10 +975,6 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 	}
 
 	private List<SpecimenDetail> getSpecimensByVisit(Visit visit, boolean excludePhi) {
-		if (visit.isPending() && visit.isPlanned() && visit.getCpEvent().isClosed()) {
-			return Collections.emptyList();
-		}
-
 		Set<SpecimenRequirement> anticipatedSpecimens = visit.isUnplanned() ? Collections.EMPTY_SET : visit.getCpEvent().getTopLevelAnticipatedSpecimens();
 		Set<Specimen> specimens = visit.getTopLevelSpecimens();
 

@@ -441,10 +441,6 @@ public class SpecimenDetail extends SpecimenInfo {
 		return result;		
 	}
 
-	public static List<SpecimenDetail> fromAnticipated(Collection<SpecimenRequirement> anticipatedSpecimens) {
-		return Utility.nullSafeStream(anticipatedSpecimens).map(SpecimenDetail::from).collect(Collectors.toList());
-	}
-	
 	public static void sort(List<SpecimenDetail> specimens) {
 		Collections.sort(specimens);
 		
@@ -499,7 +495,7 @@ public class SpecimenDetail extends SpecimenInfo {
 			SpecimenDetail specimen = reqSpecimenMap.get(anticipated.getId());
 			if (specimen != null) {
 				merge(visit, anticipated.getChildSpecimenRequirements(), result, specimen, reqSpecimenMap);
-			} else {
+			} else if (!anticipated.isClosed()) {
 				specimen = SpecimenDetail.from(anticipated);
 				setVisitDetails(visit, specimen);
 
@@ -523,5 +519,11 @@ public class SpecimenDetail extends SpecimenInfo {
 		specimen.setSprNo(visit.getSurgicalPathologyNumber());
 		specimen.setVisitDate(visit.getVisitDate());
 		Utility.nullSafeStream(specimen.getChildren()).forEach(child -> setVisitDetails(visit, child));
+	}
+
+	private static List<SpecimenDetail> fromAnticipated(Collection<SpecimenRequirement> anticipatedSpecimens) {
+		return Utility.nullSafeStream(anticipatedSpecimens)
+			.filter(anticipated -> !anticipated.isClosed())
+			.map(SpecimenDetail::from).collect(Collectors.toList());
 	}
 }

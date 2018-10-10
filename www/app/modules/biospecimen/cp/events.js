@@ -1,9 +1,8 @@
 
 angular.module('os.biospecimen.cp.events', ['os.biospecimen.models'])
   .controller('CpEventsCtrl', function(
-     $scope, $state, $stateParams, $modal,
-     cp, events, 
-     Alerts, CollectionProtocolEvent, PvManager) {
+     $scope, $state, $stateParams,
+     cp, events, Alerts, CollectionProtocolEvent, PvManager, Util) {
 
     var pvsLoaded = false;
 
@@ -28,13 +27,9 @@ angular.module('os.biospecimen.cp.events', ['os.biospecimen.models'])
       pvsLoaded = true;
     }
 
-    function loadSpecimenRequirements(event) {
-      if ($scope.selected.id == event.id) {
-        return;
-      }
-
+    function loadSpecimenRequirements(event, reload) {
       $scope.selected = event;
-      $state.go('cp-detail.specimen-requirements', {eventId: event.id});
+      $state.go('cp-detail.specimen-requirements', {eventId: event.id}, {reload: reload});
     }
 
     $scope.selectEvent = function(event) { 
@@ -105,21 +100,10 @@ angular.module('os.biospecimen.cp.events', ['os.biospecimen.models'])
     };
 
     $scope.deleteEvent = function(evt) {
-      var modalInstance = $modal.open({
-        templateUrl: 'cp_event_delete.html',
-        controller: function($scope, $modalInstance) {
-          $scope.yes = function() {
-            $modalInstance.close(true);
-          }
-
-          $scope.no = function() {
-            $modalInstance.dismiss('cancel');
-          }
-        }
-      });
-
-      modalInstance.result.then(
-        function() {
+      Util.showConfirm({
+        templateUrl: 'modules/biospecimen/cp/event_delete.html',
+        event: evt,
+        ok: function() {
           evt.delete().then(
             function() {
               var idx = events.indexOf(evt);
@@ -130,31 +114,25 @@ angular.module('os.biospecimen.cp.events', ['os.biospecimen.models'])
             }
           );
         }
-      );
-    }; 
-
-    $scope.closeEvent = function(evt) {
-      var toClose = angular.copy(evt);
-      toClose.activityStatus = 'Closed';
-
-      toClose.$saveOrUpdate().then(
-        function(closedEvt) {
-          angular.extend(evt, closedEvt);
-          Alerts.success('cp.cpe_closed', closedEvt);
-        }
-      );
+      });
     }
 
-    $scope.reopenEvent = function(evt) {
-      var toOpen = angular.copy(evt);
-      toOpen.activityStatus = 'Active';
+    $scope.closeEvent = function(evt) {
+      Util.showConfirm({
+        templateUrl: 'modules/biospecimen/cp/event_close.html',
+        event: evt,
+        ok: function() {
+          var toClose = angular.copy(evt);
+          toClose.activityStatus = 'Closed';
 
-      toOpen.$saveOrUpdate().then(
-        function(openedEvt) {
-          angular.extend(evt, openedEvt);
-          Alerts.success('cp.cpe_reopened', openedEvt);
+          toClose.$saveOrUpdate().then(
+            function(closedEvt) {
+              angular.extend(evt, closedEvt);
+              loadSpecimenRequirements(evt, true);
+            }
+          );
         }
-      );
+      });
     }
 
     init();

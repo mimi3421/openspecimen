@@ -15,6 +15,7 @@ angular.module('os.biospecimen.cp.specimens', ['os.biospecimen.models'])
       $scope.events = events;
       $scope.eventId = $stateParams.eventId;
       $scope.selectEvent({id: $stateParams.eventId});
+      $scope.selectedEvent = events.find(function(evt) { return evt.id == $stateParams.eventId; });
 
       $scope.specimenRequirements = Specimen.flatten(specimenRequirements);
 
@@ -117,6 +118,17 @@ angular.module('os.biospecimen.cp.specimens', ['os.biospecimen.models'])
       return sr;
     }
 
+    function cloneSr(sr) {
+      var delAttrs = [
+        'depth', 'hasChildren', 'children', 'isOpened', 'parent',
+        'pooledSpecimen', 'specimensPool'
+      ];
+
+      var result = angular.copy(sr);
+      angular.forEach(delAttrs, function(attr) { delete result[attr]; });
+      return result;
+    }
+
     $scope.openSpecimenNode = function(sr) {
       sr.isOpened = true;
     };
@@ -154,18 +166,9 @@ angular.module('os.biospecimen.cp.specimens', ['os.biospecimen.models'])
     }
 
     $scope.showEditSr = function(sr) {
-      var delAttrs = [
-        'depth', 'hasChildren', 'children', 'isOpened', 'parent',
-        'pooledSpecimen', 'specimensPool'
-      ];
-        
       $scope.specimensCount = 0;
-      $scope.sr = angular.copy(sr);
+      $scope.sr = cloneSr(sr);
       $scope.sr.$$storedInRepo = (sr.storageType != 'Virtual');
-
-      angular.forEach(delAttrs, function(attr) {
-        delete $scope.sr[attr];
-      });
 
       if (sr.isAliquot()) {
         $scope.view = 'addedit_aliquot';
@@ -347,7 +350,7 @@ angular.module('os.biospecimen.cp.specimens', ['os.biospecimen.models'])
       );
     };
         
-    $scope.copyRequirement = function(sr) {
+    $scope.copySr = function(sr) {
       var aliquotReq = {noOfAliquots: 1, qtyPerAliquot: sr.initialQty};
       if (sr.isAliquot() && !sr.parent.hasSufficientQty(aliquotReq)) {
         Alerts.error('srs.errors.insufficient_qty');
@@ -368,30 +371,34 @@ angular.module('os.biospecimen.cp.specimens', ['os.biospecimen.models'])
       );
     };
 
-    $scope.deleteRequirement = function(sr) {
-      var modalInstance = $modal.open({
-        templateUrl: 'delete_sr.html',
-        controller: function($scope, $modalInstance) {
-          $scope.yes = function() {
-            $modalInstance.close(true);
-          }
-
-          $scope.no = function() {
-            $modalInstance.dismiss('cancel');
-          }
-        }
-      });
-
-      modalInstance.result.then(
-        function() {
+    $scope.deleteSr = function(sr) {
+      Util.showConfirm({
+        templateUrl: 'modules/biospecimen/cp/delete_sr.html',
+        ok: function() {
           sr.delete().then(
             function() {
               deleteFromSrList(sr);
             }
           );
         }
-      );
-    }; 
+      });
+    }
+
+    $scope.closeSr = function(sr) {
+      Util.showConfirm({
+        templateUrl: 'modules/biospecimen/cp/close_sr.html',
+        ok: function() {
+          var toClose = cloneSr(sr);
+          toClose.activityStatus = 'Closed';
+
+          removeUiProps(toClose).$saveOrUpdate().then(
+            function(result) {
+              updateSrList(result);
+            }
+          );
+        }
+      });
+    }
 
     init();
   });

@@ -65,7 +65,9 @@ public enum SrErrorCode implements ErrorCode {
 	
 	INVALID_POOLED_SPMN,
 	
-	INVALID_LINEAGE;
+	INVALID_LINEAGE,
+
+	CLOSED;
 	
 	@Override
 	public String code() {

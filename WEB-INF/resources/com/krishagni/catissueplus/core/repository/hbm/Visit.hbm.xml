@@ -232,7 +232,8 @@
                o.status = 'EXECUTED' and
                o.activity_status != 'Disabled'
         where
-          v.identifier in (:visitIds)
+          v.identifier in (:visitIds) and
+          (req.activity_status = 'Active' or s.identifier is not null)
 
       union
         select
@@ -278,7 +279,7 @@
       where
         cpe.identifier in (:eventIds) and
         cpe.activity_status != 'Disabled' and
-        req.activity_status != 'Disabled'
+        req.activity_status = 'Active'
       group by
         cpe.identifier
     </sql-query>

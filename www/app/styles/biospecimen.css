@@ -101,13 +101,6 @@
   padding: 0px 4px;
 }
 
-.fa.os-lineage-new:before, 
-.fa.os-lineage-aliquot:before, 
-.fa.os-lineage-derivative:before {
-  color: #f0ad4e;
-  padding: 0px 4px;
-}
-
 .panel .panel-heading .os-status-closed,
 .os-page-header .os-status-closed {
   background: #d9534f!important;

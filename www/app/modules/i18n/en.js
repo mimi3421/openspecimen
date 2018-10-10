@@ -257,7 +257,6 @@
     "copy_cpe": "Copy",
     "remove_cpe": "Delete",
     "close_cpe": "Close",
-    "reopen_cpe": "Reopen",
     "no_cpes": "There are no collection protocol events to show. Please create an event by clicking on Add Event ...",
     "add_cpe": "Add Event ...",
     "cpe_list": "Events",
@@ -266,9 +265,9 @@
     "cpe_point_unit": "Unit",
     "cpe_point_label": "Event Label",
     "deleting_event": "Deleting Event ...",
-    "confirm_delete_event": "Collection Protocol Event and its specimen requirements will be deleted. Are you sure you want to proceed?",
-    "cpe_closed": "Event <b>{{eventLabel}}</b> closed.",
-    "cpe_reopened": "Event <b>{{eventLabel}}</b> reopened.",
+    "confirm_delete_event": "Event '{{eventLabel}}' and its specimen requirements will be deleted. Are you sure you want to proceed?",
+    "closing_event": "Closing Event ...",
+    "confirm_close_event": "Event '{{eventLabel}}' and its specimen requirements will be closed. Closed events and requirements cannot be reopened. Are you sure you want to proceed?",
 
     "bulk_import": "Biospecimen Data",
     "bulk_import_biospecimen_obj_jobs": "Import Biospecimen Objects Job List",
@@ -915,17 +914,20 @@
     "receiver": "Receiver",
     "collection_container": "Collection Container",
     "collection_proc": "Collection Procedure",
-    "deleting_sr": "Deleting Specimen Requirement",
-    "confirm_delete_sr": "Specimen Requirement and all its children will be deleted. Are you sure you want to proceed?",
+    "deleting_sr": "Deleting Requirement ...",
+    "confirm_delete_sr": "Selected requirement and all its children will be deleted. Are you sure you want to proceed?",
+    "closing_sr": "Closing Requirement ...",
+    "confirm_close_sr": "Selected requirement and all its children will be closed. Closed requirements cannot be reopened. Are you sure you want to proceed?",
     "lbl_fmt_required_for_auto_print": "Pre-printing requires specimen label format to be specified either at CP level or requirement level",
     "ctx_menu": {
-      "view_sr": "View Requirement",
-      "edit_sr": "Edit Requirement",
-      "copy_sr": "Copy Requirement",
+      "view": "View",
+      "edit": "Edit",
+      "copy": "Copy",
       "create_aliquots": "Create Aliquots",
       "create_derivatives": "Create Derivatives",
       "create_pool_spmn": "Create Pool Specimen",
-      "delete": "Delete Requirement"
+      "delete": "Delete",
+      "close": "Close"
     },
  
     "buttons": {

@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -622,6 +623,10 @@ public class Visit extends BaseExtensionEntity {
 	}
 
 	private Specimen createPendingSpecimen(SpecimenRequirement sr, Specimen parent) {
+		if (sr.isClosed()) {
+			return null;
+		}
+
 		Specimen specimen = sr.getSpecimen();
 		specimen.setParentSpecimen(parent);
 		specimen.setVisit(this);
@@ -633,11 +638,21 @@ public class Visit extends BaseExtensionEntity {
 		EventPublisher.getInstance().publish(new SpecimenSavedEvent(specimen));
 
 		for (SpecimenRequirement poolSr : sr.getOrderedSpecimenPoolReqs()) {
-			specimen.addPoolSpecimen(createPendingSpecimen(poolSr, null));
+			Specimen poolSpmn = createPendingSpecimen(poolSr, null);
+			if (poolSpmn == null) {
+				continue;
+			}
+
+			specimen.addPoolSpecimen(poolSpmn);
 		}
 
 		for (SpecimenRequirement childSr : sr.getOrderedChildRequirements()) {
-			specimen.addChildSpecimen(createPendingSpecimen(childSr, specimen));
+			Specimen childSpmn = createPendingSpecimen(childSr, specimen);
+			if (childSpmn == null) {
+				continue;
+			}
+
+			specimen.addChildSpecimen(childSpmn);
 		}
 
 		return specimen;

@@ -73,6 +73,8 @@ public class SpecimenRequirementDetail implements Comparable<SpecimenRequirement
 	
 	private String parentSrCode;
 
+	private String activityStatus;
+
 	public Long getId() {
 		return id;
 	}
@@ -292,6 +294,14 @@ public class SpecimenRequirementDetail implements Comparable<SpecimenRequirement
 		this.parentSrCode = parentSrCode;
 	}
 
+	public String getActivityStatus() {
+		return activityStatus;
+	}
+
+	public void setActivityStatus(String activityStatus) {
+		this.activityStatus = activityStatus;
+	}
+
 	@Override
 	public int compareTo(SpecimenRequirementDetail other) {
 		int cmp = NumUtil.compareTo(sortOrder, other.sortOrder);
@@ -360,6 +370,7 @@ public class SpecimenRequirementDetail implements Comparable<SpecimenRequirement
 		detail.setLabelPrintCopies(sr.getLabelPrintCopies());
 		detail.setSortOrder(sr.getSortOrder());
 		detail.setEventId(sr.getCollectionProtocolEvent().getId());
+		detail.setActivityStatus(sr.getActivityStatus());
 		
 		if (incChildren) {
 			detail.setChildren(from(sr.getChildSpecimenRequirements()));
