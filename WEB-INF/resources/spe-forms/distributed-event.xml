@@ -1,4 +1,5 @@
 #macro(getMessage $code)$messageSource.getMessage($code, null, $locale)#end
+#macro(getPrecision)$cfgSvc.getIntSetting("query", "floating_point_precision", 0)#end
 
 <form>
   <view>
@@ -44,7 +45,7 @@
         <caption>#getMessage("order_items_quantity")</caption>
         <column>QUANTITY</column>
         <mandatory>true</mandatory>
-        <noOfDigitsAfterDecimal>2</noOfDigitsAfterDecimal>
+        <noOfDigitsAfterDecimal>#getPrecision()</noOfDigitsAfterDecimal>
       </numberField>
     </row>
 

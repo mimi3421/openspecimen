@@ -13,6 +13,7 @@ import krishagni.catissueplus.beans.FormContextBean;
 
 import org.apache.commons.io.IOUtils;
 
+import com.krishagni.catissueplus.core.common.service.ConfigurationService;
 import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.catissueplus.core.de.services.QueryService;
 
@@ -21,8 +22,14 @@ public class ImportQueryForms extends ImportForms {
 	
 	private QueryService querySvc;
 
+	private ConfigurationService cfgSvc;
+
 	public void setQuerySvc(QueryService querySvc) {
 		this.querySvc = querySvc;
+	}
+
+	public void setCfgSvc(ConfigurationService cfgSvc) {
+		this.cfgSvc = cfgSvc;
 	}
 
 	@Override
@@ -77,6 +84,7 @@ public class ImportQueryForms extends ImportForms {
 	protected Map<String, Object> getTemplateProps() {
 		Map<String, Object> props = new HashMap<>();
 		props.put("querySvc", querySvc);
+		props.put("cfgSvc", cfgSvc);
 		
 		return props;
 	}
