@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.administrative.domain.User;
-import com.krishagni.catissueplus.core.audit.services.impl.DeleteLogUtil;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.ParticipantErrorCode;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
@@ -46,7 +45,7 @@ public class CollectionProtocolRegistration extends BaseEntity {
 
 	private CollectionProtocol collectionProtocol;
 
-	private Collection<Visit> visits = new HashSet<Visit>();
+	private Collection<Visit> visits = new HashSet<>();
 
 	private String activityStatus;
 
@@ -58,7 +57,7 @@ public class CollectionProtocolRegistration extends BaseEntity {
 	
 	private String signedConsentDocumentName;
 
-	private Set<ConsentTierResponse> consentResponses = new HashSet<ConsentTierResponse>();
+	private Set<ConsentTierResponse> consentResponses = new HashSet<>();
 
 	private String barcode;
 	
@@ -249,7 +248,7 @@ public class CollectionProtocolRegistration extends BaseEntity {
 	public List<DependentEntityDetail> getDependentEntities() {
 		return DependentEntityDetail.singletonList(Visit.getEntityName(), getActiveVisits()); 
 	}
-	
+
 	public void updateActivityStatus(String activityStatus) {
 		if (this.activityStatus != null && this.activityStatus.equals(activityStatus)) {
 			return;

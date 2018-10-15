@@ -29,7 +29,6 @@ import com.krishagni.catissueplus.core.audit.services.AuditService;
 import com.krishagni.catissueplus.core.common.events.ExportedFileDetail;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
-import com.krishagni.catissueplus.core.common.util.Utility;
 
 @Controller
 @RequestMapping("/audit")
@@ -98,14 +97,6 @@ public class AuditController {
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
 	public Map<String, String> exportRevisions(@RequestBody RevisionsListCriteria criteria) {
-		if (criteria.startDate() != null) {
-			criteria.startDate(Utility.chopTime(criteria.startDate()));
-		}
-
-		if (criteria.endDate() != null) {
-			criteria.endDate(Utility.getEndOfDay(criteria.endDate()));
-		}
-
 		ResponseEvent<ExportedFileDetail> resp = auditService.exportRevisions(new RequestEvent<>(criteria));
 		resp.throwErrorIfUnsuccessful();
 

@@ -276,7 +276,7 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 			ensureUniqueShortTitle(existingCp, cp, ose);
 			ensureUniqueCode(existingCp, cp, ose);
 			ensureUniqueCpSiteCode(cp, ose);
-			if (!existingCp.isConsentsWaived().equals(cp.isConsentsWaived())) {
+			if (existingCp.isConsentsWaived() != cp.isConsentsWaived()) {
 			  ensureConsentTierIsEmpty(existingCp, ose);
 			}
 

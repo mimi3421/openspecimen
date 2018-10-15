@@ -626,10 +626,6 @@ public class Specimen extends BaseExtensionEntity {
 		return labelGenerator;
 	}
 
-	public void setLabelGenerator(LabelGenerator labelGenerator) {
-		this.labelGenerator = labelGenerator;
-	}
-
 	@Override
 	public String getEntityType() {
 		return EXTN;

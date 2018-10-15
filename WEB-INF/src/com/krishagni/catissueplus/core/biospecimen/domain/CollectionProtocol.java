@@ -374,7 +374,7 @@ public class CollectionProtocol extends BaseExtensionEntity {
 		this.bulkPartRegEnabled = bulkPartRegEnabled;
 	}
 
-	public Boolean isSpecimenCentric() {
+	public boolean isSpecimenCentric() {
 		return specimenCentric != null ? specimenCentric : false;
 	}
 
@@ -464,8 +464,8 @@ public class CollectionProtocol extends BaseExtensionEntity {
 		getSpmnLabelPrintSettings().add(setting);
 	}
 	
-	public Boolean isConsentsWaived() {
-		return consentsWaived != null ? consentsWaived: false;
+	public boolean isConsentsWaived() {
+		return consentsWaived != null ? consentsWaived : false;
 	}
 
 	public void setConsentsWaived(Boolean consentsWaived) {

@@ -6,13 +6,12 @@ import java.util.Objects;
 import org.hibernate.envers.Audited;
 import org.springframework.beans.BeanUtils;
 
+import com.krishagni.catissueplus.core.biospecimen.domain.BaseEntity;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.common.util.MessageUtil;
 
 @Audited
-public class StorageContainerPosition implements Comparable<StorageContainerPosition> {
-	private Long id;
-	
+public class StorageContainerPosition extends BaseEntity implements Comparable<StorageContainerPosition> {
 	private Integer posOneOrdinal;
 	
 	private Integer posTwoOrdinal;
@@ -33,15 +32,7 @@ public class StorageContainerPosition implements Comparable<StorageContainerPosi
 
 	private Boolean blocked;
 
-	private boolean supressAccessChecks;
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
+	private transient boolean supressAccessChecks;
 
 	public Integer getPosOneOrdinal() {
 		return posOneOrdinal;

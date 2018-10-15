@@ -9,4 +9,8 @@
     <property name="changeLog" value="classpath:db/db-os-changelog-post-init.xml" />
   </bean>
 
+  <bean class="com.krishagni.catissueplus.core.init.EnversEnumHandler">
+    <property name="sessionFactory" ref="sessionFactory"/>
+  </bean>
+
 </beans>

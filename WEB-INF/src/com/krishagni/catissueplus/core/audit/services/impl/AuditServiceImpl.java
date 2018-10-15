@@ -20,8 +20,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.envers.AuditReaderFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.krishagni.catissueplus.core.administrative.domain.User;
@@ -118,6 +120,38 @@ public class AuditServiceImpl implements AuditService {
 			}
 		}
 
+		Date startDate = Utility.chopSeconds(criteria.startDate());
+		Date endDate   = Utility.getEndOfDay(criteria.endDate());
+		Date endOfDay  = Utility.getEndOfDay(Calendar.getInstance().getTime());
+		if (startDate != null && startDate.after(endOfDay)) {
+			return ResponseEvent.userError(AuditErrorCode.DATE_GT_TODAY, Utility.getDateTimeString(startDate));
+		}
+
+		if (endDate != null && endDate.after(endOfDay)) {
+			return ResponseEvent.userError(AuditErrorCode.DATE_GT_TODAY, Utility.getDateTimeString(endDate));
+		}
+
+		if (startDate != null && endDate != null) {
+			long days = Utility.daysBetween(startDate, endDate);
+			if (days > 30L) {
+				return ResponseEvent.userError(AuditErrorCode.DATE_INTERVAL_GT_ALLOWED);
+			}
+		} else if (startDate != null) {
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(startDate);
+			cal.add(Calendar.DAY_OF_MONTH, 30);
+			endDate = cal.getTime().after(endOfDay) ? endOfDay : Utility.getEndOfDay(cal.getTime());
+		} else {
+			endDate = endDate != null ? endDate : endOfDay;
+
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(endDate);
+			cal.add(Calendar.DAY_OF_MONTH, -30);
+			startDate = Utility.chopTime(cal.getTime());
+		}
+
+		criteria.startDate(startDate).endDate(endDate);
+
 		User currentUser     = AuthUtil.getCurrentUser();
 		User revisionsByUser = user;
 
@@ -127,6 +161,8 @@ public class AuditServiceImpl implements AuditService {
 			revisionsFile = result.get(ONLINE_EXPORT_TIMEOUT_SECS, TimeUnit.SECONDS);
 		} catch (TimeoutException te) {
 			// timed out waiting for the response
+		} catch (OpenSpecimenException ose) {
+			throw ose;
 		} catch (Exception ie) {
 			throw OpenSpecimenException.serverError(ie);
 		}
@@ -292,7 +328,8 @@ public class AuditServiceImpl implements AuditService {
 
 			String[] keys = {
 				"audit_rev_id", "audit_rev_tstmp", "audit_rev_user", "audit_rev_user_email",
-				"audit_rev_entity_op", "audit_rev_entity_name", "audit_rev_entity_id"
+				"audit_rev_entity_op", "audit_rev_entity_name", "audit_rev_entity_id",
+				"audit_rev_change_log"
 			};
 			writer.writeNext(Stream.of(keys).map(MessageUtil.getInstance()::getMessage).toArray(String[]::new));
 		}
@@ -317,6 +354,10 @@ public class AuditServiceImpl implements AuditService {
 			int recsCount = 0;
 
 			for (RevisionEntityRecordDetail record : revision.getRecords()) {
+				if (StringUtils.isBlank(record.getModifiedProps()) && record.getType() != 2) {
+					continue;
+				}
+
 				String op = null;
 				switch (record.getType()) {
 					case 0:
@@ -336,7 +377,7 @@ public class AuditServiceImpl implements AuditService {
 				String entityName = context.computeIfAbsent("audit_entity_" + record.getEntityName(), toMsg);
 				String entityId   = record.getEntityId().toString();
 
-				writer.writeNext(new String[] {revId, dateTime, user, userEmail, opDisplay, entityName, entityId});
+				writer.writeNext(new String[] {revId, dateTime, user, userEmail, opDisplay, entityName, entityId, record.getModifiedProps()});
 				++recsCount;
 
 				if (recsCount % 25 == 0) {

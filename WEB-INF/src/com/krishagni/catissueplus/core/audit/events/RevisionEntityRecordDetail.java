@@ -15,6 +15,8 @@ public class RevisionEntityRecordDetail {
 
 	private Long entityId;
 
+	private String modifiedProps;
+
 	public Long getId() {
 		return id;
 	}
@@ -45,6 +47,14 @@ public class RevisionEntityRecordDetail {
 
 	public void setEntityId(Long entityId) {
 		this.entityId = entityId;
+	}
+
+	public String getModifiedProps() {
+		return modifiedProps;
+	}
+
+	public void setModifiedProps(String modifiedProps) {
+		this.modifiedProps = modifiedProps;
 	}
 
 	public static RevisionEntityRecordDetail from(RevisionEntityRecord record) {

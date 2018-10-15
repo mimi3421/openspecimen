@@ -2,20 +2,30 @@ package com.krishagni.catissueplus.core.audit.repository.impl;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.envers.AuditReader;
+import org.hibernate.envers.AuditReaderFactory;
+import org.hibernate.envers.query.AuditEntity;
 import org.hibernate.query.Query;
 import org.hibernate.type.IntegerType;
 import org.hibernate.type.LongType;
 import org.hibernate.type.StringType;
 import org.hibernate.type.TimestampType;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.PropertyAccessorFactory;
 
 import com.krishagni.catissueplus.core.audit.domain.DeleteLog;
 import com.krishagni.catissueplus.core.audit.domain.RevisionEntityRecord;
@@ -26,12 +36,14 @@ import com.krishagni.catissueplus.core.audit.events.RevisionDetail;
 import com.krishagni.catissueplus.core.audit.events.RevisionEntityRecordDetail;
 import com.krishagni.catissueplus.core.audit.repository.AuditDao;
 import com.krishagni.catissueplus.core.audit.repository.RevisionsListCriteria;
+import com.krishagni.catissueplus.core.biospecimen.domain.BaseEntity;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
 import com.krishagni.catissueplus.core.common.repository.AbstractDao;
 
 import edu.common.dynamicextensions.ndao.DbSettingsFactory;
 
 public class AuditDaoImpl extends AbstractDao<UserApiCallLog> implements AuditDao {
+
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -83,8 +95,20 @@ public class AuditDaoImpl extends AbstractDao<UserApiCallLog> implements AuditDa
 			.setFirstResult(criteria.startAt())
 			.setMaxResults(criteria.maxResults());
 
-		List<Object[]> rows = (List<Object[]>) query.list();
-		return getRevisions(rows);
+		List<RevisionDetail> revisions = getRevisions((List<Object[]>) query.list());
+		for (RevisionDetail revision : revisions) {
+			Map<String, List<RevisionEntityRecordDetail>> entitiesMap = new LinkedHashMap<>();
+			for (RevisionEntityRecordDetail entity : revision.getRecords()) {
+				List<RevisionEntityRecordDetail> entities = entitiesMap.computeIfAbsent(entity.getEntityName(), (k) -> new ArrayList<>());
+				entities.add(entity);
+			}
+
+			if (criteria.includeModifiedProps()) {
+				loadModifiedProps(revision, entitiesMap);
+			}
+		}
+
+		return revisions;
 	}
 
 	@Override
@@ -306,6 +330,90 @@ public class AuditDaoImpl extends AbstractDao<UserApiCallLog> implements AuditDa
 		result += " order by e.identifier desc ";
 		return getLimitSql(result, criteria.startAt(), criteria.maxResults(), DbSettingsFactory.isOracle());
 	}
+
+
+	private void loadModifiedProps(RevisionDetail revision, Map<String, List<RevisionEntityRecordDetail>> entitiesMap) {
+		for (Map.Entry<String, List<RevisionEntityRecordDetail>> entity : entitiesMap.entrySet()) {
+			try {
+				Class<?> klass = Class.forName(entity.getKey());
+				if (!BaseEntity.class.isAssignableFrom(klass)) {
+					continue;
+				}
+
+				boolean anyModified = loadAddedEntityProps(revision, klass, entity.getValue());
+				if (anyModified) {
+					loadModifiedEntityProps(revision, klass, entity.getValue());
+				}
+			} catch (Exception e) {
+				String msg = "Error: Couldn't load modified properties of: " + entity.getKey() + ": " + e.getMessage();
+				entity.getValue().forEach(entityAudit -> entityAudit.setModifiedProps(msg));
+				logger.error("Unknown audit entity class: " + entity.getKey(), e);
+			}
+		}
+	}
+
+	private boolean loadAddedEntityProps(RevisionDetail revision, Class<?> entityClass, List<RevisionEntityRecordDetail> entities) {
+		boolean anyModified = false;
+
+		AuditReader reader = AuditReaderFactory.get(getCurrentSession());
+		for (RevisionEntityRecordDetail entity : entities) {
+			if (entity.getType() != 0) {
+				anyModified = true;
+				continue;
+			}
+
+			long t1 = System.currentTimeMillis();
+			BaseEntity record = (BaseEntity) reader.find(entityClass, entity.getEntityId(), revision.getRevisionId());
+			long t2 = System.currentTimeMillis();
+
+			entity.setModifiedProps(record.toAuditString());
+			long t3 = System.currentTimeMillis();
+
+			if (logger.isDebugEnabled()) {
+				logger.debug("ADD: " + entityClass.getName() + ", retrieve time: " + (t2 - t1) + " ms, stringify time: " + (t3 - t2) + " ms");
+			}
+		}
+
+		return anyModified;
+	}
+
+	private void loadModifiedEntityProps(RevisionDetail revision, Class<?> entityClass, List<RevisionEntityRecordDetail> entities) {
+		long t1 = System.currentTimeMillis();
+		List<Object[]> rows  = AuditReaderFactory.get(getCurrentSession())
+			.createQuery().forRevisionsOfEntityWithChanges(entityClass, true)
+			.add(AuditEntity.revisionNumber().eq(revision.getRevisionId()))
+			.getResultList();
+		long t2 = System.currentTimeMillis();
+
+		if (rows.isEmpty()) {
+			return;
+		}
+
+		Map<Long, RevisionEntityRecordDetail> entitiesMap = entities.stream()
+			.collect(Collectors.toMap(RevisionEntityRecordDetail::getEntityId, e -> e));
+		for (Object[] row : rows) {
+			Object record = row[0];
+			if (!(record instanceof BaseEntity)) {
+				continue;
+			}
+
+			BeanWrapper bean = PropertyAccessorFactory.forBeanPropertyAccess(record);
+			Long id = (Long) bean.getPropertyValue("id");
+			RevisionEntityRecordDetail entityAudit = entitiesMap.get(id);
+			if (entityAudit != null) {
+				Set<String> changedProps = (Set<String>) row[3];
+				entityAudit.setModifiedProps(((BaseEntity) record).toAuditString(changedProps));
+			}
+		}
+
+		long t3 = System.currentTimeMillis();
+		if (logger.isDebugEnabled()) {
+			logger.debug("MOD: " + entityClass.getName() + ", retrieve time: " + (t2 - t1) + " ms, stringify time: " + (t3 - t2) + " ms");
+		}
+
+	}
+
+	private static final Log logger = LogFactory.getLog(AuditDaoImpl.class);
 
 	private static final String FQN = UserApiCallLog.class.getName();
 
