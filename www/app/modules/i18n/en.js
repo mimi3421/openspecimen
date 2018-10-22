@@ -706,8 +706,11 @@
     "labels_csv": "Comma separated list of specimen labels",
     "other": "Other",
     "image_id": "Image ID / URL",
-
     "reason_for_closing": "Reason",
+    "aliquot_labels": "Aliquot Labels",
+    "scan_aliquot_labels": "Paste or input aliquot labels separated by comma, tab, or newline",
+    "aliquot_barcodes": "Aliquot Barcodes",
+    "scan_aliquot_barcodes": "Paste or input aliquot barcodes separated by comma, tab, or newline",
 
     "hide_events": "Hide Events",
     "show_events": "Show Events",

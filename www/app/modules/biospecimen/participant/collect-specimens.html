@@ -109,6 +109,7 @@
                     <span ng-switch-when="true">
                       <textarea os-md-input rows="1" name="barcode"
                         ng-model="specimen.aliquotBarcodes" edit-when="!specimen.pBarcode"
+                        ng-focus="getBarcodes(specimen, $event)"
                         ng-blur="assignBarcodes(specimen, specimen.aliquotBarcodes)">
                       </textarea>
                     </span>
@@ -129,9 +130,11 @@
                     <span ng-switch-when="true">
                       <textarea os-md-input rows="1" name="label"
                         ng-model="specimen.aliquotLabels" edit-when="!specimen.pLabel"
+                        ng-focus="getLabels(specimen, $event)"
                         ng-blur="assignLabels(specimen, specimen.aliquotLabels)" required>
                       </textarea>
                     </span>
+
                     <span ng-switch-default>
                       <input type="text" os-md-input edit-when="!specimen.pLabel"
                         name="label" ng-model="specimen.label"
@@ -279,7 +282,8 @@
             <div os-field-error field="collectionForm.receiveDate"></div>
           </div>
           <div class="col-xs-1 input os-md-time">
-            <timepicker class="os-time-no-wheels" os-md-input ng-model="collDetail.receiveDate" show-meridian="false"></timepicker>
+            <timepicker class="os-time-no-wheels" os-md-input ng-model="collDetail.receiveDate" show-meridian="false">
+            </timepicker>
           </div>
         </div>
       </div>
@@ -299,6 +303,26 @@
       </button>
       <button class="btn os-btn-text-secondary" ng-click="closePopover()">
         <span translate="common.buttons.cancel"> Cancel </span>
+      </button>
+    </div>
+  </div>
+</script>
+
+<script type="text/ng-template" id="modules/biospecimen/participant/collect-barcodes.html">
+  <div class="os-modal">
+    <div class="os-modal-header">
+      <span translate="{{title}}"></span>
+    </div>
+    <div class="os-modal-body os-no-label-form">
+      <textarea class="form-control" rows="5" ng-model="inputBarcodes" placeholder="{{placeholder | translate}}">
+      </textarea>
+    </div>
+    <div class="os-modal-footer">
+      <button class="btn os-btn-text" ng-click="cancel()">
+        <span translate="common.buttons.cancel">Cancel</span>
+      </button>
+      <button class="btn btn-primary" ng-click="ok()">
+        <span translate="common.buttons.done">Done</span>
       </button>
     </div>
   </div>

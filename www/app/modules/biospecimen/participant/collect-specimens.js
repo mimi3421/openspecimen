@@ -308,7 +308,7 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
   })
   .controller('CollectSpecimensCtrl', 
     function(
-      $scope, $translate, $state, $document, $q, $parse, $injector,
+      $scope, $translate, $state, $document, $q, $parse, $injector, $modal,
       cp, cpr, visit, latestVisit, cpDict, spmnCollFields, mrnAccessRestriction,
       Visit, Specimen, PvManager, CollectSpecimensSvc, Container, ExtensionsUtil, Alerts, Util, SpecimenUtil) {
 
@@ -568,6 +568,13 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
           copy.storageLocation = {name: spmn.storageLocation.name, mode: spmn.storageLocation.mode};
         } else {
           copy.storageLocation = {};
+        }
+
+        if (spmn.aliquotGrp) {
+          copy.aliquotGrp = undefined;
+          copy.grpLeader = spmn;
+          copy.expanded = false;
+          copy.showInTree = spmn.expanded;
         }
 
         return copy;
@@ -986,6 +993,27 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
         });
       }
 
+      function getScannedLabels(specimen, prop, title, placeholder) {
+        return $modal.open({
+          templateUrl: 'modules/biospecimen/participant/collect-barcodes.html',
+          backdrop: 'static',
+          controller: function($scope, $modalInstance) {
+            $scope.inputBarcodes = specimen[prop];
+            $scope.title = title;
+            $scope.placeholder = placeholder;
+
+            $scope.ok = function() {
+              specimen[prop] = $scope.inputBarcodes;
+              $modalInstance.close(true);
+            }
+
+            $scope.cancel = function() {
+              $modalInstance.dismiss();
+            }
+          }
+        }).result;
+      }
+
       function assignInputs(aliquot, inputs, prop) {
         var inputs = Util.splitStr(inputs, /,|\t|\n/);
         var newSpmnsCnt = inputs.length - aliquot.aliquotGrp.length;
@@ -1006,8 +1034,26 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
         assignInputs(aliquot, barcodes, 'barcode');
       }
 
+      $scope.getBarcodes = function(specimen, $event) {
+        $event.target.blur();
+        getScannedLabels(specimen, 'aliquotBarcodes', 'specimens.aliquot_barcodes', 'specimens.scan_aliquot_barcodes').then(
+          function() {
+            assignInputs(specimen, specimen.aliquotBarcodes, 'barcode');
+          }
+        );
+      }
+
       $scope.assignLabels = function(aliquot, labels) {
         assignInputs(aliquot, labels, 'label');
+      }
+
+      $scope.getLabels = function(specimen, $event) {
+        $event.target.blur();
+        getScannedLabels(specimen, 'aliquotLabels', 'specimens.aliquot_labels', 'specimens.scan_aliquot_labels').then(
+          function() {
+            assignInputs(specimen, specimen.aliquotLabels, 'label');
+          }
+        );
       }
 
       $scope.expandAliquotsGroup = function(aliquot) {
