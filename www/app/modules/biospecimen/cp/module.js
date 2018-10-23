@@ -259,6 +259,14 @@ angular.module('os.biospecimen.cp',
             }
 
             return SpecimenRequirement.listFor(eventId);
+          },
+
+          aliquotQtyReq: function(SettingUtil) {
+            return SettingUtil.getSetting('biospecimen', 'mandatory_aliquot_qty').then(
+              function(resp) {
+                return resp.value == 'true' || resp.value == true || resp.value == 1 || resp.value == '1';
+              }
+            );
           }
         },
         controller: 'CpSpecimensCtrl'

@@ -12,6 +12,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
 import com.krishagni.catissueplus.core.administrative.domain.User;
+import com.krishagni.catissueplus.core.biospecimen.ConfigParams;
 import com.krishagni.catissueplus.core.biospecimen.domain.AliquotSpecimensRequirement;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol.SpecimenLabelAutoPrintMode;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolEvent;
@@ -31,6 +32,7 @@ import com.krishagni.catissueplus.core.common.errors.ErrorType;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
 import com.krishagni.catissueplus.core.common.service.LabelGenerator;
+import com.krishagni.catissueplus.core.common.util.ConfigUtil;
 import com.krishagni.catissueplus.core.common.util.NumUtil;
 import com.krishagni.catissueplus.core.common.util.Status;
 
@@ -145,6 +147,7 @@ public class SpecimenRequirementFactoryImpl implements SpecimenRequirementFactor
 		sr.setName(req.getName());
 		sr.setSortOrder(req.getSortOrder());
 		sr.setLabelPrintCopies(req.getLabelPrintCopies());
+		sr.setLineage(lineage);
 		
 		//
 		// Specimen class and type are set here so that properties dependent on these can
@@ -197,23 +200,25 @@ public class SpecimenRequirementFactoryImpl implements SpecimenRequirementFactor
 		OpenSpecimenException ose = new OpenSpecimenException(ErrorType.USER_ERROR);
 		if (key == null) {
 			ose.addError(PARENT_REQ_REQUIRED);
-			throw ose;
 		} else if (parent == null) {
 			ose.addError(SrErrorCode.PARENT_NOT_FOUND);
-			throw ose;
 		} else if (req.getNoOfAliquots() == null || req.getNoOfAliquots() < 1L) {
 			ose.addError(SrErrorCode.INVALID_ALIQUOT_CNT);
-			throw ose;
-		} else if (req.getQtyPerAliquot() == null || NumUtil.lessThanEqualsZero(req.getQtyPerAliquot())) {
+		} else if (NumUtil.lessThanEqualsZero(req.getQtyPerAliquot())) {
 			ose.addError(SrErrorCode.INVALID_QTY);
-			throw ose;
+		} else if (req.getQtyPerAliquot() == null) {
+			if (ConfigUtil.getInstance().getBoolSetting(ConfigParams.MODULE, ConfigParams.ALIQUOT_QTY_REQ, true)) {
+				ose.addError(SrErrorCode.INVALID_QTY);
+			}
+		} else { /* req.getQtyPerAliquot() != null */
+			BigDecimal total = NumUtil.multiply(req.getQtyPerAliquot(), req.getNoOfAliquots());
+			if (NumUtil.greaterThan(total, parent.getQtyAfterAliquotsUse())) {
+				ose.addError(SrErrorCode.INSUFFICIENT_QTY);
+			}
 		}
-		
-		BigDecimal total = NumUtil.multiply(req.getQtyPerAliquot(), req.getNoOfAliquots());
-		if (NumUtil.greaterThan(total, parent.getQtyAfterAliquotsUse())) {
-			ose.addError(SrErrorCode.INSUFFICIENT_QTY);
-		}
-		
+
+		ose.checkAndThrow();
+
 		List<SpecimenRequirement> aliquots = new ArrayList<>();
 		for (int i = 0; i < req.getNoOfAliquots(); ++i) {
 			SpecimenRequirement aliquot = parent.copy();
@@ -405,11 +410,16 @@ public class SpecimenRequirementFactoryImpl implements SpecimenRequirementFactor
 	}
 		
 	private void setInitialQty(BigDecimal initialQty, SpecimenRequirement sr, OpenSpecimenException ose) {
-		if (initialQty == null || NumUtil.lessThanZero(initialQty)) {
+		if (NumUtil.lessThanZero(initialQty)) {
 			ose.addError(INVALID_QTY);
 			return;
 		}
-		
+
+		if (sr.isAliquot() && (NumUtil.lessThanEqualsZero(initialQty) || (isAliquotQtyReq() && initialQty == null))) {
+			ose.addError(INVALID_QTY);
+			return;
+		}
+
 		sr.setInitialQuantity(initialQty);
 	}
 
@@ -476,7 +486,7 @@ public class SpecimenRequirementFactoryImpl implements SpecimenRequirementFactor
 
 	private void setActivityStatus(String activityStatus, SpecimenRequirement sr, OpenSpecimenException ose) {
 		if (StringUtils.isBlank(activityStatus)) {
-			sr.setActivityStatus(Status.ACTIVITY_STATUS.getStatus());
+			sr.setActivityStatus(Status.ACTIVITY_STATUS_ACTIVE.getStatus());
 		} else if (Status.isValidActivityStatus(activityStatus)) {
 			sr.setActivityStatus(activityStatus);
 		} else {
@@ -553,5 +563,9 @@ public class SpecimenRequirementFactoryImpl implements SpecimenRequirementFactor
 		}
 		
 		return user;		
+	}
+
+	private boolean isAliquotQtyReq() {
+		return ConfigUtil.getInstance().getBoolSetting(ConfigParams.MODULE, ConfigParams.ALIQUOT_QTY_REQ, true);
 	}
 }

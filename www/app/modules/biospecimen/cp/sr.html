@@ -67,11 +67,7 @@
     </li>
     <li class="item">
       <strong class="key key-sm" translate="srs.initial_qty">Initial Quantity</strong>
-      <div class="value value-md">
-        <span>{{childReq.initialQty | osNumberInScientificNotation}}</span>
-        <os-specimen-unit specimen-class="childReq.specimenClass" type="childReq.type">
-        </os-specimen-unit>
-      </div>
+      <os-spmn-measure-val value="childReq.initialQty" specimen="childReq"></os-spmn-measure-val>
     </li>
     <li class="item">
       <strong class="key key-sm" translate="srs.concentration">Concentration</strong>

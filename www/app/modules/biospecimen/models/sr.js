@@ -64,11 +64,13 @@ angular.module('os.biospecimen.models.sr', ['os.common.models'])
 
     Sr.prototype.availableQty = function() {
       var available = this.initialQty;
-      angular.forEach(this.children, function(child) {
-        if (child.lineage == 'Aliquot') {
-          available = Math.round((available - child.initialQty) * 10000) / 10000;
-        }
-      });
+      if (available != undefined && available != null) {
+        angular.forEach(this.children, function(child) {
+          if (child.lineage == 'Aliquot') {
+            available = Math.round((available - child.initialQty) * 10000) / 10000;
+          }
+        });
+      }
 
       return available;
     };

@@ -16,7 +16,7 @@
         <div class="form-group">
           <input name="noOfAliquots" ng-model="childReq.noOfAliquots" 
             os-md-input class="form-control" type="text" placeholder="{{'srs.aliquot_cnt' | translate}}"
-            ng-required="!childReq.qtyPerAliquot" ng-pattern="/^[1-9][0-9]*$/">
+            ng-required="!childReq.qtyPerAliquot || !parentSr.initialQty" ng-pattern="/^[1-9][0-9]*$/">
           <div os-field-error field="aliquotForm.noOfAliquots"></div>
         </div>
       </div>
@@ -25,13 +25,13 @@
         <div class="form-group" ng-if="!childReq.id">
           <os-spmn-measure name="qtyPerAliquot" specimen="childReq" quantity="childReq.qtyPerAliquot"
             md-input placeholder="{{'srs.qty_per_aliquot' | translate}}" 
-            ng-required="!childReq.noOfAliquots">
+            ng-required="aliquotQtyReq && (!childReq.noOfAliquots || !parentSr.initialQty)">
           </os-spmn-measure>
           <div os-field-error field="aliquotForm.qtyPerAliquot"></div>
         </div>
         <div class="form-group" ng-if="!!childReq.id">
           <os-spmn-measure name="aliquotQty" specimen="childReq" quantity="childReq.initialQty"
-            md-input placeholder="{{'srs.qty' | translate}}"> 
+            md-input placeholder="{{'srs.qty' | translate}}" ng-required="aliquotQtyReq">
           </os-spmn-measure>
           <div os-field-error field="aliquotForm.aliquotQty"></div>
         </div>

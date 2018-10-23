@@ -41,11 +41,11 @@
         <div class="form-group" ng-switch on="!!childReq.id">
           <os-spmn-measure ng-switch-when="false"
             name="quantity" specimen="childReq" quantity="childReq.quantity" md-input
-            placeholder="{{'srs.qty' | translate}}" required>
+            placeholder="{{'srs.qty' | translate}}">
           </os-spmn-measure>
           <os-spmn-measure ng-switch-when="true"
             name="quantity" specimen="childReq" quantity="childReq.initialQty" md-input
-            placeholder="{{'srs.qty' | translate}}" required>
+            placeholder="{{'srs.qty' | translate}}">
           </os-spmn-measure>
           <div os-field-error field="derivativeForm.quantity"></div>
         </div>

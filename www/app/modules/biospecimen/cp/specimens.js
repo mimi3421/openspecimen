@@ -2,7 +2,7 @@
 angular.module('os.biospecimen.cp.specimens', ['os.biospecimen.models'])
   .controller('CpSpecimensCtrl', function(
     $scope, $state, $stateParams, $timeout, $modal,
-    cp, events, specimenRequirements,
+    cp, events, specimenRequirements, aliquotQtyReq,
     Specimen, SpecimenRequirement, PvManager, Alerts, Util) {
 
     if (!$stateParams.eventId && !!events && events.length > 0) {
@@ -18,6 +18,7 @@ angular.module('os.biospecimen.cp.specimens', ['os.biospecimen.models'])
       $scope.selectedEvent = events.find(function(evt) { return evt.id == $stateParams.eventId; });
 
       $scope.specimenRequirements = Specimen.flatten(specimenRequirements);
+      $scope.aliquotQtyReq = aliquotQtyReq;
 
       $scope.view = 'list_sr';
       $scope.sr = {};
@@ -256,11 +257,7 @@ angular.module('os.biospecimen.cp.specimens', ['os.biospecimen.models'])
         return;
       }
 
-      $scope.childReq = {
-        $$storedInRepo: true,
-        storageType: 'Manual'
-      }
-
+      $scope.childReq = { $$storedInRepo: true, storageType: 'Manual' };
       $scope.parentSr = sr;
       $scope.view = 'addedit_aliquot';
       loadPvs();
@@ -278,7 +275,7 @@ angular.module('os.biospecimen.cp.specimens', ['os.biospecimen.models'])
         }
       } else if (!!spec.qtyPerAliquot) {
         spec.noOfAliquots = Math.floor(availableQty / spec.qtyPerAliquot);
-      } else if (!!spec.noOfAliquots) {
+      } else if (!!spec.noOfAliquots && availableQty != null && availableQty != undefined) {
         spec.qtyPerAliquot = Math.round(availableQty / spec.noOfAliquots * 10000) / 10000;
       }
 

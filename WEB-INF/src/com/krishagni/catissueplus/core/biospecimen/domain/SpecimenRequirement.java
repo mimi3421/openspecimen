@@ -450,6 +450,10 @@ public class SpecimenRequirement extends BaseEntity implements Comparable<Specim
 
 	public BigDecimal getQtyAfterAliquotsUse() {
 		BigDecimal available = getInitialQuantity();
+		if (available == null) {
+			return null;
+		}
+
 		for (SpecimenRequirement childReq : getChildSpecimenRequirements()) {
 			if (childReq.isAliquot() && childReq.getInitialQuantity() != null) {
 				available =  available.subtract(childReq.getInitialQuantity());
