@@ -1006,6 +1006,8 @@ public class Specimen extends BaseExtensionEntity {
 		updateExternalIds(specimen.getExternalIds());
 		updateEvent(getCollectionEvent(), specimen.getCollectionEvent());
 		updateEvent(getReceivedEvent(), specimen.getReceivedEvent());
+
+		setCreatedOn(specimen.getCreatedOn()); // required for auto-collection of parent specimens
 		updateCollectionStatus(specimen.getCollectionStatus());
 		updatePosition(specimen.getPosition(), null, specimen.getTransferTime(), specimen.getTransferComments());
 
@@ -1779,10 +1781,13 @@ public class Specimen extends BaseExtensionEntity {
 		Specimen parentSpmn = childSpmn.getParentSpecimen();
 		while (parentSpmn != null && parentSpmn.isPending()) {
 			parentSpmn.setCollectionStatus(COLLECTED);
+
+			Date createdOn = childSpmn.getCreatedOn();
 			if (parentSpmn.isPrimary()) {
+				parentSpmn.setCreatedOn(createdOn != null ? createdOn : getReceivedEvent().getTime());
 				parentSpmn.addOrUpdateCollRecvEvents();
 			} else {
-				parentSpmn.setCreatedOn(childSpmn.getCreatedOn());
+				parentSpmn.setCreatedOn(createdOn != null ? createdOn : Calendar.getInstance().getTime());
 			}
 
 			parentSpmn.addToChildrenEvent(childSpmn);
