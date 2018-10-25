@@ -3,6 +3,7 @@ package com.krishagni.catissueplus.core.administrative.events;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.krishagni.catissueplus.core.administrative.domain.ScheduledJob;
 import com.krishagni.catissueplus.core.administrative.domain.ScheduledJob.RepeatSchedule;
@@ -26,6 +27,10 @@ public class ScheduledJobDetail {
 	private String scheduledDayOfWeek;
 	
 	private Integer scheduledDayOfMonth;
+
+	private Integer hourlyInterval;
+
+	private Integer minutelyInterval;
 	
 	private Date nextRunOn;
 	
@@ -39,7 +44,7 @@ public class ScheduledJobDetail {
 	
 	private String command;
 	
-	private List<UserSummary> recipients = new ArrayList<UserSummary>();
+	private List<UserSummary> recipients = new ArrayList<>();
 	
 	private Boolean isActiveJob;
 
@@ -119,6 +124,22 @@ public class ScheduledJobDetail {
 
 	public void setScheduledDayOfMonth(Integer scheduledDayOfMonth) {
 		this.scheduledDayOfMonth = scheduledDayOfMonth;
+	}
+
+	public Integer getHourlyInterval() {
+		return hourlyInterval;
+	}
+
+	public void setHourlyInterval(Integer hourlyInterval) {
+		this.hourlyInterval = hourlyInterval;
+	}
+
+	public Integer getMinutelyInterval() {
+		return minutelyInterval;
+	}
+
+	public void setMinutelyInterval(Integer minutelyInterval) {
+		this.minutelyInterval = minutelyInterval;
 	}
 
 	public Date getNextRunOn() {
@@ -224,20 +245,22 @@ public class ScheduledJobDetail {
 		detail.setRecipients(UserSummary.from(job.getRecipients()));
 
 		detail.setRtArgsProvided(job.getRtArgsProvided());
-		detail.setRtArgsHelpText(job.getRtArgsHelpText());		
-		
+		detail.setRtArgsHelpText(job.getRtArgsHelpText());
+
+		detail.setStartDate(job.getStartDate());
+		detail.setEndDate(job.getEndDate());
+		detail.setLastRunOn(job.getLastRunOn());
+		detail.setNextRunOn(job.getNextRunOn());
+
 		if (job.getRepeatSchedule().equals(RepeatSchedule.ONDEMAND)) {
 			return detail;
 		}
-		
-		detail.setStartDate(job.getStartDate());
-		detail.setEndDate(job.getEndDate());
-		detail.setNextRunOn(job.getNextRunOn());
 
 		detail.setScheduledMinute(job.getScheduledMinute());
 		detail.setScheduledHour(job.getScheduledHour());
 		detail.setScheduledDayOfMonth(job.getScheduledDayOfMonth());
-
+		detail.setHourlyInterval(job.getHourlyInterval());
+		detail.setMinutelyInterval(job.getMinutelyInterval());
 		if (job.getScheduledDayOfWeek() != null) {
 			detail.setScheduledDayOfWeek(job.getScheduledDayOfWeek().toString());
 		}
@@ -246,12 +269,6 @@ public class ScheduledJobDetail {
 	}
 	
 	public static List<ScheduledJobDetail> from(List<ScheduledJob> jobs) {
-		List<ScheduledJobDetail> list = new ArrayList<ScheduledJobDetail>();
-		
-		for (ScheduledJob job : jobs) {
-			list.add(from(job));
-		}
-		
-		return list;
+		return jobs.stream().map(ScheduledJobDetail::from).collect(Collectors.toList());
 	}
 }

@@ -131,13 +131,17 @@ public class ScheduledJobFactoryImpl implements ScheduledJobFactory {
 		setScheduledHour(detail, job, ose);
 		setScheduledDayOfWeek(detail, job, ose);
 		setScheduledDayOfMonth(detail, job, ose);
+		setHourlyInterval(detail, job, ose);
+		setMinutelyInterval(detail, job, ose);
 	}
 
 	private void setScheduledMinute(ScheduledJobDetail detail, ScheduledJob job, OpenSpecimenException ose) {
 		Integer scheduledMinute = detail.getScheduledMinute();
-		if(job.getRepeatSchedule() == RepeatSchedule.MINUTELY){
+		if (job.getRepeatSchedule() == RepeatSchedule.MINUTELY) {
+			job.setScheduledMinute(0);
 			return;
 		}
+
 		if (scheduledMinute == null || scheduledMinute < 0 || scheduledMinute > 59) {
 			ose.addError(ScheduledJobErrorCode.INVALID_SCHEDULED_TIME);
 			return;
@@ -189,6 +193,42 @@ public class ScheduledJobFactoryImpl implements ScheduledJobFactory {
 		}
 	
 		job.setScheduledDayOfMonth(dayOfMonth);
+	}
+
+	private void setHourlyInterval(ScheduledJobDetail detail, ScheduledJob job, OpenSpecimenException ose) {
+		if (job.getRepeatSchedule() != RepeatSchedule.HOURLY) {
+			return;
+		}
+
+		Integer hourlyInterval = detail.getHourlyInterval();
+		if (hourlyInterval == null) {
+			hourlyInterval = 1;
+		}
+
+		if (hourlyInterval <= 0) {
+			ose.addError(ScheduledJobErrorCode.INVALID_SCHEDULED_TIME);
+			return;
+		}
+
+		job.setHourlyInterval(hourlyInterval);
+	}
+
+	private void setMinutelyInterval(ScheduledJobDetail detail, ScheduledJob job, OpenSpecimenException ose) {
+		if (job.getRepeatSchedule() != RepeatSchedule.MINUTELY) {
+			return;
+		}
+
+		Integer minutelyInterval = detail.getMinutelyInterval();
+		if (minutelyInterval == null) {
+			minutelyInterval = 1;
+		}
+
+		if (minutelyInterval < 0) {
+			ose.addError(ScheduledJobErrorCode.INVALID_SCHEDULED_TIME);
+			return;
+		}
+
+		job.setMinutelyInterval(minutelyInterval);
 	}
 	
 	private void setType(ScheduledJobDetail detail, ScheduledJob job, OpenSpecimenException ose) {

@@ -2250,69 +2250,120 @@
     "revisions": "Revisions"
   },
 
-   "jobs": {
-     "list": "Jobs",
-     "create": "Create Job",
-     "id": "ID",
-     "name": "Name",
-     "title": "Title",
-     "schedule": "Schedule",
-     "created_by": "Created By",
-     "last_run_on": "Last Run On",
+  "jobs": {
+    "list": "Jobs",
+    "create": "Create Job",
+    "id": "ID",
+    "name": "Name",
+    "title": "Title",
+    "schedule": "Schedule",
+    "created_by": "Created By",
+    "last_run_on": "Last Run On",
      
-     "create_job": "Create Job",
-     "type": "Job Type",
-     "internal": "Internal",
-     "external": "External",
+    "create_job": "Create Job",
+    "type": "Job Type",
+    "internal": "Internal",
+    "external": "External",
+    "repeat_schedule": "Repeat Interval",
+    "repeat_schedules": {
+      "MONTHLY": "Monthly",
+      "WEEKLY": "Weekly",
+      "DAILY": "Daily",
+      "HOURLY": "Hourly",
+      "MINUTELY": "Minutely",
+      "ONDEMAND": "On Demand"
+    },
 
-     "command": "External Command",
-     "command_desc": "Absolute path of command to execute along with input arguments",
+    "week_days": {
+      "SUNDAY": "Sunday",
+      "MONDAY": "Monday",
+      "TUESDAY": "Tuesday",
+      "WEDNESDAY": "Wednesday",
+      "THURSDAY": "Thursday",
+      "FRIDAY": "Friday",
+      "SATURDAY": "Saturday"
+    },
 
-     "fqn": "Implementation",
-     "fqn_desc": "Fully qualified name of class implementing the task to run",
+    "day_of_month": "Day of the Month",
+    "time_of_day": "Time of the Day",
+    "minute_of_hour": "Minute of the Hour",
+    "week_day": "Day of the Week",
+    "hour": "Hour",
+    "minute": "Minute",
+    "minutely_interval": "Minutely Interval",
 
-     "run_args": "Runtime Arguments",
-     "args_provided": "Provided",
-     "args_not_provided": "Not Provided",
-     "args_help_text": "Help Text",
-     "args_help_text_desc": "Text to display users at time of collecting arguments for job run",
+    "schedule_desc": {
+      "MONTHLY": "Job runs on {{'jobs.number_ord' | translate: {n: scheduledDayOfMonth} }} of every month at {{scheduledHour | osPadding: 2}}:{{scheduledMinute | osPadding: 2}} hours.",
+      "WEEKLY": "Job runs on every {{'jobs.week_days.' + scheduledDayOfWeek | translate}} at {{scheduledHour | osPadding: 2}}:{{scheduledMinute | osPadding: 2}} hours.",
+      "DAILY": "Job runs every day at {{scheduledHour | osPadding: 2}}:{{scheduledMinute | osPadding: 2}} hours.",
+      "HOURLY": "Job runs at {{'jobs.number_ord' | translate: {n: scheduledMinute} }} minute of every hour.",
+      "MINUTELY": "Job runs every {{minutelyInterval < 2 ? 'minute' : (minutelyInterval + ' minutes')}}.",
+      "ONDEMAND": "Job runs on demand."
+    },
+
+    "schedule_summary_desc": {
+      "MONTHLY": "{{'jobs.number_ord' | translate: {n: scheduledDayOfMonth} }} of every month at {{scheduledHour | osPadding: 2}}:{{scheduledMinute | osPadding: 2}} hours.",
+      "WEEKLY": "Every {{'jobs.week_days.' + scheduledDayOfWeek | translate}} at {{scheduledHour | osPadding: 2}}:{{scheduledMinute | osPadding: 2}} hours.",
+      "DAILY": "Every day at {{scheduledHour | osPadding: 2}}:{{scheduledMinute | osPadding: 2}} hours.",
+      "HOURLY": "{{'jobs.number_ord' | translate: {n: scheduledMinute} }} minute of every hour.",
+      "MINUTELY": "Every {{minutelyInterval < 2 ? 'minute' : (minutelyInterval + ' minutes')}}.",
+      "ONDEMAND": "On demand."
+    },
+
+    "number_ord": "{{n}}{{('jobs.number_ords.' + (((n % 10) < 4 && (n < 10 || n > 19)) ? (n % 10) : 'oth')) | translate}}",
+
+    "number_ords": {
+      "0": "th",
+      "1": "st",
+      "2": "nd",
+      "3": "rd",
+      "oth": "th"
+    },
+
+    "command": "External Command",
+    "command_desc": "Absolute path of command to execute along with input arguments",
+
+    "fqn": "Implementation",
+    "fqn_desc": "Fully qualified name of class implementing the task to run",
+
+    "run_args": "Runtime Arguments",
+    "args_provided": "Provided",
+    "args_not_provided": "Not Provided",
+    "args_help_text": "Help Text",
+    "args_help_text_desc": "Text to display users at time of collecting arguments for job run",
     
-     "run_job": "Run Job",
-     "edit_job": "Edit Job Details",
-     "delete_job": "Delete Job",
-     "view_job_runs": "View Job Runs",
+    "run_job": "Run Job",
+    "edit_job": "Edit",
+    "delete_job": "Delete",
+    "view_job_runs": "View Runs",
 
-     "queued_for_exec": "Job {{name}} queued for execution",
+    "queued_for_exec": "Job {{name}} queued for execution",
 
-     "run_logs": "Run Logs",
-     "seconds": "seconds",
+    "run_logs": "Run Logs",
+    "seconds": "seconds",
 
-     "no_runs": "No run logs to show",
-     "run_by": "Run By",
-     "started_at": "Started At",
-     "time_taken": "Time Taken",
-     "status": "Status",
+    "no_runs": "No run logs to show",
+    "run_by": "Run By",
+    "started_at": "Started At",
+    "time_taken": "Time Taken",
+    "status": "Status",
 
-     "tooltip": {
-       "create_job": "Create new scheduled job",
-       "search_jobs": "Search jobs"
-     },
+    "tooltip": {
+      "create_job": "Create new scheduled job",
+      "search_jobs": "Search jobs"
+    },
 
-     "schedules": {
-       "ONDEMAND": "On Demand"
-     },
+    "types": {
+      "INTERNAL": "Internal",
+      "EXTERNAL": "External"
+    },
 
-     "types": {
-       "INTERNAL": "Internal",
-       "EXTERNAL": "External"
-     },
-
-     "statuses": {
-       "SUCCEEDED": "Success",
-       "FAILED": "Failed",
-       "IN_PROGRESS": "In Progress"
-     }
-   },
+    "statuses": {
+      "SUCCEEDED": "Success",
+      "FAILED": "Failed",
+      "IN_PROGRESS": "In Progress"
+    }
+  },
 
    "search": {
      "error": "Could not find any {{entity}} matching search key {{key}}",

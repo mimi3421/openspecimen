@@ -36,4 +36,11 @@
       <column name="EXTERNAL_ID"/>
     </createIndex>
   </changeSet>
+
+  <changeSet author="vpawar" id="Scheduled job hourly and minutely interval">
+    <addColumn tableName="OS_SCHEDULED_JOBS">
+      <column name="HOURLY_INTERVAL" type="${mediumint.type}" defaultValue="1"/>
+      <column name="MINUTELY_INTERVAL" type="${mediumint.type}" defaultValue="1"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

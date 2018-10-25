@@ -10,4 +10,10 @@ angular.module('openspecimen')
 
       return Util.getNumberInScientificNotation(input, 1000000);
     }
+  })
+  .filter('osPadding', function() {
+    return function(input, digits) {
+      var padding = new Array(digits || 1).fill('0').join('');
+      return (padding + (input || '')).slice(-digits);
+    }
   });

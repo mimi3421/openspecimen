@@ -41,7 +41,7 @@ public class ScheduledJob extends BaseEntity {
 		
 		private final int value;
 		
-		private DayOfWeek(int newValue) {
+		DayOfWeek(int newValue) {
 			value = newValue;
 		}
 		
@@ -70,6 +70,10 @@ public class ScheduledJob extends BaseEntity {
 	private DayOfWeek scheduledDayOfWeek;
 	
 	private Integer scheduledDayOfMonth;
+
+	private Integer hourlyInterval = 1;
+
+	private Integer minutelyInterval = 1;
 	
 	private String activityStatus;
 	
@@ -81,7 +85,7 @@ public class ScheduledJob extends BaseEntity {
 	
 	private String command;
 	
-	private Set<User> recipients = new HashSet<User>();
+	private Set<User> recipients = new HashSet<>();
 	
 	//
 	// UI purpose
@@ -89,8 +93,9 @@ public class ScheduledJob extends BaseEntity {
 	private Boolean rtArgsProvided;
 	
 	private String rtArgsHelpText;
-		
-	
+
+	private transient Date lastRunOn;
+
 	public String getName() {
 		return name;
 	}
@@ -153,6 +158,22 @@ public class ScheduledJob extends BaseEntity {
 
 	public void setScheduledDayOfMonth(Integer scheduledDayOfMonth) {
 		this.scheduledDayOfMonth = scheduledDayOfMonth;
+	}
+
+	public Integer getHourlyInterval() {
+		return hourlyInterval == null ? 1 : hourlyInterval;
+	}
+
+	public void setHourlyInterval(Integer hourlyInterval) {
+		this.hourlyInterval = hourlyInterval;
+	}
+
+	public Integer getMinutelyInterval() {
+		return minutelyInterval == null ? 1 : minutelyInterval;
+	}
+
+	public void setMinutelyInterval(Integer minutelyInterval) {
+		this.minutelyInterval = minutelyInterval;
 	}
 
 	public String getActivityStatus() {
@@ -220,6 +241,14 @@ public class ScheduledJob extends BaseEntity {
 		this.rtArgsHelpText = rtArgsHelpText;
 	}
 
+	public Date getLastRunOn() {
+		return lastRunOn;
+	}
+
+	public void setLastRunOn(Date lastRunOn) {
+		this.lastRunOn = lastRunOn;
+	}
+
 	public void update(ScheduledJob other) {
 		BeanUtils.copyProperties(other, this, JOB_UPDATE_IGN_PROPS);
 		CollectionUpdater.update(this.getRecipients(), other.getRecipients());
@@ -278,8 +307,13 @@ public class ScheduledJob extends BaseEntity {
 	}
 	
 	private Date getNextMinutelyOccurence() {
+		Integer minutesToAdd = getMinutelyInterval();
+		if (minutesToAdd == null || minutesToAdd <= 0) {
+			minutesToAdd = 1;
+		}
+
 		Calendar calendar = Calendar.getInstance();
-		calendar.add(Calendar.MINUTE, 1);
+		calendar.add(Calendar.MINUTE, minutesToAdd);
 		return calendar.getTime();
 	}
 	
@@ -287,7 +321,7 @@ public class ScheduledJob extends BaseEntity {
 		Calendar calendar = Calendar.getInstance();
 		int minutes = calendar.get(Calendar.MINUTE);
 		if (minutes >= scheduledMinute) {
-			calendar.add(Calendar.HOUR, 1);
+			calendar.add(Calendar.HOUR, getHourlyInterval());
 		} 
 		
 		calendar.set(Calendar.MINUTE, scheduledMinute);

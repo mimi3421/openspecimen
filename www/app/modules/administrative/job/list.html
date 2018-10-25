@@ -41,6 +41,9 @@
             <span translate="jobs.type">Job Type</span>
           </th>
           <th class="col">
+            <span translate="jobs.repeat_schedule">Repeat Interval</span>
+          </th>
+          <th class="col">
             <span translate="jobs.last_run_on">Last Run On</span>
           </th>
           <th class="col">
@@ -60,6 +63,9 @@
           </td>
           <td class="col">
             <span>{{'jobs.types.' + job.type | translate}}</span>
+          </td>
+          <td class="col">
+            <span>{{'jobs.schedule_summary_desc.' + job.repeatSchedule | translate: job}}</span>
           </td>
           <td class="col" ng-switch on="!!job.lastRunOn">
             <span ng-switch-when="true">{{job.lastRunOn | date: global.dateTimeFmt}}</span>

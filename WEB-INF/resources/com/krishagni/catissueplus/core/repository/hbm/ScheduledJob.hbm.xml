@@ -22,7 +22,11 @@
     <property name="startDate" column="START_DATE"/>
 
     <property name="endDate" column="END_DATE"/>
-    
+
+    <property name="hourlyInterval" column="HOURLY_INTERVAL"/>
+
+    <property name="minutelyInterval" column="MINUTELY_INTERVAL"/>
+
     <property name="scheduledHour" column="SCHEDULED_HOUR"/>
     
     <property name="scheduledMinute" column="SCHEDULED_MINUTE"/>
@@ -64,12 +68,28 @@
     <property name="rtArgsProvided" column="RT_ARGS_PROVIDED"/>
     
     <property name="rtArgsHelpText" column="RT_ARGS_HELP_TEXT"/>
-        
+
+    <filter name="activeEntity"/>
+
     <query name="getJobByName">
       from 
         com.krishagni.catissueplus.core.administrative.domain.ScheduledJob
       where 
-        name = :name and activityStatus = 'Active'
+        name = :name
     </query>
+
+    <sql-query name="getJobsLastRuntime">
+      <return-scalar column="scheduled_job_id" type="long"/>
+      <return-scalar column="last_run" type="timestamp"/>
+
+      select
+        scheduled_job_id, max(started_at) as last_run
+      from
+        os_scheduled_job_runs
+      where
+        scheduled_job_id in (:jobIds)
+      group by
+        scheduled_job_id
+    </sql-query>
   </class>
 </hibernate-mapping>

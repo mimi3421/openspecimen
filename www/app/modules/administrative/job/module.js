@@ -40,6 +40,7 @@ angular.module('os.administrative.job',
             }
 
             return new ScheduledJob({
+              type: 'INTERNAL',
               repeatSchedule: 'ONDEMAND',
               recipients: [],
               startDate: new Date()
