@@ -2310,6 +2310,7 @@
       "ONDEMAND": "On demand."
     },
 
+    "warn_frequent_runs": "Running the job frequently can slowdown the system!",
     "number_ord": "{{n}}{{('jobs.number_ords.' + (((n % 10) < 4 && (n < 10 || n > 19)) ? (n % 10) : 'oth')) | translate}}",
 
     "number_ords": {

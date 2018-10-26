@@ -15,15 +15,15 @@ function osRequired($timeout) {
         }
       }
 
-
       var setDirty = function() { ctrl[attrs.name] && ctrl[attrs.name].$setDirty(true); }
+      var noHint = (attrs.noHint == true) || (attrs.noHint == 'true');
 
       if (element.hasClass('os-select-container')) {
         $timeout(
           function() {
             element.find('.ui-select-focusser, .ui-select-search').bind('blur', setDirty);
 
-            if (!ctrl._noLabelForm) {
+            if (!ctrl._noLabelForm && !noHint) {
               element.find('.ui-select-placeholder').addClass('os-italic').text('mandatory');
               element.find('.ui-select-match, .ui-select-search').addClass('os-italic').attr('placeholder', 'mandatory');
             }
@@ -31,7 +31,7 @@ function osRequired($timeout) {
         );
       } else {
         element.bind('blur', setDirty);
-        if (!ctrl._noLabelForm) {
+        if (!ctrl._noLabelForm && !noHint) {
           $timeout(function() { element.addClass('os-italic').attr('placeholder', 'mandatory'); });
         }
       }

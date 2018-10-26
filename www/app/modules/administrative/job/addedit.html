@@ -146,9 +146,9 @@
           <span translate="jobs.day_of_month">Day of Month</span>
         </label>
 
-        <div class="col-xs-6">
+        <div class="col-xs-1">
           <input type="text" name="dom" ng-model="job.scheduledDayOfMonth" class="form-control"
-            ng-pattern="/^0*([1-9]|[1-2][0-9]|3[0-1])$/" required>
+            ng-pattern="/^0*([1-9]|[1-2][0-9]|3[0-1])$/" required no-hint="true">
           <div os-field-error field="jobForm.dom"></div>
         </div>
       </div>
@@ -158,7 +158,7 @@
           <span translate="jobs.week_day">Day of Week</span>
         </label>
 
-        <div class="col-xs-6">
+        <div class="col-xs-2">
           <os-select name="dow" ng-model="job.scheduledDayOfWeek"
             list="weekDays" select-prop="name" display-prop="caption" required>
           </os-select>
@@ -172,16 +172,16 @@
           <span translate="jobs.time_of_day">Time of Day</span>
         </label>
 
-        <div class="col-xs-3">
+        <div class="col-xs-1">
           <label class="part-label" translate="jobs.hour">Hour</label>
           <input type="text" name="hod" ng-model="job.scheduledHour" class="form-control"
-            ng-pattern="/^0*([0-9]|1[0-9]|2[0-3])$/" required>
+            ng-pattern="/^0*([0-9]|1[0-9]|2[0-3])$/" required no-hint="true">
           <div os-field-error field="jobForm.hod"></div>
         </div>
-        <div class="col-xs-3">
+        <div class="col-xs-1">
           <label class="part-label" translate="jobs.minute">Minute</label>
           <input type="text" name="moh" ng-model="job.scheduledMinute" class="form-control"
-            ng-pattern="/^0*([0-9]|[1-5][0-9])$/" required>
+            ng-pattern="/^0*([0-9]|[1-5][0-9])$/" required no-hint="true">
           <div os-field-error field="jobForm.moh"></div>
         </div>
       </div>
@@ -191,9 +191,9 @@
           <span translate="jobs.minute_of_hour">Minute of Hour</span>
         </label>
 
-        <div class="col-xs-6">
+        <div class="col-xs-1">
           <input type="text" name="moh" ng-model="job.scheduledMinute" class="form-control"
-            ng-pattern="/^0*([0-9]|[1-5][0-9])$/" required>
+            ng-pattern="/^0*([0-9]|[1-5][0-9])$/" required no-hint="true">
           <div os-field-error field="jobForm.moh"></div>
         </div>
       </div>
@@ -203,16 +203,23 @@
           <span translate="jobs.minutely_interval">Minutely Interval</span>
         </label>
 
-        <div class="col-xs-6">
+        <div class="col-xs-1">
           <input type="text" name="interval" ng-model="job.minutelyInterval" class="form-control"
-            ng-pattern="/^0*[1-9][0-9]*$/" required>
+            ng-pattern="/^0*[1-9][0-9]*$/" required no-hint="true">
           <div os-field-error field="jobForm.interval"></div>
         </div>
       </div>
 
       <div class="form-group" ng-if="!jobForm.$invalid">
         <div class="col-xs-offset-3 col-xs-6">
-          <span><strong><i>{{'jobs.schedule_desc.'+ job.repeatSchedule | translate: job}}</i></strong></span>
+          <div>
+            <strong> <i>{{'jobs.schedule_desc.'+ job.repeatSchedule | translate: job}}</i></strong>
+          </div>
+          <div ng-if="job.repeatSchedule == 'MINUTELY' && job.minutelyInterval < 60">
+            <strong class="text-danger">
+              <i translate="jobs.warn_frequent_runs">Running a job frequently can slowdown the system.</i>
+            </strong>
+          </div>
         </div>
       </div>
 
