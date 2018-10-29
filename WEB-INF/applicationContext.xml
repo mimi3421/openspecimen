@@ -623,6 +623,7 @@
   
   <bean id="scheduledJobFactory" class="com.krishagni.catissueplus.core.administrative.domain.factory.impl.ScheduledJobFactoryImpl">
     <property name="daoFactory" ref="biospecimenDaoFactory"/>
+    <property name="deDaoFactory" ref="deDaoFactory"/>
   </bean>
   
   <bean id="scheduledTaskMgr" class="com.krishagni.catissueplus.core.administrative.services.impl.ScheduledTaskManagerImpl" >

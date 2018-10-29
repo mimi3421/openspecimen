@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import com.krishagni.catissueplus.core.administrative.domain.ScheduledJob;
 import com.krishagni.catissueplus.core.administrative.domain.ScheduledJob.RepeatSchedule;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
+import com.krishagni.catissueplus.core.de.events.SavedQuerySummary;
 
 public class ScheduledJobDetail {
 	private Long id;
@@ -43,6 +44,10 @@ public class ScheduledJobDetail {
 	private String taskImplFqn;
 	
 	private String command;
+
+	private SavedQuerySummary savedQuery;
+
+	private UserSummary runAs;
 	
 	private List<UserSummary> recipients = new ArrayList<>();
 	
@@ -190,6 +195,22 @@ public class ScheduledJobDetail {
 		this.command = command;
 	}
 
+	public SavedQuerySummary getSavedQuery() {
+		return savedQuery;
+	}
+
+	public void setSavedQuery(SavedQuerySummary savedQuery) {
+		this.savedQuery = savedQuery;
+	}
+
+	public UserSummary getRunAs() {
+		return runAs;
+	}
+
+	public void setRunAs(UserSummary runAs) {
+		this.runAs = runAs;
+	}
+
 	public List<UserSummary> getRecipients() {
 		return recipients;
 	}
@@ -242,7 +263,11 @@ public class ScheduledJobDetail {
 		detail.setCommand(job.getCommand());
 		detail.setIsActiveJob(job.isActiveJob());
 		detail.setTaskImplFqn(job.getTaskImplfqn());
+		detail.setSavedQuery(SavedQuerySummary.fromSavedQuery(job.getSavedQuery()));
 		detail.setRecipients(UserSummary.from(job.getRecipients()));
+		if (job.getRunAs() != null) {
+			detail.setRunAs(UserSummary.from(job.getRunAs()));
+		}
 
 		detail.setRtArgsProvided(job.getRtArgsProvided());
 		detail.setRtArgsHelpText(job.getRtArgsHelpText());

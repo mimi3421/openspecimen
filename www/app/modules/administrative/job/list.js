@@ -1,14 +1,17 @@
 
 angular.module('os.administrative.job.list', ['os.administrative.models'])
-  .controller('JobListCtrl', function($scope, $modal, ScheduledJob, Alerts, ListPagerOpts) {
+  .controller('JobListCtrl', function($scope, $modal, $translate, Util, ScheduledJob, Alerts, ListPagerOpts) {
 
-    var pagerOpts;
+    var pagerOpts, filterOpts;
 
     function init() {
       $scope.jobs = [];
       pagerOpts = $scope.pagerOpts = new ListPagerOpts({listSizeGetter: getJobsCount});
-      $scope.filterOpts = {query: undefined, maxResults: pagerOpts.recordsPerPage + 1};
-      loadJobs($scope.filterOpts);
+      filterOpts = $scope.filterOpts = {query: undefined, maxResults: pagerOpts.recordsPerPage + 1};
+
+      loadTypes();
+      loadJobs(filterOpts);
+      Util.filter($scope, 'filterOpts', loadJobs);
     }
 
     function loadJobs(filterOpts) {
@@ -31,6 +34,19 @@ angular.module('os.administrative.job.list', ['os.administrative.models'])
 
     function getJobsCount() {
       return ScheduledJob.getCount($scope.filterOpts);
+    }
+
+    function loadTypes() {
+      $scope.types = [];
+      $translate('jobs.types.INTERNAL').then(
+        function() {
+          $scope.types = ['INTERNAL', 'EXTERNAL', 'QUERY'].map(
+            function(type) {
+              return {type: type, caption: $translate.instant('jobs.types.' + type)}
+            }
+          );
+        }
+      );
     }
     
     $scope.executeJob = function(job) {

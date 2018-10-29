@@ -30,17 +30,29 @@ angular.module('os.administrative.job',
         parent: 'job-root'
       })
       .state('job-addedit', {
-        url: '/job-addedit/:jobId',
+        url: '/job-addedit/:jobId?queryId',
         templateUrl: 'modules/administrative/job/addedit.html',
         controller: 'JobAddEditCtrl',
         resolve: {
-          job: function($stateParams, ScheduledJob) {
+          query: function($stateParams, SavedQuery) {
+            if (!!$stateParams.jobId) {
+              return null;
+            }
+
+            if ($stateParams.queryId) {
+              return SavedQuery.getById($stateParams.queryId);
+            }
+          },
+
+          job: function($stateParams, query, ScheduledJob) {
             if (!!$stateParams.jobId) {
               return ScheduledJob.getById($stateParams.jobId);
             }
 
             return new ScheduledJob({
-              type: 'INTERNAL',
+              name: query && query.title,
+              type: !query ? 'INTERNAL' : 'QUERY',
+              savedQuery: query,
               repeatSchedule: 'ONDEMAND',
               recipients: [],
               startDate: new Date()

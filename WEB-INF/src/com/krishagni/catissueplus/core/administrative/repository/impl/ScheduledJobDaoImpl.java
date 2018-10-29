@@ -1,6 +1,7 @@
 package com.krishagni.catissueplus.core.administrative.repository.impl;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -77,6 +78,10 @@ public class ScheduledJobDaoImpl extends AbstractDao<ScheduledJob> implements Sc
 	@Override
 	@SuppressWarnings("unchecked")
 	public Map<Long, Date> getJobsLastRunTime(Collection<Long> jobIds) {
+		if (jobIds == null || jobIds.isEmpty()) {
+			return Collections.emptyMap();
+		}
+
 		List<Object[]> rows = getCurrentSession().getNamedQuery(GET_JOBS_LAST_RUNTIME)
 			.setParameterList("jobIds", jobIds)
 			.list();
@@ -92,6 +97,10 @@ public class ScheduledJobDaoImpl extends AbstractDao<ScheduledJob> implements Sc
 		Criteria query = getCurrentSession().createCriteria(ScheduledJob.class);
 		if (StringUtils.isNotBlank(crit.query())) {
 			query.add(Restrictions.ilike("name", crit.query(), MatchMode.ANYWHERE));
+		}
+
+		if (crit.type() != null) {
+			query.add(Restrictions.eq("type", crit.type()));
 		}
 		
 		return query;

@@ -16,24 +16,33 @@ import com.krishagni.catissueplus.core.administrative.domain.factory.ScheduledJo
 import com.krishagni.catissueplus.core.administrative.domain.factory.ScheduledJobFactory;
 import com.krishagni.catissueplus.core.administrative.domain.factory.UserErrorCode;
 import com.krishagni.catissueplus.core.administrative.events.ScheduledJobDetail;
+import com.krishagni.catissueplus.core.administrative.services.impl.ScheduledQueryTask;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.common.errors.ActivityStatusErrorCode;
 import com.krishagni.catissueplus.core.common.errors.ErrorType;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
 import com.krishagni.catissueplus.core.common.util.Status;
+import com.krishagni.catissueplus.core.de.domain.SavedQuery;
+import com.krishagni.catissueplus.core.de.events.SavedQuerySummary;
+import com.krishagni.catissueplus.core.de.services.SavedQueryErrorCode;
 
 public class ScheduledJobFactoryImpl implements ScheduledJobFactory {
 
 	private DaoFactory daoFactory;
+
+	private com.krishagni.catissueplus.core.de.repository.DaoFactory deDaoFactory;
 	
 	public void setDaoFactory(DaoFactory daoFactory) {
 		this.daoFactory = daoFactory;
 	}
 
+	public void setDeDaoFactory(com.krishagni.catissueplus.core.de.repository.DaoFactory deDaoFactory) {
+		this.deDaoFactory = deDaoFactory;
+	}
+
 	@Override
 	public ScheduledJob createScheduledJob(ScheduledJobDetail detail) {
-
 		ScheduledJob job = new ScheduledJob();
 		OpenSpecimenException ose = new OpenSpecimenException(ErrorType.USER_ERROR);
 
@@ -42,6 +51,8 @@ public class ScheduledJobFactoryImpl implements ScheduledJobFactory {
 		setStartAndEndDates(detail, job, ose);
 		setActivityStatus(detail, job, ose);
 		setType(detail, job, ose);
+		setSavedQuery(detail, job, ose);
+		setRunAs(detail, job, ose);
 		setRecipients(detail, job, ose);
 		
 		job.setRtArgsProvided(detail.getRtArgsProvided());
@@ -260,6 +271,11 @@ public class ScheduledJobFactoryImpl implements ScheduledJobFactory {
 	}
 	
 	private void setTaskImplFqn(ScheduledJobDetail detail, ScheduledJob job, OpenSpecimenException ose) {
+		if (job.getType() == Type.QUERY) {
+			job.setTaskImplfqn(ScheduledQueryTask.class.getName());
+			return;
+		}
+
 		String fqn = detail.getTaskImplFqn();
 		if (StringUtils.isBlank(fqn)) {
 			ose.addError(ScheduledJobErrorCode.TASK_IMPL_FQN_REQUIRED);
@@ -274,6 +290,41 @@ public class ScheduledJobFactoryImpl implements ScheduledJobFactory {
 		}
 		
 		job.setTaskImplfqn(fqn);
+	}
+
+	private void setSavedQuery(ScheduledJobDetail detail, ScheduledJob job, OpenSpecimenException ose) {
+		if (job.getType() != Type.QUERY) {
+			return;
+		}
+
+		SavedQuerySummary queryDetail = detail.getSavedQuery();
+		if (queryDetail == null || queryDetail.getId() == null) {
+			ose.addError(ScheduledJobErrorCode.QUERY_REQ);
+			return;
+		}
+
+		SavedQuery query = deDaoFactory.getSavedQueryDao().getQuery(queryDetail.getId());
+		if (query == null) {
+			ose.addError(SavedQueryErrorCode.NOT_FOUND, queryDetail.getId());
+			return;
+		}
+
+		job.setSavedQuery(query);
+	}
+
+	private void setRunAs(ScheduledJobDetail detail, ScheduledJob job, OpenSpecimenException ose) {
+		UserSummary runAs = detail.getRunAs();
+		if (runAs == null || runAs.getId() == null) {
+			return;
+		}
+
+		User user = daoFactory.getUserDao().getById(runAs.getId());
+		if (user == null) {
+			ose.addError(UserErrorCode.NOT_FOUND, runAs.getId());
+			return;
+		}
+
+		job.setRunAs(user);
 	}
 	
 	private void setRecipients(ScheduledJobDetail detail, ScheduledJob job, OpenSpecimenException ose) {

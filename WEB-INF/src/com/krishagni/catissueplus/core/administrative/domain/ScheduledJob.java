@@ -17,6 +17,7 @@ import com.krishagni.catissueplus.core.common.CollectionUpdater;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.util.Status;
 import com.krishagni.catissueplus.core.common.util.Utility;
+import com.krishagni.catissueplus.core.de.domain.SavedQuery;
 
 public class ScheduledJob extends BaseEntity {
 	private static final Log logger = LogFactory.getLog(ScheduledJob.class);
@@ -52,7 +53,8 @@ public class ScheduledJob extends BaseEntity {
 	
 	public enum Type {
 		INTERNAL,
-		EXTERNAL
+		EXTERNAL,
+		QUERY
 	}
 	
 	private String name;
@@ -84,6 +86,10 @@ public class ScheduledJob extends BaseEntity {
 	private String taskImplfqn;
 	
 	private String command;
+
+	private SavedQuery savedQuery;
+
+	private User runAs;
 	
 	private Set<User> recipients = new HashSet<>();
 	
@@ -217,6 +223,22 @@ public class ScheduledJob extends BaseEntity {
 		this.command = command;
 	}
 
+	public SavedQuery getSavedQuery() {
+		return savedQuery;
+	}
+
+	public void setSavedQuery(SavedQuery savedQuery) {
+		this.savedQuery = savedQuery;
+	}
+
+	public User getRunAs() {
+		return runAs;
+	}
+
+	public void setRunAs(User runAs) {
+		this.runAs = runAs;
+	}
+
 	public Set<User> getRecipients() {
 		return recipients;
 	}
@@ -260,6 +282,10 @@ public class ScheduledJob extends BaseEntity {
 	
 	public boolean isActiveJob() {
 		if (!Status.ACTIVITY_STATUS_ACTIVE.getStatus().equals(activityStatus)) {
+			return false;
+		}
+
+		if (getType() == Type.QUERY && (getSavedQuery() == null || getSavedQuery().getDeletedOn() != null)) {
 			return false;
 		}
 
@@ -366,15 +392,15 @@ public class ScheduledJob extends BaseEntity {
 		int currentDay = current.get(Calendar.DAY_OF_MONTH);
 		
 		if (currentDay < scheduledDayOfMonth) {
-			int diff = scheduledDayOfMonth.intValue() - currentDay;
+			int diff = scheduledDayOfMonth - currentDay;
 			current.add(Calendar.DATE, diff);
-		} else if (currentDay == scheduledDayOfMonth.intValue()) {
+		} else if (currentDay == scheduledDayOfMonth) {
 			if (isTimeAfterScheduledTime(current)) {
 				current.add(Calendar.MONTH, 1);
 			}
 		} else {
 			int numOfDaysInThisMonth = current.getActualMaximum(Calendar.DAY_OF_MONTH);
-			int diff = numOfDaysInThisMonth - currentDay + scheduledDayOfMonth.intValue();
+			int diff = numOfDaysInThisMonth - currentDay + scheduledDayOfMonth;
 			current.add(Calendar.DATE, diff);
 		}
 		

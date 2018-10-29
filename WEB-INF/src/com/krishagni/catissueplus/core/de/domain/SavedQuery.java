@@ -9,6 +9,7 @@ import org.hibernate.envers.NotAudited;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.krishagni.catissueplus.core.administrative.domain.ScheduledJob;
 import com.krishagni.catissueplus.core.administrative.domain.User;
 
 public class SavedQuery {
@@ -43,6 +44,8 @@ public class SavedQuery {
 	private Set<Long> dependentQueries = new HashSet<>();
 	
 	private Set<QueryFolder> folders = new HashSet<>();
+
+	private Set<ScheduledJob> scheduledJobs = new HashSet<>();
 	
 	private String wideRowMode = "DEEP";
 
@@ -186,6 +189,15 @@ public class SavedQuery {
 
 	public void setFolders(Set<QueryFolder> folders) {
 		this.folders = folders;
+	}
+
+	@NotAudited
+	public Set<ScheduledJob> getScheduledJobs() {
+		return scheduledJobs;
+	}
+
+	public void setScheduledJobs(Set<ScheduledJob> scheduledJobs) {
+		this.scheduledJobs = scheduledJobs;
 	}
 
 	public String getWideRowMode() {

@@ -35,7 +35,7 @@ public class ScheduledTaskManagerImpl implements ScheduledTaskManager, Scheduled
 
 	private static ScheduledExecutorService executorService = Executors.newScheduledThreadPool(5);
 	
-	private static Map<Long, ScheduledFuture<?>> scheduledJobs = new HashMap<Long, ScheduledFuture<?>>();
+	private static Map<Long, ScheduledFuture<?>> scheduledJobs = new HashMap<>();
 	
 	private static final String JOB_FINISHED_TEMPLATE = "scheduled_job_finished";
 	
@@ -113,13 +113,17 @@ public class ScheduledTaskManagerImpl implements ScheduledTaskManager, Scheduled
 	@PlusTransactional
 	public ScheduledJobRun started(ScheduledJob job, String args, User user) {
 		try {
+			job = getScheduledJob(job.getId());
+			if (job == null) {
+				return null;
+			}
+
 			ScheduledJobRun jobRun = new ScheduledJobRun();
-			jobRun.inProgress(getScheduledJob(job.getId()));
+			jobRun.inProgress(job);
 			jobRun.setRunBy(user);
 			jobRun.setRtArgs(args);
-			
 			daoFactory.getScheduledJobDao().saveOrUpdateJobRun(jobRun);
-			initializeLazilyLoadedEntites(jobRun);
+			initializeLazilyLoadedEntites(job);
 			return jobRun;
 		} catch (Exception e) {
 			logger.error("Error creating job run. Job name: " + job.getName(), e);
@@ -132,7 +136,7 @@ public class ScheduledTaskManagerImpl implements ScheduledTaskManager, Scheduled
 	@PlusTransactional
 	public void completed(ScheduledJobRun jobRun) {
 		ScheduledJobRun dbRun = daoFactory.getScheduledJobDao().getJobRun(jobRun.getId());
-		dbRun.completed();
+		dbRun.completed(jobRun.getLogFilePath());
 		notifyJobCompleted(dbRun);
 		scheduledJobs.remove(dbRun.getScheduledJob().getId());
 		schedule(dbRun.getScheduledJob().getId());
@@ -156,16 +160,27 @@ public class ScheduledTaskManagerImpl implements ScheduledTaskManager, Scheduled
 		if (!job.isActiveJob()) {
 			return;
 		}
+
+		if (job.getRunAs() != null) {
+			job.getRunAs().getAuthorities();
+			user = job.getRunAs();
+
+			if (!user.isActive()) {
+				logger.error("Not scheduling the job \"" + job.getName() + "\" because run as user \"" + user.formattedName() + "\" is not active");
+				return;
+			}
+		}
 		
 		ScheduledTaskWrapper taskWrapper = new ScheduledTaskWrapper(job, args, user, this);
 		ScheduledFuture<?> future = executorService.schedule(taskWrapper, minutesLater, TimeUnit.MINUTES);
 		scheduledJobs.put(job.getId(), future);		
 	}
 	
-	private void initializeLazilyLoadedEntites(ScheduledJobRun jobRun) {
-		Hibernate.initialize(jobRun.getScheduledJob());
-		Hibernate.initialize(jobRun.getScheduledJob().getCreatedBy());
-		Hibernate.initialize(jobRun.getScheduledJob().getRecipients());		
+	private void initializeLazilyLoadedEntites(ScheduledJob job) {
+		Hibernate.initialize(job);
+		Hibernate.initialize(job.getCreatedBy());
+		Hibernate.initialize(job.getRecipients());
+		Hibernate.initialize(job.getSavedQuery());
 	}
 
 	private boolean isJobQueued(ScheduledJob job) {

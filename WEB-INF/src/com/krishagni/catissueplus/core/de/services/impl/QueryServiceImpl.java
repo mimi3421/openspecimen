@@ -40,6 +40,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import com.krishagni.catissueplus.core.administrative.domain.ScheduledJob;
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.administrative.repository.UserDao;
 import com.krishagni.catissueplus.core.common.OpenSpecimenAppCtxProvider;
@@ -339,6 +340,7 @@ public class QueryServiceImpl implements QueryService {
 					query.getDependentQueries().stream().limit(5).collect(Collectors.toSet()));
 			}
 
+			query.getScheduledJobs().forEach(ScheduledJob::delete);
 			query.getSubQueries().clear();
 			query.setDeletedOn(Calendar.getInstance().getTime());
 			daoFactory.getSavedQueryDao().saveOrUpdate(query);
@@ -1347,77 +1349,36 @@ public class QueryServiceImpl implements QueryService {
 		OutputStream out = null;
 
 		try {
-			final Authentication auth = AuthUtil.getAuth();
-			final User user = AuthUtil.getCurrentUser();
-			final String filename = getExportFilename(op, procFn == null ? proc : null);
-			final OutputStream fout = new FileOutputStream(getExportDataDir() + File.separator + filename);
-			out = fout;
+			ExportQueryDataTask task = new ExportQueryDataTask();
+			task.op = op;
+			task.auth = AuthUtil.getAuth();
+			task.user = AuthUtil.getCurrentUser();
+			task.filename = getExportFilename(op, procFn == null ? proc : null);
+			task.query = getQuery(op);
+			task.procFn = procFn;
+			task.fout = new FileOutputStream(getExportDataDir() + File.separator + task.filename);
+			out = task.fout;
 
 			if (proc != null && procFn == null) {
 				proc.headers(out);
 			}
 
-			final Query query = getQuery(op);
-			Future<Boolean> result = exportThreadPool.submit(new Callable<Boolean>() {
-				@Override
-				@PlusTransactional
-				public Boolean call() {
-					SecurityContextHolder.getContext().setAuthentication(auth);
-
-					try {
-						QueryResponse resp = null;
-						if (procFn == null) {
-							QueryResultExporter exporter = new QueryResultCsvExporter(Utility.getFieldSeparator());
-							resp = exporter.export(fout, query, getResultScreener(query));
-						} else {
-							resp = query.getData();
-							QueryResultData data = resp.getResultData();
-							data.setScreener(getResultScreener(query));
-							procFn.accept(data, fout);
-						}
-
-						insertAuditLog(user, op, resp);
-						notifyExportCompleted();
-					} catch (Exception e) {
-						logger.error("Error exporting query data", e);
-						throw OpenSpecimenException.serverError(e);
-					} finally {
-						IOUtils.closeQuietly(fout);
-					}
-
-					return true;
-				}
-
-				private void notifyExportCompleted() {
-					try {
-						User user = userDao.getById(AuthUtil.getCurrentUser().getId());
-						if (user.isSysUser()) {
-							return;
-						}
-
-						SavedQuery savedQuery = null;
-						Long queryId = op.getSavedQueryId();
-						if (queryId != null) {
-							savedQuery = daoFactory.getSavedQueryDao().getQuery(queryId);
-						}
-						sendQueryDataExportedEmail(user, savedQuery, filename);
-						notifyQueryDataExported(user, savedQuery, filename);
-					} catch (Exception e) {
-						logger.error("Error sending email with query exported data", e);
-					}
-				}
-			});
-
+			Future<Boolean> promise = null;
 			boolean completed;
-			try {
-				out = null;
-				completed = result.get(ONLINE_EXPORT_TIMEOUT_SECS, TimeUnit.SECONDS);
-				out = fout;
-			} catch (TimeoutException te) {
-				completed = false;
+			if (op.isSynchronous()) {
+				completed = task.call();
+			} else {
+				promise = exportThreadPool.submit(task);
+				try {
+					out = null;
+					completed = promise.get(ONLINE_EXPORT_TIMEOUT_SECS, TimeUnit.SECONDS);
+					out = task.fout;
+				} catch (TimeoutException te) {
+					completed = true;
+				}
 			}
 
-			return QueryDataExportResult.create(filename, completed, result);
+			return QueryDataExportResult.create(task.filename, completed, promise);
 		} catch (OpenSpecimenException ose) {
 			throw ose;
 		} catch (Exception e) {
@@ -1425,6 +1386,74 @@ public class QueryServiceImpl implements QueryService {
 		} finally {
 			if (out != null) {
 				IOUtils.closeQuietly(out);
+			}
+		}
+	}
+
+	private class ExportQueryDataTask implements Callable<Boolean> {
+		private Authentication auth;
+
+		private User user;
+
+		private String filename;
+
+		private OutputStream fout;
+
+		private Query query;
+
+		private ExecuteQueryEventOp op;
+
+		private BiConsumer<QueryResultData, OutputStream> procFn;
+
+		@Override
+		@PlusTransactional
+		public Boolean call() {
+			SecurityContextHolder.getContext().setAuthentication(auth);
+
+			try {
+				QueryResponse resp;
+				if (procFn == null) {
+					QueryResultExporter exporter = new QueryResultCsvExporter(Utility.getFieldSeparator());
+					resp = exporter.export(fout, query, getResultScreener(query));
+				} else {
+					resp = query.getData();
+					QueryResultData data = resp.getResultData();
+					data.setScreener(getResultScreener(query));
+					procFn.accept(data, fout);
+				}
+
+				insertAuditLog(user, op, resp);
+				notifyExportCompleted();
+			} catch (Exception e) {
+				logger.error("Error exporting query data", e);
+				throw OpenSpecimenException.serverError(e);
+			} finally {
+				IOUtils.closeQuietly(fout);
+			}
+
+			return true;
+		}
+
+		private void notifyExportCompleted() {
+			try {
+				if (op.isSynchronous()) {
+					return;
+				}
+
+				User user = userDao.getById(AuthUtil.getCurrentUser().getId());
+				if (user.isSysUser()) {
+					return;
+				}
+
+				SavedQuery savedQuery = null;
+				Long queryId = op.getSavedQueryId();
+				if (queryId != null) {
+					savedQuery = daoFactory.getSavedQueryDao().getQuery(queryId);
+				}
+				sendQueryDataExportedEmail(user, savedQuery, filename);
+				notifyQueryDataExported(user, savedQuery, filename);
+			} catch (Exception e) {
+				logger.error("Error sending email with query exported data", e);
 			}
 		}
 	}
@@ -1443,5 +1472,4 @@ public class QueryServiceImpl implements QueryService {
 
 	private static final String INSTITUTE_SITE_IDS_SQL =
 		"select identifier from catissue_site where institute_id = %d and activity_status != 'Disabled'";
-
 }

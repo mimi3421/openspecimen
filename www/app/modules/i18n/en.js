@@ -1597,8 +1597,9 @@
     "title": "Title",
     "created_by": "Created By",
     "last_updated": "Last Updated",
-    "edit": "Edit Query",
-    "download_def": "Download Query Definition",
+    "edit": "Edit",
+    "download_def": "Download Query",
+    "schedule": "Schedule",
     "view_query_run_log": "View Query Run Log",
     "delete": "Delete",
 
@@ -2261,9 +2262,13 @@
     "last_run_on": "Last Run On",
      
     "create_job": "Create Job",
-    "type": "Job Type",
+    "type": "Type",
     "internal": "Internal",
     "external": "External",
+    "query": "Query",
+    "notify_users": "Notify Users",
+    "run_as_user": "Run as User",
+
     "repeat_schedule": "Repeat Interval",
     "repeat_schedules": {
       "MONTHLY": "Monthly",
@@ -2356,7 +2361,8 @@
 
     "types": {
       "INTERNAL": "Internal",
-      "EXTERNAL": "External"
+      "EXTERNAL": "External",
+      "QUERY": "Query"
     },
 
     "statuses": {

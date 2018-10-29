@@ -25,6 +25,7 @@ angular.module('os.query',
        url: '/queries',
        template: '<div ui-view></div>',
        controller: function($scope, queryGlobal, QueryUtil) {
+         $scope.jobCreateOpts = {resource: 'ScheduledJob', operations: ['Create']};
          $scope.queryGlobal = queryGlobal;
          QueryUtil.initOpsDesc();
        },

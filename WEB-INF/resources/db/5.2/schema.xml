@@ -43,4 +43,28 @@
       <column name="MINUTELY_INTERVAL" type="${mediumint.type}" defaultValue="1"/>
     </addColumn>
   </changeSet>
+
+  <changeSet author="vpawar" id="Scheduled job - saved query ID">
+    <addColumn tableName="OS_SCHEDULED_JOBS">
+      <column name="QUERY_ID" type="${int.type}"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Foreign key on scheduled query">
+    <addForeignKeyConstraint constraintName="FK_SCHED_QUERY_ID"
+      baseTableName="OS_SCHEDULED_JOBS" baseColumnNames="QUERY_ID"
+      referencedTableName="CATISSUE_SAVED_QUERIES" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Scheduled job - run as user ID">
+    <addColumn tableName="OS_SCHEDULED_JOBS">
+      <column name="RUN_AS_USER_ID" type="${int.type}"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Foreign key on scheduled job run user">
+    <addForeignKeyConstraint constraintName="FK_SCHED_RUN_USER_ID"
+      baseTableName="OS_SCHEDULED_JOBS" baseColumnNames="RUN_AS_USER_ID"
+      referencedTableName="CATISSUE_USER" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
 </databaseChangeLog>

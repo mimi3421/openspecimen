@@ -47,6 +47,10 @@
             <input type="radio" name="jobType" ng-model="job.type" ng-value="'EXTERNAL'" required>
             <span translate="jobs.external">External</span>
           </label>
+          <label class="radio-inline" ng-click="selectQueryType()">
+            <input type="radio" name="jobType" ng-model="job.type" ng-value="'QUERY'" required>
+            <span translate="jobs.query">Query</span>
+          </label>
           <div os-field-error field="jobForm.jobType"></div>
         </div>
       </div>
@@ -76,7 +80,7 @@
         </div>
       </div>
 
-      <div class="form-group" ng-if="!!job.type">
+      <div class="form-group" ng-if="!!job.type && job.type != 'QUERY'">
         <label class="col-xs-3 control-label">
           <span translate="jobs.run_args">Runtime Arguments</span>
         </label>
@@ -93,7 +97,7 @@
         </div>
       </div>
 
-      <div class="form-group" ng-if="!!job.rtArgsProvided">
+      <div class="form-group" ng-if="!!job.rtArgsProvided && job.type != 'QUERY'">
         <label class="col-xs-3 control-label">
           <span translate="jobs.args_help_text">Runtime Arguments Help Text</span>
         </label>
@@ -105,6 +109,41 @@
           <div os-field-error field="jobForm.helpText"></div>
         </div>
       </div>
+
+      <span ng-if="job.type == 'QUERY'">
+        <div class="form-group">
+          <label class="col-xs-3 control-label">
+            <span translate="jobs.query">Query</span>
+          </label>
+
+          <div class="col-xs-6">
+            <os-select name="query" ng-model="job.savedQuery" list="savedQueries" display-prop="title"
+              refresh="loadSavedQueries" class="form-control" placeholder="{{'jobs.query' | translate}}" required>
+            </os-select>
+            <div os-field-error field="jobForm.query"></div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="col-xs-3 control-label">
+            <span translate="jobs.run_as_user">Run As User</span>
+          </label>
+
+          <div class="col-xs-6">
+            <os-users ng-model="job.runAs" placeholder="{{'jobs.run_as_user' | translate}}"></os-users>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="col-xs-3 control-label">
+            <span translate="jobs.notify_users">Notify Users</span>
+          </label>
+
+          <div class="col-xs-6">
+            <os-users ng-model="job.recipients" placeholder="{{'jobs.notify_users' | translate}}" multiple></os-users>
+          </div>
+        </div>
+      </span>
 
       <div class="os-divider"></div>
 
@@ -160,7 +199,7 @@
 
         <div class="col-xs-2">
           <os-select name="dow" ng-model="job.scheduledDayOfWeek"
-            list="weekDays" select-prop="name" display-prop="caption" required>
+            list="weekDays" select-prop="name" display-prop="caption" required no-hint="true">
           </os-select>
           <div os-field-error field="jobForm.dow"></div>
         </div>

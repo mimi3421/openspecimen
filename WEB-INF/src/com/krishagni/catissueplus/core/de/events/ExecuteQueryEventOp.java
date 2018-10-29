@@ -23,6 +23,8 @@ public class ExecuteQueryEventOp  {
 
 	private boolean outputColumnExprs;
 
+	private boolean synchronous;
+
 	public Long getCpId() {
 		return cpId;
 	}
@@ -93,5 +95,13 @@ public class ExecuteQueryEventOp  {
 
 	public void setOutputColumnExprs(boolean outputColumnExprs) {
 		this.outputColumnExprs = outputColumnExprs;
+	}
+
+	public boolean isSynchronous() {
+		return synchronous;
+	}
+
+	public void setSynchronous(boolean synchronous) {
+		this.synchronous = synchronous;
 	}
 }

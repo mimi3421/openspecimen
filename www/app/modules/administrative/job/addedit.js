@@ -1,13 +1,19 @@
 
 angular.module('os.administrative.job.addedit', ['os.administrative.models'])
-  .controller('JobAddEditCtrl', function($scope, $state, $translate, job) {
+  .controller('JobAddEditCtrl', function($scope, $state, $translate, SavedQuery, currentUser, job) {
     
+    var defSavedQueries = undefined;
+
     function init() {
       job.startDate = job.startDate || new Date();
       job.rtArgsProvided = job.rtArgsProvided || false;
 
       $scope.weekDays = getWeekDays();
       $scope.job =  job;
+      $scope.savedQueries = [];
+      if (job.type == 'QUERY') {
+        onQueryTypeSelect();
+      }
     }
 
     function getWeekDays() {
@@ -28,6 +34,31 @@ angular.module('os.administrative.job.addedit', ['os.administrative.models'])
 
       return weekDays;
     }
+
+    function loadSavedQueries(searchTerm) {
+      if (!searchTerm && defSavedQueries) {
+        $scope.savedQueries = defSavedQueries;
+        return;
+      }
+
+      SavedQuery.query({searchString: searchTerm}).then(
+        function(savedQueries) {
+          $scope.savedQueries = savedQueries;
+          if (!searchTerm) {
+            defSavedQueries = savedQueries;
+          }
+        }
+      );
+    }
+
+    function onQueryTypeSelect() {
+      job.runAs = currentUser;
+      loadSavedQueries();
+    }
+
+    $scope.selectQueryType = onQueryTypeSelect;
+
+    $scope.loadSavedQueries = loadSavedQueries;
 
     $scope.saveOrUpdateJob = function() {
       $scope.job.$saveOrUpdate().then(

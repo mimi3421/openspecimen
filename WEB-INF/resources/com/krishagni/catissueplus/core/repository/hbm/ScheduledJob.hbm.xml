@@ -59,6 +59,10 @@
     <property name="command" column="COMMAND"/>
     
     <property name="taskImplfqn" column="TASK_IMPL_FQN"/>
+
+    <many-to-one name="savedQuery" column="QUERY_ID"/>
+
+    <many-to-one name="runAs" column="RUN_AS_USER_ID"/>
     
     <set name="recipients" table="OS_SCHEDULED_JOBS_NOTIF_RCPTS" cascade="none">
       <key column="SCHEDULED_JOB_ID"/>

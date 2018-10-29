@@ -111,25 +111,31 @@
             <ul class="dropdown-menu dropdown-menu-right">
               <li>
                 <a ui-sref="query-addedit({queryId: query.id})">
-                  <i class="fa fa-pencil"></i>
+                  <span class="fa fa-pencil"></span>
                   <span translate="queries.edit"></span>
                 </a>
               </li>
               <li>
                 <a href="{{query.getQueryDefUrl()}}" target="_blank">
-                  <i class="fa fa-download"></i>
+                  <span class="fa fa-download"></span>
                   <span translate="queries.download_def"></span>
+                </a>
+              </li>
+              <li show-if="jobCreateOpts">
+                <a ui-sref="job-addedit({queryId: query.id})">
+                  <span class="fa fa-clock-o"></span>
+                  <span translate="queries.schedule"></span>
                 </a>
               </li>
               <!--<li>
                 <a>
-                  <i class="fa fa-list"></i>
+                  <span class="fa fa-list"></span>
                   <span translate="queries.view_query_run_log"></span>
                 </a>
               </li>-->
               <li ng-click="deleteQuery(query)">
                 <a>
-                  <i class="fa fa-trash"></i>
+                  <span class="fa fa-trash"></span>
                   <span translate="queries.delete"></span>
                 </a>
               </li>

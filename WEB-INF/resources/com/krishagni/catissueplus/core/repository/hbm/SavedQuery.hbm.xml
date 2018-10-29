@@ -39,6 +39,12 @@
       <key column="QUERY_ID"/>
       <many-to-many class="com.krishagni.catissueplus.core.de.domain.QueryFolder" column="FOLDER_ID" />
     </set>
+
+    <set name="scheduledJobs" table="OS_SCHEDULED_JOBS">
+      <key column="QUERY_ID"/>
+      <one-to-many class="com.krishagni.catissueplus.core.administrative.domain.ScheduledJob"/>
+      <filter name="activeEntity"/>
+    </set>
 	
     <query name="getQueriesByIds">
       from SavedQuery s where s.id IN (:queryIds) and s.deletedOn is null

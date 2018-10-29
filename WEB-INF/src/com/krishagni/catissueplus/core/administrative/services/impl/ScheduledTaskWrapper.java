@@ -24,7 +24,7 @@ public class ScheduledTaskWrapper implements Runnable {
 		this.job = job;
 		this.args = args;
 		this.runBy = runBy;
-		this.callback = callback;		
+		this.callback = callback;
 	}
 
 	@Override
@@ -32,6 +32,10 @@ public class ScheduledTaskWrapper implements Runnable {
 		ScheduledJobRun jobRun = null;
 		try {			
 			jobRun = callback.started(job, args, runBy);
+			if (jobRun == null) {
+				return;
+			}
+
 			AuthUtil.setCurrentUser(runBy);
 			job.newTask().doJob(jobRun);
 			callback.completed(jobRun); 
