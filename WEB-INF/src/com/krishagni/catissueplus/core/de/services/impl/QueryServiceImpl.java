@@ -1345,10 +1345,14 @@ public class QueryServiceImpl implements QueryService {
 		return SavedQueryErrorCode.MALFORMED;
 	}
 
-	private QueryDataExportResult exportData(final ExecuteQueryEventOp op, final ExportProcessor proc, BiConsumer<QueryResultData, OutputStream> procFn) {
+	private QueryDataExportResult exportData(ExecuteQueryEventOp op, ExportProcessor proc, BiConsumer<QueryResultData, OutputStream> procFn) {
 		OutputStream out = null;
 
 		try {
+			if (proc == null) {
+				proc = new DefaultQueryExportProcessor(op.getCpId());
+			}
+
 			ExportQueryDataTask task = new ExportQueryDataTask();
 			task.op = op;
 			task.auth = AuthUtil.getAuth();
@@ -1359,7 +1363,7 @@ public class QueryServiceImpl implements QueryService {
 			task.fout = new FileOutputStream(getExportDataDir() + File.separator + task.filename);
 			out = task.fout;
 
-			if (proc != null && procFn == null) {
+			if (procFn == null) {
 				proc.headers(out);
 			}
 

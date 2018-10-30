@@ -19,6 +19,7 @@ import com.krishagni.catissueplus.core.de.events.ExecuteQueryEventOp;
 import com.krishagni.catissueplus.core.de.events.QueryDataExportResult;
 import com.krishagni.catissueplus.core.de.services.QueryService;
 import com.krishagni.catissueplus.core.de.services.SavedQueryErrorCode;
+import com.krishagni.catissueplus.core.de.services.impl.DefaultQueryExportProcessor;
 
 @Configurable
 public class ScheduledQueryTask implements ScheduledTask {
@@ -51,15 +52,10 @@ public class ScheduledQueryTask implements ScheduledTask {
 		op.setOutputColumnExprs(query.isOutputColumnExprs());
 		op.setSynchronous(true);
 
-		QueryService.ExportProcessor processor = new QueryService.ExportProcessor() {
+		QueryService.ExportProcessor processor = new DefaultQueryExportProcessor(query.getCpId()) {
 			@Override
 			public String filename() {
 				return "scheduled_query_" + query.getId() + "_" + jobRun.getId() + ".csv";
-			}
-
-			@Override
-			public void headers(OutputStream out) {
-
 			}
 		};
 
