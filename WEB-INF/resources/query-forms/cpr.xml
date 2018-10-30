@@ -1,4 +1,5 @@
 #macro(getMessage $code)$messageSource.getMessage($code, null, $locale)#end
+#macro(getPrecision)$cfgSvc.getIntSetting("query", "floating_point_precision", 0)#end
 
 <form>
   <view>
@@ -475,6 +476,157 @@
             <caption>#getMessage("number_of_specimens_pending")</caption>
             <column>SPECIMENS_PENDING</column>
           </numberField>
+        </row>
+      </subForm>
+    </row>
+
+    <row>
+      <subForm>
+        <name>anticipatedSpmns</name>
+        <udn>anticipatedSpmns</udn>
+        <caption>#getMessage("cpr_anticipated_spmns")</caption>
+        <table>OS_CPR_ANTICIPATED_SPMNS</table>
+        <foreignKey>CPR_ID</foreignKey>
+        <parentKey>CPR_ID</parentKey>
+        <row>
+          <numberField>
+            <name>reqId</name>
+            <udn>reqId</udn>
+            <caption>#getMessage("cpr_as_req_id")</caption>
+            <column>REQ_ID</column>
+          </numberField>
+
+          <textField>
+            <name>eventLabel</name>
+            <udn>eventLabel</udn>
+            <caption>#getMessage("cpr_as_event_label")</caption>
+            <column>EVENT_LABEL</column>
+          </textField>
+
+          <datePicker>
+            <name>eventDate</name>
+            <udn>eventDate</udn>
+            <caption>#getMessage("cpr_as_event_date")</caption>
+            <column>EVENT_DATE</column>
+          </datePicker>
+
+          <dropDown>
+            <name>clinicalDiagnosis</name>
+            <udn>clinicalDiagnosis</udn>
+            <caption>#getMessage("cpr_as_clinical_diagnosis")</caption>
+            <column>CLINICAL_DIAGNOSIS</column>
+            <options>
+              <sql>select distinct clinical_diagnosis from catissue_coll_prot_event order by clinical_diagnosis</sql>
+            </options>
+          </dropDown>
+
+          <dropDown>
+            <name>clinicalStatus</name>
+            <udn>clinicalStatus</udn>
+            <caption>#getMessage("cpr_as_clinical_status")</caption>
+            <column>CLINICAL_STATUS</column>
+            <options>
+              <sql>select value from catissue_permissible_value where public_id = 'clinical_status' order by value</sql>
+            </options>
+          </dropDown>
+
+          <dropDown>
+            <name>lineage</name>
+            <udn>lineage</udn>
+            <caption>#getMessage("cpr_as_lineage")</caption>
+            <column>LINEAGE</column>
+            <options>
+              <option><value>New</value></option>
+              <option><value>Derived</value></option>
+              <option><value>Aliquot</value></option>
+            </options>
+          </dropDown>
+
+          <dropDown>
+            <name>specimenClass</name>
+            <udn>specimenClass</udn>
+            <caption>#getMessage("cpr_as_class")</caption>
+            <column>SPECIMEN_CLASS</column>
+            <options>
+              <sql>select value from catissue_permissible_value where public_id = 'specimen_type' and parent_identifier is null order by value</sql>
+            </options>
+          </dropDown>
+
+          <dropDown>
+            <name>specimenType</name>
+            <udn>specimenType</udn>
+            <caption>#getMessage("cpr_as_type")</caption>
+            <column>SPECIMEN_TYPE</column>
+            <options>
+              <sql>select value from catissue_permissible_value where public_id = 'specimen_type' and parent_identifier is not null order by value</sql>
+            </options>
+          </dropDown>
+
+          <dropDown>
+            <name>anatomicSite</name>
+            <udn>anatomicSite</udn>
+            <caption>#getMessage("cpr_as_anatomic_site")</caption>
+            <column>ANATOMIC_SITE</column>
+            <options>
+              <sql>select value from catissue_permissible_value where public_id = 'anatomic_site' order by value</sql>
+            </options>
+          </dropDown>
+
+          <dropDown>
+            <name>laterality</name>
+            <udn>laterality</udn>
+            <caption>#getMessage("cpr_as_laterality")</caption>
+            <column>LATERALITY</column>
+            <options>
+              <sql>select value from catissue_permissible_value where public_id = 'laterality' order by value</sql>
+            </options>
+          </dropDown>
+
+          <numberField>
+            <name>quantity</name>
+            <udn>quantity</udn>
+            <caption>#getMessage("cpr_as_quantity")</caption>
+            <column>QUANTITY</column>
+            <noOfDigitsAfterDecimal>#getPrecision()</noOfDigitsAfterDecimal>
+          </numberField>
+
+          <numberField>
+            <name>concentration</name>
+            <udn>concentration</udn>
+            <caption>#getMessage("cpr_as_concentration")</caption>
+            <column>CONCENTRATION</column>
+            <noOfDigitsAfterDecimal>#getPrecision()</noOfDigitsAfterDecimal>
+          </numberField>
+
+          <dropDown>
+            <name>pathStatus</name>
+            <udn>pathStatus</udn>
+            <caption>#getMessage("cpr_as_path_status")</caption>
+            <column>PATH_STATUS</column>
+            <options>
+              <sql>select value from catissue_permissible_value where public_id = 'pathology_status' order by value</sql>
+            </options>
+          </dropDown>
+
+          <dropDown>
+            <name>collectionContainer</name>
+            <udn>collectionContainer</udn>
+            <caption>#getMessage("cpr_as_coll_container")</caption>
+            <column>COLLECTION_CONTAINER</column>
+            <options>
+              <sql>select value from catissue_permissible_value where public_id = 'collection_container' order by value</sql>
+            </options>
+          </dropDown>
+
+          <dropDown>
+            <name>collectionProcedure</name>
+            <udn>collectionProcedure</udn>
+            <caption>#getMessage("cpr_as_coll_procedure")</caption>
+            <column>COLLECTION_PROCEDURE</column>
+            <options>
+              <sql>select value from catissue_permissible_value where public_id = 'collection_procedure' order by value</sql>
+            </options>
+          </dropDown>
         </row>
       </subForm>
     </row>

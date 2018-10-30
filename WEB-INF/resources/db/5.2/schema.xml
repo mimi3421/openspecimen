@@ -67,4 +67,249 @@
       baseTableName="OS_SCHEDULED_JOBS" baseColumnNames="RUN_AS_USER_ID"
       referencedTableName="CATISSUE_USER" referencedColumnNames="IDENTIFIER"/>
   </changeSet>
+
+  <changeSet author="vpawar" id="Participant first event view" runOnChange="true">
+    <createView viewName="OS_CPR_MIN_EVENT_OFFSET_VIEW" replaceIfExists="true">
+      select
+        reg.identifier as reg_id,
+        min(
+          case
+            when cpe.event_point_unit = 'YEARS'  then cpe.study_calendar_event_point * 365
+            when cpe.event_point_unit = 'MONTHS' then cpe.study_calendar_event_point * 30
+            when cpe.event_point_unit = 'WEEKS'  then cpe.study_calendar_event_point * 7
+            else cpe.study_calendar_event_point
+          end
+        ) as min_offset
+      from
+        catissue_coll_prot_reg reg
+        inner join catissue_coll_prot_event cpe on cpe.collection_protocol_id = reg.collection_protocol_id
+        left join catissue_specimen_coll_group v
+          on v.collection_protocol_reg_id = reg.identifier and
+            v.collection_protocol_event_id = cpe.identifier and
+            v.activity_status != 'Disabled'
+      where
+        (cpe.activity_status = 'Active' and v.identifier is null) or
+        (v.identifier is not null)
+      group by
+        reg.identifier
+    </createView>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Procedure to refresh anticipated specimens" runOnChange="true" dbms="mysql">
+    <sql>
+      drop procedure if exists stage_anticipated_specimens;
+    </sql>
+
+    <sql endDelimiter="//">
+      create procedure stage_anticipated_specimens()
+      begin
+        drop table if exists tmp_os_cpr_anticipated_spmns;
+
+        create table
+          tmp_os_cpr_anticipated_spmns (identifier bigint auto_increment primary key)
+        as
+          select
+            r.identifier cpr_id,
+            r.registration_date reg_date,
+            e.collection_point_label event_label,
+            case
+              when v.collection_status = 'Pending' and v.encounter_timestamp is not null then v.encounter_timestamp
+              else date_add(r.registration_date, interval (e.offset - me.min_offset) day)
+            end event_date,
+            e.clinical_status,
+            e.clinical_diagnosis,
+            spmn.identifier req_id,
+            spmn.lineage,
+            spmn.specimen_class,
+            spmn.specimen_type,
+            spmn.tissue_site anatomic_site,
+            spmn.tissue_side laterality,
+            spmn.initial_quantity quantity,
+            spmn.concentration,
+            spmn.pathological_status path_status,
+            spmn.collection_container,
+            spmn.collection_procedure
+          from
+            catissue_coll_prot_reg r
+            inner join (
+              select
+                ae.identifier, ae.collection_point_label, ae.collection_protocol_id,
+                ae.study_calendar_event_point, ae.event_point_unit, ae.activity_status,
+                ae.clinical_status, ae.clinical_diagnosis,
+                case
+                  when ae.event_point_unit = 'YEARS' then ae.study_calendar_event_point * 365
+                  when ae.event_point_unit = 'MONTHS' then ae.study_calendar_event_point * 30
+                  when ae.event_point_unit = 'WEEKS' then ae.study_calendar_event_point * 7
+                  else ae.study_calendar_event_point
+                end as offset
+              from
+                catissue_coll_prot_event ae
+              where
+                ae.activity_status != 'Disabled'
+            ) e on e.collection_protocol_id = r.collection_protocol_id
+            inner join catissue_cp_req_specimen spmn on spmn.collection_protocol_event_id = e.identifier
+            left join catissue_specimen_coll_group v
+              on v.collection_protocol_event_id = e.identifier and
+                v.collection_protocol_reg_id = r.identifier and
+                v.activity_status != 'Disabled'
+            left join os_cpr_min_event_offset_view me on me.reg_id = r.identifier
+          where
+            (e.activity_status = 'Active' and v.identifier is null) or
+            (v.collection_status = 'Pending');
+      end;
+      //
+    </sql>
+
+    <sql>
+      drop procedure if exists refresh_anticipated_specimens;
+    </sql>
+
+    <sql endDelimiter="//">
+      create procedure refresh_anticipated_specimens()
+      begin
+        call stage_anticipated_specimens();
+
+        drop table if exists os_cpr_anticipated_spmns;
+
+        alter table tmp_os_cpr_anticipated_spmns rename os_cpr_anticipated_spmns;
+
+        create index os_cpr_aspmns_cpr_date_idx on os_cpr_anticipated_spmns (cpr_id, event_date);
+      end;
+      //
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Scheduled job to refresh anticipated specimens" dbms="mysql">
+    <sql>
+      select identifier into @userId from catissue_user where login_name = '$system';
+
+      insert into os_scheduled_jobs
+        (identifier, name, created_by, start_date, scheduled_minute, scheduled_hour,
+         activity_status, repeat_schedule, type, task_impl_fqn, rt_args_provided)
+      values
+        (default, 'Refresh anticipated specimens', @userId, now(), 30, 01,
+         'Active', 'ONDEMAND', 'INTERNAL', 'com.krishagni.catissueplus.core.biospecimen.services.impl.RefreshAnticipatedSpecimens', 0)
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Anticipated specimens ID sequence" dbms="oracle">
+    <createSequence sequenceName="OS_CPR_ANTICIPATED_SPMNS_SEQ" startValue="1" incrementBy="1" ordered="true"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Procedure to refresh anticipated specimens" runOnChange="true" dbms="oracle">
+    <sql endDelimiter="//">
+      create or replace procedure stage_anticipated_specimens AUTHID CURRENT_USER is
+        seq_id number;
+      begin
+        declare
+          table_does_not_exist exception;
+          pragma exception_init(table_does_not_exist, -942); -- ORA-00942
+        begin
+          execute immediate 'drop table tmp_os_cpr_anticipated_spmns';
+        exception
+          when table_does_not_exist then null;
+        end;
+
+        select os_cpr_anticipated_spmns_seq.nextval into seq_id from dual;
+        seq_id := 1 - seq_id;
+
+        execute immediate 'alter sequence os_cpr_anticipated_spmns_seq increment by ' || seq_id || ' nocache';
+        select os_cpr_anticipated_spmns_seq.nextval into seq_id from dual;
+        execute immediate 'alter sequence os_cpr_anticipated_spmns_seq increment by 1 nocache';
+
+        execute immediate '
+        create table
+          tmp_os_cpr_anticipated_spmns
+        as select
+            os_cpr_anticipated_spmns_seq.nextval,
+            r.identifier cpr_id,
+            r.registration_date reg_date,
+            e.collection_point_label event_label,
+            case
+              when v.collection_status = ''Pending'' and v.encounter_timestamp is not null then v.encounter_timestamp
+              else r.registration_date + (e.offset - me.min_offset)
+            end event_date,
+            e.clinical_status,
+            e.clinical_diagnosis,
+            spmn.identifier req_id,
+            spmn.lineage,
+            spmn.specimen_class,
+            spmn.specimen_type,
+            spmn.tissue_site anatomic_site,
+            spmn.tissue_side laterality,
+            spmn.initial_quantity quantity,
+            spmn.concentration,
+            spmn.pathological_status path_status,
+            spmn.collection_container,
+            spmn.collection_procedure
+          from
+            catissue_coll_prot_reg r
+            inner join (
+              select
+                ae.identifier, ae.collection_point_label, ae.collection_protocol_id,
+                ae.study_calendar_event_point, ae.event_point_unit, ae.activity_status,
+                ae.clinical_status, ae.clinical_diagnosis,
+                case
+                  when ae.event_point_unit = ''YEARS'' then ae.study_calendar_event_point * 365
+                  when ae.event_point_unit = ''MONTHS'' then ae.study_calendar_event_point * 30
+                  when ae.event_point_unit = ''WEEKS'' then ae.study_calendar_event_point * 7
+                  else ae.study_calendar_event_point
+                end as offset
+              from
+                catissue_coll_prot_event ae
+              where
+                ae.activity_status != ''Disabled''
+            ) e on e.collection_protocol_id = r.collection_protocol_id
+            inner join catissue_cp_req_specimen spmn on spmn.collection_protocol_event_id = e.identifier
+            left join catissue_specimen_coll_group v
+              on v.collection_protocol_event_id = e.identifier and
+                v.collection_protocol_reg_id = r.identifier and
+                v.activity_status != ''Disabled''
+            left join os_cpr_min_event_offset_view me on me.reg_id = r.identifier
+          where
+            (e.activity_status = ''Active'' and v.identifier is null) or
+            (v.collection_status = ''Pending'')';
+      end;
+      //
+    </sql>
+
+    <sql endDelimiter="//">
+      create or replace procedure refresh_anticipated_specimens AUTHID CURRENT_USER is
+      begin
+        stage_anticipated_specimens();
+
+        declare
+          table_does_not_exist exception;
+          pragma exception_init(table_does_not_exist, -942); -- ORA-00942
+        begin
+          execute immediate 'drop table os_cpr_anticipated_spmns';
+        exception
+          when table_does_not_exist then null;
+        end;
+
+        execute immediate 'alter table tmp_os_cpr_anticipated_spmns rename to os_cpr_anticipated_spmns';
+
+        execute immediate 'create index os_cpr_aspmns_cpr_date_idx on os_cpr_anticipated_spmns (cpr_id, event_date)';
+      end;
+      //
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Scheduled job to refresh anticipated specimens" dbms="oracle">
+    <sql endDelimiter="//">
+      declare
+        userId number;
+      begin
+        select identifier into userId from catissue_user where login_name = '$system';
+
+      insert into os_scheduled_jobs
+        (identifier, name, created_by, start_date, scheduled_minute, scheduled_hour,
+         activity_status, repeat_schedule, type, task_impl_fqn, rt_args_provided)
+      values
+        (os_scheduled_jobs_seq.nextVal, 'Refresh anticipated specimens', userId, SYSDATE, 30, 01,
+         'Active', 'ONDEMAND', 'INTERNAL', 'com.krishagni.catissueplus.core.biospecimen.services.impl.RefreshAnticipatedSpecimens', 0);
+      end;
+      //
+    </sql>
+  </changeSet>
 </databaseChangeLog>

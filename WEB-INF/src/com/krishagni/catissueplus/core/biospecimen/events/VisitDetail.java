@@ -302,7 +302,7 @@ public class VisitDetail extends VisitSummary {
 
 	public static void setAnticipatedVisitDates(Date regDate, Collection<VisitDetail> visits) {
 		Pair<Integer, IntervalUnit> minEventPoint = getMinEventPoint(visits);
-		visits.stream().forEach(v -> v.setAnticipatedVisitDate(regDate, minEventPoint.first(), minEventPoint.second()));
+		visits.forEach(v -> v.setAnticipatedVisitDate(regDate, minEventPoint.first(), minEventPoint.second()));
 	}
 
 	private static Pair<Integer, IntervalUnit> getMinEventPoint(Collection<VisitDetail> visits) {
