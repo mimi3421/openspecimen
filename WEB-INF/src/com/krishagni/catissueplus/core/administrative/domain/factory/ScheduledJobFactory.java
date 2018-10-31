@@ -4,6 +4,5 @@ import com.krishagni.catissueplus.core.administrative.domain.ScheduledJob;
 import com.krishagni.catissueplus.core.administrative.events.ScheduledJobDetail;
 
 public interface ScheduledJobFactory {
-
-	public ScheduledJob createScheduledJob(ScheduledJobDetail detail);
+	ScheduledJob createScheduledJob(ScheduledJobDetail detail);
 }

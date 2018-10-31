@@ -68,33 +68,6 @@
       referencedTableName="CATISSUE_USER" referencedColumnNames="IDENTIFIER"/>
   </changeSet>
 
-  <changeSet author="vpawar" id="Participant first event view" runOnChange="true">
-    <createView viewName="OS_CPR_MIN_EVENT_OFFSET_VIEW" replaceIfExists="true">
-      select
-        reg.identifier as reg_id,
-        min(
-          case
-            when cpe.event_point_unit = 'YEARS'  then cpe.study_calendar_event_point * 365
-            when cpe.event_point_unit = 'MONTHS' then cpe.study_calendar_event_point * 30
-            when cpe.event_point_unit = 'WEEKS'  then cpe.study_calendar_event_point * 7
-            else cpe.study_calendar_event_point
-          end
-        ) as min_offset
-      from
-        catissue_coll_prot_reg reg
-        inner join catissue_coll_prot_event cpe on cpe.collection_protocol_id = reg.collection_protocol_id
-        left join catissue_specimen_coll_group v
-          on v.collection_protocol_reg_id = reg.identifier and
-            v.collection_protocol_event_id = cpe.identifier and
-            v.activity_status != 'Disabled'
-      where
-        (cpe.activity_status = 'Active' and v.identifier is null) or
-        (v.identifier is not null)
-      group by
-        reg.identifier
-    </createView>
-  </changeSet>
-
   <changeSet author="vpawar" id="Procedure to refresh anticipated specimens" runOnChange="true" dbms="mysql">
     <sql>
       drop procedure if exists stage_anticipated_specimens;

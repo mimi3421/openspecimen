@@ -1,6 +1,7 @@
 package com.krishagni.catissueplus.core.administrative.domain.factory.impl;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 
@@ -73,17 +74,9 @@ public class ScheduledJobFactoryImpl implements ScheduledJobFactory {
 		job.setName(name);
 	}
 
-	//
-	// this method requires to be invoked after setting repeat schedule
-	//
 	private void setStartAndEndDates(ScheduledJobDetail detail,	ScheduledJob job, OpenSpecimenException ose) {
-		if (job.getRepeatSchedule() == null || job.getRepeatSchedule().equals(RepeatSchedule.ONDEMAND)) {
-			return;
-		}
-		
 		if (detail.getStartDate() == null) {
-			ose.addError(ScheduledJobErrorCode.START_DATE_REQUIRED);
-			return;
+			detail.setStartDate(Calendar.getInstance().getTime());
 		}
 		
 		if (detail.getEndDate() != null && detail.getEndDate().before(detail.getStartDate())) {
@@ -94,16 +87,6 @@ public class ScheduledJobFactoryImpl implements ScheduledJobFactory {
 		job.setStartDate(detail.getStartDate());
 		job.setEndDate(detail.getEndDate());
 		
-	}
-	
-	private void setCreatedBy(ScheduledJobDetail detail, ScheduledJob job, OpenSpecimenException ose) {
-		User createdBy = getUser(detail.getCreatedBy());
-		if (createdBy == null) {
-			ose.addError(UserErrorCode.NOT_FOUND);
-			return;
-		}
-		
-		job.setCreatedBy(createdBy);
 	}
 	
 	private void setActivityStatus(ScheduledJobDetail detail, ScheduledJob job,	OpenSpecimenException ose) {

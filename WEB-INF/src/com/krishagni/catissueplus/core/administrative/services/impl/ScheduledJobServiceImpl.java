@@ -126,7 +126,12 @@ public class ScheduledJobServiceImpl implements ScheduledJobService, Application
 			if (existing == null) {
 				return ResponseEvent.userError(ScheduledJobErrorCode.NOT_FOUND);
 			}
-			
+
+			ScheduledJobDetail input = req.getPayload();
+			if (input.getStartDate() == null) {
+				input.setStartDate(existing.getStartDate());
+			}
+
 			ScheduledJob job = jobFactory.createScheduledJob(req.getPayload());
 			if (!existing.getName().equals(job.getName())) {
 				ensureUniqueJobName(job);
