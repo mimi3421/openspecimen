@@ -45,6 +45,8 @@ public class ScheduledJobDetail {
 	
 	private String command;
 
+	private String fixedArgs;
+
 	private SavedQuerySummary savedQuery;
 
 	private UserSummary runAs;
@@ -195,6 +197,14 @@ public class ScheduledJobDetail {
 		this.command = command;
 	}
 
+	public String getFixedArgs() {
+		return fixedArgs;
+	}
+
+	public void setFixedArgs(String fixedArgs) {
+		this.fixedArgs = fixedArgs;
+	}
+
 	public SavedQuerySummary getSavedQuery() {
 		return savedQuery;
 	}
@@ -261,6 +271,7 @@ public class ScheduledJobDetail {
 		detail.setRepeatSchedule(job.getRepeatSchedule().toString());
 		detail.setType(job.getType().toString());
 		detail.setCommand(job.getCommand());
+		detail.setFixedArgs(job.getFixedArgs());
 		detail.setIsActiveJob(job.isActiveJob());
 		detail.setTaskImplFqn(job.getTaskImplfqn());
 		detail.setSavedQuery(SavedQuerySummary.fromSavedQuery(job.getSavedQuery()));

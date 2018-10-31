@@ -101,11 +101,11 @@
     </sql>
 
     <sql endDelimiter="//">
-      create procedure stage_anticipated_specimens()
+      create procedure stage_anticipated_specimens(in cp_list text)
       begin
         drop table if exists tmp_os_cpr_anticipated_spmns;
 
-        create table
+        set @create_tmp_table = concat('create table
           tmp_os_cpr_anticipated_spmns (identifier bigint auto_increment primary key)
         as
           select
@@ -113,7 +113,7 @@
             r.registration_date reg_date,
             e.collection_point_label event_label,
             case
-              when v.collection_status = 'Pending' and v.encounter_timestamp is not null then v.encounter_timestamp
+              when v.collection_status = \'Pending\' and v.encounter_timestamp is not null then v.encounter_timestamp
               else date_add(r.registration_date, interval (e.offset - me.min_offset) day)
             end event_date,
             e.clinical_status,
@@ -137,25 +137,57 @@
                 ae.study_calendar_event_point, ae.event_point_unit, ae.activity_status,
                 ae.clinical_status, ae.clinical_diagnosis,
                 case
-                  when ae.event_point_unit = 'YEARS' then ae.study_calendar_event_point * 365
-                  when ae.event_point_unit = 'MONTHS' then ae.study_calendar_event_point * 30
-                  when ae.event_point_unit = 'WEEKS' then ae.study_calendar_event_point * 7
+                  when ae.event_point_unit = \'YEARS\' then ae.study_calendar_event_point * 365
+                  when ae.event_point_unit = \'MONTHS\' then ae.study_calendar_event_point * 30
+                  when ae.event_point_unit = \'WEEKS\' then ae.study_calendar_event_point * 7
                   else ae.study_calendar_event_point
                 end as offset
               from
                 catissue_coll_prot_event ae
               where
-                ae.activity_status != 'Disabled'
+                ae.activity_status != \'Disabled\'
             ) e on e.collection_protocol_id = r.collection_protocol_id
             inner join catissue_cp_req_specimen spmn on spmn.collection_protocol_event_id = e.identifier
             left join catissue_specimen_coll_group v
               on v.collection_protocol_event_id = e.identifier and
                 v.collection_protocol_reg_id = r.identifier and
-                v.activity_status != 'Disabled'
-            left join os_cpr_min_event_offset_view me on me.reg_id = r.identifier
+                v.activity_status != \'Disabled\'
+            left join (
+              select
+                reg.identifier as reg_id,
+                min(
+                  case
+                    when cpe.event_point_unit = \'YEARS\'  then cpe.study_calendar_event_point * 365
+                    when cpe.event_point_unit = \'MONTHS\' then cpe.study_calendar_event_point * 30
+                    when cpe.event_point_unit = \'WEEKS\'  then cpe.study_calendar_event_point * 7
+                    else cpe.study_calendar_event_point
+                  end
+                ) as min_offset
+              from
+                catissue_coll_prot_reg reg
+                inner join catissue_coll_prot_event cpe on cpe.collection_protocol_id = reg.collection_protocol_id
+                left join catissue_specimen_coll_group v
+                  on v.collection_protocol_reg_id = reg.identifier and
+                    v.collection_protocol_event_id = cpe.identifier and
+                    v.activity_status != \'Disabled\'
+              where
+                ((cpe.activity_status = \'Active\' and v.identifier is null) or
+                 (v.identifier is not null)) and
+                reg.activity_status = \'Active\' and
+                reg.collection_protocol_id in (', cp_list, ')
+              group by
+                reg.identifier
+            ) me on me.reg_id = r.identifier
           where
-            (e.activity_status = 'Active' and v.identifier is null) or
-            (v.collection_status = 'Pending');
+            ((e.activity_status = \'Active\' and v.identifier is null) or
+            (v.collection_status = \'Pending\')) and
+            r.activity_status = \'Active\' and
+            r.collection_protocol_id in (', cp_list, ') and
+            spmn.activity_status = \'Active\'');
+
+        prepare create_sql from @create_tmp_table;
+        execute create_sql;
+        deallocate prepare create_sql;
       end;
       //
     </sql>
@@ -165,9 +197,9 @@
     </sql>
 
     <sql endDelimiter="//">
-      create procedure refresh_anticipated_specimens()
+      create procedure refresh_anticipated_specimens(in cp_list text)
       begin
-        call stage_anticipated_specimens();
+        call stage_anticipated_specimens(cp_list);
 
         drop table if exists os_cpr_anticipated_spmns;
 
@@ -196,19 +228,30 @@
     <createSequence sequenceName="OS_CPR_ANTICIPATED_SPMNS_SEQ" startValue="1" incrementBy="1" ordered="true"/>
   </changeSet>
 
-  <changeSet author="vpawar" id="Procedure to refresh anticipated specimens" runOnChange="true" dbms="oracle">
+  <changeSet author="vpawar" id="Procedure to drop the table" dbms="oracle">
     <sql endDelimiter="//">
-      create or replace procedure stage_anticipated_specimens AUTHID CURRENT_USER is
-        seq_id number;
+      create or replace procedure drop_table_if_exists(tab_name in varchar2) is
       begin
         declare
           table_does_not_exist exception;
           pragma exception_init(table_does_not_exist, -942); -- ORA-00942
         begin
-          execute immediate 'drop table tmp_os_cpr_anticipated_spmns';
+          execute immediate 'drop table ' || tab_name;
         exception
           when table_does_not_exist then null;
         end;
+      end;
+      //
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Procedure to refresh anticipated specimens" runOnChange="true" dbms="oracle">
+    <sql endDelimiter="//">
+      create or replace procedure stage_anticipated_specimens(cp_list in varchar2) AUTHID CURRENT_USER is
+        seq_id number;
+      begin
+        drop_table_if_exists('tmp_os_cpr_anticipated_spmns');
+        drop_table_if_exists('tmp_input_cps');
 
         select os_cpr_anticipated_spmns_seq.nextval into seq_id from dual;
         seq_id := 1 - seq_id;
@@ -217,10 +260,13 @@
         select os_cpr_anticipated_spmns_seq.nextval into seq_id from dual;
         execute immediate 'alter sequence os_cpr_anticipated_spmns_seq increment by 1 nocache';
 
+        execute immediate 'create table tmp_input_cps(id number(19, 0))';
+        execute immediate 'insert into tmp_input_cps select * from table(split(:1, '',''))' using cp_list;
+
         execute immediate '
-        create table
-          tmp_os_cpr_anticipated_spmns
-        as select
+          create table
+            tmp_os_cpr_anticipated_spmns
+          as select
             os_cpr_anticipated_spmns_seq.nextval,
             r.identifier cpr_id,
             r.registration_date reg_date,
@@ -265,18 +311,46 @@
               on v.collection_protocol_event_id = e.identifier and
                 v.collection_protocol_reg_id = r.identifier and
                 v.activity_status != ''Disabled''
-            left join os_cpr_min_event_offset_view me on me.reg_id = r.identifier
+            left join (
+              select
+                reg.identifier as reg_id,
+                min(
+                  case
+                    when cpe.event_point_unit = ''YEARS''  then cpe.study_calendar_event_point * 365
+                    when cpe.event_point_unit = ''MONTHS'' then cpe.study_calendar_event_point * 30
+                    when cpe.event_point_unit = ''WEEKS''  then cpe.study_calendar_event_point * 7
+                    else cpe.study_calendar_event_point
+                  end
+                ) as min_offset
+              from
+                catissue_coll_prot_reg reg
+                inner join catissue_coll_prot_event cpe on cpe.collection_protocol_id = reg.collection_protocol_id
+                left join catissue_specimen_coll_group v
+                  on v.collection_protocol_reg_id = reg.identifier and
+                    v.collection_protocol_event_id = cpe.identifier and
+                    v.activity_status != ''Disabled''
+              where
+                ((cpe.activity_status = ''Active'' and v.identifier is null) or
+                (v.identifier is not null)) and
+                reg.collection_protocol_id in (select * from tmp_input_cps) and
+                reg.activity_status = ''Active''
+              group by
+                reg.identifier
+            ) me on me.reg_id = r.identifier
           where
-            (e.activity_status = ''Active'' and v.identifier is null) or
-            (v.collection_status = ''Pending'')';
+            ((e.activity_status = ''Active'' and v.identifier is null) or
+            (v.collection_status = ''Pending'')) and
+            r.activity_status = ''Active'' and
+            spmn.activity_status = ''Active'' and
+            r.collection_protocol_id in (select * from tmp_input_cps)';
       end;
       //
     </sql>
 
     <sql endDelimiter="//">
-      create or replace procedure refresh_anticipated_specimens AUTHID CURRENT_USER is
+      create or replace procedure refresh_anticipated_specimens(cp_list in varchar2) AUTHID CURRENT_USER is
       begin
-        stage_anticipated_specimens();
+        stage_anticipated_specimens(cp_list);
 
         declare
           table_does_not_exist exception;
@@ -311,5 +385,11 @@
       end;
       //
     </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Scheduled job input parameters">
+    <addColumn tableName="OS_SCHEDULED_JOBS">
+      <column name="FIXED_ARGS" type="${clob.type}"/>
+    </addColumn>
   </changeSet>
 </databaseChangeLog>

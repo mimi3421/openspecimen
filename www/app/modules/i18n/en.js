@@ -2332,7 +2332,8 @@
     "fqn": "Implementation",
     "fqn_desc": "Fully qualified name of class implementing the task to run",
 
-    "run_args": "Runtime Arguments",
+    "fixed_args": "Fixed Parameters",
+    "run_args": "Runtime Parameters",
     "args_provided": "Provided",
     "args_not_provided": "Not Provided",
     "args_help_text": "Help Text",

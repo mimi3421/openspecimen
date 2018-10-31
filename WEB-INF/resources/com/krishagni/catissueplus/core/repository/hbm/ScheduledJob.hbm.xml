@@ -57,6 +57,8 @@
     </property>
 
     <property name="command" column="COMMAND"/>
+
+    <property name="fixedArgs" column="FIXED_ARGS"/>
     
     <property name="taskImplfqn" column="TASK_IMPL_FQN"/>
 

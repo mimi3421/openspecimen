@@ -51,6 +51,7 @@ public class ScheduledJobFactoryImpl implements ScheduledJobFactory {
 		setStartAndEndDates(detail, job, ose);
 		setActivityStatus(detail, job, ose);
 		setType(detail, job, ose);
+		setFixedArgs(detail, job, ose);
 		setSavedQuery(detail, job, ose);
 		setRunAs(detail, job, ose);
 		setRecipients(detail, job, ose);
@@ -290,6 +291,10 @@ public class ScheduledJobFactoryImpl implements ScheduledJobFactory {
 		}
 		
 		job.setTaskImplfqn(fqn);
+	}
+
+	private void setFixedArgs(ScheduledJobDetail detail, ScheduledJob job, OpenSpecimenException ose) {
+		job.setFixedArgs(detail.getFixedArgs());
 	}
 
 	private void setSavedQuery(ScheduledJobDetail detail, ScheduledJob job, OpenSpecimenException ose) {

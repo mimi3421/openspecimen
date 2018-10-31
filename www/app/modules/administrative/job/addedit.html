@@ -80,6 +80,17 @@
         </div>
       </div>
 
+      <div class="form-group" ng-if="job.type == 'INTERNAL' || job.type == 'EXTERNAL'">
+        <label class="col-xs-3 control-label">
+          <span translate="jobs.fixed_args">Fixed Parameters</span>
+        </label>
+
+        <div class="col-xs-6 os-no-label-form">
+          <textarea name="fixedArgs" ng-model="job.fixedArgs" class="form-control" rows="2">
+          </textarea>
+        </div>
+      </div>
+
       <div class="form-group" ng-if="!!job.type && job.type != 'QUERY'">
         <label class="col-xs-3 control-label">
           <span translate="jobs.run_args">Runtime Arguments</span>

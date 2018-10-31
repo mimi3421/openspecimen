@@ -87,6 +87,8 @@ public class ScheduledJob extends BaseEntity {
 	
 	private String command;
 
+	private String fixedArgs;
+
 	private SavedQuery savedQuery;
 
 	private User runAs;
@@ -198,7 +200,6 @@ public class ScheduledJob extends BaseEntity {
 		this.repeatSchedule = repeatSchedule;
 	}
 
-
 	public Type getType() {
 		return type;
 	}
@@ -221,6 +222,14 @@ public class ScheduledJob extends BaseEntity {
 
 	public void setCommand(String command) {
 		this.command = command;
+	}
+
+	public String getFixedArgs() {
+		return fixedArgs;
+	}
+
+	public void setFixedArgs(String fixedArgs) {
+		this.fixedArgs = fixedArgs;
 	}
 
 	public SavedQuery getSavedQuery() {
