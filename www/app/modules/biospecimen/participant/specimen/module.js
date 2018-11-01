@@ -242,6 +242,19 @@ angular.module('os.biospecimen.specimen',
         },
         parent: 'specimen-detail'
       })
+      .state('specimen-detail.event-overview', {
+        url: '/event-overview?formId&recordId',
+        templateUrl: 'modules/biospecimen/participant/specimen/event-overview.html',
+        controller: function($scope, event) {
+          $scope.event = event;
+        },
+        resolve: {
+          event: function($stateParams, Form) {
+            return new Form({formId: $stateParams.formId}).getRecord($stateParams.recordId, {includeMetadata: true});
+          }
+        },
+        parent: 'specimen-detail'
+      })
       .state('specimen-create-derivative', {
         url: '/derivative',
         templateProvider: function(PluginReg, $q) {

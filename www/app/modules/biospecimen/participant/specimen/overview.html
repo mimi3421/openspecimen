@@ -278,20 +278,14 @@
     <span ng-if="activities.length == 0" translate="common.none">None</span>
     <ul class="os-activity-list" ng-if="activities.length > 0">
       <li class="os-activity" ng-repeat="activity in activities">
-        <div class="title">
-          <a ui-sref="specimen-detail.extensions.addedit({recordId: activity.id, formId: activity.formId, formCtxId: activity.formCtxtId, spe: true})">
-            <span ng-if="!!activity.user && !!activity.time">
-              {{'specimens.activity_full_info' | translate: activity}} 
-            </span>
-            <span ng-if="!!activity.user && !activity.time">
-              {{'specimens.activity_user_info' | translate: activity}}
-            </span>
-            <span ng-if="!activity.user && !!activity.time">
-              {{'specimens.activity_time_info' | translate: activity}}
-            </span>
-            <span ng-if="!activity.user && !activity.time">
-              {{'specimens.activity_info' | translate: activity}}
-            </span>
+        <div class="title" ng-switch on="activity.isEditable">
+          <a ng-switch-when="true" ui-sref="specimen-detail.extensions.addedit({recordId: activity.id,
+            formId: activity.formId, formCtxId: activity.formCtxtId, spe: true})">
+            <ng-include src="'modules/biospecimen/participant/specimen/activity-info.html'"></ng-include>
+          </a>
+          <a ng-switch-when="false" ui-sref="specimen-detail.event-overview({recordId: activity.id,
+            formId: activity.formId})">
+            <ng-include src="'modules/biospecimen/participant/specimen/activity-info.html'"></ng-include>
           </a>
         </div>
         <div class="info">
@@ -303,6 +297,23 @@
       </li>
     </ul>
   </div>
+</script>
+
+<script type="text/ng-template" id="modules/biospecimen/participant/specimen/activity-info.html">
+  <span>
+    <span ng-if="!!activity.user && !!activity.time">
+      {{'specimens.activity_full_info' | translate: activity}}
+    </span>
+    <span ng-if="!!activity.user && !activity.time">
+      {{'specimens.activity_user_info' | translate: activity}}
+    </span>
+    <span ng-if="!activity.user && !!activity.time">
+      {{'specimens.activity_time_info' | translate: activity}}
+    </span>
+    <span ng-if="!activity.user && !activity.time">
+      {{'specimens.activity_info' | translate: activity}}
+    </span>
+  </span>
 </script>
 
 <script type="text/ng-template" id="modules/biospecimen/participant/specimen/confirm-print.html">

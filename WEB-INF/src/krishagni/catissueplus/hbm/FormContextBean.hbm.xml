@@ -445,12 +445,13 @@
       <return-scalar column="id" type="long"/>
       <return-scalar column="recordId" type="long"/>
       <return-scalar column="updateTime" type="timestamp"/>
+      <return-scalar column="sysForm" type="boolean"/>
       <return-scalar column="userId" type="long"/>
       <return-scalar column="userFirstName" type="string"/>
       <return-scalar column="userLastName" type="string"/>
 
       select
-        r.identifier as id, r.record_id as recordId, r.update_time as updateTime,
+        r.identifier as id, r.record_id as recordId, r.update_time as updateTime, f.is_sys_form as sysForm,
         u.identifier as userId, u.first_name as userFirstName, u.last_name as userLastName
       from
         catissue_form_record_entry r
@@ -578,6 +579,7 @@
     <sql-query name="getRecordsByEntityAndObject">
       <return-scalar column="formId" type="long"/>
       <return-scalar column="formCtxId" type="long"/>
+      <return-scalar column="sysForm" type="boolean"/>
       <return-scalar column="recordId" type="long"/>
       <return-scalar column="updateTime" type="timestamp"/>
       <return-scalar column="userId" type="long"/>
@@ -585,7 +587,7 @@
       <return-scalar column="userLastName" type="string"/>
 
       select
-        fc.container_id as formId, fc.identifier as formCtxId, 
+        fc.container_id as formId, fc.identifier as formCtxId, fc.is_sys_form as sysForm,
         re.record_id as recordId, re.update_time as updateTime,
         u.identifier as userId, u.first_name as userFirstName, u.last_name as userLastName
       from
@@ -602,6 +604,7 @@
     <sql-query name="getRecords">
       <return-scalar column="formId" type="long"/>
       <return-scalar column="formCtxId" type="long"/>
+      <return-scalar column="sysForm" type="boolean"/>
       <return-scalar column="recordId" type="long"/>
       <return-scalar column="updateTime" type="timestamp"/>
       <return-scalar column="userId" type="long"/>
@@ -609,7 +612,7 @@
       <return-scalar column="userLastName" type="string"/>
 
       select
-        fc.container_id as formId, fc.identifier as formCtxId,
+        fc.container_id as formId, fc.identifier as formCtxId, fc.is_sys_form as sysForm,
         re.record_id as recordId, re.update_time as updateTime,
         u.identifier as userId, u.first_name as userFirstName, u.last_name as userLastName
       from

@@ -1,0 +1,22 @@
+<div class="clearfix">
+  <div class="col-xs-12">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <span>{{event.caption}} #{{event.id}}</span>
+      </div>
+      <div class="panel-body">
+        <div>
+          <os-form-data data="event"></os-form-data>
+        </div>
+
+        <div class="row os-extn-form">
+          <div class="modal-footer">
+            <button class="btn btn-default" ng-click="back()">
+              <span translate="common.buttons.back">Cancel</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

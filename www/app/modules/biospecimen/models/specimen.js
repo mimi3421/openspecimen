@@ -363,15 +363,18 @@ angular.module('os.biospecimen.models.specimen', ['os.common.models', 'os.biospe
             }
           }
 
+          var formName = eventRecs.name;
           eventsList.push({
             id: record.recordId,
             formId: eventRecs.id,
             formCtxtId: record.fcId,
+            sysForm: record.sysForm,
             name: eventRecs.caption,
             updatedBy: record.user,
             updateTime: record.updateTime,
             user: user,
-            time: time
+            time: time,
+            isEditable: !record.sysForm || formName == 'SpecimenCollectionEvent' || formName == 'SpecimenReceivedEvent'
           });
         });
       });

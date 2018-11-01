@@ -13,6 +13,8 @@ public class FormRecordSummary {
 	private Long id;
 	
 	private Long fcId;
+
+	private boolean sysForm;
 	
 	private Long recordId;
 	
@@ -20,7 +22,7 @@ public class FormRecordSummary {
 	
 	private Date updateTime;
 	
-	private List<FieldValue> fieldValues = new ArrayList<FieldValue>();
+	private List<FieldValue> fieldValues = new ArrayList<>();
 
 	public Long getId() {
 		return id;
@@ -37,7 +39,15 @@ public class FormRecordSummary {
 	public void setFcId(Long fcId) {
 		this.fcId = fcId;
 	}
-	
+
+	public boolean isSysForm() {
+		return sysForm;
+	}
+
+	public void setSysForm(boolean sysForm) {
+		this.sysForm = sysForm;
+	}
+
 	public Long getRecordId() {
 		return recordId;
 	}

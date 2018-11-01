@@ -39,8 +39,8 @@
 </div>
 
 <script type="text/ng-template" id="modules/biospecimen/extensions/field-value.html">
-  <span ng-if="!!field.value">
-    <span ng-switch on="field.type">
+  <span ng-switch on="!!field.value">
+    <span ng-switch-when="true" ng-switch on="field.type">
       <span ng-switch-when="fileUpload" ng-init="file=field.value">
         <a href="{{filesUrl}}/{{file.fileId}}?contentType={{file.contentType}}&filename={{file.filename}}" target="_blank">
           {{file.filename}}
@@ -52,12 +52,13 @@
       <span ng-switch-when="booleanCheckbox">
         {{field.value | osBoolValue : 'common.yes' : 'common.no' : 'common.not_specified'}}
       </span>
-      <span ng-switch-default>
-        {{field.value | osArrayJoin}}
+      <span ng-switch-default ng-switch on="!!field.displayValue">
+        <span ng-switch-when="true">{{field.displayValue}}</span>
+        <span ng-switch-default> {{field.value | osArrayJoin}}</span>
       </span>
     </span>
-  </span>
-  <span ng-if="!field.value">
-    <span translate="common.not_specified"></span>
+    <span ng-switch-when="false">
+      <span translate="common.not_specified"></span>
+    </span>
   </span>
 </script>

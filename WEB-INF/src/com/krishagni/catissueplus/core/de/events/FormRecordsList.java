@@ -52,7 +52,7 @@ public class FormRecordsList {
 		list.setId(container.getId());
 		list.setCaption(container.getCaption());
 		list.setName(container.getName());
-		list.setRecords(new ArrayList<FormRecordSummary>(recs));
+		list.setRecords(new ArrayList<>(recs));
 		return list;
 	}
 }

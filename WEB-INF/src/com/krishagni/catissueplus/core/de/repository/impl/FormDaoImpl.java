@@ -262,22 +262,24 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<FormRecordSummary> getFormRecords(Long formCtxtId, Long objectId) {
-		Query query = sessionFactory.getCurrentSession().getNamedQuery(GET_FORM_RECORDS);
-		query.setLong("formCtxtId", formCtxtId).setLong("objectId", objectId);
-		
-		List<Object[]> rows = query.list();
-		
-		List<FormRecordSummary> formRecords = new ArrayList<FormRecordSummary>();
+		List<Object[]> rows = getCurrentSession().getNamedQuery(GET_FORM_RECORDS)
+			.setParameter("formCtxtId", formCtxtId)
+			.setParameter("objectId", objectId)
+			.list();
+
+		List<FormRecordSummary> formRecords = new ArrayList<>();
 		for (Object[] row : rows) {
+			int idx = 0;
 			FormRecordSummary record = new FormRecordSummary();
-			record.setId((Long)row[0]);
-			record.setRecordId((Long)row[1]);
-			record.setUpdateTime((Date)row[2]);
+			record.setId((Long)row[idx++]);
+			record.setRecordId((Long)row[idx++]);
+			record.setUpdateTime((Date)row[idx++]);
+			record.setSysForm((boolean)row[idx++]);
 			
 			UserSummary user = new UserSummary();
-			user.setId((Long)row[3]);
-			user.setFirstName((String)row[4]);
-			user.setLastName((String)row[5]);
+			user.setId((Long)row[idx++]);
+			user.setFirstName((String)row[idx++]);
+			user.setLastName((String)row[idx++]);
 			record.setUser(user);
 			
 			formRecords.add(record);
@@ -535,7 +537,6 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 	@SuppressWarnings("unchecked")
 	@Override
 	public Map<Long, List<FormRecordSummary>> getFormRecords(Long objectId, String entityType, Long formId) {
-		
 		Query query = null;
 		if (formId == null) {
 			query = sessionFactory.getCurrentSession()
@@ -552,25 +553,22 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 		
 		Map<Long, List<FormRecordSummary>> result = new HashMap<Long, List<FormRecordSummary>>();
 		for (Object[] row : rows) {
-			Long form = (Long)row[0];
+			int idx = 0;
+			Long form = (Long)row[idx++];
 			
 			FormRecordSummary record = new FormRecordSummary();
-			record.setFcId((Long)row[1]);
-			record.setRecordId((Long)row[2]);
-			record.setUpdateTime((Date)row[3]);
+			record.setFcId((Long)row[idx++]);
+			record.setSysForm((boolean)row[idx++]);
+			record.setRecordId((Long)row[idx++]);
+			record.setUpdateTime((Date)row[idx++]);
 			
 			UserSummary user = new UserSummary();
-			user.setId((Long)row[4]);
-			user.setFirstName((String)row[5]);
-			user.setLastName((String)row[6]);
+			user.setId((Long)row[idx++]);
+			user.setFirstName((String)row[idx++]);
+			user.setLastName((String)row[idx++]);
 			record.setUser(user);
-			
-			List<FormRecordSummary> recs = result.get(form);
-			if (recs == null) {
-				recs = new ArrayList<FormRecordSummary>();
-				result.put(form, recs);
-			}
-			
+
+			List<FormRecordSummary> recs = result.computeIfAbsent(form, (k) -> new ArrayList<>());
 			recs.add(record);
 		}
 				
