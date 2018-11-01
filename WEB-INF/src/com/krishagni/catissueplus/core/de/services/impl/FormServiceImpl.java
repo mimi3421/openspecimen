@@ -842,7 +842,13 @@ public class FormServiceImpl implements FormService, InitializingBean {
 		if (CollectionUtils.isEmpty(formContexts)) {
 			throw new IllegalArgumentException("Invalid form context id");
 		}
-		
+
+		FormContextBean formContext = formContexts.get(0);
+		Container form = formData.getContainer();
+		if (formContext.isSysForm() && !isCollectionOrReceivedEvent(form)) {
+			throw OpenSpecimenException.userError(FormErrorCode.SYS_REC_EDIT_NOT_ALLOWED);
+		}
+
 		boolean isInsert = (recordId == null);
 		if (!isInsert && isPartial) {
 			FormData existing = formDataMgr.getFormData(formData.getContainer(), formData.getRecordId());
@@ -852,9 +858,7 @@ public class FormServiceImpl implements FormService, InitializingBean {
 		formData.validate();
 
 		OpenSpecimenEvent<?> event = null;
-		FormContextBean formContext = formContexts.get(0);
 		String entityType = formContext.getEntityType();
-		Container form = formData.getContainer();
 		if (entityType.equals("Participant")) {
 			CollectionProtocolRegistration cpr = daoFactory.getCprDao().getById(objectId);
 			if (cpr == null) {
@@ -879,8 +883,7 @@ public class FormServiceImpl implements FormService, InitializingBean {
 			AccessCtrlMgr.getInstance().ensureCreateOrUpdateVisitRights(visit, form.hasPhiFields());
 		} else if (entityType.equals("Specimen") || entityType.equals("SpecimenEvent")) {
 			Specimen specimen = ensureSpecimenUpdateRights(objectId, form.hasPhiFields());
-
-			if (form.getName().equals("SpecimenCollectionEvent") || form.getName().equals("SpecimenReceivedEvent")) {
+			if (isCollectionOrReceivedEvent(form)) {
 				specimen.setUpdated(true);
 				event = new SpecimenSavedEvent(specimen);
 			}
@@ -922,6 +925,10 @@ public class FormServiceImpl implements FormService, InitializingBean {
 		}
 
 		return formData;
+	}
+
+	private boolean isCollectionOrReceivedEvent(Container form) {
+		return form.getName().equals("SpecimenCollectionEvent") || form.getName().equals("SpecimenReceivedEvent");
 	}
 
 	private UserContext getUserContext() {
