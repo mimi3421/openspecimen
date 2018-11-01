@@ -1397,3 +1397,7 @@ form .form-group:empty {
 .os-page-header .os-tag-danger {
   background: #d9534f!important;
 }
+
+.tooltip-inner {
+  white-space: initial;
+}

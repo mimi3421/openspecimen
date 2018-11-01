@@ -720,6 +720,8 @@
     "event_user": "User",
     "event_time": "Date and Time",
     "no_events": "No events to show",
+    "sys_event": "System",
+    "sys_event_help": "System events cannot be edited or deleted!",
 
     "no_specimens_for_collection": "Please select at least one anticipated specimen for collection",
     "no_specimens_for_print": "Please select at least one existing specimen for label printing",
@@ -1553,6 +1555,8 @@
   "extensions": {
     "no_extensions": "No forms to show",
     "list": "Forms",
+    "sys_form": "System Form",
+    "sys_form_help": "System form records cannot be added or edited or deleted!",
 
     "name": "Name",
     "updated_by": "Updated By",

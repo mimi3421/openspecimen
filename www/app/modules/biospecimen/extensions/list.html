@@ -54,9 +54,9 @@
 
 <script type="text/ng-template" id="modules/biospecimen/extensions/record.html">
   <div class="panel panel-default">
-    <div class="panel-heading">
+    <div class="panel-heading" ng-switch on="!selectedForm.sysForm">
       <span>Record #{{fctx.record.id}}</span>
-      <span ng-if="extnOpts.isEntityActive" show-if-allowed="extnOpts.update" class="os-btns">
+      <span ng-switch-when="true" ng-if="extnOpts.isEntityActive" show-if-allowed="extnOpts.update" class="os-btns">
         <button class="btn btn-primary" ui-sref="{{extnState}}addedit({formId: selectedForm.formId,
           recordId: fctx.record.id, formCtxId: selectedForm.formCtxtId})">
           <span class="fa fa-pencil"></span>
@@ -72,19 +72,23 @@
           <span translate="common.buttons.add_another"></span>
         </button>
       </span>
+      <span ng-switch-when="false" class="btn os-status-info" style="margin-bottom: 0px;"
+        os-tooltip="{{'extensions.sys_form_help' | translate}}">
+        <span translate="extensions.sys_form">System Form</span>
+      </span>
     </div>
     <div class="panel-body">
-      <os-form-data class="os-kv-vertical" data="fctx.record"></os-form-data>
+      <os-form-data data="fctx.record"></os-form-data>
     </div>
   </div>
 </script>
 
 <script type="text/ng-template" id="modules/biospecimen/extensions/records.html">
   <div class="panel panel-default">
-    <div class="panel-heading">
+    <div class="panel-heading" ng-switch on="!selectedForm.sysForm">
       <span>{{selectedForm.formCaption}}</span>
       <span translate="extensions.records">Records</span>
-      <span show-if-allowed="extnOpts.update" class="os-btns"
+      <span ng-switch-when="true" show-if-allowed="extnOpts.update" class="os-btns"
         ng-if="extnOpts.isEntityActive && (selectedForm.multiRecord || selectedForm.records.length == 0)">
         <button class="btn btn-default"
           ui-sref="{{extnState}}addedit({formId: selectedForm.formId, formCtxId: selectedForm.formCtxtId})">
@@ -92,6 +96,10 @@
           <span ng-if="selectedForm.records.length >= 1" translate="common.buttons.add_another"></span>
           <span ng-if="selectedForm.records.length == 0" translate="common.buttons.add"></span>
         </button>
+      </span>
+      <span ng-switch-when="false" class="btn os-status-info" style="margin-bottom: 0px;"
+        os-tooltip="{{'extensions.sys_form_help' | translate}}">
+        <span translate="extensions.sys_form">System Form</span>
       </span>
     </div>
     <div class="panel-body">

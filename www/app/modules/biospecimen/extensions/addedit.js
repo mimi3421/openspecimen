@@ -81,7 +81,7 @@ angular.module('os.biospecimen.extensions.addedit-record', [])
           anyForm = true;
         }
 
-        if (anyForm && (nf.multiRecord || nf.records.length == 0)) {
+        if (anyForm && !nf.sysForm && (nf.multiRecord || nf.records.length == 0)) {
           nextForm = nf;
           break;
         }
