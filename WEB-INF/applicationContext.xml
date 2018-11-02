@@ -498,7 +498,25 @@
   <bean id="containerNameGenerator" class="com.krishagni.catissueplus.core.common.service.impl.LabelGeneratorImpl">
     <property name="tokenRegistrar" ref="containerTokenRegistrar"/>
   </bean>
-	
+
+  <bean id="containerPrintLabelTokensRegistrar" class="com.krishagni.catissueplus.core.common.domain.DefaultLabelTmplTokenRegistrar">
+    <property name="tokens">
+      <list>
+        <bean class="com.krishagni.catissueplus.core.administrative.print.container.BarcodePrintToken"/>
+        <bean class="com.krishagni.catissueplus.core.administrative.print.container.LocationPrintToken"/>
+        <bean class="com.krishagni.catissueplus.core.administrative.print.container.NamePrintToken"/>
+        <bean class="com.krishagni.catissueplus.core.administrative.print.container.SiteCodePrintToken"/>
+        <bean class="com.krishagni.catissueplus.core.administrative.print.container.TypePrintToken"/>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="defaultContainerLabelPrinter" class="com.krishagni.catissueplus.core.administrative.services.impl.DefaultContainerLabelPrinter"
+        depends-on="labelPrintRuleFactoryRegistrar">
+    <property name="daoFactory" ref="biospecimenDaoFactory"/>
+    <property name="printLabelTokensRegistrar" ref="containerPrintLabelTokensRegistrar"/>
+  </bean>
+
   <bean id="storageContainerFactory" class="com.krishagni.catissueplus.core.administrative.domain.factory.impl.StorageContainerFactoryImpl">
     <property name="daoFactory" ref="biospecimenDaoFactory"/>
   </bean>
@@ -532,6 +550,7 @@
     <property name="taskManager" ref="scheduledTaskMgr"/>
     <property name="querySvc" ref="querySvc"/>
     <property name="exportSvc" ref="exportSvc"/>
+    <property name="labelPrinter" ref="defaultContainerLabelPrinter"/>
   </bean>
 
   <bean id="containerTypeFactory" class="com.krishagni.catissueplus.core.administrative.domain.factory.impl.ContainerTypeFactoryImpl">
@@ -812,6 +831,12 @@
           <bean class="com.krishagni.catissueplus.core.administrative.domain.factory.impl.DistributionLabelPrintRuleFactoryImpl">
             <property name="daoFactory" ref="biospecimenDaoFactory"/>
             <property name="printLabelTokensRegistrar" ref="distributionPrintLabelTokensRegistrar"/>
+          </bean>
+        </entry>
+        <entry key="CONTAINER">
+          <bean class="com.krishagni.catissueplus.core.administrative.domain.factory.impl.ContainerLabelPrintRuleFactoryImpl">
+            <property name="daoFactory" ref="biospecimenDaoFactory"/>
+            <property name="printLabelTokensRegistrar" ref="containerPrintLabelTokensRegistrar"/>
           </bean>
         </entry>
       </map>

@@ -42,6 +42,8 @@ public class StorageContainerDetail extends StorageContainerSummary {
 
 	private Map<String, Integer> specimensByType;
 
+	private boolean printLabels;
+
 	public Double getTemperature() {
 		return temperature;
 	}
@@ -144,6 +146,14 @@ public class StorageContainerDetail extends StorageContainerSummary {
 
 	public void setSpecimensByType(Map<String, Integer> specimensByType) {
 		this.specimensByType = specimensByType;
+	}
+
+	public boolean isPrintLabels() {
+		return printLabels;
+	}
+
+	public void setPrintLabels(boolean printLabels) {
+		this.printLabels = printLabels;
 	}
 
 	public static StorageContainerDetail from(StorageContainer container) {

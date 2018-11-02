@@ -44,6 +44,7 @@ import com.krishagni.catissueplus.core.administrative.events.ContainerQueryCrite
 import com.krishagni.catissueplus.core.administrative.events.ContainerReplicationDetail;
 import com.krishagni.catissueplus.core.administrative.events.ContainerReplicationDetail.DestinationDetail;
 import com.krishagni.catissueplus.core.administrative.events.PositionsDetail;
+import com.krishagni.catissueplus.core.administrative.events.PrintContainerLabelDetail;
 import com.krishagni.catissueplus.core.administrative.events.ReservePositionsOp;
 import com.krishagni.catissueplus.core.administrative.events.StorageContainerDetail;
 import com.krishagni.catissueplus.core.administrative.events.StorageContainerPositionDetail;
@@ -67,20 +68,24 @@ import com.krishagni.catissueplus.core.biospecimen.events.SpecimenInfo;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.biospecimen.repository.SpecimenListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.services.SpecimenResolver;
-import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.RollbackTransaction;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
 import com.krishagni.catissueplus.core.common.access.SiteCpPair;
+import com.krishagni.catissueplus.core.common.domain.LabelPrintJob;
+import com.krishagni.catissueplus.core.common.domain.PrintItem;
 import com.krishagni.catissueplus.core.common.errors.ErrorCode;
 import com.krishagni.catissueplus.core.common.errors.ErrorType;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.BulkDeleteEntityOp;
 import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.events.ExportedFileDetail;
+import com.krishagni.catissueplus.core.common.events.LabelPrintJobSummary;
+import com.krishagni.catissueplus.core.common.events.LabelTokenDetail;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 import com.krishagni.catissueplus.core.common.service.LabelGenerator;
+import com.krishagni.catissueplus.core.common.service.LabelPrinter;
 import com.krishagni.catissueplus.core.common.service.ObjectAccessor;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.catissueplus.core.common.util.ConfigUtil;
@@ -123,6 +128,8 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 	private QueryService querySvc;
 
 	private ExportService exportSvc;
+
+	private LabelPrinter<StorageContainer> labelPrinter;
 
 	public DaoFactory getDaoFactory() {
 		return daoFactory;
@@ -170,6 +177,10 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 
 	public void setExportSvc(ExportService exportSvc) {
 		this.exportSvc = exportSvc;
+	}
+
+	public void setLabelPrinter(LabelPrinter<StorageContainer> labelPrinter) {
+		this.labelPrinter = labelPrinter;
 	}
 
 	@Override
@@ -281,7 +292,12 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 	@PlusTransactional
 	public ResponseEvent<StorageContainerDetail> createStorageContainer(RequestEvent<StorageContainerDetail> req) {
 		try {
-			return ResponseEvent.response(StorageContainerDetail.from(createStorageContainer(null, req.getPayload())));
+			StorageContainer container = createStorageContainer(null, req.getPayload());
+			if (req.getPayload().isPrintLabels()) {
+				printLabels(container);
+			}
+
+			return ResponseEvent.response(StorageContainerDetail.from(container));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {
@@ -413,11 +429,16 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 					replDetail.getSourceContainerName(),
 					null,
 					StorageContainerErrorCode.SRC_ID_OR_NAME_REQ);
-			
+
+			List<StorageContainer> toPrint = new ArrayList<>();
 			for (DestinationDetail dest : replDetail.getDestinations()) {
-				replicateContainer(srcContainer, dest);
+				StorageContainer container = replicateContainer(srcContainer, dest);
+				if (replDetail.isPrintLabels()) {
+					toPrint.add(container);
+				}
 			}
 
+			printLabels(toPrint);
 			return ResponseEvent.response(true);
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
@@ -444,7 +465,7 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 
 			boolean setCapacity = true;
 			for (int i = 1; i <= input.getNumOfContainers(); i++) {
-				StorageContainer cloned = null;
+				StorageContainer cloned;
 				if (i == 1) {
 					cloned = container;
 				} else {
@@ -460,9 +481,17 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 					setCapacity = false;
 				}
 
-				createContainerHierarchy(cloned.getType().getCanHold(), cloned);
+				List<StorageContainer> result = createContainerHierarchy(cloned.getType().getCanHold(), cloned);
 				daoFactory.getStorageContainerDao().saveOrUpdate(cloned);
 				containers.add(cloned);
+
+				result.add(0, cloned);
+				if (input.isPrintLabels()) {
+					printLabels(result);
+				}
+
+				result.clear();
+				result = null;
 			}
 			
 			return ResponseEvent.response(StorageContainerDetail.from(containers));
@@ -478,6 +507,7 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 	public ResponseEvent<List<StorageContainerSummary>> createMultipleContainers(RequestEvent<List<StorageContainerDetail>> req) {
 		try {
 			List<StorageContainerSummary> result = new ArrayList<>();
+			List<StorageContainer> toPrint = new ArrayList<>();
 
 			for (StorageContainerDetail detail : req.getPayload()) {
 				if (StringUtils.isNotBlank(detail.getTypeName()) || detail.getTypeId() != null) {
@@ -494,9 +524,44 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 				container.validateRestrictions();
 				daoFactory.getStorageContainerDao().saveOrUpdate(container);
 				result.add(StorageContainerSummary.from(container));
+
+				if (detail.isPrintLabels()) {
+					toPrint.add(container);
+				}
 			}
 
+			printLabels(toPrint);
 			return ResponseEvent.response(result);
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
+		} catch (Exception e) {
+			return ResponseEvent.serverError(e);
+		}
+	}
+
+	@Override
+	public ResponseEvent<List<LabelTokenDetail>> getPrintLabelTokens() {
+		return ResponseEvent.response(LabelTokenDetail.from("print_", labelPrinter.getTokens()));
+	}
+
+	@Override
+	@PlusTransactional
+	public ResponseEvent<LabelPrintJobSummary> printContainerLabels(RequestEvent<PrintContainerLabelDetail> req) {
+		try {
+			PrintContainerLabelDetail input = req.getPayload();
+
+			StorageContainerListCriteria crit = new StorageContainerListCriteria()
+				.ids(input.getContainerIds()).names(input.getContainerNames());
+			addContainerListCriteria(crit);
+
+			List<StorageContainer> containers = daoFactory.getStorageContainerDao().getStorageContainers(crit);
+			LabelPrintJob job = labelPrinter.print(PrintItem.make(containers, input.getCopies()));
+			if (job == null) {
+				return ResponseEvent.userError(StorageContainerErrorCode.NONE_PRINTED);
+			}
+
+			job.generateLabelsDataFile();
+			return ResponseEvent.response(LabelPrintJobSummary.from(job));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {
@@ -1174,7 +1239,7 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 		return position;
 	}
 	
-	private void replicateContainer(StorageContainer srcContainer, DestinationDetail dest) {
+	private StorageContainer replicateContainer(StorageContainer srcContainer, DestinationDetail dest) {
 		StorageContainerDetail detail = new StorageContainerDetail();
 		detail.setName(dest.getName());
 		detail.setSiteName(dest.getSiteName());
@@ -1187,12 +1252,13 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 		storageLocation.setPosition(dest.getPosition());
 		detail.setStorageLocation(storageLocation);
 
-		createStorageContainer(getContainerCopy(srcContainer), detail);
+		return createStorageContainer(getContainerCopy(srcContainer), detail);
 	}
 
-	private void createContainerHierarchy(ContainerType containerType, StorageContainer parentContainer) {
+	private List<StorageContainer> createContainerHierarchy(ContainerType containerType, StorageContainer parentContainer) {
+		List<StorageContainer> result = new ArrayList<>();
 		if (containerType == null) {
-			return;
+			return result;
 		}
 		
 		StorageContainer container = containerFactory.createStorageContainer("dummyName", containerType, parentContainer);
@@ -1209,14 +1275,19 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 
 			generateName(cloned);
 			parentContainer.addChildContainer(cloned);
+			result.add(cloned);
 
 			if (cloned.isStoreSpecimenEnabled() && setCapacity) {
 				cloned.setFreezerCapacity();
 				setCapacity = false;
 			}
 
-			createContainerHierarchy(containerType.getCanHold(), cloned);
+			List<StorageContainer> descendants = createContainerHierarchy(containerType.getCanHold(), cloned);
+			result.addAll(descendants);
+			descendants.clear();
 		}
+
+		return result;
 	}
 
 	@PlusTransactional
@@ -1324,6 +1395,18 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 		}
 
 		container.setName(name);
+	}
+
+	private void printLabels(StorageContainer container) {
+		printLabels(Collections.singletonList(container));
+	}
+
+	private void printLabels(List<StorageContainer> containers) {
+		if (CollectionUtils.isEmpty(containers)) {
+			return;
+		}
+
+		labelPrinter.print(PrintItem.make(containers, 1));
 	}
 
 	private void setPosition(StorageContainer container) {

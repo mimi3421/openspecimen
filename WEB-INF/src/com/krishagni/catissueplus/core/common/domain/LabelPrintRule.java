@@ -56,7 +56,7 @@ public abstract class LabelPrintRule {
 
 	private String labelDesign;
 
-	private List<LabelTmplToken> dataTokens = new ArrayList<LabelTmplToken>();
+	private List<LabelTmplToken> dataTokens = new ArrayList<>();
 	
 	private CmdFileFmt cmdFileFmt = CmdFileFmt.KEY_VALUE;
 

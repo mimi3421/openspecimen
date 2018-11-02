@@ -8,7 +8,9 @@ public class ContainerReplicationDetail {
 	
 	private Long sourceContainerId;
 	
-	private List<DestinationDetail> destinations = new ArrayList<DestinationDetail>();
+	private List<DestinationDetail> destinations = new ArrayList<>();
+
+	private boolean printLabels;
 
 	public String getSourceContainerName() {
 		return sourceContainerName;
@@ -32,6 +34,14 @@ public class ContainerReplicationDetail {
 
 	public void setDestinations(List<DestinationDetail> destinations) {
 		this.destinations = destinations;
+	}
+
+	public boolean isPrintLabels() {
+		return printLabels;
+	}
+
+	public void setPrintLabels(boolean printLabels) {
+		this.printLabels = printLabels;
 	}
 
 	public static class DestinationDetail {

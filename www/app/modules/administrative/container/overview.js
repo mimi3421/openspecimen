@@ -1,6 +1,9 @@
 
 angular.module('os.administrative.container.overview', ['os.administrative.models'])
-  .controller('ContainerOverviewCtrl', function($scope, $state, rootId, container, Container, DeleteUtil) {
+  .controller('ContainerOverviewCtrl', function(
+    $scope, $state, rootId, container,
+    Container, ContainerLabelPrinter, DeleteUtil) {
+
     function init() {
       $scope.ctx.showTree  = true;
       $scope.ctx.viewState = 'container-detail.overview';
@@ -16,6 +19,10 @@ angular.module('os.administrative.container.overview', ['os.administrative.model
       );
 
       return nodes;
+    }
+
+    $scope.printLabel = function() {
+      ContainerLabelPrinter.printLabels({containerIds: [container.id]}, container.name + '.csv');
     }
 
     $scope.deleteContainer = function() {

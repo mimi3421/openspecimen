@@ -1378,6 +1378,10 @@
       "SPECIMEN_PPID" : "PPID"
     },
 
+    "labels_print_job_created": "Container labels print job {{jobId}} created successfully",
+    "labels_print_download": "Downloading labels print CSV file ...",
+    "print_labels": "Print labels",
+
     "specimens" : {
       "report_gen_initiated": "Generating container specimens report ...",
       "downloading_report": "Downloading container specimens report ...",

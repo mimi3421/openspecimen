@@ -88,7 +88,9 @@ public enum StorageContainerErrorCode implements ErrorCode {
 
 	INV_USAGE_MODE,
 
-	USAGE_DIFFER;
+	USAGE_DIFFER,
+
+	NONE_PRINTED;
 
 	@Override
 	public String code() {

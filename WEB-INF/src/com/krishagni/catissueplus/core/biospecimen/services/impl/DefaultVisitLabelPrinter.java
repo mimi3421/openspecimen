@@ -23,6 +23,7 @@ import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.common.domain.LabelPrintJob;
 import com.krishagni.catissueplus.core.common.domain.LabelPrintJobItem;
 import com.krishagni.catissueplus.core.common.domain.LabelPrintJobItem.Status;
+import com.krishagni.catissueplus.core.common.domain.LabelPrintRule;
 import com.krishagni.catissueplus.core.common.domain.LabelTmplToken;
 import com.krishagni.catissueplus.core.common.domain.LabelTmplTokenRegistrar;
 import com.krishagni.catissueplus.core.common.domain.PrintItem;
@@ -34,92 +35,36 @@ import com.krishagni.catissueplus.core.common.util.AuthUtil;
 public class DefaultVisitLabelPrinter extends AbstractLabelPrinter<Visit> implements InitializingBean, ConfigChangeListener {
 	private static final Log logger = LogFactory.getLog(DefaultVisitLabelPrinter.class);
 	
-	private List<VisitLabelPrintRule> rules = null;
-	
-	private DaoFactory daoFactory;
-	
 	private ConfigurationService cfgSvc;
 	
-	private LabelTmplTokenRegistrar printLabelTokensRegistrar;
-	
-	public void setDaoFactory(DaoFactory daoFactory) {
-		this.daoFactory = daoFactory;
-	}
-
 	public void setCfgSvc(ConfigurationService cfgSvc) {
 		this.cfgSvc = cfgSvc;
 	}
 
-	public void setPrintLabelTokensRegistrar(LabelTmplTokenRegistrar printLabelTokensRegistrar) {
-		this.printLabelTokensRegistrar = printLabelTokensRegistrar;
+	@Override
+	protected boolean isApplicableFor(LabelPrintRule rule, Visit visit, User user, String ipAddr) {
+		VisitLabelPrintRule visitLabelPrintRule = (VisitLabelPrintRule) rule;
+		return visitLabelPrintRule.isApplicableFor(visit, user, ipAddr);
 	}
 
 	@Override
-	public List<LabelTmplToken> getTokens() {
-		return printLabelTokensRegistrar.getTokens();
+	protected String getObjectType() {
+		return "VISIT";
 	}
 
 	@Override
-	public LabelPrintJob print(List<PrintItem<Visit>> printItems) {		
-		try {
-			if (rules == null) {
-				synchronized (this) {
-					if (rules == null) {
-						reloadRules();
-					}
-				}
-			}
+	protected String getItemType() {
+		return Visit.getEntityName();
+	}
 
-			String ipAddr = AuthUtil.getRemoteAddr();
-			User currentUser = AuthUtil.getCurrentUser();
-			
-			LabelPrintJob job = new LabelPrintJob();
-			job.setSubmissionDate(Calendar.getInstance().getTime());
-			job.setSubmittedBy(currentUser);
-			job.setItemType(Visit.getEntityName());
-	
-			List<Map<String, Object>> labelDataList = new ArrayList<Map<String,Object>>();
-			for (PrintItem<Visit> printItem : printItems) {
-				boolean found = false;
-				Visit visit = printItem.getObject();
-				for (VisitLabelPrintRule rule : rules) {
-					if (!rule.isApplicableFor(visit, currentUser, ipAddr)) {
-						continue;
-					}
-					
-					Map<String, String> labelDataItems = rule.getDataItems(printItem);
+	@Override
+	protected String getItemLabel(Visit visit) {
+		return visit.getName();
+	}
 
-					LabelPrintJobItem item = new LabelPrintJobItem();
-					item.setJob(job);
-					item.setPrinterName(rule.getPrinterName());
-					item.setItemLabel(visit.getName());
-					item.setCopies(printItem.getCopies());
-					item.setStatus(Status.QUEUED);
-					item.setLabelType(rule.getLabelType());
-					item.setData(new ObjectMapper().writeValueAsString(labelDataItems));
-
-					job.getItems().add(item);
-					labelDataList.add(makeLabelData(item, rule, labelDataItems));
-					found = true;
-					break;
-				}
-				
-				if (!found) {
-					logger.warn("No print rule matched visit: " + visit.getName());
-				}
-			}
-			
-			if (job.getItems().isEmpty()) {
-				return null;
-			}
-
-			generateCmdFiles(labelDataList);
-			daoFactory.getLabelPrintJobDao().saveOrUpdate(job);
-			return job;
-		} catch (Exception e) {
-			logger.error("Error printing visit name labels", e);
-			throw OpenSpecimenException.serverError(e);
-		}
+	@Override
+	protected void loadRulesFromDb() {
+		reloadRules();
 	}
 
 	@Override
