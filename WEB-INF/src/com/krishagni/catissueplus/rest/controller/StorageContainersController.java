@@ -25,10 +25,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import com.krishagni.catissueplus.core.administrative.events.PositionsDetail;
+import com.krishagni.catissueplus.core.administrative.domain.StorageContainer;
 import com.krishagni.catissueplus.core.administrative.events.ContainerHierarchyDetail;
 import com.krishagni.catissueplus.core.administrative.events.ContainerQueryCriteria;
 import com.krishagni.catissueplus.core.administrative.events.ContainerReplicationDetail;
+import com.krishagni.catissueplus.core.administrative.events.PositionsDetail;
 import com.krishagni.catissueplus.core.administrative.events.ReservePositionsOp;
 import com.krishagni.catissueplus.core.administrative.events.StorageContainerDetail;
 import com.krishagni.catissueplus.core.administrative.events.StorageContainerPositionDetail;
@@ -48,6 +49,7 @@ import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 import com.krishagni.catissueplus.core.common.util.MessageUtil;
 import com.krishagni.catissueplus.core.de.events.QueryDataExportResult;
+import com.krishagni.catissueplus.core.de.services.FormService;
 
 import edu.common.dynamicextensions.nutility.IoUtil;
 
@@ -63,6 +65,9 @@ public class StorageContainersController {
 
 	@Autowired
 	private ContainerSelectionStrategyFactory containerSelectionStrategyFactory;
+
+	@Autowired
+	private FormService formSvc;
 	
 	@RequestMapping(method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
@@ -746,6 +751,13 @@ public class StorageContainersController {
 		ResponseEvent<List<StorageLocationSummary>> resp = storageContainerSvc.getVacantPositions(req);
 		resp.throwErrorIfUnsuccessful();
 		return resp.getPayload();
+	}
+
+	@RequestMapping(method = RequestMethod.GET, value="/extension-form")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public Map<String, Object> getForm() {
+		return formSvc.getExtensionInfo(-1L, StorageContainer.EXTN);
 	}
 
 	private StorageContainerDetail getContainer(ContainerQueryCriteria crit) {

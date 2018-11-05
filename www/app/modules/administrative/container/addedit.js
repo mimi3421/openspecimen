@@ -1,7 +1,7 @@
 angular.module('os.administrative.container.addedit', ['os.administrative.models'])
   .controller('ContainerAddEditCtrl', function(
-    $scope, $state, $stateParams, $q, container, containerType, barcodingEnabled,
-    Container, ContainerType, CollectionProtocol, DistributionProtocol, PvManager, Util, Alerts) {
+    $scope, $state, $stateParams, $q, container, containerType, barcodingEnabled, extensionCtxt,
+    Container, ContainerType, CollectionProtocol, DistributionProtocol, ExtensionsUtil, PvManager, Util, Alerts) {
 
     var allSpecimenTypes = undefined;
     var allowedCps = undefined;
@@ -25,7 +25,9 @@ angular.module('os.administrative.container.addedit', ['os.administrative.models
         view: '',
         capacityReq: !!container.capacity,
         barcodingEnabled: barcodingEnabled,
-        positionAssignments: PvManager.getPvs('container-position-assignments')
+        positionAssignments: PvManager.getPvs('container-position-assignments'),
+        extnOpts: ExtensionsUtil.getExtnOpts(container, extensionCtxt),
+        deFormCtrl: {}
       };
       if ($stateParams.mode == 'createHierarchy') {
         $scope.ctx.mode = 'hierarchy';
@@ -219,25 +221,24 @@ angular.module('os.administrative.container.addedit', ['os.administrative.models
       );
     };
 
-    function saveContainer() {
-      var container = angular.copy($scope.container);
-      container.$saveOrUpdate().then(
+    function saveContainer(toSave) {
+      toSave.$saveOrUpdate().then(
         function(result) {
           $state.go('container-detail.locations', {containerId: result.id});
         }
       );
     };
 
-    function createMultipleContainers() {
-      var container = $scope.container, loc = $scope.container.storageLocation;
+    function createMultipleContainers(toSave) {
+      var loc = toSave.storageLocation;
       if (loc.name) {
-        Container.getVacantPositions(loc.name, loc.positionY, loc.positionX, loc.position, container.numOfContainers).then(
+        Container.getVacantPositions(loc.name, loc.positionY, loc.positionX, loc.position, toSave.numOfContainers).then(
           function(positions) {
-            createMultipleContainers0(container, positions);
+            createMultipleContainers0(toSave, positions);
           }
         );
       } else {
-        createMultipleContainers0(container, []);
+        createMultipleContainers0(toSave, []);
       }
     }
 
@@ -256,8 +257,8 @@ angular.module('os.administrative.container.addedit', ['os.administrative.models
       $scope.ctx.containers = containers;
     }
 
-    function createHierarchy() {
-      Container.createHierarchy($scope.container).then(
+    function createHierarchy(toSave) {
+      Container.createHierarchy(toSave).then(
         function(resp) {
           if (resp.length == 1) {
             //
@@ -309,12 +310,22 @@ angular.module('os.administrative.container.addedit', ['os.administrative.models
     $scope.onSelectContainerType = setContainerTypeProps;
 
     $scope.save = function() {
+      var formCtrl = $scope.ctx.deFormCtrl.ctrl;
+      if (formCtrl && !formCtrl.validate()) {
+        return;
+      }
+
+      var toSave = angular.copy($scope.container);
+      if (formCtrl) {
+        toSave.extensionDetail = formCtrl.getFormData();
+      }
+
       if ($scope.ctx.mode == 'single') {
-        saveContainer();
+        saveContainer(toSave);
       } else if ($scope.ctx.mode == 'multiple') {
-        createMultipleContainers();
+        createMultipleContainers(toSave);
       } else if ($scope.ctx.mode == 'hierarchy') {
-        createHierarchy();
+        createHierarchy(toSave);
       }
     }
 

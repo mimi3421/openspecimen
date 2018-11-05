@@ -37,6 +37,7 @@ import com.krishagni.catissueplus.core.common.errors.ErrorType;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.catissueplus.core.common.util.Status;
+import com.krishagni.catissueplus.core.de.domain.DeObject;
 
 public class StorageContainerFactoryImpl implements StorageContainerFactory {
 	private DaoFactory daoFactory;
@@ -83,6 +84,7 @@ public class StorageContainerFactoryImpl implements StorageContainerFactory {
 		setAutomated(detail, existing, container, ose);
 		setAutoFreezerProvider(detail, existing, container, ose);
 		setCellDisplayProp(detail, existing, container, ose);
+		setExtension(detail, existing, container, ose);
 
 		if (!container.isDistributionContainer()) {
 			setAllowedSpecimenClasses(detail, existing, container, ose);
@@ -133,6 +135,10 @@ public class StorageContainerFactoryImpl implements StorageContainerFactory {
 
 		if (input.getStoreSpecimensEnabled() != null) {
 			detail.setStoreSpecimensEnabled(input.getStoreSpecimensEnabled());
+		}
+
+		if (input.getExtensionDetail() != null) {
+			detail.setExtensionDetail(input.getExtensionDetail());
 		}
 		
 		StorageContainer container = createStorageContainer(detail);
@@ -545,6 +551,19 @@ public class StorageContainerFactoryImpl implements StorageContainerFactory {
 			setCellDisplayProp(detail, container, ose);
 		} else {
 			container.setCellDisplayProp(existing.getCellDisplayProp());
+		}
+	}
+
+	private void setExtension(StorageContainerDetail detail, StorageContainer container, OpenSpecimenException ose) {
+		DeObject extension = DeObject.createExtension(detail.getExtensionDetail(), container);
+		container.setExtension(extension);
+	}
+
+	private void setExtension(StorageContainerDetail detail, StorageContainer existing, StorageContainer container, OpenSpecimenException ose) {
+		if (detail.isAttrModified("extensionDetail") || existing == null) {
+			setExtension(detail, container, ose);
+		} else {
+			container.setExtension(existing.getExtension());
 		}
 	}
 	

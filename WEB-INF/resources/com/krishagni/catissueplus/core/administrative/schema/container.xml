@@ -124,5 +124,9 @@
       <caption>#getMessage("container_stores_specimen")</caption>
       <attribute>storeSpecimensEnabled</attribute>
     </field>
+
+    <record type="customFields" entityType="StorageContainerExtension">
+      <attribute>extensionDetail</attribute>
+    </record>
   </record>
 </object-schema>

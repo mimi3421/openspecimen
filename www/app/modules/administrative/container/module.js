@@ -59,6 +59,9 @@ angular.module('os.administrative.container',
           },
           barcodingEnabled: function(CollectionProtocol) {
             return CollectionProtocol.getBarcodingEnabled();
+          },
+          extensionCtxt: function(Container) {
+            return Container.getExtensionCtxt();
           }
         },
         controller: 'ContainerAddEditCtrl',

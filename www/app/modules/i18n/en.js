@@ -1838,7 +1838,8 @@
     "cp_extension": "Collection Protocol Custom Fields",
     "dp_extension": "Distribution Protocol Custom Fields",
     "dp_req_extension": "DP Requirement Custom Fields",
-    "order_extension": "Order Custom Fields"
+    "order_extension": "Order Custom Fields",
+    "container_extension": "Container Custom Fields"
   },
 
   "bulk_imports": {

@@ -26,6 +26,7 @@ import com.krishagni.catissueplus.core.administrative.domain.factory.StorageCont
 import com.krishagni.catissueplus.core.administrative.repository.ContainerRestrictionsCriteria;
 import com.krishagni.catissueplus.core.administrative.repository.StorageContainerDao;
 import com.krishagni.catissueplus.core.biospecimen.domain.BaseEntity;
+import com.krishagni.catissueplus.core.biospecimen.domain.BaseExtensionEntity;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
@@ -40,7 +41,7 @@ import com.krishagni.catissueplus.core.common.util.Status;
 import com.krishagni.catissueplus.core.common.util.Utility;
 
 @Audited
-public class StorageContainer extends BaseEntity {
+public class StorageContainer extends BaseExtensionEntity {
 	public enum PositionLabelingMode {
 		NONE,
 		LINEAR,
@@ -72,6 +73,8 @@ public class StorageContainer extends BaseEntity {
 	private static final String ENTITY_NAME = "storage_container";
 
 	private static final String DEF_SITE_CONT_NAME = "storage_container_site_cont_name";
+
+	public static final String EXTN = "StorageContainerExtension";
 
 	public static final String NUMBER_LABELING_SCHEME = "Numbers";
 
@@ -532,6 +535,11 @@ public class StorageContainer extends BaseEntity {
 		return Status.ACTIVITY_STATUS_ACTIVE.getStatus().equals(getActivityStatus());
 	}
 
+	@Override
+	public String getEntityType() {
+		return EXTN;
+	}
+
 	public void update(StorageContainer other) {
 		updateActivityStatus(other);
 		if (!isActive()) {
@@ -560,6 +568,7 @@ public class StorageContainer extends BaseEntity {
 		updateAllowedDps(other, hasParentChanged);
 		updateStoreSpecimenEnabled(other);
 		updateCellDisplayProp(other);
+		setExtension(other.getExtension());
 		validateRestrictions();
 	}
 
@@ -1122,6 +1131,7 @@ public class StorageContainer extends BaseEntity {
 		copy.setCompAllowedSpecimenTypes(computeAllowedSpecimenTypes());
 		copy.setCompAllowedCps(computeAllowedCps());
 		copy.setCompAllowedDps(computeAllowedDps());
+		copyExtensionTo(copy);
 		return copy;
 	}
 	
@@ -1216,6 +1226,7 @@ public class StorageContainer extends BaseEntity {
 			setPosition(null);
 		}
 
+		getExtension().delete();
 		setName(Utility.getDisabledValue(getName(), 64));
 		setBarcode(Utility.getDisabledValue(getBarcode(), 64));
 		setActivityStatus(Status.ACTIVITY_STATUS_DISABLED.getStatus());

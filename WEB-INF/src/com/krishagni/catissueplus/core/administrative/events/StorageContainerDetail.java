@@ -12,6 +12,7 @@ import com.krishagni.catissueplus.core.administrative.domain.DistributionProtoco
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainer;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.common.ListenAttributeChanges;
+import com.krishagni.catissueplus.core.de.events.ExtensionDetail;
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 @ListenAttributeChanges
@@ -21,6 +22,8 @@ public class StorageContainerDetail extends StorageContainerSummary {
 	private String cellDisplayProp;
 
 	private String comments;
+
+	private ExtensionDetail extensionDetail;
 
 	private Set<String> allowedSpecimenClasses = new HashSet<>();
 	
@@ -66,6 +69,14 @@ public class StorageContainerDetail extends StorageContainerSummary {
 
 	public void setComments(String comments) {
 		this.comments = comments;
+	}
+
+	public ExtensionDetail getExtensionDetail() {
+		return extensionDetail;
+	}
+
+	public void setExtensionDetail(ExtensionDetail extensionDetail) {
+		this.extensionDetail = extensionDetail;
 	}
 
 	public Set<String> getAllowedSpecimenClasses() {
@@ -162,6 +173,7 @@ public class StorageContainerDetail extends StorageContainerSummary {
 
 		result.setTemperature(container.getTemperature());
 		result.setComments(container.getComments());
+		result.setExtensionDetail(ExtensionDetail.from(container.getExtension()));
 		if (container.getCellDisplayProp() != null) {
 			result.setCellDisplayProp(container.getCellDisplayProp().name());
 		} else {

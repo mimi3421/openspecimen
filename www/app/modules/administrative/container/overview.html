@@ -167,6 +167,10 @@
           </span>
         </li>
       </ul>
+
+      <div ng-if="!!ctx.container.extensionDetail">
+        <div os-extension-overview ext-object="ctx.container.extensionDetail" show-column="1"></div>
+      </div>
     </div>
 
     <div class="col-xs-6">

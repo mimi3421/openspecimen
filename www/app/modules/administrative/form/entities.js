@@ -56,6 +56,12 @@ angular.module('os.administrative.form.entities', ['os.common'])
       allCps: true, multipleRecs: false
     });
 
+    list.addItem({
+      name: 'StorageContainerExtension',
+      caption: '', key: 'entities.container_extension',
+      allCps: true, multipleRecs: false
+    });
+
     return {
       getEntities: list.getItems,
 

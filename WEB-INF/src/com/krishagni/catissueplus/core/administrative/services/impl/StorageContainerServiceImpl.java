@@ -94,6 +94,7 @@ import com.krishagni.catissueplus.core.common.util.CsvWriter;
 import com.krishagni.catissueplus.core.common.util.EmailUtil;
 import com.krishagni.catissueplus.core.common.util.MessageUtil;
 import com.krishagni.catissueplus.core.common.util.Utility;
+import com.krishagni.catissueplus.core.de.domain.DeObject;
 import com.krishagni.catissueplus.core.de.domain.Filter;
 import com.krishagni.catissueplus.core.de.domain.SavedQuery;
 import com.krishagni.catissueplus.core.de.events.ExecuteQueryEventOp;
@@ -483,6 +484,7 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 
 				List<StorageContainer> result = createContainerHierarchy(cloned.getType().getCanHold(), cloned);
 				daoFactory.getStorageContainerDao().saveOrUpdate(cloned);
+				cloned.addOrUpdateExtension();
 				containers.add(cloned);
 
 				result.add(0, cloned);
@@ -523,6 +525,7 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 				ensureUniqueConstraints(null, container);
 				container.validateRestrictions();
 				daoFactory.getStorageContainerDao().saveOrUpdate(container);
+				container.addOrUpdateExtension();
 				result.add(StorageContainerSummary.from(container));
 
 				if (detail.isPrintLabels()) {
@@ -897,6 +900,7 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 		}
 
 		daoFactory.getStorageContainerDao().saveOrUpdate(container, true);
+		container.addOrUpdateExtension();
 		return container;
 	}
 
@@ -1089,6 +1093,7 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 			ensureUniqueConstraints(existing, container);
 			existing.update(container);			
 			daoFactory.getStorageContainerDao().saveOrUpdate(existing, true);
+			existing.addOrUpdateExtension();
 			return ResponseEvent.response(StorageContainerDetail.from(existing));			
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
@@ -1603,6 +1608,7 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 			}
 
 			private List<StorageContainerDetail> toDetailList(List<StorageContainer> containers) {
+				DeObject.createExtensions(true, StorageContainer.EXTN, -1L, containers);
 				return containers.stream()
 					.sorted((c1, c2) -> {
 						if (!hasPosition(c1) && !hasPosition(c2)) {

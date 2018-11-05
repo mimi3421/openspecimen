@@ -26,8 +26,6 @@ public class SingleFormContextProc implements FormContextProcessor {
 		if (CollectionUtils.isNotEmpty(contexts)) {
 			throw OpenSpecimenException.userError(FormErrorCode.MULTIPLE_CTXS_NOT_ALLOWED);
 		}
-
-		return;
 	}
 
 	@Override
