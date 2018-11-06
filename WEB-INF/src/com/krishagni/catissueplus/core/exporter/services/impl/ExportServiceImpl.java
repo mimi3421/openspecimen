@@ -7,10 +7,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -353,24 +355,32 @@ public class ExportServiceImpl implements ExportService {
 
 		private List<String> getHeaderRow(String namePrefix, String captionPrefix, ObjectSchema.Record record) {
 			List<String> row = new ArrayList<>();
+			for (Object recField : record.getOrderedFields()) {
+				row.addAll(getHeaderNames(namePrefix, captionPrefix, recField));
+			}
 
-			for (ObjectSchema.Field field : record.getFields()) {
+			return row;
+		}
+
+		private List<String> getHeaderNames(String namePrefix, String captionPrefix, Object recField) {
+			List<String> names = new ArrayList<>();
+			if (recField instanceof ObjectSchema.Field) {
+				ObjectSchema.Field field = (ObjectSchema.Field) recField;
 				if (field.getAttribute().equals(ID_ATTR)) {
-					continue;
+					return names;
 				}
 
 				String caption = captionPrefix + field.getCaption();
 				if (field.isMultiple()) {
 					int count = getFieldCount(namePrefix + field.getAttribute());
 					for (int i = 1; i <= count; ++i) {
-						row.add(caption + "#" + i);
+						names.add(caption + "#" + i);
 					}
 				} else {
-					row.add(caption);
+					names.add(caption);
 				}
-			}
-
-			for (ObjectSchema.Record subRecord : record.getSubRecords()) {
+			} else if (recField instanceof ObjectSchema.Record) {
+				ObjectSchema.Record subRecord = (ObjectSchema.Record) recField;
 				String srName = namePrefix + subRecord.getAttribute();
 				String srCaption = captionPrefix;
 				if (StringUtils.isNotBlank(subRecord.getCaption())) {
@@ -380,40 +390,48 @@ public class ExportServiceImpl implements ExportService {
 				if (subRecord.isMultiple()) {
 					int count = getFieldCount(srName);
 					for (int i = 1; i <= count; ++i) {
-						row.addAll(getHeaderRow(srName + ".", srCaption + i + "#", subRecord));
+						names.addAll(getHeaderRow(srName + ".", srCaption + i + "#", subRecord));
 					}
 				} else {
-					row.addAll(getHeaderRow(srName + ".", srCaption, subRecord));
+					names.addAll(getHeaderRow(srName + ".", srCaption, subRecord));
 				}
+			}
+
+			return names;
+		}
+
+		private List<String> getDataRow(String namePrefix, String captionPrefix, ObjectSchema.Record record, Map<String, String> valueMap) {
+			List<String> row = new ArrayList<>();
+			for (Object recField : record.getOrderedFields()) {
+				row.addAll(getColumnValues(namePrefix, captionPrefix, recField, valueMap));
 			}
 
 			return row;
 		}
 
-		private List<String> getDataRow(String namePrefix, String captionPrefix, ObjectSchema.Record record, Map<String, String> valueMap) {
-			List<String> result = new ArrayList<>();
-
-			for (ObjectSchema.Field field : record.getFields()) {
+		private List<String> getColumnValues(String namePrefix, String captionPrefix, Object recField, Map<String, String> valueMap) {
+			List<String> values = new ArrayList<>();
+			if (recField instanceof ObjectSchema.Field) {
+				ObjectSchema.Field field = (ObjectSchema.Field) recField;
 				if (field.getAttribute().equals(ID_ATTR)) {
 					//
 					// hack to exclude ID field from the exported file.
 					//
-					continue;
+					return values;
 				}
 
 				String caption = captionPrefix + field.getCaption();
 				if (field.isMultiple()) {
-					Integer count = getFieldCount(namePrefix + field.getAttribute());
+					int count = getFieldCount(namePrefix + field.getAttribute());
 					for (int i = 1; i <= count; ++i) {
 						String key = caption + "#" + i;
-						result.add(valueMap.get(key));
+						values.add(valueMap.get(key));
 					}
 				} else {
-					result.add(valueMap.get(caption));
+					values.add(valueMap.get(caption));
 				}
-			}
-
-			for (ObjectSchema.Record subRecord : record.getSubRecords()) {
+			} else if (recField instanceof ObjectSchema.Record) {
+				ObjectSchema.Record subRecord = (ObjectSchema.Record) recField;
 				String srName = namePrefix + subRecord.getAttribute();
 				String srCaption = captionPrefix;
 				if (StringUtils.isNotBlank(subRecord.getCaption())) {
@@ -423,14 +441,14 @@ public class ExportServiceImpl implements ExportService {
 				if (subRecord.isMultiple()) {
 					int count = getFieldCount(srName);
 					for (int i = 1; i <= count; ++i) {
-						result.addAll(getDataRow(srName + ".", srCaption + i + "#", subRecord, valueMap));
+						values.addAll(getDataRow(srName + ".", srCaption + i + "#", subRecord, valueMap));
 					}
 				} else {
-					result.addAll(getDataRow(srName + ".", srCaption, subRecord, valueMap));
+					values.addAll(getDataRow(srName + ".", srCaption, subRecord, valueMap));
 				}
 			}
 
-			return result;
+			return values;
 		}
 
 		private void updateFieldCount(String field, int count) {
