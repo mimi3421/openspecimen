@@ -1084,6 +1084,13 @@ h4.os-sub-section-title, h5.os-sub-section-title, h6.os-sub-section-title {
   margin-bottom: 30px;
 }
 
+.os-search .os-text-checkbox .checkbox {
+  margin-top: 0px;
+  margin-bottom: 0px;
+  height: 30px;
+  padding-top: 12px;
+}
+
 .os-about-po {
   width: 300px;
   padding: 0px;
