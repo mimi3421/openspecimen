@@ -1,7 +1,14 @@
 package com.krishagni.catissueplus.core.common.domain;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
+
 public abstract class AbstractLetterSequenceToken<T> extends AbstractLabelTmplToken  {
 	protected String name;
+
+	@Autowired
+	protected DaoFactory daoFactory;
 
 	@Override
 	public String getName() {
@@ -33,6 +40,15 @@ public abstract class AbstractLetterSequenceToken<T> extends AbstractLabelTmplTo
 		}
 
 		return startIdx;
+	}
+
+	protected Integer getUniqueId(String id) {
+		if (id == null) {
+			return null;
+		}
+
+		Long count = daoFactory.getUniqueIdGenerator().getUniqueId(getName(), id);
+		return count.intValue();
 	}
 
 	protected abstract Integer getSequence(T object);
