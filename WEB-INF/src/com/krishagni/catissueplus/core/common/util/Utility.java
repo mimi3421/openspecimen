@@ -140,6 +140,10 @@ public class Utility {
 	}
 
 	public static List<String> csvToStringList(String value) {
+		return csvToStringList(value, true);
+	}
+
+	public static List<String> csvToStringList(String value, boolean ignoreEmptyElements) {
 		if (StringUtils.isBlank(value)) {
 			return Collections.emptyList();
 		}
@@ -152,6 +156,10 @@ public class Utility {
 			while (reader.next()) {
 				String[] row = reader.getRow();
 				result.addAll(Stream.of(row).map(String::trim).collect(Collectors.toList()));
+			}
+
+			if (ignoreEmptyElements) {
+				result = result.stream().filter(s -> !s.isEmpty()).collect(Collectors.toList());
 			}
 
 			return result;
