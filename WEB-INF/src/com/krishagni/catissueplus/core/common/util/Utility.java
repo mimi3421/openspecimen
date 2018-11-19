@@ -44,6 +44,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
 
@@ -577,6 +578,15 @@ public class Utility {
 
 	public static boolean isValidEmail(String emailId) {
 		return StringUtils.isNotBlank(emailId) && VALID_EMAIL_PTRN.matcher(emailId).matches();
+	}
+
+	public static String getErrorMessage(Throwable t) {
+		String error = t instanceof NullPointerException ? ExceptionUtils.getStackTrace(t) : ExceptionUtils.getMessage(t);
+		if (StringUtils.isBlank(error)) {
+			error = t.getClass().getName();
+		}
+
+		return error;
 	}
 
 	private static Map<String, Object> getExtnAttrValues(BaseExtensionEntity obj) {

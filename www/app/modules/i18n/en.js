@@ -2611,7 +2611,11 @@
         "log_files_retain_period": "Log Files Retain Period",
         "log_files_retain_period_desc": "Number of days to retain the log files after which they are deleted.",
         "not_specified_text": "Not Specified Text",
-        "not_specified_text_desc": "Text to display for unspecified field values in tables and overview pages."
+        "not_specified_text_desc": "Text to display for unspecified field values in tables and overview pages.",
+        "max_eapp_msg_retries": "Failed Messages Retry Limit",
+        "max_eapp_msg_retries_desc": "Maximum number of retries to process failed external application messages.",
+        "eapp_msg_retention_period": "Message Retention Period",
+        "eapp_msg_retention_period_desc": "Number of days to retain the external application messages in the database before deleting them"
       },
 
       "email": {

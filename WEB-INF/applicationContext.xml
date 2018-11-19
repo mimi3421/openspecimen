@@ -1301,6 +1301,10 @@
     <property name="daoFactory" ref="biospecimenDaoFactory"/>
   </bean>
 
+  <bean id="msgLogSvc" class="com.krishagni.catissueplus.core.common.service.impl.MessageLogServiceImpl">
+    <property name="daoFactory" ref="biospecimenDaoFactory"/>
+  </bean>
+
   <task:scheduler id="taskScheduler" pool-size="1"/>
   <task:annotation-driven scheduler="taskScheduler"/>
   <context:annotation-config/>

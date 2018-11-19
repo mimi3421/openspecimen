@@ -55,6 +55,7 @@ import com.krishagni.catissueplus.core.biospecimen.repository.VisitsDao;
 import com.krishagni.catissueplus.core.common.repository.AbstractDao;
 import com.krishagni.catissueplus.core.common.repository.ConfigSettingDao;
 import com.krishagni.catissueplus.core.common.repository.ExternalAppIdDao;
+import com.krishagni.catissueplus.core.common.repository.MessageLogDao;
 import com.krishagni.catissueplus.core.common.repository.PrintRuleConfigDao;
 import com.krishagni.catissueplus.core.common.repository.UnhandledExceptionDao;
 import com.krishagni.catissueplus.core.common.repository.UniqueIdGenerator;
@@ -62,6 +63,7 @@ import com.krishagni.catissueplus.core.common.repository.UpgradeLogDao;
 import com.krishagni.catissueplus.core.common.repository.UserNotificationDao;
 import com.krishagni.catissueplus.core.common.repository.impl.ConfigSettingDaoImpl;
 import com.krishagni.catissueplus.core.common.repository.impl.ExternalAppIdDaoImpl;
+import com.krishagni.catissueplus.core.common.repository.impl.MessageLogDaoImpl;
 import com.krishagni.catissueplus.core.common.repository.impl.PrintRuleConfigDaoImpl;
 import com.krishagni.catissueplus.core.common.repository.impl.UnhandledExceptionDaoImpl;
 import com.krishagni.catissueplus.core.common.repository.impl.UniqueIdGeneratorImpl;
@@ -346,6 +348,13 @@ public class DaoFactoryImpl implements DaoFactory {
 	@Override
 	public ExternalAppIdDao getExternalAppIdDao() {
 		ExternalAppIdDaoImpl dao = new ExternalAppIdDaoImpl();
+		setSessionFactory(dao);
+		return dao;
+	}
+
+	@Override
+	public MessageLogDao getMessageLogDao() {
+		MessageLogDaoImpl dao = new MessageLogDaoImpl();
 		setSessionFactory(dao);
 		return dao;
 	}
