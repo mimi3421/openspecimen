@@ -35,6 +35,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import com.krishagni.catissueplus.core.administrative.events.SiteSummary;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.events.CollectionProtocolDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.CollectionProtocolSummary;
@@ -163,8 +164,20 @@ public class CollectionProtocolsController {
 		ResponseEvent<CollectionProtocolDetail> resp = cpSvc.getCollectionProtocol(request(crit));
 		resp.throwErrorIfUnsuccessful();		
 		return resp.getPayload();
-	}	
-	
+	}
+
+	@RequestMapping(method = RequestMethod.GET, value = "/{id}/sites")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public  List<SiteSummary> getSites(@PathVariable("id") Long cpId) {
+		CpQueryCriteria crit = new CpQueryCriteria();
+		crit.setId(cpId);
+
+		ResponseEvent<List<SiteSummary>> resp = cpSvc.getSites(request(crit));
+		resp.throwErrorIfUnsuccessful();
+		return resp.getPayload();
+	}
+
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}/definition")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
