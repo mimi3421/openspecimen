@@ -337,7 +337,23 @@ angular.module('os.biospecimen.specimen',
             );
           },
 
-          createDerived: createDerived
+          createDerived: createDerived,
+
+          hasSde: function($injector) {
+            return $injector.has('sdeFieldsSvc');
+          },
+
+          cpDict: function(cp, hasSde, CpConfigSvc) {
+            return !hasSde ? [] : CpConfigSvc.getDictionary(cp.id || -1, []);
+          },
+
+          aliquotFields: function(cp, hasSde, CpConfigSvc) {
+            if (!hasSde) {
+              return {};
+            }
+
+            return CpConfigSvc.getCommonCfg(cp.id || -1, 'aliquotsCollection');
+          }
         },
         parent: 'signed-in'
       })

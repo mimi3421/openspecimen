@@ -729,6 +729,7 @@
     "no_specimens_for_delete":"Please select at least one existing specimen to delete",
     "no_specimens_for_close":"Please select at least one collected specimen to close",
     "no_specimens_for_distribution": "Please select at least one collected specimen to distribute",
+    "no_aliquots_criteria_match": "One or more specimens do not match any of the criteria specified in the aliquots processing workflow configuration.",
 
     "pos_selector": "Specimen Position Selector",
 

@@ -2,6 +2,7 @@
 package com.krishagni.catissueplus.core.biospecimen.services.impl;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -74,6 +75,7 @@ import com.krishagni.catissueplus.core.common.service.LabelPrinter;
 import com.krishagni.catissueplus.core.common.service.ObjectAccessor;
 import com.krishagni.catissueplus.core.common.service.impl.EventPublisher;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
+import com.krishagni.catissueplus.core.common.util.ConfigUtil;
 import com.krishagni.catissueplus.core.common.util.NumUtil;
 import com.krishagni.catissueplus.core.common.util.Status;
 import com.krishagni.catissueplus.core.common.util.Utility;
@@ -391,21 +393,30 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 				return ResponseEvent.userError(SpecimenErrorCode.NOT_COLLECTED, parentSpecimen.getLabel());
 			}
 
+			SpecimenDetail derived = null;
+			if ((StringUtils.isNotBlank(spec.getSpecimenClass()) && !spec.getSpecimenClass().equals(parentSpecimen.getSpecimenClass())) ||
+				(StringUtils.isNotBlank(spec.getType()) && !spec.getType().equals(parentSpecimen.getSpecimenType())) ||
+				(spec.createDerived() && !parentSpecimen.isDerivative())) {
+				derived = getDerivedSpecimen(parentSpecimen, spec);
+			}
+
 			Integer count = spec.getNoOfAliquots();
 			BigDecimal aliquotQty = spec.getQtyPerAliquot();
-
-			if (count != null && aliquotQty != null) {
-				if (count <= 0 || NumUtil.lessThanEqualsZero(aliquotQty)) {
-					return ResponseEvent.userError(SpecimenErrorCode.INVALID_QTY_OR_CNT);
-				}
-			} else if (parentSpecimen.getAvailableQuantity() == null) {
-				return ResponseEvent.userError(SpecimenErrorCode.ALIQUOT_CNT_N_QTY_REQ);
-			} else if (count != null && count > 0) {
-				aliquotQty = NumUtil.divide(parentSpecimen.getAvailableQuantity(), count, precision);
-			} else if (NumUtil.greaterThanZero(aliquotQty)) {
-				count = parentSpecimen.getAvailableQuantity().divide(aliquotQty).intValue();
-			} else {
+			if ((count != null && count <= 0) || NumUtil.lessThanEqualsZero(aliquotQty)) {
 				return ResponseEvent.userError(SpecimenErrorCode.INVALID_QTY_OR_CNT);
+			}
+
+			BigDecimal parentQty = derived != null ? derived.getInitialQty() : parentSpecimen.getAvailableQuantity();
+			boolean aliquotQtyReq = ConfigUtil.getInstance().getBoolSetting(ConfigParams.MODULE, ConfigParams.ALIQUOT_QTY_REQ, true);
+			if ((count == null && (parentQty == null || aliquotQty == null)) ||
+				(parentQty == null && aliquotQty == null && aliquotQtyReq)) {
+				return ResponseEvent.userError(SpecimenErrorCode.ALIQUOT_CNT_N_QTY_REQ);
+			}
+
+			if (count == null) {
+				count = parentQty.divide(aliquotQty, RoundingMode.FLOOR).intValue();
+			} else if (aliquotQty == null && parentQty != null) {
+				aliquotQty = NumUtil.divide(parentQty, count, precision);
 			}
 
 			List<SpecimenDetail> aliquots = new ArrayList<>();
@@ -415,8 +426,8 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 				aliquot.setInitialQty(aliquotQty);
 				aliquot.setAvailableQty(aliquotQty);
 				aliquot.setConcentration(spec.getConcentration());
-				aliquot.setParentLabel(parentSpecimen.getLabel());
-				aliquot.setParentId(parentSpecimen.getId());
+				aliquot.setParentLabel(derived == null ? parentSpecimen.getLabel() : null);
+				aliquot.setParentId(derived == null ? parentSpecimen.getId() : null);
 				aliquot.setCreatedOn(spec.getCreatedOn());
 				aliquot.setFreezeThawCycles(spec.getFreezeThawCycles());
 				aliquot.setIncrParentFreezeThaw(spec.getIncrParentFreezeThaw());
@@ -446,7 +457,13 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 				aliquots.add(aliquot);
 			}
 
-			ResponseEvent<List<SpecimenDetail>> resp = collectSpecimens(new RequestEvent<List<SpecimenDetail>>(aliquots));
+			List<SpecimenDetail> inputSpmns = aliquots;
+			if (derived != null) {
+				derived.setChildren(aliquots);
+				inputSpmns = Collections.singletonList(derived);
+			}
+
+			ResponseEvent<List<SpecimenDetail>> resp = collectSpecimens(new RequestEvent<>(inputSpmns));
 			if (resp.isSuccessful() && spec.closeParent()) {
 				parentSpecimen.close(AuthUtil.getCurrentUser(), new Date(), "");
 			}
@@ -1103,6 +1120,22 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 		}
 
 		return disposalDate;
+	}
+
+	private SpecimenDetail getDerivedSpecimen(Specimen parentSpecimen, SpecimenAliquotsSpec spec) {
+		SpecimenDetail derived = new SpecimenDetail();
+		derived.setLineage(Specimen.DERIVED);
+		derived.setParentId(parentSpecimen.getId());
+		derived.setCreatedOn(spec.getCreatedOn());
+		derived.setSpecimenClass(spec.getSpecimenClass());
+		derived.setType(spec.getType());
+		derived.setStatus(Specimen.COLLECTED);
+		derived.setCloseAfterChildrenCreation(spec.closeParent());
+
+		Integer count = spec.getNoOfAliquots();
+		BigDecimal qtyPerAliquot = spec.getQtyPerAliquot();
+		derived.setInitialQty(count != null && qtyPerAliquot != null ? qtyPerAliquot.multiply(new BigDecimal(count)) : null);
+		return derived;
 	}
 
 	private Function<ExportJob, List<? extends Object>> getSpecimensGenerator() {

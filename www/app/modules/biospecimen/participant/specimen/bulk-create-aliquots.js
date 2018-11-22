@@ -1,15 +1,14 @@
 angular.module('os.biospecimen.specimen')
   .controller('BulkCreateAliquotsCtrl', function(
-    $scope, $q, parentSpmns, cp, containerAllocRules, aliquotQtyReq, createDerived,
-    Specimen, Alerts, Util, SpecimenUtil, Container) {
+    $scope, $q, $injector, parentSpmns, cp, containerAllocRules, aliquotQtyReq, createDerived,
+    cpDict, aliquotFields, Specimen, Alerts, Util, SpecimenUtil, Container) {
 
-    var ignoreQtyWarning = false, reservationId;
+    var ignoreQtyWarning = false, reservationId, ctx;
 
     var watches = [];
 
     function init() {
       var createdOn = new Date().getTime();
-
       var aliquotsSpec = parentSpmns.map(
         function(ps) {
           return new Specimen({
@@ -25,7 +24,7 @@ angular.module('os.biospecimen.specimen')
             laterality: ps.laterality,
             pathology: ps.pathology,
             collectionContainer: ps.collectionContainer,
-            parent: {
+            parent: new Specimen({
               id: ps.id,
               label: ps.label,
               availableQty: ps.availableQty,
@@ -33,19 +32,39 @@ angular.module('os.biospecimen.specimen')
               specimenClass: ps.specimenClass,
               type: ps.type,
               lineage: ps.lineage
-            }
+            })
           });
         }
       );
 
-      $scope.ctx = {aliquotsSpec: aliquotsSpec, aliquots: [], aliquotQtyReq: aliquotQtyReq};
+      ctx = $scope.ctx = {
+        showCustomFields: true,
+        aliquotsSpec: aliquotsSpec,
+        aliquots: [],
+        aliquotQtyReq: aliquotQtyReq
+      };
+
+      var opts = $scope.opts = {viewCtx: $scope};
+      var groups = ctx.customFieldGroups = SpecimenUtil.sdeGroupSpecimens(
+        cpDict, aliquotFields || [], aliquotsSpec, {}, opts);
+      if (groups.length > 1) {
+        if (groups[groups.length - 1].noMatch) {
+          ctx.warnNoMatch = true;
+        }
+
+        return;
+      } else if (groups.length == 1 && !groups[0].noMatch) {
+        return;
+      }
+
+      ctx.showCustomFields = false;
       if (!!cp.containerSelectionStrategy) {
-        $scope.ctx.step2Title = 'specimens.review_locations';
-        $scope.ctx.autoPosAllocate = true;
+        ctx.step2Title = 'specimens.review_locations';
+        ctx.autoPosAllocate = true;
         $scope.$on('$destroy', vacateReservedPositions);
       } else {
-        $scope.ctx.step2Title= 'specimens.assign_locations';
-        $scope.ctx.autoPosAllocate = false;
+        ctx.step2Title= 'specimens.assign_locations';
+        ctx.autoPosAllocate = false;
       }
     }
 
@@ -230,6 +249,47 @@ angular.module('os.biospecimen.specimen')
       watches.push(watch);
     }
 
+    function submitSamples() {
+      var samples = [];
+      angular.forEach(ctx.customFieldGroups,
+        function(group) {
+          angular.forEach(group.input,
+            function(spec) {
+              var spmn = spec.specimen;
+
+              samples.push({
+                specimen: {lineage: 'Aliquot', extensionDetail: spmn.extensionDetail},
+                aliquotsSpec: {
+                  parentId: spmn.parent.id,
+                  noOfAliquots: spmn.noOfAliquots,
+                  qtyPerAliquot: spmn.qtyPerAliquot,
+                  specimenClass: spmn.specimenClass,
+                  type: spmn.type,
+                  concentration: spmn.concentration,
+                  createdOn: spmn.createdOn,
+                  containerName: spmn.storageLocation && spmn.storageLocation.name,
+                  positionX: spmn.storageLocation && spmn.storageLocation.positionX,
+                  positionY: spmn.storageLocation && spmn.storageLocation.positionY,
+                  freezeThawCycles: spmn.freezeThawCycles,
+                  incrParentFreezeThaw: spmn.incrParentFreezeThaw,
+                  closeParent: spmn.closeParent,
+                  createDerived: createDerived
+                },
+                events: spec.events
+              });
+            }
+          );
+        }
+      );
+
+      $injector.get('sdeSample').saveSamples(samples).then(
+        function(resp) {
+          Alerts.success('specimens.aliquots_created');
+          $scope.back();
+        }
+      );
+    }
+
     $scope.copyFirstToAll = function() {
       var specToCopy = $scope.ctx.aliquotsSpec[0];
       var attrsToCopy = ['count', 'quantity', 'createdOn', 'printLabel', 'closeParent'];
@@ -323,6 +383,11 @@ angular.module('os.biospecimen.specimen')
     }
 
     $scope.createAliquots = function() {
+      if (ctx.showCustomFields) {
+        submitSamples();
+        return;
+      }
+
       var result = [],
           aliquotIdx = 0,
           aliquots = $scope.ctx.aliquots;

@@ -16,6 +16,10 @@ public class SpecimenAliquotsSpec {
 	
 	private BigDecimal qtyPerAliquot;
 
+	private String specimenClass;
+
+	private String type;
+
 	private BigDecimal concentration;
 	
 	private Date createdOn;
@@ -37,6 +41,8 @@ public class SpecimenAliquotsSpec {
 	private Integer incrParentFreezeThaw;
 
 	private Boolean closeParent;
+
+	private Boolean createDerived;
 
 	private ExtensionDetail extensionDetail;
 
@@ -78,6 +84,22 @@ public class SpecimenAliquotsSpec {
 
 	public void setQtyPerAliquot(BigDecimal qtyPerAliquot) {
 		this.qtyPerAliquot = qtyPerAliquot;
+	}
+
+	public String getSpecimenClass() {
+		return specimenClass;
+	}
+
+	public void setSpecimenClass(String specimenClass) {
+		this.specimenClass = specimenClass;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
 	}
 
 	public BigDecimal getConcentration() {
@@ -169,8 +191,18 @@ public class SpecimenAliquotsSpec {
 	}
 
 	public boolean closeParent() {
-		return closeParent == null ? false : closeParent;
+		return closeParent != null && closeParent;
 	}
+
+	public Boolean getCreateDerived() {
+		return createDerived;
+	}
+
+	public void setCreateDerived(Boolean createDerived) {
+		this.createDerived = createDerived;
+	}
+
+	public boolean createDerived() { return createDerived != null && createDerived; }
 
 	public ExtensionDetail getExtensionDetail() {
 		return extensionDetail;
