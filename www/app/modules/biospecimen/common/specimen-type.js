@@ -102,7 +102,7 @@ angular.module('os.biospecimen.common')
       template: 
         '<div>' +
         '  <os-select ng-model="model.value" list="types" group-by="\'specimenClass\'"' +
-        '    select-prop="type" display-prop="type" on-select="onTypeSelect($item)">' +
+        '    select-prop="type" display-prop="type" on-select="onTypeSelect($item)" append-to-body="true">' +
         '  </os-select>' +
         '</div>',
 
