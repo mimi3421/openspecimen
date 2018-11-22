@@ -431,6 +431,8 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 				aliquot.setCreatedOn(spec.getCreatedOn());
 				aliquot.setFreezeThawCycles(spec.getFreezeThawCycles());
 				aliquot.setIncrParentFreezeThaw(spec.getIncrParentFreezeThaw());
+				aliquot.setCloseParent(spec.closeParent());
+				aliquot.setPrintLabel(spec.printLabel());
 				aliquot.setExtensionDetail(spec.getExtensionDetail());
 
 				if (StringUtils.isNotBlank(spec.getParentContainerName())) {
@@ -1130,7 +1132,7 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 		derived.setSpecimenClass(spec.getSpecimenClass());
 		derived.setType(spec.getType());
 		derived.setStatus(Specimen.COLLECTED);
-		derived.setCloseAfterChildrenCreation(spec.closeParent());
+		derived.setCloseAfterChildrenCreation(true);
 
 		Integer count = spec.getNoOfAliquots();
 		BigDecimal qtyPerAliquot = spec.getQtyPerAliquot();

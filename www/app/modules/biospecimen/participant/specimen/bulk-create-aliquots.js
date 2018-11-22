@@ -44,7 +44,14 @@ angular.module('os.biospecimen.specimen')
         aliquotQtyReq: aliquotQtyReq
       };
 
-      var opts = $scope.opts = {viewCtx: $scope};
+      var opts = $scope.opts = {
+        viewCtx: $scope,
+        static: false,
+        showRowCopy: true,
+        hideFooterActions: true,
+        allowBulkUpload: false
+      };
+
       var groups = ctx.customFieldGroups = SpecimenUtil.sdeGroupSpecimens(
         cpDict, aliquotFields || [], aliquotsSpec, {}, opts);
       if (groups.length > 1) {
@@ -273,6 +280,7 @@ angular.module('os.biospecimen.specimen')
                   freezeThawCycles: spmn.freezeThawCycles,
                   incrParentFreezeThaw: spmn.incrParentFreezeThaw,
                   closeParent: spmn.closeParent,
+                  printLabel: spmn.printLabel,
                   createDerived: createDerived
                 },
                 events: spec.events

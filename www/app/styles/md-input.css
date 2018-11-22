@@ -105,6 +105,10 @@
   /*background: transparent;*/
 }
 
+.os-table.bulk-edit .os-md-input input[type="checkbox"] {
+  margin-top: 10px;
+}
+
 .os-table.bulk-edit button.right {
   float: right;
   padding: 6px 0px 0px 0px;

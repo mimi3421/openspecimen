@@ -44,6 +44,8 @@ public class SpecimenAliquotsSpec {
 
 	private Boolean createDerived;
 
+	private Boolean printLabel;
+
 	private ExtensionDetail extensionDetail;
 
 	public Long getParentId() {
@@ -203,6 +205,16 @@ public class SpecimenAliquotsSpec {
 	}
 
 	public boolean createDerived() { return createDerived != null && createDerived; }
+
+	public Boolean getPrintLabel() {
+		return printLabel;
+	}
+
+	public void setPrintLabel(Boolean printLabel) {
+		this.printLabel = printLabel;
+	}
+
+	public boolean printLabel() { return printLabel != null && printLabel; }
 
 	public ExtensionDetail getExtensionDetail() {
 		return extensionDetail;
