@@ -107,11 +107,14 @@
             <th class="col os-col-15">
               <span translate="specimens.created_on">Created On</span>
             </th>
-            <th class="col os-col-5">
-              <span translate="specimens.print">Print?</span>
+            <th class="col os-col-2">
+              <span class="fa fa-print" os-tooltip="{{'specimens.print' | translate}}"></span>
             </th>
-            <th class="col os-col-5">
-              <span translate="specimens.close_parent">Close Parent?</span>
+            <th class="col os-col-2">
+              <span class="fa fa-ban" os-tooltip="{{'specimens.close_parent' | translate}}"></span>
+            </th>
+            <th class="col os-col-6">
+              <span>&nbsp;</span>
             </th>
           </tr>
         </thead>
@@ -153,10 +156,15 @@
               <os-checkbox ng-model="aliquotSpec.printLabel"></os-checkbox>
             </td>
             <td class="col">
-              <div class="clearfix">
-                <os-checkbox ng-model="aliquotSpec.closeParent"></os-checkbox>
-                <button class="btn os-btn-text right" ng-click="removeSpec($index)">
+              <os-checkbox ng-model="aliquotSpec.closeParent"></os-checkbox>
+            </td>
+            <td class="col">
+              <div class="btn-group">
+                <button class="btn btn-xs btn-default" ng-click="removeSpec($index)">
                   <span class="fa fa-remove"></span>
+                </button>
+                <button class="btn btn-xs btn-default" ng-click="copySpec($index)">
+                  <span class="fa fa-copy"></span>
                 </button>
               </div>
             </td>

@@ -187,8 +187,9 @@ angular.module('os.biospecimen.specimen')
         criteria: criteria,
       }).then(
         function(locations) {
-          if (locations.length > 0) {
-            reservationId = locations[0].reservationId;
+          var location = locations.find(function(l) { return !!l && !!l.reservationId; });
+          if (location) {
+            reservationId = location.reservationId;
           }
 
           return locations;
@@ -309,6 +310,11 @@ angular.module('os.biospecimen.specimen')
       if ($scope.ctx.aliquotsSpec.length == 0) {
         $scope.back();
       }
+    }
+
+    $scope.copySpec = function(index) {
+      var copy = angular.copy($scope.ctx.aliquotsSpec[index]);
+      $scope.ctx.aliquotsSpec.splice(index, 0, copy);
     }
 
     $scope.validateSpecs = function() {
