@@ -233,5 +233,93 @@
                 }
             ]
         }
+    },
+    {
+        "name": "common",
+        "data": {
+            "aliquotsCollection": [
+                {
+                    "title" : "Aliquots",
+                    "criteria" : {
+                        "rules" : [
+                            {
+                                "field" : "specimen.parent.id",
+                                "op" : "exists"
+                            }
+                        ]
+                    },
+                    "enableCofrc" : false,
+                    "fields" : [
+                        {
+                            "name": "specimen.parent.label",
+                            "caption": "Parent Specimen",
+                            "type": "span"
+                        },
+                        {
+                            "name": "specimen.parent.availableQty",
+                            "caption": "Parent Quantity",
+                            "type": "span",
+                            "width": "120px"
+                        },
+                        {
+                            "name": "specimen.type",
+                            "caption": "Type",
+                            "type" : "specimen-type",
+                            "specimen" : "specimen",
+                            "optional": false,
+                            "width": "185px"
+                        },
+                        {
+                            "name": "specimen.noOfAliquots",
+                            "caption": "Count",
+                            "type": "text",
+                            "pattern" : "/^[1-9][0-9]*$/",
+                            "modelOpts": {"allowInvalid": true},
+                            "optional": true,
+                            "width": "100px"
+                        },
+                        {
+                            "name": "specimen.qtyPerAliquot",
+                            "caption": "Quantity",
+                            "type" : "specimen-quantity",
+                            "specimen": "specimen",
+                            "optional": true,
+                            "width": "100px"
+                        },
+                        {
+                            "name": "specimen.createdOn",
+                            "caption" : "Created On",
+                            "type" : "date",
+                            "optional" : true,
+                            "defaultValue" : "current_date"
+                        },
+                        {
+                            "name": "specimen.storageLocation",
+                            "caption": "Location",
+                            "type" : "storage-position",
+                            "optional": true,
+                            "cpId": "specimen.cpId",
+                            "entity": "specimen",
+                            "width": "240px",
+                            "copyValueFn": "function(firstRowVal, currentVal) { if ((!!currentVal && !!currentVal.reservationId) && (!!firstRowVal && !!firstRowVal.reservationId)) { return currentVal;} else if (firstRowVal) { return { id: '', name: firstRowVal.name, mode: firstRowVal.mode, positionX: '', positionY: '', position: '', reservationId: '' };} else { return {}; }}"
+                        },
+                        {
+                            "name": "specimen.printLabel",
+                            "caption": "Print",
+                            "icon": "fa fa-print",
+                            "type": "toggle-checkbox",
+                            "width": "30px"
+                        },
+                        {
+                            "name": "specimen.closeParent",
+                            "caption": "Close Parent",
+                            "icon": "fa fa-ban",
+                            "type": "toggle-checkbox",
+                            "width": "30px"
+                        }
+                    ]
+                }
+            ]
+        }
     }
 ]

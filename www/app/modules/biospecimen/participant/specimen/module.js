@@ -14,11 +14,11 @@ angular.module('os.biospecimen.specimen',
   .config(function($stateProvider) {
 
     function createDerived(cp, CpConfigSvc) {
-      if (!cp || !cp.id) {
+      if (!cp) {
         return false;
       }
 
-      return CpConfigSvc.getCommonCfg(cp.id, 'addSpecimen').then(
+      return CpConfigSvc.getCommonCfg(cp.id || -1, 'addSpecimen').then(
         function(cfg) {
           return cfg && (cfg.aliquotDerivativesOnly == 'true' || cfg.aliquotDerivativesOnly == true)
         }
