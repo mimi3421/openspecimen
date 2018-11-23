@@ -39,7 +39,7 @@
 </div>
 
 <script type="text/ng-template" id="modules/biospecimen/extensions/field-value.html">
-  <span ng-switch on="!!field.value">
+  <span ng-switch on="!!field.value || field.value == 0">
     <span ng-switch-when="true" ng-switch on="field.type">
       <span ng-switch-when="fileUpload" ng-init="file=field.value">
         <a href="{{filesUrl}}/{{file.fileId}}?contentType={{file.contentType}}&filename={{file.filename}}" target="_blank">
@@ -57,8 +57,8 @@
         <span ng-switch-default> {{field.value | osArrayJoin}}</span>
       </span>
     </span>
-    <span ng-switch-when="false">
-      <span translate="common.not_specified"></span>
+    <span ng-switch-default>
+      <span>{{field.value | osNoValue}}</span>
     </span>
   </span>
 </script>

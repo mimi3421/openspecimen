@@ -218,7 +218,7 @@ angular.module('os.biospecimen.common.specimenprops', [])
         '      measure="{{measure || \'quantity\'}}">' +
         '    </os-specimen-unit>' +
         '  </span>' +
-        '  <span ng-switch-when="false" translate="common.not_specified"></span>' +
+        '  <span ng-switch-default>{{value | osNoValue}}</span>' +
         '</span>'
     }
   });

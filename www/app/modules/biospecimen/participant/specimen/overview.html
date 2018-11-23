@@ -159,13 +159,11 @@
       </li>
 
       <li class="item">
-        <strong class="key key-sm" translate="specimens.class">Specimen Class</strong>
-        <span class="value value-md">{{specimen.specimenClass | osNoValue}}</span>
-      </li>
-
-      <li class="item">
         <strong class="key key-sm" translate="specimens.type">Specimen Type</strong>
-        <span class="value value-md">{{specimen.type | osNoValue}}</span>
+        <span class="value value-md">
+          <span>{{specimen.type | osNoValue}}</span>
+          <span ng-if="specimen.specimenClass">({{specimen.specimenClass}})</span>
+        </span>
       </li>
 
       <li class="item">
@@ -194,18 +192,15 @@
         </os-spmn-measure-val>
       </li>
 
-      <li class="item">
+      <li class="item" ng-if="!!specimen.parentId">
         <strong class="key key-sm" translate="specimens.parent_specimen">Parent Specimen</strong>
-        <ng-switch on="!!specimen.parentId">
-          <span class="value value-md" ng-switch-when="true">
-            <a ui-sref="specimen-detail.overview(
-              {eventId: visit.eventId, visitId: visit.id, specimenId: specimen.parentId, srId: specimen.reqId})">
-              <span ng-if="!!specimen.parentLabel">{{specimen.parentLabel}}</span>
-              <span ng-if="!specimen.parentLabel" translate="specimens.parent_specimen">Parent Specimen</span>
-            </a>
-          </span>
-          <span class="value value-md" ng-switch-default>None</span>
-        </ng-switch>
+        <span class="value value-md">
+          <a ui-sref="specimen-detail.overview(
+            {eventId: visit.eventId, visitId: visit.id, specimenId: specimen.parentId, srId: specimen.reqId})">
+            <span ng-if="!!specimen.parentLabel">{{specimen.parentLabel}}</span>
+            <span ng-if="!specimen.parentLabel" translate="specimens.parent_specimen">Parent Specimen</span>
+          </a>
+        </span>
       </li>
 
       <li class="item" ng-if="!!specimen.pooledSpecimenId">
