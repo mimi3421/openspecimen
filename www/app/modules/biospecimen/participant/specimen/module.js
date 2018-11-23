@@ -25,6 +25,14 @@ angular.module('os.biospecimen.specimen',
       );
     }
 
+    function aliquotFields(cp, hasSde, CpConfigSvc) {
+      if (!hasSde) {
+        return {};
+      }
+
+      return CpConfigSvc.getCommonCfg(cp.id || -1, 'aliquotsCollection');
+    }
+
     $stateProvider
       .state('specimen', {
         url: '/specimens/:specimenId',
@@ -288,7 +296,9 @@ angular.module('os.biospecimen.specimen',
             return Specimen.getExtensionCtxt({cpId: cp.id});
           },
 
-          createDerived: createDerived
+          createDerived: createDerived,
+
+          aliquotFields: aliquotFields
         },
         controller: 'AddAliquotsCtrl',
         parent: 'specimen-root'
@@ -347,13 +357,7 @@ angular.module('os.biospecimen.specimen',
             return !hasSde ? [] : CpConfigSvc.getDictionary(cp.id || -1, []);
           },
 
-          aliquotFields: function(cp, hasSde, CpConfigSvc) {
-            if (!hasSde) {
-              return {};
-            }
-
-            return CpConfigSvc.getCommonCfg(cp.id || -1, 'aliquotsCollection');
-          }
+          aliquotFields: aliquotFields
         },
         parent: 'signed-in'
       })

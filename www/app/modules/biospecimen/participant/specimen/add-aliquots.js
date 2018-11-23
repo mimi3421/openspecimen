@@ -2,24 +2,54 @@
 angular.module('os.biospecimen.specimen.addaliquots', [])
   .controller('AddAliquotsCtrl', function(
     $scope, $rootScope, $state, $stateParams, specimen, cpr,
-    visit, extensionCtxt, hasDict, onValueChangeCb, createDerived,
-    CollectSpecimensSvc, SpecimenUtil, ExtensionsUtil, Alerts) {
+    visit, extensionCtxt, hasSde, hasDict, cpDict, onValueChangeCb, createDerived, aliquotFields,
+    CollectSpecimensSvc, Specimen, SpecimenUtil, SpecimensHolder, ExtensionsUtil, Alerts) {
 
     function init() {
-      $scope.parentSpecimen = specimen;
+      $scope.showForm = false;
       $scope.cpr = cpr;
       $scope.visit = visit;
-      $scope.aliquotSpec = {
-        cpId: visit.cpId,
+      var ps = $scope.parentSpecimen = specimen;
+
+      $scope.aliquotSpec = new Specimen({
         lineage: 'Aliquot',
-        specimenClass: specimen.specimenClass,
-        type: specimen.type,
-        createdOn : Date.now(),
-        freezeThawCycles: specimen.freezeThawCycles + 1,
+        cpId: ps.cpId,
+        ppid: ps.ppid,
+        specimenClass: ps.specimenClass,
+        type: ps.type,
+        createdOn: Date.now(),
+        parentId: ps.id,
+        parentLabel: ps.label,
+        visitId: ps.visitId,
+        anatomicSite: ps.anatomicSite,
+        laterality: ps.laterality,
+        pathology: ps.pathology,
+        collectionContainer: ps.collectionContainer,
+        freezeThawCycles: ps.freezeThawCycles + 1,
         incrParentFreezeThaw: 1,
         labelFmt: cpr.aliquotLabelFmt,
-        createDerived: createDerived
-      };
+        createDerived: createDerived,
+        parent: new Specimen({
+          id: ps.id,
+          label: ps.label,
+          availableQty: ps.availableQty,
+          createdOn: ps.createdOn,
+          specimenClass: ps.specimenClass,
+          type: ps.type,
+          lineage: ps.lineage
+        })
+      });
+
+      if (hasSde) {
+        var groups = SpecimenUtil.sdeGroupSpecimens(cpDict, aliquotFields || [], [$scope.aliquotSpec], {});
+        if (groups.length == 1 && !groups[0].noMatch) {
+          SpecimensHolder.setSpecimens([specimen]);
+          $state.go('specimen-bulk-create-aliquots', {}, {location: 'replace'});
+          return;
+        }
+      }
+
+      $scope.showForm = true;
 
       //
       // On successful collection of aliquots, direct user to specimen detail view
@@ -28,6 +58,7 @@ angular.module('os.biospecimen.specimen.addaliquots', [])
       if ($rootScope.stateChangeInfo.fromState.url.indexOf("collect-specimens") == 1) {
         var params = {specimenId:  $scope.parentSpecimen.id, srId:  $scope.parentSpecimen.reqId};
         $state.go('specimen-detail.overview', params);
+        return;
       }
 
       var exObjs = [
