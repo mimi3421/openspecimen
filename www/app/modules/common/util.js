@@ -342,7 +342,7 @@ angular.module('openspecimen')
     }
 
     function showConfirm(opts) {
-      $modal.open({
+      var mi = $modal.open({
         templateUrl: opts.templateUrl || 'modules/common/show-confirm.html',
         controller: function($scope, $modalInstance) {
           angular.extend($scope, opts);
@@ -355,7 +355,9 @@ angular.module('openspecimen')
             $modalInstance.dismiss('cancel');
           }
         }
-      }).result.then(
+      });
+
+      mi.result.then(
         function() {
           if (opts.ok) {
             opts.ok();
@@ -367,6 +369,8 @@ angular.module('openspecimen')
           }
         }
       );
+
+      return mi.result;
     }
 
     function validateItems(items, itemLabels, labelProp) {

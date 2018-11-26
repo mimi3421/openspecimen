@@ -1337,6 +1337,8 @@
     "paste_specimen_labels": "Paste or input specimen labels or barcodes separated by comma, tab, or newline",
     "no_free_locs": "Container does not have enough free locations to accommodate input specimen labels",
     "dup_labels": "Duplicate {{barcodes ? 'barcodes' : 'labels'}} entered: {{dups}}",
+    "transfer_spmns": "Transfer Specimens",
+    "transfer_spmns_warn": "{{storedSpmns.length > 1 ? 'Specimens' : 'Specimen'}} {{storedSpmns.join(', ')}} {{storedSpmns.length > 1 ? 'are' : 'is'}} already stored in a container. Do you really want to move {{storedSpmns.length > 1 ? 'them' : 'it'}} to a new location?",
     "replicated_successfully": "Container {{name}} replicated successfully",
     "multiple_containers_created": "Successfully created {{count}} containers",
     "search": "Type storage container name to filter containers",

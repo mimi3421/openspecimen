@@ -47,7 +47,7 @@ angular.module('os.administrative.container.locations', ['os.administrative.mode
         labels = undefined;
       }
 
-      SpecimenUtil.getSpecimens(labels, filterOpts).then(
+      ContainerUtil.getSpecimens(labels, filterOpts).then(
         function(specimens) {
           if (!specimens) {
             return;
@@ -192,7 +192,7 @@ angular.module('os.administrative.container.locations', ['os.administrative.mode
         labels = undefined;
       }
 
-      SpecimenUtil.getSpecimens(labels, filterOpts).then(
+      ContainerUtil.getSpecimens(labels, filterOpts).then(
         function(specimens) {
           if (!specimens) {
             return;
