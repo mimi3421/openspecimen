@@ -373,6 +373,7 @@ angular.module('os.biospecimen.specimen')
         cprId: parent.cprId,
         visitId: parent.visitId,
         createdOn: spec.createdOn,
+        createdBy: spec.createdBy,
         freezeThawCycles: spec.freezeThawCycles,
         incrParentFreezeThaw: spec.incrParentFreezeThaw,
         comments: spec.comments,

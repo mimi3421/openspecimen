@@ -7,17 +7,16 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.ObjectUtils;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
-
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainerPosition;
 import com.krishagni.catissueplus.core.administrative.events.StorageLocationSummary;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolEvent;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
+import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenChildrenEvent;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenRequirement;
 import com.krishagni.catissueplus.core.common.AttributeModifiedSupport;
 import com.krishagni.catissueplus.core.common.ListenAttributeChanges;
 import com.krishagni.catissueplus.core.common.events.NameValuePair;
+import com.krishagni.catissueplus.core.common.events.UserSummary;
 import com.krishagni.catissueplus.core.common.util.NumUtil;
 
 @ListenAttributeChanges
@@ -94,6 +93,8 @@ public class SpecimenInfo extends AttributeModifiedSupport implements Comparable
 	private String activityStatus;
 	
 	private Date createdOn;
+
+	private UserSummary createdBy;
 	
 	private String code;
 
@@ -384,7 +385,15 @@ public class SpecimenInfo extends AttributeModifiedSupport implements Comparable
 	public void setCreatedOn(Date createdOn) {
 		this.createdOn = createdOn;
 	}
-	
+
+	public UserSummary getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(UserSummary createdBy) {
+		this.createdBy = createdBy;
+	}
+
 	public String getCode() {
 		return code;
 	}
@@ -495,6 +504,14 @@ public class SpecimenInfo extends AttributeModifiedSupport implements Comparable
 			result.setCollectionContainer(specimen.getCollRecvDetails().getCollContainer());
 		} else if (specimen.isPrimary() && specimen.getSpecimenRequirement() != null) {
 			result.setCollectionContainer(specimen.getSpecimenRequirement().getCollectionContainer());
+		}
+
+		SpecimenChildrenEvent parentEvent = specimen.getParentEvent();
+		if (parentEvent != null) {
+			result.setCreatedBy(UserSummary.from(parentEvent.getUser()));
+			if (result.getCreatedOn() == null) {
+				result.setCreatedOn(parentEvent.getTime());
+			}
 		}
 
 		return result;

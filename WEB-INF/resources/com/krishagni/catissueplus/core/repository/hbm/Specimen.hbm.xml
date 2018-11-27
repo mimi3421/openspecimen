@@ -90,7 +90,7 @@
       <one-to-many class="com.krishagni.catissueplus.core.biospecimen.domain.SpecimenListItem"/>
     </set>
 
-    <many-to-one name="parentEvent" column="PARENT_EVENT_ID"/>
+    <many-to-one name="parentEvent" column="PARENT_EVENT_ID" fetch="join"/>
 
     <set name="childrenEvents" table="OS_CHILD_SPMN_EVENTS" inverse="true" cascade="all-delete-orphan" order-by="id">
       <key column="SPECIMEN_ID"/>

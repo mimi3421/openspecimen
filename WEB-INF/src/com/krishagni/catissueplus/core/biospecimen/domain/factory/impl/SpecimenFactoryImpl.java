@@ -52,6 +52,7 @@ import com.krishagni.catissueplus.core.common.errors.ActivityStatusErrorCode;
 import com.krishagni.catissueplus.core.common.errors.ErrorType;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.NameValuePair;
+import com.krishagni.catissueplus.core.common.events.UserSummary;
 import com.krishagni.catissueplus.core.common.util.ConfigUtil;
 import com.krishagni.catissueplus.core.common.util.NumUtil;
 import com.krishagni.catissueplus.core.common.util.Status;
@@ -165,6 +166,7 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 		setCollectionDetail(detail, existing, specimen, ose);
 		setReceiveDetail(detail, existing, specimen, ose);
 		setCreatedOn(detail, existing, specimen, ose);
+		setCreatedBy(detail, existing, specimen, ose);
 		setPooledSpecimen(detail, existing, specimen, ose);
 		setExtension(detail, existing, specimen, ose);
 
@@ -988,26 +990,37 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 			specimen.setExtension(existing.getExtension());
 		}
 	}
+
+	private void setCreatedBy(SpecimenDetail detail, Specimen existing, Specimen specimen, OpenSpecimenException ose) {
+		if (specimen.isPrimary()) {
+			return;
+		}
+
+		if (existing == null || detail.isAttrModified("createdBy")) {
+			specimen.setCreatedBy(getUser(detail.getCreatedBy(), ose));
+		}
+	}
 	
 	private User getUser(SpecimenEventDetail detail, OpenSpecimenException ose) {
-		if (detail.getUser() == null) {
-			return null;			
+		return getUser(detail.getUser(), ose);
+	}
+
+	private User getUser(UserSummary input, OpenSpecimenException ose) {
+		if (input == null) {
+			return null;
 		}
-		
-		Long userId = detail.getUser().getId();		
-		String emailAddress = detail.getUser().getEmailAddress();
-		
+
 		User user = null;
-		if (userId != null) {
-			user = daoFactory.getUserDao().getById(userId);
-		} else if (StringUtils.isNotBlank(emailAddress)) {
-			user = daoFactory.getUserDao().getUserByEmailAddress(emailAddress);
+		if (input.getId() != null) {
+			user = daoFactory.getUserDao().getById(input.getId());
+		} else if (StringUtils.isNotBlank(input.getEmailAddress())) {
+			user = daoFactory.getUserDao().getUserByEmailAddress(input.getEmailAddress());
 		}
-				
+
 		if (user == null) {
-			ose.addError(UserErrorCode.NOT_FOUND);			
+			ose.addError(UserErrorCode.NOT_FOUND);
 		}
-		
+
 		return user;
 	}
 

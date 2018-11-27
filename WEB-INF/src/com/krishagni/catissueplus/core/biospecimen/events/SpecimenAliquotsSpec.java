@@ -3,6 +3,7 @@ package com.krishagni.catissueplus.core.biospecimen.events;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import com.krishagni.catissueplus.core.common.events.UserSummary;
 import com.krishagni.catissueplus.core.de.events.ExtensionDetail;
 
 public class SpecimenAliquotsSpec {
@@ -23,6 +24,8 @@ public class SpecimenAliquotsSpec {
 	private BigDecimal concentration;
 	
 	private Date createdOn;
+
+	private UserSummary createdBy;
 
 	private String parentContainerName;
 
@@ -118,6 +121,14 @@ public class SpecimenAliquotsSpec {
 
 	public void setCreatedOn(Date createdOn) {
 		this.createdOn = createdOn;
+	}
+
+	public UserSummary getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(UserSummary createdBy) {
+		this.createdBy = createdBy;
 	}
 
 	public String getParentContainerName() {

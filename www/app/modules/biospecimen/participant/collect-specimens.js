@@ -922,6 +922,7 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
           status: uiSpecimen.status,
           closeAfterChildrenCreation: uiSpecimen.closeAfterChildrenCreation,
           createdOn: uiSpecimen.createdOn,
+          createdBy: uiSpecimen.createdBy,
           freezeThawCycles: uiSpecimen.freezeThawCycles,
           incrParentFreezeThaw: uiSpecimen.incrParentFreezeThaw,
           comments: uiSpecimen.comments,

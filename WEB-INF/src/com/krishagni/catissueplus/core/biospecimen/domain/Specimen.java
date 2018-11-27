@@ -191,6 +191,8 @@ public class Specimen extends BaseExtensionEntity {
 
 	private transient String parentUid;
 
+	private transient User createdBy;
+
 	//
 	// holdingLocation and dp are used during distribution to record the location
 	// where the specimen will be stored temporarily post distribution.
@@ -696,6 +698,14 @@ public class Specimen extends BaseExtensionEntity {
 		this.parentUid = parentUid;
 	}
 
+	public User getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(User createdBy) {
+		this.createdBy = createdBy;
+	}
+
 	public StorageContainerPosition getHoldingLocation() {
 		return holdingLocation;
 	}
@@ -1010,6 +1020,7 @@ public class Specimen extends BaseExtensionEntity {
 		setCreatedOn(specimen.getCreatedOn()); // required for auto-collection of parent specimens
 		updateCollectionStatus(specimen.getCollectionStatus());
 		updatePosition(specimen.getPosition(), null, specimen.getTransferTime(), specimen.getTransferComments());
+		updateCreatedBy(specimen.getCreatedBy());
 
 		if (isCollected()) {
 			Date createdOn = specimen.getCreatedOn();
@@ -1174,8 +1185,33 @@ public class Specimen extends BaseExtensionEntity {
 		}
 	}
 
-	public void updateCreatedOn(Date createdOn) {
+	public void returnSpecimen(DistributionOrderItem item) {
+		if (isClosed()) {
+			setAvailableQuantity(item.getReturnedQuantity());
+			activate();
+		} else {
+			if (getAvailableQuantity() == null) {
+				setAvailableQuantity(item.getReturnedQuantity());
+			} else {
+				setAvailableQuantity(getAvailableQuantity().add(item.getReturnedQuantity()));
+			}
+		}
+
+		StorageContainer container = item.getReturningContainer();
+		if (container != null) {
+			StorageContainerPosition position = container.createPosition(item.getReturningColumn(), item.getReturningRow());
+			transferTo(position, item.getReturnDate(), "Specimen returned");
+		}
+
+		SpecimenReturnEvent.createForDistributionOrderItem(item).saveRecordEntry();
+	}
+
+	private void updateCreatedOn(Date createdOn) {
 		this.createdOn = createdOn;
+		if (getParentEvent() != null && createdOn != null && !createdOn.equals(getParentEvent().getTime())) {
+			getParentEvent().setTime(createdOn);
+			getParentEvent().getChildren().forEach(spmn -> spmn.setCreatedOn(createdOn));
+		}
 
 		if (createdOn == null) {
 			for (Specimen childSpecimen : getChildCollection()) {
@@ -1205,27 +1241,14 @@ public class Specimen extends BaseExtensionEntity {
 		}*/
 	}
 
-	public void returnSpecimen(DistributionOrderItem item) {
-		if (isClosed()) {
-			setAvailableQuantity(item.getReturnedQuantity());
-			activate();
-		} else {
-			if (getAvailableQuantity() == null) {
-				setAvailableQuantity(item.getReturnedQuantity());
-			} else {
-				setAvailableQuantity(getAvailableQuantity().add(item.getReturnedQuantity()));
-			}
+	private void updateCreatedBy(User user) {
+		if (isPrimary() || user == null || getParentEvent() == null) {
+			return;
 		}
 
-		StorageContainer container = item.getReturningContainer();
-		if (container != null) {
-			StorageContainerPosition position = container.createPosition(item.getReturningColumn(), item.getReturningRow());
-			transferTo(position, item.getReturnDate(), "Specimen returned");
-		}
-
-		SpecimenReturnEvent.createForDistributionOrderItem(item).saveRecordEntry();
+		getParentEvent().setUser(user);
 	}
-	
+
 	private void addDisposalEvent(User user, Date time, String reason) {
 		SpecimenDisposalEvent event = new SpecimenDisposalEvent(this);
 		event.setReason(reason);
@@ -1609,7 +1632,7 @@ public class Specimen extends BaseExtensionEntity {
 			currentEvent = new SpecimenChildrenEvent();
 			currentEvent.setSpecimen(this);
 			currentEvent.setLineage(childSpmn.getLineage());
-			currentEvent.setUser(AuthUtil.getCurrentUser());
+			currentEvent.setUser(childSpmn.getCreatedBy() != null ? childSpmn.getCreatedBy() : AuthUtil.getCurrentUser());
 			currentEvent.setTime(childSpmn.getCreatedOn());
 			getChildrenEvents().add(currentEvent);
 		}

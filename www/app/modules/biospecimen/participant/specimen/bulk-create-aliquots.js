@@ -127,6 +127,7 @@ angular.module('os.biospecimen.specimen')
         status: 'Collected',
         children: [],
         createdOn: spec.createdOn,
+        createdBy: spec.createdBy,
         printLabel: spec.printLabel
       });
     }
@@ -136,6 +137,7 @@ angular.module('os.biospecimen.specimen')
         lineage: 'Derived',
         parentId: spec.parent.id,
         createdOn: spec.createdOn,
+        createdBy: spec.createdBy,
         specimenClass: spec.specimenClass,
         type: spec.type,
         initialQty: Math.round(spec.count * spec.quantity),
@@ -275,6 +277,7 @@ angular.module('os.biospecimen.specimen')
                   type: spmn.type,
                   concentration: spmn.concentration,
                   createdOn: spmn.createdOn,
+                  createdBy: spmn.createdBy,
                   containerName: spmn.storageLocation && spmn.storageLocation.name,
                   positionX: spmn.storageLocation && spmn.storageLocation.positionX,
                   positionY: spmn.storageLocation && spmn.storageLocation.positionY,

@@ -679,6 +679,7 @@
     "container": "Container",
     "biohazards": "Biohazards",
     "created_on": "Created On",
+    "created_by": "Created By",
     "cp": "Collection Protocol",
     "ppid": "PPID",
     "concentration_unit": "&#181;g/&#181;l",

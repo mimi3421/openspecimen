@@ -9,6 +9,7 @@ import java.util.Set;
 import org.apache.commons.collections.CollectionUtils;
 
 import com.krishagni.catissueplus.core.common.events.NameValuePair;
+import com.krishagni.catissueplus.core.common.events.UserSummary;
 import com.krishagni.catissueplus.core.de.events.ExtensionDetail;
 
 public class MasterSpecimenDetail {
@@ -95,6 +96,8 @@ public class MasterSpecimenDetail {
 	private BigDecimal concentration;
 	
 	private Date createdOn;
+
+	private UserSummary createdBy;
 	
 	private String comments;
 	
@@ -480,6 +483,14 @@ public class MasterSpecimenDetail {
 
 	public void setCreatedOn(Date createdOn) {
 		this.createdOn = createdOn;
+	}
+
+	public UserSummary getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(UserSummary createdBy) {
+		this.createdBy = createdBy;
 	}
 
 	public String getComments() {

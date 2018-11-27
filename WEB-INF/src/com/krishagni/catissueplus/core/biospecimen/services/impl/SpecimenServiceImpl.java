@@ -429,6 +429,7 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 				aliquot.setParentLabel(derived == null ? parentSpecimen.getLabel() : null);
 				aliquot.setParentId(derived == null ? parentSpecimen.getId() : null);
 				aliquot.setCreatedOn(spec.getCreatedOn());
+				aliquot.setCreatedBy(spec.getCreatedBy());
 				aliquot.setFreezeThawCycles(spec.getFreezeThawCycles());
 				aliquot.setIncrParentFreezeThaw(spec.getIncrParentFreezeThaw());
 				aliquot.setCloseParent(spec.closeParent());
@@ -1129,6 +1130,7 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 		derived.setLineage(Specimen.DERIVED);
 		derived.setParentId(parentSpecimen.getId());
 		derived.setCreatedOn(spec.getCreatedOn());
+		derived.setCreatedBy(spec.getCreatedBy());
 		derived.setSpecimenClass(spec.getSpecimenClass());
 		derived.setType(spec.getType());
 		derived.setStatus(Specimen.COLLECTED);

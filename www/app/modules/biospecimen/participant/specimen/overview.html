@@ -243,6 +243,11 @@
         <span class="value value-md">{{specimen.createdOn | date: global.dateTimeFmt | osNoValue}}</span>
       </li>
 
+      <li class="item" ng-if="specimen.lineage != 'New'">
+        <strong class="key key-sm" translate="specimens.created_by">Created By</strong>
+        <span class="value value-md">{{specimen.createdBy | osUserDisplayName | osNoValue}}</span>
+      </li>
+
       <li class="item">
         <strong class="key key-sm" translate="specimens.freeze_thaw_cycles">Freeze/Thaw Cycles</strong>
         <span class="value value-md">{{specimen.freezeThawCycles | osNoValue}}</span>
