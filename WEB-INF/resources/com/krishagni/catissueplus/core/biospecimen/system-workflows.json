@@ -235,6 +235,79 @@
         }
     },
     {
+        "name": "order-specimens-list-view",
+        "data": {
+            "columns": [
+                {
+                    "expr": "Specimen.specimenOrders.label",
+                    "caption": "Distribution Label"
+                },
+                {
+                    "expr": "Specimen.label",
+                    "caption": "Label",
+                    "metainfo": {
+                        "showLink": "true"
+                    }
+                },
+                {
+                    "expr": "Specimen.type",
+                    "caption": "Type"
+                },
+                {
+                    "expr": "Specimen.tissueSite",
+                    "caption": "Anatomic Site"
+                },
+                {
+                    "expr": "CollectionProtocol.shortTitle",
+                    "caption": "Collection Protocol"
+                },
+                {
+                    "expr": "Specimen.specimenOrders.quantity",
+                    "caption": "Quantity",
+                    "metainfo": {
+                        "showUnit": "true",
+                        "measure": "quantity"
+                    }
+                },
+                {
+                    "expr": "concat(Specimen.specimenPosition.containerName, concat_ws(\"\", concat(\" (\", Specimen.specimenPosition.formattedPos, \")\")))",
+                    "caption": "Location"
+                },
+                {
+                    "expr": "Specimen.specimenOrders.status",
+                    "caption": "Status"
+                }
+            ],
+            "hideEmptyColumns": true,
+            "criteria": "",
+            "orderBy": [
+                {
+                    "expr": "Specimen.specimenOrders.itemId",
+                    "direction": "asc"
+                }
+            ],
+            "filters": [
+                {
+                    "expr": "Specimen.label",
+                    "caption": "Label",
+                    "searchType": "contains"
+                },
+                {
+                    "expr": "Specimen.type",
+                    "caption": "Type"
+                },
+                {
+                    "expr": "Specimen.tissueSite",
+                    "caption": "Anatomic Site"
+                },
+                {
+                    "expr": "CollectionProtocol.shortTitle",
+                    "caption": "Collection Protocol"
+                }
+            ]
+        }
+    },
+    {
         "name": "common",
         "data": {
             "aliquotsCollection": [

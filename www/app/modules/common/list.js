@@ -39,6 +39,7 @@ angular.module('openspecimen')
               }
 
               ctx = $scope.ctx = {
+                hideEmptyColumns: resp.data.hideEmptyColumns,
                 filtersCfg: resp.data.filters,
                 filters: Util.filterOpts({}),
                 data: {},
@@ -70,6 +71,10 @@ angular.module('openspecimen')
               ctx.data = resp.data;
               if (params.includeCount) {
                 ctx.listSize = resp.data.size;
+              }
+
+              if (ctx.hideEmptyColumns) {
+                hideEmptyColumns(ctx.data);
               }
 
               pagerOpts.refreshOpts(resp.data.rows);
@@ -120,6 +125,17 @@ angular.module('openspecimen')
           );
         }
 
+        function hideEmptyColumns(data) {
+          angular.forEach(data.columns,
+            function(column, idx) {
+              column.hide = data.rows.every(
+                function(row) {
+                  return row.data[idx] == 'Not Specified' || (!row.data[idx] && row.data[idx] != 0);
+                }
+              );
+            }
+          );
+        }
 
         this.getSelectedItems = function() {
           if (!$scope.checkList) {

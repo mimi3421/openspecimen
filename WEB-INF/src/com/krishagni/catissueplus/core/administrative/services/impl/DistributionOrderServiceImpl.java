@@ -25,6 +25,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.task.AsyncTaskExecutor;
 
 import com.krishagni.catissueplus.core.administrative.domain.DistributionOrder;
@@ -94,11 +95,15 @@ import com.krishagni.catissueplus.core.de.domain.SavedQuery;
 import com.krishagni.catissueplus.core.de.events.ExecuteQueryEventOp;
 import com.krishagni.catissueplus.core.de.events.QueryDataExportResult;
 import com.krishagni.catissueplus.core.de.services.QueryService;
+import com.krishagni.catissueplus.core.query.Column;
+import com.krishagni.catissueplus.core.query.ListConfig;
+import com.krishagni.catissueplus.core.query.ListService;
+import com.krishagni.catissueplus.core.query.ListUtil;
 import com.krishagni.rbac.common.errors.RbacErrorCode;
 
 import edu.common.dynamicextensions.query.WideRowMode;
 
-public class DistributionOrderServiceImpl implements DistributionOrderService, ObjectAccessor {
+public class DistributionOrderServiceImpl implements DistributionOrderService, ObjectAccessor, InitializingBean {
 	private static final Log logger = LogFactory.getLog(DistributionOrderServiceImpl.class);
 
 	private static final long ASYNC_CALL_TIMEOUT = 5000L;
@@ -120,6 +125,8 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 	private List<EntityCrudListener<DistributionOrderDetail, DistributionOrder>> listeners = new ArrayList<>();
 
 	private LabelPrinter<DistributionOrderItem> labelPrinter;
+
+	private ListService listSvc;
 
 	public void setDaoFactory(DaoFactory daoFactory) {
 		this.daoFactory = daoFactory;
@@ -163,6 +170,10 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 
 	public void setLabelPrinter(LabelPrinter<DistributionOrderItem> labelPrinter) {
 		this.labelPrinter = labelPrinter;
+	}
+
+	public void setListSvc(ListService listSvc) {
+		this.listSvc = listSvc;
 	}
 
 	@Override
@@ -542,6 +553,11 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 	public void ensureReadAllowed(Long id) {
 		DistributionOrder order = getOrder(id, null);
 		AccessCtrlMgr.getInstance().ensureReadDistributionOrderRights(order);
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		listSvc.registerListConfigurator("order-specimens-list-view", this::getOrderSpecimensConfig);
 	}
 
 	private DistributionOrderListCriteria addOrderListCriteria(DistributionOrderListCriteria crit) {
@@ -1523,6 +1539,45 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 				throw OpenSpecimenException.userError(RbacErrorCode.ACCESS_DENIED);
 			}
 		}
+	}
+
+	private ListConfig getOrderSpecimensConfig(Map<String, Object> listReq) {
+		Number orderId = (Number) listReq.get("orderId");
+		if (orderId == null) {
+			orderId = (Number) listReq.get("objectId");
+		}
+
+		if (orderId == null) {
+			return null;
+		}
+
+		DistributionOrder order = getOrder(orderId.longValue(), null);
+		AccessCtrlMgr.getInstance().ensureReadDistributionOrderRights(order);
+
+		ListConfig cfg = ListUtil.getSpecimensListConfig("order-specimens-list-view", false);
+		ListUtil.addHiddenFieldsOfSpecimen(cfg);
+		if (cfg == null) {
+			return null;
+		}
+
+		Column itemId = new Column();
+		itemId.setExpr("Specimen.specimenOrders.itemId");
+		itemId.setCaption("orderItemId_");
+		cfg.getHiddenColumns().add(itemId);
+
+		String restriction = "Specimen.specimenOrders.id = " + order.getId();
+		cfg.setDrivingForm("Specimen");
+		cfg.setRestriction(restriction);
+		cfg.setDistinct(true);
+
+		if (CollectionUtils.isEmpty(cfg.getOrderBy())) {
+			Column orderBy = new Column();
+			orderBy.setExpr("Specimen.specimenOrders.id");
+			orderBy.setDirection("asc");
+			cfg.setOrderBy(Collections.singletonList(orderBy));
+		}
+
+		return ListUtil.setListLimit(cfg, listReq);
 	}
 
 	private void raiseError(ErrorCode error, Object ... args) {

@@ -632,6 +632,7 @@
     <property name="deDaoFactory"        ref="deDaoFactory"/>
     <property name="taskExecutor"        ref="taskExecutor"/>
     <property name="labelPrinter"        ref="defaultDistributionLabelPrinter"/>
+    <property name="listSvc"             ref="listSvc"/>
     <property name="validators">
       <list>
         <bean class="com.krishagni.catissueplus.core.administrative.services.impl.DistributionConsentValidator">

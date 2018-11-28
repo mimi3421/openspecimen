@@ -1,5 +1,9 @@
 package com.krishagni.catissueplus.core.biospecimen;
 
+import java.io.InputStream;
+import java.util.Map;
+
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,12 +17,16 @@ import com.krishagni.catissueplus.core.common.util.ConfigUtil;
 
 @Configurable
 public class WorkflowUtil {
+	private static final String DEF_SYS_WORKFLOWS = "/com/krishagni/catissueplus/core/biospecimen/system-workflows.json";
+
 	private static WorkflowUtil instance = null;
 
 	@Autowired
 	private ConfigurationService cfgSvc;
 
 	private CpWorkflowConfig sysWorkflows;
+
+	private CpWorkflowConfig defSysWorkflows;
 
 	public static WorkflowUtil getInstance() {
 		if (instance == null || instance.cfgSvc == null) {
@@ -69,10 +77,36 @@ public class WorkflowUtil {
 				if (StringUtils.isNotBlank(config)) {
 					sysWorkflows.setWorkflowsJson(config);
 				}
+
+				mergeWithDefSysWorkflows(sysWorkflows.getWorkflows());
 			}
 		}
 
 		return sysWorkflows;
+	}
+
+	private void mergeWithDefSysWorkflows(Map<String, Workflow> configuredWfs) {
+		if (defSysWorkflows == null) {
+			InputStream in = null;
+			try {
+				in = getClass().getResourceAsStream(DEF_SYS_WORKFLOWS);
+				String workflowJson = IOUtils.toString(in);
+				defSysWorkflows = new CpWorkflowConfig();
+				defSysWorkflows.setWorkflowsJson(workflowJson);
+			} catch (Exception e) {
+				throw new RuntimeException("Error loading default system workflows", e);
+			} finally {
+				IOUtils.closeQuietly(in);
+			}
+		}
+
+		defSysWorkflows.getWorkflows().forEach(
+			(name, wf) -> {
+				if (!configuredWfs.containsKey(name)) {
+					configuredWfs.put(name, wf);
+				}
+			}
+		);
 	}
 
 	private void listenForConfigChanges() {

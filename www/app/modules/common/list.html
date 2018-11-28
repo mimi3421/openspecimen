@@ -8,7 +8,7 @@
               <os-checkbox ng-change="checkList.toggleSelectAll()" ng-model="checkList.allSelected"></os-checkbox>
             </div>
           </th>
-          <th class="col" ng-repeat="column in ctx.data.columns">
+          <th class="col" ng-repeat="column in ctx.data.columns" ng-if="!column.hide">
             <span>{{column.caption}}</span>
           </th>
         </tr>
@@ -21,7 +21,7 @@
               </os-checkbox>
             </div>
           </td>
-          <td class="col text-wrap" ng-repeat="col in row.data track by $index">
+          <td class="col text-wrap" ng-repeat="col in row.data track by $index" ng-if="!ctx.data.columns[$index].hide">
             <span ng-switch on="ctx.data.columns[$index].metainfo.showLink == 'true'">
               <span ng-switch-when="true">
                 <a ui-sref="{{itemSref}}">

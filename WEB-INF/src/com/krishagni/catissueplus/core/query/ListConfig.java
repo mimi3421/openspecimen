@@ -16,6 +16,8 @@ public class ListConfig {
 
 	private String restriction;
 
+	private boolean hideEmptyColumns;
+
 	private List<Column> orderBy = new ArrayList<>();
 
 	private List<Column> filters = new ArrayList<>();
@@ -76,6 +78,14 @@ public class ListConfig {
 
 	public void setRestriction(String restriction) {
 		this.restriction = restriction;
+	}
+
+	public boolean isHideEmptyColumns() {
+		return hideEmptyColumns;
+	}
+
+	public void setHideEmptyColumns(boolean hideEmptyColumns) {
+		this.hideEmptyColumns = hideEmptyColumns;
 	}
 
 	public List<Column> getOrderBy() {

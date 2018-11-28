@@ -730,6 +730,15 @@
 
         <row>
           <numberField>
+            <name>itemId</name>
+            <udn>itemId</udn>
+            <caption>#getMessage("specimen_order_item_id")</caption>
+            <column>IDENTIFIER</column>
+          </numberField>
+        </row>
+
+        <row>
+          <numberField>
             <name>id</name>
             <udn>id</udn>
             <caption>#getMessage("specimen_order_id")</caption>
@@ -746,6 +755,15 @@
             <column>NAME</column>
             <recordUrl>#/object-state-params-resolver?stateName=order-detail.overview&amp;objectName=distribution_order&amp;key=name&amp;value={{$value}}</recordUrl>
           </textField>  
+        </row>
+
+        <row>
+          <textField>
+            <name>label</name>
+            <udn>label</udn>
+            <caption>#getMessage("specimen_distribution_label")</caption>
+            <column>LABEL</column>
+          </textField>
         </row>
 
         <row>

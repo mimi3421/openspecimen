@@ -100,8 +100,12 @@ public class DefaultListGenerator implements ListGenerator {
 		}
 
 		StringBuilder distinct = new StringBuilder("distinct ");
-		distinct.append(cfg.getOrderBy().stream().map(this::getSelectExpr).collect(Collectors.joining(", ")));
-		return distinct.append(", ").toString();
+		if (!cfg.getOrderBy().isEmpty()) {
+			distinct.append(cfg.getOrderBy().stream().map(this::getSelectExpr).collect(Collectors.joining(", ")))
+				.append(", ");
+		}
+
+		return distinct.toString();
 	}
 
 	private String getSelectExpr(ListConfig cfg) {

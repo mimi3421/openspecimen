@@ -1,23 +1,18 @@
 angular.module('os.administrative.order')
-  .controller('OrderItemsCtrl', function($scope, order, PluginReg, CommentsUtil, CheckList, DistributionLabelPrinter) {
+  .controller('OrderItemsCtrl', function($scope, $state, order, CommentsUtil, DistributionLabelPrinter) {
   
-    var ctx = {
-      totalItems: 0,
-      currPage: 1,
-      itemsPerPage: 100,
-      items: [],
-      checkList: new CheckList([]),
-      loading: false,
-      showRetrieveBtn: false,
-      itemFieldsHdrTmpls:  PluginReg.getTmpls('order-detail', 'item-fields-header', ''),
-      itemFieldsCellTmpls: PluginReg.getTmpls('order-detail', 'item-fields-overview', '')
-    };
+    var ctx;
 
     function init() {
-      $scope.ctx = ctx;
-      loadOrderItems(); 
+      ctx = $scope.ctx = {
+        showRetrieveBtn: false,
+        params: {
+          listName: 'order-specimens-list-view',
+          objectId: order.id,
+          hideEmptyColumns: true
+        }
+      };
       showOrHideRetrieve();
-      $scope.$watch('ctx.currPage', loadOrderItems);
     }
 
     function showOrHideRetrieve() {
@@ -33,55 +28,6 @@ angular.module('os.administrative.order')
       );
     }
 
-    function loadOrderItems(fromStart) {
-      //
-      // if pending order is created using specimen list, show specimen list link
-      //
-      if (order.status === 'PENDING' && !!order.specimenList) {
-        return;
-      }
-
-      if (fromStart) {
-        ctx.currPage = 1;
-      }
-
-      var startAt     = (ctx.currPage - 1) * ctx.itemsPerPage;
-      var maxResults  = ctx.itemsPerPage + 1;
-      var queryParams = {startAt: startAt, maxResults: maxResults};
-      ctx.loading = true;
-      order.getOrderItems(queryParams).then(
-        function(orderItems) {
-          ctx.totalItems = (ctx.currPage - 1) * ctx.itemsPerPage + orderItems.length;
-          if (orderItems.length >= maxResults) {
-            orderItems.splice(orderItems.length - 1, 1);
-          }
-
-          ctx.items = orderItems;
-          ctx.checkList = new CheckList(orderItems);
-          ctx.loading = false;
-
-          var i = 0;
-          ctx.showLocations = false, ctx.showDistLabels = false;
-          for (var i = 0; i < orderItems.length; ++i) {
-            var item = orderItems[i];
-
-            if (!ctx.showLocations) {
-              ctx.showLocations = !!item.specimen.storageLocation && !!item.specimen.storageLocation.name;
-            }
-
-            if (!ctx.showDistLabels) {
-              ctx.showDistLabels = !!item.label;
-            }
-
-            if (ctx.showLocations && ctx.showDistLabels) {
-              break;
-            }
-          }
-
-        }
-      );
-    }
-
     $scope.retrieveSpecimens = function() {
       var opts = {
         header: 'specimen_list.retrieve_specimens', headerParams: {},
@@ -93,7 +39,7 @@ angular.module('os.administrative.order')
         function(comments) {
           order.retrieveSpecimens({comments: comments}).then(
             function(count) {
-              loadOrderItems(true);
+              ctx.listCtrl.loadList();
               ctx.showRetrieveBtn = false;
             }
           );
@@ -102,14 +48,22 @@ angular.module('os.administrative.order')
     }
 
     $scope.printLabels = function() {
-      var items = ctx.checkList.getSelectedItems();
-      if (!items || items.length == 0) {
+      var itemIds = ctx.listCtrl.getSelectedItems().map(function(item) { return item.hidden.orderItemId_ });
+      if (itemIds.length == 0) {
         alert("No order items selected");
         return;
       }
 
-      var itemIds = items.map(function(item) { return item.id; });
       DistributionLabelPrinter.printLabels({orderId: order.id, itemIds: itemIds}, order.name + '.csv');
+    }
+
+    $scope.setListCtrl = function(listCtrl) {
+      ctx.listCtrl = listCtrl;
+      ctx.showSearch = listCtrl.haveFilters;
+    }
+
+    $scope.showSpecimen = function(row) {
+      $state.go('specimen', {specimenId: row.hidden.specimenId});
     }
 
     init();
