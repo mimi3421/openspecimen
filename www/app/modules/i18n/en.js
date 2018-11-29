@@ -2443,7 +2443,7 @@
         "saml_enable": "SAML Authentication",
         "saml_enable_desc": "Enable single sign on using SAML based identity provider.",
         "password_expiry_days": "Password Age",
-        "password_expiry_days_desc": "Number of days before passwords expire",
+        "password_expiry_days_desc": "Number of days before passwords expire.",
         "passwords_to_examine": "Password History",
         "passwords_to_examine_desc": "Number of unique passwords before an old password can be reused.",
         "password_pattern": "Password Complexity",
@@ -2680,14 +2680,6 @@
         "email_users_dp_role_updated_desc": "Send an email when a new distribution protocol is created.",
         "cc_import_emails_to_admin": "Bulk Import Emails to Admin",
         "cc_import_emails_to_admin_desc": "Copy bulk import emails to administrator email ID as well."
-      },
-
-      "catalog": {
-        "title": "Catalog",
-        "default_query": "CP Catalog Query",
-        "default_query_desc": "Identifier of saved query to be used as CP catalog query. This setting value is used when CP specific catalog query is not specified",
-        "default_spmn_centric_query": "Specimen centric CP Catalog Query",
-        "default_spmn_centric_query_desc": "Identifier of saved query to be used as catalog query for specimen centric CPs. If this setting is not specified then regular CP catalog query is used"
       },
 
       "query": {

@@ -99,4 +99,27 @@
       //
     </sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="Remove unused catalog settings">
+    <sql>
+      delete from
+        os_cfg_settings
+      where property_id in (
+        select
+          p.identifier
+        from
+          os_cfg_props p
+          inner join os_modules m on m.identifier = p.module_id
+        where
+          m.name = 'catalog' and
+          p.name in ('default_query', 'default_spmn_centric_query')
+      );
+
+      delete from
+        os_cfg_props
+      where
+        module_id in (select identifier from os_modules where name = 'catalog') and
+        name in ('default_query', 'default_spmn_centric_query')
+    </sql>
+  </changeSet>
 </databaseChangeLog>
