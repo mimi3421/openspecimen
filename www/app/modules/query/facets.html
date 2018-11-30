@@ -43,10 +43,22 @@
           </div>
         </div>
 
-        <div ng-if="!facet.isRange && (!!facet.searchFor || facet.values.length > 10)">
+        <div ng-if="!facet.isRange && !facet.hideOptions && (!!facet.searchFor || facet.values.length > 10)">
           <div class="os-md-input">
             <input type="text" ng-model="facet.searchFor" placeholder="{{'queries.search_filter_value' | translate}}"
               ng-change="searchFacetValue(facet)">
+          </div>
+        </div>
+
+        <div ng-if="!facet.isRange && facet.hideOptions">
+          <div class="form-group os-md-input">
+            <textarea ng-model="facet.searchFor" placeholder="{{'queries.multiple_filter_values' | translate}}" rows="2">
+            </textarea>
+          </div>
+          <div class="form-group">
+            <button class="btn btn-xs btn-success" ng-click="addCond(facet)">
+              <span>Go</span>
+            </button>
           </div>
         </div>
 

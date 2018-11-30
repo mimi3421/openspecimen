@@ -111,19 +111,25 @@
           ng-checked="queryLocal.currFilter.parameterized">
           <span translate="queries.parameterized_filter">Parameterized Filter</span>
       </label>
+
+      <label class="checkbox-inline" ng-if="queryLocal.currFilter.field.type == 'STRING'">
+        <input type="checkbox" ng-model="queryLocal.currFilter.hideOptions"
+          ng-checked="queryLocal.currFilter.hideOptions">
+        <span translate="queries.hide_filter_values">Hide Options</span>
+      </label>
     </div>
 
     <div class="form-group"> 
       <button class="btn btn-success" ng-disabled="disableAddEditFilterBtn()" 
-        ng-click="addFilter()" ng-if="!queryLocal.currFilter.id" translate="common.buttons.add">
-        Add
+        ng-click="addFilter()" ng-if="!queryLocal.currFilter.id">
+        <span translate="common.buttons.add">Add</span>
       </button>
       <button class="btn btn-success" ng-disabled="disableAddEditFilterBtn()" 
-        ng-click="editFilter()" ng-if="queryLocal.currFilter.id" translate="common.buttons.edit">
-        Edit
+        ng-click="editFilter()" ng-if="queryLocal.currFilter.id">
+        <span translate="common.buttons.edit">Edit</span>
       </button>
-      <button class="btn btn-default" ng-click="cancelFilter()" translate="common.buttons.cancel">
-        Cancel
+      <button class="btn btn-default" ng-click="cancelFilter()">
+        <span translate="common.buttons.cancel">Cancel</span>
       </button>
     </div>
   </div>

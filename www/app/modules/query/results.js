@@ -17,7 +17,7 @@ angular.module('os.query.results', ['os.query.models'])
   })
   .controller('QueryResultsCtrl', function(
     $scope, $state, $stateParams, $modal, $document, $timeout, $interpolate, currentUser,
-    queryCtx, cps, QueryCtxHolder, QueryUtil, QueryExecutor, SpecimenList, SpecimensHolder, Alerts) {
+    queryCtx, cps, QueryCtxHolder, QueryUtil, QueryExecutor, SpecimenList, SpecimensHolder, Util, Alerts) {
 
     var STR_FACETED_OPS = ['eq', 'qin', 'exists', 'any'];
 
@@ -272,13 +272,14 @@ angular.module('os.query.results', ['os.query.models'])
         values: values,
         valuesQ: undefined,
         selectedValues: [],
-        subset: !!values,
-        isOpen: false
+        subset: !filter.hideOptions && !!values,
+        isOpen: false,
+        hideOptions: filter.hideOptions
       };
     }
 
     function loadFacetValues(facet, searchTerm) {
-      if (facet.dataType != 'STRING' || facet.subset) {
+      if (facet.dataType != 'STRING' || facet.subset || facet.hideOptions) {
         return;
       }
 
@@ -759,9 +760,13 @@ angular.module('os.query.results', ['os.query.models'])
         $event.stopPropagation();
       }
 
-      angular.forEach(facet.values, function(value) {
-        value.selected = false;
-      });
+      if (facet.hideOptions) {
+        facet.values = [];
+      } else {
+        angular.forEach(facet.values, function(value) {
+          value.selected = false;
+        });
+      }
 
       $scope.toggleFacetValueSelection(facet);
       facet.isOpen = false;
@@ -805,6 +810,18 @@ angular.module('os.query.results', ['os.query.models'])
 
       facet.values = [{value: [min, max], selected: true}];
       $scope.toggleFacetValueSelection(facet);
+    }
+
+    $scope.addCond = function(facet) {
+      var values = Util.splitStr(facet.searchFor, /,|\t|\n/, false);
+      if (values.length == 0) {
+        return;
+      }
+
+      facet.selectedValues = values;
+      facet.values = values.map(function(value) { return {value: value, selected: true} });
+      $scope.toggleFacetValueSelection(facet, {});
+      facet.searchFor = undefined;
     }
 
     $scope.saveQuery = function() {

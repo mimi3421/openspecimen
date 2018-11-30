@@ -55,6 +55,8 @@ public class Filter {
 	
 	private boolean parameterized;
 
+	private boolean hideOptions;
+
 	public int getId() {
 		return id;
 	}
@@ -117,6 +119,14 @@ public class Filter {
 
 	public void setParameterized(boolean parameterized) {
 		this.parameterized = parameterized;
+	}
+
+	public boolean isHideOptions() {
+		return hideOptions;
+	}
+
+	public void setHideOptions(boolean hideOptions) {
+		this.hideOptions = hideOptions;
 	}
 
 	public void setEqValues(List<Object> values) {

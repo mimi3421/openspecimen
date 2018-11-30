@@ -1810,7 +1810,9 @@
     "catalogs": "Catalogs",
     "search_cp": "Search Collection Protocol",
     "no_catalog": "No catalog configured for {{shortTitle}}",
-    "search_filter_value": "Search Filter Value"
+    "search_filter_value": "Search Filter Value",
+    "multiple_filter_values": "Enter filter values separated by a comma, tab or newline ...",
+    "hide_filter_values": "Hide Options"
   },
 
   "entities": {

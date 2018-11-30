@@ -99,7 +99,7 @@ angular.module('os.query.models.savedquery', ['os.common.models'])
             return {
               id: filter.id, field: filter.form.name + "." + filter.field.name,
               op: filter.op.model, values: values,
-              parameterized: filter.parameterized
+              parameterized: filter.parameterized, hideOptions: filter.hideOptions
             };
           }
         }
