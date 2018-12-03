@@ -15,7 +15,7 @@
           </div>
         </div>
       </div>
-      <div ng-switch on="!filter.expr">
+      <div ng-switch on="!filter.expr && !filter.desc">
         <div ng-switch-when="true"> 
           <i>{{filter.form.caption}} &gt;&gt; </i>
           <i ng-if="filter.field.extensionForm">{{filter.field.extensionForm}} &gt;&gt; </i>

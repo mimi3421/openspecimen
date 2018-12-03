@@ -579,7 +579,8 @@ angular.module('os.query.util', ['os.query.models', 'os.query.save'])
         form: getForm(selectedCp, formName),
         fieldName: fieldName.substr(dotIdx + 1),
         parameterized: filterDef.parameterized,
-        hideOptions: filterDef.hideOptions
+        hideOptions: filterDef.hideOptions,
+        desc: filterDef.desc
       };
 
       if (filterDef.subQueryId) {

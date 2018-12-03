@@ -179,10 +179,38 @@ angular.module('os.query.results', ['os.query.models'])
     }
 
     function loadFacets() {
+      var facets = getFacets($scope.queryCtx.filters);
+      $scope.resultsCtx.facets = facets;
+      $scope.resultsCtx.hasFacets = (facets.length > 0);
+    }
+
+
+    function getFacets(filters) {
       var facets = [];
-      angular.forEach($scope.queryCtx.filters,
+
+      angular.forEach(filters,
         function(filter, index) {
-          if (!filter.parameterized) {
+          if (!filter.parameterized && !filter.subQuery) {
+            return;
+          }
+
+          if (filter.subQuery) {
+            //
+            // if the sub-query has parameterised filters then all the facet
+            // values are loaded instead of loading only those that satisfy
+            // the query criteria
+            //
+            var sqFacets = getFacets(filter.subQuery.context.filters);
+            if (sqFacets.length > 0) {
+              criteria = undefined;
+            }
+
+            angular.forEach(sqFacets,
+              function(sqFacet) {
+                sqFacet.queryCtx = sqFacet.queryCtx || filter.subQuery.context;
+                facets.push(sqFacet);
+              }
+            );
             return;
           }
 
@@ -229,8 +257,7 @@ angular.module('os.query.results', ['os.query.models'])
         }
       );
 
-      $scope.resultsCtx.facets = facets;
-      $scope.resultsCtx.hasFacets = (facets.length > 0);
+      return facets;
     }
 
     function getFacet(filter, index) {
@@ -264,7 +291,7 @@ angular.module('os.query.results', ['os.query.models'])
 
       return {
         id: filter.id,
-        caption: !!filter.expr ? filter.desc : filter.field.caption,
+        caption: !!filter.expr || !!filter.desc ? filter.desc : filter.field.caption,
         dataType: type,
         isRange: isRangeType,
         expr: !!filter.expr ? filter.expr : (filter.form.name + "." + filter.field.name),
@@ -682,7 +709,8 @@ angular.module('os.query.results', ['os.query.models'])
     }
 
     $scope.toggleFacetValueSelection = function(facet, toggledValue) {
-      angular.forEach($scope.queryCtx.filters, function(filter) {
+      var ctx = facet.queryCtx || $scope.queryCtx;
+      angular.forEach(ctx.filters, function(filter) {
         if (filter.id != facet.id) {
           return;
         }

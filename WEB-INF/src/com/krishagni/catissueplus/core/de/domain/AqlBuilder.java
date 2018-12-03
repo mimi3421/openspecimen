@@ -82,7 +82,7 @@ public class AqlBuilder {
 
 		return query + whereClause;
 	}
-	
+
 	private String buildSelectClause(Map<Integer, Filter> filterMap, Object[] selectList) {
 		if (selectList == null || selectList.length == 0) {
 			return "";
@@ -109,26 +109,26 @@ public class AqlBuilder {
 			} else {
 				String fieldExpr = getFieldExpr(filterMap, aggField, false);
 					
-				StringBuilder fnExpr = new StringBuilder("");
+				StringBuilder fnExpr = new StringBuilder();
 				for (Function fn : aggField.getAggFns()) {
 					if (fnExpr.length() > 0) {
 						fnExpr.append(", ");
 					}
-						
+
 					if (fn.getName().equals("count")) {
 						fnExpr.append("count(distinct ");
 					} else {
 						fnExpr.append(fn.getName()).append("(");
 					}
-						
+
 					fnExpr.append(fieldExpr).append(") as \"").append(fn.getDesc()).append(" \"");
 				}
-					
+
 				select.append(fnExpr.toString()).append(", ");
 			}
 		}
-		
-		int endIdx = select.length() - 2;		
+
+		int endIdx = select.length() - 2;
 		return select.substring(0, endIdx < 0 ? 0 : endIdx);
 	}
 	
@@ -156,8 +156,8 @@ public class AqlBuilder {
 		}
 
 		return expr;
-	}	
-	
+	}
+
 	private String buildWhereClause(Context ctx, Map<Integer, Filter> filterMap, QueryExpressionNode[] queryExprNodes) {
 		StringBuilder whereClause = new StringBuilder();
 		
@@ -221,12 +221,15 @@ public class AqlBuilder {
 		}
 
 		if (filter.getSubQueryId() != null) {
-			SavedQuery query = ctx.getQuery(filter.getSubQueryId()).copy();
+			SavedQuery query = filter.getSubQuery();
+			if (query == null) {
+				query = ctx.getQuery(filter.getSubQueryId()).copy();
+				filter.setSubQuery(query);
+			}
 
 			ctx.addActiveQuery(filter.getSubQueryId());
 			String subAql = getQuery(ctx, new Object[] { field }, query.getFilters(), null, query.getQueryExpression());
 			ctx.removeActiveQuery(filter.getSubQueryId());
-
 			return filterExpr.append("(").append(subAql).append(")").toString();
 		}
 
