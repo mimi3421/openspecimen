@@ -349,7 +349,7 @@
                             "pattern" : "/^[1-9][0-9]*$/",
                             "modelOpts": {"allowInvalid": true},
                             "optional": true,
-                            "width": "100px"
+                            "width": "80px"
                         },
                         {
                             "name": "specimen.qtyPerAliquot",
@@ -357,7 +357,7 @@
                             "type" : "specimen-quantity",
                             "specimen": "specimen",
                             "optional": true,
-                            "width": "100px"
+                            "width": "80px"
                         },
                         {
                             "name": "specimen.createdOn",
@@ -365,6 +365,13 @@
                             "type" : "date",
                             "optional" : true,
                             "defaultValue" : "current_date"
+                        },
+                        {
+                            "name": "specimen.createdBy",
+                            "caption": "Created By",
+                            "type": "user",
+                            "defaultValue": "current_user",
+                            "optional": true
                         },
                         {
                             "name": "specimen.storageLocation",
@@ -388,7 +395,8 @@
                             "caption": "Close Parent",
                             "icon": "fa fa-ban",
                             "type": "toggle-checkbox",
-                            "width": "30px"
+                            "width": "30px",
+                            "defaultValue": true
                         }
                     ]
                 }
