@@ -903,6 +903,7 @@ public class QueryServiceImpl implements QueryService {
 		
 		savedQuery.setLastUpdatedBy(AuthUtil.getCurrentUser());
 		savedQuery.setLastUpdated(Calendar.getInstance().getTime());
+		savedQuery.setHavingClause(detail.getHavingClause());
 		savedQuery.setReporting(detail.getReporting());
 		savedQuery.setWideRowMode(detail.getWideRowMode());
 		savedQuery.setOutputColumnExprs(detail.isOutputColumnExprs());
@@ -911,9 +912,10 @@ public class QueryServiceImpl implements QueryService {
 
 	private String getAql(SavedQueryDetail queryDetail) {
 		return AqlBuilder.getInstance().getQuery(
-				queryDetail.getSelectList(),
-				queryDetail.getFilters(),
-				queryDetail.getQueryExpression());
+			queryDetail.getSelectList(),
+			queryDetail.getFilters(),
+			queryDetail.getQueryExpression(),
+			queryDetail.getHavingClause());
 	}
 
 	private Query getQuery(ExecuteQueryEventOp op) {

@@ -371,6 +371,7 @@ angular.module('os.query.results', ['os.query.models'])
         qc.selectedFields, 
         qc.filtersMap, 
         qc.exprNodes, 
+        qc.havingClause,
         qc.reporting,
         addLimit,
         addPropIds);

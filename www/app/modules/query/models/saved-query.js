@@ -71,6 +71,7 @@ angular.module('os.query.models.savedquery', ['os.common.models'])
         queryExpression: getCuratedExprNodes(qc.exprNodes),
         cpId: qc.selectedCp.id,
         drivingForm: qc.drivingForm,
+        havingClause: qc.havingClause,
         reporting: qc.reporting,
         wideRowMode: qc.wideRowMode,
         outputColumnExprs: qc.outputColumnExprs

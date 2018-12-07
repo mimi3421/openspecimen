@@ -36,6 +36,8 @@ public class SavedQuery {
 	private QueryExpressionNode[] queryExpression;
 
 	private Object[] selectList;
+
+	private String havingClause;
 	
 	private ReportSpec reporting;
 
@@ -154,7 +156,15 @@ public class SavedQuery {
 	public void setSelectList(Object[] selectList) {
 		this.selectList = selectList;
 	}
-	
+
+	public String getHavingClause() {
+		return havingClause;
+	}
+
+	public void setHavingClause(String havingClause) {
+		this.havingClause = havingClause;
+	}
+
 	@NotAudited
 	public ReportSpec getReporting() {
 		return reporting;
@@ -241,6 +251,7 @@ public class SavedQuery {
 		query.queryExpression = queryExpression;
 		query.drivingForm = drivingForm;
 		query.folders = null;
+		query.havingClause = havingClause;
 		query.reporting = reporting;
 		query.wideRowMode = wideRowMode;
 		query.outputColumnExprs = outputColumnExprs;
@@ -271,21 +282,22 @@ public class SavedQuery {
 		this.filters = query.filters;
 		this.queryExpression = query.queryExpression;
 		this.drivingForm = query.drivingForm;
+		this.havingClause = query.havingClause;
 		this.reporting = query.reporting;
 		this.wideRowMode = query.wideRowMode;
 		this.outputColumnExprs = query.outputColumnExprs;
 	}
 	
 	public String getAql() {
-		return AqlBuilder.getInstance().getQuery(selectList, filters, queryExpression);
+		return AqlBuilder.getInstance().getQuery(selectList, filters, queryExpression, havingClause);
 	}
 	
 	public String getAql(Filter[] conjunctionFilters) {
-		return AqlBuilder.getInstance().getQuery(selectList, filters, conjunctionFilters, queryExpression);
+		return AqlBuilder.getInstance().getQuery(selectList, filters, conjunctionFilters, queryExpression, havingClause);
 	}
 
 	public String getAql(String conjunction) {
-		return AqlBuilder.getInstance().getQuery(selectList, filters, conjunction, queryExpression);
+		return AqlBuilder.getInstance().getQuery(selectList, filters, conjunction, queryExpression, havingClause);
 	}
 	
 	public void update(SavedQuery query) {
@@ -298,6 +310,7 @@ public class SavedQuery {
 		setFilters(query.getFilters());
 		setSubQueries(query.getSubQueries());
 		setQueryExpression(query.getQueryExpression());
+		setHavingClause(query.getHavingClause());
 		setReporting(query.getReporting());
 		setWideRowMode(query.getWideRowMode());
 		setOutputColumnExprs(query.isOutputColumnExprs());

@@ -37,12 +37,12 @@ public class AqlBuilder {
 	public static AqlBuilder getInstance() {
 		return new AqlBuilder();
 	}
-	
-	public String getQuery(Object[] selectList, Filter[] filters, QueryExpressionNode[] queryExprNodes) {
-		return getQuery(selectList, filters, StringUtils.EMPTY, queryExprNodes);
+
+	public String getQuery(Object[] selectList, Filter[] filters, QueryExpressionNode[] queryExprNodes, String havingClause) {
+		return getQuery(selectList, filters, StringUtils.EMPTY, queryExprNodes, havingClause);
 	}
-	
-	public String getQuery(Object[] selectList, Filter[] filters, Filter[] conjunctionFilters, QueryExpressionNode[] queryExprNodes) {
+
+	public String getQuery(Object[] selectList, Filter[] filters, Filter[] conjunctionFilters, QueryExpressionNode[] queryExprNodes, String havingClause) {
 		Context ctx = new Context();
 
 		StringBuilder conjunctionExpr = new StringBuilder();
@@ -56,14 +56,14 @@ public class AqlBuilder {
 			}
 		}
 
-		return getQuery(ctx, selectList, filters, conjunctionExpr.toString(), queryExprNodes);
+		return getQuery(ctx, selectList, filters, conjunctionExpr.toString(), queryExprNodes, havingClause);
 	}
 
-	public String getQuery(Object[] selectList, Filter[] filters, String conjunction, QueryExpressionNode[] queryExprNodes) {
-		return getQuery(new Context(), selectList, filters, conjunction, queryExprNodes);
+	public String getQuery(Object[] selectList, Filter[] filters, String conjunction, QueryExpressionNode[] queryExprNodes, String havingClause) {
+		return getQuery(new Context(), selectList, filters, conjunction, queryExprNodes, havingClause);
 	}
 
-	private String getQuery(Context ctx, Object[] selectList, Filter[] filters, String conjunction, QueryExpressionNode[] queryExprNodes) {
+	private String getQuery(Context ctx, Object[] selectList, Filter[] filters, String conjunction, QueryExpressionNode[] queryExprNodes, String havingClause) {
 		Map<Integer, Filter> filterMap = new HashMap<>();
 		for (Filter filter : filters) {
 			filterMap.put(filter.getId(), filter);
@@ -80,7 +80,12 @@ public class AqlBuilder {
 			query = "select " + selectClause + " where ";
 		}
 
-		return query + whereClause;
+		query += whereClause;
+		if (StringUtils.isNotBlank(havingClause)) {
+			query += " having " + havingClause;
+		}
+
+		return query;
 	}
 
 	private String buildSelectClause(Map<Integer, Filter> filterMap, Object[] selectList) {
@@ -228,7 +233,7 @@ public class AqlBuilder {
 			}
 
 			ctx.addActiveQuery(filter.getSubQueryId());
-			String subAql = getQuery(ctx, new Object[] { field }, query.getFilters(), null, query.getQueryExpression());
+			String subAql = getQuery(ctx, new Object[] { field }, query.getFilters(), null, query.getQueryExpression(), query.getHavingClause());
 			ctx.removeActiveQuery(filter.getSubQueryId());
 			return filterExpr.append("(").append(subAql).append(")").toString();
 		}

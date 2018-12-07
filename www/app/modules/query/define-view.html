@@ -154,6 +154,15 @@
   <div class="os-query-dv-pivot-table form-horizontal">
     <div class="os-offset-form-horizontal">
       <div class="form-group">
+        <label class="control-label os-col-20">
+          <span translate="queries.aggregate_constraints">Aggregate Constraints</span>
+        </label>
+        <div class="os-col-80">
+          <textarea class="form-control" ng-model="dctx.havingClause" rows="2"></textarea>
+        </div>
+      </div>
+
+      <div class="form-group">
         <label class="control-label os-col-20" translate="queries.report_type">
           Report Type
         </label>

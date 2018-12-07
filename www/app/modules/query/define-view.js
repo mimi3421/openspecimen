@@ -15,6 +15,7 @@ angular.module('os.query.defineview', ['os.query.models'])
     function init() {
       initAggFnsDesc();
 
+      $scope.dctx = {havingClause: queryCtx.havingClause};
       $scope.outputColumnExprs = queryCtx.outputColumnExprs;
       $scope.wideRowMode = angular.copy(queryCtx.wideRowMode); 
       $scope.reporting = angular.copy(queryCtx.reporting);
@@ -91,7 +92,8 @@ angular.module('os.query.defineview', ['os.query.models'])
          outputColumnExprs: $scope.outputColumnExprs,
          wideRowMode: $scope.wideRowMode, 
          selectedFields: $scope.selectedFields, 
-         reporting: $scope.reporting
+         reporting: $scope.reporting,
+         havingClause: $scope.dctx.havingClause
         })
       );
     }

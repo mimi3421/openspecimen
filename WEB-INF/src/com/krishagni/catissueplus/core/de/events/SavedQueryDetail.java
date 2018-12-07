@@ -16,6 +16,8 @@ public class SavedQueryDetail extends SavedQuerySummary {
 	private QueryExpressionNode[] queryExpression;
 
 	private Object[] selectList;
+
+	private String havingClause;
 	
 	private ReportSpec reporting;
 	
@@ -64,7 +66,15 @@ public class SavedQueryDetail extends SavedQuerySummary {
 	public void setSelectList(Object[] selectList) {
 		this.selectList = selectList;
 	}
-	
+
+	public String getHavingClause() {
+		return havingClause;
+	}
+
+	public void setHavingClause(String havingClause) {
+		this.havingClause = havingClause;
+	}
+
 	public ReportSpec getReporting() {
 		return reporting;
 	}
@@ -110,6 +120,7 @@ public class SavedQueryDetail extends SavedQuerySummary {
 		detail.setFilters(savedQuery.getFilters());
 		detail.setQueryExpression(savedQuery.getQueryExpression());
 		detail.setSelectList(savedQuery.getSelectList());
+		detail.setHavingClause(savedQuery.getHavingClause());
 		detail.setReporting(savedQuery.getReporting());
 		detail.setWideRowMode(savedQuery.getWideRowMode());
 		detail.setOutputColumnExprs(savedQuery.isOutputColumnExprs());

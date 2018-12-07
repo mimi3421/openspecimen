@@ -86,7 +86,7 @@ angular.module('os.query.addedit', ['os.query.models', 'os.query.util', 'os.quer
 
     $scope.getCount = function() {
       var ql = $scope.queryLocal;
-      var aql = QueryUtil.getCountAql(ql.filtersMap, ql.exprNodes);
+      var aql = QueryUtil.getCountAql(ql.filtersMap, ql.exprNodes, ql.havingClause);
 
       ql.waitingForCnt = true;
       ql.countResults = undefined;

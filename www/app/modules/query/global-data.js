@@ -143,6 +143,7 @@ angular.module('os.query.globaldata', ['os.query.models', 'os.biospecimen.models
         exprNodes: [],
         filterId: 0,
         selectedFields: selectList,
+        havingClause: savedQuery.havingClause,
         reporting: savedQuery.reporting || {type: 'none', params: {}},
         selectedCp: {id: savedQuery.cpId},
         isValid: true,

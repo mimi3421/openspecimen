@@ -1704,6 +1704,7 @@
     "selected_fields": "Selected Fields",
     "agg_fns": "Aggregate Functions",
     "select_field_in_left_panel": "Select field in list on the left side panel",
+    "aggregate_constraints": "Aggregate Filters",
 
     "create_pivot_table": "Create Pivot Table",
     "row_fields": "Row Fields",

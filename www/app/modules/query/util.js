@@ -474,7 +474,7 @@ angular.module('os.query.util', ['os.query.models', 'os.query.save'])
            getWhereExpr(filtersMap, exprNodes);
     }
 
-    function getDataAql(selectedFields, filtersMap, exprNodes, reporting, addLimit, addPropIds) {
+    function getDataAql(selectedFields, filtersMap, exprNodes, havingClause, reporting, addLimit, addPropIds) {
       addPropIds = !!addPropIds && (!reporting || reporting.type != 'crosstab');
 
       var selectList = getSelectList(selectedFields, filtersMap, addPropIds);
@@ -482,6 +482,7 @@ angular.module('os.query.util', ['os.query.models', 'os.query.save'])
       var rptExpr = getRptExpr(selectedFields, reporting);
       return "select " + selectList + 
              " where " + where +
+             (!!havingClause ? (" having " + havingClause) : "") +
              (addLimit ? " limit 0, 10000 " : " ")  + rptExpr;
     }
 
