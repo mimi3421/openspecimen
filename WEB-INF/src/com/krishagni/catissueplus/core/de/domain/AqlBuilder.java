@@ -82,6 +82,8 @@ public class AqlBuilder {
 
 		query += whereClause;
 		if (StringUtils.isNotBlank(havingClause)) {
+			havingClause = havingClause.replaceAll("count\\s*\\(", "count(distinct ");
+			havingClause = havingClause.replaceAll("c_count\\s*\\(", "c_count(distinct ");
 			query += " having " + havingClause;
 		}
 
@@ -122,6 +124,8 @@ public class AqlBuilder {
 
 					if (fn.getName().equals("count")) {
 						fnExpr.append("count(distinct ");
+					} else if (fn.getName().equals("c_count")) {
+						fnExpr.append("c_count(distinct ");
 					} else {
 						fnExpr.append(fn.getName()).append("(");
 					}

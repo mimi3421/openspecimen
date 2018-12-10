@@ -482,8 +482,18 @@ angular.module('os.query.util', ['os.query.models', 'os.query.save'])
       var rptExpr = getRptExpr(selectedFields, reporting);
       return "select " + selectList + 
              " where " + where +
-             (!!havingClause ? (" having " + havingClause) : "") +
+             getHavingClause(havingClause) +
              (addLimit ? " limit 0, 10000 " : " ")  + rptExpr;
+    }
+
+    function getHavingClause(havingClause) {
+      if (!havingClause) {
+        return "";
+      }
+
+      havingClause = havingClause.replace(/count\s*\(/g, "count(distinct ");
+      havingClause = havingClause.replace(/c_count\s*\(/g, "c_count(distinct ")
+      return " having " + havingClause;
     }
 
     function getDefSelectedFields() {
