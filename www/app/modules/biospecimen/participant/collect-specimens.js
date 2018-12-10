@@ -638,7 +638,7 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
       function collected(reqIds, specimens) {
         return (specimens || []).filter(
           function(specimen) {
-            return specimen.status == 'Collected' && (!specimen.reqId || reqIds.indexOf(specimen.reqId) != -1);
+            return specimen.status != 'Pending' && (!specimen.reqId || reqIds.indexOf(specimen.reqId) != -1);
           }
         );
       }
@@ -1177,7 +1177,13 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
       function init() {
         var specimens = CollectSpecimensSvc.getSpecimens();
         CollectSpecimensSvc.cleanupSpecimens(specimens);
-        specimens.forEach(function(spmn) { spmn.status = 'Collected'; });
+        specimens.forEach(
+          function(spmn) {
+            if (!spmn.status || spmn.status == 'Pending') {
+              spmn.status = 'Collected';
+            }
+          }
+        );
 
         var opts = $scope.opts = {viewCtx: $scope, onValueChange: onValueChangeCb};
         var groups = $scope.customFieldGroups = SpecimenUtil.sdeGroupSpecimens(
