@@ -354,7 +354,7 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
           );
         }
 
-        visit.visitDate = visit.visitDate || visit.anticipatedVisitDate || new Date();
+        visit.visitDate = visit.visitDate || new Date();
         visit.cprId = cpr.id;
         delete visit.anticipatedVisitDate;
         if (!!latestVisit) {
