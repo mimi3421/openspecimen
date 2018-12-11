@@ -113,7 +113,7 @@ public class PrintRuleConfigDetail {
 		detail.setUpdatedOn(rule.getUpdatedOn());
 		detail.setActivityStatus(rule.getActivityStatus());
 		detail.setDescription(rule.getDescription());
-		detail.setRule(rule.getRuleDef());
+		detail.setRule(rule.getRuleDef(true));
 		return detail;
 	}
 

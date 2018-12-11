@@ -5,20 +5,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.context.MessageSource;
 import org.springframework.security.web.util.matcher.IpAddressMatcher;
 import org.springframework.util.ReflectionUtils;
 
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.util.MessageUtil;
+import com.krishagni.catissueplus.core.common.util.Utility;
 
 public abstract class LabelPrintRule {
 	public enum CmdFileFmt {
@@ -46,9 +45,7 @@ public abstract class LabelPrintRule {
 	
 	private IpAddressMatcher ipAddressMatcher;
 
-	private String domainName;
-
-	private List<String> users = new ArrayList<>();
+	private List<User> users = new ArrayList<>();
 	
 	private String printerName;
 	
@@ -76,24 +73,17 @@ public abstract class LabelPrintRule {
 		this.ipAddressMatcher = ipAddressMatcher;
 	}
 
-	public String getDomainName() {
-		return domainName;
-	}
 
-	public void setDomainName(String domainName) {
-		this.domainName = domainName;
-	}
-
-	public void setUserLogin(String userLogin) {
+	public void setUserLogin(User user) {
 		users = new ArrayList<>();
-		users.add(userLogin);
+		users.add(user);
 	}
 
-	public List<String> getUsers() {
+	public List<User> getUsers() {
 		return users;
 	}
 
-	public void setUsers(List<String> users) {
+	public void setUsers(List<User> users) {
 		this.users = users;
 	}
 
@@ -145,10 +135,10 @@ public abstract class LabelPrintRule {
 	}
 
 	public boolean isApplicableFor(User user, String ipAddr) {
-		if (CollectionUtils.isNotEmpty(users) && !users.contains(user.getLoginName())) {
+		if (CollectionUtils.isNotEmpty(users) && !users.stream().anyMatch(u -> u.equals(user))) {
 			return false;
 		}
-		
+
 		if (ipAddressMatcher != null && !ipAddressMatcher.matches(ipAddr)) {
 			return false;
 		}
@@ -187,7 +177,7 @@ public abstract class LabelPrintRule {
 		StringBuilder result = new StringBuilder();
 		result.append("label design = ").append(getLabelDesign())
 			.append(", label type = ").append(getLabelType())
-			.append(", user = ").append(getUsers().stream().collect(Collectors.joining(",")))
+			.append(", user = ").append(getUsersList(true))
 			.append(", printer = ").append(getPrinterName());
 
 		String tokens = getDataTokens().stream()
@@ -198,25 +188,28 @@ public abstract class LabelPrintRule {
 	}
 
 	public Map<String, String> toDefMap() {
+		return toDefMap(false);
+	}
+
+	public Map<String, String> toDefMap(boolean ufn) {
 		try {
 			Map<String, String> rule = new HashMap<>();
 			rule.put("labelType", getLabelType());
 			rule.put("ipAddressMatcher", getIpAddressRange(getIpAddressMatcher()));
-			rule.put("domainName", getDomainName());
-			rule.put("users", getUsers().stream().collect(Collectors.joining(",")));
+			rule.put("users", getUsersList(ufn));
 			rule.put("printerName", getPrinterName());
 			rule.put("cmdFilesDir", getCmdFilesDir());
 			rule.put("labelDesign", getLabelDesign());
 			rule.put("dataTokens", getTokenNames());
 			rule.put("cmdFileFmt", getCmdFileFmt().fmt);
-			rule.putAll(getDefMap());
+			rule.putAll(getDefMap(ufn));
 			return rule;
 		} catch (Exception e) {
 			throw new RuntimeException("Error in creating map from print rule ", e);
 		}
 	}
 
-	protected abstract Map<String, String> getDefMap();
+	protected abstract Map<String, String> getDefMap(boolean ufn);
 
 	protected boolean isWildCard(String str) {
 		return StringUtils.isBlank(str) || str.trim().equals("*");
@@ -246,5 +239,10 @@ public abstract class LabelPrintRule {
 		Field field = ReflectionUtils.findField(obj.getClass(), fieldName);
 		field.setAccessible(true);
 		return (T)ReflectionUtils.getField(field, obj);
+	}
+
+	private String getUsersList(boolean ufn) {
+		Function<User, String> mapper = ufn ? (u) -> u.getLoginName() : (u) -> u.getId().toString();
+		return Utility.nullSafeStream(getUsers()).map(mapper).collect(Collectors.joining(","));
 	}
 }

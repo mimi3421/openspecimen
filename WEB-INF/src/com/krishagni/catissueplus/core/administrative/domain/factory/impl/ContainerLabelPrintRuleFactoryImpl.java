@@ -13,14 +13,14 @@ import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 
 public class ContainerLabelPrintRuleFactoryImpl extends AbstractLabelPrintRuleFactory {
 	@Override
-	public LabelPrintRule fromRuleDef(Map<String, String> ruleDef, OpenSpecimenException ose) {
+	public LabelPrintRule fromRuleDef(Map<String, String> ruleDef, boolean failOnError, OpenSpecimenException ose) {
 		ContainerLabelPrintRule rule = new ContainerLabelPrintRule();
 
-		setSiteId(ruleDef, rule, ose);
+		setSite(ruleDef, failOnError, rule, ose);
 		return rule;
 	}
 
-	private void setSiteId(Map<String, String> ruleDef, ContainerLabelPrintRule rule, OpenSpecimenException ose) {
+	private void setSite(Map<String, String> ruleDef, boolean failOnError, ContainerLabelPrintRule rule, OpenSpecimenException ose) {
 		String input = ruleDef.get("site");
 		if (StringUtils.isBlank(input)) {
 			return;
@@ -33,10 +33,10 @@ public class ContainerLabelPrintRuleFactoryImpl extends AbstractLabelPrintRuleFa
 			site = daoFactory.getSiteDao().getSiteByName(input);
 		}
 
-		if (site == null) {
-			throw OpenSpecimenException.userError(SiteErrorCode.NOT_FOUND, input);
+		if (failOnError && site == null) {
+			ose.addError(SiteErrorCode.NOT_FOUND, input);
 		}
 
-		rule.setSiteId(site.getId());
+		rule.setSite(site);
 	}
 }

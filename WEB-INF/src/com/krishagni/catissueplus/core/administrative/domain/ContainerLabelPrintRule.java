@@ -6,14 +6,14 @@ import java.util.Map;
 import com.krishagni.catissueplus.core.common.domain.LabelPrintRule;
 
 public class ContainerLabelPrintRule extends LabelPrintRule {
-	private Long siteId;
+	private Site site;
 
-	public Long getSiteId() {
-		return siteId;
+	public Site getSite() {
+		return site;
 	}
 
-	public void setSiteId(Long siteId) {
-		this.siteId = siteId;
+	public void setSite(Site site) {
+		this.site = site;
 	}
 
 	public boolean isApplicableFor(StorageContainer container, User user, String ipAddr) {
@@ -21,17 +21,18 @@ public class ContainerLabelPrintRule extends LabelPrintRule {
 			return false;
 		}
 
-		return getSiteId() == null || getSiteId().equals(container.getSite().getId());
+		return getSite() == null || getSite().equals(container.getSite());
 	}
 
 	@Override
-	protected Map<String, String> getDefMap() {
+	protected Map<String, String> getDefMap(boolean ufn) {
 		Map<String, String> ruleDef = new HashMap<>();
-		ruleDef.put("site", getSiteId() != null ? getSiteId().toString() : null);
+
+		ruleDef.put("site", getSite() != null ? (ufn ? getSite().getName() : getSite().getId().toString()) : null);
 		return ruleDef;
 	}
 
 	public String toString() {
-		return super.toString() + ", site = " + getSiteId();
+		return super.toString() + ", site = " + getSite().getName();
 	}
 }

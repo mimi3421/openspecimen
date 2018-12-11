@@ -4,19 +4,22 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 
 import com.krishagni.catissueplus.core.common.domain.LabelPrintRule;
+import com.krishagni.catissueplus.core.common.util.Utility;
 
 public class DistributionLabelPrintRule extends LabelPrintRule {
-	private List<String> dps = new ArrayList<>();
+	private List<DistributionProtocol> dps = new ArrayList<>();
 
-	public List<String> getDps() {
+	public List<DistributionProtocol> getDps() {
 		return dps;
 	}
 
-	public void setDps(List<String> dps) {
+	public void setDps(List<DistributionProtocol> dps) {
 		this.dps = dps;
 	}
 
@@ -25,25 +28,23 @@ public class DistributionLabelPrintRule extends LabelPrintRule {
 			return false;
 		}
 
-		if (CollectionUtils.isNotEmpty(dps) && !dps.contains(dpShortTitle(item))) {
-			return false;
-		}
-
-		return true;
+		return CollectionUtils.isEmpty(dps) || dps.stream().anyMatch(dp -> item.getOrder().getDistributionProtocol().equals(dp));
 	}
 
 	@Override
-	protected Map<String, String> getDefMap() {
+	protected Map<String, String> getDefMap(boolean ufn) {
 		Map<String, String> ruleDef = new HashMap<>();
-		ruleDef.put("dps", String.join(",", getDps()));
+
+		ruleDef.put("dps", getDps(ufn));
 		return ruleDef;
 	}
 
 	public String toString() {
-		return super.toString() + ", dp = " + String.join(",", getDps());
+		return super.toString() + ", dp = " + getDps(true);
 	}
 
-	private String dpShortTitle(DistributionOrderItem item) {
-		return item.getOrder().getDistributionProtocol().getShortTitle();
+	private String getDps(boolean ufn) {
+		Function<DistributionProtocol, String> dpMapper = ufn ? DistributionProtocol::getShortTitle : (dp) -> dp.getId().toString();
+		return Utility.nullSafeStream(dps).map(dpMapper).collect(Collectors.joining(","));
 	}
 }

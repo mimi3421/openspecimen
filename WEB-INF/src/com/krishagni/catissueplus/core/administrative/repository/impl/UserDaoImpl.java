@@ -79,9 +79,16 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 		return users.isEmpty() ? null : users.get(0);
 	}
 
-	public List<User> getUsers(List<String> loginNames, String domainName) {
-		String hql = String.format(GET_USER_BY_LOGIN_NAME_HQL, " and activityStatus != 'Disabled'");
-		return executeGetUserByLoginNameHql(hql, loginNames, domainName);
+	public List<User> getUsers(Collection<String> loginNames, String domainName) {
+		Criteria query = getCurrentSession().createCriteria(User.class, "u")
+			.add(Restrictions.in("u.loginName", loginNames));
+
+		if (StringUtils.isNotBlank(domainName)) {
+			query.createAlias("u.authDomain", "domain")
+				.add(Restrictions.eq("domain.name", domainName));
+		}
+
+		return query.list();
 	}
 	
 	@Override
@@ -96,9 +103,7 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 	}
 	
 	public Boolean isUniqueLoginName(String loginName, String domainName) {
-		String hql = String.format(GET_USER_BY_LOGIN_NAME_HQL, "");
-		List<User> users = executeGetUserByLoginNameHql(hql, Collections.singletonList(loginName), domainName);
-		return users.isEmpty();
+		return getUser(loginName, domainName) == null;
 	}
 	
 	public Boolean isUniqueEmailAddress(String emailAddress) {
@@ -463,10 +468,7 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 		return dependentEntities;
  	}
 
-	private static final String GET_USER_BY_LOGIN_NAME_HQL =
-			"from com.krishagni.catissueplus.core.administrative.domain.User where loginName in (:loginNames) and authDomain.name = :domainName  %s";
-	
-	private static final String GET_USER_BY_EMAIL_HQL = 
+	private static final String GET_USER_BY_EMAIL_HQL =
 			"from com.krishagni.catissueplus.core.administrative.domain.User where emailAddress = :emailAddress %s";
 	
 	private static final String FQN = User.class.getName();

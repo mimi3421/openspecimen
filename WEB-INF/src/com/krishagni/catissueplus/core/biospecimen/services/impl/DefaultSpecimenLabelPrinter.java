@@ -4,9 +4,9 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -16,8 +16,10 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationListener;
 import org.springframework.security.web.util.matcher.IpAddressMatcher;
 
+import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.biospecimen.ConfigParams;
+import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenLabelPrintRule;
 import com.krishagni.catissueplus.core.biospecimen.events.FileDetail;
@@ -28,6 +30,7 @@ import com.krishagni.catissueplus.core.common.domain.PrintRuleConfig;
 import com.krishagni.catissueplus.core.common.events.OpenSpecimenEvent;
 import com.krishagni.catissueplus.core.common.service.ChangeLogService;
 import com.krishagni.catissueplus.core.common.service.ConfigurationService;
+import com.krishagni.catissueplus.core.common.util.Utility;
 
 public class DefaultSpecimenLabelPrinter extends AbstractLabelPrinter<Specimen> implements InitializingBean, ApplicationListener<OpenSpecimenEvent> {
 	private static final Log logger = LogFactory.getLog(DefaultSpecimenLabelPrinter.class);
@@ -134,11 +137,11 @@ public class DefaultSpecimenLabelPrinter extends AbstractLabelPrinter<Specimen> 
 
 		int idx = 0;
 		SpecimenLabelPrintRule rule = new SpecimenLabelPrintRule();
-		rule.setCps(Stream.of(ruleLineFields[idx++].split(",")).collect(Collectors.toList()));
-		rule.setVisitSite(ruleLineFields[idx++]);
+		rule.setCps(getCps(ruleLineFields[idx++]));
+		rule.setVisitSite(getSite(ruleLineFields[idx++]));
 		rule.setSpecimenClass(ruleLineFields[idx++]);
 		rule.setSpecimenType(ruleLineFields[idx++]);
-		rule.setUsers(Stream.of(ruleLineFields[idx++].split(",")).collect(Collectors.toList()));
+		rule.setUsers(getUsers(ruleLineFields[idx++]));
 
 		if (!ruleLineFields[idx++].equals("*")) {
 			rule.setIpAddressMatcher(new IpAddressMatcher(ruleLineFields[idx - 1]));
@@ -189,13 +192,34 @@ public class DefaultSpecimenLabelPrinter extends AbstractLabelPrinter<Specimen> 
 		return ruleCfg;
 	}
 
+	private List<CollectionProtocol> getCps(String cpsList) {
+		if (StringUtils.isBlank(cpsList) || cpsList.trim().equals("*")) {
+			return Collections.emptyList();
+		}
+
+		return daoFactory.getCollectionProtocolDao().getCpsByShortTitle(Utility.csvToStringList(cpsList));
+	}
+
+	private Site getSite(String siteName) {
+		if (StringUtils.isBlank(siteName) || siteName.trim().equals("*")) {
+			return null;
+		}
+
+		return daoFactory.getSiteDao().getSiteByName(siteName);
+	}
+
+	private List<User> getUsers(String usersList) {
+		if (StringUtils.isBlank(usersList) || usersList.trim().equals("*")) {
+			return Collections.emptyList();
+		}
+
+		return daoFactory.getUserDao().getUsers(Utility.csvToStringList(usersList), null);
+	}
+
 	private SpecimenLabelPrintRule replaceWildcardsWithNull(SpecimenLabelPrintRule rule) {
-		rule.setCps(replaceWildcardWithNull(rule.getCps()));
-		rule.setVisitSite(replaceWildcardWithNull(rule.getVisitSite()));
 		rule.setLineage(replaceWildcardWithNull(rule.getLineage()));
 		rule.setSpecimenClass(replaceWildcardWithNull(rule.getSpecimenClass()));
 		rule.setSpecimenType(replaceWildcardWithNull(rule.getSpecimenType()));
-		rule.setUsers(replaceWildcardWithNull(rule.getUsers()));
 		rule.setLabelType(replaceWildcardWithNull(rule.getLabelType()));
 		rule.setLabelDesign(replaceWildcardWithNull(rule.getLabelDesign()));
 		rule.setPrinterName(replaceWildcardWithNull(rule.getPrinterName()));

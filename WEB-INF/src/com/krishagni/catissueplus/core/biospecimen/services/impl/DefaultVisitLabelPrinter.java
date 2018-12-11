@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -134,7 +135,7 @@ public class DefaultVisitLabelPrinter extends AbstractLabelPrinter<Visit> implem
 			VisitLabelPrintRule rule = new VisitLabelPrintRule();
 			rule.setCpShortTitle(ruleLineFields[idx++]);
 			rule.setVisitSite(ruleLineFields[idx++]);
-			rule.setUserLogin(ruleLineFields[idx++]);
+			rule.setUserLogin(getUser(ruleLineFields[idx++]));
 			
 			if (!ruleLineFields[idx++].equals("*")) {
 				rule.setIpAddressMatcher(new IpAddressMatcher(ruleLineFields[idx - 1]));
@@ -175,5 +176,13 @@ public class DefaultVisitLabelPrinter extends AbstractLabelPrinter<Visit> implem
 		}
 		
 		return null;
+	}
+
+	private User getUser(String loginName) {
+		if (StringUtils.isBlank(loginName) || loginName.equals("*")) {
+			return null;
+		}
+
+		return daoFactory.getUserDao().getUser(loginName, null);
 	}
 }

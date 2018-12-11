@@ -45,7 +45,7 @@ public class VisitLabelPrintRule extends LabelPrintRule {
 	}
 
 	@Override
-	protected Map<String, String> getDefMap() {
+	protected Map<String, String> getDefMap(boolean ufn) {
 		Map<String, String> ruleDef = new HashMap<>();
 		ruleDef.put("cpShortTitle", getCpShortTitle());
 		ruleDef.put("visitSite", getVisitSite());

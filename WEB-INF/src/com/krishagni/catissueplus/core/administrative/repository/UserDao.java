@@ -23,7 +23,7 @@ public interface UserDao extends Dao<User> {
 	
 	public User getUser(String loginName, String domain);
 
-	List<User> getUsers(List<String> loginNames, String domainName);
+	List<User> getUsers(Collection<String> loginNames, String domain);
 	
 	public User getSystemUser();
 	

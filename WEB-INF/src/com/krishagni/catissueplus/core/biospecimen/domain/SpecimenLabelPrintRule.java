@@ -4,16 +4,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
+import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.common.domain.LabelPrintRule;
+import com.krishagni.catissueplus.core.common.util.Utility;
 
 public class SpecimenLabelPrintRule extends LabelPrintRule {
-	private List<String> cps = new ArrayList<>();
+	private List<CollectionProtocol> cps = new ArrayList<>();
 
-	private String visitSite;
+	private Site visitSite;
 
 	private String specimenClass;
 	
@@ -21,24 +26,24 @@ public class SpecimenLabelPrintRule extends LabelPrintRule {
 
 	private String lineage;
 
-	public void setCpShortTitle(String cpShortTitle) {
+	public void setCp(CollectionProtocol cp) {
 		cps = new ArrayList<>();
-		cps.add(cpShortTitle);
+		cps.add(cp);
 	}
 
-	public List<String> getCps() {
+	public List<CollectionProtocol> getCps() {
 		return cps;
 	}
 
-	public void setCps(List<String> cps) {
+	public void setCps(List<CollectionProtocol> cps) {
 		this.cps = cps;
 	}
 
-	public String getVisitSite() {
+	public Site getVisitSite() {
 		return visitSite;
 	}
 
-	public void setVisitSite(String visitSite) {
+	public void setVisitSite(Site visitSite) {
 		this.visitSite = visitSite;
 	}
 
@@ -75,24 +80,24 @@ public class SpecimenLabelPrintRule extends LabelPrintRule {
 			return false;
 		}
 
-		if (CollectionUtils.isNotEmpty(cps) && !cps.contains(specimen.getCollectionProtocol().getShortTitle())) {
+		if (CollectionUtils.isNotEmpty(cps) && !cps.stream().anyMatch(cp -> cp.equals(specimen.getCollectionProtocol()))) {
 			return false;
 		}
 
 		Visit visit = specimen.getVisit();
-		if (!isWildCard(visitSite) && (visit.getSite() == null || !visit.getSite().getName().equals(visitSite))) {
+		if (visitSite != null && !visitSite.equals(visit.getSite())) {
 			return false;
 		}
 
-		if (!isWildCard(specimenClass) && !specimen.getSpecimenClass().equals(specimenClass)) {
+		if (StringUtils.isNotBlank(specimenClass) && !specimenClass.equals(specimen.getSpecimenClass())) {
 			return false;
 		}
 		
-		if (!isWildCard(specimenType) && !specimen.getSpecimenType().equals(specimenType)) {
+		if (StringUtils.isNotBlank(specimenType) && !specimenType.equals(specimen.getSpecimenType())) {
 			return false;
 		}
 
-		if (!isWildCard(lineage) && !specimen.getLineage().equals(lineage)) {
+		if (StringUtils.isNotBlank(lineage) && !lineage.equals(specimen.getLineage())) {
 			return false;
 		}
 		
@@ -100,10 +105,11 @@ public class SpecimenLabelPrintRule extends LabelPrintRule {
 	}
 
 	@Override
-	protected Map<String, String> getDefMap() {
+	protected Map<String, String> getDefMap(boolean ufn) {
 		Map<String, String> ruleDef = new HashMap<>();
-		ruleDef.put("cps", String.join(",", getCps()));
-		ruleDef.put("visitSite", getVisitSite());
+
+		ruleDef.put("cps", getCpList(ufn));
+		ruleDef.put("visitSite", getSite(ufn, getVisitSite()));
 		ruleDef.put("specimenClass", getSpecimenClass());
 		ruleDef.put("specimenType", getSpecimenType());
 		ruleDef.put("lineage", getLineage());
@@ -112,9 +118,9 @@ public class SpecimenLabelPrintRule extends LabelPrintRule {
 
 	public String toString() {
 		return new StringBuilder(super.toString())
-			.append(", cp = ").append(String.join(",", getCps()))
+			.append(", cp = ").append(getCpList(true))
 			.append(", lineage = ").append(getLineage())
-			.append(", visit site = ").append(getVisitSite())
+			.append(", visit site = ").append(getSite(true, getVisitSite()))
 			.append(", specimen class = ").append(getSpecimenClass())
 			.append(", specimen type = ").append(getSpecimenType())
 			.toString();
@@ -122,5 +128,14 @@ public class SpecimenLabelPrintRule extends LabelPrintRule {
 
 	private boolean isValidLineage(String lineage) {
 		return isWildCard(lineage) || Specimen.isValidLineage(lineage);
+	}
+
+	private String getCpList(boolean ufn) {
+		Function<CollectionProtocol, String> cpMapper = ufn ? (cp) -> cp.getShortTitle() : (cp) -> cp.getId().toString();
+		return Utility.nullSafeStream(getCps()).map(cpMapper).collect(Collectors.joining(","));
+	}
+
+	private String getSite(boolean ufn, Site site) {
+		return site != null ? (ufn ? site.getName() : site.getId().toString()) : null;
 	}
 }

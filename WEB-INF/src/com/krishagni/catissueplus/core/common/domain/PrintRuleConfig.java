@@ -105,13 +105,17 @@ public class PrintRuleConfig extends BaseEntity {
 	}
 
 	public Map<String, String> getRuleDef() {
-		return getRule().toDefMap();
+		return getRuleDef(false);
+	}
+
+	public Map<String, String> getRuleDef(boolean ufn) {
+		return getRule().toDefMap(ufn);
 	}
 
 	public void setRuleDef(Map<String, String> rule) {
 		LabelPrintRuleFactory factory = LabelPrintRuleFactoryRegistrar.getInstance().getFactory(objectType);
 		if (factory != null) {
-			setRule(factory.createLabelPrintRule(rule));
+			setRule(factory.createLabelPrintRule(rule, false));
 		}
 	}
 
