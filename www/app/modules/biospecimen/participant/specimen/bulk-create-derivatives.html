@@ -10,92 +10,16 @@
   </div>
   
   <div class="container">
-    <form name="derivativesForm" os-form-validator="derivativesForm" novalidate>
-      <div class="os-bottom-border" ng-if="ctx.derivedSpmns.length > 1">
-        <a ng-click="copyFirstToAll()">
-          <span translate="specimens.copy_first_to_all">Copy first to all</span>
-        </a>
+    <form name="derivativesForm" os-form-validator="derivativesForm" novalidate os-storage-positions
+      ng-switch on="ctx.showCustomFields">
+
+      <div ng-switch-when="true">
+        <div ng-include src="'modules/biospecimen/participant/specimen/custom-derived-specs.html'"></div>
       </div>
-      <table class="os-table bulk-edit">
-        <thead class="os-table-head">
-          <tr class="row">
-            <th class="col os-col-15">
-              <span translate="specimens.parent_specimen">Parent Specimen</span>
-            </th>
-            <th class="col" ng-class="ctx.inputLabels ? 'os-col-10' : 'os-col-15'">
-              <span translate="specimens.parent_type">Parent Type</span>
-            </th>
-            <th class="col os-col-10" ng-if="ctx.inputLabels">
-              <span translate="specimens.label">Label</span>
-            </th>
-            <th class="col" ng-class="ctx.inputLabels ? 'os-col-10' : 'os-col-15'">
-              <span translate="specimens.type">Type</span>
-            </th>
-            <th class="col os-col-10">
-              <span translate="specimens.qty">Quantity</span>
-            </th>
-            <th class="col os-col-15">
-              <span translate="specimens.created_on">Created On</span>
-            </th>
-            <th class="col os-col-20">
-              <span translate="specimens.location">Location</span>
-            </th>
-            <th class="col os-col-5">
-              <span translate="specimens.print">Print?</span>
-            </th>
-            <th class="col os-col-5">
-              <span translate="specimens.close_parent">Close Parent?</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody class="os-table-body" os-storage-positions>
-          <tr class="row" ng-repeat="derived in ctx.derivedSpmns" ng-form="dform">
-            <td class="col">
-              <a ui-sref="specimen({specimenId: derived.parentId})">
-                <span>{{derived.parentLabel}}</span>
-                <span ng-if="!derived.$$specimenCentricCp">({{derived.ppid}})</span>
-              </a>
-            </td>
-            <td class="col">
-              <span>{{derived.parentType}}</span>
-            </td>
-            <td class="col" ng-if="ctx.inputLabels">
-              <input name="label" type="text" os-md-input ng-model="derived.label">
-            </td>
-            <td class="col">
-              <os-specimen-types name="type" md-input specimen="derived" required>
-              </os-specimen-types>
-              <div os-field-error field="dform.type"></div>
-            </td>
-            <td class="col">
-              <os-spmn-measure name="qty" specimen="derived" quantity="derived.initialQty" md-input>
-              </os-spmn-measure>
-              <div os-field-error field="dform.qty"></div>
-            </td>
-            <td class="col">
-              <os-date-picker name="createdOn" date="derived.createdOn" md-type="true" required>
-              </os-date-picker>
-              <div os-field-error field="dform.createdOn"></div>
-            </td>
-            <td class="col">
-              <os-storage-position os-md-input entity="derived" cp-id="derived.cpId"
-                container-list-cache="containerListCache" hide-placeholder>
-              </os-storage-position>
-            </td>
-            <td class="col">
-              <os-checkbox ng-model="derived.printLabel"></os-checkbox>
-            </td>
-            <td class="col">
-              <div class="clearfix">
-                <os-checkbox ng-model="derived.closeParent"></os-checkbox>
-                <button class="btn os-btn-text right" ng-click="removeSpecimen($index)">
-                  <span class="fa fa-remove"></span>
-                </button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+
+      <div ng-switch-when="false">
+        <div ng-include src="'modules/biospecimen/participant/specimen/static-derived-specs.html'"></div>
+      </div>
 
       <div class="os-divider"></div>
 
@@ -112,3 +36,133 @@
     </form>
   </div>
 </div>
+
+<script type="text/ng-template" id="modules/biospecimen/participant/specimen/static-derived-specs.html">
+  <div>
+    <div class="os-bottom-border" ng-if="ctx.derivedSpmns.length > 1">
+      <a ng-click="copyFirstToAll()">
+        <span translate="specimens.copy_first_to_all">Copy first to all</span>
+      </a>
+    </div>
+    <table class="os-table bulk-edit">
+      <thead class="os-table-head">
+        <tr class="row">
+          <th class="col os-col-15">
+            <span translate="specimens.parent_specimen">Parent Specimen</span>
+          </th>
+          <th class="col" ng-class="ctx.inputLabels ? 'os-col-10' : 'os-col-15'">
+            <span translate="specimens.parent_type">Parent Type</span>
+          </th>
+          <th class="col os-col-10" ng-if="ctx.inputLabels">
+            <span translate="specimens.label">Label</span>
+          </th>
+          <th class="col" ng-class="ctx.inputLabels ? 'os-col-10' : 'os-col-15'">
+            <span translate="specimens.type">Type</span>
+          </th>
+          <th class="col os-col-10">
+            <span translate="specimens.qty">Quantity</span>
+          </th>
+          <th class="col os-col-15">
+            <span translate="specimens.created_on">Created On</span>
+          </th>
+          <th class="col os-col-20">
+            <span translate="specimens.location">Location</span>
+          </th>
+          <th class="col os-col-5">
+            <span translate="specimens.print">Print?</span>
+          </th>
+          <th class="col os-col-5">
+            <span translate="specimens.close_parent">Close Parent?</span>
+          </th>
+        </tr>
+      </thead>
+      <tbody class="os-table-body" os-storage-positions>
+        <tr class="row" ng-repeat="derived in ctx.derivedSpmns" ng-form="dform">
+          <td class="col">
+            <a ui-sref="specimen({specimenId: derived.parentId})">
+              <span>{{derived.parentLabel}}</span>
+              <span ng-if="!derived.$$specimenCentricCp">({{derived.ppid}})</span>
+            </a>
+          </td>
+          <td class="col">
+            <span>{{derived.parentType}}</span>
+          </td>
+          <td class="col" ng-if="ctx.inputLabels">
+            <input name="label" type="text" os-md-input ng-model="derived.label">
+          </td>
+          <td class="col">
+            <os-specimen-types name="type" md-input specimen="derived" required>
+            </os-specimen-types>
+            <div os-field-error field="dform.type"></div>
+          </td>
+          <td class="col">
+            <os-spmn-measure name="qty" specimen="derived" quantity="derived.initialQty" md-input>
+            </os-spmn-measure>
+            <div os-field-error field="dform.qty"></div>
+          </td>
+          <td class="col">
+            <os-date-picker name="createdOn" date="derived.createdOn" md-type="true" required>
+            </os-date-picker>
+            <div os-field-error field="dform.createdOn"></div>
+          </td>
+          <td class="col">
+            <os-storage-position os-md-input entity="derived" cp-id="derived.cpId"
+              container-list-cache="containerListCache" hide-placeholder>
+            </os-storage-position>
+          </td>
+          <td class="col">
+            <os-checkbox ng-model="derived.printLabel"></os-checkbox>
+          </td>
+          <td class="col">
+            <div class="clearfix">
+              <os-checkbox ng-model="derived.closeParent"></os-checkbox>
+              <button class="btn os-btn-text right" ng-click="removeSpecimen($index)">
+                <span class="fa fa-remove"></span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</script>
+
+<script type="text/ng-template" id="modules/biospecimen/participant/specimen/custom-derived-specs.html">
+  <div>
+    <div ng-if="ctx.warnNoMatch" class="os-alert-container inline show">
+      <div class="alert alert-warning">
+        <span translate="specimens.no_derived_criteria_match">
+          One or more specimens do not match any of the criteria specified in derived specimens workflow configuration
+        </span>
+      </div>
+    </div>
+    <div ng-repeat="group in ctx.customFieldGroups" ng-if="!group.noMatch">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <span>{{group.title}}</span>
+          <a class="btn btn-xs btn-default" ng-click="group.opts.cofrc = !group.opts.cofrc" ng-if="group.opts.enableCofrc">
+            <span ng-if="group.opts.cofrc">
+              <span class="fa fa-plus"></span>
+              <span translate="common.show_all">Show all rows</span>
+              <span>({{group.input.length}})</span>
+            </span>
+            <span ng-if="!group.opts.cofrc">
+              <span class="fa fa-minus"></span>
+              <span translate="common.show_only_first">Show only first row</span>
+            </span>
+          </a>
+          <a class="btn btn-xs btn-default" ng-click="group.opts.$$sdeFormFields.copyFirstToAll()"
+            ng-if="!group.opts.enableCofrc || !group.opts.cofrc">
+            <span class="fa fa-clone"></span>
+            <span translate="specimens.copy_first_to_all">Copy First To All</span>
+          </a>
+        </div>
+        <div class="panel-body os-scrollable-container-x">
+          <sde-form-fields name="derivedSpmns" table="group.multiple" opts="group.opts"
+            base-fields="group.baseFields" fields="group.fields" obj="group.input">
+          </sde-form-fields>
+        </div>
+      </div>
+    </div>
+  </div>
+</script>

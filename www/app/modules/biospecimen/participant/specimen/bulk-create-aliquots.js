@@ -11,6 +11,8 @@ angular.module('os.biospecimen.specimen')
       var createdOn = new Date().getTime();
       var aliquotsSpec = parentSpmns.map(
         function(ps) {
+          delete ps.children;
+
           return new Specimen({
             cpId: ps.cpId,
             ppid: ps.ppid,
@@ -24,15 +26,7 @@ angular.module('os.biospecimen.specimen')
             laterality: ps.laterality,
             pathology: ps.pathology,
             collectionContainer: ps.collectionContainer,
-            parent: new Specimen({
-              id: ps.id,
-              label: ps.label,
-              availableQty: ps.availableQty,
-              createdOn: ps.createdOn,
-              specimenClass: ps.specimenClass,
-              type: ps.type,
-              lineage: ps.lineage
-            })
+            parent: new Specimen(ps)
           });
         }
       );

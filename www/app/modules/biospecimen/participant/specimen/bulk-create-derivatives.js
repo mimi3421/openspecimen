@@ -1,5 +1,10 @@
 angular.module('os.biospecimen.specimen')
-  .controller('BulkCreateDerivativesCtrl', function($scope, parentSpmns, cp, Specimen, Alerts, Util, SpecimenUtil) {
+  .controller('BulkCreateDerivativesCtrl', function(
+    $scope, $injector, parentSpmns, cp, cpDict, derivedFields,
+    Specimen, Alerts, Util, SpecimenUtil) {
+
+    var ctx;
+
     function init() {
       var createdOn = new Date().getTime();
 
@@ -14,15 +19,48 @@ angular.module('os.biospecimen.specimen')
             parentType: ps.type,
             parentCreatedOn: ps.createdOn,
             createdOn: createdOn,
-            status: 'Collected'
+            status: 'Collected',
+            parent: new Specimen(ps)
           });
         }
       );
 
-      $scope.ctx = {
+      ctx = $scope.ctx = {
+        showCustomFields: true,
         derivedSpmns: derivedSpmns,
         inputLabels: !cp.derivativeLabelFmt || cp.manualSpecLabelEnabled
       };
+
+      var opts = $scope.opts = {
+        viewCtx: $scope, static: false,
+        showRowCopy: true, hideFooterActions: true, allowBulkUpload: false
+      };
+      var groups = ctx.customFieldGroups = SpecimenUtil.sdeGroupSpecimens(
+        cpDict, derivedFields || [], derivedSpmns, {}, opts);
+      ctx.warnNoMatch = groups.length > 1 && groups[groups.length - 1].noMatch;
+      ctx.showCustomFields = (groups.length > 1) || (groups.length == 1 && !groups[0].noMatch);
+    }
+
+    function submitSamples() {
+      var samples = [];
+      for (var i = 0; i < ctx.customFieldGroups.length; ++i) {
+        var group = ctx.customFieldGroups[i];
+        for (var j = 0; j < group.input.length; ++j) {
+          var spec = group.input[j];
+          if (!isValidCreatedOn(spec.specimen)) {
+            return;
+          }
+
+          samples.push({specimen: spec.specimen, events: spec.events});
+        }
+      }
+
+      $injector.get('sdeSample').saveSamples(samples).then(
+        function(resp) {
+          Alerts.success('specimens.derivatives_created');
+          $scope.back();
+        }
+      );
     }
 
     function isValidCreatedOn(spmn) {
@@ -52,10 +90,14 @@ angular.module('os.biospecimen.specimen')
     }
 
     $scope.createDerivatives = function() {
-      var result = [];
+      if (ctx.showCustomFields) {
+        submitSamples();
+        return;
+      }
 
-      for (var i = 0; i < $scope.ctx.derivedSpmns.length; ++i) {
-        var spmn = angular.copy($scope.ctx.derivedSpmns[i]);
+      var result = [];
+      for (var i = 0; i < ctx.derivedSpmns.length; ++i) {
+        var spmn = angular.copy(ctx.derivedSpmns[i]);
         if (!isValidCreatedOn(spmn)) {
           return;
         }

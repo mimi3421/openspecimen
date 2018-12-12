@@ -25,12 +25,22 @@ angular.module('os.biospecimen.specimen',
       );
     }
 
-    function aliquotFields(cp, hasSde, CpConfigSvc) {
-      if (!hasSde) {
-        return {};
-      }
+    function hasSde($injector) {
+      return $injector.has('sdeFieldsSvc');
+    }
 
-      return CpConfigSvc.getCommonCfg(cp.id || -1, 'aliquotsCollection');
+    function cpDict(cp, hasSde, CpConfigSvc) {
+      return !hasSde ? [] : CpConfigSvc.getDictionary(cp.id || -1, []);
+    }
+
+    function spmnFields(name) {
+      return function(cp, hasSde, CpConfigSvc) {
+        if (!hasSde) {
+          return {};
+        }
+
+        return CpConfigSvc.getCommonCfg(cp.id || -1, name);
+      }
     }
 
     $stateProvider
@@ -276,7 +286,9 @@ angular.module('os.biospecimen.specimen',
         resolve: {
           extensionCtxt: function(cp, Specimen) {
             return Specimen.getExtensionCtxt({cpId: cp.id});
-          }
+          },
+
+          derivedFields: spmnFields('derivedSpecimens')
         },
         controller: 'AddDerivativeCtrl',
         parent: 'specimen-root'
@@ -298,7 +310,7 @@ angular.module('os.biospecimen.specimen',
 
           createDerived: createDerived,
 
-          aliquotFields: aliquotFields
+          aliquotFields: spmnFields('aliquotsCollection')
         },
         controller: 'AddAliquotsCtrl',
         parent: 'specimen-root'
@@ -349,15 +361,11 @@ angular.module('os.biospecimen.specimen',
 
           createDerived: createDerived,
 
-          hasSde: function($injector) {
-            return $injector.has('sdeFieldsSvc');
-          },
+          hasSde: hasSde,
 
-          cpDict: function(cp, hasSde, CpConfigSvc) {
-            return !hasSde ? [] : CpConfigSvc.getDictionary(cp.id || -1, []);
-          },
+          cpDict: cpDict,
 
-          aliquotFields: aliquotFields
+          aliquotFields: spmnFields('aliquotsCollection')
         },
         parent: 'signed-in'
       })
@@ -383,7 +391,13 @@ angular.module('os.biospecimen.specimen',
             } else {
               return {};
             }
-          }
+          },
+
+          hasSde: hasSde,
+
+          cpDict: cpDict,
+
+          derivedFields: spmnFields('derivedSpecimens')
         },
         parent: 'signed-in'
       })
