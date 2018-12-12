@@ -1325,7 +1325,7 @@ public class Specimen extends BaseExtensionEntity {
 			specimen.decAliquotedQtyFromParent();
 		}
 
-		if (specimen.getCreatedOn() != null && specimen.getCreatedOn().before(getCreatedOn())) {
+		if (getCreatedOn() != null && specimen.getCreatedOn() != null && specimen.getCreatedOn().before(getCreatedOn())) {
 			throw OpenSpecimenException.userError(SpecimenErrorCode.CHILD_CREATED_ON_LT_PARENT);
 		}
 
