@@ -102,7 +102,10 @@ public class SpecimensController {
 			List<String> labels,
 
 			@RequestParam(value = "barcode", required = false)
-			List<String> barcodes) {
+			List<String> barcodes,
+
+			@RequestParam(value = "exactMatch", required= false, defaultValue = "false")
+			boolean exactMatch) {
 				
 		if (cprId != null) { // TODO: Move this to CPR controller
 			VisitSpecimensQueryCriteria crit = new VisitSpecimensQueryCriteria();
@@ -121,6 +124,7 @@ public class SpecimensController {
 			SpecimenListCriteria crit = new SpecimenListCriteria()
 				.labels(labels)
 				.barcodes(barcodes)
+				.exactMatch(exactMatch)
 				.storageLocationSite(storageLocationSite);
 
 			ResponseEvent<List<SpecimenInfo>> resp = specimenSvc.getSpecimens(getRequest(crit));

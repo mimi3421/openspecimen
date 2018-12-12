@@ -186,7 +186,7 @@ angular.module('os.administrative.container.locations', ['os.administrative.mode
         }
       );
 
-      var filterOpts = {};
+      var filterOpts = {exactMatch: true};
       if (!!$scope.lctx.input.useBarcode) {
         filterOpts.barcode = labels;
         labels = undefined;
