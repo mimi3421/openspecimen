@@ -25,24 +25,6 @@ angular.module('os.biospecimen.specimen',
       );
     }
 
-    function hasSde($injector) {
-      return $injector.has('sdeFieldsSvc');
-    }
-
-    function cpDict(cp, hasSde, CpConfigSvc) {
-      return !hasSde ? [] : CpConfigSvc.getDictionary(cp.id || -1, []);
-    }
-
-    function spmnFields(name) {
-      return function(cp, hasSde, CpConfigSvc) {
-        if (!hasSde) {
-          return {};
-        }
-
-        return CpConfigSvc.getCommonCfg(cp.id || -1, name);
-      }
-    }
-
     $stateProvider
       .state('specimen', {
         url: '/specimens/:specimenId',
@@ -288,7 +270,13 @@ angular.module('os.biospecimen.specimen',
             return Specimen.getExtensionCtxt({cpId: cp.id});
           },
 
-          derivedFields: spmnFields('derivedSpecimens')
+          derivedFields: function(cp, hasSde, CpConfigSvc) {
+            if (!hasSde) {
+              return {};
+            }
+
+            return CpConfigSvc.getCommonCfg(cp.id || -1, 'derivedSpecimens');
+          }
         },
         controller: 'AddDerivativeCtrl',
         parent: 'specimen-root'
@@ -310,7 +298,13 @@ angular.module('os.biospecimen.specimen',
 
           createDerived: createDerived,
 
-          aliquotFields: spmnFields('aliquotsCollection')
+          aliquotFields: function(cp, hasSde, CpConfigSvc) {
+            if (!hasSde) {
+              return {};
+            }
+
+            return CpConfigSvc.getCommonCfg(cp.id || -1, 'aliquotsCollection');
+          }
         },
         controller: 'AddAliquotsCtrl',
         parent: 'specimen-root'
@@ -361,11 +355,21 @@ angular.module('os.biospecimen.specimen',
 
           createDerived: createDerived,
 
-          hasSde: hasSde,
+          hasSde: function($injector) {
+            return $injector.has('sdeFieldsSvc');
+          },
 
-          cpDict: cpDict,
+          cpDict: function(cp, hasSde, CpConfigSvc) {
+            return !hasSde ? [] : CpConfigSvc.getDictionary(cp.id || -1, []);
+          },
 
-          aliquotFields: spmnFields('aliquotsCollection')
+          aliquotFields: function(cp, hasSde, CpConfigSvc) {
+            if (!hasSde) {
+              return {};
+            }
+
+            return CpConfigSvc.getCommonCfg(cp.id || -1, 'aliquotsCollection');
+          }
         },
         parent: 'signed-in'
       })
@@ -393,11 +397,21 @@ angular.module('os.biospecimen.specimen',
             }
           },
 
-          hasSde: hasSde,
+          hasSde: function($injector) {
+            return $injector.has('sdeFieldsSvc');
+          },
 
-          cpDict: cpDict,
+          cpDict: function(cp, hasSde, CpConfigSvc) {
+            return !hasSde ? [] : CpConfigSvc.getDictionary(cp.id || -1, []);
+          },
 
-          derivedFields: spmnFields('derivedSpecimens')
+          derivedFields: function(cp, hasSde, CpConfigSvc) {
+            if (!hasSde) {
+              return {};
+            }
+
+            return CpConfigSvc.getCommonCfg(cp.id || -1, 'derivedSpecimens');
+          }
         },
         parent: 'signed-in'
       })
