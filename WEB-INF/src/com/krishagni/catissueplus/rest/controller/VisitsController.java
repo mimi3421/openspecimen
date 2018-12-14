@@ -27,18 +27,15 @@ import com.krishagni.catissueplus.core.biospecimen.events.CpEntityDeleteCriteria
 import com.krishagni.catissueplus.core.biospecimen.events.FileDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.MatchedVisitDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.SprDetail;
-import com.krishagni.catissueplus.core.biospecimen.events.FileDownloadDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.SprLockDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.VisitDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.VisitSearchDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.VisitSpecimenDetail;
-import com.krishagni.catissueplus.core.biospecimen.events.VisitSummary;
 import com.krishagni.catissueplus.core.biospecimen.repository.VisitsListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.services.CollectionProtocolRegistrationService;
 import com.krishagni.catissueplus.core.biospecimen.services.VisitService;
 import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.events.EntityQueryCriteria;
-import com.krishagni.catissueplus.core.common.events.FileType;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 import com.krishagni.catissueplus.core.common.util.Utility;
@@ -182,16 +179,11 @@ public class VisitsController {
 		
 		HttpServletResponse httpResp)
 	throws IOException {
-		FileType fileType = FileType.fromType(type);
-		if (fileType == null) {
-			fileType = FileType.TEXT;
-		}
+		FileDetail input = new FileDetail();
+		input.setId(visitId);
+		input.setContentType(type);
 
-		FileDownloadDetail sprReqDetail = new FileDownloadDetail();
-		sprReqDetail.setId(visitId);
-		sprReqDetail.setType(fileType);
-
-		ResponseEvent<FileDetail> resp = visitService.getSpr(request(sprReqDetail));
+		ResponseEvent<FileDetail> resp = visitService.getSpr(request(input));
 		resp.throwErrorIfUnsuccessful();
 
 		FileDetail detail = resp.getPayload();
@@ -202,10 +194,10 @@ public class VisitsController {
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
 	public String getSprText(@PathVariable("id") Long visitId) {
-		FileDownloadDetail sprReqDetail = new FileDownloadDetail();
-		sprReqDetail.setId(visitId);
+		FileDetail input = new FileDetail();
+		input.setId(visitId);
 
-		ResponseEvent<FileDetail> resp = visitService.getSpr(request(sprReqDetail));
+		ResponseEvent<FileDetail> resp = visitService.getSpr(request(input));
 		resp.throwErrorIfUnsuccessful();
 
 		FileDetail detail = resp.getPayload();

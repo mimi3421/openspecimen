@@ -6,7 +6,6 @@ import java.util.List;
 import com.krishagni.catissueplus.core.biospecimen.domain.Visit;
 import com.krishagni.catissueplus.core.biospecimen.events.CpEntityDeleteCriteria;
 import com.krishagni.catissueplus.core.biospecimen.events.FileDetail;
-import com.krishagni.catissueplus.core.biospecimen.events.FileDownloadDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.MatchedVisitDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.PrintVisitNameDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.SprDetail;
@@ -44,7 +43,7 @@ public interface VisitService {
 	//
 	// SPR APIs
 	//
-	ResponseEvent<FileDetail> getSpr(RequestEvent<FileDownloadDetail> req);
+	ResponseEvent<FileDetail> getSpr(RequestEvent<FileDetail> req);
 	
 	ResponseEvent<String> uploadSprFile(RequestEvent<SprDetail> req);
 

@@ -30,7 +30,6 @@ import com.krishagni.catissueplus.core.biospecimen.domain.factory.VisitErrorCode
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.VisitFactory;
 import com.krishagni.catissueplus.core.biospecimen.events.CpEntityDeleteCriteria;
 import com.krishagni.catissueplus.core.biospecimen.events.FileDetail;
-import com.krishagni.catissueplus.core.biospecimen.events.FileDownloadDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.MatchedVisitDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.PrintVisitNameDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenDetail;
@@ -57,7 +56,6 @@ import com.krishagni.catissueplus.core.common.errors.ErrorType;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.events.EntityQueryCriteria;
-import com.krishagni.catissueplus.core.common.events.FileType;
 import com.krishagni.catissueplus.core.common.events.LabelPrintJobSummary;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
@@ -308,10 +306,10 @@ public class VisitServiceImpl implements VisitService, ObjectAccessor, Initializ
 
 	@Override
 	@PlusTransactional
-	public ResponseEvent<FileDetail> getSpr(RequestEvent<FileDownloadDetail> req) {
+	public ResponseEvent<FileDetail> getSpr(RequestEvent<FileDetail> req) {
 		try {
-			FileDownloadDetail detail = req.getPayload();
-			Visit visit = getVisit(detail.getId(), detail.getName());
+			FileDetail input = req.getPayload();
+			Visit visit = getVisit(input.getId(), input.getName());
 			
 			AccessCtrlMgr.getInstance().ensureReadSprRights(visit);
 			
@@ -325,7 +323,7 @@ public class VisitServiceImpl implements VisitService, ObjectAccessor, Initializ
 			}
 			
 			String fileExtension = file.getName().substring(file.getName().lastIndexOf('.'));
-			if (isPdfType(detail.getType()) && isTextFile(file)) {
+			if (isPdfType(input.getContentType()) && isTextFile(file)) {
 				Map<String, Object> props = Collections.singletonMap("visit", visit);
 				file = sprText2PdfGenerator.generate(file, props);
 				fileExtension = ".pdf";
@@ -747,8 +745,8 @@ public class VisitServiceImpl implements VisitService, ObjectAccessor, Initializ
 		return contentType.startsWith("text/") || contentType.equals("application/pdf");
 	}
 	
-	private boolean isPdfType(FileType type) {
-		return type != null && type.equals(FileType.PDF);
+	private boolean isPdfType(String type) {
+		return StringUtils.isNotBlank(type) && type.equals("pdf");
 	}
 	
 	private void setSpecimenIds(List<SpecimenDetail> inputSpecimens, Map<Long, Specimen> reqSpecimenMap) {
