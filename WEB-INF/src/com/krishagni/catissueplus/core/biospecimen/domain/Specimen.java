@@ -187,6 +187,8 @@ public class Specimen extends BaseExtensionEntity {
 
 	private transient boolean updated;
 
+	private transient boolean statusChanged;
+
 	private transient String uid;
 
 	private transient String parentUid;
@@ -682,6 +684,14 @@ public class Specimen extends BaseExtensionEntity {
 		this.updated = updated;
 	}
 
+	public boolean isStatusChanged() {
+		return statusChanged;
+	}
+
+	public void setStatusChanged(boolean statusChanged) {
+		this.statusChanged = statusChanged;
+	}
+
 	public String getUid() {
 		return uid;
 	}
@@ -1102,7 +1112,7 @@ public class Specimen extends BaseExtensionEntity {
 			//
 			return;
 		}
-		
+
 		if (isMissed(collectionStatus)) {
 			if (!getVisit().isCompleted() && !getVisit().isMissed()) {
 				throw OpenSpecimenException.userError(VisitErrorCode.COMPL_OR_MISSED_VISIT_REQ);
@@ -1148,6 +1158,7 @@ public class Specimen extends BaseExtensionEntity {
 		}
 		
 		checkPoolStatusConstraints();
+		setStatusChanged(true);
 	}
 		
 	public void distribute(DistributionOrderItem item) {
@@ -1804,6 +1815,7 @@ public class Specimen extends BaseExtensionEntity {
 		Specimen parentSpmn = childSpmn.getParentSpecimen();
 		while (parentSpmn != null && parentSpmn.isPending()) {
 			parentSpmn.setCollectionStatus(COLLECTED);
+			parentSpmn.setStatusChanged(true);
 
 			Date createdOn = childSpmn.getCreatedOn();
 			if (parentSpmn.isPrimary()) {

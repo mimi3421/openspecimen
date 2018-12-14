@@ -110,6 +110,8 @@ public class Visit extends BaseExtensionEntity {
 	private transient boolean forceDelete;
 
 	private transient boolean updated;
+
+	private transient boolean statusChanged;
 	
 	public static String getEntityName() {
 		return ENTITY_NAME;
@@ -304,6 +306,14 @@ public class Visit extends BaseExtensionEntity {
 		this.updated = updated;
 	}
 
+	public boolean isStatusChanged() {
+		return statusChanged;
+	}
+
+	public void setStatusChanged(boolean statusChanged) {
+		this.statusChanged = statusChanged;
+	}
+
 	public boolean isCompleted() {
 		return isCompleted(getStatus());
 	}
@@ -436,6 +446,8 @@ public class Visit extends BaseExtensionEntity {
 		} else if (isEventClosed()) {
 			throw OpenSpecimenException.userError(CpeErrorCode.CLOSED, getCpEvent().getEventLabel());
 		}
+
+		setStatusChanged(true);
 	}
 	
 	public void updateSpecimenStatus(String status) {
