@@ -155,15 +155,22 @@ public class AuditServiceImpl implements AuditService {
 		User currentUser     = AuthUtil.getCurrentUser();
 		User revisionsByUser = user;
 
+		logger.info("Invoking task executor to initiate export of revisions: " + criteria);
+
 		File revisionsFile = null;
 		Future<File> result = taskExecutor.submit(() -> exportRevisions(criteria, currentUser, revisionsByUser));
 		try {
+			logger.info("Waiting for the export revisions to finish ...");
 			revisionsFile = result.get(ONLINE_EXPORT_TIMEOUT_SECS, TimeUnit.SECONDS);
+			logger.info("Export revisions finished within " + ONLINE_EXPORT_TIMEOUT_SECS + " seconds.");
 		} catch (TimeoutException te) {
 			// timed out waiting for the response
+			logger.info("Export revisions is taking more time to finish.");
 		} catch (OpenSpecimenException ose) {
+			logger.error("Encountered error exporting audit revisions", ose);
 			throw ose;
 		} catch (Exception ie) {
+			logger.error("Encountered error exporting audit revisions", ie);
 			throw OpenSpecimenException.serverError(ie);
 		}
 
@@ -222,14 +229,22 @@ public class AuditServiceImpl implements AuditService {
 
 		String baseDir = UUID.randomUUID().toString();
 		Date exportedOn = Calendar.getInstance().getTime();
+
+		logger.info("Exporting core objects' revisions ...");
 		File coreObjectsRevs = new CoreObjectsRevisionExporter(criteria, exportedBy, exportedOn, revisionsBy).export(baseDir);
+
+		logger.info("Exporting form data revisions ...");
 		File formsDataRevs   = new FormsDataRevisionExporter(criteria, exportedBy, exportedOn, revisionsBy).export(baseDir);
 
+		logger.info("Creating revisions ZIP file ...");
 		File result = new File(getAuditDir(), baseDir + "_" + getTs(exportedOn) + "_" + exportedBy.getId());
 		List<String> inputFiles = Arrays.asList(coreObjectsRevs.getAbsolutePath(), formsDataRevs.getAbsolutePath());
 		Utility.zipFiles(inputFiles, result.getAbsolutePath());
 
+		logger.info("Cleaning up revisions directory: " + baseDir);
 		cleanupRevisionsDir(baseDir);
+
+		logger.info("Sending audit revisions email to " + exportedBy.formattedName() + " (" + exportedBy.getEmailAddress() + ")");
 		sendEmailNotif(criteria, exportedBy, revisionsBy, result);
 		return result;
 	}

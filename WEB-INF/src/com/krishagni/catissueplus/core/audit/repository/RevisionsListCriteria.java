@@ -59,4 +59,12 @@ public class RevisionsListCriteria extends AbstractListCriteria<RevisionsListCri
 		this.includeModifiedProps = includeModifiedProps;
 		return self();
 	}
+
+	public String toString() {
+		return new StringBuilder().append(super.toString()).append(", ")
+			.append("start date = ").append(startDate()).append(", ")
+			.append("end date = ").append(endDate()).append(", ")
+			.append("user = ").append(userId())
+			.toString();
+	}
 }
