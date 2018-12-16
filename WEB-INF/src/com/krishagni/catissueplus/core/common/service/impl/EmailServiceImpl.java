@@ -121,6 +121,7 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 	public boolean sendEmail(Email mail) {
 		try {
 			if (!isEmailNotifEnabled()) {
+				logger.debug("Email notification is disabled. Not sending email: " + mail.getSubject());
 				return false;
 			}
 
@@ -163,7 +164,8 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 					message.addAttachment(file.getFilename(), file);
 				}
 			}
-			
+
+			logger.info("Invoking task executor to send e-mail asynchronously: " + mimeMessage.getSubject());
 			taskExecutor.submit(new SendMailTask(mimeMessage));
 			return true;
 		} catch (Exception e) {
@@ -237,6 +239,7 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 		public void run() {
 			try{
 				mailSender.send(mimeMessage);
+				logger.info("Email queued: " + mimeMessage.getSubject());
 			} catch(Exception e) {
 				logger.error("Error sending e-mail", e);
 			}
