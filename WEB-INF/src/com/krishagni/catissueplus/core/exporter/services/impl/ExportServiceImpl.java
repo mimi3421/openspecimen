@@ -7,13 +7,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -94,6 +93,8 @@ public class ExportServiceImpl implements ExportService {
 			// Timed out waiting for the export job to finish.
 			// An email with export status will be sent to user.
 			//
+		} catch (OpenSpecimenException ose) {
+			throw ose;
 		} catch (Exception e) {
 			throw OpenSpecimenException.serverError(e);
 		}
@@ -110,7 +111,7 @@ public class ExportServiceImpl implements ExportService {
 			return ResponseEvent.userError(ExportErrorCode.JOB_NOT_FOUND, jobId);
 		}
 
-		if (!AuthUtil.isAdmin() && !job.getCreatedBy().equals(AuthUtil.getCurrentUser())) {
+		if (!job.isOutputAccessibleBy(AuthUtil.getCurrentUser())) {
 			return ResponseEvent.userError(RbacErrorCode.ACCESS_DENIED);
 		}
 
@@ -141,9 +142,18 @@ public class ExportServiceImpl implements ExportService {
 		job.setParams(detail.getParams());
 		job.setSchema(schema);
 		job.setRecordIds(detail.getRecordIds());
+		job.setDisableNotifs(detail.isDisableNotifs());
 		exportJobDao.saveOrUpdate(job.markInProgress(), true);
 
-		Future<Integer> result = taskExecutor.submit(new ExportTask(job));
+		ExportTask task = new ExportTask(job);
+
+		Future<Integer> result = null;
+		if (detail.isSynchronous()) {
+			result = CompletableFuture.completedFuture(task.call());
+		} else {
+			result = taskExecutor.submit(task);
+		}
+
 		return Pair.make(job, result);
 	}
 
@@ -637,6 +647,10 @@ public class ExportServiceImpl implements ExportService {
 	}
 
 	private void sendJobStatusNotification(ExportJob job) {
+		if (job.isDisableNotifs()) {
+			return;
+		}
+
 		String entityName = getEntityName(job);
 
 		String [] subjParams = {job.getId().toString(), entityName};

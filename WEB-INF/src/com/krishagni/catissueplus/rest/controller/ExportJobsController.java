@@ -35,6 +35,10 @@ public class ExportJobsController {
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
 	public ExportJobDetail createExportJob(@RequestBody ExportDetail detail) {
+		if (detail.getParams() != null) {
+			detail.getParams().remove("$$users");
+		}
+
 		return response(exportSvc.exportObjects(request(detail)));
 	}
 

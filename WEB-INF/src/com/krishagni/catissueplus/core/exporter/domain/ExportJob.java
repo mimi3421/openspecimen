@@ -1,9 +1,12 @@
 package com.krishagni.catissueplus.core.exporter.domain;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.biospecimen.domain.BaseEntity;
@@ -34,6 +37,8 @@ public class ExportJob extends BaseEntity {
 	private transient ObjectSchema schema;
 
 	private transient List<Long> recordIds;
+
+	private transient boolean disableNotifs;
 
 	public String getName() {
 		return name;
@@ -107,6 +112,14 @@ public class ExportJob extends BaseEntity {
 		this.recordIds = recordIds;
 	}
 
+	public boolean isDisableNotifs() {
+		return disableNotifs;
+	}
+
+	public void setDisableNotifs(boolean disableNotifs) {
+		this.disableNotifs = disableNotifs;
+	}
+
 	public ExportJob markCompleted() {
 		setStatus(Status.COMPLETED);
 		return this;
@@ -120,5 +133,19 @@ public class ExportJob extends BaseEntity {
 	public ExportJob markFailed() {
 		setStatus(Status.FAILED);
 		return this;
+	}
+
+	public boolean isOutputAccessibleBy(User user) {
+		if (user.isAdmin() || getCreatedBy().equals(user)) {
+			return true;
+		}
+
+		String users = getParams().get("$$users");
+		if (StringUtils.isBlank(users)) {
+			return false;
+		}
+
+		String userIdStr = user.getId().toString();
+		return Arrays.stream(users.split(",")).anyMatch(userId -> userId.trim().equals(userIdStr));
 	}
 }
