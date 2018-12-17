@@ -349,7 +349,7 @@
     </sql>
   </changeSet>
 
-  <changeSet author="vpawar" id="Initialize the visit dates for the pre-created records that do not have visit dates" dbms="mysql">
+  <changeSet author="vpawar" id="Initialize the visit dates for the pre-created records that do not have visit dates" dbms="mysql" runOnChange="true">
     <sql>
       update
         catissue_specimen_coll_group v
@@ -358,10 +358,10 @@
       set
         v.collection_timestamp = (
           case
-            when cpe.event_point_unit = 'DAYS' then r.registration_date + cpe.study_calendar_event_point
-            when cpe.event_point_unit = 'WEEKS' then r.registration_date + cpe.study_calendar_event_point * 7
+            when cpe.event_point_unit = 'DAYS'   then adddate(r.registration_date, cpe.study_calendar_event_point)
+            when cpe.event_point_unit = 'WEEKS'  then adddate(r.registration_date, cpe.study_calendar_event_point * 7)
             when cpe.event_point_unit = 'MONTHS' then adddate(r.registration_date, interval cpe.study_calendar_event_point month)
-            when cpe.event_point_unit = 'YEARS' then adddate(r.registration_date, interval cpe.study_calendar_event_point * 12 month)
+            when cpe.event_point_unit = 'YEARS'  then adddate(r.registration_date, interval cpe.study_calendar_event_point * 12 month)
             else r.registration_date
           end
         )
