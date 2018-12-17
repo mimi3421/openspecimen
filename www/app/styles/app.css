@@ -1370,6 +1370,7 @@ form .form-group:empty {
   padding-top: 30px;
 }
 
+.os-input-hint,
 .os-multi-parts-control label.part-label {
   font-size: 0.8em;
   font-weight: normal;
