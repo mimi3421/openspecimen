@@ -17,6 +17,7 @@ import org.hibernate.criterion.Restrictions;
 
 import com.krishagni.catissueplus.core.biospecimen.domain.BaseEntity;
 import com.krishagni.catissueplus.core.common.util.Utility;
+import com.krishagni.catissueplus.core.init.AppProperties;
 
 public class AbstractDao<T> implements Dao<T> {
 	private static final String LIMIT_SQL = "select * from (select tab.*, rownum rnum from (%s) tab where rownum <= %d) where rnum >= %d";
@@ -141,5 +142,18 @@ public class AbstractDao<T> implements Dao<T> {
 
 	protected Collection<String> toUpper(Collection<String> inputList) {
 		return Utility.nullSafeStream(inputList).map(String::toUpperCase).collect(Collectors.toList());
+	}
+
+	protected boolean isOracle() {
+		return getDbType().equals("oracle");
+	}
+
+	protected boolean isMySQL() {
+		return getDbType().equals("mysql");
+	}
+
+	private String getDbType() {
+		return AppProperties.getInstance().getProperties()
+			.getProperty("database.type", "mysql").toLowerCase();
 	}
 }
