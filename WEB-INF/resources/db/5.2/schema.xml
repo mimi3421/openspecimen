@@ -240,7 +240,7 @@
           create table
             tmp_os_cpr_anticipated_spmns
           as select
-            os_cpr_anticipated_spmns_seq.nextval,
+            os_cpr_anticipated_spmns_seq.nextval as identifier,
             r.identifier cpr_id,
             r.registration_date reg_date,
             e.collection_point_label event_label,
