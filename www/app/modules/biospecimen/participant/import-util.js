@@ -1,5 +1,23 @@
 angular.module('os.biospecimen.participant')
   .factory('ImportUtil', function($translate) {
+    var pluginTypes = {};
+
+    function addPluginTypes(importTypes, group, entityType) {
+      var types = pluginTypes[entityType];
+      if (!types || types.length == 0) {
+        return;
+      }
+
+      angular.forEach(types,
+        function(type) {
+          type.group = group;
+          importTypes.push(type);
+        }
+      );
+
+      return importTypes;
+    }
+
     function addForms(importTypes, group, entityType, forms) {
       angular.forEach(forms, function(form) {
         if (form.sysForm) {
@@ -46,6 +64,7 @@ angular.module('os.biospecimen.participant')
         }
       ]);
 
+      addPluginTypes(importTypes, group, 'Participant');
       addForms(importTypes, group, 'CommonParticipant', entityForms['CommonParticipant']);
       return addForms(importTypes, group, 'Participant', entityForms['Participant']);
     } 
@@ -53,6 +72,7 @@ angular.module('os.biospecimen.participant')
     function getVisitTypes(entityForms) {
       var group = $translate.instant('visits.title');
       var importTypes = [{ group: group, type: 'visit', title: 'visits.list' }];
+      addPluginTypes(importTypes, group, 'SpecimenCollectionGroup');
       return addForms(importTypes, group, 'SpecimenCollectionGroup', entityForms['SpecimenCollectionGroup']);
     }
 
@@ -83,6 +103,7 @@ angular.module('os.biospecimen.participant')
         showImportType: false, importType    : 'UPDATE'
       });
 
+      addPluginTypes(importTypes, group, 'Specimen');
       addForms(importTypes, group, 'Specimen', entityForms['Specimen']);
       return addForms(importTypes, group, 'SpecimenEvent', entityForms['SpecimenEvent']);
     }
@@ -148,6 +169,29 @@ angular.module('os.biospecimen.participant')
             return getImportDetail(cp, allowedEntityTypes, forms);
           }
         );
+      },
+
+      registerTypes: function(entityType, types) {
+        if (!types) {
+          delete pluginTypes[entityType];
+        } else {
+          pluginTypes[entityType] = types;
+        }
+      },
+
+      getPluginTypes: function() {
+        var result = [];
+        angular.forEach(pluginTypes,
+          function(types, key) {
+            angular.forEach(types,
+              function(type) {
+                result.push(type.type);
+              }
+            );
+          }
+        );
+
+        return result;
       }
     }
   });

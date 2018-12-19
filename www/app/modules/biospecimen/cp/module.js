@@ -151,17 +151,19 @@ angular.module('os.biospecimen.cp',
         templateUrl: 'modules/common/import/list.html',
         controller: 'ImportJobsListCtrl',
         resolve: {
-          importDetail: function() {
+          importDetail: function(ImportUtil) {
+            var objectTypes = [
+              'cprMultiple', 'otherCpr', 'cpr', 'participant', 'consent', 'visit',
+              'specimen', 'specimenDerivative', 'specimenAliquot',
+              'masterSpecimen', 'specimenDisposal', 'extensions'
+            ];
+
             return {
               breadcrumbs: [
                 {state: 'cp-list', title: "cp.list"}
               ],
+              objectTypes: objectTypes.concat(ImportUtil.getPluginTypes()),
               title: 'bulk_imports.jobs_list',
-              objectTypes: [
-                "cprMultiple", 'otherCpr', 'cpr', 'participant', 'consent', 'visit',
-                'specimen', 'specimenDerivative', 'specimenAliquot',
-                'masterSpecimen', 'specimenDisposal', 'extensions'
-              ],
               objectParams: {cpId: -1}
             }
           }
