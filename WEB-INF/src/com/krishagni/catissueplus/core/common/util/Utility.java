@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -540,6 +541,32 @@ public class Utility {
 		} finally {
 			IOUtils.closeQuietly(fout);
 			IOUtils.closeQuietly(zout);
+		}
+	}
+
+	public static File gzip(File srcFile, File destFile) {
+		FileInputStream fin = null;
+		FileOutputStream fout = null;
+		GZIPOutputStream gout = null;
+
+		try {
+			fin = new FileInputStream(srcFile);
+			fout = new FileOutputStream(destFile);
+			gout = new GZIPOutputStream(fout);
+
+			int bytesRead = 0;
+			byte[] bytes = new byte[4096];
+			while ((bytesRead = fin.read(bytes)) != -1) {
+				gout.write(bytes, 0, bytesRead);
+			}
+
+			return destFile;
+		} catch (Exception e) {
+			throw OpenSpecimenException.serverError(e);
+		} finally {
+			IOUtils.closeQuietly(gout);
+			IOUtils.closeQuietly(fout);
+			IOUtils.closeQuietly(fin);
 		}
 	}
 
