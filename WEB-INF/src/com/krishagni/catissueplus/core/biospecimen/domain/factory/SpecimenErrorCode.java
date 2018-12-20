@@ -65,6 +65,8 @@ public enum SpecimenErrorCode implements ErrorCode {
 	LATERALITY_NOT_SAME_AS_PARENT,
 	
 	INVALID_PATHOLOGY_STATUS,
+
+	PATHOLOGY_NOT_SAME_AS_PARENT,
 	
 	COLL_DATE_REQUIRED,
 	
