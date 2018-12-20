@@ -57,6 +57,17 @@ public class RevisionEntityRecordDetail {
 		this.modifiedProps = modifiedProps;
 	}
 
+	public String toString() {
+		return new StringBuilder("[")
+			.append("id = ").append(getId())
+			.append("type = ").append(getType())
+			.append("entity = ").append(getEntityName())
+			.append("entity id = ").append(getEntityId())
+			.append("modified props = ").append(getModifiedProps())
+			.append("]")
+			.toString();
+	}
+
 	public static RevisionEntityRecordDetail from(RevisionEntityRecord record) {
 		RevisionEntityRecordDetail result = new RevisionEntityRecordDetail();
 		result.setId(record.getId());

@@ -303,10 +303,13 @@ public class AuditServiceImpl implements AuditService {
 				while (true) {
 					long t1 = System.currentTimeMillis();
 					List<RevisionDetail> revisions = daoFactory.getAuditDao().getRevisions(criteria);
-					System.err.println(criteria.lastId() + ", " + (System.currentTimeMillis() - t1) + " ms");
-
 					if (revisions.isEmpty()) {
+						logger.debug("No revisions for the criteria: " + criteria);
 						break;
+					}
+
+					if (logger.isDebugEnabled()) {
+						logger.debug(revisions.size() + " fetched for the criteria: " + criteria);
 					}
 
 					for (RevisionDetail revision : revisions) {
@@ -317,6 +320,7 @@ public class AuditServiceImpl implements AuditService {
 						if (currentChunk != lastChunk) {
 							csvWriter.flush();
 							lastChunk = currentChunk;
+							logger.debug("Flushed the revision rows to file");
 						}
 					}
 
@@ -370,6 +374,10 @@ public class AuditServiceImpl implements AuditService {
 
 			for (RevisionEntityRecordDetail record : revision.getRecords()) {
 				if (StringUtils.isBlank(record.getModifiedProps()) && record.getType() != 2) {
+					if (logger.isDebugEnabled()) {
+						logger.debug("Ignoring the revision record: " + record.toString());
+					}
+
 					continue;
 				}
 
@@ -391,12 +399,17 @@ public class AuditServiceImpl implements AuditService {
 				String opDisplay  = context.computeIfAbsent(op, toMsg);
 				String entityName = context.computeIfAbsent("audit_entity_" + record.getEntityName(), toMsg);
 				String entityId   = record.getEntityId().toString();
+				String[] line     = {revId, dateTime, user, userEmail, opDisplay, entityName, entityId, record.getModifiedProps()};
 
-				writer.writeNext(new String[] {revId, dateTime, user, userEmail, opDisplay, entityName, entityId, record.getModifiedProps()});
+				writer.writeNext(line);
+				if (logger.isDebugEnabled()) {
+					logger.debug("Row " + recsCount + ": " + String.join(",", line));
+				}
+
 				++recsCount;
-
 				if (recsCount % 25 == 0) {
 					writer.flush();
+					logger.debug("Flushed the revision rows to file");
 				}
 			}
 
