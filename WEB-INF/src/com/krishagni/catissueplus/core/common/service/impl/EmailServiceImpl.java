@@ -9,7 +9,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import javax.mail.Address;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.lang3.BooleanUtils;
@@ -82,15 +86,18 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 			mailSender.setHost(getMailServerHost());
 			mailSender.setPort(getMailServerPort());
 
+			Properties props = new Properties();
+			props.put("mail.smtp.timeout", 10000);
+			props.put("mail.smtp.connectiontimeout", 10000);
+
 			String startTlsEnabled = getStartTlsEnabled();
 			String authEnabled = getAuthEnabled();
 			if (StringUtils.isNotBlank(startTlsEnabled) && StringUtils.isNotBlank(authEnabled)) {
-				Properties props = new Properties();
 				props.put("mail.smtp.starttls.enable", startTlsEnabled);
 				props.put("mail.smtp.auth", authEnabled);
-				mailSender.setJavaMailProperties(props);
 			}
-			
+
+			mailSender.setJavaMailProperties(props);
 			this.mailSender = mailSender;
 		} catch (Exception e) {
 			logger.error("Error initialising e-mail sender", e);
@@ -237,12 +244,18 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 		}
 		
 		public void run() {
-			try{
+			try {
+				String rcpts = toString(mimeMessage.getAllRecipients());
+				logger.info("Sending email '" + mimeMessage.getSubject() + "' to " + rcpts);
 				mailSender.send(mimeMessage);
-				logger.info("Email queued: " + mimeMessage.getSubject());
+				logger.info("Email '" + mimeMessage.getSubject() + "' sent to " + rcpts);
 			} catch(Exception e) {
-				logger.error("Error sending e-mail", e);
+				logger.error("Error sending e-mail ", e);
 			}
+		}
+
+		private String toString(Address[] addresses) {
+			return Stream.of(addresses).map(addr -> ((InternetAddress) addr).getAddress()).collect(Collectors.joining(", "));
 		}
 	}
 	
@@ -279,7 +292,7 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 
 		return StringUtils.join(arr, ",");
 	}
-	
+
 	/**
 	 *  Config helper methods
 	 */
