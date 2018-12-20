@@ -1,6 +1,6 @@
 
 angular.module('os.administrative.job.list', ['os.administrative.models'])
-  .controller('JobListCtrl', function($scope, $modal, $translate, Util, ScheduledJob, Alerts, ListPagerOpts) {
+  .controller('JobListCtrl', function($scope, $modal, $translate, Util, ScheduledJob, DeleteUtil, Alerts, ListPagerOpts) {
 
     var pagerOpts, filterOpts;
 
@@ -78,12 +78,19 @@ angular.module('os.administrative.job.list', ['os.administrative.models'])
 
 
     $scope.deleteJob = function(job) {
-      job.$remove().then(
-        function() {
-          var idx = $scope.jobs.indexOf(job);
-          $scope.jobs.splice(idx, 1);
+      DeleteUtil.confirmDelete({
+        templateUrl: 'modules/administrative/job/confirm-delete.html',
+        deleteWithoutCheck: true,
+        entity: job,
+        delete: function() {
+          job.$remove().then(
+            function() {
+              var idx = $scope.jobs.indexOf(job);
+              $scope.jobs.splice(idx, 1);
+            }
+          );
         }
-      );
+      });
     }
 
     init();

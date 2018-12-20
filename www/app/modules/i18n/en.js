@@ -2277,6 +2277,9 @@
     "schedule": "Schedule",
     "created_by": "Created By",
     "last_run_on": "Last Run On",
+
+    "confirm_delete_title": "Confirm Delete",
+    "confirm_delete": "Are you sure you want to delete the job '{{name}}'?",
      
     "create_job": "Create Job",
     "type": "Type",
