@@ -66,6 +66,11 @@
     </record>
 
     <field>
+      <caption>#getMessage("container_temperature")</caption>
+      <attribute>temperature</attribute>
+    </field>
+
+    <field>
       <caption>#getMessage("container_no_of_columns")</caption>
       <attribute>noOfColumns</attribute>
     </field>
