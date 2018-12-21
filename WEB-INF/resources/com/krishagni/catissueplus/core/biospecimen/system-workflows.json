@@ -426,6 +426,25 @@
                             "type": "span"
                         },
                         {
+                            "name": "specimen.label",
+                            "caption": "Label",
+                            "type": "text",
+                            "optional": false,
+                            "showIf": {
+                                "op": "OR",
+                                "rules": [
+                                    {
+                                        "field": "viewCtx.cp.derivativeLabelFmt",
+                                        "op": "not_exist"
+                                    },
+                                    {
+                                        "field": "viewCtx.cp.manualSpecLabelEnabled",
+                                        "op": "exists"
+                                    }
+                                ]
+                            }
+                        },
+                        {
                             "name": "specimen.parent.availableQty",
                             "caption": "Parent Quantity",
                             "type": "span",

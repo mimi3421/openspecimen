@@ -25,6 +25,7 @@ angular.module('os.biospecimen.specimen')
         }
       );
 
+      $scope.cp = cp;
       ctx = $scope.ctx = {
         showCustomFields: true,
         derivedSpmns: derivedSpmns,
