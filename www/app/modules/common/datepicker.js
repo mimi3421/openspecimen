@@ -35,7 +35,7 @@ angular.module('openspecimen')
             }
 
             var result = dateParser.parse(viewValue, attrs.datepickerPopup);
-            return !!result ? viewValue : 420;
+            return (result == undefined || result == null) ? undefined : viewValue;
           }
         );
 
