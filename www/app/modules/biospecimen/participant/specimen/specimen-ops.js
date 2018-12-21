@@ -150,7 +150,7 @@ angular.module('os.biospecimen.specimen')
     function distributeSpmns(scope, details, specimens) {
       if (details.editOrder) {
         SpecimensHolder.setSpecimens(specimens, details);
-        $state.go('order-addedit', {dpId: details.dp.id});
+        navTo(scope, 'order-addedit', {dpId: details.dp.id});
         return;
       }
 
@@ -204,6 +204,14 @@ angular.module('os.biospecimen.specimen')
       );
     }
 
+    function navTo(scope, toState, toParams) {
+      if (scope.beforeNav) {
+        scope.beforeNav({navTo: toState});
+      }
+
+      $state.go(toState, toParams);
+    }
+
     return {
       restrict: 'E',
 
@@ -214,7 +222,8 @@ angular.module('os.biospecimen.specimen')
         cpr: '=?',
         specimens: '&',
         initList: '&',
-        resourceOpts: '=?'
+        resourceOpts: '=?',
+        beforeNav: '&'
       },
 
       templateUrl: 'modules/biospecimen/participant/specimen/specimen-ops.html',
@@ -235,7 +244,7 @@ angular.module('os.biospecimen.specimen')
           Specimen.getByIds(specimenIds).then(
             function(spmns) {
               SpecimensHolder.setSpecimens(spmns);
-              $state.go(state, params);
+              navTo(scope, state, params);
             }
           );
         }
@@ -248,7 +257,7 @@ angular.module('os.biospecimen.specimen')
           }
 
           SpecimensHolder.setSpecimens(spmns);
-          $state.go('specimen-bulk-edit');
+          navTo(scope, 'specimen-bulk-edit');
         }
 
         scope.printSpecimenLabels = function() {

@@ -636,6 +636,11 @@ angular.module('os.query.results', ['os.query.models'])
       executeQuery(false);
     }
 
+    $scope.saveCtx = function(navTo) {
+      queryCtx.fromState = navTo;
+      QueryCtxHolder.setCtx(queryCtx);
+    }
+
     $scope.downloadResults = function() {
       var qc = $scope.queryCtx;
 

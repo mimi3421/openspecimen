@@ -94,7 +94,8 @@
           </button>
         </button>
 
-        <os-specimen-ops title="queries.specimens" specimens="getSelectedSpecimens()" init-list="rerun()">
+        <os-specimen-ops title="queries.specimens" specimens="getSelectedSpecimens()"
+          init-list="rerun()" before-nav="saveCtx(navTo)">
         </os-specimen-ops>
 
         <os-assign-to-spmn-list on-add-to-list="addSelectedSpecimensToSpecimenList(list)">
