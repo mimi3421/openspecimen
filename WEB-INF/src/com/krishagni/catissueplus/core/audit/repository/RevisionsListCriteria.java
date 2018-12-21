@@ -64,7 +64,8 @@ public class RevisionsListCriteria extends AbstractListCriteria<RevisionsListCri
 		return new StringBuilder().append(super.toString()).append(", ")
 			.append("start date = ").append(startDate()).append(", ")
 			.append("end date = ").append(endDate()).append(", ")
-			.append("user = ").append(userId())
+			.append("user = ").append(userId()).append(", ")
+			.append("include modified props = ").append(includeModifiedProps())
 			.toString();
 	}
 }

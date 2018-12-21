@@ -309,7 +309,7 @@ public class AuditServiceImpl implements AuditService {
 					}
 
 					if (logger.isDebugEnabled()) {
-						logger.debug(revisions.size() + " fetched for the criteria: " + criteria);
+						logger.debug(revisions.size() + " revisions fetched for the criteria: " + criteria);
 					}
 
 					for (RevisionDetail revision : revisions) {

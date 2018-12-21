@@ -59,10 +59,10 @@ public class RevisionEntityRecordDetail {
 
 	public String toString() {
 		return new StringBuilder("[")
-			.append("id = ").append(getId())
-			.append("type = ").append(getType())
-			.append("entity = ").append(getEntityName())
-			.append("entity id = ").append(getEntityId())
+			.append("id = ").append(getId()).append(", ")
+			.append("type = ").append(getType()).append(", ")
+			.append("entity = ").append(getEntityName()).append(", ")
+			.append("entity id = ").append(getEntityId()).append(", ")
 			.append("modified props = ").append(getModifiedProps())
 			.append("]")
 			.toString();
