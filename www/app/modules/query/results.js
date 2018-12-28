@@ -786,7 +786,16 @@ angular.module('os.query.results', ['os.query.models'])
         }
       });
 
-      loadRecords(false, true);
+      if (ctx.searchQ) {
+        $timeout.cancel(ctx.searchQ);
+      }
+
+      ctx.searchQ = $timeout(
+        function() {
+          loadRecords(false, true);
+        },
+        ui.os.global.filterWaitInterval
+      );
     }
 
     $scope.clearFacetValueSelection = function($event, facet) {

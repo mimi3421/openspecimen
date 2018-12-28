@@ -316,7 +316,7 @@ osApp.config(function(
 
     ui.os.global = $rootScope.global = {
       defaultDomain: 'openspecimen',	
-      filterWaitInterval: 500,
+      filterWaitInterval: ui.os.appProps.searchDelay,
       appProps: ui.os.appProps
     };
 

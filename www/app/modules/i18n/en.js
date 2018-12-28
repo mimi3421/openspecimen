@@ -2625,7 +2625,9 @@
         "max_eapp_msg_retries": "Failed Messages Retry Limit",
         "max_eapp_msg_retries_desc": "Maximum number of retries to process failed external application messages.",
         "eapp_msg_retention_period": "Message Retention Period",
-        "eapp_msg_retention_period_desc": "Number of days to retain the external application messages in the database before deleting them"
+        "eapp_msg_retention_period_desc": "Number of days to retain the external application messages in the database before deleting them",
+        "search_delay": "Search Delay",
+        "search_delay_desc": "Time in milliseconds to wait between users input before executing the search action."
       },
 
       "email": {

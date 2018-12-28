@@ -64,8 +64,12 @@ angular.module('os.administrative.setting.util', [])
         return;
       }
 
-      if (newValue.module == 'common' && newValue.name == 'not_specified_text') {
-        ui.os.appProps.not_specified = newValue.value;
+      if (newValue.module == 'common') {
+        if (newValue.name == 'not_specified_text') {
+          ui.os.appProps.not_specified = newValue.value;
+        } else if (newValue.name == 'search_delay') {
+          ui.os.global.filterWaitInterval = newValue.value || 500;
+        }
       }
     }
 

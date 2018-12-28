@@ -122,4 +122,14 @@
         name in ('default_query', 'default_spmn_centric_query')
     </sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="Config setting to delay the user searches">
+    <sql>
+      call add_cfg_prop(
+        'common', 'search_delay',
+        'search_delay', 'search_delay_desc',
+        'INT', '1000'
+      );
+    </sql>
+  </changeSet>
 </databaseChangeLog>
