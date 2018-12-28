@@ -72,7 +72,7 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
 			}
 
 			if (user.getActivityStatus().equals(Status.ACTIVITY_STATUS_LOCKED.getStatus())) {
-				throw OpenSpecimenException.userError(AuthErrorCode.USER_LOCKED);
+				throw OpenSpecimenException.userError(AuthErrorCode.USER_LOCKED, loginDetail.getLoginName());
 			}
 			
 			if (user.getActivityStatus().equals(Status.ACTIVITY_STATUS_EXPIRED.getStatus())) {

@@ -57,7 +57,9 @@ public enum UserErrorCode implements ErrorCode {
 
 	FORGOT_PASSWD_DISABLED,
 
-	NOT_FOUND_IN_OS_DOMAIN;
+	NOT_FOUND_IN_OS_DOMAIN,
+
+	INACTIVE;
 	
 	public String code() {
 		return "USER_" + this.name();

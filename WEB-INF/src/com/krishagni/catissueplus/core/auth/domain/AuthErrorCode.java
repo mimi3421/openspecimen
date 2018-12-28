@@ -16,6 +16,7 @@ public enum AuthErrorCode implements ErrorCode {
 	PASSWD_EXPIRED,
 
 	SYSTEM_LOCKDOWN;
+
 	@Override
 	public String code() {
 		return "AUTH_" + this.name();

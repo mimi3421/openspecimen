@@ -189,18 +189,23 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 		Map<String, String> props = domain.getAuthProvider().getProps();
 		String loginNameAttr = props.get("loginNameAttr");
 		String emailAttr     = props.get("emailAddressAttr");
-		
+
+		String key = null;
 		User user = null;
 		if (StringUtils.isNotBlank(loginNameAttr)) {
-			String loginName = getCredentialAttrValue(credential, loginNameAttr);
+			String loginName = key = getCredentialAttrValue(credential, loginNameAttr);
 			user = daoFactory.getUserDao().getUser(loginName, domain.getName());
 		} else if (StringUtils.isNotBlank(emailAttr)) {
-			String email = getCredentialAttrValue(credential, emailAttr);
+			String email = key = getCredentialAttrValue(credential, emailAttr);
 			user = daoFactory.getUserDao().getUserByEmailAddress(email);
 		}
 		
 		if (user == null) {
 			throw new UsernameNotFoundException(MessageUtil.getInstance().getMessage("user_not_found"));
+		} else if (user.isLocked()) {
+			throw OpenSpecimenException.userError(AuthErrorCode.USER_LOCKED, key);
+		} else if (!user.isActive()) {
+			throw OpenSpecimenException.userError(UserErrorCode.INACTIVE, key);
 		}
 		
 		return user;
@@ -456,7 +461,7 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 				String key = StringUtils.isNotBlank(detail.getLoginName()) ? detail.getLoginName() : detail.getEmailAddress();
 				return ResponseEvent.userError(UserErrorCode.NOT_FOUND_IN_OS_DOMAIN, key);
 			} else if (user.isLocked()) {
-				return ResponseEvent.userError(AuthErrorCode.USER_LOCKED);
+				return ResponseEvent.userError(AuthErrorCode.USER_LOCKED, user.formattedName());
 			}
 
 			UserDao userDao = daoFactory.getUserDao();
