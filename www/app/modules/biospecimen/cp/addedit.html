@@ -147,12 +147,12 @@
       </div>
 
       <div class="form-group" ng-if="!cp.specimenCentric">
-        <label class="control-label col-xs-3" translate="cp.anticipated_participants_cnt">
+        <label class="control-label col-xs-3" translate="cp.anticipated_participant_count">
           Anticipated Participants Count
         </label>
         <div class="col-xs-6">
           <input type="text" name="anticipatedParticipantCnt" ng-model="cp.anticipatedParticipantsCount"
-            class="form-control" ng-pattern="/^[0-9]*$/" placeholder="{{'cp.anticipated_participants_cnt' | translate}}">
+            class="form-control" ng-pattern="/^[0-9]*$/" placeholder="{{'cp.anticipated_participant_count' | translate}}">
           <div os-field-error field="cpForm.anticipatedParticipantCnt"></div>
         </div>
       </div>

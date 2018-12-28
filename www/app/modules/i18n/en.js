@@ -200,7 +200,6 @@
     "type": "Type",
     "participant_centric": "Participant Centric",
     "specimen_centric": "Specimen Centric",
-    "anticipated_participants_cnt": "Anticipated Participants Count",
     "sop_document": "SOP Document",
     "sop_document_url": "SOP Document URL",
     "sop_document_file": "SOP Document File",
