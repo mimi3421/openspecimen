@@ -488,6 +488,7 @@
         <table>OS_CPR_ANTICIPATED_SPMNS</table>
         <foreignKey>CPR_ID</foreignKey>
         <parentKey>CPR_ID</parentKey>
+        <flatten>false</flatten>
         <row>
           <numberField>
             <name>reqId</name>

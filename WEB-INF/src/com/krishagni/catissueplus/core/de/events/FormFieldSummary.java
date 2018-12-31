@@ -19,6 +19,8 @@ public class FormFieldSummary {
 	private List<FormFieldSummary> subFields;
 	
 	private Properties lookupProps;
+
+	private Boolean flatten;
 	
 	public String getName() {
 		return name;
@@ -66,5 +68,13 @@ public class FormFieldSummary {
 
 	public void setLookupProps(Properties lookupProps) {
 		this.lookupProps = lookupProps;
+	}
+
+	public Boolean getFlatten() {
+		return flatten;
+	}
+
+	public void setFlatten(boolean flatten) {
+		this.flatten = flatten;
 	}
 }

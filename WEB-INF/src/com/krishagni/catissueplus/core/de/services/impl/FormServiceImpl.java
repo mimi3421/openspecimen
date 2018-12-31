@@ -960,6 +960,8 @@ public class FormServiceImpl implements FormService, InitializingBean {
 
             if (control instanceof SubFormControl) {
             	SubFormControl sfCtrl = (SubFormControl)control;
+            	field.setFlatten(sfCtrl.isFlatten());
+
             	if (!sfCtrl.isPathLink()) {
                 	field.setType("SUBFORM");
                 	field.setSubFields(getFormFields(sfCtrl.getSubContainer()));

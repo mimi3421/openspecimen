@@ -244,7 +244,7 @@ angular.module('os.biospecimen.models.form', ['os.common.models'])
         fqn, 
         fields, 
         function(field) {
-          return field.type != 'SUBFORM' || !Form.isExtendedField(field.name);
+          return field.type != 'SUBFORM' || (!Form.isExtendedField(field.name) && field.flatten);
         });
     };
 
@@ -260,14 +260,21 @@ angular.module('os.biospecimen.models.form', ['os.common.models'])
     function getExtnForms(fqn, fields) {
       var extnForms = [];
       for (var i = 0; i < fields.length; ++i) {
-        if (fields[i].type != 'SUBFORM' || !Form.isExtendedField(fields[i].name)) { 
+        if (fields[i].type != 'SUBFORM' || (!Form.isExtendedField(fields[i].name) && fields[i].flatten)) {
           continue;
         }
 
-        var extnSubForm = fields[i];
+        var extnSubForm;
+        if (Form.isExtendedField(fields[i].name)) {
+          extnSubForm = fields[i];
+        } else {
+          extnSubForm = {name: '', subFields: [fields[i]]};
+        }
+
         for (var j = 0; j < extnSubForm.subFields.length; ++j) {
           var subForm = extnSubForm.subFields[j];
-          var extnFields = flattenFields(fqn + extnSubForm.name + "." + subForm.name + ".", subForm.subFields);
+          var prefix  = !!extnSubForm.name ? (extnSubForm.name + '.') : ''
+          var extnFields = flattenFields(fqn + prefix + subForm.name + '.', subForm.subFields);
           for (var k = 0; k < extnFields.length; ++k) {
             extnFields[k].extensionForm = subForm.caption;
           }
