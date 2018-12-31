@@ -263,7 +263,7 @@ public class AuditDaoImpl extends AbstractDao<UserApiCallLog> implements AuditDa
 			}
 
 			RevisionEntityRecordDetail entity = getRevisionEntityInfo(row, 6);
-			lastRevision.getRecords().add(entity);
+			lastRevision.addRecord(entity);
 		}
 
 		return revisions;

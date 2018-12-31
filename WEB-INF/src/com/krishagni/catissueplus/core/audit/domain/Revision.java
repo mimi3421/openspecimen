@@ -79,6 +79,13 @@ public class Revision {
 	}
 
 	public void addEntityRecord(RevisionEntityRecord record) {
-		entityRecords.add(record);
+		RevisionEntityRecord existing = entityRecords.stream()
+			.filter(er -> er.getEntityName().equals(record.getEntityName()) && er.getEntityId().equals(record.getEntityId()))
+			.findFirst().orElse(null);
+		if (existing == null) {
+			entityRecords.add(record);
+		} else if (record.getType() == 0) {
+			existing.setType(0);
+		}
 	}
 }

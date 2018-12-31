@@ -24,12 +24,10 @@ import com.krishagni.catissueplus.core.common.util.Status;
 import com.krishagni.catissueplus.core.common.util.Utility;
 
 @Audited
-public class CollectionProtocolEvent implements Comparable<CollectionProtocolEvent> {
+public class CollectionProtocolEvent extends BaseEntity implements Comparable<CollectionProtocolEvent> {
 
 	private static final String ENTITY_NAME = "collection_protocol_event";
 	
-	private Long id;
-
 	private String eventLabel;
 
 	private Integer eventPoint;
@@ -64,14 +62,6 @@ public class CollectionProtocolEvent implements Comparable<CollectionProtocolEve
 		return ENTITY_NAME;
 	}
 	
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
 	public String getEventLabel() {
 		return eventLabel;
 	}
