@@ -96,9 +96,7 @@ public class ImportDefaultQueries implements InitializingBean {
 				if(query != null){
 					queries.add(query);
 
-					if (resource.getFilename().equals(DEFAULT_CATALOG_QUERY)) {
-						configureCatalogQuery(query);
-					} else if (resource.getFilename().equals(DISTRIBUTION_REPORT_QUERY)) {
+					if (resource.getFilename().equals(DISTRIBUTION_REPORT_QUERY)) {
 						configureDistributionReportQuery(query);
 					} else if (resource.getFilename().equals(SHIPMENT_REPORT_QUERY)) {
 						configureShipmentReportQuery(query);
@@ -221,8 +219,6 @@ public class ImportDefaultQueries implements InitializingBean {
 	private static final String DEFAULT_QUERIES = "Default Queries";
 	
 	private static final String QUERIES_DIRECTORY = "/default-queries";
-
-	private static final String DEFAULT_CATALOG_QUERY = "SpecimenCatalog.json";
 
 	private static final String DISTRIBUTION_REPORT_QUERY = "DistributionReport.json";
 

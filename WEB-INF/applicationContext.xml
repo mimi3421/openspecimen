@@ -898,12 +898,6 @@
     <property name="cfgSvc" ref="cfgSvc"/>
   </bean>
 
-  <bean id="importContainerTypes" class="com.krishagni.catissueplus.core.init.ImportContainerTypes">
-    <property name="jdbcTemplate" ref="jdbcTemplate"/>
-    <property name="daoFactory" ref="biospecimenDaoFactory"/>
-    <property name="containerTypeSvc" ref="containerTypeSvc"/>
-  </bean>
-
   <!-- Move these to importer-beans.xml -->
   <bean id="importJobDao" class="com.krishagni.catissueplus.core.importer.repository.impl.ImportJobDaoImpl">
     <property name="sessionFactory" ref="sessionFactory"/>
@@ -1207,13 +1201,6 @@
     <property name="schemaFactory" ref="objectSchemaFactory"/>
     <property name="importerFactory" ref="objectImporterFactory"/>
     <property name="transactionManager" ref="transactionManager"/>
-  </bean>
-  
-  <bean id="importDefaultQueries" class="com.krishagni.catissueplus.core.init.ImportDefaultQueries">
-    <property name="txnMgr" ref="transactionManager"/>
-    <property name="daoFactory" ref="deDaoFactory"/>
-    <property name="userDao" ref="userDao"/>
-    <property name="cfgService" ref="cfgSvc"/>
   </bean>
 
   <!-- export service and allied beans -->

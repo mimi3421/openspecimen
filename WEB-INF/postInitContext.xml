@@ -13,4 +13,16 @@
     <property name="sessionFactory" ref="sessionFactory"/>
   </bean>
 
+  <bean id="importContainerTypes" class="com.krishagni.catissueplus.core.init.ImportContainerTypes" depends-on="post-init-liquibase">
+    <property name="jdbcTemplate" ref="jdbcTemplate"/>
+    <property name="daoFactory" ref="biospecimenDaoFactory"/>
+    <property name="containerTypeSvc" ref="containerTypeSvc"/>
+  </bean>
+
+  <bean id="importDefaultQueries" class="com.krishagni.catissueplus.core.init.ImportDefaultQueries">
+    <property name="txnMgr" ref="transactionManager"/>
+    <property name="daoFactory" ref="deDaoFactory"/>
+    <property name="userDao" ref="userDao"/>
+    <property name="cfgService" ref="cfgSvc"/>
+  </bean>
 </beans>
