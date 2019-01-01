@@ -257,6 +257,8 @@ angular.module('os.biospecimen.specimen')
     }
 
     function submitSamples() {
+      var parentSamples = {};
+
       var samples = [];
       angular.forEach(ctx.customFieldGroups,
         function(group) {
@@ -264,7 +266,7 @@ angular.module('os.biospecimen.specimen')
             function(spec) {
               var spmn = spec.specimen;
 
-              samples.push({
+              var sample = {
                 specimen: {lineage: 'Aliquot', extensionDetail: spmn.extensionDetail},
                 aliquotsSpec: {
                   parentId: spmn.parent.id,
@@ -286,9 +288,27 @@ angular.module('os.biospecimen.specimen')
                   createDerived: createDerived
                 },
                 events: spec.events
-              });
+              };
+              samples.push(sample);
+
+              parentSamples[spmn.parent.id] = parentSamples[spmn.parent.id] || [];
+              parentSamples[spmn.parent.id].push(sample);
             }
           );
+        }
+      );
+
+      angular.forEach(parentSamples,
+        function(samples) {
+          var closeParent = false;
+          angular.forEach(samples,
+            function(sample) {
+              closeParent = closeParent || sample.aliquotsSpec.closeParent;
+              sample.aliquotsSpec.closeParent = false;
+            }
+          );
+
+          samples[samples.length - 1].aliquotsSpec.closeParent = closeParent;
         }
       );
 
