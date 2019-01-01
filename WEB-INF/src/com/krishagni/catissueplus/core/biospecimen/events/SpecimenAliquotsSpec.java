@@ -14,6 +14,8 @@ public class SpecimenAliquotsSpec {
 	private String cpShortTitle;
 	
 	private Integer noOfAliquots;
+
+	private String labels;
 	
 	private BigDecimal qtyPerAliquot;
 
@@ -81,6 +83,14 @@ public class SpecimenAliquotsSpec {
 
 	public void setNoOfAliquots(Integer noOfAliquots) {
 		this.noOfAliquots = noOfAliquots;
+	}
+
+	public String getLabels() {
+		return labels;
+	}
+
+	public void setLabels(String labels) {
+		this.labels = labels;
 	}
 
 	public BigDecimal getQtyPerAliquot() {

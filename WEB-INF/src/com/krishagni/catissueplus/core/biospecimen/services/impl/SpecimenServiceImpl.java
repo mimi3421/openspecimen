@@ -406,6 +406,11 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 				return ResponseEvent.userError(SpecimenErrorCode.INVALID_QTY_OR_CNT);
 			}
 
+			List<String> labels = Utility.csvToStringList(spec.getLabels());
+			if (!labels.isEmpty()) {
+				count = labels.size();
+			}
+
 			BigDecimal parentQty = derived != null ? derived.getInitialQty() : parentSpecimen.getAvailableQuantity();
 			boolean aliquotQtyReq = ConfigUtil.getInstance().getBoolSetting(ConfigParams.MODULE, ConfigParams.ALIQUOT_QTY_REQ, true);
 			if ((count == null && (parentQty == null || aliquotQty == null)) ||
@@ -435,6 +440,9 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 				aliquot.setCloseParent(spec.closeParent());
 				aliquot.setPrintLabel(spec.printLabel());
 				aliquot.setExtensionDetail(spec.getExtensionDetail());
+				if (i < labels.size()) {
+					aliquot.setLabel(labels.get(i));
+				}
 
 				if (StringUtils.isNotBlank(spec.getParentContainerName())) {
 					StorageLocationSummary containerLocation = new StorageLocationSummary();

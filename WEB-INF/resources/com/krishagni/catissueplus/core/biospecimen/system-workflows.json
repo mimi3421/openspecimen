@@ -349,7 +349,36 @@
                             "pattern" : "/^[1-9][0-9]*$/",
                             "modelOpts": {"allowInvalid": true},
                             "optional": true,
-                            "width": "80px"
+                            "width": "80px",
+                            "showIf": {
+                                "tabMode": true,
+                                "op": "OR",
+                                "rules": [
+                                    {
+                                        "field": "viewCtx.inputLabels",
+                                        "op": "==",
+                                        "value": "false"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "name": "specimen.labels",
+                            "caption": "Labels",
+                            "type": "textarea",
+                            "optional": false,
+                            "showIf": {
+                                "tabMode": true,
+                                "op": "OR",
+                                "rules": [
+                                    {
+                                        "field": "viewCtx.inputLabels",
+                                        "op": "==",
+                                        "value": "true"
+                                    }
+                                ]
+                            },
+                            "copyValueFn" : "function(firstRowVal, currentVal) { return ''; }"
                         },
                         {
                             "name": "specimen.qtyPerAliquot",
@@ -435,15 +464,13 @@
                                 "op": "OR",
                                 "rules": [
                                     {
-                                        "field": "viewCtx.cp.derivativeLabelFmt",
-                                        "op": "not_exist"
-                                    },
-                                    {
-                                        "field": "viewCtx.cp.manualSpecLabelEnabled",
-                                        "op": "exists"
+                                        "field": "viewCtx.inputLabels",
+                                        "op": "==",
+                                        "value": "true"
                                     }
                                 ]
-                            }
+                            },
+                            "copyValueFn" : "function(firstRowVal, currentVal) { return ''; }"
                         },
                         {
                             "name": "specimen.parent.availableQty",

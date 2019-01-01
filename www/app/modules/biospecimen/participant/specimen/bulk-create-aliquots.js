@@ -31,11 +31,14 @@ angular.module('os.biospecimen.specimen')
         }
       );
 
+      $scope.cp = cp;
+      var inputLabels = $scope.inputLabels = (!!cp.id && (!cp.aliquotLabelFmt || cp.manualSpecLabelEnabled));
       ctx = $scope.ctx = {
         showCustomFields: true,
         aliquotsSpec: aliquotsSpec,
         aliquots: [],
-        aliquotQtyReq: aliquotQtyReq
+        aliquotQtyReq: aliquotQtyReq,
+        inputLabels: inputLabels
       };
 
       var opts = $scope.opts = {
@@ -266,6 +269,7 @@ angular.module('os.biospecimen.specimen')
                 aliquotsSpec: {
                   parentId: spmn.parent.id,
                   noOfAliquots: spmn.noOfAliquots,
+                  labels: spmn.labels,
                   qtyPerAliquot: spmn.qtyPerAliquot,
                   specimenClass: spmn.specimenClass,
                   type: spmn.type,

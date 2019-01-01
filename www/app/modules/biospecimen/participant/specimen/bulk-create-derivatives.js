@@ -26,10 +26,11 @@ angular.module('os.biospecimen.specimen')
       );
 
       $scope.cp = cp;
+      var inputLabels = $scope.inputLabels = (!!cp.id && (!cp.derivativeLabelFmt || cp.manualSpecLabelEnabled));
       ctx = $scope.ctx = {
         showCustomFields: true,
         derivedSpmns: derivedSpmns,
-        inputLabels: !cp.derivativeLabelFmt || cp.manualSpecLabelEnabled
+        inputLabels: inputLabels
       };
 
       var opts = $scope.opts = {
