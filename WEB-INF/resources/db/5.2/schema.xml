@@ -84,6 +84,7 @@
           select
             r.identifier cpr_id,
             r.registration_date reg_date,
+            e.code event_code,
             e.collection_point_label event_label,
             case
               when v.collection_status = \'Pending\' and v.encounter_timestamp is not null then v.encounter_timestamp
@@ -92,6 +93,8 @@
             e.clinical_status,
             e.clinical_diagnosis,
             spmn.identifier req_id,
+            spmn.spec_req_label req_name,
+            spmn.code req_code,
             spmn.lineage,
             spmn.specimen_class,
             spmn.specimen_type,
@@ -106,7 +109,7 @@
             catissue_coll_prot_reg r
             inner join (
               select
-                ae.identifier, ae.collection_point_label, ae.collection_protocol_id,
+                ae.identifier, ae.code, ae.collection_point_label, ae.collection_protocol_id,
                 ae.study_calendar_event_point, ae.event_point_unit, ae.activity_status,
                 ae.clinical_status, ae.clinical_diagnosis,
                 case
@@ -243,6 +246,7 @@
             os_cpr_anticipated_spmns_seq.nextval as identifier,
             r.identifier cpr_id,
             r.registration_date reg_date,
+            e.code event_code,
             e.collection_point_label event_label,
             case
               when v.collection_status = ''Pending'' and v.encounter_timestamp is not null then v.encounter_timestamp
@@ -251,6 +255,8 @@
             e.clinical_status,
             e.clinical_diagnosis,
             spmn.identifier req_id,
+            spmn.spec_req_label req_name,
+            spmn.code req_code,
             spmn.lineage,
             spmn.specimen_class,
             spmn.specimen_type,
@@ -265,7 +271,7 @@
             catissue_coll_prot_reg r
             inner join (
               select
-                ae.identifier, ae.collection_point_label, ae.collection_protocol_id,
+                ae.identifier, ae.code, ae.collection_point_label, ae.collection_protocol_id,
                 ae.study_calendar_event_point, ae.event_point_unit, ae.activity_status,
                 ae.clinical_status, ae.clinical_diagnosis,
                 case

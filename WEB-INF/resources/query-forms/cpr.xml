@@ -498,6 +498,13 @@
           </numberField>
 
           <textField>
+            <name>eventCode</name>
+            <udn>eventCode</udn>
+            <caption>#getMessage("cpr_as_event_code")</caption>
+            <column>EVENT_CODE</column>
+          </textField>
+
+          <textField>
             <name>eventLabel</name>
             <udn>eventLabel</udn>
             <caption>#getMessage("cpr_as_event_label")</caption>
@@ -530,6 +537,20 @@
               <sql>select value from catissue_permissible_value where public_id = 'clinical_status' order by value</sql>
             </options>
           </dropDown>
+
+          <textField>
+            <name>reqCode</name>
+            <udn>reqCode</udn>
+            <caption>#getMessage("cpr_as_req_code")</caption>
+            <column>REQ_CODE</column>
+          </textField>
+
+          <textField>
+            <name>reqName</name>
+            <udn>reqName</udn>
+            <caption>#getMessage("cpr_as_req_name")</caption>
+            <column>REQ_NAME</column>
+          </textField>
 
           <dropDown>
             <name>lineage</name>
