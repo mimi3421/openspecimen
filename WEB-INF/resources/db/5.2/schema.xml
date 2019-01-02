@@ -440,4 +440,22 @@
         o.activity_status != 'Disabled'
     </createView>
   </changeSet>
+
+  <changeSet author="vpawar" id="Better index on DE form record entries to fasten the queries">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <indexExists tableName="CATISSUE_FORM_RECORD_ENTRY" columnNames="FORM_CTXT_ID,OBJECT_ID,RECORD_ID,ACTIVITY_STATUS"/>
+      </not>
+    </preConditions>
+    <createIndex tableName="CATISSUE_FORM_RECORD_ENTRY" indexName="OS_FORM_REC_ENTRY_IDX">
+      <column name="FORM_CTXT_ID"/>
+      <column name="OBJECT_ID"/>
+      <column name="RECORD_ID"/>
+      <column name="ACTIVITY_STATUS"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Drop the older non-performing index on DE form record entries">
+    <dropIndex tableName="CATISSUE_FORM_RECORD_ENTRY" indexName="OS_EXTN_VIEW_IDX"/>
+  </changeSet>
 </databaseChangeLog>
