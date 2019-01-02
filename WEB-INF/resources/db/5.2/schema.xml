@@ -458,4 +458,51 @@
   <changeSet author="vpawar" id="Drop the older non-performing index on DE form record entries">
     <dropIndex tableName="CATISSUE_FORM_RECORD_ENTRY" indexName="OS_EXTN_VIEW_IDX"/>
   </changeSet>
+
+  <changeSet author="vpawar" id="Anticipated specimens table">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="OS_CPR_ANTICIPATED_SPMNS"/>
+      </not>
+    </preConditions>
+
+    <createTable tableName="OS_CPR_ANTICIPATED_SPMNS">
+      <column name="IDENTIFIER" type="${int.type}" autoIncrement="${autoIncrement}">
+        <constraints primaryKey="true"/>
+      </column>
+      <column name="CPR_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="REG_DATE" type="${timestamp.type}"/>
+      <column name="EVENT_LABEL" type="${text.type}(255)"/>
+      <column name="EVENT_DATE" type="${timestamp.type}"/>
+      <column name="CLINICAL_STATUS" type="${text.type}(50)"/>
+      <column name="CLINICAL_DIAGNOSIS" type="${text.type}(255)"/>
+      <column name="REQ_ID" type="${int.type}"/>
+      <column name="LINEAGE" type="${text.type}(50)"/>
+      <column name="SPECIMEN_CLASS" type="${text.type}(50)"/>
+      <column name="SPECIMEN_TYPE" type="${text.type}(50)"/>
+      <column name="ANATOMIC_SITE" type="${text.type}(150)"/>
+      <column name="LATERALITY" type="${text.type}(50)"/>
+      <column name="QUANTITY" type="${double.type}"/>
+      <column name="CONCENTRATION" type="${double.type}"/>
+      <column name="PATH_STATUS" type="${text.type}(50)"/>
+      <column name="COLLECTION_CONTAINER" type="${text.type}(50)"/>
+      <column name="COLLECTION_PROCEDURE" type="${text.type}(50)"/>
+    </createTable>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Anticipated specimens table - event and SR codes">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <columnExists tableName="OS_CPR_ANTICIPATED_SPMNS" columnName="EVENT_CODE"/>
+      </not>
+    </preConditions>
+
+    <addColumn tableName="OS_CPR_ANTICIPATED_SPMNS">
+      <column name="EVENT_CODE" type="${text.type}(32)"/>
+      <column name="REQ_NAME" type="${text.type}(255)"/>
+      <column name="REQ_CODE" type="${text.type}(32)"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

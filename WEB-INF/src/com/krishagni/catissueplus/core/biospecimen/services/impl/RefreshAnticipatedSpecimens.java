@@ -25,6 +25,9 @@ public class RefreshAnticipatedSpecimens implements ScheduledTask {
 	throws Exception {
 		String args = jobRun.getScheduledJob().getFixedArgs();
 		List<String> cpIds = Utility.csvToStringList(args);
+		if (cpIds.isEmpty()) {
+			return;
+		}
 
 		args = cpIds.stream().map(String::trim).filter(StringUtils::isNotBlank).collect(Collectors.joining(","));
 		sessionFactory.getCurrentSession()
