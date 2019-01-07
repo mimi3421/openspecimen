@@ -505,4 +505,10 @@
       <column name="REQ_CODE" type="${text.type}(32)"/>
     </addColumn>
   </changeSet>
+
+  <changeSet author="vpawar" id="Foreign key on pooled specimen requirement">
+    <addForeignKeyConstraint constraintName="FK_POOLED_SPMN_REQ"
+      baseTableName="CATISSUE_CP_REQ_SPECIMEN" baseColumnNames="POOLED_SPMN_REQ_ID"
+      referencedTableName="CATISSUE_CP_REQ_SPECIMEN" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
 </databaseChangeLog>
