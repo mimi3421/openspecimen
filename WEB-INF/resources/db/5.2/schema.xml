@@ -37,6 +37,19 @@
     </createIndex>
   </changeSet>
 
+  <changeSet author="vpawar" id="Drop index on external app ID">
+    <preConditions onFail="MARK_RAN">
+      <indexExists tableName="OS_EXTERNAL_APP_IDS" indexName="OS_EXT_APP_IDX"/>
+    </preConditions>
+
+    <dropIndex tableName="OS_EXTERNAL_APP_IDS" indexName="OS_EXT_APP_IDX"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Unique constraint on app name + entity name + external ID">
+    <addUniqueConstraint constraintName="OS_APP_ENTITY_EXT_ID_UQ"
+      tableName="OS_EXTERNAL_APP_IDS" columnNames="APP_NAME,ENTITY_NAME,EXTERNAL_ID"/>
+  </changeSet>
+
   <changeSet author="vpawar" id="Scheduled job hourly and minutely interval">
     <addColumn tableName="OS_SCHEDULED_JOBS">
       <column name="HOURLY_INTERVAL" type="${mediumint.type}" defaultValue="1"/>
