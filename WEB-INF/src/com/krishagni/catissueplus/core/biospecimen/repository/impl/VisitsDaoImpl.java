@@ -195,6 +195,10 @@ public class VisitsDaoImpl extends AbstractDao<Visit> implements VisitsDao {
 				.add(Restrictions.eq("cp.id", crit.cpId()));
 		}
 
+		if (CollectionUtils.isNotEmpty(crit.ids())) {
+			applyIdsFilter(query, "visit.id", crit.ids());
+		}
+
 		if (CollectionUtils.isNotEmpty(crit.names())) {
 			query.add(Restrictions.in("name", crit.names()));
 		}

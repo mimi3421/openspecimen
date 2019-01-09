@@ -47,6 +47,7 @@ import com.krishagni.catissueplus.core.common.events.EntityQueryCriteria;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
+import com.krishagni.catissueplus.core.common.service.ObjectAccessor;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.catissueplus.core.common.util.ConfigUtil;
 import com.krishagni.catissueplus.core.common.util.EmailUtil;
@@ -68,7 +69,7 @@ import edu.common.dynamicextensions.query.QueryResultData;
 import edu.common.dynamicextensions.query.WideRowMode;
 
 
-public class SpecimenListServiceImpl implements SpecimenListService, InitializingBean {
+public class SpecimenListServiceImpl implements SpecimenListService, InitializingBean, ObjectAccessor {
 
 	private static final Pattern DEF_LIST_NAME_PATTERN = Pattern.compile("\\$\\$\\$\\$user_\\d+");
 
@@ -379,6 +380,26 @@ public class SpecimenListServiceImpl implements SpecimenListService, Initializin
 	@Override
 	public QueryDataExportResult exportSpecimenList(SpecimenListCriteria crit, BiConsumer<QueryResultData, OutputStream> qdConsumer) {
 		return exportSpecimenList0(crit, qdConsumer);
+	}
+
+	@Override
+	public String getObjectName() {
+		return SpecimenList.getEntityName();
+	}
+
+	@Override
+	public Map<String, Object> resolveUrl(String key, Object value) {
+		return Collections.singletonMap("listId", Long.parseLong(value.toString()));
+	}
+
+	@Override
+	public String getAuditTable() {
+		return "CARTS_NOT_AUDITED";
+	}
+
+	@Override
+	public void ensureReadAllowed(Long cartId) {
+		getSpecimenList(cartId, null);
 	}
 
 	private SpecimenListsCriteria addSpecimenListsCriteria(SpecimenListsCriteria crit) {

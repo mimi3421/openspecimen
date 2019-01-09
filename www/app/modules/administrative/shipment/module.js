@@ -161,4 +161,8 @@ angular.module('os.administrative.shipment',
         controller: 'ShipmentReceiveCtrl',
         parent: 'shipment-root'
       })
+  })
+  .run(function(QuickSearchSvc) {
+    var opts = {caption: 'entities.shipment', state: 'shipment-detail.overview'};
+    QuickSearchSvc.register('shipment', opts);
   });

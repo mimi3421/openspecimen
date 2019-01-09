@@ -95,10 +95,7 @@ public class InstituteDaoImpl extends AbstractDao<Institute> implements Institut
 			query.add(Restrictions.ilike("name", listCrit.query(), listCrit.matchMode()));
 		}
 
-		if (CollectionUtils.isNotEmpty(listCrit.ids())) {
-			query.add(Restrictions.in("id", listCrit.ids()));
-		}
-
+		applyIdsFilter(query, "id", listCrit.ids());
 		return query;
 	}
 	

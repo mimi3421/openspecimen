@@ -6,8 +6,7 @@ angular.module('os.biospecimen.visit', [
     'os.biospecimen.extensions.util',
     'os.biospecimen.visit.addedit',
     'os.biospecimen.visit.spr',
-    'os.biospecimen.visit.detail',
-    'os.biospecimen.visit.search'
+    'os.biospecimen.visit.detail'
   ])
   .config(function($stateProvider) {
     $stateProvider
@@ -224,13 +223,7 @@ angular.module('os.biospecimen.visit', [
        });
   })
 
-  .run(function(QuickSearchSvc, VisitSearchSvc) {
-    var opts = {
-      template: 'modules/biospecimen/participant/visit/quick-search.html',
-      caption: 'entities.visit',
-      order : 2,
-      search: VisitSearchSvc.search
-    };
-
+  .run(function(QuickSearchSvc) {
+    var opts = {caption: 'entities.visit', state: 'visit-detail.overview'};
     QuickSearchSvc.register('visit', opts);
   });

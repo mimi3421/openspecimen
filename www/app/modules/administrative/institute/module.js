@@ -78,4 +78,7 @@ angular.module('os.administrative.institute',
         },
         parent: 'institute-detail'
       })
+  }).run(function(QuickSearchSvc) {
+    var opts = {caption: 'entities.institute', state: 'institute-detail.overview'};
+    QuickSearchSvc.register('institute', opts);
   });

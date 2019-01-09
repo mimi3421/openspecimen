@@ -135,6 +135,9 @@ angular.module('os.administrative.dp',
       });
   })
 
-  .run(function(UrlResolver) {
+  .run(function(UrlResolver, QuickSearchSvc) {
     UrlResolver.regUrlState('dp-overview', 'dp-detail.overview', 'dpId');
+
+    var opts = {caption: 'entities.distribution_protocol', state: 'dp-detail.overview'};
+    QuickSearchSvc.register('distribution_protocol', opts);
   });

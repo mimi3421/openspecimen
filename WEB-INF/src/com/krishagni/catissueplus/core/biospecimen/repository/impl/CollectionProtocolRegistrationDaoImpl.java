@@ -501,6 +501,10 @@ public class CollectionProtocolRegistrationDaoImpl extends AbstractDao<Collectio
 				.add(Restrictions.eq("cp.id", crit.cpId()));
 		}
 
+		if (CollectionUtils.isNotEmpty(crit.ids())) {
+			applyIdsFilter(query, "cpr.id", crit.ids());
+		}
+
 		if (CollectionUtils.isNotEmpty(crit.ppids())) {
 			query.add(Restrictions.in("ppid", crit.ppids()));
 		}

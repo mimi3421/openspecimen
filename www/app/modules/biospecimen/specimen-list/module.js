@@ -62,6 +62,9 @@ angular.module('os.biospecimen.specimenlist',
       });
   })
 
-  .run(function(UrlResolver) {
+  .run(function(UrlResolver, QuickSearchSvc) {
     UrlResolver.regUrlState('specimen-list', 'specimen-list', 'listId');
+
+    var opts = {caption: 'entities.specimen_list', state: 'specimen-list'};
+    QuickSearchSvc.register('specimen_list', opts);
   });

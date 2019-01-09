@@ -210,6 +210,10 @@ public class SpecimenListDaoImpl extends AbstractDao<SpecimenList> implements Sp
 			hql.append(" and upper(l.name) like :name");
 		}
 
+		if (CollectionUtils.isNotEmpty(crit.ids())) {
+			hql.append(" and l.id in (:ids)");
+		}
+
 		hql.append(" order by l.lastUpdatedOn desc");
 		return hql.toString();
 	}
@@ -221,6 +225,10 @@ public class SpecimenListDaoImpl extends AbstractDao<SpecimenList> implements Sp
 
 		if (StringUtils.isNotBlank(crit.query())) {
 			query.setString("name", "%" + crit.query().toUpperCase() + "%");
+		}
+
+		if (CollectionUtils.isNotEmpty(crit.ids())) {
+			query.setParameterList("ids", crit.ids());
 		}
 
 		return query;

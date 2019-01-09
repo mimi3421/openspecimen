@@ -1829,6 +1829,7 @@
     "collection_protocol_registration": "Collection Protocol Registration",
     "specimen": "Specimen",
     "distribution_order": "Order",
+    "shipment": "Shipment",
     "form": "Form",
     "participant_reg": "Collection Protocol Registration",
     "participant": "Participant",
@@ -2393,9 +2394,7 @@
   },
 
    "search": {
-     "error": "Could not find any {{entity}} matching search key {{key}}",
-     "quick_search": "Search {{names}}",
-     "search_for": "Record Type"
+     "title": "Search ..."
    },
    
    "feedback": {

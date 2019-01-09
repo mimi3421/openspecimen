@@ -374,6 +374,7 @@ public class Visit extends BaseExtensionEntity {
 		}
 		
 		setName(Utility.getDisabledValue(getName(), 255));
+		setSurgicalPathologyNumber(Utility.getDisabledValue(getSurgicalPathologyNumber(), 50));
 		setActivityStatus(Status.ACTIVITY_STATUS_DISABLED.getStatus());
 		FormUtil.getInstance().deleteRecords(getCpId(), Arrays.asList("SpecimenCollectionGroup", "VisitExtension"), getId());
 	}

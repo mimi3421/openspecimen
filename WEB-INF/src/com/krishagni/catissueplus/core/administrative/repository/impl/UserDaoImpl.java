@@ -270,10 +270,7 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 			);
 		}
 
-		if (CollectionUtils.isNotEmpty(listCrit.ids())) {
-			criteria.add(Restrictions.in("u.id", listCrit.ids()));
-		}
-		
+		applyIdsFilter(criteria, "u.id", listCrit.ids());
 		addActivityStatusRestriction(criteria, listCrit.activityStatus());
 		addInstituteRestriction(criteria, listCrit.instituteName());
 		addDomainRestriction(criteria, listCrit.domainName());

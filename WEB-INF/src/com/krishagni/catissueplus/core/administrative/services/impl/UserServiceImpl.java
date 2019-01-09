@@ -554,6 +554,10 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 
 	@Override
 	public Map<String, Object> resolveUrl(String key, Object value) {
+		if (key.equals("id")) {
+			return Collections.singletonMap("userId", Long.parseLong(value.toString()));
+		}
+
 		throw new UnsupportedOperationException("Not implemented");
 	}
 

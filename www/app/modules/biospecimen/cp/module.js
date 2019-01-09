@@ -343,7 +343,10 @@ angular.module('os.biospecimen.cp',
       })
     })
 
-    .run(function(UrlResolver) {
+    .run(function(UrlResolver, QuickSearchSvc) {
       UrlResolver.regUrlState('cp-overview', 'cp-detail.overview', 'cpId');
+
+      var opts = {caption: 'entities.collection_protocol', state: 'cp-detail.overview'};
+      QuickSearchSvc.register('collection_protocol', opts);
     });
   

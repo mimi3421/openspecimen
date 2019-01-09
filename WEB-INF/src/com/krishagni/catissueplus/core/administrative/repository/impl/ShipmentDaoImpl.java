@@ -140,6 +140,7 @@ public class ShipmentDaoImpl extends AbstractDao<Shipment> implements ShipmentDa
 			.createAlias("sendingSite", "sendSite")
 			.createAlias("receivingSite", "recvSite");
 
+		applyIdsFilter(query, "id", crit.ids());
 		addNameRestrictions(query, crit);
 		addSendSiteRestrictions(query, crit);
 		addRecvSiteRestrictions(query, crit);

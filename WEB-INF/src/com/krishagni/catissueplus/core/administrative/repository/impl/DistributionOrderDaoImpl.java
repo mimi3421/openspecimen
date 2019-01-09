@@ -168,6 +168,7 @@ public class DistributionOrderDaoImpl extends AbstractDao<DistributionOrder> imp
 		// Add search restrictions
 		//
 		MatchMode matchMode = crit.exactMatch() ? MatchMode.EXACT : MatchMode.ANYWHERE;
+		applyIdsFilter(query, "id", crit.ids());
 		addSitesRestriction(query, crit);
 		addNameRestriction(query, crit, matchMode);
 		addDpRestriction(query, crit, matchMode);

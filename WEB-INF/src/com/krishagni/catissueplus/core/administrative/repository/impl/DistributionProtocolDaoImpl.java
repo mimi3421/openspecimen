@@ -194,7 +194,8 @@ public class DistributionProtocolDaoImpl extends AbstractDao<DistributionProtoco
 			
 			query.add(searchCond);
 		}
-		
+
+		applyIdsFilter(query, "id", crit.ids());
 		addPiCondition(query, crit);
 		addIrbIdCondition(query, crit);
 		addInstCondition(query, crit);

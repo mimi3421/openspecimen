@@ -212,6 +212,9 @@ angular.module('os.administrative.order',
         },
         parent: 'order-root'
       });
-  }).run(function(UrlResolver) {
+  }).run(function(UrlResolver, QuickSearchSvc) {
     UrlResolver.regUrlState('order-overview', 'order-detail.overview', 'orderId');
+
+    var opts = {caption: 'entities.distribution_order', state: 'order-detail.overview'};
+    QuickSearchSvc.register('distribution_order', opts);
   });;

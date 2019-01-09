@@ -81,4 +81,8 @@ angular.module('os.administrative.site',
         },
         parent: 'site-detail'
       });
+  })
+  .run(function(QuickSearchSvc) {
+    var opts = {caption: 'entities.site', state: 'site-detail.overview'};
+    QuickSearchSvc.register('site', opts);
   });

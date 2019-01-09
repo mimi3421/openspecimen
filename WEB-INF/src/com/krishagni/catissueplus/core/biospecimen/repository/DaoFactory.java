@@ -22,6 +22,7 @@ import com.krishagni.catissueplus.core.common.repository.ConfigSettingDao;
 import com.krishagni.catissueplus.core.common.repository.ExternalAppIdDao;
 import com.krishagni.catissueplus.core.common.repository.MessageLogDao;
 import com.krishagni.catissueplus.core.common.repository.PrintRuleConfigDao;
+import com.krishagni.catissueplus.core.common.repository.SearchEntityKeywordDao;
 import com.krishagni.catissueplus.core.common.repository.UnhandledExceptionDao;
 import com.krishagni.catissueplus.core.common.repository.UniqueIdGenerator;
 import com.krishagni.catissueplus.core.common.repository.UpgradeLogDao;
@@ -105,4 +106,6 @@ public interface DaoFactory {
 	ExternalAppIdDao getExternalAppIdDao();
 
 	MessageLogDao getMessageLogDao();
+
+	SearchEntityKeywordDao getSearchEntityKeywordDao();
 } 

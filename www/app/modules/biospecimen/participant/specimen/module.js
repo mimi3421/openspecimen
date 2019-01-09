@@ -8,8 +8,7 @@ angular.module('os.biospecimen.specimen',
     'os.biospecimen.specimen.close',
     'os.biospecimen.specimen.addaliquots',
     'os.biospecimen.specimen.addderivative',
-    'os.biospecimen.specimen.bulkaddevent',
-    'os.biospecimen.specimen.search'
+    'os.biospecimen.specimen.bulkaddevent'
   ])
   .config(function($stateProvider) {
 
@@ -455,13 +454,7 @@ angular.module('os.biospecimen.specimen',
       });
   })
 
-  .run(function(QuickSearchSvc, SpecimenSearchSvc) {
-    var opts = {
-      template: 'modules/biospecimen/participant/specimen/quick-search.html',
-      caption: 'entities.specimen',
-      order: 3,
-      search: SpecimenSearchSvc.search
-    }
-
+  .run(function(QuickSearchSvc) {
+    var opts = {caption: 'entities.specimen', state: 'specimen-detail.overview'}
     QuickSearchSvc.register('specimen', opts);
   });

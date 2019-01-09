@@ -1,5 +1,5 @@
 angular.module('os.common.search.service', [])
-  .factory('QuickSearchSvc', function($translate, $q) {
+  .factory('QuickSearchSvc', function($translate, $http, ApiUrls) {
     var entitySearchMap = {}
 
     function register(entityName, searchOpts) {
@@ -8,48 +8,31 @@ angular.module('os.common.search.service', [])
       }
 
       entitySearchMap[entityName] = searchOpts;
-
     }
 
-    function getTemplate(entity) {
-      var opts = entitySearchMap[entity];
-      return !!opts ? opts.template : null;
+    function search(term) {
+      return $http.get(ApiUrls.getBaseUrl() + 'search', {params: {term: term}}).then(
+        function(resp) {
+          angular.forEach(resp.data, setMatchCaption);
+          return resp.data;
+        }
+      );
     }
 
-    function search(entity, searchData) {
-      var opts = entitySearchMap[entity];
-      opts.search(searchData);
+    function setMatchCaption(match) {
+      var opts = entitySearchMap[match.entity];
+      match.caption = $translate.instant(opts && opts.caption) + ' ' + match.value;
     }
 
-    function getEntities() {
-      var result = {entities: [], qs: []};
-
-      angular.forEach(entitySearchMap, function(value, key) {
-        var entity = {name: key, caption: value.caption, order: value.order};
-
-        var q = $q.defer();
-        $translate(value.caption).then(
-          function(caption) {
-            entity.caption = caption;
-            q.resolve(caption);
-          }
-        );
-
-        result.entities.push(entity);
-        result.qs.push(q.promise);
-      });
-
-      result.entities = result.entities.sort(function(a, b) {return (a.order > b.order) - (b.order > a.order);});
-      return result;
+    function getState(entity) {
+      return entitySearchMap[entity] && entitySearchMap[entity].state;
     }
 
     return {
       register: register,
 
-      getEntities: getEntities,
+      search: search,
 
-      getTemplate: getTemplate,
-
-      search: search
+      getState: getState
     };
-  })
+  });

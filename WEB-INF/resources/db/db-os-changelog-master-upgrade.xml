@@ -102,4 +102,7 @@
   <include file="db/5.2/schema.xml"/>
   <include file="db/5.2/config.xml"/>
   <include file="db/5.2/audit.xml"/>
+
+  <include file="db/6.0/schema.xml"/>
+  <include file="db/6.0/seed-data.xml"/>
 </databaseChangeLog>

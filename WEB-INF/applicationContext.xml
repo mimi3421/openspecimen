@@ -1260,6 +1260,7 @@
         <ref bean="instSvc"/>
         <ref bean="userSvc"/>
         <ref bean="containerTypeSvc"/>
+        <ref bean="specimenListSvc"/>
         <bean class="com.krishagni.catissueplus.core.administrative.services.impl.SpecimenRequestAccessor">
           <property name="daoFactory" ref="biospecimenDaoFactory"/>
         </bean>
@@ -1292,6 +1293,49 @@
 
   <bean id="msgLogSvc" class="com.krishagni.catissueplus.core.common.service.impl.MessageLogServiceImpl">
     <property name="daoFactory" ref="biospecimenDaoFactory"/>
+  </bean>
+
+  <bean id="searchSvc" class="com.krishagni.catissueplus.core.common.service.impl.SearchServiceImpl">
+    <property name="sessionFactory" ref="sessionFactory"/>
+    <property name="daoFactory" ref="biospecimenDaoFactory"/>
+    <property name="resultProcessors">
+      <list>
+        <bean class="com.krishagni.catissueplus.core.biospecimen.services.impl.CollectionProtocolSearchResultProcessor">
+          <property name="daoFactory" ref="biospecimenDaoFactory"/>
+        </bean>
+        <bean class="com.krishagni.catissueplus.core.biospecimen.services.impl.CprSearchResultProcessor">
+          <property name="daoFactory" ref="biospecimenDaoFactory"/>
+        </bean>
+        <bean class="com.krishagni.catissueplus.core.biospecimen.services.impl.VisitSearchResultProcessor">
+          <property name="daoFactory" ref="biospecimenDaoFactory"/>
+        </bean>
+        <bean class="com.krishagni.catissueplus.core.biospecimen.services.impl.SpecimenSearchResultProcessor">
+          <property name="daoFactory" ref="biospecimenDaoFactory"/>
+        </bean>
+        <bean class="com.krishagni.catissueplus.core.administrative.services.impl.ContainerSearchResultProcessor">
+          <property name="daoFactory" ref="biospecimenDaoFactory"/>
+        </bean>
+        <bean class="com.krishagni.catissueplus.core.administrative.services.impl.SiteSearchResultProcessor"/>
+        <bean class="com.krishagni.catissueplus.core.administrative.services.impl.UserSearchResultProcessor">
+          <property name="daoFactory" ref="biospecimenDaoFactory"/>
+        </bean>
+        <bean class="com.krishagni.catissueplus.core.administrative.services.impl.DistributionProtocolSearchResultProcessor">
+          <property name="daoFactory" ref="biospecimenDaoFactory"/>
+        </bean>
+        <bean class="com.krishagni.catissueplus.core.administrative.services.impl.DistributionOrderSearchResultProcessor">
+          <property name="daoFactory" ref="biospecimenDaoFactory"/>
+        </bean>
+        <bean class="com.krishagni.catissueplus.core.administrative.services.impl.ShipmentSearchResultProcessor">
+          <property name="daoFactory" ref="biospecimenDaoFactory"/>
+        </bean>
+        <bean class="com.krishagni.catissueplus.core.biospecimen.services.impl.SpecimenListSearchResultProcessor">
+          <property name="daoFactory" ref="biospecimenDaoFactory"/>
+        </bean>
+        <bean class="com.krishagni.catissueplus.core.administrative.services.impl.InstituteSearchResultProcessor">
+          <property name="daoFactory" ref="biospecimenDaoFactory"/>
+        </bean>
+      </list>
+    </property>
   </bean>
 
   <task:scheduler id="taskScheduler" pool-size="1"/>

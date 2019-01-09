@@ -13,7 +13,6 @@ angular.module('os.biospecimen.participant',
     'os.biospecimen.participant.newreg',
     'os.biospecimen.participant.collect-specimens',
     'os.biospecimen.participant.consents',
-    'os.biospecimen.participant.search',
     'os.biospecimen.visit',
     'os.biospecimen.specimen',
     'os.biospecimen.extensions.list',
@@ -739,14 +738,7 @@ angular.module('os.biospecimen.participant',
         parent: 'signed-in'
       });
   })
-
-  .run(function(QuickSearchSvc, ParticipantSearchSvc) {
-    var opts = {
-      template: 'modules/biospecimen/participant/quick-search.html',
-      caption: 'entities.participant',
-      order : 1,
-      search: ParticipantSearchSvc.search
-    };
-
-    QuickSearchSvc.register('participant', opts);
+  .run(function(QuickSearchSvc) {
+    var opts = {caption: 'entities.participant', state: 'participant-detail.overview'};
+    QuickSearchSvc.register('collection_protocol_registration', opts);
   });

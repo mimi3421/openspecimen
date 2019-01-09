@@ -13,6 +13,10 @@
     <property name="sessionFactory" ref="sessionFactory"/>
   </bean>
 
+  <bean id="postInitializer" class="com.krishagni.catissueplus.core.init.PostInitializer">
+    <property name="searchSvc" ref="searchSvc"/>
+  </bean>
+
   <bean id="importContainerTypes" class="com.krishagni.catissueplus.core.init.ImportContainerTypes" depends-on="post-init-liquibase">
     <property name="jdbcTemplate" ref="jdbcTemplate"/>
     <property name="daoFactory" ref="biospecimenDaoFactory"/>

@@ -205,7 +205,7 @@ public class InstituteServiceImpl implements InstituteService, ObjectAccessor, I
 
 	@Override
 	public Map<String, Object> resolveUrl(String key, Object value) {
-		throw new UnsupportedOperationException("Not supported for this implementation");
+		return Collections.singletonMap("instituteId", Long.parseLong(value.toString()));
 	}
 
 	@Override
