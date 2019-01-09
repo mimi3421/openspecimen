@@ -25,11 +25,12 @@ public class SearchEntityKeywordDaoImpl extends AbstractDao<SearchEntityKeyword>
 
 	@Override
 	public List<SearchEntityKeyword> getMatches(String searchTerm, int maxResults) {
-		searchTerm = searchTerm
-			.replaceAll("\\\\", "\\\\\\\\")
-			.replaceAll("_", "\\\\_")
-			.replaceAll("%", "\\\\%");
+		if (isMySQL()) {
+			searchTerm = searchTerm.replaceAll("\\\\", "\\\\\\\\")
+				.replaceAll("_", "\\\\_");
+		}
 
+		searchTerm = searchTerm.replaceAll("%", "\\\\%").toLowerCase();
 		List<Object[]> rows = getCurrentSession().getNamedSQLQuery(GET_MATCHES)
 			.setParameter("value", searchTerm + "%")
 			.setMaxResults(maxResults <= 0 ? 100 : maxResults)
