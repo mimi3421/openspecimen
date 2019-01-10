@@ -19,7 +19,7 @@
     </div>
 
     <div class="form-group">
-      <input type="text" ng-model="filterOpts.requestId" ng-pattern="[0-9]+" class="form-control"
+      <input type="text" ng-model="filterOpts.requestId" ng-pattern="/^[0-9]+$/" class="form-control"
         os-md-input placeholder="{{'orders.request' | translate}}">
     </div>
 
