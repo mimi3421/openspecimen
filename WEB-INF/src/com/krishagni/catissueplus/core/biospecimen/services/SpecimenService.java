@@ -24,9 +24,9 @@ import com.krishagni.catissueplus.core.common.service.LabelPrinter;
 public interface SpecimenService {
 	public ResponseEvent<SpecimenDetail> getSpecimen(RequestEvent<SpecimenQueryCriteria> req);
 
-	public ResponseEvent<List<SpecimenInfo>> getSpecimens(RequestEvent<SpecimenListCriteria> req);
+	public ResponseEvent<List<? extends SpecimenInfo>> getSpecimens(RequestEvent<SpecimenListCriteria> req);
 
-	public ResponseEvent<List<SpecimenInfo>> getSpecimensById(RequestEvent<List<Long>> req);
+	public ResponseEvent<List<? extends SpecimenInfo>> getSpecimensById(List<Long> ids, boolean includeExtensions);
 
 	public ResponseEvent<List<SpecimenInfo>> getPrimarySpecimensByCp(RequestEvent<Long> req);
 	

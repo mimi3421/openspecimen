@@ -1,10 +1,10 @@
 
 angular.module('os.administrative.order.addedit', ['os.administrative.models', 'os.biospecimen.models'])
   .controller('OrderAddEditCtrl', function(
-    $scope, $state, $translate, $injector, order, spmnRequest, requestDp, maxSpmnsLimit,
+    $scope, $state, $translate, $injector, $q, order, spmnRequest, requestDp, maxSpmnsLimit, customFields,
     PluginReg, Specimen, SpecimensHolder, Site, DistributionProtocol,
     DistributionOrder, SpecimenList, Alerts, Util, SpecimenUtil, ExtensionsUtil) {
-    
+
     var ctx;
     var ignoreQtyWarning = false;
 
@@ -13,6 +13,8 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
       ctx = $scope.ctx = {
         extnFormCtrl: {},
         extnOpts: undefined,
+        customFields: customFields,
+        spmnFilterOpts: {exactMatch: true, includeExtensions: customFields.length > 0},
         itemFieldsHdrTmpls:  PluginReg.getTmpls('order-addedit', 'item-fields-header', ''),
         itemFieldsCellTmpls: PluginReg.getTmpls('order-addedit', 'item-fields-addedit', '')
       };
@@ -65,6 +67,7 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
           // newly created order. item costs are auto-populated
           //
           addItemCosts(order.distributionProtocol, order.orderItems);
+          loadCustomFields(order.orderItems);
         } else if (!!order.id) {
           loadOrderItems();
         }
@@ -95,6 +98,8 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
           if (!!spmnRequest) {
             order.orderItems = getOrderItemsFromReq(spmnRequest.items, order.orderItems);
           }
+
+          loadCustomFields(order.orderItems);
         }
       );
     }
@@ -340,6 +345,61 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
       }
     }
 
+    function loadCustomFields(items) {
+      if (customFields.length <= 0) {
+        return;
+      }
+
+      var spmnIds = [];
+      var itemsMap = {};
+      angular.forEach(items,
+        function(item) {
+          spmnIds.push(item.specimen.id);
+          itemsMap[item.specimen.id] = item;
+        }
+      );
+
+      Specimen.getByIds(spmnIds, true).then(
+        function(spmns) {
+          angular.forEach(spmns,
+            function(spmn) {
+              itemsMap[spmn.id].specimen = spmn;
+            }
+          );
+
+          initCustomTableFields(items);
+        }
+      );
+    }
+
+    function initCustomTableFields(items) {
+      if (customFields.length <= 0) {
+        return;
+      }
+
+      var fieldsSvc = $injector.get('sdeFieldsSvc');
+      angular.forEach(items,
+        function(item) {
+          item.$$customFields = customFields.map(
+            function(field) {
+              var result = {type: field.type, value: undefined};
+              if (field.type == 'specimen-desc') {
+                return result;
+              }
+
+              $q.when(fieldsSvc.commonFns().getValue({field: field}, item)).then(
+                function(value) {
+                  result.value = value;
+                }
+              );
+
+              return result;
+            }
+          );
+        }
+      );
+    }
+
     $scope.onDpSelect = function() {
       var ord = $scope.order;
       if (!ord.id) {
@@ -376,6 +436,8 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
       var addedItems = Util.addIfAbsent($scope.order.orderItems, newItems, 'specimen.id');
       $scope.input.noQtySpmnsPresent = $scope.input.noQtySpmnsPresent || anyNoQtySpmns(newItems);
       addItemCosts($scope.order.distributionProtocol, addedItems);
+
+      initCustomTableFields(addedItems);
       return true;
     }
 
@@ -436,6 +498,7 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
             spmnsFn().then(
               function(spmns) {
                 order.orderItems = getOrderItems(spmns);
+                loadCustomFields(order.orderItems);
                 order.allReservedSpmns = order.specimenList = null;
                 $scope.input.spmnsFromExternalList = false;
                 setNoQtySpmnPresent();

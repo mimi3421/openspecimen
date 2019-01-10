@@ -153,8 +153,8 @@ angular.module('os.biospecimen.models.specimen', ['os.common.models', 'os.biospe
       );
     }
 
-    Specimen.getByIds = function(ids) {
-      return Specimen.query({id: ids});
+    Specimen.getByIds = function(ids, includeExtensions) {
+      return Specimen.query({id: ids, includeExtensions: includeExtensions});
     }
 
     Specimen.prototype.getType = function() {

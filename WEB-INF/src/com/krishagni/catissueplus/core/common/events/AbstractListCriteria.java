@@ -24,6 +24,8 @@ public abstract class AbstractListCriteria<T extends ListCriteria<T>> implements
 	private boolean exactMatch;
 	
 	private boolean includeStat;
+
+	private boolean includeExtensions;
 	
 	private List<Long> ids = new ArrayList<>();
 
@@ -123,7 +125,17 @@ public abstract class AbstractListCriteria<T extends ListCriteria<T>> implements
 		this.includeStat = includeStat;
 		return self();
 	}
-		
+
+	@JsonProperty("includeExtensions")
+	public boolean includeExtensions() {
+		return includeExtensions;
+	}
+
+	public T includeExtensions(boolean includeExtensions) {
+		this.includeExtensions = includeExtensions;
+		return self();
+	}
+
 	@Override
 	public List<Long> ids() {
 		return ids;

@@ -115,6 +115,22 @@ angular.module('os.administrative.order',
                 return (setting.value && +setting.value) || 100;
               }
             )
+          },
+
+          customFields: function($injector, $q, CpConfigSvc) {
+            if (!$injector.has('sdeFieldsSvc')) {
+              return [];
+            }
+
+            var cpDictQ = CpConfigSvc.getDictionary(-1, []);
+            var fieldsQ = CpConfigSvc.getWorkflowData(-1, 'order-addedit-specimens', []);
+            return $q.all([cpDictQ, fieldsQ]).then(
+              function(resps) {
+                var cpDict = resps[0] || [];
+                var fields = (resps[1] && resps[1].columns) || [];
+                return $injector.get('sdeFieldsSvc').commonFns().overrideFields(cpDict, fields);
+              }
+            );
           }
         },
         parent: 'order-root'
