@@ -79,6 +79,7 @@ import com.krishagni.catissueplus.core.common.util.ConfigUtil;
 import com.krishagni.catissueplus.core.common.util.NumUtil;
 import com.krishagni.catissueplus.core.common.util.Status;
 import com.krishagni.catissueplus.core.common.util.Utility;
+import com.krishagni.catissueplus.core.de.domain.DeObject;
 import com.krishagni.catissueplus.core.exporter.domain.ExportJob;
 import com.krishagni.catissueplus.core.exporter.services.ExportService;
 import com.krishagni.rbac.common.errors.RbacErrorCode;
@@ -158,17 +159,25 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 
 	@Override
 	@PlusTransactional
-	public ResponseEvent<List<SpecimenInfo>> getSpecimens(RequestEvent<SpecimenListCriteria> req) {
+	public ResponseEvent<List<? extends SpecimenInfo>> getSpecimens(RequestEvent<SpecimenListCriteria> req) {
 		try {
 			SpecimenListCriteria crit = req.getPayload();
 			List<Specimen> specimens = getSpecimens(crit);
 			if (CollectionUtils.isNotEmpty(crit.labels())) {
-				return ResponseEvent.response(SpecimenInfo.from(Specimen.sortByLabels(specimens, crit.labels())));
+				specimens = Specimen.sortByLabels(specimens, crit.labels());
 			} else if (CollectionUtils.isNotEmpty(crit.barcodes())) {
-				return ResponseEvent.response(SpecimenInfo.from(Specimen.sortByBarcodes(specimens, crit.barcodes())));
+				specimens = Specimen.sortByBarcodes(specimens, crit.barcodes());
 			}
 
-			return ResponseEvent.response(SpecimenInfo.from(specimens));
+			List<? extends SpecimenInfo> result = null;
+			if (crit.includeExtensions()) {
+				DeObject.createExtensions(true, Specimen.EXTN, crit.cpId() != null ? crit.cpId() : -1L, specimens);
+				result = specimens.stream().map(s -> SpecimenDetail.from(s, false, true, true)).collect(Collectors.toList());
+			} else {
+				result = SpecimenInfo.from(specimens);
+			}
+
+			return ResponseEvent.response(result);
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {
@@ -178,10 +187,20 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 
 	@Override
 	@PlusTransactional
-	public ResponseEvent<List<SpecimenInfo>> getSpecimensById(RequestEvent<List<Long>> req) {
+	public ResponseEvent<List<? extends SpecimenInfo>> getSpecimensById(List<Long> ids, boolean includeExtensions) {
 		try {
-			List<Specimen> specimens = getSpecimensById(req.getPayload());
-			return ResponseEvent.response(SpecimenInfo.from(Specimen.sortByIds(specimens, req.getPayload())));
+			List<Specimen> specimens = getSpecimensById(ids);
+			specimens = Specimen.sortByIds(specimens, ids);
+
+			List<? extends SpecimenInfo> result = null;
+			if (includeExtensions) {
+				DeObject.createExtensions(true, Specimen.EXTN, -1L, specimens);
+				result = specimens.stream().map(s -> SpecimenDetail.from(s, false, true, true)).collect(Collectors.toList());
+			} else {
+				result = SpecimenInfo.from(specimens);
+			}
+
+			return ResponseEvent.response(result);
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {

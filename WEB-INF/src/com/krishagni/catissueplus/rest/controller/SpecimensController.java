@@ -105,7 +105,10 @@ public class SpecimensController {
 			List<String> barcodes,
 
 			@RequestParam(value = "exactMatch", required= false, defaultValue = "false")
-			boolean exactMatch) {
+			boolean exactMatch,
+
+			@RequestParam(value = "includeExtensions", required = false, defaultValue = "false")
+			boolean includeExtensions) {
 				
 		if (cprId != null) { // TODO: Move this to CPR controller
 			VisitSpecimensQueryCriteria crit = new VisitSpecimensQueryCriteria();
@@ -117,17 +120,17 @@ public class SpecimensController {
 			resp.throwErrorIfUnsuccessful();
 			return resp.getPayload();
 		} else if (CollectionUtils.isNotEmpty(ids)) {
-			ResponseEvent<List<SpecimenInfo>> resp = specimenSvc.getSpecimensById(getRequest(ids));
+			ResponseEvent<List<? extends SpecimenInfo>> resp = specimenSvc.getSpecimensById(ids, includeExtensions);
 			resp.throwErrorIfUnsuccessful();
 			return resp.getPayload();
 		} else if (CollectionUtils.isNotEmpty(labels) || CollectionUtils.isNotEmpty(barcodes)) {
 			SpecimenListCriteria crit = new SpecimenListCriteria()
-				.labels(labels)
-				.barcodes(barcodes)
+				.labels(labels).barcodes(barcodes)
 				.exactMatch(exactMatch)
-				.storageLocationSite(storageLocationSite);
+				.storageLocationSite(storageLocationSite)
+				.includeExtensions(includeExtensions);
 
-			ResponseEvent<List<SpecimenInfo>> resp = specimenSvc.getSpecimens(getRequest(crit));
+			ResponseEvent<List<? extends SpecimenInfo>> resp = specimenSvc.getSpecimens(getRequest(crit));
 			resp.throwErrorIfUnsuccessful();
 			return resp.getPayload();
 		} else if (cpId != null) {
