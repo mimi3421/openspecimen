@@ -52,21 +52,42 @@
   </changeSet>
 
 
-  <changeSet author="vpawar" id="Search entity sort order or ranks">
+  <changeSet author="vpawar" id="Search entity sort order">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="OS_SEARCH_ENTITY_RANKS"/>
+      </not>
+    </preConditions>
+
     <createTable tableName="OS_SEARCH_ENTITY_RANKS">
       <column name="ENTITY" type="${text.type}(64)">
         <constraints nullable="false"/>
       </column>
-      <column name="RANK" type="${tinyint.type}">
+      <column name="SORT_ORDER" type="${tinyint.type}">
         <constraints nullable="false"/>
       </column>
     </createTable>
   </changeSet>
 
-  <changeSet author="vpawar" id="Index on entity sort order columns">
+  <changeSet author="vpawar" id="Renamed search entity rank to sort order as rank is keyword">
+    <preConditions onFail="MARK_RAN">
+      <columnExists tableName="OS_SEARCH_ENTITY_RANKS" columnName="RANK"/>
+    </preConditions>
+    <renameColumn tableName="OS_SEARCH_ENTITY_RANKS" oldColumnName="RANK"
+      newColumnName="SORT_ORDER" columnDataType="${tinyint.type}"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Drop old index on entity ranks">
+    <preConditions onFail="MARK_RAN">
+      <indexExists tableName="OS_SEARCH_ENTITY_RANKS" indexName="OS_SEARCH_ENTITY_RANKS_IDX"/>
+    </preConditions>
+    <dropIndex tableName="OS_SEARCH_ENTITY_RANKS" indexName="OS_SEARCH_ENTITY_RANKS_IDX"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Index on entity sort order">
     <createIndex tableName="OS_SEARCH_ENTITY_RANKS" indexName="OS_SEARCH_ENTITY_RANKS_IDX">
       <column name="ENTITY"/>
-      <column name="RANK"/>
+      <column name="SORT_ORDER"/>
     </createIndex>
   </changeSet>
 </databaseChangeLog>

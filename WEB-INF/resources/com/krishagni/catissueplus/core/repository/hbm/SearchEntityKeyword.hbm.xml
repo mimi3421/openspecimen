@@ -51,7 +51,7 @@
         k.value like :value and
         k.status = 1
       order by
-        r.rank
+        r.sort_order
     </sql-query>
   </class>
 </hibernate-mapping>
