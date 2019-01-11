@@ -1,7 +1,26 @@
 <div class="os-full-width-container" ng-controller="QuickSearchCtrl">
   <div class="os-no-label-form">
-    <os-select list="ctx.matches" display-prop="caption" ng-model="ctx.selectedMatch" on-select="onMatchSelect()"
-      placeholder="{{'search.title' | translate}}" refresh="search($select.search)">
-    </os-select>
+    <div ng-hide="ctx.searching" class="placeholder" ng-click="activateSearch()">
+      <span class="fa fa-search"></span>
+      <span translate="search.title"></span>
+      <input class="form-control">
+    </div>
+
+    <ui-select ng-hide="!ctx.searching" os-fix-dd ng-model="ctx.selectedMatch" reset-search-input="true"
+      on-select="onMatchSelect($select)">
+      <ui-select-match> </ui-select-match>
+      <ui-select-choices ui-disable-choice="match.id < 0" repeat="match in ctx.matches"
+        refresh="search($select.search, $select)" refresh-delay="750">
+        <div class="row">
+          <div ng-class="{'true': 'col-xs-5', 'false': 'ng-hide'}[match.id >= 0]">
+            <small>{{match.group}}</small>
+          </div>
+          <div ng-class="{'true': 'col-xs-7', 'false': 'col-xs-12'}[match.id >= 0]">
+            <span ng-bind-html="match.caption | highlight: $select.search"></span>
+            <span class="fa" ng-class="{'fa-frown': match.id == -1}"></span>
+          </div>
+        </div>
+      </ui-select-choices>
+    </ui-select>
   </div>
 </div>

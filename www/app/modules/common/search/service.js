@@ -13,15 +13,23 @@ angular.module('os.common.search.service', [])
     function search(term) {
       return $http.get(ApiUrls.getBaseUrl() + 'search', {params: {term: term}}).then(
         function(resp) {
-          angular.forEach(resp.data, setMatchCaption);
-          return resp.data;
+          var result = resp.data;
+          angular.forEach(result, setMatchCaption);
+          if (result.length == 0) {
+            result.push({id: -1, caption: $translate.instant('search.no_matches', {term: term})});
+          } else if (result.length > 20) {
+            result.unshift({id: -2, caption: $translate.instant('search.many_matches')});
+          }
+
+          return result;
         }
       );
     }
 
     function setMatchCaption(match) {
       var opts = entitySearchMap[match.entity];
-      match.caption = $translate.instant(opts && opts.caption) + ' ' + match.value;
+      match.group = $translate.instant(opts && opts.caption);
+      match.caption = match.value;
     }
 
     function getState(entity) {

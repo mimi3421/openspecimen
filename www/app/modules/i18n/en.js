@@ -2394,7 +2394,9 @@
   },
 
    "search": {
-     "title": "Search ..."
+     "title": "Search...",
+     "no_matches": "No match found",
+     "many_matches": "Many matches found. Keep typing..."
    },
    
    "feedback": {
