@@ -23,8 +23,8 @@
 
       <h3>
         <ng-switch on="!!currVisit.id">
-          <span ng-switch-when="true">Update</span> 
-          <span ng-switch-default>Add</span>
+          <span ng-switch-when="true" translate="visits.update">Update</span>
+          <span ng-switch-default translate="visits.add">Add</span>
         </ng-switch>
         <span ng-switch on="!!fieldsCtx.headers.visit.leftTitle">
           <span ng-switch-when="true">
