@@ -571,6 +571,9 @@
     "names": "Visit Names",
     "names_csv": "Comma separated list of visit names",
 
+    "add": "Add",
+    "update": "Update",
+
     "names_print_job_created": "Visit names print job {{jobId}} created successfully",
 
     "spr": "Path Report",
