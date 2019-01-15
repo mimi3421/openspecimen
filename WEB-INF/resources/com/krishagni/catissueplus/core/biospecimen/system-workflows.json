@@ -378,7 +378,7 @@
                                     }
                                 ]
                             },
-                            "copyValueFn" : "function(firstRowVal, currentVal) { return ''; }"
+                            "copyValueFn" : "function(firstRowVal, currentVal) { if (!!currentVal) { return currentVal; } else { return ''; } }"
                         },
                         {
                             "name": "specimen.qtyPerAliquot",
@@ -470,7 +470,7 @@
                                     }
                                 ]
                             },
-                            "copyValueFn" : "function(firstRowVal, currentVal) { return ''; }"
+                            "copyValueFn" : "function(firstRowVal, currentVal) { if (!!currentVal) { return currentVal; } else { return ''; } }"
                         },
                         {
                             "name": "specimen.parent.availableQty",
