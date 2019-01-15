@@ -322,7 +322,7 @@ public class CollectionProtocolEvent extends BaseEntity implements Comparable<Co
 		Integer otherEventPoint = Utility.getNoOfDays(other.getEventPoint(), other.getEventPointUnit());
 		int result = ObjectUtils.compare(thisEventPoint, otherEventPoint, true);
 		if (result == 0) {
-			result = getId().compareTo(other.getId());
+			result = ObjectUtils.compare(getId(), other.getId());
 		}
 
 		return result;
