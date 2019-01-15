@@ -91,6 +91,10 @@ angular.module('os.biospecimen.specimen')
       }
     }
 
+    $scope.addAnother = function(group) {
+      group.input.push(angular.copy(group.lastRow));
+    }
+
     $scope.createDerivatives = function() {
       if (ctx.showCustomFields) {
         submitSamples();

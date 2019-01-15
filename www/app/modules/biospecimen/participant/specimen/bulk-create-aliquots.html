@@ -27,7 +27,7 @@
 </div>
 
 <script type="text/ng-template" id="modules/biospecimen/participant/specimen/custom-aliquot-specs.html">
-  <form name="aliquotsForm" os-form-validator="aliquotsForm" novalidate>
+  <form class="form-horizontal" name="aliquotsForm" os-form-validator="aliquotsForm" novalidate os-storage-positions>
     <div ng-if="ctx.warnNoMatch" class="os-alert-container inline show">
       <div class="alert alert-warning">
         <span translate="specimens.no_aliquots_criteria_match">
@@ -52,22 +52,35 @@
             </span>
           </a>
           <a class="btn btn-xs btn-default" ng-click="group.opts.$$sdeFormFields.copyFirstToAll()"
-            ng-if="!group.opts.enableCofrc || !group.opts.cofrc">
+            ng-if="!group.opts.hideCopyFirstToAll && (!group.opts.enableCofrc || !group.opts.cofrc)">
             <span class="fa fa-clone"></span>
             <span translate="specimens.copy_first_to_all">Copy First To All</span>
           </a>
         </div>
         <div class="panel-body os-scrollable-container-x">
           <sde-form-fields name="aliquots" table="group.multiple" opts="group.opts"
-            base-fields="group.baseFields" fields="group.fields" obj="group.input">
+            base-fields="group.baseFields" fields="group.fields" obj="group.input"
+            on-add-row="addAnother(group)">
           </sde-form-fields>
+
+          <div class="form-group">
+            <div class="os-divider"></div>
+            <div class="col-xs-12">
+              <button class="btn os-btn-text" ng-click="group.opts.$$sdeFormFields.addRow()">
+                <span translate="common.buttons.add_another">Add Another</span>
+              </button>
+              <button class="btn os-btn-text" ng-click="group.opts.$$sdeFormFields.addSimilarRow()">
+                <span translate="common.buttons.copy_last">Copy of Last</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
     <div class="os-divider"></div>
 
-    <div class="form-group">
+    <div>
       <button class="btn btn-primary" os-form-submit="createAliquots()">
         <span translate="specimens.create_aliquots">Create Aliquots</span>
       </button>
