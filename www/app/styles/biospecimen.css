@@ -315,6 +315,15 @@
   box-shadow: none;
 }
 
+table .os-md-time table td.form-group input {
+  width: 100%!important;
+  max-width: 50px;
+}
+
+table .os-md-time table {
+  margin-top: -4px;
+}
+
 .os-text-checkbox:after {
   display: block;
   content: ' ';
