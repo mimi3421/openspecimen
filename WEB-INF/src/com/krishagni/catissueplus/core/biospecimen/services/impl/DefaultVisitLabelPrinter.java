@@ -145,7 +145,7 @@ public class DefaultVisitLabelPrinter extends AbstractLabelPrinter<Visit> implem
 			String[] labelTokens = ruleLineFields[idx++].split(",");
 			boolean badTokens = false;			
 			
-			List<LabelTmplToken> tokens = new ArrayList<LabelTmplToken>();
+			List<LabelTmplToken> tokens = new ArrayList<>();
 			for (String labelToken : labelTokens) {
 				LabelTmplToken token = printLabelTokensRegistrar.getToken(labelToken);
 				if (token == null) {

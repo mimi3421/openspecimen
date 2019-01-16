@@ -76,7 +76,9 @@ public abstract class LabelPrintRule {
 
 	public void setUserLogin(User user) {
 		users = new ArrayList<>();
-		users.add(user);
+		if (user != null) {
+			users.add(user);
+		}
 	}
 
 	public List<User> getUsers() {
