@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.krishagni.catissueplus.core.common.domain.UnhandledException;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.service.CommonService;
@@ -54,7 +57,9 @@ public class UnhandledExceptionUtil {
 				}
 
 				ObjectMapper mapper = new ObjectMapper();
-				exception.setInputArgs(mapper.writeValueAsString(args));
+				FilterProvider filters = new SimpleFilterProvider()
+					.addFilter("withoutId", SimpleBeanPropertyFilter.serializeAllExcept("id", "statementId"));
+				exception.setInputArgs(mapper.writer(filters).writeValueAsString(args));
 			} catch (JsonProcessingException e) {
 				String errorMsg = "Error marshalling input arguments";
 				exception.setInputArgs(errorMsg);

@@ -66,9 +66,15 @@
               <accordion-group ng-repeat="spmnCtxt in inputCtxts" is-open="spmnCtxt.open">
                 <accordion-heading>
                   <span class="os-clickable-title">
-                    <span translate="specimens.title">Specimen</span>
-                    <span>{{$index + 1}}:</span>
-                    <os-specimen-desc cp="opts.cp" specimen="spmnCtxt.specimen" show-req-label="true"></os-specimen-desc>
+                    <span ng-if="!!opts.cardTitleTmpl">
+                      <os-html-template ng-init="cp=opts.cp;specimen=spmnCtxt.specimen" template="opts.cardTitleTmpl">
+                      </os-html-template>
+                    </span>
+                    <span ng-if="!opts.cardTitleTmpl">
+                      <span translate="specimens.title">Specimen</span>
+                      <span>{{$index + 1}}:</span>
+                      <os-specimen-desc cp="opts.cp" specimen="spmnCtxt.specimen" show-req-label="true"></os-specimen-desc>
+                    </span>
                     <span ng-if="spmnCtxt.specimen.$$count > 1">({{spmnCtxt.specimen.$$count}})</span>
                     <span class="os-btns">
                       <a class="os-btn-text" ng-click="remove($event, $index)">

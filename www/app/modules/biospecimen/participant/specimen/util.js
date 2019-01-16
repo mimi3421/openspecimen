@@ -426,22 +426,28 @@ angular.module('os.biospecimen.specimen')
         }
 
         if (selectedSpmns.length != 0) {
-          var cofrc = (!angular.isDefined(group.enableCofrc) || group.enableCofrc == 'true' || group.enableCofrc === true);
+          var cofrc = (!angular.isDefined(group.enableCofrc) || group.enableCofrc === 'true' || group.enableCofrc === true);
+          var hcfa = group.hideCopyFirstToAll;
+          hcfa = angular.isDefined(hcfa) && (hcfa === 'true' || hcfa === true);
+
           result.push({
             multiple: true,
             title: group.title,
             fields: { table: group.fields },
             baseFields: baseFields,
             input: selectedSpmns,
-            opts: angular.extend({static: true, enableCofrc: cofrc, cofrc: cofrc}, otherOpts || {})
+            lastRow: angular.copy(selectedSpmns[selectedSpmns.length - 1]),
+            opts: angular.extend({static: true, enableCofrc: cofrc, cofrc: cofrc, hideCopyFirstToAll: hcfa}, otherOpts || {})
           });
         }
       }
 
       if (unmatched.length > 0) {
+        var input = unmatched.map(sdeGroupInput(ctxtObjs));
         result.push({
-          input: unmatched.map(sdeGroupInput(ctxtObjs)),
+          input: input,
           noMatch: true,
+          lastRow: angular.copy(input[input.length - 1]),
           opts: otherOpts || {}
         });
       }

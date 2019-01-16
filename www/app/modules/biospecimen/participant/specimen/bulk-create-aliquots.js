@@ -417,6 +417,10 @@ angular.module('os.biospecimen.specimen')
       return true;
     }
 
+    $scope.addAnother = function(group) {
+      group.input.push(angular.copy(group.lastRow));
+    }
+
     $scope.createAliquots = function() {
       if (ctx.showCustomFields) {
         submitSamples();
