@@ -39,6 +39,7 @@ import com.krishagni.catissueplus.core.common.util.MessageUtil;
 import com.krishagni.catissueplus.core.common.util.SchemeOrdinalConverterUtil;
 import com.krishagni.catissueplus.core.common.util.Status;
 import com.krishagni.catissueplus.core.common.util.Utility;
+import com.krishagni.catissueplus.core.de.domain.DeObject;
 
 @Audited
 public class StorageContainer extends BaseExtensionEntity {
@@ -1226,7 +1227,11 @@ public class StorageContainer extends BaseExtensionEntity {
 			setPosition(null);
 		}
 
-		getExtension().delete();
+		DeObject extension = getExtension();
+		if (extension != null) {
+			extension.delete();
+		}
+
 		setName(Utility.getDisabledValue(getName(), 64));
 		setBarcode(Utility.getDisabledValue(getBarcode(), 64));
 		setActivityStatus(Status.ACTIVITY_STATUS_DISABLED.getStatus());
