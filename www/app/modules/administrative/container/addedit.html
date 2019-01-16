@@ -85,7 +85,7 @@
       </label>
       <div class="col-xs-6">
         <os-select ng-model="container.typeName" list="containerTypes" name="type" display-prop="name"
-          select-prop="name" placeholder="{{'container.type' | translate}}"
+          select-prop="name" refresh="searchTypes" placeholder="{{'container.type' | translate}}"
           on-select="onSelectContainerType($item)" ng-required="ctx.createHierarchy">
         </os-select>
         <div os-field-error field="cform.type"></div>

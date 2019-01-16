@@ -6,6 +6,7 @@ angular.module('os.administrative.container.addedit', ['os.administrative.models
     var allSpecimenTypes = undefined;
     var allowedCps = undefined;
     var allowedDps = undefined;
+    var defTypes   = undefined;
 
     function init() {
       container.usedFor = (!container.id && 'STORAGE') || container.usedFor;
@@ -43,6 +44,7 @@ angular.module('os.administrative.container.addedit', ['os.administrative.models
 
       $scope.cps = [];
       $scope.specimenTypes = [];
+      $scope.containerTypes = [];
       loadPvs();
 
       $scope.specimenTypeSelectorOpts = {
@@ -71,7 +73,6 @@ angular.module('os.administrative.container.addedit', ['os.administrative.models
         restrictCpsAndSpecimenTypes();
       }
 
-      loadContainerTypes();
       setContainerTypeProps(containerType);
 
       watchParentContainer();
@@ -100,11 +101,20 @@ angular.module('os.administrative.container.addedit', ['os.administrative.models
       }
     };
 
-    function loadContainerTypes() {
-      $scope.containerTypes = [];
-      ContainerType.query().then(function(containerTypes) {
-        $scope.containerTypes = containerTypes;
-      });
+    function loadContainerTypes(searchTerm) {
+      if (defTypes && (!searchTerm || defTypes.length <= 100)) {
+        $scope.containerTypes = defTypes;
+        return;
+      }
+
+      ContainerType.query({name: searchTerm, maxResults: 101}).then(
+        function(types) {
+          $scope.containerTypes = types;
+          if (!searchTerm) {
+            defTypes = types;
+          }
+        }
+      );
     }
     
     function restrictCpsAndSpecimenTypes() {
@@ -418,6 +428,8 @@ angular.module('os.administrative.container.addedit', ['os.administrative.models
     $scope.setRegular = function() {
       $scope.container.$$dimensionless = $scope.container.automated = false;
     }
+
+    $scope.searchTypes = loadContainerTypes;
 
     init();
   });
