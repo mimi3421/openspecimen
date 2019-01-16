@@ -76,6 +76,9 @@ public abstract class AbstractLabelPrinter<T> implements LabelPrinter<T>, Applic
 				synchronized (this) {
 					if (rules == null) {
 						loadRulesFromDb();
+						if (rules == null) {
+							return null;
+						}
 					}
 				}
 			}
