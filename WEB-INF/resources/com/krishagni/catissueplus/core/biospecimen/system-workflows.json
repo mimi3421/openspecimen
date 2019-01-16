@@ -386,7 +386,7 @@
                             "type" : "specimen-quantity",
                             "specimen": "specimen",
                             "optional": true,
-                            "width": "80px"
+                            "width": "100px"
                         },
                         {
                             "name": "specimen.createdOn",
@@ -492,7 +492,7 @@
                             "type" : "specimen-quantity",
                             "specimen": "specimen",
                             "optional": true,
-                            "width": "80px"
+                            "width": "100px"
                         },
                         {
                             "name": "specimen.createdOn",
