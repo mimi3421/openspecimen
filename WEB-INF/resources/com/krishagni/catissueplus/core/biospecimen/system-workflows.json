@@ -326,7 +326,8 @@
                         {
                             "name": "specimen.parent.label",
                             "caption": "Parent Specimen",
-                            "type": "span"
+                            "type": "span",
+                            "url": "specimen({specimenId: specimen.parent.id})"
                         },
                         {
                             "name": "specimen.parent.availableQty",
@@ -447,7 +448,8 @@
                         {
                             "name": "specimen.parent.label",
                             "caption": "Parent Specimen",
-                            "type": "span"
+                            "type": "span",
+                            "url": "specimen({specimenId: specimen.parent.id})"
                         },
                         {
                             "name": "specimen.parent.type",

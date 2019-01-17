@@ -1409,3 +1409,9 @@ form .form-group:empty {
 .tooltip-inner {
   white-space: initial;
 }
+
+.os-no-link, .os-no-link:hover {
+  cursor: text;
+  text-decoration: none;
+  color: inherit;
+}
