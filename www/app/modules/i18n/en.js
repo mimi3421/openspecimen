@@ -85,6 +85,7 @@
     "invalid_expr": "Invalid expression: {{expr}}",
     "name": "Name",
     "value": "Value",
+    "total_rows": "Total Rows",
 
     "interval_units": {
       "DAYS": "Days",

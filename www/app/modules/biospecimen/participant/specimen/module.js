@@ -333,6 +333,19 @@ angular.module('os.biospecimen.specimen',
             }
           },
 
+          cpr: function(parentSpmns, CollectionProtocolRegistration) {
+            if (parentSpmns.length == 0) {
+              return {};
+            }
+
+            var cprId = parentSpmns[0].cprId;
+            if (parentSpmns.every(function(spmn) { return spmn.cprId == cprId })) {
+              return CollectionProtocolRegistration.getById(cprId);
+            } else {
+              return {};
+            }
+          },
+
           containerAllocRules: function(cp, CpConfigSvc) {
             if (!cp.containerSelectionStrategy) {
               return [];
@@ -369,6 +382,14 @@ angular.module('os.biospecimen.specimen',
             }
 
             return CpConfigSvc.getCommonCfg(cp.id || -1, 'aliquotsCollection');
+          },
+
+          spmnHeaders: function(cp, CpConfigSvc) {
+            if (!cp.id) {
+              return {};
+            }
+
+            return CpConfigSvc.getCommonCfg(cp.id, 'specimenHeader');
           }
         },
         parent: 'signed-in'
@@ -397,6 +418,19 @@ angular.module('os.biospecimen.specimen',
             }
           },
 
+          cpr: function(parentSpmns, CollectionProtocolRegistration) {
+            if (parentSpmns.length == 0) {
+              return {};
+            }
+
+            var cprId = parentSpmns[0].cprId;
+            if (parentSpmns.every(function(spmn) { return spmn.cprId == cprId })) {
+              return CollectionProtocolRegistration.getById(cprId);
+            } else {
+              return {};
+            }
+          },
+
           hasSde: function($injector) {
             return $injector.has('sdeFieldsSvc');
           },
@@ -411,6 +445,14 @@ angular.module('os.biospecimen.specimen',
             }
 
             return CpConfigSvc.getCommonCfg(cp.id || -1, 'derivedSpecimens');
+          },
+
+          spmnHeaders: function(cp, CpConfigSvc) {
+            if (!cp.id) {
+              return {};
+            }
+
+            return CpConfigSvc.getCommonCfg(cp.id, 'specimenHeader');
           }
         },
         parent: 'signed-in'

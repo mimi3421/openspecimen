@@ -1,7 +1,7 @@
 angular.module('os.biospecimen.specimen')
   .controller('BulkCreateAliquotsCtrl', function(
-    $scope, $q, $injector, parentSpmns, cp, containerAllocRules, aliquotQtyReq, createDerived,
-    cpDict, aliquotFields, Specimen, Alerts, Util, SpecimenUtil, Container) {
+    $scope, $q, $injector, $translate, parentSpmns, cp, cpr, containerAllocRules, aliquotQtyReq, createDerived,
+    cpDict, aliquotFields, spmnHeaders, Specimen, Alerts, Util, SpecimenUtil, Container) {
 
     var ignoreQtyWarning = false, reservationId, ctx;
 
@@ -32,13 +32,15 @@ angular.module('os.biospecimen.specimen')
       );
 
       $scope.cp = cp;
+      $scope.cpr = cpr;
       var inputLabels = $scope.inputLabels = (!!cp.id && (!cp.aliquotLabelFmt || cp.manualSpecLabelEnabled));
       ctx = $scope.ctx = {
         showCustomFields: true,
         aliquotsSpec: aliquotsSpec,
         aliquots: [],
         aliquotQtyReq: aliquotQtyReq,
-        inputLabels: inputLabels
+        inputLabels: inputLabels,
+        spmnHeaders: spmnHeaders
       };
 
       var opts = $scope.opts = {
@@ -51,13 +53,26 @@ angular.module('os.biospecimen.specimen')
 
       var groups = ctx.customFieldGroups = SpecimenUtil.sdeGroupSpecimens(
         cpDict, aliquotFields || [], aliquotsSpec, {}, opts);
-      if (groups.length > 1) {
+      if (groups.length > 1 || (groups.length == 1 && !groups[0].noMatch)) {
         if (groups[groups.length - 1].noMatch) {
           ctx.warnNoMatch = true;
         }
 
-        return;
-      } else if (groups.length == 1 && !groups[0].noMatch) {
+        $scope.$watch(
+          function() {
+            return groups.map(
+              function(group) {
+                var types = [];
+                angular.forEach(group.input, function(input) { types.push(input.specimen.type); });
+                return types;
+              }
+            );
+          },
+          function() {
+            countRows(groups);
+          },
+          true
+        );
         return;
       }
 
@@ -254,6 +269,36 @@ angular.module('os.biospecimen.specimen')
       );
 
       watches.push(watch);
+    }
+
+    function countRows(groups) {
+      angular.forEach(groups,
+        function(group) {
+          var typeCounts = {};
+          angular.forEach(group.input,
+            function(input) {
+              var count = typeCounts[input.specimen.type || 'Not Specified'] || 0;
+              typeCounts[input.specimen.type || 'Not Specified'] = count + 1;
+            }
+          );
+
+          var totalRows = 0;
+          var result = '';
+          angular.forEach(Object.keys(typeCounts).sort(),
+            function(t) {
+              if (result) {
+                result += ' | ';
+              }
+
+              result += t + ': ' + typeCounts[t];
+              totalRows += typeCounts[t];
+            }
+          );
+
+          result = $translate.instant('common.total_rows') + ': ' + totalRows + ' | ' + result;
+          group.$$counts = result;
+        }
+      );
     }
 
     function submitSamples() {
