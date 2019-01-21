@@ -1852,7 +1852,6 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 			UUID uuid = UUID.randomUUID();
 			String containerName = container.getName().replaceAll("\\s+", "_");
 			fileId = uuid.toString() + "_" + user.getId() + "_" + containerName;
-			fileId.replaceAll("\\s+", "_");
 
 			rptFile = new File(ConfigUtil.getInstance().getReportsDir(), fileId + ".csv");
 			ContainerDefragmenter defragmenter = new DefaultContainerDefragmenter(rptFile);
