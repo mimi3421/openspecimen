@@ -612,11 +612,32 @@ public class StorageContainer extends BaseExtensionEntity {
 		if (isDimensionless()) {
 			return Collections.emptySet();
 		} else {
-			PositionAssigner assigner = getPositionAssigner();
-			return getOccupiedPositions().stream()
-				.map(pos -> assigner.toPosition(this, pos.getPosTwoOrdinal(), pos.getPosOneOrdinal()))
-				.collect(Collectors.toSet());
+			return getOccupiedPositions().stream().map(StorageContainerPosition::getPosition).collect(Collectors.toSet());
 		}
+	}
+
+	public Set<Integer> emptyPositionsOrdinals() {
+		if (isDimensionless()) {
+			return Collections.emptySet();
+		}
+
+		Set<Integer> occupiedPositions = occupiedPositionsOrdinals();
+		if (occupiedPositions.size() >= getNoOfRows() * getNoOfColumns()) {
+			return Collections.emptySet();
+		}
+
+
+		Set<Integer> emptyPositions = new HashSet<>();
+		for (int ri = 0; ri < getNoOfRows(); ++ri) {
+			for (int ci = 0; ci < getNoOfColumns(); ++ci) {
+				int pos = getPositionAssigner().toPosition(this, ri + 1, ci + 1);
+				if (!occupiedPositions.contains(pos)) {
+					emptyPositions.add(pos);
+				}
+			}
+		}
+
+		return emptyPositions;
 	}
 	
 	public String toColumnLabelingScheme(int ordinal) {

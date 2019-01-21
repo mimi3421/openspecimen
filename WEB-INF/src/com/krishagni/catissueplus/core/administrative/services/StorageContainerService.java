@@ -22,6 +22,7 @@ import com.krishagni.catissueplus.core.administrative.events.StorageLocationSumm
 import com.krishagni.catissueplus.core.administrative.events.TenantDetail;
 import com.krishagni.catissueplus.core.administrative.events.VacantPositionsOp;
 import com.krishagni.catissueplus.core.administrative.repository.StorageContainerListCriteria;
+import com.krishagni.catissueplus.core.biospecimen.events.FileDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenInfo;
 import com.krishagni.catissueplus.core.biospecimen.repository.SpecimenListCriteria;
 import com.krishagni.catissueplus.core.common.events.BulkDeleteEntityOp;
@@ -89,6 +90,13 @@ public interface StorageContainerService {
 	ResponseEvent<List<StorageLocationSummary>> reservePositions(RequestEvent<ReservePositionsOp> req);
 
 	ResponseEvent<Integer> cancelReservation(RequestEvent<String> req);
+
+	//
+	// defrag
+	//
+	ResponseEvent<String> defragment(RequestEvent<Long> req);
+
+	ResponseEvent<FileDetail> getDefragReport(RequestEvent<String> req);
 
 	//
 	// Mostly present to implement UI tree for faster access

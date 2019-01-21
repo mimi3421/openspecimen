@@ -14,6 +14,9 @@
         <span class="fa fa-print"></span>
         <span translate="common.buttons.print">Print</span>
       </button>
+      <button show-if-allowed="containerResource.updateOpts" class="btn default" ng-click="defragment()">
+        <span translate="container.defragment">Defragment</span>
+      </button>
       <!-- button show-if-allowed="containerResource.createOpts" class="default"
         ui-sref="container-replicate({containerId: ctx.container.id})">
         <span class="fa fa-copy"></span>

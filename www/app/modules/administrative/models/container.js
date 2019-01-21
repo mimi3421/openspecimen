@@ -165,6 +165,14 @@ angular.module('os.administrative.models.container', ['os.common.models'])
       return BoxLayoutUtil.getPositionAssigner(this.positionAssignment);
     }
 
+    Container.prototype.generateDefragReport = function() {
+      return $http.post(Container.url() + this.$id() + '/defragment').then(
+        function(resp) {
+          return resp.data;
+        }
+      );
+    }
+
     Container.list = function(opts) {
       var defOpts = {topLevelContainers: true};
       return Container.query(angular.extend(defOpts, opts || {}));

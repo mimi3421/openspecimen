@@ -53,6 +53,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.krishagni.catissueplus.core.biospecimen.domain.BaseEntity;
 import com.krishagni.catissueplus.core.biospecimen.domain.BaseExtensionEntity;
+import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.PdfUtil;
 import com.krishagni.catissueplus.core.common.domain.IntervalUnit;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
@@ -511,6 +512,11 @@ public class Utility {
 	}
 
 	public static File zipFiles(List<String> files, String zipFilePath) {
+		return zipFilesWithNames(files.stream().map((f) -> Pair.make(f, "")).collect(Collectors.toList()), zipFilePath);
+	}
+
+	// files => [{filePath, name}]
+	public static File zipFilesWithNames(List<Pair<String, String>> files, String zipFilePath) {
 		ZipOutputStream zout = null;
 		FileOutputStream fout = null;
 		File result = null;
@@ -520,12 +526,14 @@ public class Utility {
 			fout = new FileOutputStream(result);
 			zout = new ZipOutputStream(fout);
 
-			for (String filePath : files) {
+			for (Pair<String, String> fd : files) {
 				InputStream in = null;
 				try {
-					File file = new File(filePath);
+					File file = new File(fd.first());
 					in = new FileInputStream(file);
-					zout.putNextEntry(new ZipEntry(file.getName()));
+
+					String entryName = StringUtils.isBlank(fd.second()) ? file.getName() : fd.second();
+					zout.putNextEntry(new ZipEntry(entryName));
 					IOUtils.copy(in, zout);
 				} finally {
 					zout.closeEntry();

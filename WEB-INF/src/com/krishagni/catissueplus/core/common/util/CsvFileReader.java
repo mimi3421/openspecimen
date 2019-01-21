@@ -132,7 +132,10 @@ public class CsvFileReader implements CsvReader {
 
 	private void createColumnNameIdxMap() {
 		try {
-			String[] line = csvReader.readNext();
+			String[] line = null;
+			while ((line = csvReader.readNext()) != null && line.length > 0 && line[0].startsWith("#"))
+				;
+
 			if (line == null || line.length == 0) {
 				throw new CsvException("CSV file column names line empty");
 			}

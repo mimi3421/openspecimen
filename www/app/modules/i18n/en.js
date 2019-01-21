@@ -1421,6 +1421,13 @@
     "hierarchy_created_successfully": "Container hierarchy of type {{typeName}} created successfully.",
     "creation_success": "Container {{name}} successfully created.",
 
+    "defragment": "Defragment",
+    "defragment_rpt": {
+      "initiated": "Generating defragmentation report...",
+      "downloading": "Downloading the defragmentation report...",
+      "will_be_emailed": "Defragmentation report generation is taking more time. Link to download the report will be sent to you by email."
+    },
+
     "tooltip": {
       "view_details": "Click to view Container details",
       "add": "Click to add new Container",

@@ -40,6 +40,7 @@ import com.krishagni.catissueplus.core.administrative.events.VacantPositionsOp;
 import com.krishagni.catissueplus.core.administrative.repository.StorageContainerListCriteria;
 import com.krishagni.catissueplus.core.administrative.services.ContainerSelectionStrategyFactory;
 import com.krishagni.catissueplus.core.administrative.services.StorageContainerService;
+import com.krishagni.catissueplus.core.biospecimen.events.FileDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenInfo;
 import com.krishagni.catissueplus.core.biospecimen.repository.SpecimenListCriteria;
 import com.krishagni.catissueplus.core.common.events.BulkDeleteEntityOp;
@@ -48,6 +49,7 @@ import com.krishagni.catissueplus.core.common.events.ExportedFileDetail;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 import com.krishagni.catissueplus.core.common.util.MessageUtil;
+import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.catissueplus.core.de.events.QueryDataExportResult;
 import com.krishagni.catissueplus.core.de.services.FormService;
 
@@ -638,6 +640,26 @@ public class StorageContainersController {
 				return strategy;
 			})
 			.collect(Collectors.toList());
+	}
+
+	@RequestMapping(method = RequestMethod.POST, value = "/{id}/defragment")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public Map<String, String> defragment(@PathVariable("id") Long id) {
+		ResponseEvent<String> resp = storageContainerSvc.defragment(new RequestEvent<>(id));
+		resp.throwErrorIfUnsuccessful();
+		return Collections.singletonMap("fileId", resp.getPayload());
+	}
+
+	@RequestMapping(method = RequestMethod.GET, value="/defragment-report")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public void downloadDefragReport(@RequestParam(value = "fileId") String fileId, HttpServletResponse httpResp) {
+		ResponseEvent<FileDetail> resp = storageContainerSvc.getDefragReport(new RequestEvent<>(fileId));
+		resp.throwErrorIfUnsuccessful();
+
+		FileDetail file = resp.getPayload();
+		Utility.sendToClient(httpResp, file.getFilename(), file.getContentType(), file.getFileOut());
 	}
 
 	//

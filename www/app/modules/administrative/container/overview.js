@@ -2,7 +2,7 @@
 angular.module('os.administrative.container.overview', ['os.administrative.models'])
   .controller('ContainerOverviewCtrl', function(
     $scope, $state, rootId, container,
-    Container, ContainerLabelPrinter, DeleteUtil) {
+    Container, ContainerLabelPrinter, DeleteUtil, Alerts, ApiUrls, Util) {
 
     function init() {
       $scope.ctx.showTree  = true;
@@ -52,6 +52,21 @@ angular.module('os.administrative.container.overview', ['os.administrative.model
         confirmDelete: 'container.confirm_delete',
         forceDelete: true
       });
+    }
+
+    $scope.defragment = function() {
+      var alert = Alerts.info('container.defragment_rpt.initiated', {}, false);
+      container.generateDefragReport().then(
+        function(result) {
+          Alerts.remove(alert);
+          if (result.fileId) {
+            Alerts.info('container.defragment_rpt.downloading');
+            Util.downloadFile(ApiUrls.getBaseUrl() + 'storage-containers/defragment-report?fileId=' + result.fileId);
+          } else {
+            Alerts.info('container.defragment_rpt.will_be_emailed');
+          }
+        }
+      );
     }
 
     init();

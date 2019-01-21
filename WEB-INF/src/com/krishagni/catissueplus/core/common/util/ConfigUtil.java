@@ -34,6 +34,15 @@ public class ConfigUtil {
 	public String getDataDir() {
 		return cfgSvc.getDataDir();
 	}
+
+	public File getReportsDir() {
+		File dir = new File(getDataDir(), "reports");
+		if (!dir.exists()) {
+			dir.mkdirs();
+		}
+
+		return dir;
+	}
 	
 	public String getAdminEmailId() {
 		return cfgSvc.getStrSetting("email", "admin_email_id", "");

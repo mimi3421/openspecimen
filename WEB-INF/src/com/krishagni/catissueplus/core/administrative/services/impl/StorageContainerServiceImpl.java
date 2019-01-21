@@ -14,6 +14,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -22,9 +25,11 @@ import java.util.stream.IntStream;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.krishagni.catissueplus.core.administrative.domain.ContainerStoreList;
 import com.krishagni.catissueplus.core.administrative.domain.ContainerStoreList.Op;
@@ -55,6 +60,7 @@ import com.krishagni.catissueplus.core.administrative.events.VacantPositionsOp;
 import com.krishagni.catissueplus.core.administrative.repository.ContainerStoreListCriteria;
 import com.krishagni.catissueplus.core.administrative.repository.StorageContainerListCriteria;
 import com.krishagni.catissueplus.core.administrative.repository.UserListCriteria;
+import com.krishagni.catissueplus.core.administrative.services.ContainerDefragmenter;
 import com.krishagni.catissueplus.core.administrative.services.ContainerMapExporter;
 import com.krishagni.catissueplus.core.administrative.services.ContainerSelectionRule;
 import com.krishagni.catissueplus.core.administrative.services.ContainerSelectionStrategy;
@@ -65,16 +71,19 @@ import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.CpErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.SpecimenErrorCode;
+import com.krishagni.catissueplus.core.biospecimen.events.FileDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenInfo;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.biospecimen.repository.SpecimenListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.services.SpecimenResolver;
+import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.RollbackTransaction;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
 import com.krishagni.catissueplus.core.common.access.SiteCpPair;
 import com.krishagni.catissueplus.core.common.domain.LabelPrintJob;
 import com.krishagni.catissueplus.core.common.domain.PrintItem;
+import com.krishagni.catissueplus.core.common.errors.CommonErrorCode;
 import com.krishagni.catissueplus.core.common.errors.ErrorCode;
 import com.krishagni.catissueplus.core.common.errors.ErrorType;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
@@ -133,6 +142,8 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 
 	private LabelPrinter<StorageContainer> labelPrinter;
 
+	private ThreadPoolTaskExecutor taskExecutor;
+
 	public DaoFactory getDaoFactory() {
 		return daoFactory;
 	}
@@ -183,6 +194,10 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 
 	public void setLabelPrinter(LabelPrinter<StorageContainer> labelPrinter) {
 		this.labelPrinter = labelPrinter;
+	}
+
+	public void setTaskExecutor(ThreadPoolTaskExecutor taskExecutor) {
+		this.taskExecutor = taskExecutor;
 	}
 
 	@Override
@@ -741,6 +756,56 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 		} catch (Exception e) {
 			return ResponseEvent.serverError(e);
 		}
+	}
+
+	@Override
+	@PlusTransactional
+	public ResponseEvent<String> defragment(RequestEvent<Long> req) {
+		try {
+			StorageContainer container = getContainer(req.getPayload(), null);
+			AccessCtrlMgr.getInstance().ensureUpdateContainerRights(container);
+
+			User user = AuthUtil.getCurrentUser();
+			Future<String> result = taskExecutor.submit(() -> generateDefragReport(user, container));
+
+			try {
+				return ResponseEvent.response(result.get(30, TimeUnit.SECONDS));
+			} catch (TimeoutException te) {
+				return ResponseEvent.response(null);
+			} catch (OpenSpecimenException ose) {
+				return ResponseEvent.error(ose);
+			} catch (Exception e) {
+				return ResponseEvent.serverError(e);
+			}
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
+		} catch (Exception e) {
+			return ResponseEvent.serverError(e);
+		}
+	}
+
+	@Override
+	public ResponseEvent<FileDetail> getDefragReport(RequestEvent<String> req) {
+		String fileId = req.getPayload();
+		String[] parts = fileId.split("_", 3); // <uuid_userid_name>
+		if (parts.length < 3) {
+			return ResponseEvent.userError(CommonErrorCode.INVALID_INPUT, fileId);
+		}
+
+		if (!parts[1].equals(AuthUtil.getCurrentUser().getId().toString())) {
+			return ResponseEvent.userError(RbacErrorCode.ACCESS_DENIED);
+		}
+
+		File rptFile = new File(ConfigUtil.getInstance().getReportsDir(), fileId + ".zip");
+		if (!rptFile.exists()) {
+			return ResponseEvent.userError(CommonErrorCode.FILE_NOT_FOUND, fileId);
+		}
+
+		FileDetail result = new FileDetail();
+		result.setContentType("application/zip");
+		result.setFilename(parts[2] + ".zip");
+		result.setFileOut(rptFile);
+		return ResponseEvent.response(result);
 	}
 
 	@Override
@@ -1776,6 +1841,63 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 		}
 	}
 
+	private String generateDefragReport(User user, StorageContainer container) {
+		String fileId = null;
+		File rptFile = null;
+
+		Exception exception = null;
+		try {
+			AuthUtil.setCurrentUser(user);
+
+			UUID uuid = UUID.randomUUID();
+			String containerName = container.getName().replaceAll("\\s+", "_");
+			fileId = uuid.toString() + "_" + user.getId() + "_" + containerName;
+			fileId.replaceAll("\\s+", "_");
+
+			rptFile = new File(ConfigUtil.getInstance().getReportsDir(), fileId + ".csv");
+			ContainerDefragmenter defragmenter = new DefaultContainerDefragmenter(rptFile);
+			defragmenter.defragment(container);
+
+			Pair<String, String> fd = Pair.make(rptFile.getAbsolutePath(), containerName + ".csv");
+			String zipFilePath = new File(rptFile.getParentFile(), fileId + ".zip").getAbsolutePath();
+			Utility.zipFilesWithNames(Collections.singletonList(fd), zipFilePath);
+			return fileId;
+		} catch (OpenSpecimenException ose) {
+			exception = ose;
+			logger.error("Error generating defrag report for " + container.getName(), ose);
+			throw ose;
+		} catch (Exception e) {
+			exception = e;
+			logger.info("Error generating defrag report for " + container.getName(), e);
+			throw OpenSpecimenException.serverError(e);
+		} finally {
+			if (rptFile != null) {
+				rptFile.delete();
+			}
+
+			sendDefragReport(user, container, fileId, exception);
+		}
+	}
+
+	private void sendDefragReport(User user, StorageContainer container, String fileId, Exception exception) {
+		String error = null;
+		if (exception != null) {
+			Throwable rootCause = ExceptionUtils.getRootCause(exception);
+			if (rootCause == null) {
+				rootCause = exception;
+			}
+			error = ExceptionUtils.getStackTrace(rootCause);
+		}
+
+		Map<String, Object> props = new HashMap<>();
+		props.put("$subject", new String[] { container.getName() });
+		props.put("fileId", fileId);
+		props.put("error", error);
+		props.put("rcpt", user);
+		props.put("container", container);
+		EmailUtil.getInstance().sendEmail(DEFRAG_RPT, new String[] { user.getEmailAddress() }, null, props);
+	}
+
 	private String msg(String code) {
 		return MessageUtil.getInstance().getMessage(code);
 	}
@@ -1783,4 +1905,6 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 	private final static String AUTO_FREEZER_DAILY_RPT      = "auto_freezer_daily";
 
 	private final static String AUTO_FREEZER_FAILED_OPS_RPT = "auto_freezer_failed_ops";
+
+	private final static String DEFRAG_RPT                  = "container_defrag_report";
 }
