@@ -7,6 +7,11 @@
         </span>
       </h3>
     </div>
+    <div class="os-page-header-actions">
+      <h3 ng-if="!!ctx.spmnHeaders.rightTitle">
+        <os-html-template template="ctx.spmnHeaders.rightTitle"></os-html-template>
+      </h3>
+    </div>
   </div>
   
   <div class="container" ng-switch on="ctx.showCustomFields">
@@ -39,12 +44,12 @@
     <div ng-repeat="group in ctx.customFieldGroups" ng-if="!group.noMatch">
       <div class="panel panel-default">
         <div class="panel-heading">
-          <span>{{group.title}}</span>
+          <span>{{group.title}}:</span>
+          <span>{{group.$$counts}}</span>
           <a class="btn btn-xs btn-default" ng-click="group.opts.cofrc = !group.opts.cofrc" ng-if="group.opts.enableCofrc">
             <span ng-if="group.opts.cofrc">
               <span class="fa fa-plus"></span>
               <span translate="common.show_all">Show all rows</span>
-              <span>({{group.input.length}})</span>
             </span>
             <span ng-if="!group.opts.cofrc">
               <span class="fa fa-minus"></span>

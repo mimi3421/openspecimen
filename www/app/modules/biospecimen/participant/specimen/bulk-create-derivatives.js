@@ -1,6 +1,6 @@
 angular.module('os.biospecimen.specimen')
   .controller('BulkCreateDerivativesCtrl', function(
-    $scope, $injector, parentSpmns, cp, cpDict, derivedFields,
+    $scope, $injector, $translate, parentSpmns, cp, cpr, cpDict, derivedFields, spmnHeaders,
     Specimen, Alerts, Util, SpecimenUtil) {
 
     var ctx;
@@ -26,11 +26,13 @@ angular.module('os.biospecimen.specimen')
       );
 
       $scope.cp = cp;
+      $scope.cpr = cpr;
       var inputLabels = $scope.inputLabels = (!!cp.id && (!cp.derivativeLabelFmt || cp.manualSpecLabelEnabled));
       ctx = $scope.ctx = {
         showCustomFields: true,
         derivedSpmns: derivedSpmns,
-        inputLabels: inputLabels
+        inputLabels: inputLabels,
+        spmnHeaders: spmnHeaders
       };
 
       var opts = $scope.opts = {
@@ -41,6 +43,53 @@ angular.module('os.biospecimen.specimen')
         cpDict, derivedFields || [], derivedSpmns, {}, opts);
       ctx.warnNoMatch = groups.length > 1 && groups[groups.length - 1].noMatch;
       ctx.showCustomFields = (groups.length > 1) || (groups.length == 1 && !groups[0].noMatch);
+      if (ctx.showCustomFields) {
+        $scope.$watch(
+          function() {
+            return groups.map(
+              function(group) {
+                var types = [];
+                angular.forEach(group.input, function(input) { types.push(input.specimen.type); });
+                return types;
+              }
+            );
+          },
+          function() {
+            countRows(groups);
+          },
+          true
+        );
+      }
+    }
+
+    function countRows(groups) {
+      angular.forEach(groups,
+        function(group) {
+          var typeCounts = {};
+          angular.forEach(group.input,
+            function(input) {
+              var count = typeCounts[input.specimen.type || 'Not Specified'] || 0;
+              typeCounts[input.specimen.type || 'Not Specified'] = count + 1;
+            }
+          );
+
+          var totalRows = 0;
+          var result = '';
+          angular.forEach(Object.keys(typeCounts).sort(),
+            function(t) {
+              if (result) {
+                result += ' | ';
+              }
+
+              result += t + ': ' + typeCounts[t];
+              totalRows += typeCounts[t];
+            }
+          );
+
+          result = $translate.instant('common.total_rows') + ': ' + totalRows + ' | ' + result;
+          group.$$counts = result;
+        }
+      );
     }
 
     function submitSamples() {
