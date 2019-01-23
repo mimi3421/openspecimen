@@ -92,20 +92,44 @@ angular.module('os.biospecimen.specimen')
       );
     }
 
+    function initCloseParent(parentSamples) {
+      angular.forEach(parentSamples,
+        function(samples) {
+          var closeParent = false;
+          angular.forEach(samples,
+            function(sample) {
+              closeParent = closeParent || sample.specimen.closeParent;
+              sample.specimen.closeParent = false;
+            }
+          );
+
+          samples[samples.length - 1].specimen.closeParent = closeParent;
+        }
+      );
+    }
+
     function submitSamples() {
+      var parentSamples = {};
+
       var samples = [];
       for (var i = 0; i < ctx.customFieldGroups.length; ++i) {
         var group = ctx.customFieldGroups[i];
         for (var j = 0; j < group.input.length; ++j) {
           var spec = group.input[j];
-          if (!isValidCreatedOn(spec.specimen)) {
+          var spmn = spec.specimen;
+          if (!isValidCreatedOn(spmn)) {
             return;
           }
 
-          samples.push({specimen: spec.specimen, events: spec.events});
+          var sample = {specimen: spmn, events: spec.events};
+          samples.push(sample);
+
+          parentSamples[spmn.parent.id] = parentSamples[spmn.parent.id] || [];
+          parentSamples[spmn.parent.id].push(sample);
         }
       }
 
+      initCloseParent(parentSamples);
       $injector.get('sdeSample').saveSamples(samples).then(
         function(resp) {
           Alerts.success('specimens.derivatives_created');

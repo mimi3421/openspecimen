@@ -301,6 +301,22 @@ angular.module('os.biospecimen.specimen')
       );
     }
 
+    function initCloseParent(parentSamples) {
+      angular.forEach(parentSamples,
+        function(samples) {
+          var closeParent = false;
+          angular.forEach(samples,
+            function(sample) {
+              closeParent = closeParent || sample.aliquotsSpec.closeParent;
+              sample.aliquotsSpec.closeParent = false;
+            }
+          );
+
+          samples[samples.length - 1].aliquotsSpec.closeParent = closeParent;
+        }
+      );
+    }
+
     function submitSamples() {
       var parentSamples = {};
 
@@ -343,20 +359,7 @@ angular.module('os.biospecimen.specimen')
         }
       );
 
-      angular.forEach(parentSamples,
-        function(samples) {
-          var closeParent = false;
-          angular.forEach(samples,
-            function(sample) {
-              closeParent = closeParent || sample.aliquotsSpec.closeParent;
-              sample.aliquotsSpec.closeParent = false;
-            }
-          );
-
-          samples[samples.length - 1].aliquotsSpec.closeParent = closeParent;
-        }
-      );
-
+      initCloseParent(parentSamples);
       $injector.get('sdeSample').saveSamples(samples).then(
         function(resp) {
           Alerts.success('specimens.aliquots_created');
