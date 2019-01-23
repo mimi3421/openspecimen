@@ -1,16 +1,12 @@
 package com.krishagni.catissueplus.core.administrative.services.impl;
 
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.collections.CollectionUtils;
 
 import com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol;
-import com.krishagni.catissueplus.core.administrative.repository.DpListCriteria;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
 import com.krishagni.catissueplus.core.common.access.SiteCpPair;
 import com.krishagni.catissueplus.core.common.service.impl.AbstractSearchResultProcessor;
@@ -22,25 +18,44 @@ public class DistributionProtocolSearchResultProcessor extends AbstractSearchRes
 	}
 
 	@Override
-	protected Map<Long, Map<String, Object>> getEntityProps(List<Long> entityIds) {
+	protected String getQuery() {
 		Set<SiteCpPair> siteCps = AccessCtrlMgr.getInstance().getReadAccessDistributionProtocolSites();
-		if (siteCps != null && siteCps.isEmpty()) {
-			return Collections.emptyMap();
+		if (CollectionUtils.isEmpty(siteCps)) {
+			return null;
 		}
 
-		DpListCriteria crit = new DpListCriteria().ids(entityIds).sites(siteCps);
-		List<DistributionProtocol> dps = daoFactory.getDistributionProtocolDao().getDistributionProtocols(crit);
-		return dps.stream().collect(Collectors.toMap(DistributionProtocol::getId, this::getProps));
-	}
+		List<String> clauses = new ArrayList<>();
+		for (SiteCpPair siteCp : siteCps) {
+			String clause = null;
+			if (siteCp.getSiteId() == null) {
+				clause = String.format(INSTITUTE_CLAUSE, siteCp.getInstituteId());
+			} else {
+				clause = String.format(SITE_CLAUSE, siteCp.getSiteId(), siteCp.getInstituteId());
+			}
 
-	private Map<String, Object> getProps(DistributionProtocol dp) {
-		Map<String, Object> props = new HashMap<>();
-		props.put("shortTitle", dp.getShortTitle());
-		props.put("title", dp.getTitle());
-		if (StringUtils.isNotBlank(dp.getIrbId())) {
-			props.put("irbId", dp.getIrbId());
+			clauses.add(clause);
 		}
 
-		return props;
+		return String.format(QUERY, String.join(" or ", clauses));
 	}
+
+	private static final String QUERY =
+		"select " +
+		"  distinct k.identifier, k.entity, k.entity_id, k.name, k.value " +
+		"from " +
+		"  os_search_entity_keywords k " +
+		"  inner join os_distribution_protocol_sites dp_site on dp_site.distribution_protocol_id = k.entity_id " +
+		"where " +
+		"  k.value like ? and " +
+		"  k.identifier > ? and " +
+		"  k.entity = 'distribution_protocol' and " +
+		"  k.status = 1 and " +
+		"  (%s) " +
+		"order by " +
+		"  k.identifier";
+
+	private static final String INSTITUTE_CLAUSE = "(dp_site.institute_id = %d)";
+
+	private static final String SITE_CLAUSE =
+		"((dp_site.site_id is not null and dp_site.site_id = %d) or (dp_site.site_id is null and dp_site.institute_id = %d))";
 }

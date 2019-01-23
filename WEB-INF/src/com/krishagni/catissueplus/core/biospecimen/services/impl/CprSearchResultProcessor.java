@@ -1,102 +1,94 @@
 package com.krishagni.catissueplus.core.biospecimen.services.impl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
 
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
-import com.krishagni.catissueplus.core.biospecimen.domain.Participant;
-import com.krishagni.catissueplus.core.biospecimen.repository.CprListCriteria;
-import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
-import com.krishagni.catissueplus.core.common.events.SearchResult;
+import com.krishagni.catissueplus.core.common.access.SiteCpPair;
 import com.krishagni.catissueplus.core.common.service.SearchResultProcessor;
+import com.krishagni.catissueplus.core.common.service.impl.AbstractSearchResultProcessor;
 
-public class CprSearchResultProcessor implements SearchResultProcessor {
-	private static final List<String> PHI_PROPS = Arrays.asList("uid", "empi", "medicalRecordNumber");
-
-	private DaoFactory daoFactory;
-
-	public void setDaoFactory(DaoFactory daoFactory) {
-		this.daoFactory = daoFactory;
-	}
-
+public class CprSearchResultProcessor extends AbstractSearchResultProcessor implements SearchResultProcessor {
 	@Override
 	public String getEntity() {
 		return CollectionProtocolRegistration.getEntityName();
 	}
 
 	@Override
-	public List<SearchResult> process(List<SearchResult> matches) {
-		Map<Long, SearchResult> matchesMap = new LinkedHashMap<>();
-		for (SearchResult match : matches) {
-			if (matchesMap.containsKey(match.getEntityId())) {
-				continue;
-			}
-
-			matchesMap.put(match.getEntityId(), match);
-		}
-
+	protected String getQuery() {
 		AccessCtrlMgr.ParticipantReadAccess access = AccessCtrlMgr.getInstance().getParticipantReadAccess();
-		if (!access.admin) {
-			if (access.noAccessibleSites()) {
-				return Collections.emptyList();
-			}
-
-			if (!access.phiAccess) {
-				matchesMap.entrySet().removeIf(e -> PHI_PROPS.contains(e.getValue().getKey()));
-			}
+		if (access.noAccessibleSites()) {
+			return null;
 		}
 
-		if (matchesMap.isEmpty()) {
-			return Collections.emptyList();
+		boolean useMrnSites = AccessCtrlMgr.getInstance().isAccessRestrictedBasedOnMrn();
+		String joinCondition = useMrnSites ? PMI_JOIN_COND : "";
+		String cpSiteClause  = getCpSiteClause("s",  access.siteCps);
+
+		String whereClause;
+		if (useMrnSites) {
+			String pmiSiteClause = getCpSiteClause("ps", access.siteCps);
+			whereClause = String.format(PMI_WHERE_COND, pmiSiteClause, cpSiteClause);
+		} else {
+			whereClause = cpSiteClause;
 		}
 
-
-		CprListCriteria crit = new CprListCriteria()
-			.ids(new ArrayList<>(matchesMap.keySet()))
-			.siteCps(access.siteCps)
-			.phiSiteCps(access.phiSiteCps)
-			.includePhi(access.phiAccess)
-			.useMrnSites(AccessCtrlMgr.getInstance().isAccessRestrictedBasedOnMrn());
-
-		List<CollectionProtocolRegistration> cprs = daoFactory.getCprDao().getCprs(crit);
-		for (CollectionProtocolRegistration cpr : cprs) {
-			Map<String, Object> props = new HashMap<>();
-			props.put("ppid", cpr.getPpid());
-			props.put("cp", cpr.getCollectionProtocol().getShortTitle());
-			matchesMap.get(cpr.getId()).setEntityProps(props);
-
-			if (!access.phiAccess) {
-				continue;
-			}
-
-			Participant participant = cpr.getParticipant();
-			if (StringUtils.isNotBlank(participant.getEmpi())) {
-				props.put("empi", participant.getEmpi());
-			}
-
-			if (StringUtils.isNotBlank(participant.getUid())) {
-				props.put("uid", participant.getUid());
-			}
-
-			String mrns = participant.getPmis().stream()
-				.map(pmi -> pmi.getMedicalRecordNumber())
-				.filter(StringUtils::isNotBlank)
-				.collect(Collectors.joining(","));
-			if (StringUtils.isNotBlank(mrns)) {
-				props.put("mrns", mrns);
-			}
+		if (!access.phiAccess) {
+			whereClause += " and " + EXCLUDE_PHI_RECS;
 		}
 
-		matchesMap.entrySet().removeIf(e -> e.getValue().getEntityProps().isEmpty());
-		return new ArrayList<>(matchesMap.values());
+		return String.format(QUERY, joinCondition, whereClause);
 	}
+
+	private String getCpSiteClause(String siteAlias, Collection<SiteCpPair> siteCps) {
+		List<String> clauses = new ArrayList<>();
+		for (SiteCpPair siteCp : siteCps) {
+			String clause;
+			if (siteCp.getSiteId() != null) {
+				clause = siteAlias + ".identifier = " + siteCp.getSiteId();
+			} else {
+				clause = siteAlias + ".institute_id = " + siteCp.getInstituteId();
+			}
+
+			if (siteCp.getCpId() != null) {
+				clause += " and cpr.collection_protocol_id = " + siteCp.getCpId();
+			}
+
+			clauses.add("(" + clause + ")");
+		}
+
+		return "(" + String.join(" or ", clauses) + ")";
+	}
+
+	private static final String QUERY =
+		"select " +
+		"  distinct k.identifier, k.entity, k.entity_id, k.name, k.value " +
+		"from " +
+		"  os_search_entity_keywords k " +
+		"  inner join catissue_coll_prot_reg cpr on cpr.identifier = k.entity_id " +
+		"  inner join catissue_site_cp cp_site on cp_site.collection_protocol_id = cpr.collection_protocol_id " +
+		"  inner join catissue_site s on s.identifier = cp_site.site_id " +
+		"  %s " +
+		"where " +
+		"  k.value like ? and " +
+		"  k.identifier > ? and " +
+		"  k.entity = 'collection_protocol_registration' and " +
+		"  k.status = 1 and " +
+		"  cpr.activity_status != 'Disabled' and " +
+		"  (%s) " +
+		"order by " +
+		"  k.identifier";
+
+	private static final String PMI_JOIN_COND =
+		"inner join catissue_participant p on p.identifier = cpr.participant_id " +
+		"left join catissue_part_medical_id pmi on pmi.participant_id = p.identifier " +
+		"left join catissue_site ps on ps.identifier = pmi.site_id ";
+
+	private static final String PMI_WHERE_COND =
+		"((ps.identifier is not null and %s) or (ps.identifier is null and %s))";
+
+	private static final String EXCLUDE_PHI_RECS =
+		"k.name not in ('empi', 'uid', 'medicalRecordNumber', 'firstName', 'lastName')";
 }

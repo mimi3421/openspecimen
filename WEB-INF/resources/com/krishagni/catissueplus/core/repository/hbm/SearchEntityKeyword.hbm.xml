@@ -53,5 +53,26 @@
       order by
         r.sort_order
     </sql-query>
+
+    <sql-query name="getMatchingEntities">
+      <return-scalar column="entity" type="string"/>
+
+      select
+        r.entity as entity
+      from
+        os_search_entity_ranks r
+      where
+        r.entity in (
+          select
+            distinct k.entity
+          from
+            os_search_entity_keywords k
+          where
+            k.value like :value and
+            k.status = 1
+        )
+      order by
+        r.sort_order;
+    </sql-query>
   </class>
 </hibernate-mapping>

@@ -3,12 +3,10 @@ package com.krishagni.catissueplus.core.common.service.impl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.SessionFactory;
@@ -30,13 +28,12 @@ import org.springframework.beans.factory.InitializingBean;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.domain.SearchEntityKeyword;
-import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
-import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 import com.krishagni.catissueplus.core.common.events.SearchResult;
 import com.krishagni.catissueplus.core.common.repository.SearchEntityKeywordDao;
 import com.krishagni.catissueplus.core.common.service.SearchEntityKeywordProvider;
 import com.krishagni.catissueplus.core.common.service.SearchResultProcessor;
 import com.krishagni.catissueplus.core.common.service.SearchService;
+import com.krishagni.catissueplus.core.common.util.AuthUtil;
 
 public class SearchServiceImpl implements SearchService, InitializingBean {
 	private SessionFactory sessionFactory;
@@ -72,44 +69,40 @@ public class SearchServiceImpl implements SearchService, InitializingBean {
 			return Collections.emptyList();
 		}
 
-		//
-		// Search for the input keyword
-		//
-		List<SearchEntityKeyword> matches = daoFactory.getSearchEntityKeywordDao().getMatches(searchTerm, maxResults);
-		List<SearchResult> result = SearchResult.from(matches);
-		if (result.isEmpty()) {
-			return Collections.emptyList();
+		if (AuthUtil.isAdmin()) {
+			return daoFactory.getSearchEntityKeywordDao().getMatches(searchTerm, maxResults)
+				.stream().map(SearchResult::from).collect(Collectors.toList());
 		}
 
-		//
-		// Prepare matches by entity so that all entity matches can be processed in one go
-		//
-		Map<String, List<SearchResult>> entityMatchesMap = new HashMap<>();
-		for (SearchResult match : result) {
-			List<SearchResult> entityMatches = entityMatchesMap.computeIfAbsent(match.getEntity(), (k) -> new ArrayList<>());
-			entityMatches.add(match);
-		}
+		List<String> entities = daoFactory.getSearchEntityKeywordDao().getMatchingEntities(searchTerm);
+		List<SearchResult> results = new ArrayList<>();
+		for (String entity : entities) {
+			SearchResultProcessor proc = resultProcessors.get(entity);
+			if (proc == null) {
+				continue;
+			}
 
-		//
-		// Process all entity matches
-		//
-		entityMatchesMap.replaceAll((entity, entityMatches) -> {
-			SearchResultProcessor processor = resultProcessors.get(entity);
-			return processor != null ? processor.process(entityMatches) : entityMatches;
-		});
+			long lastId = -1;
+			boolean moreMatches = true;
+			while (moreMatches && results.size() < maxResults) {
+				List<SearchResult> matches = proc.search(searchTerm, lastId, maxResults);
+				moreMatches = matches.size() >= maxResults;
 
-		//
-		// Remove the entity matches that are not present in the processed matches
-		//
-		Iterator<SearchResult> iter = result.iterator();
-		while (iter.hasNext()) {
-			SearchResult match = iter.next();
-			if (!entityMatchesMap.get(match.getEntity()).contains(match)) {
-				iter.remove();
+				Map<Long, SearchResult> dedupMap = new LinkedHashMap<>();
+				for (SearchResult match : matches) {
+					dedupMap.putIfAbsent(match.getEntityId(), match);
+					lastId = match.getEntityId();
+				}
+
+				results.addAll(dedupMap.values());
+			}
+
+			if (results.size() >= maxResults) {
+				break;
 			}
 		}
 
-		return result;
+		return results;
 	}
 
 	@Override

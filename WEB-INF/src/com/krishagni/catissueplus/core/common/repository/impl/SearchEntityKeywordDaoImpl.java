@@ -53,9 +53,21 @@ public class SearchEntityKeywordDaoImpl extends AbstractDao<SearchEntityKeyword>
 		return result;
 	}
 
+	@Override
+	public List<String> getMatchingEntities(String searchTerm) {
+		searchTerm = searchTerm.replaceAll("\\\\", "\\\\\\\\")
+			.replaceAll("_", "\\\\_")
+			.replaceAll("%", "\\\\%").toLowerCase();
+		return (List<String>) getCurrentSession().getNamedQuery(GET_MATCHING_ENTITIES)
+			.setParameter("value", searchTerm + "%")
+			.list();
+	}
+
 	private static final String FQN = SearchEntityKeyword.class.getName();
 
 	private static final String GET_KEYWORDS = FQN + ".getKeywords";
 
 	private static final String GET_MATCHES = FQN + ".getMatches";
+
+	private static final String GET_MATCHING_ENTITIES = FQN + ".getMatchingEntities";
 }

@@ -1,47 +1,57 @@
 package com.krishagni.catissueplus.core.common.service.impl;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
-import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.SessionFactory;
+import org.hibernate.type.LongType;
+import org.hibernate.type.StringType;
+
+import com.krishagni.catissueplus.core.common.OpenSpecimenAppCtxProvider;
 import com.krishagni.catissueplus.core.common.events.SearchResult;
-import com.krishagni.catissueplus.core.common.service.ObjectAccessor;
 import com.krishagni.catissueplus.core.common.service.SearchResultProcessor;
 
 public abstract class AbstractSearchResultProcessor implements SearchResultProcessor {
-	protected DaoFactory daoFactory;
-
-	public void setDaoFactory(DaoFactory daoFactory) {
-		this.daoFactory = daoFactory;
-	}
-
 	@Override
-	public List<SearchResult> process(List<SearchResult> matches) {
-		Map<Long, SearchResult> matchesMap = new LinkedHashMap<>();
-		for (SearchResult match : matches) {
-			matchesMap.putIfAbsent(match.getEntityId(), match);
+	public List<SearchResult> search(String searchTerm, long lastId, int maxResults) {
+		String query = getQuery();
+		if (StringUtils.isBlank(query)) {
+			return Collections.emptyList();
 		}
 
-		Map<Long, Map<String, Object>> entityProps = getEntityProps(new ArrayList<>(matchesMap.keySet()));
+		List<Object[]> rows = getSessionFactory().getCurrentSession().createSQLQuery(query)
+			.addScalar("identifier", LongType.INSTANCE)
+			.addScalar("entity", StringType.INSTANCE)
+			.addScalar("entity_id", LongType.INSTANCE)
+			.addScalar("name", StringType.INSTANCE)
+			.addScalar("value", StringType.INSTANCE)
+			.setParameter(1, searchTerm + "%")
+			.setParameter(2, lastId)
+			.setMaxResults(maxResults)
+			.list();
 
-		Iterator<Map.Entry<Long, SearchResult>> iter = matchesMap.entrySet().iterator();
-		while (iter.hasNext()) {
-			Map.Entry<Long, SearchResult> entry = iter.next();
-
-			Map<String, Object> props = entityProps.get(entry.getKey());
-			if (props == null) {
-				iter.remove();
-			} else {
-				entry.getValue().setEntityProps(props);
-			}
+		List<SearchResult> results = new ArrayList<>();
+		for (Object[] row : rows) {
+			int idx = 0;
+			SearchResult result = new SearchResult();
+			result.setId((Long) row[idx++]);
+			result.setEntity((String) row[idx++]);
+			result.setEntityId((Long) row[idx++]);
+			result.setKey((String) row[idx++]);
+			result.setValue((String) row[idx++]);
+			results.add(result);
 		}
 
-		return new ArrayList<>(matchesMap.values());
+		return results;
 	}
 
-	protected abstract Map<Long, Map<String, Object>> getEntityProps(List<Long> entityIds);
+	protected String getQuery() {
+		return null;
+	}
+
+	private SessionFactory getSessionFactory() {
+		return OpenSpecimenAppCtxProvider.getBean("sessionFactory");
+	}
 }

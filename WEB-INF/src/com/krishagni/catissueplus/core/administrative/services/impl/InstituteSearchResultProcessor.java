@@ -1,14 +1,8 @@
 package com.krishagni.catissueplus.core.administrative.services.impl;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import com.krishagni.catissueplus.core.administrative.domain.Institute;
-import com.krishagni.catissueplus.core.administrative.events.InstituteDetail;
-import com.krishagni.catissueplus.core.administrative.repository.InstituteListCriteria;
 import com.krishagni.catissueplus.core.common.service.impl.AbstractSearchResultProcessor;
+import com.krishagni.catissueplus.core.common.util.AuthUtil;
 
 public class InstituteSearchResultProcessor extends AbstractSearchResultProcessor {
 	@Override
@@ -17,13 +11,22 @@ public class InstituteSearchResultProcessor extends AbstractSearchResultProcesso
 	}
 
 	@Override
-	protected Map<Long, Map<String, Object>> getEntityProps(List<Long> entityIds) {
-		InstituteListCriteria crit = new InstituteListCriteria().ids(entityIds);
-		List<InstituteDetail> institutes = daoFactory.getInstituteDao().getInstitutes(crit);
-		return institutes.stream().collect(Collectors.toMap(InstituteDetail::getId, this::getProps));
+	protected String getQuery() {
+		return String.format(QUERY, AuthUtil.getCurrentUserInstitute().getId());
 	}
 
-	private Map<String, Object> getProps(InstituteDetail detail) {
-		return Collections.singletonMap("name", detail.getName());
-	}
+	private static final String QUERY =
+		"select " +
+		"  k.identifier, k.entity, k.entity_id, k.name, k.value " +
+		"from " +
+		"  os_search_entity_keywords k " +
+		"  inner join catissue_institution i on i.identifier = k.entity_id " +
+		"where " +
+		"  k.value like ? and " +
+		"  k.identifier > ? and " +
+		"  k.entity = 'institute' and " +
+		"  k.status = 1 and " +
+		"  i.identifier = %d " +
+		"order by " +
+		"  k.identifier";
 }

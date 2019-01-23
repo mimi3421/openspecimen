@@ -1,12 +1,6 @@
 package com.krishagni.catissueplus.core.administrative.services.impl;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import com.krishagni.catissueplus.core.administrative.domain.User;
-import com.krishagni.catissueplus.core.administrative.repository.UserListCriteria;
 import com.krishagni.catissueplus.core.common.service.impl.AbstractSearchResultProcessor;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
 
@@ -17,23 +11,22 @@ public class UserSearchResultProcessor extends AbstractSearchResultProcessor {
 	}
 
 	@Override
-	protected Map<Long, Map<String, Object>> getEntityProps(List<Long> entityIds) {
-		UserListCriteria crit = new UserListCriteria().ids(entityIds);
-		if (!AuthUtil.isAdmin()) {
-			crit.instituteName(AuthUtil.getCurrentUserInstitute().getName());
-		}
-
-		List<User> users = daoFactory.getUserDao().getUsers(crit);
-		return users.stream().collect(Collectors.toMap(User::getId, this::getProps));
+	protected String getQuery() {
+		return String.format(QUERY, AuthUtil.getCurrentUserInstitute().getId());
 	}
 
-	private Map<String, Object> getProps(User user) {
-		Map<String, Object> props = new HashMap<>();
-		props.put("firstName", user.getFirstName());
-		props.put("lastName", user.getLastName());
-		props.put("loginName", user.getLoginName());
-		props.put("emailAddress", user.getEmailAddress());
-		props.put("displayName", user.formattedName());
-		return props;
-	}
+	private static final String QUERY =
+		"select " +
+		"  k.identifier, k.entity, k.entity_id, k.name, k.value " +
+		"from " +
+		"  os_search_entity_keywords k " +
+		"  inner join catissue_user u on u.identifier = k.entity_id " +
+		"where " +
+		"  k.value like ? and " +
+		"  k.identifier > ? and " +
+		"  k.entity = 'user' and " +
+		"  k.status = 1 and " +
+		"  u.institute_id = %d " +
+		"order by " +
+		"  k.identifier";
 }

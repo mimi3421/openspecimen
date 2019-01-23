@@ -9,5 +9,5 @@ import com.krishagni.catissueplus.core.common.events.SearchResult;
 public interface SearchResultProcessor {
 	String getEntity();
 
-	List<SearchResult> process(List<SearchResult> matches);
+	List<SearchResult> search(String searchTerm, long lastId, int maxResults);
 }
