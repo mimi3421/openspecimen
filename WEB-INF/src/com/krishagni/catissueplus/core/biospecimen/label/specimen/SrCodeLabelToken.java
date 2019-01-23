@@ -14,16 +14,7 @@ public class SrCodeLabelToken extends AbstractSpecimenLabelToken {
 	@Override
 	public String getLabel(Specimen specimen) {
 		SpecimenRequirement sr = specimen.getSpecimenRequirement();
-		
-		String code = null;
-		if (sr != null) {
-			code = sr.getCode();
-		}
-		
-		if (StringUtils.isBlank(code)) {
-			code = StringUtils.EMPTY;
-		}
-
-		return code;
+		String code = sr != null ? sr.getCode() : null;
+		return StringUtils.isBlank(code) ? StringUtils.EMPTY : code;
 	}
 }

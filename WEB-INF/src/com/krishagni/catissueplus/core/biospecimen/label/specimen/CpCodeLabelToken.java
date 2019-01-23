@@ -13,10 +13,6 @@ public class CpCodeLabelToken extends AbstractSpecimenLabelToken {
 	@Override
 	public String getLabel(Specimen specimen) {
 		String code = specimen.getCollectionProtocol().getCode();
-		if (StringUtils.isBlank(code)) {
-			code = StringUtils.EMPTY;
-		}
-
-		return code;
+		return StringUtils.isBlank(code) ? StringUtils.EMPTY : code;
 	}
 }
