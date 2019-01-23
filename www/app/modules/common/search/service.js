@@ -16,7 +16,7 @@ angular.module('os.common.search.service', [])
           var result = resp.data;
           angular.forEach(result, setMatchCaption);
           if (result.length == 0) {
-            result.push({id: -1, caption: $translate.instant('search.no_matches', {term: term})});
+            result.push({id: 0, key: term, caption: $translate.instant('search.user_manual', {term: term})});
           } else if (result.length > 20) {
             result.unshift({id: -2, caption: $translate.instant('search.many_matches')});
           }

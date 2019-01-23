@@ -81,7 +81,6 @@
     "download_initiated": "Download of file initiated. Please check your download directory ...",
     "error": "Error",
     "use_system_setting": "Use System Setting",
-    "search_user_manual": "Search user manual",
     "invalid_expr": "Invalid expression: {{expr}}",
     "name": "Name",
     "value": "Value",
@@ -2406,8 +2405,8 @@
 
    "search": {
      "title": "Search...",
-     "no_matches": "No match found",
-     "many_matches": "Many matches found. Keep typing..."
+     "many_matches": "Many matches found. Keep typing...",
+     "user_manual": "Search user manual for '{{term}}'"
    },
    
    "feedback": {

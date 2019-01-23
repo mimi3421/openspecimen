@@ -1,12 +1,21 @@
 
 angular.module('os.common.search.ctrl', [])
-  .controller('QuickSearchCtrl', function($scope, $state, $timeout, QuickSearchSvc) {
+  .controller('QuickSearchCtrl', function($scope, $state, $timeout, $window, SettingUtil, QuickSearchSvc) {
 
     var ctx, closeHandler;
 
     function init() {
       ctx = $scope.ctx = {searching: false, matches: []};
     }
+
+    function searchManual(searchTerm) {
+      SettingUtil.getSetting('training', 'manual_search_link').then(
+        function(setting) {
+          $window.open(setting.value + searchTerm);
+        }
+      );
+    }
+
 
     $scope.search = function(keyword, selectCtrl) {
       if (!keyword) {
@@ -36,6 +45,11 @@ angular.module('os.common.search.ctrl', [])
 
     $scope.onMatchSelect = function() {
       var match = ctx.selectedMatch;
+      if (match.id == 0) {
+        searchManual(match.key);
+        return;
+      }
+
       var state = QuickSearchSvc.getState(match.entity);
       var stateParams = {stateName: state, objectName: match.entity, key: 'id', value: match.entityId};
       $state.go('object-state-params-resolver', stateParams);

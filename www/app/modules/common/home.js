@@ -121,9 +121,6 @@ angular.module('openspecimen')
 
       template:
         '<ul class="os-home-items-container">' +
-        '  <li class="os-home-single-item">' + 
-        '    <os-manual-search></os-manual-search>' +
-        '  </li>' +
         '</ul>',
 
       link: function(scope, element, attrs) { 

@@ -12,12 +12,12 @@
       <ui-select-choices ui-disable-choice="match.id < 0" repeat="match in ctx.matches"
         refresh="search($select.search, $select)" refresh-delay="750">
         <div class="row">
-          <div ng-class="{'true': 'col-xs-5', 'false': 'ng-hide'}[match.id >= 0]">
+          <div ng-class="{'true': 'col-xs-5', 'false': 'ng-hide'}[match.id > 0]">
             <small>{{match.group}}</small>
           </div>
-          <div ng-class="{'true': 'col-xs-7', 'false': 'col-xs-12'}[match.id >= 0]">
+          <div ng-class="{'true': 'col-xs-7', 'false': 'col-xs-12'}[match.id > 0]">
+            <span class="fa" ng-class="{'fa fa-graduation-cap': match.id == 0}"></span>
             <span ng-bind-html="match.caption | highlight: $select.search"></span>
-            <span class="fa" ng-class="{'fa-frown': match.id == -1}"></span>
           </div>
         </div>
       </ui-select-choices>
