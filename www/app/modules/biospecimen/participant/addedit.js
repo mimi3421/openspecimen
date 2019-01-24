@@ -1,10 +1,10 @@
 
 angular.module('os.biospecimen.participant.addedit', ['os.biospecimen.models', 'os.administrative.models'])
   .controller('ParticipantAddEditCtrl', function(
-    $scope, $state, $stateParams, $translate, $modal, $q,
+    $scope, $state, $stateParams, $translate, $modal, $q, $timeout,
     cp, cpr, extensionCtxt, hasDict, cpDict, twoStepReg, layout,
     onValueChangeCb, mrnAccessRestriction, addPatientOnLookupFail,
-    lookupFieldsCfg, lockedFields, firstCpEvent,
+    lookupFieldsCfg, lockedFields, cpEvents,
     CpConfigSvc, CollectionProtocolRegistration, Participant,
     Visit, CollectSpecimensSvc, Site, PvManager, ExtensionsUtil, Alerts) {
 
@@ -20,7 +20,7 @@ angular.module('os.biospecimen.participant.addedit', ['os.biospecimen.models', '
 
       $scope.partCtx = {
         cpSites: cp.cpSites.map(function(cpSite) { return cpSite.siteName; }),
-        firstCpEvent: firstCpEvent,
+        cpEvents: cpEvents,
         fieldOpts: {
           viewCtx: $scope,
           lockedFields: lockedFields,
@@ -131,7 +131,7 @@ angular.module('os.biospecimen.participant.addedit', ['os.biospecimen.models', '
       $scope.vitalStatuses = PvManager.getPvs('vital-status');
     };
 
-    function registerParticipant(proceedToSpmnColl) {
+    function registerParticipant(event) {
       var formCtrl = $scope.deFormCtrl.ctrl;
       if (formCtrl && !formCtrl.validate()) {
         return;
@@ -154,8 +154,8 @@ angular.module('os.biospecimen.participant.addedit', ['os.biospecimen.models', '
 
             cpr.participant.registeredCps = registeredCps;
 
-            if (proceedToSpmnColl) {
-              gotoSpmnCollection(savedCpr);
+            if (event) {
+              gotoSpmnCollection(savedCpr, event);
             } else {
               $state.go('participant-detail.overview', {cprId: savedCpr.id});
             }
@@ -166,9 +166,9 @@ angular.module('os.biospecimen.participant.addedit', ['os.biospecimen.models', '
       );
     };
 
-    function gotoSpmnCollection(cpr) {
+    function gotoSpmnCollection(cpr, event) {
       var state = $state.get('participant-detail.overview');
-      var visit = new Visit({cpId: cp.id, cprId: cpr.id, eventId: firstCpEvent.id});
+      var visit = new Visit({cpId: cp.id, cprId: cpr.id, eventId: event.id});
       CollectSpecimensSvc.collectVisit({state: state, params: {cprId: cpr.id}}, cp, cpr.id, visit);
     }
 
@@ -242,7 +242,7 @@ angular.module('os.biospecimen.participant.addedit', ['os.biospecimen.models', '
       );
     }
 
-    function handleParticipantMatches(matches, proceedToSpmnColl) {
+    function handleParticipantMatches(matches, event) {
       $scope.partCtx.matches = matches;
       $scope.partCtx.matchAutoSelected = false;
       $scope.partCtx.allowIgnoreMatches = matches.every(
@@ -272,7 +272,7 @@ angular.module('os.biospecimen.participant.addedit', ['os.biospecimen.models', '
           Alerts.error('participant.no_matching_participant');
         } else {
           if (!lookupFieldsCfg.configured) {
-            registerParticipant(proceedToSpmnColl);
+            registerParticipant(event);
           } else {
             $scope.partCtx.step = 'registerParticipant';
           }
@@ -434,20 +434,24 @@ angular.module('os.biospecimen.participant.addedit', ['os.biospecimen.models', '
       }
     };
 
-    $scope.register = function(proceedToSpmnColl) {
+    $scope.register = function(event) {
       if ($scope.partCtx.edit) {
         cacheInputParticipant();
-        $scope.cpr.participant.getMatchingParticipants().then(handleParticipantMatches);
+        $scope.cpr.participant.getMatchingParticipants().then(
+          function(matches) {
+            handleParticipantMatches(matches, event)
+          }
+        );
       } else {
-        registerParticipant(proceedToSpmnColl);
+        registerParticipant(event);
       }
     };
 
-    $scope.lookup = function(proceedToSpmnColl) {
+    $scope.lookup = function(event) {
       cacheInputParticipant();
       $scope.cpr.participant.getMatchingParticipants().then(
         function(matches) {
-          handleParticipantMatches(matches, proceedToSpmnColl)
+          handleParticipantMatches(matches, event)
         }
       );
     }
@@ -510,6 +514,17 @@ angular.module('os.biospecimen.participant.addedit', ['os.biospecimen.models', '
       } else {
         $scope.back();
       }
+    }
+
+    $scope.toggleEventsMenu = function(open) {
+      if (!open) {
+        return;
+      }
+
+      $timeout(function() {
+        var el = $scope.partCtx.eventsDd[0];
+        el.scrollIntoView(true);
+      });
     }
 
     init();

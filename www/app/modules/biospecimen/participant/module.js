@@ -473,14 +473,14 @@ angular.module('os.biospecimen.participant',
             var participant = cpr.participant || {};
             return CpConfigSvc.getLockedParticipantFields(participant.source || 'OpenSpecimen');
           },
-          firstCpEvent: function(cp, cpr, CollectionProtocolEvent) {
+          cpEvents: function(cp, cpr, CollectionProtocolEvent) {
             if (!!cpr.id) {
               return null;
             }
 
             return CollectionProtocolEvent.listFor(cp.id).then(
               function(events) {
-                return events.length > 0 ? events[0] : null;
+                return events.filter(function(event) { return event.activityStatus == 'Active'; });
               }
             );
           }

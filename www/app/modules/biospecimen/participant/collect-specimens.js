@@ -237,6 +237,12 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
         var visitDetail = {visitId: visit.id, eventId: visit.eventId};
         Specimen.listFor(cprId, visitDetail).then(
           function(specimens) {
+            if (specimens.length == 0) {
+              // no planned specimens
+              $state.go('visit-addedit', {visitId: visit.id, eventId: visit.eventId});
+              return;
+            }
+
             var spmnsToCollect = Specimen.flatten(specimens);
             if (cp.visitCollectionMode == 'PRIMARY_SPMNS') {
               spmnsToCollect = spmnsToCollect.filter(function(spmn) { return spmn.lineage == 'New'; });
