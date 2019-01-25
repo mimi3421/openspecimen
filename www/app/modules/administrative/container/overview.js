@@ -1,7 +1,7 @@
 
 angular.module('os.administrative.container.overview', ['os.administrative.models'])
   .controller('ContainerOverviewCtrl', function(
-    $scope, $state, rootId, container,
+    $scope, $state, $modal, rootId, container,
     Container, ContainerLabelPrinter, DeleteUtil, Alerts, ApiUrls, Util) {
 
     function init() {
@@ -19,6 +19,21 @@ angular.module('os.administrative.container.overview', ['os.administrative.model
       );
 
       return nodes;
+    }
+
+    function defragment(container, aliquotsInSameContainer) {
+      var alert = Alerts.info('container.defragment_rpt.initiated', {}, false);
+      container.generateDefragReport(aliquotsInSameContainer).then(
+        function(result) {
+          Alerts.remove(alert);
+          if (result.fileId) {
+            Alerts.info('container.defragment_rpt.downloading');
+            Util.downloadFile(ApiUrls.getBaseUrl() + 'storage-containers/defragment-report?fileId=' + result.fileId);
+          } else {
+            Alerts.info('container.defragment_rpt.will_be_emailed');
+          }
+        }
+      );
     }
 
     $scope.printLabel = function() {
@@ -55,18 +70,22 @@ angular.module('os.administrative.container.overview', ['os.administrative.model
     }
 
     $scope.defragment = function() {
-      var alert = Alerts.info('container.defragment_rpt.initiated', {}, false);
-      container.generateDefragReport().then(
-        function(result) {
-          Alerts.remove(alert);
-          if (result.fileId) {
-            Alerts.info('container.defragment_rpt.downloading');
-            Util.downloadFile(ApiUrls.getBaseUrl() + 'storage-containers/defragment-report?fileId=' + result.fileId);
-          } else {
-            Alerts.info('container.defragment_rpt.will_be_emailed');
+      $modal.open({
+        templateUrl: 'modules/administrative/container/defrag-mode.html',
+        controller: function($scope, $modalInstance) {
+          $scope.container = container;
+          $scope.aliquotsInSameContainer = false;
+
+          $scope.submit = function() {
+            defragment(container, $scope.aliquotsInSameContainer);
+            $modalInstance.close(true);
+          }
+
+          $scope.cancel = function() {
+            $modalInstance.cancel();
           }
         }
-      );
+      });
     }
 
     init();

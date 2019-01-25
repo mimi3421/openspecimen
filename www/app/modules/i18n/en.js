@@ -1421,6 +1421,8 @@
     "creation_success": "Container {{name}} successfully created.",
 
     "defragment": "Defragment",
+    "defrag_container": "Defragment {{name}}",
+    "move_aliquots_together": "Do you want same specimen aliquots to be moved together?",
     "defragment_rpt": {
       "initiated": "Generating defragmentation report...",
       "downloading": "Downloading the defragmentation report...",

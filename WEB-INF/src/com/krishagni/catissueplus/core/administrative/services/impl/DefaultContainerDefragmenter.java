@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,8 @@ public class DefaultContainerDefragmenter implements ContainerDefragmenter {
 
 	private int movedSpmnsCnt;
 
+	private boolean aliquotsInSameBox;
+
 	@Autowired
 	private DaoFactory daoFactory;
 
@@ -45,10 +48,17 @@ public class DefaultContainerDefragmenter implements ContainerDefragmenter {
 		List<Integer> emptyPositions;
 
 		List<Long> occupiedPositionIds;
+
+		Map<Long, List<Long>> aliquotsMap;
 	}
 
 	public DefaultContainerDefragmenter(File outputFile) {
+		this(outputFile, false);
+	}
+
+	public DefaultContainerDefragmenter(File outputFile, boolean aliquotsInSameBox) {
 		this.outputFile = outputFile;
+		this.aliquotsInSameBox = aliquotsInSameBox;
 	}
 
 	@Override
@@ -136,6 +146,11 @@ public class DefaultContainerDefragmenter implements ContainerDefragmenter {
 
 		info.occupiedPositionIds.clear();
 		info.occupiedPositionIds = null;
+
+		if (info.aliquotsMap != null) {
+			info.aliquotsMap.clear();
+			info.aliquotsMap = null;
+		}
 	}
 
 	private void defragment(Long containerId, List<Long> leafContainerIds) {
@@ -179,19 +194,39 @@ public class DefaultContainerDefragmenter implements ContainerDefragmenter {
 		StorageContainer srcContainer = getContainer(srcContainerId);
 		List<Long> occupiedPositionIds = containerInfo.get(srcContainerId).occupiedPositionIds;
 		List<StorageContainerPosition> occupiedPositions = getOccupiedPositions(srcContainer);
+		if (aliquotsInSameBox && containerInfo.get(srcContainerId).aliquotsMap == null) {
+			containerInfo.get(srcContainerId).aliquotsMap = getAliquotsMap(occupiedPositions);
+		}
 
 		for (int i = occupiedPositions.size() - 1; i >= 0 && !tgtEmptyPositions.isEmpty(); --i) {
-			StorageContainerPosition oldPosition = occupiedPositions.get(i);
-			Specimen spmn = oldPosition.getOccupyingSpecimen();
-			if (!tgtContainer.canContain(spmn)) {
+			StorageContainerPosition position = occupiedPositions.get(i);
+			if (!occupiedPositionIds.contains(position.getId())) {
+				// might have got moved along with other aliquots of same parent
 				continue;
 			}
 
-			occupiedPositionIds.remove(oldPosition.getId());
-			addToEmptyPositions(srcContainerId, oldPosition.getPosition());
+			List<StorageContainerPosition> toMoveList = new ArrayList<>();
+			if (aliquotsInSameBox && position.getOccupyingSpecimen().isAliquot()) {
+				if (tgtEmptyPositions.size() < getAliquotsCount(srcContainerId, position)) {
+					continue;
+				}
 
-			int tgtPos = tgtEmptyPositions.remove(0);
-			write(srcContainer, oldPosition, tgtContainer, tgtPos);
+				toMoveList.addAll(getAliquots(srcContainerId, occupiedPositions, position));
+			} else {
+				toMoveList.add(position);
+			}
+
+			if (!canContainAll(tgtContainer, toMoveList)) {
+				continue;
+			}
+
+			for (StorageContainerPosition toMove : toMoveList) {
+				occupiedPositionIds.remove(toMove.getId());
+				addToEmptyPositions(srcContainerId, toMove.getPosition());
+
+				int tgtPos = tgtEmptyPositions.remove(0);
+				write(srcContainer, toMove, tgtContainer, tgtPos);
+			}
 		}
 	}
 
@@ -234,10 +269,14 @@ public class DefaultContainerDefragmenter implements ContainerDefragmenter {
 
 	private List<StorageContainerPosition> getOccupiedPositions(StorageContainer container) {
 		List<Long> occupiedPosIds = containerInfo.get(container.getId()).occupiedPositionIds;
+		return getPositions(container.getOccupiedPositions(), occupiedPosIds, true);
+	}
 
-		return container.getOccupiedPositions().stream()
-			.filter(pos -> occupiedPosIds.contains(pos.getId()))
-			.sorted((p1, p2) -> p1.getPosition().compareTo(p2.getPosition()))
+	private List<StorageContainerPosition> getPositions(Collection<StorageContainerPosition> positions, Collection<Long> posIds, boolean forward) {
+		int factor = forward ? 1 : -1;
+		return positions.stream()
+			.filter(pos -> posIds.contains(pos.getId()))
+			.sorted((p1, p2) -> factor * p1.getPosition().compareTo(p2.getPosition()))
 			.collect(Collectors.toList());
 	}
 
@@ -248,6 +287,39 @@ public class DefaultContainerDefragmenter implements ContainerDefragmenter {
 		}
 
 		return container;
+	}
+
+	private Map<Long, List<Long>> getAliquotsMap(List<StorageContainerPosition> positions) {
+		Map<Long, List<Long>> aliquotsMap = new HashMap<>();
+		for (StorageContainerPosition position : positions) {
+			Specimen spmn = position.getOccupyingSpecimen();
+			if (spmn == null || !spmn.isAliquot()) {
+				continue;
+			}
+
+			List<Long> ap = aliquotsMap.computeIfAbsent(spmn.getParentSpecimen().getId(), (k) -> new ArrayList<>());
+			ap.add(position.getId());
+		}
+
+		return aliquotsMap;
+	}
+
+	private int getAliquotsCount(Long containerId, StorageContainerPosition pos) {
+		Specimen spmn = pos.getOccupyingSpecimen();
+		Map<Long, List<Long>> aliquotsMap = containerInfo.get(containerId).aliquotsMap;
+		List<Long> aliquots = aliquotsMap.get(spmn.getParentSpecimen().getId());
+		return aliquots != null ? aliquots.size() : 1;
+	}
+
+	private List<StorageContainerPosition> getAliquots(Long containerId, List<StorageContainerPosition> positions, StorageContainerPosition pos) {
+		Specimen spmn = pos.getOccupyingSpecimen();
+		Map<Long, List<Long>> aliquotsMap = containerInfo.get(containerId).aliquotsMap;
+		List<Long> aliquots = aliquotsMap.get(spmn.getParentSpecimen().getId());
+		return getPositions(positions, aliquots, false);
+	}
+
+	private boolean canContainAll(StorageContainer container, List<StorageContainerPosition> positions) {
+		return positions.stream().map(StorageContainerPosition::getOccupyingSpecimen).allMatch(container::canContain);
 	}
 
 	private void createWriter(String containerName) {

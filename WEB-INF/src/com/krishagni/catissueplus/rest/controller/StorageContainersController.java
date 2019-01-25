@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainer;
+import com.krishagni.catissueplus.core.administrative.events.ContainerDefragDetail;
 import com.krishagni.catissueplus.core.administrative.events.ContainerHierarchyDetail;
 import com.krishagni.catissueplus.core.administrative.events.ContainerQueryCriteria;
 import com.krishagni.catissueplus.core.administrative.events.ContainerReplicationDetail;
@@ -645,10 +646,15 @@ public class StorageContainersController {
 	@RequestMapping(method = RequestMethod.POST, value = "/{id}/defragment")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
-	public Map<String, String> defragment(@PathVariable("id") Long id) {
-		ResponseEvent<String> resp = storageContainerSvc.defragment(new RequestEvent<>(id));
+	public ContainerDefragDetail defragment(@PathVariable("id") Long id, @RequestBody ContainerDefragDetail detail) {
+		if (detail == null) {
+			detail = new ContainerDefragDetail();
+		}
+
+		detail.setId(id);
+		ResponseEvent<ContainerDefragDetail> resp = storageContainerSvc.defragment(new RequestEvent<>(detail));
 		resp.throwErrorIfUnsuccessful();
-		return Collections.singletonMap("fileId", resp.getPayload());
+		return resp.getPayload();
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value="/defragment-report")

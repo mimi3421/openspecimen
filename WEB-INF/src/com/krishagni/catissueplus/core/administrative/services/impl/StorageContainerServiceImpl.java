@@ -44,6 +44,7 @@ import com.krishagni.catissueplus.core.administrative.domain.factory.StorageCont
 import com.krishagni.catissueplus.core.administrative.domain.factory.StorageContainerFactory;
 import com.krishagni.catissueplus.core.administrative.events.AutoFreezerReportDetail;
 import com.krishagni.catissueplus.core.administrative.events.ContainerCriteria;
+import com.krishagni.catissueplus.core.administrative.events.ContainerDefragDetail;
 import com.krishagni.catissueplus.core.administrative.events.ContainerHierarchyDetail;
 import com.krishagni.catissueplus.core.administrative.events.ContainerQueryCriteria;
 import com.krishagni.catissueplus.core.administrative.events.ContainerReplicationDetail;
@@ -760,13 +761,16 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 
 	@Override
 	@PlusTransactional
-	public ResponseEvent<String> defragment(RequestEvent<Long> req) {
+	public ResponseEvent<ContainerDefragDetail> defragment(RequestEvent<ContainerDefragDetail> req) {
 		try {
-			StorageContainer container = getContainer(req.getPayload(), null);
+			ContainerDefragDetail detail = req.getPayload();
+			StorageContainer container = getContainer(detail.getId(), detail.getName());
 			AccessCtrlMgr.getInstance().ensureUpdateContainerRights(container);
 
 			User user = AuthUtil.getCurrentUser();
-			Future<String> result = taskExecutor.submit(() -> generateDefragReport(user, container));
+			Future<ContainerDefragDetail> result = taskExecutor.submit(
+				() -> generateDefragReport(detail, user, container)
+			);
 
 			try {
 				return ResponseEvent.response(result.get(30, TimeUnit.SECONDS));
@@ -1841,7 +1845,7 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 		}
 	}
 
-	private String generateDefragReport(User user, StorageContainer container) {
+	private ContainerDefragDetail generateDefragReport(ContainerDefragDetail detail, User user, StorageContainer container) {
 		String fileId = null;
 		File rptFile = null;
 
@@ -1854,13 +1858,16 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 			fileId = uuid.toString() + "_" + user.getId() + "_" + containerName;
 
 			rptFile = new File(ConfigUtil.getInstance().getReportsDir(), fileId + ".csv");
-			ContainerDefragmenter defragmenter = new DefaultContainerDefragmenter(rptFile);
-			defragmenter.defragment(container);
+			ContainerDefragmenter defragmenter = new DefaultContainerDefragmenter(rptFile, detail.isAliquotsInSameContainer());
+			int movedSpmnsCnt = defragmenter.defragment(container);
 
 			Pair<String, String> fd = Pair.make(rptFile.getAbsolutePath(), containerName + ".csv");
 			String zipFilePath = new File(rptFile.getParentFile(), fileId + ".zip").getAbsolutePath();
 			Utility.zipFilesWithNames(Collections.singletonList(fd), zipFilePath);
-			return fileId;
+
+			detail.setFileId(fileId);
+			detail.setMovedSpecimensCount(movedSpmnsCnt);
+			return detail;
 		} catch (OpenSpecimenException ose) {
 			exception = ose;
 			logger.error("Error generating defrag report for " + container.getName(), ose);

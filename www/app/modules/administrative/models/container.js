@@ -165,8 +165,9 @@ angular.module('os.administrative.models.container', ['os.common.models'])
       return BoxLayoutUtil.getPositionAssigner(this.positionAssignment);
     }
 
-    Container.prototype.generateDefragReport = function() {
-      return $http.post(Container.url() + this.$id() + '/defragment').then(
+    Container.prototype.generateDefragReport = function(aliquotsInSameContainer) {
+      var payload = {id: this.$id(), aliquotsInSameContainer: aliquotsInSameContainer};
+      return $http.post(Container.url() + this.$id() + '/defragment', payload).then(
         function(resp) {
           return resp.data;
         }

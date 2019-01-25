@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 import com.krishagni.catissueplus.core.administrative.domain.ContainerStoreList;
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainer;
 import com.krishagni.catissueplus.core.administrative.events.AutoFreezerReportDetail;
+import com.krishagni.catissueplus.core.administrative.events.ContainerDefragDetail;
 import com.krishagni.catissueplus.core.administrative.events.ContainerHierarchyDetail;
 import com.krishagni.catissueplus.core.administrative.events.ContainerQueryCriteria;
 import com.krishagni.catissueplus.core.administrative.events.ContainerReplicationDetail;
@@ -93,7 +94,7 @@ public interface StorageContainerService {
 	//
 	// defrag
 	//
-	ResponseEvent<String> defragment(RequestEvent<Long> req);
+	ResponseEvent<ContainerDefragDetail> defragment(RequestEvent<ContainerDefragDetail> req);
 
 	ResponseEvent<FileDetail> getDefragReport(RequestEvent<String> req);
 
