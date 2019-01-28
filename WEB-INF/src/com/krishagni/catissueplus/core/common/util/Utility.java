@@ -110,9 +110,12 @@ public class Utility {
 		return leftOperand.containsAll(rightOperand);
 	}
 
-	public static String getInputStreamDigest(InputStream in)
-			throws IOException {
+	public static String getInputStreamDigest(InputStream in) throws IOException {
 		return DigestUtils.md5Hex(getInputStreamBytes(in));
+	}
+
+	public static String getDigest(String input) {
+		return DigestUtils.md5Hex(input);
 	}
 
 	public static String getResourceDigest(String resource)

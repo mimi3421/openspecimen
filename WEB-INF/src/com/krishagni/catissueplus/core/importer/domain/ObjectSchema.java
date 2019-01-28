@@ -73,6 +73,7 @@ public class ObjectSchema {
 		xstream.aliasAttribute(Record.class, "type", "type");
 		xstream.aliasAttribute(Record.class, "cpBased", "cpBased");
 		xstream.aliasAttribute(Record.class, "entityType", "entityType");
+		xstream.aliasAttribute(Record.class, "digestAttribute", "digest");
 		xstream.addImplicitCollection(Record.class, "subRecords", "record", Record.class);
 		
 		xstream.alias("field", Field.class);
@@ -97,6 +98,8 @@ public class ObjectSchema {
 		private String entityType;
 		
 		private boolean multiple;
+
+		private String digestAttribute;
 		
 		private List<Record> subRecords;
 		
@@ -162,6 +165,14 @@ public class ObjectSchema {
 
 		public void setMultiple(boolean multiple) {
 			this.multiple = multiple;
+		}
+
+		public String getDigestAttribute() {
+			return digestAttribute;
+		}
+
+		public void setDigestAttribute(String digestAttribute) {
+			this.digestAttribute = digestAttribute;
 		}
 
 		public List<Record> getSubRecords() {

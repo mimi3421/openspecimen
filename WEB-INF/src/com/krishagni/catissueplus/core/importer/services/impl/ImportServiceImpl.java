@@ -814,7 +814,7 @@ public class ImportServiceImpl implements ImportService, ApplicationListener<Con
 				detail.setParams(params);
 				detail.setUploadedFilesDir(getFilesDirPath(job.getId()));
 				
-				final RequestEvent<ImportObjectDetail<Object>> req = new RequestEvent<ImportObjectDetail<Object>>(detail);
+				final RequestEvent<ImportObjectDetail<Object>> req = new RequestEvent<>(detail);
 				ResponseEvent<Object> resp = txTmpl.execute(
 						new TransactionCallback<ResponseEvent<Object>>() {
 							@Override
