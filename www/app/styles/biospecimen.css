@@ -124,6 +124,10 @@
   background: #f0ad4e!important;
 }
 
+.os-page-header .os-status-virtual {
+  background: #99f!important;
+}
+
 .os-page-header .os-status-distributed {
   background: #5bc0de!important;
 }
@@ -135,6 +139,7 @@
 .panel .panel-heading .os-status-reserved,
 .os-page-header .os-status-reserved,
 .os-page-header .os-status-pending,
+.os-page-header .os-status-virtual,
 .os-page-header .os-status-collected,
 .os-page-header .os-status-distributed {
   padding: 0px 4px;

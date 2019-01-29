@@ -76,7 +76,7 @@
             <span translate="participant.buttons.register_n_collect">Register & Collect</span>
             <span class="fa fa-caret-down"></span>
           </button>
-          <ul class="dropdown-menu" style="top: initial;" os-ui-element="partCtx.eventsDd">
+          <ul class="dropdown-menu os-dropdown" os-ui-element="partCtx.eventsDd">
             <li ng-repeat="event in partCtx.cpEvents">
               <a os-form-submit="lookup(event)">
                 <os-event-desc event-point="event.eventPoint" event-point-unit="event.eventPointUnit"
@@ -288,7 +288,7 @@
                 <span translate="participant.buttons.register_n_collect">Register & Collect</span>
                 <span class="fa fa-caret-down"></span>
               </button>
-              <ul class="dropdown-menu" style="top: initial;" os-ui-element="partCtx.eventsDd">
+              <ul class="dropdown-menu os-dropdown" os-ui-element="partCtx.eventsDd">
                 <li ng-repeat="event in partCtx.cpEvents">
                   <a os-form-submit="register(event)">
                     <os-event-desc event-point="event.eventPoint" event-point-unit="event.eventPointUnit"
