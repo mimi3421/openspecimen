@@ -19,4 +19,8 @@ public class RequestEvent<T> {
 	public void setPayload(T payload) {
 		this.payload = payload;
 	}
+
+	public static <P> RequestEvent<P> request(P input) {
+		return new RequestEvent<>(input);
+	}
 }
