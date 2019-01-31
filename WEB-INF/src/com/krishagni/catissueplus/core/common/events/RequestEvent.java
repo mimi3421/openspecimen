@@ -20,7 +20,7 @@ public class RequestEvent<T> {
 		this.payload = payload;
 	}
 
-	public static <P> RequestEvent<P> request(P input) {
+	public static <P> RequestEvent<P> wrap(P input) {
 		return new RequestEvent<>(input);
 	}
 }

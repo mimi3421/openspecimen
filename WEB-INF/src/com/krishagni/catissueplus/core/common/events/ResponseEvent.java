@@ -110,7 +110,7 @@ public class ResponseEvent<T> {
 		return new ResponseEvent<P>(OpenSpecimenException.serverError(e));
 	}
 
-	public static <P> P response(ResponseEvent<P> resp) {
+	public static <P> P unwrap(ResponseEvent<P> resp) {
 		resp.throwErrorIfUnsuccessful();
 		return resp.getPayload();
 	}
