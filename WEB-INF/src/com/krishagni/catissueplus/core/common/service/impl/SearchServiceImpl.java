@@ -143,11 +143,7 @@ public class SearchServiceImpl implements SearchService, InitializingBean {
 						process.process(session);
 						session.flush();
 					}
-				}
-			);
 
-			event.getSession().getActionQueue().registerProcess(
-				(session) -> {
 					processors.remove(txn);
 				}
 			);
