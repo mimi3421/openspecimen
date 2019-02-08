@@ -150,13 +150,17 @@ public class Utility {
 	}
 
 	public static List<String> csvToStringList(String value, boolean ignoreEmptyElements) {
+		return csvToStringList(value, ignoreEmptyElements, ',');
+	}
+
+	public static List<String> csvToStringList(String value, boolean ignoreEmptyElements, char separator) {
 		if (StringUtils.isBlank(value)) {
 			return Collections.emptyList();
 		}
 
 		CsvReader reader = null;
 		try {
-			reader = CsvFileReader.createCsvFileReader(new StringReader(value), false);
+			reader = CsvFileReader.createCsvFileReader(new StringReader(value), false, separator);
 
 			List<String> result = new ArrayList<>();
 			while (reader.next()) {
