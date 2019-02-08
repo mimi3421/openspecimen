@@ -4,15 +4,12 @@ function osRequired($timeout) {
     restrict: 'A',
     link: function(scope, element, attrs, ctrl) {
       if (!ctrl._osFormEl) {
-        var formEl = ctrl._osFormEl = element.closest('form');
+        var formEl = ctrl._osFormEl = element.closest('.os-no-label-form');
         if (formEl.length == 0) {
-          formEl = ctrl._osFormEl = element.closest('ng-form');
+          formEl = ctrl._osFormEl = element.closest("*[os-no-label-form]");
         }
 
-        ctrl._noLabelForm = formEl[0].hasAttribute('os-no-label-form');
-        if (!ctrl._noLabelForm) {
-          ctrl._noLabelForm = formEl.hasClass('os-no-label-form');
-        }
+        ctrl._noLabelForm = (formEl.length > 0);
       }
 
       var setDirty = function() { ctrl[attrs.name] && ctrl[attrs.name].$setDirty(true); }
