@@ -82,7 +82,7 @@ angular.module('os.administrative.container.overview', ['os.administrative.model
           }
 
           $scope.cancel = function() {
-            $modalInstance.cancel();
+            $modalInstance.dismiss();
           }
         }
       });

@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.GZIPOutputStream;
@@ -37,6 +36,8 @@ import javax.activation.FileTypeMap;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.beanutils.BeanToPropertyValueTransformer;
@@ -66,12 +67,6 @@ public class Utility {
 	private static final SecretKey secretKey = new SecretKeySpec(key.getBytes(), "AES");
 
 	private static FileTypeMap fileTypesMap = null;
-
-	//
-	// https://www.owasp.org/index.php/OWASP_Validation_Regex_Repository
-	//
-	private static Pattern VALID_EMAIL_PTRN =
-		Pattern.compile("^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$");
 
 	public static String getDisabledValue(String value, int maxLength) {
 		if (StringUtils.isBlank(value)) {
@@ -150,13 +145,17 @@ public class Utility {
 	}
 
 	public static List<String> csvToStringList(String value, boolean ignoreEmptyElements) {
+		return csvToStringList(value, ignoreEmptyElements, ',');
+	}
+
+	public static List<String> csvToStringList(String value, boolean ignoreEmptyElements, char separator) {
 		if (StringUtils.isBlank(value)) {
 			return Collections.emptyList();
 		}
 
 		CsvReader reader = null;
 		try {
-			reader = CsvFileReader.createCsvFileReader(new StringReader(value), false);
+			reader = CsvFileReader.createCsvFileReader(new StringReader(value), false, separator);
 
 			List<String> result = new ArrayList<>();
 			while (reader.next()) {
@@ -615,7 +614,16 @@ public class Utility {
 	}
 
 	public static boolean isValidEmail(String emailId) {
-		return StringUtils.isNotBlank(emailId) && VALID_EMAIL_PTRN.matcher(emailId).matches();
+		try {
+			if (StringUtils.isBlank(emailId)) {
+				return false;
+			}
+
+			new InternetAddress(emailId).validate();
+			return true;
+		} catch (AddressException ae) {
+			return false;
+		}
 	}
 
 	public static String getErrorMessage(Throwable t) {

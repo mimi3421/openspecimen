@@ -252,6 +252,21 @@ select.form-control.de-input-error + .chosen-container-multi .chosen-choices {
   background-image: none;
   background: white;
   margin: 7px 0 3px 5px;
+  display: flex;
+}
+
+.select2-container.select2-container-multi {
+  height: auto;
+}
+
+.select2-search-choice-close {
+  top: 2px;
+}
+
+.select2-search-choice-close:after {
+  content: 'x';
+  color: #707070;
+  font-size: 10px;
 }
 
 .de-addon {

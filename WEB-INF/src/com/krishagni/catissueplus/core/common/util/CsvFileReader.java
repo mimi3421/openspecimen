@@ -31,19 +31,31 @@ public class CsvFileReader implements CsvReader {
 	}
 
 	public static CsvFileReader createCsvFileReader(InputStream inputStream, boolean firstRowHeaderRow) {
-		return createCsvFileReader(new InputStreamReader(inputStream), firstRowHeaderRow);
+		return createCsvFileReader(inputStream, firstRowHeaderRow, Utility.getFieldSeparator());
+	}
+
+	public static CsvFileReader createCsvFileReader(InputStream in, boolean firstRowHeader, char separator) {
+		return createCsvFileReader(new InputStreamReader(in), firstRowHeader, separator);
 	}
 
 	public static CsvFileReader createCsvFileReader(Reader reader, boolean firstRowHeaderRow) {
-		CSVReader csvReader = new CSVReader(reader, Utility.getFieldSeparator());
+		return createCsvFileReader(reader, firstRowHeaderRow, Utility.getFieldSeparator());
+	}
+
+	public static CsvFileReader createCsvFileReader(Reader reader, boolean firstRowHeaderRow, char separator) {
+		CSVReader csvReader = new CSVReader(reader, separator);
 		return new CsvFileReader(csvReader, firstRowHeaderRow);
 	}
 	
 	public static CsvFileReader createCsvFileReader(String csvFile, boolean firstRowHeaderRow) {
+		return createCsvFileReader(csvFile, firstRowHeaderRow, Utility.getFieldSeparator());
+	}
+
+	public static CsvFileReader createCsvFileReader(String csvFile, boolean firstRowHeaderRow, char separator) {
 		FileReader fr = null;
 		try {
 			fr = new FileReader(csvFile);
-			CSVReader csvReader = new CSVReader(fr, Utility.getFieldSeparator());
+			CSVReader csvReader = new CSVReader(fr, separator);
 			return new CsvFileReader(csvReader, firstRowHeaderRow);
 		} catch (IOException e) {
 			IOUtils.closeQuietly(fr);
