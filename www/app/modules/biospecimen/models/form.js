@@ -53,7 +53,7 @@ angular.module('os.biospecimen.models.form', ['os.common.models'])
     };
 
     Form.getDefinition = function(formId) {
-      return $http.get(Form.url() + formId + '/definition').then(
+      return $http.get(Form.url() + formId + '/definition', {params: {maxPvs: 100}}).then(
         function(result) {
           return result.data;
         }
