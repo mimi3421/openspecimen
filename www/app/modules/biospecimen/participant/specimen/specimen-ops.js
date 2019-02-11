@@ -1,6 +1,6 @@
 angular.module('os.biospecimen.specimen')
   .directive('osSpecimenOps', function(
-    $state, $rootScope, $modal, $q, Util, DistributionProtocol, DistributionOrder, Specimen,
+    $state, $rootScope, $modal, $q, Util, DistributionProtocol, DistributionOrder, Specimen, ExtensionsUtil,
     SpecimensHolder, Alerts, CommentsUtil, DeleteUtil, SpecimenLabelPrinter, ParticipantSpecimensViewState) {
 
     function initOpts(scope, element, attrs) {
@@ -241,8 +241,9 @@ angular.module('os.biospecimen.specimen')
           }
 
           var specimenIds = selectedSpmns.map(function(spmn) {return spmn.id});
-          Specimen.getByIds(specimenIds).then(
+          Specimen.getByIds(specimenIds, true).then(
             function(spmns) {
+              angular.forEach(spmns, ExtensionsUtil.createExtensionFieldMap);
               SpecimensHolder.setSpecimens(spmns);
               navTo(scope, state, params);
             }
