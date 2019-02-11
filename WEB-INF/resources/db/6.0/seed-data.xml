@@ -98,6 +98,36 @@
     </sql>
   </changeSet>
 
+  <changeSet author="vpawar" id="Populate participant registration first and last name search keywords" dbms="mysql">
+    <sql>
+      insert into
+        os_search_entity_keywords(entity, entity_id, name, value, status)
+      select
+        'collection_protocol_registration', r.identifier, 'firstName', lower(p.first_name), 1
+      from
+        catissue_participant p
+        inner join catissue_coll_prot_reg r on r.participant_id = p.identifier
+      where
+        p.activity_status != 'Disabled' and
+        r.activity_status != 'Disabled' and
+        p.first_name is not null;
+    </sql>
+
+    <sql>
+      insert into
+        os_search_entity_keywords(entity, entity_id, name, value, status)
+      select
+        'collection_protocol_registration', r.identifier, 'lastName', lower(p.last_name), 1
+      from
+        catissue_participant p
+        inner join catissue_coll_prot_reg r on r.participant_id = p.identifier
+      where
+        p.activity_status != 'Disabled' and
+        r.activity_status != 'Disabled' and
+        p.last_name is not null;
+    </sql>
+  </changeSet>
+
   <changeSet author="vpawar" id="Populate registration eMPI, UID, and MRN search keywords" dbms="oracle">
     <sql>
       insert into
@@ -141,6 +171,36 @@
     </sql>
   </changeSet>
 
+  <changeSet author="vpawar" id="Populate participant registration first and last name search keywords" dbms="oracle">
+    <sql>
+      insert into
+        os_search_entity_keywords(identifier, entity, entity_id, name, value, status)
+      select
+        os_search_entity_keywords_seq.nextval, 'collection_protocol_registration', r.identifier, 'firstName', lower(p.first_name), 1
+      from
+        catissue_participant p
+        inner join catissue_coll_prot_reg r on r.participant_id = p.identifier
+      where
+        p.activity_status != 'Disabled' and
+        r.activity_status != 'Disabled' and
+        p.first_name is not null;
+    </sql>
+
+    <sql>
+      insert into
+        os_search_entity_keywords(identifier, entity, entity_id, name, value, status)
+      select
+        os_search_entity_keywords_seq.nextval, 'collection_protocol_registration', r.identifier, 'lastName', lower(p.last_name), 1
+      from
+        catissue_participant p
+        inner join catissue_coll_prot_reg r on r.participant_id = p.identifier
+      where
+        p.activity_status != 'Disabled' and
+        r.activity_status != 'Disabled' and
+        p.last_name is not null;
+    </sql>
+  </changeSet>
+
   <changeSet author="vpawar" id="Populate visit name and SPR no. search keywords">
     <sql>call insert_entity_keywords('catissue_specimen_coll_group', 'name', 'visit', 'name');</sql>
     <sql>call insert_entity_keywords('catissue_specimen_coll_group', 'surgical_pathology_number', 'visit', 'surgicalPathologyNumber');</sql>
@@ -160,6 +220,10 @@
     <sql>call insert_entity_keywords('catissue_collection_protocol', 'title', 'collection_protocol', 'title');</sql>
     <sql>call insert_entity_keywords('catissue_collection_protocol', 'short_title', 'collection_protocol', 'shortTitle');</sql>
     <sql>call insert_entity_keywords('catissue_collection_protocol', 'code', 'collection_protocol', 'code');</sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Populate CP short title search keywords - IRB ID">
+    <sql>call insert_entity_keywords('catissue_collection_protocol', 'irb_identifier', 'collection_protocol', 'irbIdentifier');</sql>
   </changeSet>
 
   <changeSet author="vpawar" id="Populate site name and code search keywords">

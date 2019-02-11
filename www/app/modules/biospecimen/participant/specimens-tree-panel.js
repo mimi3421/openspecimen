@@ -14,13 +14,20 @@ angular.module('os.biospecimen.participant')
       this.onlyOldPendingSpmns = false;
     }
 
-    function openSpecimenTree(specimens, openedNodesMap) {
+    function openSpecimenTree(specimens, openedNodesMap, treeCfg) {
+      var defExpandDepth = treeCfg.defaultExpandDepth;
+      if (defExpandDepth == undefined || defExpandDepth == null || isNaN(defExpandDepth)) {
+        defExpandDepth = 0;
+      } else {
+        defExpandDepth = +defExpandDepth - 1;
+      }
+
       angular.forEach(specimens,
         function(specimen) {
           if (openedNodesMap) {
             var key = (specimen.id || 'u') + '-' + (specimen.reqId || 'u');
             specimen.isOpened = openedNodesMap[key];
-          } else if (specimen.lineage == 'New') {
+          } else if (defExpandDepth < -1 || specimen.depth <= defExpandDepth) {
             specimen.isOpened = true;
           }
         }
@@ -78,21 +85,25 @@ angular.module('os.biospecimen.participant')
       return onlyOldPendingSpmns;
     }
 
-    function prepareSpecimens(state, specimens) {
-      state.specimens = Specimen.flatten(specimens);
-      openSpecimenTree(state.specimens, state.openedNodesMap);
-      angular.forEach(state.specimens,
-        function(spmn) {
-          ExtensionsUtil.createExtensionFieldMap(spmn);
+    function prepareSpecimens(state, cpId, specimens) {
+      return CpConfigSvc.getWorkflowData(cpId, 'specimenTree', {}).then(
+        function(treeCfg) {
+          state.specimens = Specimen.flatten(specimens);
+          openSpecimenTree(state.specimens, state.openedNodesMap, treeCfg);
+          angular.forEach(state.specimens,
+            function(spmn) {
+              ExtensionsUtil.createExtensionFieldMap(spmn);
+            }
+          );
+
+          if (state.pendingSpmnsDispInterval > 0) {
+            state.onlyOldPendingSpmns = hidePendingSpmns(state.specimens, state.pendingSpmnsDispInterval);
+          }
+
+          openUptoSelected(state.specimens, state.selectedSpmn);
+          return state.specimens;
         }
       );
-
-      if (state.pendingSpmnsDispInterval > 0) {
-        state.onlyOldPendingSpmns = hidePendingSpmns(state.specimens, state.pendingSpmnsDispInterval);
-      }
-
-      openUptoSelected(state.specimens, state.selectedSpmn);
-      return state.specimens;
     }
 
     State.prototype.getSpecimens = function() {
@@ -104,7 +115,11 @@ angular.module('os.biospecimen.participant')
 
       var that = this;
       if (!this.cp.specimenCentric) {
-        return Specimen.listFor(this.cpr.id).then(function(specimens) { return prepareSpecimens(that, specimens); });
+        return Specimen.listFor(this.cpr.id).then(
+          function(specimens) {
+            return prepareSpecimens(that, that.cp.id, specimens);
+          }
+        );
       } else if (this.selectedSpmn) {
         var answer;
         if (!this.rootId) {
@@ -118,7 +133,7 @@ angular.module('os.biospecimen.participant')
             that.rootId = rootId;
             return Specimen.getById(that.rootId).then(
               function(specimen) {
-                return prepareSpecimens(that, [specimen]);
+                return prepareSpecimens(that, that.cp.id, [specimen]);
               }
             );
           }

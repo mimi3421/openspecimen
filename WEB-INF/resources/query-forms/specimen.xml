@@ -178,6 +178,25 @@
     </row>
 
     <row>
+      <subForm>
+        <name>creationEvent</name>
+        <udn>creationEvent</udn>
+        <caption>#getMessage("specimen_creation_event")</caption>
+        <table>OS_CHILD_SPMN_EVENTS</table>
+        <foreignKey>IDENTIFIER</foreignKey>
+        <parentKey>PARENT_EVENT_ID</parentKey>
+        <row>
+          <userField>
+            <name>createdBy</name>
+            <udn>createdBy</udn>
+            <caption>#getMessage("specimen_created_by")</caption>
+            <column>USER_ID</column>
+          </userField>
+        </row>
+      </subForm>
+    </row>
+
+    <row>
       <numberField>
         <name>initialQty</name>
         <udn>initialQty</udn>

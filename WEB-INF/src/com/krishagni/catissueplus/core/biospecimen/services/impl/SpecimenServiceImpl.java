@@ -171,7 +171,7 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 
 			List<? extends SpecimenInfo> result = null;
 			if (crit.includeExtensions()) {
-				DeObject.createExtensions(true, Specimen.EXTN, crit.cpId() != null ? crit.cpId() : -1L, specimens);
+				createExtensions(crit.cpId(), specimens);
 				result = specimens.stream().map(s -> SpecimenDetail.from(s, false, true, true)).collect(Collectors.toList());
 			} else {
 				result = SpecimenInfo.from(specimens);
@@ -194,7 +194,7 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 
 			List<? extends SpecimenInfo> result = null;
 			if (includeExtensions) {
-				DeObject.createExtensions(true, Specimen.EXTN, -1L, specimens);
+				createExtensions(null, specimens);
 				result = specimens.stream().map(s -> SpecimenDetail.from(s, false, true, true)).collect(Collectors.toList());
 			} else {
 				result = SpecimenInfo.from(specimens);
@@ -1167,6 +1167,23 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 		BigDecimal qtyPerAliquot = spec.getQtyPerAliquot();
 		derived.setInitialQty(count != null && qtyPerAliquot != null ? qtyPerAliquot.multiply(new BigDecimal(count)) : null);
 		return derived;
+	}
+
+	private void createExtensions(Long cpId, List<Specimen> specimens) {
+		if (cpId != null) {
+			DeObject.createExtensions(true, Specimen.EXTN, cpId, specimens);
+			return;
+		}
+
+		Map<Long, List<Specimen>> cpSpmnsMap = new HashMap<>();
+		for (Specimen spmn : specimens) {
+			List<Specimen> cpSpmns = cpSpmnsMap.computeIfAbsent(spmn.getCpId(), (k) -> new ArrayList<>());
+			cpSpmns.add(spmn);
+		}
+
+		for (Map.Entry<Long, List<Specimen>> cpSpmns : cpSpmnsMap.entrySet()) {
+			DeObject.createExtensions(true, Specimen.EXTN, cpSpmns.getKey(), cpSpmns.getValue());
+		}
 	}
 
 	private Function<ExportJob, List<? extends Object>> getSpecimensGenerator() {
