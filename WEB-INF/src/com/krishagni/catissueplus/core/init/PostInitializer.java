@@ -16,7 +16,7 @@ import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegi
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenList;
 import com.krishagni.catissueplus.core.biospecimen.domain.Visit;
-import com.krishagni.catissueplus.core.biospecimen.services.impl.EmpiUidSearchKeywordProvider;
+import com.krishagni.catissueplus.core.biospecimen.services.impl.ParticipantSearchKeywordProvider;
 import com.krishagni.catissueplus.core.biospecimen.services.impl.MrnSearchKeywordProvider;
 import com.krishagni.catissueplus.core.common.service.SearchEntityKeywordProvider;
 import com.krishagni.catissueplus.core.common.service.SearchService;
@@ -38,9 +38,9 @@ public class PostInitializer implements InitializingBean {
 				.keywordProps("ppid")
 		);
 
-		addKeywordProvider(CollectionProtocol.class, CollectionProtocol.getEntityName(), "title,shortTitle,code");
+		addKeywordProvider(CollectionProtocol.class, CollectionProtocol.getEntityName(), "title,shortTitle,code,irbIdentifier");
 		addKeywordProvider(CollectionProtocolRegistration.class, CollectionProtocolRegistration.getEntityName(), "ppid");
-		addKeywordProvider(new EmpiUidSearchKeywordProvider());
+		addKeywordProvider(new ParticipantSearchKeywordProvider());
 		addKeywordProvider(new MrnSearchKeywordProvider());
 		addKeywordProvider(Visit.class, Visit.getEntityName(), "name,surgicalPathologyNumber");
 		addKeywordProvider(Specimen.class, Specimen.getEntityName(), "label,barcode");

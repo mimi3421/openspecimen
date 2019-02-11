@@ -10,8 +10,8 @@ import com.krishagni.catissueplus.core.biospecimen.domain.Participant;
 import com.krishagni.catissueplus.core.common.service.impl.AbstractSearchEntityKeywordProvider;
 import com.krishagni.catissueplus.core.common.util.Status;
 
-public class EmpiUidSearchKeywordProvider extends AbstractSearchEntityKeywordProvider {
-	private static final List<String> PROPS = Arrays.asList("uid", "empi");
+public class ParticipantSearchKeywordProvider extends AbstractSearchEntityKeywordProvider {
+	private static final List<String> PROPS = Arrays.asList("firstName", "lastName", "uid", "empi");
 
 	@Override
 	public Set<Long> getEntityIds(Object entity) {

@@ -35,8 +35,18 @@ public class CprSearchResultProcessor extends AbstractSearchResultProcessor impl
 			whereClause = cpSiteClause;
 		}
 
-		if (!access.phiAccess) {
+		if (!access.phiAccess || !access.phiSiteCps.containsAll(access.siteCps)) {
 			whereClause += " and " + EXCLUDE_PHI_RECS;
+
+			if (access.phiAccess) {
+				String phiWhereClause = getCpSiteClause("s", access.phiSiteCps);
+				if (useMrnSites) {
+					String phiPmiSiteClause = getCpSiteClause("ps", access.phiSiteCps);
+					phiWhereClause = String.format(PMI_WHERE_COND, phiPmiSiteClause, phiWhereClause);
+				}
+
+				whereClause = "(" + whereClause + ") or (" + phiWhereClause + ")";
+			}
 		}
 
 		return String.format(QUERY, joinCondition, whereClause);
