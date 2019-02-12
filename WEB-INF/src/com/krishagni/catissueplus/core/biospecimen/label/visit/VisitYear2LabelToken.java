@@ -10,6 +10,6 @@ public class VisitYear2LabelToken extends VisitYearLabelToken {
 
 	@Override
 	public String getLabel(Visit visit, String... args) {
-		return String.valueOf(getYearOfVisit(visit) % 100);
+		return String.format("%02d", getYearOfVisit(visit) % 100);
 	}
 }
