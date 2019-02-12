@@ -318,17 +318,22 @@ angular.module('os.common.box', [])
 
       //
       // Below regular expression will break (A, B) x, y, z into following parts
-      // match[0] = '(A, B) x, y, z' ; entire matched string
-      // match[1] = '(A, B)'; starting cell in parenthesis
-      // match[2] = 'A, B'; starting cell without parenthesis
+      // match[0] = '"(A, B)" x, y, z' ; entire matched string
+      // match[1] = '"(A, B)"'; starting cell in parenthesis
+      // match[2] = '(A, B)'; starting cell without parenthesis
       // match[3] = 'x, y, z'; labels to scan or parse
       //
-      var re = /(\(([^)]+)\))?\s*([^(]+)/g;
+      var re = /("([^"]+)")?\s*([^"]+)/g;
       inputLabels = inputLabels.trim();
 
       var input = [], match;
       while ((match = re.exec(inputLabels)) != null) {
-        input.push({startCell: match[2], labels: Util.splitStr(match[3], /,|\t|\n/, true)});
+        var startCell = match[2] && match[2].trim();
+        if (startCell.charAt(0) == '(' && startCell.charAt(startCell.length - 1) == ')') {
+          startCell = startCell.substr(1, startCell.length - 2);
+        }
+
+        input.push({startCell: startCell, labels: Util.splitStr(match[3], /,|\t|\n/, true)});
       }
 
       var noFreeLocs = false

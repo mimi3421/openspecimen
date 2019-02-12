@@ -278,7 +278,8 @@ angular.module('os.biospecimen.participant.specimen-tree',
       scope.onlyPendingSpmns = onlyPendingSpmns(scope.specimenTree);
       scope.anyPendingSpmns  = anyPendingSpmnsInTree(scope.specimenTree);
 
-      scope.specimens = Specimen.flatten(scope.specimenTree);
+      var opts = {hideDerivatives: treeCfg.hideDerivatives};
+      scope.specimens = Specimen.flatten(scope.specimenTree, undefined, undefined, undefined, opts);
       openSpecimenTree(scope.specimens, null, treeCfg);
       scope.hidePendingSpmns = hideOldPendingSpmns(scope.specimens, scope.pendingSpmnsDispInterval);
 
@@ -321,6 +322,16 @@ angular.module('os.biospecimen.participant.specimen-tree',
         scope.selection.anyPending = anySelected && isAnyPendingSelected(scope.specimens);
       };
 
+
+      function incrDepth(children) {
+        angular.forEach(children,
+          function(child) {
+            child.depth++;
+            incrDepth(child.children);
+          }
+        );
+      }
+
       scope.collectSpecimens = function() {
         if (!scope.selection.anyPending) {
           showSelectSpecimens('specimens.no_specimens_for_collection');
@@ -329,17 +340,24 @@ angular.module('os.biospecimen.participant.specimen-tree',
 
         var specimensToCollect = [];
         angular.forEach(scope.specimens, function(specimen) {
-          if (specimen.selected && specimen.status != 'Collected') {
-            specimen.isOpened = true;
-            specimensToCollect.push(specimen);
-          } else if (isAnyPendingDescendantSelected(specimen)) {
-            if (specimen.status != 'Collected') {
-              // a parent needs to be collected first
-              specimen.selected = true;
-            }
-            specimen.isOpened = true;
-            specimensToCollect.push(specimen);
+          if ((!specimen.selected || specimen.status == 'Collected') && !isAnyPendingDescendantSelected(specimen)) {
+            return;
           }
+
+          if (specimen.parent && specimen.parent.$$invisibleN) {
+            if (specimen.parent.status != 'Collected') {
+              specimen.parent.selected = true;
+            }
+
+            specimen.parent.isOpened = true;
+            specimensToCollect.push(specimen.parent);
+            specimen.parent.$$invisibleN = false;
+            incrDepth(specimen.parent.children);
+          }
+
+          specimen.selected = true;
+          specimen.isOpened = true;
+          specimensToCollect.push(specimen);
         });
 
         var onlyCollected = true;
@@ -456,7 +474,7 @@ angular.module('os.biospecimen.participant.specimen-tree',
         scope.reload().then(
           function() {
             $timeout(function() {
-              scope.specimens = Specimen.flatten(scope.specimenTree);
+              scope.specimens = Specimen.flatten(scope.specimenTree, undefined, undefined, undefined, opts);
               openSpecimenTree(scope.specimens, openedNodesMap, treeCfg);
               if ($injector.has('sdeFieldsSvc')) {
                 initSdeTreeFields(scope, cpDict, treeCfg);

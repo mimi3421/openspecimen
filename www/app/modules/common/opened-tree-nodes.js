@@ -7,7 +7,7 @@ angular.module('openspecimen')
 
       var show = true;
       while (!!node.parent) {
-        if (!node.parent.isOpened) {
+        if (!node.parent.isOpened && !node.parent.$$invisibleN) {
           show = false;
           break;
         }

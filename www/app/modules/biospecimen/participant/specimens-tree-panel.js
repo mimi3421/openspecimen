@@ -88,7 +88,8 @@ angular.module('os.biospecimen.participant')
     function prepareSpecimens(state, cpId, specimens) {
       return CpConfigSvc.getWorkflowData(cpId, 'specimenTree', {}).then(
         function(treeCfg) {
-          state.specimens = Specimen.flatten(specimens);
+          var opts = {hideDerivatives: treeCfg.hideDerivatives};
+          state.specimens = Specimen.flatten(specimens, undefined, undefined, undefined, opts);
           openSpecimenTree(state.specimens, state.openedNodesMap, treeCfg);
           angular.forEach(state.specimens,
             function(spmn) {

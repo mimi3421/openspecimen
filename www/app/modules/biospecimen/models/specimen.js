@@ -46,7 +46,7 @@ angular.module('os.biospecimen.models.specimen', ['os.common.models', 'os.biospe
       return Specimen.query({label: labels});
     };
     
-    Specimen.flatten = function(specimens, parent, depth, pooledSpecimen) {
+    Specimen.flatten = function(specimens, parent, depth, pooledSpecimen, opts) {
       var result = [];
       if (!specimens) {
         return result;
@@ -54,9 +54,17 @@ angular.module('os.biospecimen.models.specimen', ['os.common.models', 'os.biospe
 
       depth = depth || 0;
       angular.forEach(specimens, function(specimen) {
-        result.push(specimen);
-        specimen.depth = depth || 0;
+        var depthIncrStep = 1;
+        var hasChildren = (!!specimen.children && specimen.children.length > 0);
+        if (opts && opts.hideDerivatives && !specimen.reqId && specimen.lineage == 'Derived' && hasChildren &&
+          specimen.children.every(function(a) { return a.lineage == 'Aliquot'; })) {
+          depthIncrStep = 0;
+          specimen.$$invisibleN = true;
+        } else {
+          result.push(specimen);
+        }
 
+        specimen.depth = depth || 0;
         specimen.parent = specimen.parent || parent;
         specimen.pooledSpecimen = specimen.pooledSpecimen || pooledSpecimen;
 
@@ -64,14 +72,13 @@ angular.module('os.biospecimen.models.specimen', ['os.common.models', 'os.biospe
         if (depth == 0) {
           hasSpecimensPool = !!specimen.specimensPool && specimen.specimensPool.length > 0;
           if (hasSpecimensPool) {
-            result = result.concat(Specimen.flatten(specimen.specimensPool, specimen, depth + 1, specimen));
+            result = result.concat(Specimen.flatten(specimen.specimensPool, specimen, depth + 1, specimen, opts));
           }
         }
 
-        var hasChildren = (!!specimen.children && specimen.children.length > 0);
         specimen.hasChildren = hasSpecimensPool || hasChildren;
         if (hasChildren) {
-          result = result.concat(Specimen.flatten(specimen.children, specimen, depth + 1));
+          result = result.concat(Specimen.flatten(specimen.children, specimen, depth + depthIncrStep, undefined, opts));
         }
 
         if (specimen instanceof SpecimenRequirement) {
