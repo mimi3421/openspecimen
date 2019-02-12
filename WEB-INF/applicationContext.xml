@@ -358,6 +358,7 @@
         <bean class="com.krishagni.catissueplus.core.biospecimen.label.specimen.VisitGreekLetterSequence"/>
         <bean class="com.krishagni.catissueplus.core.biospecimen.label.specimen.ParentSpecimenGreekLetterSequence"/>
         <bean class="com.krishagni.catissueplus.core.biospecimen.label.specimen.PrimarySpecimenLabelToken"/>
+        <bean class="com.krishagni.catissueplus.core.biospecimen.label.specimen.SpecimenTypeAbbrUniqueIdLabelToken"/>
         <ref bean="extnPvLabelToken"/>
       </list>
     </property>
