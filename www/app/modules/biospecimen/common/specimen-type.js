@@ -6,7 +6,7 @@ angular.module('os.biospecimen.common')
     }
 
     function loadSpecimenTypes() {
-      return PvManager.loadPvsByParent('specimen-class', '', true, transformer);
+      return PvManager.loadPvsByParent('specimen-class', '', true, transformer, 1000);
     }
 
     function loadLocalTypes(options) {
