@@ -28,6 +28,8 @@ public class LabelSettingsUtil {
 		ctxt.put("cpId", specimen.getCpId());
 
 		for (Map<String, String> rule : rules) {
+			initRuleVariables(rule.get("init"), ctxt);
+
 			String criteria = rule.get("criteria");
 			if (matches(criteria, ctxt)) {
 				return rule.get("format");
@@ -39,6 +41,12 @@ public class LabelSettingsUtil {
 
 	private static Map<String, Object> getSpecimenLabelSettings(Long cpId) {
 		return CpWorkflowTxnCache.getInstance().getValue(cpId, "labelSettings", "specimen");
+	}
+
+	private static void initRuleVariables(String initExpr, Map<String, Object> ctxt) {
+		if (StringUtils.isNotBlank(initExpr)) {
+			ExpressionUtil.getInstance().evaluate(initExpr, ctxt);
+		}
 	}
 
 	private static boolean matches(String criteria, Map<String, Object> ctxt) {
