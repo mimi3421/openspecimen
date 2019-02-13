@@ -46,4 +46,13 @@ public class CpWorkflowTxnCache {
 		CpWorkflowConfig config = getWorkflows(cpId);
 		return config.getWorkflows().get(name);
 	}
+
+	public  <T> T getValue(Long cpId, String wfName, String propName) {
+		CpWorkflowConfig.Workflow workflow = getWorkflow(cpId, wfName);
+		if (workflow == null || workflow.getData() == null || workflow.getData().isEmpty()) {
+			return null;
+		}
+
+		return (T) workflow.getData().get(propName);
+	}
 }
