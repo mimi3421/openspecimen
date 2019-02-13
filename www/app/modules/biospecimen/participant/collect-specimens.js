@@ -1188,6 +1188,8 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
             if (!spmn.status || spmn.status == 'Pending') {
               spmn.status = 'Collected';
             }
+
+            ExtensionsUtil.createExtensionFieldMap(spmn);
           }
         );
 
