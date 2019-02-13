@@ -392,7 +392,10 @@ public class SpecimenDetail extends SpecimenInfo {
 			}
 		}
 
-		result.setLabelFmt(specimen.getLabelTmpl());
+		//
+		// false to ensure we don't end up in infinite recurssion
+		//
+		result.setLabelFmt(specimen.getLabelTmpl(false));
 		if (sr != null && sr.getLabelAutoPrintModeToUse() != null) {
 			result.setLabelAutoPrintMode(sr.getLabelAutoPrintModeToUse().name());
 		}

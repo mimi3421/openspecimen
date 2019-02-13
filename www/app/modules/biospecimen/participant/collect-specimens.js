@@ -316,7 +316,8 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
     function(
       $scope, $translate, $state, $document, $q, $parse, $injector, $modal,
       cp, cpr, visit, latestVisit, cpDict, spmnCollFields, mrnAccessRestriction,
-      Visit, Specimen, PvManager, CollectSpecimensSvc, Container, ExtensionsUtil, Alerts, Util, SpecimenUtil) {
+      Visit, Specimen, PvManager, CollectSpecimensSvc, Container, ExtensionsUtil,
+      CpConfigSvc, Alerts, Util, SpecimenUtil) {
 
       var ignoreQtyWarning = false;
 
@@ -386,6 +387,7 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
         };
 
         loadPvs();
+        initLabelFmts($scope.specimens);
         initAliquotGrps($scope.specimens);
         $scope.$on('$destroy', function() { CollectSpecimensSvc.cancelReservation($scope.specimens); });
       };
@@ -678,6 +680,37 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
 
         CollectSpecimensSvc.setData({visit: visit, specimens: collected(spmnReqIds, flatten(specimens, []))});
         $state.go('participant-detail.collect-specimens.nth-step', {visitId: visit.id, eventId: visit.eventId});
+      }
+
+      function initLabelFmts(specimens) {
+        var noFmtSpmns = specimens.filter(function(s) { return !s.labelFmt; });
+        if (noFmtSpmns.length == 0) {
+          return;
+        }
+
+        CpConfigSvc.getConfig(visit.cpId, 'labelSettings', 'specimen').then(
+          function(data) {
+            if (!data || !data.rules || data.rules.length == 0) {
+              return;
+            }
+
+            var rules = data.rules.map(
+              function(r) {
+                return {criteria: r.criteria && r.criteria.replace(/#(specimen)|#(cpId)/g, '$1'), format: r.format};
+              }
+            );
+
+            angular.forEach(noFmtSpmns,
+              function(s) {
+                var ctxt = {cpId: visit.cpId, specimen: s};
+                var rule = rules.find(function(r) { return !r.criteria || Util.evaluate(r.criteria, ctxt) === true; });
+                if (rule) {
+                  s.labelFmt = rule.format;
+                }
+              }
+            );
+          }
+        );
       }
 
       $scope.openSpecimenNode = function(specimen) {
@@ -1188,6 +1221,8 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
             if (!spmn.status || spmn.status == 'Pending') {
               spmn.status = 'Collected';
             }
+
+            ExtensionsUtil.createExtensionFieldMap(spmn);
           }
         );
 

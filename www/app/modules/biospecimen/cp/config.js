@@ -99,13 +99,18 @@ angular.module('openspecimen')
     }
 
     function getCommonCfg(cpId, propName) {
-      return getWorkflowData(cpId, 'common').then(
+      return getConfig(cpId, 'common', propName);
+    }
+
+    function getConfig(cpId, wfName, propName) {
+      cpId = cpId || -1;
+      return getWorkflowData(cpId, wfName).then(
         function(data) {
           if ((data[propName] != null && data[propName] != undefined) || cpId == -1) {
             return data[propName];
           }
 
-          return getWorkflowData(-1, 'common').then(
+          return getWorkflowData(-1, wfName).then(
             function(data) {
               return data[propName];
             }
@@ -116,20 +121,9 @@ angular.module('openspecimen')
 
     function getValue(cpId, wfName, propName) {
       var result = {status: 'ok', value: undefined};
-
-      cpId = cpId || -1;
-      getWorkflowData(cpId, wfName).then(
-        function(data) {
-          if ((data[propName] != null && data[propName] != undefined) || cpId == -1) {
-            result.value = data[propName];
-            return;
-          }
-
-          getWorkflowData(-1, wfName).then(
-            function(data) {
-              result.value = data[propName];
-            }
-          );
+      getConfig(cpId, wfName, propName).then(
+        function(cfg) {
+          result.value = cfg;
         }
       );
 
@@ -296,6 +290,8 @@ angular.module('openspecimen')
       saveWorkflow: saveWorkflow,
 
       getCommonCfg: getCommonCfg,
+
+      getConfig: getConfig,
 
       getValue: getValue,
 

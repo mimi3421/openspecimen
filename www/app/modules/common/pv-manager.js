@@ -180,7 +180,7 @@ angular.module('openspecimen')
       );
     };
 
-    function loadPvsByParent(parentAttr, parentVal, incParentVal, transformFn) {
+    function loadPvsByParent(parentAttr, parentVal, incParentVal, transformFn, maxPvs) {
       var pvId = pvIdMap[parentAttr];
       if (!pvId) {
         pvId = parentAttr;
@@ -190,7 +190,7 @@ angular.module('openspecimen')
         parentAttribute: pvId, 
         parentValue: parentVal,  
         includeParentValue: incParentVal,
-        maxResults: 100
+        maxResults: maxPvs || 100
       };
 
       return $http.get(url, {params: params}).then(

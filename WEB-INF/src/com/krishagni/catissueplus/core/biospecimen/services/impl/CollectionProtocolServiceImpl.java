@@ -1140,10 +1140,12 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 				cfg.getWorkflows().clear();
 			}
 
-			for (WorkflowDetail detail : input.getWorkflows().values()) {
-				Workflow wf = new Workflow();
-				BeanUtils.copyProperties(detail, wf);
-				cfg.getWorkflows().put(wf.getName(), wf);
+			if (input.getWorkflows() != null) {
+				for (WorkflowDetail detail : input.getWorkflows().values()) {
+					Workflow wf = new Workflow();
+					BeanUtils.copyProperties(detail, wf);
+					cfg.getWorkflows().put(wf.getName(), wf);
+				}
 			}
 
 			daoFactory.getCollectionProtocolDao().saveCpWorkflows(cfg);

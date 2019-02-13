@@ -1419,6 +1419,10 @@ public class Specimen extends BaseExtensionEntity {
 	}
 
 	public String getLabelTmpl() {
+		return getLabelTmpl(true);
+	}
+
+	public String getLabelTmpl(boolean useWfSettings) {
 		String labelTmpl = null;
 		
 		SpecimenRequirement sr = getSpecimenRequirement();
@@ -1437,7 +1441,11 @@ public class Specimen extends BaseExtensionEntity {
 			labelTmpl = cp.getDerivativeLabelFormat();
 		} else {
 			labelTmpl = cp.getSpecimenLabelFormat();
-		}			
+		}
+
+		if (StringUtils.isBlank(labelTmpl) && useWfSettings) {
+			labelTmpl = LabelSettingsUtil.getLabelFormat(this);
+		}
 		
 		return labelTmpl;		
 	}
