@@ -62,6 +62,8 @@ angular.module('os.biospecimen.cp')
 
       $scope.contSettingsCtx.cp.$saveOrUpdate().then(
         function(savedCp) {
+          cp.containerSelectionStrategy = $scope.cp.containerSelectionStrategy = savedCp.containerSelectionStrategy;
+          cp.aliquotsInSameContainer = $scope.aliquotsInSameContainer = savedCp.aliquotsInSameContainer;
           angular.extend(cp, angular.extend($scope.cp, savedCp));
           setViewCtx();
         }
