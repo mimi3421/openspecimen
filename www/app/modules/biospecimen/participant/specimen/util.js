@@ -151,7 +151,8 @@ angular.module('os.biospecimen.specimen')
       );
     }
 
-    function getNewDerivative(scope) {
+    function getNewDerivative(scope, opts) {
+      var incrStep = opts && opts.incrFreezeThawCycles ? 1 : 0;
       return new Specimen({
         parentId: scope.parentSpecimen.id,
         lineage: 'Derived',
@@ -164,8 +165,8 @@ angular.module('os.biospecimen.specimen')
         laterality: scope.parentSpecimen.laterality, 
         closeParent: false,
         createdOn : Date.now(),
-        incrParentFreezeThaw: 1,
-        freezeThawCycles: scope.parentSpecimen.freezeThawCycles + 1
+        incrParentFreezeThaw: incrStep,
+        freezeThawCycles: scope.parentSpecimen.freezeThawCycles + incrStep
       });
     }
 

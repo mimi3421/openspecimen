@@ -1,5 +1,7 @@
 package com.krishagni.catissueplus.core.biospecimen.services.impl;
 
+import java.util.Map;
+
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.common.util.Utility;
@@ -19,11 +21,27 @@ public class SpecimenFreezeThawEventFilter implements FormDataFilter {
 	@Override
 	public FormData execute(UserContext userCtx, FormData input) {
 		try {
-			if (input.getAppData() == null) {
+			Map<String, Object> appData = input.getAppData();
+			if (appData == null) {
 				return input;
 			}
 
-			Long specimenId = Utility.numberToLong(input.getAppData().get("objectId"));
+			if (input.getRecordId() != null) {
+				// could be insert post filter or update pre/post filter
+
+				if (!appData.containsKey("newFreezeThawEvent")) {
+					//
+					// only insert post filter will have newFreezeThawEvent
+					// therefore the current invocation is for update pre/post filter
+					//
+					return input;
+				}
+			} else {
+				appData.put("newFreezeThawEvent", true);
+			}
+
+
+			Long specimenId = Utility.numberToLong(appData.get("objectId"));
 			if (specimenId == null) {
 				return input;
 			}

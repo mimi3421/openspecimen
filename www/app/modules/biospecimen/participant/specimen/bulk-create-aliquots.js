@@ -1,7 +1,7 @@
 angular.module('os.biospecimen.specimen')
   .controller('BulkCreateAliquotsCtrl', function(
     $scope, $q, $injector, $translate, parentSpmns, cp, cpr, containerAllocRules, aliquotQtyReq, createDerived,
-    cpDict, aliquotFields, spmnHeaders, Specimen, Alerts, Util, SpecimenUtil, Container) {
+    cpDict, aliquotFields, spmnHeaders, incrFreezeThawCycles, Specimen, Alerts, Util, SpecimenUtil, Container) {
 
     var ignoreQtyWarning = false, reservationId, ctx;
 
@@ -9,6 +9,8 @@ angular.module('os.biospecimen.specimen')
 
     function init() {
       var createdOn = new Date().getTime();
+      var freezeThawIncrStep = incrFreezeThawCycles ? 1 : 0;
+
       var aliquotsSpec = parentSpmns.map(
         function(ps) {
           delete ps.children;
@@ -26,6 +28,8 @@ angular.module('os.biospecimen.specimen')
             laterality: ps.laterality,
             pathology: ps.pathology,
             collectionContainer: ps.collectionContainer,
+            freezeThawCycles: ps.freezeThawCycles + freezeThawIncrStep,
+            incrParentFreezeThaw: freezeThawIncrStep,
             parent: new Specimen(ps)
           });
         }

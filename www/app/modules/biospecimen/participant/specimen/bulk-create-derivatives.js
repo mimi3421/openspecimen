@@ -1,12 +1,14 @@
 angular.module('os.biospecimen.specimen')
   .controller('BulkCreateDerivativesCtrl', function(
-    $scope, $injector, $translate, parentSpmns, cp, cpr, cpDict, derivedFields, spmnHeaders,
+    $scope, $injector, $translate, parentSpmns, cp, cpr,
+    cpDict, derivedFields, spmnHeaders, incrFreezeThawCycles,
     Specimen, Alerts, Util, SpecimenUtil) {
 
     var ctx;
 
     function init() {
       var createdOn = new Date().getTime();
+      var freezeThawIncrStep = incrFreezeThawCycles ? 1 : 0;
 
       var derivedSpmns = parentSpmns.map(
         function(ps) {
@@ -20,6 +22,8 @@ angular.module('os.biospecimen.specimen')
             parentCreatedOn: ps.createdOn,
             createdOn: createdOn,
             status: 'Collected',
+            freezeThawCycles: ps.freezeThawCycles + freezeThawIncrStep,
+            incrParentFreezeThaw: freezeThawIncrStep,
             parent: new Specimen(ps)
           });
         }
