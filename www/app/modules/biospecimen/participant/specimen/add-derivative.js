@@ -1,7 +1,8 @@
 
 angular.module('os.biospecimen.specimen.addderivative', [])
   .controller('AddDerivativeCtrl', function(
-    $scope, $state, cp, specimen, cpr, visit, extensionCtxt, cpDict, derivedFields, hasSde, hasDict, onValueChangeCb,
+    $scope, $state, cp, specimen, cpr, visit, extensionCtxt, cpDict, derivedFields,
+    incrFreezeThawCycles, hasSde, hasDict, onValueChangeCb,
     Specimen, SpecimensHolder, SpecimenUtil, Container, ExtensionsUtil, Alerts) {
 
     function init() {
@@ -12,7 +13,8 @@ angular.module('os.biospecimen.specimen.addderivative', [])
       var ps = $scope.parentSpecimen = specimen;
       delete ps.children;
 
-      var derivative = $scope.derivative = SpecimenUtil.getNewDerivative($scope);
+      var opts = {incrFreezeThawCycles: incrFreezeThawCycles};
+      var derivative = $scope.derivative = SpecimenUtil.getNewDerivative($scope, opts);
       derivative.labelFmt = cpr.derivativeLabelFmt;
       derivative.parent = new Specimen(ps);
 

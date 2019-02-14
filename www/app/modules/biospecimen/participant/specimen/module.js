@@ -24,6 +24,10 @@ angular.module('os.biospecimen.specimen',
       );
     }
 
+    function defBoolTrue(value) {
+      return (value === null || value === undefined || value === '' || value == true);
+    }
+
     $stateProvider
       .state('specimen', {
         url: '/specimens/:specimenId',
@@ -56,11 +60,11 @@ angular.module('os.biospecimen.specimen',
           },
 
           showSpmnActivity: function(cp, CpConfigSvc) {
-            return CpConfigSvc.getCommonCfg(cp.id, 'showSpmnActivity').then(
-              function(value) {
-                return (value === null || value === undefined || value === '') ? true : (value == true);
-              }
-            );
+            return CpConfigSvc.getCommonCfg(cp.id, 'showSpmnActivity').then(defBoolTrue);
+          },
+
+          incrFreezeThawCycles: function(cp, CpConfigSvc) {
+            return CpConfigSvc.getCommonCfg(cp.id, 'incrementFreezeThawCycles').then(defBoolTrue);
           },
 
           imagingEnabled: function(SettingUtil) {
@@ -193,9 +197,11 @@ angular.module('os.biospecimen.specimen',
                   specimen.setCollectionEvent(formData);
                 } else if (formName == 'SpecimenReceivedEvent') {
                   specimen.setReceivedEvent(formData);
-                } else if (formName == "SpecimenFrozenEvent" && formData.incrementFreezeThaw == 1) {
+                } else if (formName == "SpecimenFrozenEvent" && formData.appData.newFreezeThawEvent &&
+                  formData.incrementFreezeThaw == 1) {
                   ++specimen.freezeThawCycles;
-                } else if (formName == "SpecimenThawEvent" && formData.incrementFreezeThaw == 1) {
+                } else if (formName == "SpecimenThawEvent" && formData.appData.newFreezeThawEvent &&
+                  formData.incrementFreezeThaw == 1) {
                   ++specimen.freezeThawCycles;
                 }
 
@@ -389,6 +395,10 @@ angular.module('os.biospecimen.specimen',
             }
 
             return CpConfigSvc.getCommonCfg(cp.id, 'specimenHeader');
+          },
+
+          incrFreezeThawCycles: function(cp, CpConfigSvc) {
+            return CpConfigSvc.getCommonCfg(cp.id, 'incrementFreezeThawCycles').then(defBoolTrue);
           }
         },
         parent: 'signed-in'
@@ -452,6 +462,10 @@ angular.module('os.biospecimen.specimen',
             }
 
             return CpConfigSvc.getCommonCfg(cp.id, 'specimenHeader');
+          },
+
+          incrFreezeThawCycles: function(cp, CpConfigSvc) {
+            return CpConfigSvc.getCommonCfg(cp.id, 'incrementFreezeThawCycles').then(defBoolTrue);
           }
         },
         parent: 'signed-in'

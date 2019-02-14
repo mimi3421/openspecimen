@@ -2,7 +2,7 @@
 angular.module('os.biospecimen.specimen.addaliquots', [])
   .controller('AddAliquotsCtrl', function(
     $scope, $rootScope, $state, $stateParams, specimen, cpr,
-    visit, extensionCtxt, hasSde, hasDict, cpDict, onValueChangeCb, createDerived, aliquotFields,
+    visit, extensionCtxt, hasSde, hasDict, cpDict, onValueChangeCb, createDerived, aliquotFields, incrFreezeThawCycles,
     CollectSpecimensSvc, Specimen, SpecimenUtil, SpecimensHolder, ExtensionsUtil, Alerts) {
 
     function init() {
@@ -11,6 +11,7 @@ angular.module('os.biospecimen.specimen.addaliquots', [])
       $scope.visit = visit;
       var ps = $scope.parentSpecimen = specimen;
 
+      var freezeThawIncrStep = incrFreezeThawCycles ? 1 : 0;
       $scope.aliquotSpec = new Specimen({
         lineage: 'Aliquot',
         cpId: ps.cpId,
@@ -25,8 +26,8 @@ angular.module('os.biospecimen.specimen.addaliquots', [])
         laterality: ps.laterality,
         pathology: ps.pathology,
         collectionContainer: ps.collectionContainer,
-        freezeThawCycles: ps.freezeThawCycles + 1,
-        incrParentFreezeThaw: 1,
+        freezeThawCycles: ps.freezeThawCycles + freezeThawIncrStep,
+        incrParentFreezeThaw: freezeThawIncrStep,
         labelFmt: cpr.aliquotLabelFmt,
         createDerived: createDerived,
         parent: new Specimen({

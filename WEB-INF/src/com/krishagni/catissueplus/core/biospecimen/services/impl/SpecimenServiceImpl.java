@@ -1161,6 +1161,7 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 		derived.setSpecimenClass(spec.getSpecimenClass());
 		derived.setType(spec.getType());
 		derived.setStatus(Specimen.COLLECTED);
+		derived.setIncrParentFreezeThaw(spec.getIncrParentFreezeThaw());
 		derived.setCloseAfterChildrenCreation(true);
 
 		Integer count = spec.getNoOfAliquots();
