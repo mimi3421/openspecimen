@@ -1,5 +1,8 @@
 package com.krishagni.catissueplus.core.biospecimen.label.specimen;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -10,6 +13,8 @@ import com.krishagni.catissueplus.core.common.domain.AbstractUniqueIdToken;
 import com.krishagni.catissueplus.core.common.util.PvUtil;
 
 public class SpecimenTypeAbbrUniqueIdLabelToken extends AbstractUniqueIdToken<Specimen> {
+
+	private static List<String> ALLOWED_TYPES = Arrays.asList("registration", "visit", "parent_specimen");
 
 	@Autowired
 	private DaoFactory daoFactory;
@@ -29,16 +34,36 @@ public class SpecimenTypeAbbrUniqueIdLabelToken extends AbstractUniqueIdToken<Sp
 		}
 
 		arg = getArg(2, args);
-		return StringUtils.isBlank(arg) || arg.trim().equals("registration") || arg.trim().equals("visit");
+		return StringUtils.isBlank(arg) || ALLOWED_TYPES.contains(arg.trim());
 	}
 
 	@Override
 	public Number getUniqueId(Specimen specimen, String... args) {
-		Long groupId = specimen.getVisit().getId();
-		String keyType = "VISIT_" + getName();
-		if (eqArg("registration", 2, args)) {
-			keyType = "CPR_" + getName();
-			groupId = specimen.getRegistration().getId();
+		Long groupId = null;
+		String keyType;
+
+		String arg = getArg(2, args);
+		if (StringUtils.isBlank(arg)) {
+			arg = "visit";
+		}
+
+		arg = arg.trim();
+		switch (arg) {
+			case "registration":
+				groupId = specimen.getRegistration().getId();
+				keyType = "CPR_" + getName();
+				break;
+
+			case "parent_specimen":
+				groupId = specimen.getParentSpecimen() != null ? specimen.getParentSpecimen().getId() : null;
+				keyType = "PARENT_SPMN_" + getName();
+				break;
+
+			case "visit":
+			default:
+				groupId = specimen.getVisit().getId();
+				keyType = "VISIT_" + getName();
+				break;
 		}
 
 		String typeAbbr = getTypeAbbr(specimen);
