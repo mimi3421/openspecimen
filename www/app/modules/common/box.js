@@ -329,7 +329,7 @@ angular.module('os.common.box', [])
       var input = [], match;
       while ((match = re.exec(inputLabels)) != null) {
         var startCell = match[2] && match[2].trim();
-        if (startCell.charAt(0) == '(' && startCell.charAt(startCell.length - 1) == ')') {
+        if (startCell && startCell.charAt(0) == '(' && startCell.charAt(startCell.length - 1) == ')') {
           startCell = startCell.substr(1, startCell.length - 2);
         }
 

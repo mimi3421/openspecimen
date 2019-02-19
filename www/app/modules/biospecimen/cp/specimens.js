@@ -27,21 +27,39 @@ angular.module('os.biospecimen.cp.specimens', ['os.biospecimen.models'])
       $scope.errorCode = '';
     }
 
+    function sortReqs(reqs) {
+      reqs.sort(
+        function(r1, r2) {
+          if (r1.sortOrder != null && r2.sortOrder != null) {
+            return r1.sortOrder - r2.sortOrder;
+          } else if (r1.sortOrder != null) {
+            return -1;
+          } else if (r2.sortOrder != null) {
+            return 1;
+          } else {
+            return r1.id - r2.id;
+          }
+        }
+      );
+
+      return reqs;
+    }
+
     function addToSrList(sr) {
       specimenRequirements.push(sr);
-      $scope.specimenRequirements = Specimen.flatten(specimenRequirements);
+      $scope.specimenRequirements = Specimen.flatten(sortReqs(specimenRequirements));
     }
 
     function updateSrList(sr) {
       var result = findSr(specimenRequirements, sr.id);
       angular.extend(result.sr, sr);
-      $scope.specimenRequirements = Specimen.flatten(specimenRequirements);
+      $scope.specimenRequirements = Specimen.flatten(sortReqs(specimenRequirements));
     }
 
     function deleteFromSrList(sr) {
       var result = findSr(specimenRequirements, sr.id);
       result.list.splice(result.idx, 1);
-      $scope.specimenRequirements = Specimen.flatten(specimenRequirements);
+      $scope.specimenRequirements = Specimen.flatten(sortReqs(specimenRequirements));
     }
 
     function findSr(srList, srId) {

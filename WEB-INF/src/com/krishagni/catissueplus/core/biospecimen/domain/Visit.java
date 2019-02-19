@@ -488,7 +488,7 @@ public class Visit extends BaseExtensionEntity {
 			return;
 		}
 
-		for (SpecimenRequirement sr : getCpEvent().getTopLevelAnticipatedSpecimens()) {
+		for (SpecimenRequirement sr : getCpEvent().getOrderedTopLevelAnticipatedSpecimens()) {
 			createPendingSpecimen(sr, null);
 		}
 	}

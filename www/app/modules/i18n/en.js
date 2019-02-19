@@ -906,6 +906,7 @@
     "type": "Type",
     "pathology": "Pathology",
     "storage_type": "Stored in Repository?",
+    "sort_order": "Sort Order",
     "label_fmt": "Label Format",
     "when_to_print": "When to Print",
     "label_print_copies": "Label Print Copies",

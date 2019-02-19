@@ -91,6 +91,12 @@
         <span>&nbsp;</span>
       </div>
     </li>
+    <li class="item" ng-if="childReq.lineage == 'New'">
+      <strong class="key key-sm" translate="srs.sort_order">Sort Order</strong>
+      <div class="value value-md">
+        <span>{{childReq.sortOrder | osNoValue}}</span>
+      </div>
+    </li>
     <li class="item">
       <strong class="key key-sm" translate="srs.collector">Collector</strong>
       <div class="value value-md">

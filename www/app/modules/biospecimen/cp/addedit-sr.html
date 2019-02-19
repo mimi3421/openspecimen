@@ -90,6 +90,14 @@
           </label>
         </div>
       </div>
+      <div class="form-group">
+        <label class="control-label col-xs-4" translate="srs.sort_order">Sort Order</label>
+        <div class="col-xs-8">
+          <input name="sortOrder" ng-model="sr.sortOrder" class="form-control" type="text"
+            placeholder="{{'srs.sort_order' | translate}}" ng-pattern="/^[0-9]+$/">
+          <div os-field-error field="srForm.sortOrder"></div>
+        </div>
+      </div>
       <div class="os-divider"></div>
       <div class="form-group">
         <label class="control-label col-xs-4" translate="srs.collector">Collector</label>
