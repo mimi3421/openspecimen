@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -173,7 +174,7 @@ public class CollectionProtocolEvent extends BaseEntity implements Comparable<Co
 	}
 	
 	public Set<SpecimenRequirement> getTopLevelAnticipatedSpecimens() {
-		Set<SpecimenRequirement> anticipated = new LinkedHashSet<SpecimenRequirement>();
+		Set<SpecimenRequirement> anticipated = new LinkedHashSet<>();
 		if (getSpecimenRequirements() == null) {
 			return anticipated;
 		}
@@ -185,6 +186,10 @@ public class CollectionProtocolEvent extends BaseEntity implements Comparable<Co
 		}
 		
 		return anticipated;
+	}
+
+	public List<SpecimenRequirement> getOrderedTopLevelAnticipatedSpecimens() {
+		return getTopLevelAnticipatedSpecimens().stream().sorted().collect(Collectors.toList());
 	}
 
 	@NotAudited

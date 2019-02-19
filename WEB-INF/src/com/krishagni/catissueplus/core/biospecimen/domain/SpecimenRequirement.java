@@ -291,7 +291,7 @@ public class SpecimenRequirement extends BaseEntity implements Comparable<Specim
 	}
 
 	public List<SpecimenRequirement> getOrderedChildRequirements() {
-		List<SpecimenRequirement> childReqs = new ArrayList<SpecimenRequirement>(getChildSpecimenRequirements());
+		List<SpecimenRequirement> childReqs = new ArrayList<>(getChildSpecimenRequirements());
 		Collections.sort(childReqs);
 		return childReqs;
 	}

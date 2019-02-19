@@ -223,7 +223,7 @@ public class CollectionProtocolEventDetail {
 		
 		if (fullObject) {
 			Set<SpecimenRequirement> srs = new HashSet<SpecimenRequirement>();
-			for (SpecimenRequirement sr : event.getTopLevelAnticipatedSpecimens()) {
+			for (SpecimenRequirement sr : event.getOrderedTopLevelAnticipatedSpecimens()) {
 				srs.add(sr);
 			}
 
