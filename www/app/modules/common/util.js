@@ -468,15 +468,18 @@ angular.module('openspecimen')
       return success;
     }
 
-    function toUtc(dt) {
+    function toUtc(dt, ignSecs) {
+      var seconds = !!ignSecs ? 0 : dt.getSeconds();
+      var ms      = !!ignSecs ? 0 : dt.getMilliseconds();
+
       return Date.UTC(
         dt.getFullYear(), dt.getMonth(), dt.getDate(),
-        dt.getHours(), dt.getMinutes(), dt.getSeconds(), dt.getMilliseconds()
+        dt.getHours(), dt.getMinutes(), seconds, ms
       );
     }
 
-    function dateDiffInMs(i1, i2) {
-      return toUtc(new Date(i2)) - toUtc(new Date(i1));
+    function dateDiffInMs(i1, i2, ignSecs) {
+      return toUtc(new Date(i2), ignSecs) - toUtc(new Date(i1), ignSecs);
     }
 
     function dateDiffInYears(i1, i2) {
@@ -617,8 +620,8 @@ angular.module('openspecimen')
         return Math.floor(dateDiffInMs(d1, d2) / (60 * 60 * 1000));
       },
 
-      dateDiffInMinutes: function(d1, d2) {
-        return Math.floor(dateDiffInMs(d1, d2) / (60 * 1000));
+      dateDiffInMinutes: function(d1, d2, ignoreSeconds) {
+        return Math.floor(dateDiffInMs(d1, d2, ignoreSeconds) / (60 * 1000));
       },
 
       dateDiffInSeconds: function(d1, d2) {
