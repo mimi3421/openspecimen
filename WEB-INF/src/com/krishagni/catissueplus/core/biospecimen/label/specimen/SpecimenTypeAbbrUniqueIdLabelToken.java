@@ -14,7 +14,7 @@ import com.krishagni.catissueplus.core.common.util.PvUtil;
 
 public class SpecimenTypeAbbrUniqueIdLabelToken extends AbstractUniqueIdToken<Specimen> {
 
-	private static List<String> ALLOWED_TYPES = Arrays.asList("registration", "visit", "parent_specimen");
+	private static List<String> ALLOWED_TYPES = Arrays.asList("registration", "visit", "parent_specimen", "primary_specimen");
 
 	@Autowired
 	private DaoFactory daoFactory;
@@ -55,8 +55,13 @@ public class SpecimenTypeAbbrUniqueIdLabelToken extends AbstractUniqueIdToken<Sp
 				break;
 
 			case "parent_specimen":
-				groupId = specimen.getParentSpecimen() != null ? specimen.getParentSpecimen().getId() : null;
+				groupId = specimen.getParentSpecimen() != null ? specimen.getParentSpecimen().getId() : specimen.getId();
 				keyType = "PARENT_SPMN_" + getName();
+				break;
+
+			case "primary_specimen":
+				groupId = specimen.getPrimarySpecimen().getId();
+				keyType = "PRIMARY_SPMN_" + getName();
 				break;
 
 			case "visit":

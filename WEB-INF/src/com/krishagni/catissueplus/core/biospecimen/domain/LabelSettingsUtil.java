@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenDetail;
 import com.krishagni.catissueplus.core.biospecimen.services.impl.CpWorkflowTxnCache;
 import com.krishagni.catissueplus.core.common.util.ExpressionUtil;
+import com.krishagni.catissueplus.core.de.events.ExtensionDetail;
 
 public class LabelSettingsUtil {
 	public static String getLabelFormat(Specimen specimen) {
@@ -23,6 +24,10 @@ public class LabelSettingsUtil {
 		}
 
 		SpecimenDetail detail = SpecimenDetail.from(specimen, false, false, true);
+		if (detail.getExtensionDetail() == null && specimen.getExtension() != null) {
+			detail.setExtensionDetail(ExtensionDetail.from(specimen.getExtension(), false, true));
+		}
+
 		Map<String, Object> ctxt = new HashMap<>();
 		ctxt.put("specimen", detail);
 		ctxt.put("cpId", specimen.getCpId());
