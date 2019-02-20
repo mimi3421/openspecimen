@@ -630,6 +630,15 @@ public class Specimen extends BaseExtensionEntity {
 		return labelGenerator;
 	}
 
+	public Specimen getPrimarySpecimen() {
+		Specimen specimen = this;
+		while (specimen.getParentSpecimen() != null) {
+			specimen = specimen.getParentSpecimen();
+		}
+
+		return specimen;
+	}
+
 	@Override
 	public String getEntityType() {
 		return EXTN;
