@@ -96,7 +96,11 @@ public class ExtensionDetail implements Serializable {
 	}
 
 	public static ExtensionDetail from(DeObject extension, boolean excludePhi) {
-		if (extension == null || extension.getId() == null) {
+		return from(extension, excludePhi, false);
+	}
+
+	public static ExtensionDetail from(DeObject extension, boolean excludePhi, boolean lenient) {
+		if (extension == null || (!lenient && extension.getId() == null)) {
 			return null;
 		}
 		
