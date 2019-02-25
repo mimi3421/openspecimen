@@ -83,7 +83,7 @@ public class AbstractDao<T> implements Dao<T> {
 			hql += " and " + activeCondition;
 		}
 
-		return sessionFactory.getCurrentSession().createQuery(hql).setParameterList("ids", ids).list();
+		return getCurrentSession().createQuery(hql).setParameterList("ids", ids).list();
 	}
 
 	public Class<?> getType() {
