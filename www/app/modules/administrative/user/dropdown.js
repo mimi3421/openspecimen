@@ -1,14 +1,16 @@
 
 angular.module('os.administrative.user.dropdown', ['os.administrative.models'])
   .directive('osUsers', function($filter, AuthorizationService, User) {
-    function loadUsers(scope, searchTerm, ctrl, queryParams) {
+    function loadUsers(scope, searchTerm, ctrl, queryParams, listFn) {
       var opts = angular.extend({searchString : searchTerm}, scope.filterOpts || {});
       if (queryParams) {
         angular.extend(opts, JSON.parse(queryParams));
       }
 
       ctrl.listLoaded = true;
-      User.query(opts).then(
+
+      var promise = !listFn ? User.query(opts) : scope.listFn(opts);
+      promise.then(
         function(result) {
           scope.users = result;
           loadSelectedUser(scope, result, ctrl);
@@ -47,7 +49,8 @@ angular.module('os.administrative.user.dropdown', ['os.administrative.models'])
         placeholder: '@',
         filterOpts: '=',
         defaultList: '=',
-        onSelect: '&'
+        onSelect: '&',
+        listFn: '&'
       },
 
       replace: true,
@@ -77,7 +80,7 @@ angular.module('os.administrative.user.dropdown', ['os.administrative.models'])
             return;
           }
 
-          loadUsers($scope, searchTerm, ctrl, $attrs.queryParams);
+          loadUsers($scope, searchTerm, ctrl, $attrs.queryParams, $attrs.listFn);
         };
 
         $scope.$watch('filterOpts', function(newVal, oldVal) {
@@ -85,7 +88,7 @@ angular.module('os.administrative.user.dropdown', ['os.administrative.models'])
             return;
           }
 
-          loadUsers($scope, undefined, ctrl, $attrs.queryParams);
+          loadUsers($scope, undefined, ctrl, $attrs.queryParams, $attrs.listFn);
         });
 
         $attrs.$observe('queryParams',
@@ -98,7 +101,7 @@ angular.module('os.administrative.user.dropdown', ['os.administrative.models'])
               return;
             }
 
-            loadUsers($scope, undefined, ctrl, $attrs.queryParams);
+            loadUsers($scope, undefined, ctrl, $attrs.queryParams, $attrs.listFn);
           }
         );
       },
