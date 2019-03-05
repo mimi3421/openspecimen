@@ -6,13 +6,15 @@ import java.util.Map;
 import com.krishagni.catissueplus.core.common.domain.Email;
 
 public interface EmailService {
-	public boolean sendEmail(String emailTmplKey, String[] to, Map<String, Object> props);
+	boolean sendEmail(String emailTmplKey, String[] to, Map<String, Object> props);
 
-	public boolean sendEmail(String emailTmplKey, String[] to, File[] attachments, Map<String, Object> props);
+	boolean sendEmail(String emailTmplKey, String[] to, File[] attachments, Map<String, Object> props);
 	
-	public boolean sendEmail(String emailTmplKey, String[] to, String[] bcc, File[] attachments, Map<String, Object> props);
+	boolean sendEmail(String emailTmplKey, String[] to, String[] bcc, File[] attachments, Map<String, Object> props);
 
-	public boolean sendEmail(String subjectKey, String emailTmpl, String[] to, Map<String, Object> props);
+	boolean sendEmail(String subjectKey, String emailTmpl, String[] to, Map<String, Object> props);
 	
-	public boolean sendEmail(Email mail);
+	boolean sendEmail(Email mail);
+
+	void registerProcessor(EmailProcessor processor);
 }

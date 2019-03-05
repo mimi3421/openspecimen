@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+  http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+  <changeSet author="vpawar" id="IMAP server host">
+    <sql>
+      call add_cfg_prop(
+        'email', 'imap_server_host',
+        'imap_server_host', 'imap_server_host_desc',
+        'STRING', ''
+      );
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="IMAP server port">
+    <sql>
+      call add_cfg_prop(
+        'email', 'imap_server_port',
+        'imap_server_port', 'imap_server_port_desc',
+        'INT', '993'
+      );
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="IMAP polling interval for new messages">
+    <sql>
+      call add_cfg_prop(
+        'email', 'imap_poll_interval',
+        'imap_poll_interval', 'imap_poll_interval_desc',
+        'INT', '5'
+      );
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Update SMTP config key names">
+    <sql>update os_cfg_props set name = 'smtp_auth_enabled' where name = 'auth_enabled';</sql>
+    <sql>update os_cfg_props set name = 'smtp_server_host' where name = 'server_host';</sql>
+    <sql>update os_cfg_props set name = 'smtp_server_port' where name = 'server_port';</sql>
+  </changeSet>
+</databaseChangeLog>

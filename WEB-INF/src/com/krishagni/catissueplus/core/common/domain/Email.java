@@ -4,6 +4,8 @@ import java.io.File;
 
 public class Email {
 
+	private String fromAddress;
+
 	private String[] toAddress;
 
 	private String[] ccAddress;
@@ -17,6 +19,14 @@ public class Email {
 	private boolean htmlBody = false;
 
 	public File[] attachments;
+
+	public String getFromAddress() {
+		return fromAddress;
+	}
+
+	public void setFromAddress(String fromAddress) {
+		this.fromAddress = fromAddress;
+	}
 
 	public String[] getToAddress() {
 		return toAddress;
