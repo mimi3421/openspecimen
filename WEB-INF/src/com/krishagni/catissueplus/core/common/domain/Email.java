@@ -1,6 +1,7 @@
 package com.krishagni.catissueplus.core.common.domain;
 
 import java.io.File;
+import java.util.Map;
 
 public class Email {
 
@@ -19,6 +20,8 @@ public class Email {
 	private boolean htmlBody = false;
 
 	public File[] attachments;
+
+	private Map<String, String> headers;
 
 	public String getFromAddress() {
 		return fromAddress;
@@ -84,4 +87,11 @@ public class Email {
 		this.attachments = attachments;
 	}
 
+	public Map<String, String> getHeaders() {
+		return headers;
+	}
+
+	public void setHeaders(Map<String, String> headers) {
+		this.headers = headers;
+	}
 }

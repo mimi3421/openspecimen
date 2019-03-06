@@ -6,6 +6,9 @@ import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -18,6 +21,7 @@ import java.util.stream.Stream;
 
 import javax.mail.Address;
 import javax.mail.BodyPart;
+import javax.mail.Header;
 import javax.mail.Message;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
@@ -150,15 +154,35 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 
 	@Override
 	public boolean sendEmail(Email mail) {
+		return sendEmail(mail, null);
+	}
+
+	public boolean sendEmail(Email mail, Map<String, Object> props) {
 		try {
 			if (!isEmailNotifEnabled()) {
 				logger.debug("Email notification is disabled. Not sending email: " + mail.getSubject());
 				return false;
 			}
 
-			final MimeMessage mimeMessage = mailSender.createMimeMessage();
-			final MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8"); // true = multipart
+			if (props == null) {
+				props = Collections.emptyMap();
+			}
 
+
+			MimeMessage mimeMessage;
+			Map<String, String> replyToHeaders = (Map<String, String>) props.get("$replyToHeaders");
+			if (replyToHeaders != null && !replyToHeaders.isEmpty()) {
+				MimeMessage parent = mailSender.createMimeMessage();
+				for (Map.Entry<String, String> header : replyToHeaders.entrySet()) {
+					parent.setHeader(header.getKey(), header.getValue());
+				}
+
+				mimeMessage = (MimeMessage) parent.reply(false, true);
+			} else {
+				mimeMessage = mailSender.createMimeMessage();
+			}
+
+			MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8"); // true = multipart
 			String[] toRcpts = filterInvalidEmails(mail.getToAddress());
 			if (toRcpts.length == 0) {
 				logger.error("Invalid email recipient addresses: " + toString(mail.getToAddress()));
@@ -256,7 +280,7 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 			email.setCcAddress(new String[] { adminEmailId });
 		}
 
-		return sendEmail(email);
+		return sendEmail(email, props);
 	}
 	
 	private String getSubject(String subjKey, Object[] subjParams) {
@@ -402,7 +426,15 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 
 	private Email toEmail(MimeMessage message)
 	throws Exception {
+		Map<String, String> headers = new HashMap<>();
+		Enumeration<Header> headersIter = message.getAllHeaders();
+		while (headersIter.hasMoreElements()) {
+			Header header = headersIter.nextElement();
+			headers.put(header.getName(), header.getValue());
+		}
+
 		Email email = new Email();
+		email.setHeaders(headers);
 		email.setSubject(message.getSubject());
 
 		for (Address from : message.getFrom()) {
@@ -412,18 +444,10 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 		}
 
 		String text = getText(message);
-		text = text.replaceAll("\r\n", "\n");
-
-		StringBuilder content = new StringBuilder();
-		for (String line : text.split("\n")) {
-			if (line.startsWith(">")) {
-				continue;
-			}
-
-			content.append(line).append("\n");
-		}
-
-		email.setBody(content.toString());
+		text = text.replaceAll("\r\n", "\n")
+			.replaceAll(STRIP_EMAIL_REPLY_PATTERN, "")
+			.trim();
+		email.setBody(text);
 		return email;
 	}
 
@@ -513,4 +537,8 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 		return cfgSvc.getIntSetting(MODULE, "imap_poll_interval", 5);
 	}
 
+	private final static String STRIP_EMAIL_REPLY_PATTERN =
+		"(?m)"   + // turn on multi-line regex matching
+		"^>.*$|" + // any line starting with > is ignored
+		"^On\\s+.*\\s+wrote:"; // strip On Wed, Mar 6, 2019 at 11:25 AM XYZ wrote:
 }
