@@ -69,7 +69,7 @@ public class ImportRecordsTask implements ScheduledTask {
 
 		SimpleDateFormat sdf = new SimpleDateFormat(TSTAMP_FMT);
 		File[] files = getScheduledImportDir().listFiles();
-		if (files == null) {
+		if (files == null || files.length == 0) {
 			return Collections.emptyList();
 		}
 
