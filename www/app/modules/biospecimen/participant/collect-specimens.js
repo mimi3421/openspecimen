@@ -965,7 +965,8 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
           freezeThawCycles: uiSpecimen.freezeThawCycles,
           incrParentFreezeThaw: uiSpecimen.incrParentFreezeThaw,
           comments: uiSpecimen.comments,
-          extensionDetail: uiSpecimen.extensionDetail
+          extensionDetail: uiSpecimen.extensionDetail,
+          externalIds: uiSpecimen.externalIds
         };
 
         if (specimen.lineage == 'New' && specimen.status == 'Collected') {
