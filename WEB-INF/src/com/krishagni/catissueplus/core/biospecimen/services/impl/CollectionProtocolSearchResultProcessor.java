@@ -62,6 +62,6 @@ public class CollectionProtocolSearchResultProcessor extends AbstractSearchResul
 		"  k.identifier";
 
 	private static final String CP_SITE_JOIN_COND =
-		"inner join catissue_cp_site cp_site on cp_site.collection_protocol_id = cp.identifier " +
+		"inner join catissue_site_cp cp_site on cp_site.collection_protocol_id = cp.identifier " +
 		"inner join catissue_site site on site.identifier = cp_site.site_id ";
 }

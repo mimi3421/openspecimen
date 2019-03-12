@@ -13,8 +13,6 @@ angular.module('os.biospecimen.models.specimen', ['os.common.models', 'os.biospe
     var Specimen = osModel(
       'specimens',
       function(specimen) {
-        specimen.externalIds = specimen.externalIds || [];
-
         if (specimen.specimensPool) {
           specimen.specimensPool = specimen.specimensPool.map(
             function(poolSpmn) {

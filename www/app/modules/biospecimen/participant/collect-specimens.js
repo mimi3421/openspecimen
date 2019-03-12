@@ -239,7 +239,7 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
           function(specimens) {
             if (specimens.length == 0) {
               // no planned specimens
-              $state.go('visit-addedit', {visitId: visit.id, eventId: visit.eventId});
+              $state.go('visit-addedit', {cprId: cprId, visitId: visit.id, eventId: visit.eventId});
               return;
             }
 
@@ -965,7 +965,8 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
           freezeThawCycles: uiSpecimen.freezeThawCycles,
           incrParentFreezeThaw: uiSpecimen.incrParentFreezeThaw,
           comments: uiSpecimen.comments,
-          extensionDetail: uiSpecimen.extensionDetail
+          extensionDetail: uiSpecimen.extensionDetail,
+          externalIds: uiSpecimen.externalIds
         };
 
         if (specimen.lineage == 'New' && specimen.status == 'Collected') {
