@@ -60,16 +60,8 @@ public class DistributionOrderDaoImpl extends AbstractDao<DistributionOrder> imp
 			}
 		}
 		
-		if (listCrit.includeStat() && !doMap.isEmpty()) {
-			rows = getSessionFactory().getCurrentSession()
-				.getNamedQuery(GET_SPEC_CNT_BY_ORDER)
-				.setParameterList("orderIds", doMap.keySet())
-				.list();
-			
-			for (Object[] row : rows) {
-				DistributionOrderSummary order = doMap.get((Long)row[0]);
-				order.setSpecimenCnt((Long)row[1]);
-			}
+		if (listCrit.includeStat()) {
+			loadOrderItemsCount(doMap);
 		}
 		
 		return result;
@@ -355,6 +347,26 @@ public class DistributionOrderDaoImpl extends AbstractDao<DistributionOrder> imp
 		
 		return result;
 	}
+
+	private void loadOrderItemsCount(Map<Long, DistributionOrderSummary> doMap) {
+		loadOrderItemsCount(doMap, GET_ORDER_ITEMS_COUNT);
+		loadOrderItemsCount(doMap, GET_ORDER_LIST_ITEMS_COUNT);
+	}
+
+	private void loadOrderItemsCount(Map<Long, DistributionOrderSummary> doMap, String query) {
+		if (doMap.isEmpty()) {
+			return;
+		}
+
+		List<Object[]> rows = getCurrentSession().getNamedQuery(query)
+			.setParameterList("orderIds", doMap.keySet())
+			.list();
+
+		for (Object[] row : rows) {
+			DistributionOrderSummary order = doMap.remove((Long)row[0]);
+			order.setSpecimenCnt((Long)row[1]);
+		}
+	}
 	
 	public static final String FQN  = DistributionOrder.class.getName();
 	
@@ -364,5 +376,7 @@ public class DistributionOrderDaoImpl extends AbstractDao<DistributionOrder> imp
 
 	private static final String GET_DISTRIBUTED_ITEMS_BY_SPMN_IDS = FQN + ".getDistributedItemsBySpmnIds";
 	
-	private static final String GET_SPEC_CNT_BY_ORDER = FQN + ".getSpecimenCountByOrder";
+	private static final String GET_ORDER_ITEMS_COUNT = FQN + ".getOrderItemsCount";
+
+	private static final String GET_ORDER_LIST_ITEMS_COUNT = FQN + ".getListItemsCount";
 }

@@ -97,18 +97,38 @@
         o.id
     </query>
 
-    <sql-query name="getSpecimenCountByOrder">
-      <return-scalar column="ordId"       type="long"/>
-      <return-scalar column="specimenCnt" type="long"/>
+    <sql-query name="getOrderItemsCount">
+      <return-scalar column="ordId"    type="long"/>
+      <return-scalar column="itemsCnt" type="long"/>
       
       select
-        ord.identifier as ordId, count(orderItem.identifier) as specimenCnt
+        ord.identifier as ordId, count(orderItem.identifier) as itemsCnt
       from
         os_orders ord
         inner join os_order_items orderItem on orderItem.order_id = ord.identifier
+        inner join catissue_specimen s on s.identifier = orderItem.specimen_id
       where
         ord.identifier in (:orderIds) and
-        ord.activity_status != 'Disabled'
+        ord.activity_status != 'Disabled' and
+        s.activity_status != 'Disabled'
+      group by
+        ord.identifier
+    </sql-query>
+
+    <sql-query name="getListItemsCount">
+      <return-scalar column="ordId"    type="long"/>
+      <return-scalar column="itemsCnt" type="long"/>
+
+      select
+        ord.identifier as ordId, count(li.identifier) as itemsCnt
+      from
+        os_orders ord
+        inner join catissue_spec_tag_items li on li.tag_id = ord.specimen_list_id
+        inner join catissue_specimen s on s.identifier = li.obj_id
+      where
+        ord.identifier in (:orderIds) and
+        ord.activity_status != 'Disabled' and
+        s.activity_status != 'Disabled'
       group by
         ord.identifier
     </sql-query>
