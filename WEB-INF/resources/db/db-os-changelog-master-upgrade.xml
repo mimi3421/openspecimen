@@ -107,4 +107,5 @@
   <include file="db/6.0/seed-data.xml"/>
 
   <include file="db/6.1/config.xml"/>
+  <include file="db/6.1/permissible-values.xml"/>
 </databaseChangeLog>

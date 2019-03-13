@@ -233,18 +233,21 @@ public class VisitFactoryImpl implements VisitFactory {
 		}
 	}
 	
-	private void setVisitStatus(VisitDetail visitDetail, Visit visit, OpenSpecimenException ose) {
-		String visitStatus = visitDetail.getStatus();
-		if (StringUtils.isBlank(visitStatus)) {
-			visitStatus = Visit.VISIT_STATUS_COMPLETED;
+	private void setVisitStatus(VisitDetail detail, Visit visit, OpenSpecimenException ose) {
+		String status = detail.getStatus();
+		if (StringUtils.isBlank(status)) {
+			status = Visit.VISIT_STATUS_COMPLETED;
 		}
 
-		if (!isValid(VISIT_STATUS, visitStatus)) {
-			ose.addError(VisitErrorCode.INVALID_STATUS);			
+		if (!status.equals(Visit.VISIT_STATUS_COMPLETED) &&
+			!status.equals(Visit.VISIT_STATUS_PENDING) &&
+			!status.equals(Visit.VISIT_STATUS_MISSED) &&
+			!status.equals(Visit.VISIT_STATUS_NOT_COLLECTED)) {
+			ose.addError(VisitErrorCode.INVALID_STATUS, status);
 			return;
 		}
 
-		visit.setStatus(visitStatus);		
+		visit.setStatus(status);
 	}
 	
 	private void setVisitStatus(VisitDetail detail, Visit existing, Visit visit, OpenSpecimenException ose) {
