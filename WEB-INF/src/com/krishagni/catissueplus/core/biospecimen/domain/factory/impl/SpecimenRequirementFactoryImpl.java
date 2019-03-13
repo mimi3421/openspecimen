@@ -357,7 +357,7 @@ public class SpecimenRequirementFactoryImpl implements SpecimenRequirementFactor
 			return;
 		}
 
-		ensureNotEmptyAndValid(SPECIMEN_ANATOMIC_SITE, anatomicSite, ANATOMIC_SITE_REQUIRED, INVALID_ANATOMIC_SITE, ose);
+		ensureNotEmptyAndValid(SPECIMEN_ANATOMIC_SITE, anatomicSite, true, ANATOMIC_SITE_REQUIRED, INVALID_ANATOMIC_SITE, ose);
 		sr.setAnatomicSite(anatomicSite);
 	}
 	
@@ -516,18 +516,22 @@ public class SpecimenRequirementFactoryImpl implements SpecimenRequirementFactor
 		specimenPoolReq.setPooledSpecimenRequirement(pooledSpmnReq);
 		return specimenPoolReq;
 	}
-		
+
 	private String ensureNotEmptyAndValid(String attr, String value, ErrorCode req, ErrorCode invalid, OpenSpecimenException ose) {
+		return ensureNotEmptyAndValid(attr, value, false, req, invalid, ose);
+	}
+
+	private String ensureNotEmptyAndValid(String attr, String value, boolean leafCheck, ErrorCode req, ErrorCode invalid, OpenSpecimenException ose) {
 		value = ensureNotEmpty(value, req, ose);
 		if (value != null) {
-			value = ensureValid(attr, value, invalid, ose);
+			value = ensureValid(attr, value, leafCheck, invalid, ose);
 		}
 		
 		return value;
 	}
 	
-	private String ensureValid(String attr, String value, ErrorCode invalid, OpenSpecimenException ose) {
-		if (!isValid(attr, value)) {
+	private String ensureValid(String attr, String value, boolean leafCheck, ErrorCode invalid, OpenSpecimenException ose) {
+		if (!isValid(attr, value, leafCheck)) {
 			ose.addError(invalid, value);
 			return null;
 		}
