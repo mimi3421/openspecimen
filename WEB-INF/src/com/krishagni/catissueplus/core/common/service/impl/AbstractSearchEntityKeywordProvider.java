@@ -40,6 +40,7 @@ public abstract class AbstractSearchEntityKeywordProvider implements SearchEntit
 	public abstract boolean isEntityDeleted(Object entity);
 
 	protected List<SearchEntityKeyword> getKeywords(Object entity, EntityPersister persister, Object[] oldState, Object[] newState) {
+		// op: 0: insert, 1: update, 2: delete
 		int op = oldState != null && newState != null ? 1 : (oldState != null ? 2 : (newState != null ? 0 : -1));
 		Set<Long> entityIds = getEntityIds(entity);
 
@@ -49,14 +50,15 @@ public abstract class AbstractSearchEntityKeywordProvider implements SearchEntit
 				keywords.addAll(createKeywords(entityIds, prop, getProperty(prop, persister, oldState), null, op));
 			}
 		} else {
+			boolean entityDeleted = isEntityDeleted(entity);
 			for (String prop : getKeywordProps()) {
 				Pair<String, String> values = getProperty(prop, persister, oldState, newState);
-				if (!StringUtils.equals(values.first(), values.second())) {
+				if (entityDeleted || !StringUtils.equals(values.first(), values.second())) {
 					keywords.addAll(createKeywords(entityIds, prop, values.first(), values.second(), op));
 				}
 			}
 
-			if (isEntityDeleted(entity)) {
+			if (entityDeleted) {
 				keywords.forEach(keyword -> keyword.setStatus(0));
 			}
 		}
@@ -64,7 +66,7 @@ public abstract class AbstractSearchEntityKeywordProvider implements SearchEntit
 		return keywords;
 	}
 
-	private List<SearchEntityKeyword> createKeywords(Set<Long> entityIds, String property, String oldValue, String value, int op) {
+	protected List<SearchEntityKeyword> createKeywords(Set<Long> entityIds, String property, String oldValue, String value, int op) {
 		return entityIds.stream().map(entityId -> {
 			SearchEntityKeyword keyword = new SearchEntityKeyword();
 			keyword.setEntity(getEntityName());
@@ -76,6 +78,11 @@ public abstract class AbstractSearchEntityKeywordProvider implements SearchEntit
 			keyword.setOldValue(oldValue);
 			return keyword;
 		}).collect(Collectors.toList());
+	}
+
+	protected Object getObject(String propertyName, EntityPersister persister, Object[] state) {
+		int propIdx = getPropertyIndex(persister, propertyName);
+		return getObject(state, propIdx);
 	}
 
 	private Pair<String, String> getProperty(String propertyName, EntityPersister persister, Object[] oldState, Object[] newState) {
@@ -101,7 +108,7 @@ public abstract class AbstractSearchEntityKeywordProvider implements SearchEntit
 		throw new IllegalArgumentException("Invalid property " + propertyName + " for " + persister.getEntityName());
 	}
 
-	private String getValue(Object[] state, int propertyIdx) {
+	private Object getObject(Object[] state, int propertyIdx) {
 		if (state == null) {
 			return null;
 		}
@@ -113,7 +120,11 @@ public abstract class AbstractSearchEntityKeywordProvider implements SearchEntit
 			);
 		}
 
-		Object value = state[propertyIdx];
+		return state[propertyIdx];
+	}
+
+	private String getValue(Object[] state, int propertyIdx) {
+		Object value = getObject(state, propertyIdx);
 		return value != null ? value.toString() : null;
 	}
 }
