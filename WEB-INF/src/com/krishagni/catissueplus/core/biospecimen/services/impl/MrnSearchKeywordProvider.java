@@ -17,7 +17,20 @@ public class MrnSearchKeywordProvider extends AbstractSearchEntityKeywordProvide
 	@Override
 	public Set<Long> getEntityIds(Object entity) {
 		ParticipantMedicalIdentifier pmi = (ParticipantMedicalIdentifier) entity;
-		return pmi.getParticipant().getCprs().stream().map(CollectionProtocolRegistration::getId).collect(Collectors.toSet());
+		Participant participant = pmi.getParticipant();
+
+		Set<Long> result = null;
+		if (participant.getCprs().isEmpty() && participant.isDeleted()) {
+			result = participant.getOldCprIds();
+		} else {
+			result = participant.getCprs().stream().map(CollectionProtocolRegistration::getId).collect(Collectors.toSet());
+		}
+
+		if (participant.getNewCprIds() != null) {
+			result.removeAll(participant.getNewCprIds());
+		}
+
+		return result;
 	}
 
 	@Override

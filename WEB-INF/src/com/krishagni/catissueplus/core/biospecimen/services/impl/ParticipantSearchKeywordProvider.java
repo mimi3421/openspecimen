@@ -16,7 +16,19 @@ public class ParticipantSearchKeywordProvider extends AbstractSearchEntityKeywor
 	@Override
 	public Set<Long> getEntityIds(Object entity) {
 		Participant participant = (Participant) entity;
-		return participant.getCprs().stream().map(CollectionProtocolRegistration::getId).collect(Collectors.toSet());
+
+		Set<Long> result = null;
+		if (participant.getCprs().isEmpty() && participant.isDeleted()) {
+			result = participant.getOldCprIds();
+		} else {
+			result = participant.getCprs().stream().map(CollectionProtocolRegistration::getId).collect(Collectors.toSet());
+		}
+
+		if (participant.getNewCprIds() != null) {
+			result.removeAll(participant.getNewCprIds());
+		}
+
+		return result;
 	}
 
 	@Override

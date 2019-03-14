@@ -788,6 +788,7 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 			daoFactory.getParticipantDao().saveOrUpdate(tgtParticipant);
 		}
 
+		srcParticipant.setOldCprIds();
 		srcParticipant.getCprs().clear();
 		if (srcParticipant.isActive()) {
 			srcParticipant.delete();

@@ -68,6 +68,10 @@ public class Participant extends BaseExtensionEntity {
 
 	private transient Long cpId = -1L;
 
+	private transient Set<Long> oldCprIds;
+
+	private transient Set<Long> newCprIds;
+
 	public String getSource() {
 		return StringUtils.isBlank(source) ? DEF_SOURCE : source;
 	}
@@ -208,7 +212,23 @@ public class Participant extends BaseExtensionEntity {
 	public void setCprs(Set<CollectionProtocolRegistration> cprs) {
 		this.cprs = cprs;
 	}
-	
+
+	public Set<Long> getOldCprIds() {
+		return oldCprIds;
+	}
+
+	public void setOldCprIds() {
+		oldCprIds = getCprs().stream().map(CollectionProtocolRegistration::getId).collect(Collectors.toSet());
+	}
+
+	public Set<Long> getNewCprIds() {
+		return newCprIds;
+	}
+
+	public void setNewCprIds(Set<Long> newCprIds) {
+		this.newCprIds = newCprIds;
+	}
+
 	public void update(Participant participant) {
 		setFirstName(participant.getFirstName());
 		setLastName(participant.getLastName());
@@ -236,7 +256,11 @@ public class Participant extends BaseExtensionEntity {
 	}
 
 	public boolean isActive() {
-		return Status.ACTIVITY_STATUS_ACTIVE.getStatus().equals(this.activityStatus);
+		return Status.ACTIVITY_STATUS_ACTIVE.getStatus().equals(getActivityStatus());
+	}
+
+	public boolean isDeleted() {
+		return Status.ACTIVITY_STATUS_DISABLED.getStatus().equals(getActivityStatus());
 	}
 
 	public void delete() {
