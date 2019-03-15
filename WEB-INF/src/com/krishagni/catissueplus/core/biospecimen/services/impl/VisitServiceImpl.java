@@ -681,7 +681,7 @@ public class VisitServiceImpl implements VisitService, ObjectAccessor, Initializ
 			setVisitId(visitId, specimen.getChildren());
 		}
 	}
-	
+
 	private File getSprFile(Long visitId) {
 		String path = getSprDirPath(visitId);
 		File dir = new File(path);
@@ -873,6 +873,8 @@ public class VisitServiceImpl implements VisitService, ObjectAccessor, Initializ
 
 			private boolean paramsInited;
 
+			private boolean pdfReports;
+
 			private VisitsListCriteria crit;
 
 			private Long lastId;
@@ -897,11 +899,24 @@ public class VisitServiceImpl implements VisitService, ObjectAccessor, Initializ
 					try {
 						boolean hasPhi = AccessCtrlMgr.getInstance().ensureReadVisitRights(visit, true);
 						VisitDetail detail = VisitDetail.from(visit, false, !hasPhi);
-						if (hasPhi) {
-							detail.setSprFile(getSprFile(visit.getId()));
+						records.add(detail);
+						if (!hasPhi) {
+							continue;
 						}
 
-						records.add(detail);
+						File file = getSprFile(visit.getId());
+						if (file == null) {
+							continue;
+						}
+
+						String fileExtension = file.getName().substring(file.getName().lastIndexOf('.'));
+						if (pdfReports && isTextFile(file)) {
+							file = sprText2PdfGenerator.generate(file, Collections.singletonMap("visit", visit));
+							fileExtension = ".pdf";
+						}
+
+						detail.setSprFile(file);
+						detail.setSprName(visit.getName() + fileExtension);
 					} catch (OpenSpecimenException ose) {
 						if (!ose.containsError(RbacErrorCode.ACCESS_DENIED)) {
 							logger.error("Encountered error exporting visit record", ose);
@@ -942,6 +957,7 @@ public class VisitServiceImpl implements VisitService, ObjectAccessor, Initializ
 					}
 				}
 
+				pdfReports = job.getParams() != null && StringUtils.equals(job.getParams().get("sprFileType"), "pdf");
 				paramsInited = true;
 			}
 

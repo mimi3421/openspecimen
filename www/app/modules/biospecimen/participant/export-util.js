@@ -35,7 +35,10 @@ angular.module('os.biospecimen.participant')
       var group = $translate.instant('visits.title');
       var input = {'var': 'visitNames', varName: 'visits.names', varDesc: 'visits.names_csv'};
 
-      var exportTypes = [{ group: group, type: 'visit', title: msg('visits.list'), '$$input': input }];
+      var exportTypes = [
+        { group: group, type: 'visit', title: msg('visits.visits_text_rpts'), '$$input': input },
+        { group: group, type: 'visit', title: msg('visits.visits_pdf_rpts'), '$$input': input, params: { sprFileType: 'pdf' } }
+      ];
       return addForms(exportTypes, group, 'SpecimenCollectionGroup', input, entityForms['SpecimenCollectionGroup']);
     }
 

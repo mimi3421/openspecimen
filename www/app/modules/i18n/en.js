@@ -571,6 +571,9 @@
     "names": "Visit Names",
     "names_csv": "Comma separated list of visit names",
 
+    "visits_text_rpts": "Visits (Text Reports)",
+    "visits_pdf_rpts": "Visits (PDF Reports)",
+
     "add": "Add",
     "update": "Update",
 
