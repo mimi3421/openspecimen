@@ -1,7 +1,8 @@
 angular.module('os.biospecimen.specimen')
   .controller('BulkCreateAliquotsCtrl', function(
-    $scope, $q, $injector, $translate, parentSpmns, cp, cpr, containerAllocRules, aliquotQtyReq, createDerived,
-    cpDict, aliquotFields, spmnHeaders, incrFreezeThawCycles, Specimen, Alerts, Util, SpecimenUtil, Container) {
+    $scope, $q, $injector, $translate, parentSpmns, cp, cpr, containerAllocRules, aliquotQtyReq,
+    sysAliquotFmt, createDerived, cpDict, aliquotFields, spmnHeaders, incrFreezeThawCycles,
+    Specimen, Alerts, Util, SpecimenUtil, Container) {
 
     var ignoreQtyWarning = false, reservationId, ctx;
 
@@ -37,7 +38,13 @@ angular.module('os.biospecimen.specimen')
 
       $scope.cp = cp;
       $scope.cpr = cpr;
-      var inputLabels = $scope.inputLabels = (!!cp.id && (!cp.aliquotLabelFmt || cp.manualSpecLabelEnabled));
+
+      var inputLabels = false;
+      if (!!cp.id) {
+        inputLabels = (!(cp.aliquotLabelFmt || sysAliquotFmt) || cp.manualSpecLabelEnabled);
+      }
+
+      $scope.inputLabels = inputLabels;
       ctx = $scope.ctx = {
         showCustomFields: true,
         aliquotsSpec: aliquotsSpec,

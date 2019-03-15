@@ -371,6 +371,14 @@ angular.module('os.biospecimen.specimen',
             );
           },
 
+          sysAliquotFmt: function(SettingUtil) {
+            return SettingUtil.getSetting('biospecimen', 'aliquot_label_format').then(
+              function(resp) {
+                return resp.value;
+              }
+            );
+          },
+
           createDerived: createDerived,
 
           hasSde: function($injector) {
