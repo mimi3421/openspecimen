@@ -134,21 +134,30 @@ public class ParticipantDetail extends AttributeModifiedSupport {
 		return birthDate != null ? sdf.format(birthDate) : null;
 	}
 
-	public void setBirthDateStr(String birthDateStr) {
-
-	}
-
 	@JsonDeserialize(using = com.krishagni.catissueplus.core.common.util.JsonDateDeserializer.class)
 	public void setBirthDate(Date birthDate) {
 		this.birthDate = birthDate;
+	}
+
+	public void setBirthDateStr(String birthDateStr) {
+
 	}
 
 	public Date getDeathDate() {
 		return deathDate;
 	}
 
+	public String getDeathDateStr() {
+		return deathDate != null ? sdf.format(deathDate) : null;
+	}
+
+	@JsonDeserialize(using = com.krishagni.catissueplus.core.common.util.JsonDateDeserializer.class)
 	public void setDeathDate(Date deathDate) {
 		this.deathDate = deathDate;
+	}
+
+	public void setDeathDateStr(String deathDateStr) {
+
 	}
 
 	public String getGender() {
