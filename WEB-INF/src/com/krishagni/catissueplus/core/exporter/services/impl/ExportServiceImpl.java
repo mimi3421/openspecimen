@@ -376,10 +376,6 @@ public class ExportServiceImpl implements ExportService {
 			List<String> names = new ArrayList<>();
 			if (recField instanceof ObjectSchema.Field) {
 				ObjectSchema.Field field = (ObjectSchema.Field) recField;
-				if (field.getAttribute().equals(ID_ATTR)) {
-					return names;
-				}
-
 				String caption = captionPrefix + field.getCaption();
 				if (field.isMultiple()) {
 					int count = getFieldCount(namePrefix + field.getAttribute());
@@ -423,13 +419,6 @@ public class ExportServiceImpl implements ExportService {
 			List<String> values = new ArrayList<>();
 			if (recField instanceof ObjectSchema.Field) {
 				ObjectSchema.Field field = (ObjectSchema.Field) recField;
-				if (field.getAttribute().equals(ID_ATTR)) {
-					//
-					// hack to exclude ID field from the exported file.
-					//
-					return values;
-				}
-
 				String caption = captionPrefix + field.getCaption();
 				if (field.isMultiple()) {
 					int count = getFieldCount(namePrefix + field.getAttribute());

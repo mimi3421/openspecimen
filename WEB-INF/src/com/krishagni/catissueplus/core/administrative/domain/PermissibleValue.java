@@ -19,9 +19,9 @@ public class PermissibleValue extends BaseEntity {
 	
 	private Long sortOrder;
 	
-	private Set<PermissibleValue> children = new HashSet<PermissibleValue>();
+	private Set<PermissibleValue> children = new HashSet<>();
 	
-	private Map<String, String> props = new HashMap<String, String>();
+	private Map<String, String> props = new HashMap<>();
 
 	public String getValue() {
 		return value;
@@ -52,6 +52,10 @@ public class PermissibleValue extends BaseEntity {
 	}
 
 	public void setParent(PermissibleValue parent) {
+		if (this.equals(parent)) {
+			return;
+		}
+
 		this.parent = parent;
 	}
 	

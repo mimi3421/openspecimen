@@ -1,11 +1,14 @@
 
 package com.krishagni.catissueplus.core.administrative.events;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
 
 public class PermissibleValueDetails {
@@ -23,6 +26,9 @@ public class PermissibleValueDetails {
 	private String conceptCode;
 
 	private Map<String, String> props = new HashMap<>();
+
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+	private String activityStatus = "Active";
 	
 	public Long getId() {
 		return id;
@@ -85,6 +91,30 @@ public class PermissibleValueDetails {
 	//
 	public void setPropMap(List<Map<String, String>> propMap) {
 		this.props = propMap.stream().collect(Collectors.toMap(p -> p.get("name"), p -> p.get("value")));
+	}
+
+	public List<Map<String, String>> getPropMap() {
+		if (props == null || props.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		List<Map<String, String>> result = new ArrayList<>();
+		for (Map.Entry<String, String> pe : props.entrySet()) {
+			Map<String, String> r = new HashMap<>();
+			r.put("name",  pe.getKey());
+			r.put("value", pe.getValue());
+			result.add(r);
+		}
+
+		return result;
+	}
+
+	public String getActivityStatus() {
+		return activityStatus;
+	}
+
+	public void setActivityStatus(String activityStatus) {
+		this.activityStatus = activityStatus;
 	}
 
 	public static PermissibleValueDetails fromDomain(PermissibleValue permissibleValue) {

@@ -4,9 +4,7 @@
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping auto-import="false">
-  <class 
-    name="com.krishagni.catissueplus.core.administrative.domain.PermissibleValue" 
-    table="CATISSUE_PERMISSIBLE_VALUE">
+  <class name="com.krishagni.catissueplus.core.administrative.domain.PermissibleValue" table="CATISSUE_PERMISSIBLE_VALUE">
 	
     <id name="id" column="IDENTIFIER">
       <generator class="native">
@@ -22,17 +20,14 @@
     
     <property name="sortOrder" column="SORTORDER"/>
 
-    <many-to-one
-      name="parent"
-      class="com.krishagni.catissueplus.core.administrative.domain.PermissibleValue"
-      column="PARENT_IDENTIFIER"/>
+    <many-to-one name="parent" column="PARENT_IDENTIFIER"/>
 
     <set name="children" inverse="true" cascade="all-delete-orphan">
       <key column="PARENT_IDENTIFIER"/>
       <one-to-many class="com.krishagni.catissueplus.core.administrative.domain.PermissibleValue"/>
     </set>
-    
-    <map name="props" table="OS_PV_PROPS" lazy="false">
+
+    <map name="props" table="OS_PV_PROPS" lazy="false" batch-size="25">
       <key column="PV_ID"/>
       <map-key column="NAME" type="string"/>
       <element column="VALUE" type="string" not-null="true"/>
