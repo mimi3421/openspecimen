@@ -39,7 +39,7 @@ angular.module('openspecimen')
 
         var detail = angular.copy(scope.detail);
         detail.recordIds = recordIds;
-        osExportSvc.export(detail);
+        osExportSvc.exportRecords(detail);
       }
     }
 
