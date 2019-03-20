@@ -102,6 +102,25 @@
           where
             dp.activity_status != 'Disabled' and
             dp.principal_investigator_id = :userId
+
+          union
+
+          select
+            'specimen' as entityName, count(s.identifier) as count
+          from
+            catissue_specimen s
+            inner join catissue_form_record_entry re on re.object_id = s.identifier
+            inner join catissue_form_context fc on fc.identifier = re.form_ctxt_id
+            inner join dyextn_containers c on c.identifier = fc.container_id
+            left join catissue_coll_event_param ce on ce.identifier = re.record_id
+            left join catissue_received_event_param rv on rv.identifier = re.record_id
+          where
+            re.activity_status = 'ACTIVE' and
+            fc.deleted_on is null and
+            c.name in ('SpecimenCollectionEvent', 'SpecimenReceivedEvent') and
+            s.activity_status != 'Disabled' and
+            c.deleted_on is null and
+            (ce.user_id = :userId or rv.user_id = :userId)
         ) de
       where 
         de.count > 0
