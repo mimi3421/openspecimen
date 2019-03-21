@@ -30,7 +30,7 @@
     "Participant.ppid",
     "SpecimenCollectionGroup.collectionProtocolEvent.collectionPointLabel",
     "SpecimenCollectionGroup.clinicalDiagnosis",
-    "SpecimenCollectionGroup.site.name",
+    "SpecimenCollectionGroup.site",
     "Specimen.label",
     "Specimen.type",
     "Specimen.tissueSite",

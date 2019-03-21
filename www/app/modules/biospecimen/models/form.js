@@ -244,7 +244,8 @@ angular.module('os.biospecimen.models.form', ['os.common.models'])
         fqn, 
         fields, 
         function(field) {
-          return field.type != 'SUBFORM' || (!Form.isExtendedField(field.name) && field.flatten);
+          // return field.type != 'SUBFORM' || (!Form.isExtendedField(field.name) && field.flatten);
+          return field.type != 'SUBFORM';
         });
     };
 
@@ -260,7 +261,11 @@ angular.module('os.biospecimen.models.form', ['os.common.models'])
     function getExtnForms(fqn, fields) {
       var extnForms = [];
       for (var i = 0; i < fields.length; ++i) {
-        if (fields[i].type != 'SUBFORM' || (!Form.isExtendedField(fields[i].name) && fields[i].flatten)) {
+        // if (fields[i].type != 'SUBFORM' || (!Form.isExtendedField(fields[i].name) && fields[i].flatten)) {
+        //   continue;
+        // }
+
+        if (fields[i].type != 'SUBFORM') {
           continue;
         }
 

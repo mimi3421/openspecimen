@@ -66,4 +66,19 @@
         );
     </sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="Visit query form fixes">
+    <sql>
+      update
+        catissue_saved_queries
+      set
+        query_def = replace(query_def, 'SpecimenCollectionGroup.site.name', 'SpecimenCollectionGroup.site');
+    </sql>
+    <sql>
+      update
+        catissue_saved_queries
+      set
+        query_def = replace(query_def, 'SpecimenCollectionGroup.missedBy.missedByName', 'SpecimenCollectionGroup.missedBy');
+    </sql>
+  </changeSet>
 </databaseChangeLog>

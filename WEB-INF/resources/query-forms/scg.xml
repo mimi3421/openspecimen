@@ -45,26 +45,13 @@
       </textField>
     </row>
     <row>
-      <subForm>
+      <siteField>
         <name>site</name>
         <udn>site</udn>
         <caption>#getMessage("visit_site")</caption>
-        <table>CATISSUE_SITE</table>
-        <foreignKey>IDENTIFIER</foreignKey>
-        <parentKey>SITE_ID</parentKey>
-        <row>
-          <dropDown>
-            <name>name</name>
-            <udn>name</udn>
-            <caption>#getMessage("visit_site")</caption>
-            <column>NAME</column>
-            <options>
-              <sql>select name from CATISSUE_SITE where activity_status != 'Disabled'</sql>
-            </options>
-            <recordUrl>#/object-state-params-resolver?stateName=site-detail.overview&amp;objectName=site&amp;key=name&amp;value={{$value}}</recordUrl>
-          </dropDown>
-        </row>
-      </subForm>
+        <column>SITE_ID</column>
+        <recordUrl>#/object-state-params-resolver?stateName=site-detail.overview&amp;objectName=site&amp;key=name&amp;value={{$value}}</recordUrl>
+      </siteField>
     </row>
     <row>
       <subForm>
@@ -132,22 +119,12 @@
       </dropDown>
     </row>
     <row>
-      <subForm>
+      <userField>
         <name>missedBy</name>
         <udn>missedBy</udn>
         <caption>#getMessage("visit_missed_by")</caption>
-        <table>USER_VIEW</table>
-        <foreignKey>IDENTIFIER</foreignKey>
-        <parentKey>MISSED_BY</parentKey>
-        <row>
-          <userField>
-            <name>missedByName</name>
-            <udn>missedByName</udn>
-            <caption>#getMessage("visit_missed_by")</caption>
-            <column>IDENTIFIER</column>
-          </userField>
-        </row>
-      </subForm>
+        <column>MISSED_BY</column>
+      </userField>
     </row>
     <row>
       <listBox>
