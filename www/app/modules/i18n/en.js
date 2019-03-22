@@ -1175,19 +1175,18 @@
     "unlock_user": "Unlock User",
     "unlock_users": "Unlock",
     "user_unlocked": "User unlocked successfully",
-    "users_unlocked": "Users unlocked successfully",
-    "users_approved": "Users' sign-up request approved successfully",
+    "users_unlocked": "{{count}} {{count == 1 ? 'user' : 'users'}} unlocked",
+    "users_approved": "{{count}} {{count == 1 ? 'user' : 'users'}} sign-up request approved",
     "user_since": "User Since",
     "delete_users":  "Are you sure you want to delete selected users?",
     "users_deleted": "Users deleted successfully",
     "admin_access_req": "Super administrator rights required to delete admin users: {{adminUsers}}.",
     "lock_users": "Lock",
     "user_locked": "User locked successfully",
-    "users_locked": "Users locked successfully",
+    "users_locked": "{{count}} {{count == 1 ? 'user' : 'users'}} locked",
 
     "confirm_institute_update_title": "Update Institute?",
     "confirm_institute_update_q": "Changing the institute will remove all the site specific roles assigned to the {{count > 1 ? 'users' : 'user'}}. Are you sure you want to proceed?",
-
 
     "user_roles": "User Roles",
     "bulk_import_users": "Import Users",

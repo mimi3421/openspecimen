@@ -44,6 +44,8 @@ public class UserSummary implements Serializable {
 
 	private Date creationDate;
 
+	private String activityStatus;
+
 	public Long getId() {
 		return id;
 	}
@@ -148,6 +150,14 @@ public class UserSummary implements Serializable {
 		this.creationDate = creationDate;
 	}
 
+	public String getActivityStatus() {
+		return activityStatus;
+	}
+
+	public void setActivityStatus(String activityStatus) {
+		this.activityStatus = activityStatus;
+	}
+
 	public String formattedName() {
 		StringBuilder name = new StringBuilder();
 		if (StringUtils.isNotBlank(firstName)) {
@@ -177,6 +187,7 @@ public class UserSummary implements Serializable {
 		userSummary.setInstituteAdmin(user.isInstituteAdmin());
 		userSummary.setCreationDate(user.getCreationDate());
 		userSummary.setManageForms(user.getManageForms());
+		userSummary.setActivityStatus(user.getActivityStatus());
 
 		if (user.getInstitute() != null) {
 			userSummary.setInstituteName(user.getInstitute().getName());

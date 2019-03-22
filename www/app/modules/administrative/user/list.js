@@ -69,13 +69,23 @@ angular.module('os.administrative.user.list', ['os.administrative.models'])
       return User.getCount($scope.userFilterOpts)
     }
 
-    function updateStatus(status, msgKey) {
-      var users = $scope.ctx.checkList.getSelectedItems();
-      User.bulkUpdate({detail: {activityStatus: status}, ids: getUserIds(users)}).then(
-        function(savedUsers) {
-          Alerts.success(msgKey);
+    function updateStatus(prevStatuses, status, msgKey) {
+      var users = $scope.ctx.checkList.getSelectedItems()
+        .filter(function(u) { return prevStatuses.indexOf(u.activityStatus) != -1; });
 
-          angular.forEach(users, function(user) { user.selected = false; });
+      var usersMap = {};
+      angular.forEach(users, function(u) { usersMap[u.id] = u; });
+
+      User.bulkUpdate({detail: {activityStatus: status}, ids: Object.keys(usersMap)}).then(
+        function(savedUsers) {
+          Alerts.success(msgKey, {count: savedUsers.length});
+
+          angular.forEach(savedUsers,
+            function(su) {
+              usersMap[su.id].activityStatus = su.activityStatus;
+            }
+          );
+
           $scope.ctx.checkList = new CheckList($scope.users);
         }
       );
@@ -135,15 +145,15 @@ angular.module('os.administrative.user.list', ['os.administrative.models'])
     }
 
     $scope.unlockUsers = function() {
-      updateStatus('Active', 'user.users_unlocked');
+      updateStatus(['Locked'], 'Active', 'user.users_unlocked');
     }
 
     $scope.approveUsers = function() {
-      updateStatus('Active', 'user.users_approved');
+      updateStatus(['Pending'], 'Active', 'user.users_approved');
     }
 
     $scope.lockUsers = function() {
-      updateStatus('Locked', 'user.users_locked');
+      updateStatus(['Active'], 'Locked', 'user.users_locked');
     }
 
     $scope.pageSizeChanged = function() {
