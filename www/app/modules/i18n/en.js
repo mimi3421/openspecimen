@@ -1185,6 +1185,10 @@
     "user_locked": "User locked successfully",
     "users_locked": "Users locked successfully",
 
+    "confirm_institute_update_title": "Update Institute?",
+    "confirm_institute_update_q": "Changing the institute will remove all the site specific roles assigned to the {{count > 1 ? 'users' : 'user'}}. Are you sure you want to proceed?",
+
+
     "user_roles": "User Roles",
     "bulk_import_users": "Import Users",
     "bulk_import_user_roles": "Import User Roles",

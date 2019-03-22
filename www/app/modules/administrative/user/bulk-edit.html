@@ -20,9 +20,9 @@
       <div class="form-group">
         <label class="col-xs-3 control-label" translate="user.institute">Institute</label>
         <div class="col-xs-6">
-          <os-select ng-model="user.instituteName" list="institutes" on-select="onInstituteSelect($item)"
-            name="institute" placeholder="{{'user.institute' | translate}}">
-          </os-select>
+          <os-institutes ng-model="user.instituteName" on-select="onInstituteSelect(institute)"
+            placeholder="{{'user.institute' | translate}}" auto-select>
+          </os-institutes>
         </div>
       </div>
 
@@ -30,7 +30,7 @@
         <label class="col-xs-3 control-label" translate="user.primary_site">Primary Site</label>
         <div class="col-xs-6">
           <os-select ng-model="user.primarySite" list="sites" refresh="searchSites($select.search)"
-            name="primarySite" placeholder="{{'user.primary_site' | translate}}" ng-required="!!user.instituteName">
+            name="primarySite" placeholder="{{'user.primary_site' | translate}}">
           </os-select>
           <div os-field-error field="userForm.primarySite"></div>
         </div>

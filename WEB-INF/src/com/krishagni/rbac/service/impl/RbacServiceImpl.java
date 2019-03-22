@@ -3,6 +3,7 @@ package com.krishagni.rbac.service.impl;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -15,6 +16,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 
+import com.krishagni.catissueplus.core.administrative.domain.Institute;
 import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.administrative.domain.factory.SiteErrorCode;
@@ -476,8 +478,31 @@ public class RbacServiceImpl implements RbacService {
 		return roles;
 	}
 
-	private ArrayList<SubjectRole> addOrRemoveSubjectRole(Site site, CollectionProtocol cp, User user,
-			String[] roleNames, SubjectRoleOp.OP op, boolean systemRole) {
+	@Override
+	public void removeInvalidRoles(User user) {
+		Subject subject = daoFactory.getSubjectDao().getById(user.getId());
+		if (subject == null) {
+			return;
+		}
+
+		Iterator<SubjectRole> roles = subject.getRoles().iterator();
+		while (roles.hasNext()) {
+			SubjectRole role = roles.next();
+			if (role.getSite() != null && !role.getSite().getInstitute().equals(user.getInstitute())) {
+				roles.remove();
+			} else if (role.getCollectionProtocol() != null) {
+				boolean validInstituteCp = role.getCollectionProtocol().getRepositories().stream()
+					.anyMatch(s -> s.getInstitute().equals(user.getInstitute()));
+				if (!validInstituteCp) {
+					roles.remove();
+				}
+			}
+		}
+	}
+
+	private ArrayList<SubjectRole> addOrRemoveSubjectRole(
+		Site site, CollectionProtocol cp, User user, String[] roleNames, SubjectRoleOp.OP op, boolean systemRole) {
+
 		Subject subject = daoFactory.getSubjectDao().getById(user.getId());
 		if (subject == null) {
 			throw OpenSpecimenException.userError(RbacErrorCode.SUBJECT_NOT_FOUND);

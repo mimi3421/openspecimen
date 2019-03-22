@@ -3,6 +3,7 @@ package com.krishagni.rbac.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.krishagni.catissueplus.core.administrative.domain.Institute;
 import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
@@ -94,6 +95,8 @@ public interface RbacService {
 	List<SubjectRole> addSubjectRole(Site site, CollectionProtocol cp, User user, String[] roleNames, SubjectRoleOpNotif notif);
 
 	List<SubjectRole> removeSubjectRole(Site site, CollectionProtocol cp, User user, String[] roleNames, SubjectRoleOpNotif notif);
+
+	void removeInvalidRoles(User user);
 
 	void removeCpRoles(Long cpId);
 }

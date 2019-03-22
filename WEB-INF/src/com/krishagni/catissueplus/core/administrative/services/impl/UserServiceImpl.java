@@ -619,6 +619,7 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 
 		boolean wasInstituteAdmin = existingUser.isInstituteAdmin();
 		String prevStatus = existingUser.getActivityStatus();
+		Institute prevInstitute = existingUser.getInstitute();
 		existingUser.update(user);
 
 		if (isActivated(prevStatus, user.getActivityStatus())) {
@@ -627,6 +628,14 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 			notifyUserUpdated(user, "locked");
 		} else if (isDeleted(prevStatus, user.getActivityStatus())) {
 			notifyUserUpdated(user, "deleted");
+		}
+
+		if (!existingUser.getInstitute().equals(prevInstitute)) {
+			//
+			// user institute got changed
+			// remove all roles that were assigned to user on sites of previous institute
+			//
+			removeUserRoles(existingUser);
 		}
 
 		if (!wasInstituteAdmin && existingUser.isInstituteAdmin()) {
@@ -676,6 +685,10 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 
 	private void removeDefaultSiteAdminRole(User user, String userOp) {
 		rbacSvc.removeSubjectRole(null, null, user, getDefaultSiteAdminRole(), getNotifReq(user, userOp, "REMOVE"));
+	}
+
+	private void removeUserRoles(User user) {
+		rbacSvc.removeInvalidRoles(user);
 	}
 
 	private SubjectRoleOpNotif getNotifReq(User user, String userOp, String roleOp) {
