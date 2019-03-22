@@ -80,8 +80,8 @@ angular.module('openspecimen')
 
         angular.extend(params, {
           site: scope.entity.siteName,
-          canHold: scope.entity.typeName,
-          usageMode: scope.entity.usedFor || 'STORAGE'
+          usageMode: scope.entity.usedFor || 'STORAGE',
+          storeSpecimensEnabled: false
         });
       } else if (scope.entityType == 'order_item') {
         angular.extend(params, {
