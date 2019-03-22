@@ -49,6 +49,32 @@
       group by
         institute.id
     </query>
-    
+
+    <sql-query name="getDependentEntities">
+      <return-scalar column="entityName" type="string"/>
+      <return-scalar column="count" type="int"/>
+
+      select
+        'site' as entityName, count(s.identifier) as count
+      from
+        catissue_site s
+        inner join catissue_institution i on i.identifier = s.institute_id
+      where
+        s.activity_status != 'Disabled' and
+        i.activity_status != 'Disabled' and
+        i.identifier = :instituteId
+
+      union all
+
+      select
+        'user' as entityName, count(u.identifier) as count
+      from
+        catissue_user u
+        inner join catissue_institution i on i.identifier = u.institute_id
+      where
+        u.activity_status != 'Disabled' and
+        i.activity_status != 'Disabled' and
+        i.identifier = :instituteId
+    </sql-query>
   </class>
 </hibernate-mapping>

@@ -17,6 +17,7 @@ import com.krishagni.catissueplus.core.administrative.domain.Institute;
 import com.krishagni.catissueplus.core.administrative.events.InstituteDetail;
 import com.krishagni.catissueplus.core.administrative.repository.InstituteDao;
 import com.krishagni.catissueplus.core.administrative.repository.InstituteListCriteria;
+import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.repository.AbstractDao;
 
 public class InstituteDaoImpl extends AbstractDao<Institute> implements InstituteDao {
@@ -70,8 +71,7 @@ public class InstituteDaoImpl extends AbstractDao<Institute> implements Institut
 	@Override
 	@SuppressWarnings("unchecked")
 	public List<Institute> getInstituteByNames(List<String> names) {
-		return sessionFactory.getCurrentSession()
-			.getNamedQuery(GET_INSTITUTES_BY_NAME)
+		return getCurrentSession().getNamedQuery(GET_INSTITUTES_BY_NAME)
 			.setParameterList("names", names)
 			.list();
 	}
@@ -79,8 +79,24 @@ public class InstituteDaoImpl extends AbstractDao<Institute> implements Institut
 	@Override
 	public Institute getInstituteByName(String name) {
 		List<Institute> result = getInstituteByNames(Collections.singletonList(name));
-		
 		return CollectionUtils.isEmpty(result) ? null : result.get(0);
+	}
+
+	@Override
+	public List<DependentEntityDetail> getDependentEntities(Long instituteId) {
+		List<Object[]> rows = getCurrentSession().getNamedQuery(GET_DEPENDENT_ENTITIES)
+			.setParameter("instituteId", instituteId)
+			.list();
+
+		List<DependentEntityDetail> dependents = new ArrayList<>();
+		for (Object[] row : rows) {
+			int count = ((Number) row[1]).intValue();
+			if (count > 0) {
+				dependents.add(DependentEntityDetail.from((String) row[0], count));
+			}
+		}
+
+		return dependents;
 	}
 	
 	private Criteria getInstituteListQuery(InstituteListCriteria crit) {
@@ -126,9 +142,11 @@ public class InstituteDaoImpl extends AbstractDao<Institute> implements Institut
 	}
 	
 	
-	private static final String INSTITUTE_FQN = Institute.class.getName();
+	private static final String FQN = Institute.class.getName();
 	
-	private static final String GET_INSTITUTES_BY_NAME = INSTITUTE_FQN + ".getInstitutesByName";
+	private static final String GET_INSTITUTES_BY_NAME = FQN + ".getInstitutesByName";
 	
-	private static final String GET_INSTITUTE_STATS = INSTITUTE_FQN + ".getInstituteStats";
+	private static final String GET_INSTITUTE_STATS = FQN + ".getInstituteStats";
+
+	private static final String GET_DEPENDENT_ENTITIES = FQN + ".getDependentEntities";
 }

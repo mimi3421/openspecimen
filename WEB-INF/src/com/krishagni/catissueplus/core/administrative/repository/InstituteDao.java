@@ -4,16 +4,18 @@ import java.util.List;
 
 import com.krishagni.catissueplus.core.administrative.domain.Institute;
 import com.krishagni.catissueplus.core.administrative.events.InstituteDetail;
+import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.repository.Dao;
 
 
 public interface InstituteDao extends Dao<Institute> {
-	public List<InstituteDetail> getInstitutes(InstituteListCriteria listCrit);
+	List<InstituteDetail> getInstitutes(InstituteListCriteria listCrit);
 	
-	public Long getInstitutesCount(InstituteListCriteria listCrit);
+	Long getInstitutesCount(InstituteListCriteria listCrit);
 
-	public List<Institute> getInstituteByNames(List<String> names);
+	List<Institute> getInstituteByNames(List<String> names);
 
-	public Institute getInstituteByName(String name);
+	Institute getInstituteByName(String name);
 
+	List<DependentEntityDetail> getDependentEntities(Long instituteId);
 }

@@ -6,14 +6,18 @@ import java.util.Set;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 
 import com.krishagni.catissueplus.core.administrative.domain.factory.InstituteErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.BaseEntity;
+import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.util.Status;
 import com.krishagni.catissueplus.core.common.util.Utility;
 
+@Configurable
 @Audited
 public class Institute extends BaseEntity {
 
@@ -26,6 +30,9 @@ public class Institute extends BaseEntity {
 	private Set<User> users = new HashSet<>();
 	
 	private Set<Site> sites = new HashSet<>();
+
+	@Autowired
+	private DaoFactory daoFactory;
 
 	public static String getEntityName() {
 		return ENTITY_NAME;
@@ -66,11 +73,7 @@ public class Institute extends BaseEntity {
 	}
 	
 	public List<DependentEntityDetail> getDependentEntities() {
-		return DependentEntityDetail
-				.listBuilder()
-				.add(User.getEntityName(), getUsers().size())
-				.add(Site.getEntityName(), getSites().size())
-				.build();
+		return daoFactory.getInstituteDao().getDependentEntities(getId());
 	}
 	
 	public void delete(Boolean close) {

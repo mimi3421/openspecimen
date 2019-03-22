@@ -81,7 +81,7 @@
             s.activity_status != 'Disabled' and
             sc.user_id = :userId
 
-          union 
+          union all
 
           select 
             'collection_protocol' as entityName, count(cp.identifier) as count 
@@ -93,7 +93,7 @@
             cp.activity_status != 'Disabled' and
             (cp.principal_investigator_id = :userId or cc.user_id = :userId)
 
-          union
+          union all
 
           select 
             'distribution_protocol' as entityName, count(dp.identifier) as count 
@@ -103,7 +103,7 @@
             dp.activity_status != 'Disabled' and
             dp.principal_investigator_id = :userId
 
-          union
+          union all
 
           select
             'specimen' as entityName, count(s.identifier) as count
