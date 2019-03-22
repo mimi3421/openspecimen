@@ -6,6 +6,7 @@ angular.module('openspecimen')
       this.allSelected = false;
       this.anySelected = false;
       this.items       = this.list.map(function() { return {selected: false}; });
+      this.count       = 0;
     }
      
     CheckList.prototype.toggleSelectAll = function() {
@@ -15,11 +16,24 @@ angular.module('openspecimen')
           item.selected = selected;
         }
       );
+
+      if (selected) {
+        this.count = this.items.length;
+      } else {
+        this.count = 0;
+      }
     }
 
     CheckList.prototype.toggleSelectItem = function(idx) {
       this.anySelected = false;
       this.allSelected = true;
+
+      var item = this.items[idx];
+      if (item.selected) {
+        ++this.count;
+      } else {
+        --this.count;
+      }
 
       for (var i = 0; i < this.items.length; ++i) {
         if (this.items[i].selected) {

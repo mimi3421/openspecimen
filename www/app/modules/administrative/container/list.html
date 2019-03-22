@@ -28,6 +28,10 @@
   </div>
 
   <div class="container">
+    <div class="alert alert-info os-lean-box" ng-show="ctx.checkList.count > 0">
+      <span> {{'common.items_selected_info' | translate: ctx.checkList}} </span>
+    </div>
+
     <table class="os-table os-table-hover">
       <thead class="os-table-head">
         <tr class="row">
@@ -70,6 +74,7 @@
             </div>
           </td>
           <td class="col">
+            <span class="fa fa-truck" ng-if="container.usedFor == 'DISTRIBUTION'"></span>
             <a ui-sref="container-detail.locations({containerId: container.id})">
               <span>{{container.name}}</span>
             </a>

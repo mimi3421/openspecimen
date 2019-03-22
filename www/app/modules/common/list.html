@@ -1,5 +1,9 @@
 <div>
   <div class="container">
+    <div class="alert alert-info os-lean-box" ng-show="checkList.count > 0">
+      <span> {{'common.items_selected_info' | translate: checkList}} </span>
+    </div>
+
     <table class="os-table os-table-hover">
       <thead class="os-table-head">
         <tr class="row">
@@ -17,7 +21,7 @@
         <tr class="row" ng-repeat="row in ctx.data.rows track by $index" os-row-click="showItem({row: row})">
           <td class="col os-click-esc" ng-if="enableSelection == 'true' || enableSelection == true">
             <div class="os-select-specimen-cb">
-              <os-checkbox ng-change="checkList.toggleSelectItem()" ng-model="checkList.items[$index].selected">
+              <os-checkbox ng-change="checkList.toggleSelectItem($index)" ng-model="checkList.items[$index].selected">
               </os-checkbox>
             </div>
           </td>

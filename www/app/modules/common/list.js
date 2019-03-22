@@ -139,7 +139,7 @@ angular.module('openspecimen')
 
         this.getSelectedItems = function() {
           if (!$scope.checkList) {
-            return[];
+            return [];
           }
 
           return $scope.checkList.getSelectedItems()

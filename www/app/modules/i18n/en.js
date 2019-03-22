@@ -85,6 +85,7 @@
     "name": "Name",
     "value": "Value",
     "total_rows": "Total Rows",
+    "items_selected_info": "{{count}} {{count > 1 ? 'records' : 'record'}} selected",
 
     "interval_units": {
       "DAYS": "Days",
