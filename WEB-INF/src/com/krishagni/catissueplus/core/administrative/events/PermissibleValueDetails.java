@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
 
@@ -93,6 +94,7 @@ public class PermissibleValueDetails {
 		this.props = propMap.stream().collect(Collectors.toMap(p -> p.get("name"), p -> p.get("value")));
 	}
 
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	public List<Map<String, String>> getPropMap() {
 		if (props == null || props.isEmpty()) {
 			return Collections.emptyList();
