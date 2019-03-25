@@ -344,6 +344,7 @@ angular.module('os.biospecimen.specimen')
                   parentId: spmn.parent.id,
                   noOfAliquots: spmn.noOfAliquots,
                   labels: spmn.labels,
+                  barcodes: spmn.barcodes,
                   qtyPerAliquot: spmn.qtyPerAliquot,
                   specimenClass: spmn.specimenClass,
                   type: spmn.type,

@@ -16,6 +16,8 @@ public class SpecimenAliquotsSpec {
 	private Integer noOfAliquots;
 
 	private String labels;
+
+	private String barcodes;
 	
 	private BigDecimal qtyPerAliquot;
 
@@ -91,6 +93,14 @@ public class SpecimenAliquotsSpec {
 
 	public void setLabels(String labels) {
 		this.labels = labels;
+	}
+
+	public String getBarcodes() {
+		return barcodes;
+	}
+
+	public void setBarcodes(String barcodes) {
+		this.barcodes = barcodes;
 	}
 
 	public BigDecimal getQtyPerAliquot() {

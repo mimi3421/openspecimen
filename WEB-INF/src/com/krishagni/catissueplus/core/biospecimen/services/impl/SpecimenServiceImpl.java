@@ -430,6 +430,11 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 				count = labels.size();
 			}
 
+			List<String> barcodes = Utility.csvToStringList(spec.getBarcodes());
+			if (count == null && !barcodes.isEmpty()) {
+				count = barcodes.size();
+			}
+
 			BigDecimal parentQty = derived != null ? derived.getInitialQty() : parentSpecimen.getAvailableQuantity();
 			boolean aliquotQtyReq = ConfigUtil.getInstance().getBoolSetting(ConfigParams.MODULE, ConfigParams.ALIQUOT_QTY_REQ, true);
 			if ((count == null && (parentQty == null || aliquotQty == null)) ||
@@ -461,6 +466,10 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 				aliquot.setExtensionDetail(spec.getExtensionDetail());
 				if (i < labels.size()) {
 					aliquot.setLabel(labels.get(i));
+				}
+
+				if (i < barcodes.size()) {
+					aliquot.setBarcode(barcodes.get(i));
 				}
 
 				if (StringUtils.isNotBlank(spec.getParentContainerName())) {

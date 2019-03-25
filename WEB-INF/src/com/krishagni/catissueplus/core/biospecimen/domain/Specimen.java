@@ -1417,7 +1417,9 @@ public class Specimen extends BaseExtensionEntity {
 	}
 
 	public void setBarcodeIfEmpty() {
-		if (StringUtils.isNotBlank(barcode) || isMissedOrNotCollected()) {
+		if (StringUtils.isNotBlank(barcode) ||
+			isMissedOrNotCollected() ||
+			!getCollectionProtocol().isBarcodingEnabledToUse()) {
 			return;
 		}
 
