@@ -1,5 +1,6 @@
 package com.krishagni.catissueplus.core.common.domain;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import com.krishagni.catissueplus.core.biospecimen.domain.BaseEntity;
@@ -57,6 +58,14 @@ public class ExternalAppId extends BaseEntity  {
 
 	public String getProp(String name) {
 		return props != null ? props.get(name) : null;
+	}
+
+	public void setProp(String name, String value) {
+		if (props == null) {
+			props = new HashMap<>();
+		}
+
+		props.put(name, value);
 	}
 
 	public String toString() {
