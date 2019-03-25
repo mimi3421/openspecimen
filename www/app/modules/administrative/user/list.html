@@ -38,8 +38,8 @@
     <table class="os-table os-table-hover">
       <thead class="os-table-head">
         <tr class="row">
-          <th show-if-allowed="userResource.updateOpts" class="col">
-            <div class="os-select-specimen-cb os-click-esc">
+          <th class="col os-click-esc" show-if-allowed="userResource.updateOpts">
+            <div class="os-select-specimen-cb">
               <os-checkbox ng-change="ctx.checkList.toggleSelectAll()" ng-model="ctx.checkList.allSelected">
               </os-checkbox>
             </div>
@@ -66,14 +66,14 @@
       </thead>
       <tbody class="os-table-body">
         <tr class="row" ng-repeat="user in users" os-row-click="showUserOverview(user)">
-          <td show-if-allowed="userResource.updateOpts" class="col">
-            <div class="os-select-specimen-cb os-click-esc">
+          <td class="col os-click-esc" show-if-allowed="userResource.updateOpts">
+            <div class="os-select-specimen-cb">
               <os-checkbox ng-change="ctx.checkList.toggleSelectItem($index)"
                 ng-model="ctx.checkList.items[$index].selected">
               </os-checkbox>
             </div>
           </td>
-          <td class="col">
+          <td class="col os-click-esc">
             <a ui-sref="user-detail.overview({userId: user.id})">
               <span>{{user | osUserDisplayName}}</span>
             </a>
