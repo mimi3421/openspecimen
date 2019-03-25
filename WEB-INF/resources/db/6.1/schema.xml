@@ -81,4 +81,24 @@
         query_def = replace(query_def, 'SpecimenCollectionGroup.missedBy.missedByName', 'SpecimenCollectionGroup.missedBy');
     </sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="External app ID props">
+    <createTable tableName="OS_EXT_APP_ID_PROPS">
+      <column name="EXTERNAL_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="NAME" type="${text.type}(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="VALUE" type="${text.type}(255)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet author="vpawar" id="FK on external app ID in props table">
+    <addForeignKeyConstraint constraintName="FK_EXT_APP_PROPS_ID"
+      baseTableName="OS_EXT_APP_ID_PROPS" baseColumnNames="EXTERNAL_ID"
+      referencedTableName="OS_EXTERNAL_APP_IDS" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
 </databaseChangeLog>

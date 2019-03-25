@@ -19,6 +19,12 @@
 
     <property name="osId" column="OS_ID" not-null="true"/>
 
+    <map name="props" table="OS_EXT_APP_ID_PROPS" lazy="false" batch-size="25">
+      <key column="EXTERNAL_ID"/>
+      <map-key column="NAME" type="string"/>
+      <element column="VALUE" type="string" not-null="true"/>
+    </map>
+
     <query name="getByExternalId">
       select
         eid

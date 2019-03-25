@@ -1,5 +1,7 @@
 package com.krishagni.catissueplus.core.common.domain;
 
+import java.util.Map;
+
 import com.krishagni.catissueplus.core.biospecimen.domain.BaseEntity;
 
 public class ExternalAppId extends BaseEntity  {
@@ -10,6 +12,8 @@ public class ExternalAppId extends BaseEntity  {
 	private String externalId;
 
 	private Long osId;
+
+	private Map<String, String> props;
 
 	public String getAppName() {
 		return appName;
@@ -41,6 +45,18 @@ public class ExternalAppId extends BaseEntity  {
 
 	public void setOsId(Long osId) {
 		this.osId = osId;
+	}
+
+	public Map<String, String> getProps() {
+		return props;
+	}
+
+	public void setProps(Map<String, String> props) {
+		this.props = props;
+	}
+
+	public String getProp(String name) {
+		return props != null ? props.get(name) : null;
 	}
 
 	public String toString() {
