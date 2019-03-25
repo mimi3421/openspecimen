@@ -1,6 +1,7 @@
 package com.krishagni.catissueplus.core.biospecimen.label.visit;
 
 import com.krishagni.catissueplus.core.biospecimen.domain.BaseExtensionEntity;
+import com.krishagni.catissueplus.core.biospecimen.domain.Participant;
 import com.krishagni.catissueplus.core.biospecimen.domain.Visit;
 import com.krishagni.catissueplus.core.common.AbstractCustomFieldLabelToken;
 
@@ -12,7 +13,9 @@ public class VisitCustomFieldLabelToken extends AbstractCustomFieldLabelToken {
 		if (level.equals("visit")) {
 			return visit;
 		} else if (level.equals("cpr")) {
-			return visit.getRegistration().getParticipant();
+			Participant participant = visit.getRegistration().getParticipant();
+			participant.setCpId(visit.getCpId());
+			return participant;
 		} else if (level.equals("cp")) {
 			return visit.getCollectionProtocol();
 		}
