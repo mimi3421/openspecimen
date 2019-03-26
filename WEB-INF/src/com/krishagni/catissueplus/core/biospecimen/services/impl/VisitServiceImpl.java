@@ -768,6 +768,10 @@ public class VisitServiceImpl implements VisitService, ObjectAccessor, Initializ
 				if (StringUtils.isBlank(specimenDetail.getLabel())) {
 					specimenDetail.setLabel(specimen.getLabel());
 				}
+
+				if (StringUtils.isBlank(specimenDetail.getBarcode())) {
+					specimenDetail.setBarcode(specimen.getBarcode());
+				}
 			}
 
 			if (CollectionUtils.isNotEmpty(specimenDetail.getSpecimensPool())) {

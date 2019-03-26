@@ -1223,6 +1223,7 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
               spmn.status = 'Collected';
             }
 
+            spmn.externalIds = spmn.externalIds || [];
             ExtensionsUtil.createExtensionFieldMap(spmn);
           }
         );
