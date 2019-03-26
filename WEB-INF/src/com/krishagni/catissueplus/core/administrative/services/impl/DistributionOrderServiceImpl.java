@@ -654,6 +654,10 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 				return ResponseEvent.userError(RbacErrorCode.ACCESS_DENIED);
 			}
 
+			if (input.isCopyItemsFromExistingOrder()) {
+				newOrder.setOrderItems(existingOrder.getOrderItems());
+			}
+
 			Status oldStatus = existingOrder.getStatus();
 			existingOrder.update(newOrder);
 			daoFactory.getDistributionOrderDao().saveOrUpdate(existingOrder, true);

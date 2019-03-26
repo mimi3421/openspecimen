@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.krishagni.catissueplus.core.administrative.domain.DistributionOrder;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenListSummary;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
@@ -45,6 +45,8 @@ public class DistributionOrderDetail extends DistributionOrderSummary implements
 	private boolean async;
 
 	private boolean completed = true;
+
+	private boolean copyItemsFromExistingOrder;
 
 	public UserSummary getDistributor() {
 		return distributor;
@@ -148,6 +150,15 @@ public class DistributionOrderDetail extends DistributionOrderSummary implements
 
 	public void setCompleted(boolean completed) {
 		this.completed = completed;
+	}
+
+	public boolean isCopyItemsFromExistingOrder() {
+		return copyItemsFromExistingOrder;
+	}
+
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+	public void setCopyItemsFromExistingOrder(boolean copyItemsFromExistingOrder) {
+		this.copyItemsFromExistingOrder = copyItemsFromExistingOrder;
 	}
 
 	public static DistributionOrderDetail from(DistributionOrder order) {

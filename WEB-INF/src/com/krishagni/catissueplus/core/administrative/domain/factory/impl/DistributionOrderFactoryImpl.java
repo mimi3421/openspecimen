@@ -251,7 +251,7 @@ public class DistributionOrderFactoryImpl implements DistributionOrderFactory {
 	}
 		
 	private void setOrderItems(DistributionOrderDetail detail, DistributionOrder order, OpenSpecimenException ose) {
-		if (order.getSpecimenList() != null || order.isForAllReservedSpecimens()) {
+		if (order.getSpecimenList() != null || order.isForAllReservedSpecimens() || detail.isCopyItemsFromExistingOrder()) {
 			return;
 		}
 

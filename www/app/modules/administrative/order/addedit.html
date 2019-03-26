@@ -177,7 +177,7 @@
 
     <div class="os-alert-container inline" ng-if="input.moreSpmnsThanLimit">
       <div class="alert alert-warning">
-        <span translate="orders.more_specimens_than_limit">
+        <span translate="orders.more_specimens_than_limit" translate-values="input">
           The list has more specimens than the allowed limit for editing details using UI. Please consider using bulk import mechanism if you like to specify additional details (quantity, cost etc) of the specimens to be distributed.
         </span>
       </div>
@@ -363,17 +363,18 @@
         </button>
 
         <button class="btn btn-primary" os-form-submit="doWizard.next(false)"
-          ng-disabled="!input.spmnsFromExternalList && !order.orderItems.length" ng-if="!doWizard.isLastStep()">
+          ng-disabled="!input.spmnsFromExternalList && !order.copyItemsFromExistingOrder && !order.orderItems.length"
+          ng-if="!doWizard.isLastStep()">
           <span translate="common.buttons.next"> Next </span>
         </button>
 
         <button class="btn btn-primary" os-form-submit="saveDraft()"
-          ng-disabled="!input.spmnsFromExternalList && !order.orderItems.length">
+          ng-disabled="!input.spmnsFromExternalList && !order.copyItemsFromExistingOrder && !order.orderItems.length">
           <span translate="orders.buttons.save_draft"> Save as Draft </span>
         </button>
 
         <button class="btn btn-primary" os-form-submit="distribute()"
-          ng-disabled="!input.spmnsFromExternalList && !order.orderItems.length">
+          ng-disabled="!input.spmnsFromExternalList && !order.copyItemsFromExistingOrder && !order.orderItems.length">
           <span translate="orders.buttons.distribute"> Distribute </span>
         </button>
       </div>

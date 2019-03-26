@@ -41,10 +41,11 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
       $scope.input = {
         allItemStatus: false,
         noQtySpmnsPresent: false,
-        spmnsFromExternalList: (!!order.specimenList && !!order.specimenList.id) || order.allReservedSpmns
+        spmnsFromExternalList: (!!order.specimenList && !!order.specimenList.id) || order.allReservedSpmns,
+        limit: maxSpmnsLimit
       };
 
-      if (!$scope.input.spmnsFromList) {
+      if (!$scope.input.spmnsFromExternalList) {
         if (!order.id) {
           if (angular.isArray(SpecimensHolder.getSpecimens())) {
             var printLabels = false;
@@ -91,8 +92,13 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
     }
     
     function loadOrderItems() {
-      order.getOrderItems({maxResults: maxSpmnsLimit}).then(
+      order.getOrderItems({maxResults: maxSpmnsLimit + 1}).then(
         function(orderItems) {
+          if (orderItems.length > maxSpmnsLimit) {
+            order.copyItemsFromExistingOrder = $scope.input.moreSpmnsThanLimit = true;
+            return;
+          }
+
           order.orderItems = orderItems;
 
           if (!!spmnRequest) {
@@ -433,6 +439,12 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
 
       ignoreQtyWarning = false;
       var newItems = getOrderItems(specimens);
+      if (newItems.length + $scope.order.orderItems.length > maxSpmnsLimit) {
+        var params = {allowed: (maxSpmnsLimit - $scope.order.orderItems.length), limit: maxSpmnsLimit};
+        Alerts.error('orders.more_specimens_warning', params, 15000);
+        return;
+      }
+
       var addedItems = Util.addIfAbsent($scope.order.orderItems, newItems, 'specimen.id');
       $scope.input.noQtySpmnsPresent = $scope.input.noQtySpmnsPresent || anyNoQtySpmns(newItems);
       addItemCosts($scope.order.distributionProtocol, addedItems);
@@ -506,8 +518,6 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
             );
           }
         );
-      } else {
-        $scope.input.moreSpmnsThanLimit = (order.orderItems && order.orderItems.length > maxSpmnsLimit)
       }
 
       return true;
