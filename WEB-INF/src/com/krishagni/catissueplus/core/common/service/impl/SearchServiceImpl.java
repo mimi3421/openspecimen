@@ -75,8 +75,13 @@ public class SearchServiceImpl implements SearchService, InitializingBean {
 		}
 
 		List<String> entities = daoFactory.getSearchEntityKeywordDao().getMatchingEntities(searchTerm);
+		Map<String, Integer> rankMap = new HashMap<>();
 		List<SearchResult> results = new ArrayList<>();
+
+		int rank = 0;
 		for (String entity : entities) {
+			rankMap.put(entity, ++rank);
+
 			SearchResultProcessor proc = resultProcessors.get(entity);
 			if (proc == null) {
 				continue;
@@ -102,7 +107,15 @@ public class SearchServiceImpl implements SearchService, InitializingBean {
 			}
 		}
 
-		return results;
+
+		return results.stream().sorted((r1, r2) -> {
+			int cmp = rankMap.get(r1.getEntity()).compareTo(rankMap.get(r2.getEntity()));
+			if (cmp == 0) {
+				cmp = r1.getValue().compareTo(r2.getValue());
+			}
+
+			return cmp;
+		}).collect(Collectors.toList());
 	}
 
 	@Override

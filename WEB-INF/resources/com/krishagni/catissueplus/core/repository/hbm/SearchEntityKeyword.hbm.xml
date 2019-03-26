@@ -51,7 +51,8 @@
         k.value like :value and
         k.status = 1
       order by
-        r.sort_order
+        r.sort_order,
+        k.value
     </sql-query>
 
     <sql-query name="getMatchingEntities">
