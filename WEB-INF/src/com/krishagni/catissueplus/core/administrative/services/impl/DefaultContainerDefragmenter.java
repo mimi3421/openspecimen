@@ -315,7 +315,7 @@ public class DefaultContainerDefragmenter implements ContainerDefragmenter {
 		Specimen spmn = pos.getOccupyingSpecimen();
 		Map<Long, List<Long>> aliquotsMap = containerInfo.get(containerId).aliquotsMap;
 		List<Long> aliquots = aliquotsMap.get(spmn.getParentSpecimen().getId());
-		return getPositions(positions, aliquots, false);
+		return getPositions(positions, aliquots, true);
 	}
 
 	private boolean canContainAll(StorageContainer container, List<StorageContainerPosition> positions) {
