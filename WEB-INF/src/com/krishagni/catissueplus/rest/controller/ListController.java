@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -90,6 +91,12 @@ public class ListController {
 		@RequestParam(value = "includeCount", required = false, defaultValue = "false")
 		boolean includeCount,
 
+		@RequestParam(value = "orderBy", required = false, defaultValue = "")
+		String orderBy,
+
+		@RequestParam(value = "orderDirection", required = false, defaultValue = "asc")
+		String orderDirection,
+
 		@RequestBody
 		List<Column> filters) {
 
@@ -100,6 +107,13 @@ public class ListController {
 		listReq.put("maxResults", maxResults);
 		listReq.put("includeCount", includeCount);
 		listReq.put("filters", filters);
+
+		if (StringUtils.isNotBlank(orderBy)) {
+			Column order = new Column();
+			order.setExpr(orderBy);
+			order.setDirection(orderDirection);
+			listReq.put("orderBy", order);
+		}
 
 		return response(listSvc.getList(request(listReq)));
 	}

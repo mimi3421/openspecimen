@@ -8,7 +8,7 @@ import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 
 
 public interface ListGenerator {
-	ListDetail getList(ListConfig cfg, List<Column> searchCriteria);
+	ListDetail getList(ListConfig cfg, List<Column> searchCriteria, Column orderBy);
 
 	int getListSize(ListConfig cfg, List<Column> searchCriteria);
 

@@ -59,11 +59,31 @@ angular.module('openspecimen')
           );
         }
 
+        function sortBy(column) {
+          if (ctx.sortBy && ctx.sortBy.expr == column.expr) {
+            ctx.sortBy.direction = (ctx.sortBy.direction == 'asc') ? 'desc' : 'asc';
+          } else {
+            if (ctx.sortBy) {
+              ctx.sortBy.direction = undefined;
+            }
+
+            ctx.sortBy = column;
+            ctx.sortBy.direction = 'asc';
+          }
+
+          loadList();
+        }
+
         function loadList() {
           var params = angular.extend({}, $scope.params);
           angular.extend(params, listParams);
           if (pagerOpts.$$pageSizeChanged > 0) {
             params.includeCount = false;
+          }
+
+          if (ctx.sortBy) {
+            params.orderBy        = ctx.sortBy.expr;
+            params.orderDirection = ctx.sortBy.direction;
           }
 
           $http.post(getUrl() + 'data', getFilters(), {params: params}).then(
@@ -84,6 +104,16 @@ angular.module('openspecimen')
 
               if (ctrl.enableSelection) {
                 ctrl.checkList = $scope.checkList = new CheckList(ctx.data.rows);
+              }
+
+              if (ctx.sortBy) {
+                var column = ctx.data.columns.find(function(c) { return c.expr == ctx.sortBy.expr; });
+                if (column) {
+                  ctx.sortBy = column;
+                  column.direction = params.orderDirection;
+                } else {
+                  ctx.sortBy = undefined;
+                }
               }
             }
           );
@@ -147,6 +177,8 @@ angular.module('openspecimen')
 
         this.loadList = loadList;
 
+        this.sortBy = sortBy;
+
         this.getExpressionValues = getExpressionValues;
 
         init();
@@ -171,6 +203,10 @@ angular.module('openspecimen')
 
         scope.loadFilterValues = function(expr) {
           return ctrl.getExpressionValues(expr);
+        }
+
+        scope.sortBy = function(column) {
+          ctrl.sortBy(column);
         }
       }
     }

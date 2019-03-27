@@ -12,8 +12,12 @@
               <os-checkbox ng-change="checkList.toggleSelectAll()" ng-model="checkList.allSelected"></os-checkbox>
             </div>
           </th>
-          <th class="col" ng-repeat="column in ctx.data.columns" ng-if="!column.hide">
+          <th class="col os-pointer-cursor" ng-repeat="column in ctx.data.columns" ng-show="!column.hide"
+            ng-click="sortBy(column)">
             <span>{{column.caption}}</span>
+            <span ng-show="!!column.direction" class="fa"
+              ng-class="{'asc': 'fa-long-arrow-up', 'desc': 'fa-long-arrow-down'}[column.direction]">
+            </span>
           </th>
         </tr>
       </thead>
@@ -25,7 +29,7 @@
               </os-checkbox>
             </div>
           </td>
-          <td class="col text-wrap" ng-repeat="col in row.data track by $index" ng-if="!ctx.data.columns[$index].hide">
+          <td class="col text-wrap" ng-repeat="col in row.data track by $index" ng-show="!ctx.data.columns[$index].hide">
             <span ng-switch on="ctx.data.columns[$index].metainfo.showLink == 'true'">
               <span ng-switch-when="true">
                 <a ui-sref="{{itemSref}}">
