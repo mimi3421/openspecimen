@@ -44,6 +44,7 @@ angular.module('openspecimen')
       $scope.errors     = [];
       $scope.loginData  = {};
       $scope.samlDomain = '';
+      $scope.showSignIn = true;
       
       var logoutQ;
       if ($location.search().logout) {
@@ -99,6 +100,7 @@ angular.module('openspecimen')
     }
 
     function gotoIdp() {
+      $scope.showSignIn = false;
       $window.location.replace('saml/login');
     }
 
