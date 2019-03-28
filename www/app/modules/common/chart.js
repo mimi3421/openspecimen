@@ -55,6 +55,18 @@ angular.module('openspecimen')
       };
     }
 
+    function addCategoryTimeAxis(options) {
+      options.scales = {
+        xAxes: [{
+          type: 'time',
+          time: {
+            parser: ui.os.global.shortDateFmt.toUpperCase() + ' HH:mm',
+            displayFormat: ui.os.global.dateFmt.toUpperCase()
+          }
+        }]
+      };
+    }
+
     return {
       restrict: 'E',
 
@@ -102,6 +114,10 @@ angular.module('openspecimen')
                 total = sumOf(scope.data.values);
                 scope.options.animation = getAnimationOpts(function(value) { return pct(value, total, true); });
               }
+            }
+
+            if (scope.data.categoryType == 'DATE') {
+              addCategoryTimeAxis(scope.options);
             }
           }
         );
