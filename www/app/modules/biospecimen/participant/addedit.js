@@ -410,6 +410,13 @@ angular.module('os.biospecimen.participant.addedit', ['os.biospecimen.models', '
       }
     }
 
+    $scope.vitalStatusChanged = function() {
+      var p = $scope.cpr.participant;
+      if (p.vitalStatus != 'Dead' && !!p.deathDate) {
+        p.deathDate = null;
+      }
+    }
+
     $scope.pmiText = function(pmi) {
       return pmi.siteName + (pmi.mrn ? " (" + pmi.mrn + ")" : "");
     }

@@ -410,7 +410,8 @@
       <label class="col-xs-3 control-label" translate="participant.vital_status">Vital Status</label>
       <div class="col-xs-9">
         <label class="radio-inline" ng-repeat="vitalStatus in vitalStatuses">
-          <input type="radio" name="vitalStatus" ng-model="cpr.participant.vitalStatus" ng-value="vitalStatus">
+          <input type="radio" name="vitalStatus" ng-model="cpr.participant.vitalStatus" ng-value="vitalStatus"
+            ng-change="vitalStatusChanged()">
           <span>{{vitalStatus}}</span>
         </label>
       </div>
