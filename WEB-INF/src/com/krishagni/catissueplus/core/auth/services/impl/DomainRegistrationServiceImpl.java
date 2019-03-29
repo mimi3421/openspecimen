@@ -12,6 +12,7 @@ import com.krishagni.catissueplus.core.auth.events.ListAuthDomainCriteria;
 import com.krishagni.catissueplus.core.auth.services.DomainRegistrationService;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
+import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
@@ -41,6 +42,8 @@ public class DomainRegistrationServiceImpl implements DomainRegistrationService 
 	@PlusTransactional
 	public ResponseEvent<AuthDomainDetail> registerDomain(RequestEvent<AuthDomainDetail> req) {
 		try {
+			AccessCtrlMgr.getInstance().ensureUserIsAdmin();
+
 			AuthDomainDetail detail = req.getPayload();			
 			AuthDomain authDomain = domainRegFactory.createDomain(detail);
 			
@@ -57,6 +60,8 @@ public class DomainRegistrationServiceImpl implements DomainRegistrationService 
 	@PlusTransactional
 	public ResponseEvent<AuthDomainDetail> updateDomain(RequestEvent<AuthDomainDetail> req) {
 		try {
+			AccessCtrlMgr.getInstance().ensureUserIsAdmin();
+
 			AuthDomainDetail detail = req.getPayload();
 			AuthDomain existingDomain = daoFactory.getAuthDao().getAuthDomainByName(detail.getName());
 			if (existingDomain == null) {
