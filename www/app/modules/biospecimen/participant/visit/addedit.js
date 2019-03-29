@@ -23,7 +23,7 @@ angular.module('os.biospecimen.visit.addedit', [])
 
       if (!currVisit.id) {
         angular.extend(currVisit, {
-          visitDate: currVisit.anticipatedVisitDate || new Date(),
+          visitDate: new Date(),
           status: 'Complete',
           clinicalDiagnoses: latestVisit ? latestVisit.clinicalDiagnoses : currVisit.clinicalDiagnoses,
           site: getVisitSite(cpr, latestVisit, currVisit)
