@@ -40,4 +40,18 @@
     <sql>update os_cfg_props set name = 'smtp_server_host' where name = 'server_host';</sql>
     <sql>update os_cfg_props set name = 'smtp_server_port' where name = 'server_port';</sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="Scheduled job to change data type of DE date/time field" dbms="mysql">
+    <sql>
+      select identifier into @userId from catissue_user where login_name = '$system';
+
+      insert into os_scheduled_jobs
+        (identifier, name, created_by, start_date, repeat_schedule, scheduled_minute, scheduled_hour, activity_status,
+         type, command, task_impl_fqn, rt_args_provided, rt_args_help_text)
+      values
+        (default, 'Change data type of custom form date field', @userId, now(), 'ONDEMAND', 00, 00, 'Active',
+         'INTERNAL', null, 'com.krishagni.catissueplus.core.de.services.impl.ChangeDateTypeTask',
+         1, 'Input custom form and field names separated by a space')
+    </sql>
+  </changeSet>
 </databaseChangeLog>
