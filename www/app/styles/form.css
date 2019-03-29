@@ -57,10 +57,12 @@
 }
 
 
+.os-extn-form.de-form-submitting,
 form.os-form-submitting {
   position: relative;
 }
 
+.os-extn-form.de-form-submitting:before,
 form.os-form-submitting:before {
   position: absolute;
   width: 100%;
@@ -71,6 +73,7 @@ form.os-form-submitting:before {
   z-index: 10;
 }
 
+.os-extn-form.de-form-submitting:after,
 form.os-form-submitting:after {
   position: fixed;
   top: 40px;

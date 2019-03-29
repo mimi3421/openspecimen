@@ -574,15 +574,19 @@ edu.common.de.Form = function(args) {
       dataType: 'json',
       data: JSON.stringify(formData)
     }).done(function(data) { 
+      that.formDiv.removeClass('de-form-submitting');
       that.recordId = data.id;
       if (args.onSaveSuccess) {
         args.onSaveSuccess(data, next);
       }
     }).fail(function(data) { 
+      that.formDiv.removeClass('de-form-submitting');
       if (args.onSaveError) {
         args.onSaveError(data);
       }
     });
+
+    that.formDiv.addClass('de-form-submitting');
   };
 
   this.cancel = function() {
