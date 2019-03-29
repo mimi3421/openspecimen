@@ -93,6 +93,8 @@ angular.module('os.common.form', [])
       },
 
       link: function(scope, element, attrs, controller) {
+        controller.formEl = element;
+
         scope.$watch(attrs.osFormValidator, function(form) {
           controller.setForm(form);
         });
@@ -125,8 +127,8 @@ angular.module('os.common.form', [])
     };
   })
 
-  .directive('osFormSubmit', function($document, Alerts, LocationChangeListener) {
-    function onSubmit(scope, ctrl, attrs) {
+  .directive('osFormSubmit', function($document, httpRespInterceptor, Alerts, LocationChangeListener) {
+    function onSubmit(scope, ctrl, element, attrs) {
       var form = ctrl.getForm();
       if (form.$pending) {
         var pendingWatch = scope.$watch(
@@ -137,7 +139,7 @@ angular.module('os.common.form', [])
           function(pending) {
             if (!pending) {
               pendingWatch();
-              onSubmit(scope, ctrl, attrs);
+              onSubmit(scope, ctrl, element, attrs);
             }
           }
         );
@@ -147,7 +149,14 @@ angular.module('os.common.form', [])
           if (attrs.localForm) {
             LocationChangeListener.allowChange();
           }
+
           scope.$eval(attrs.osFormSubmit);
+          ctrl.formEl.addClass('os-form-submitting');
+          httpRespInterceptor.addListener(
+            function() {
+              ctrl.formEl.removeClass('os-form-submitting');
+            }
+          );
         } else {
           Alerts.error("common.form_validation_error");
         }
@@ -170,12 +179,12 @@ angular.module('os.common.form', [])
             var eventName = "mouseup.formsubmit." + cnt;
             $document.on(eventName, function() {
               $document.unbind(eventName);
-              onSubmit(scope, ctrl, attrs);
+              onSubmit(scope, ctrl, element, attrs);
             });
           })
         } else {
           element.bind('click', function() {
-            onSubmit(scope, ctrl, attrs);
+            onSubmit(scope, ctrl, element, attrs);
           });
         }
       }

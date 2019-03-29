@@ -124,8 +124,47 @@ osApp.config(function(
       Alerts.errorText(errMsgs);
     }
 
+    var totalReqs = 0;
+
+    var completedReqs = 0;
+
+    var listeners = [];
+
+    var timerId = undefined;
+
+    function notifyListeners() {
+      if (timerId) {
+        clearTimeout(timerId);
+      }
+
+      timerId = setTimeout(notifyListeners0, 500);
+    }
+
+    function notifyListeners0() {
+      if (completedReqs >= totalReqs) {
+        angular.forEach(listeners,
+          function(listener) {
+            listener();
+          }
+        );
+
+        listeners = [];
+        totalReqs = completedReqs = 0;
+      }
+    }
+
+    function addListener(listener) {
+      if (completedReqs >= totalReqs) {
+        listener.completed();
+      } else {
+        listeners.push(listener);
+      }
+    }
+
     return {
       request: function(config) {
+        ++totalReqs;
+
         if (config.method == 'GET' && $templateCache.get(config.url) == null) {
           if (config.url.indexOf('modules') == 0 || config.url.indexOf('plugin-ui-resources') == 0) {
             config.url += qp;
@@ -140,14 +179,20 @@ osApp.config(function(
       },
 
       response: function(response) {
+        ++completedReqs;
+
         var httpMethods = ['POST', 'PUT', 'PATCH'];
         if (response.status == 200 && httpMethods.indexOf(response.config.method) != -1) {
           LocationChangeListener.allowChange();
         }
+
+        notifyListeners();
         return response || $q.when(response);
       },
 
       responseError: function(rejection) {
+        ++completedReqs;
+
         if (rejection.status == 0) {
           Alerts.error("common.server_connect_error");
         } else if (rejection.status == 401) {
@@ -170,8 +215,11 @@ osApp.config(function(
           }
         } 
 
+        notifyListeners();
         return $q.reject(rejection);
-      }
+      },
+
+      addListener: addListener
     };
   })
   .factory('ApiUtil', function($window, $http) {
