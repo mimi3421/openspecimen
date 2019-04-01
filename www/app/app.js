@@ -157,8 +157,8 @@ osApp.config(function(
     }
 
     function addListener(listener) {
-      if (completedReqs >= totalReqs) {
-        listener.completed();
+      if (completedReqs >= totalReqs && completedReqs != 0) {
+        listener();
       } else {
         listeners.push(listener);
       }
