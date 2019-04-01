@@ -107,4 +107,21 @@
       <column name="FIELD_SEPARATOR" type="${text.type}(1)"/>
     </addColumn>
   </changeSet>
+
+  <changeSet author="vpawar" id="User UI states">
+    <createTable tableName="OS_USER_UI_STATES">
+      <column name="USER_ID" type="${int.type}">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="STATE" type="${clob.type}">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Foreign key on UI states user">
+    <addForeignKeyConstraint constraintName="FK_UI_STATE_USER"
+      baseTableName="OS_USER_UI_STATES" baseColumnNames="USER_ID"
+      referencedTableName="CATISSUE_USER" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
 </databaseChangeLog>

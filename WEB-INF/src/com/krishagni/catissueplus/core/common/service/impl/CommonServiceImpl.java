@@ -1,9 +1,13 @@
 package com.krishagni.catissueplus.core.common.service.impl;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
@@ -107,5 +111,29 @@ public class CommonServiceImpl implements CommonService {
 		}
 
 		return exceptionId;
+	}
+
+	@Override
+	public String getLatestReleaseNotes() {
+		try {
+			Resource[] resources = new PathMatchingResourcePatternResolver().getResources("/release-notes/*");
+			List<File> files = new ArrayList<>();
+			for (Resource resource : resources) {
+				File file = resource.getFile();
+				if (file.isDirectory() || !file.getName().endsWith(".html")) {
+					continue;
+				}
+
+				files.add(file);
+			}
+
+			File file = files.stream()
+				.sorted((f1, f2) -> -1 * f1.getName().compareTo(f2.getName()))
+				.findFirst().orElse(null);
+			return file != null ? Utility.getFileText(file) : "No release notes!";
+		} catch (Exception e) {
+			logger.error("Error reading release notes", e);
+			throw new RuntimeException("Error reading release notes", e);
+		}
 	}
 }

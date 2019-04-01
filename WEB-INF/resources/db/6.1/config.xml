@@ -54,4 +54,14 @@
          1, 'Input custom form and field names separated by a space')
     </sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="Release notes URL setting">
+    <sql>
+      call add_cfg_prop(
+        'training', 'release_notes',
+        'release_notes', 'release_notes_desc',
+        'STRING', 'https://openspecimen.atlassian.net/wiki/x/M4B1'
+      );
+    </sql>
+  </changeSet>
 </databaseChangeLog>

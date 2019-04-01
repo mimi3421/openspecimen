@@ -1,10 +1,20 @@
 angular.module('openspecimen')
-  .controller('SignedInCtrl', function($scope, $rootScope, currentUser, Alerts, AuthorizationService, SettingUtil) {
+  .controller('SignedInCtrl', function(
+     $scope, $rootScope, currentUser, userUiState,
+     Alerts, AuthorizationService, SettingUtil) {
+
      function init() {
        $scope.alerts = Alerts.messages;
        $rootScope.currentUser = currentUser;
-       $scope.userCtx = {
-         hasPhiAccess: AuthorizationService.hasPhiAccess()
+       var ctx = $scope.userCtx = {
+         hasPhiAccess: AuthorizationService.hasPhiAccess(),
+         state: userUiState,
+         showNewStuff: true
+       }
+
+       var revision = ui.os.global.appProps.build_commit_revision;
+       if (userUiState && userUiState.notesRead == revision) {
+         ctx.showNewStuff = false;
        }
 
        setSetting('training', 'training_url', 'trainingUrl');

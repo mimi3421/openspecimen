@@ -9,6 +9,7 @@ import java.util.Map;
 import com.krishagni.catissueplus.core.administrative.domain.ForgotPasswordToken;
 import com.krishagni.catissueplus.core.administrative.domain.Password;
 import com.krishagni.catissueplus.core.administrative.domain.User;
+import com.krishagni.catissueplus.core.administrative.domain.UserUiState;
 import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.repository.Dao;
 
@@ -52,4 +53,8 @@ public interface UserDao extends Dao<User> {
 	public int updateStatus(List<User> users, String status);
 
 	List<User> getSuperAndInstituteAdmins(String instituteName);
+
+	void saveUiState(UserUiState state);
+
+	UserUiState getState(Long userId);
 }

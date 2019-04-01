@@ -68,6 +68,9 @@ osApp.config(function(
           currentUser: function(User) {
             return User.getCurrentUser();
           },
+          userUiState: function(User) {
+            return User.getUiState();
+          },
           authInit: function(currentUser, AuthorizationService) {
             return AuthorizationService.initializeUserRights(currentUser);
           }

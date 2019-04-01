@@ -75,6 +75,22 @@ angular.module('os.administrative.models.user', ['os.common.models'])
       return $http.get(User.url() + 'current-user').then(User.modelRespTransform);
     }
 
+    User.getUiState = function() {
+      return $http.get(User.url() + 'current-user-ui-state').then(
+        function(resp) {
+          return resp.data;
+        }
+      );
+    }
+
+    User.saveUiState = function(uiState) {
+      return $http.put(User.url() + 'current-user-ui-state', uiState).then(
+        function(resp) {
+          return resp.data;
+        }
+      );
+    }
+
     User.signup = function(user) {
       return $http.post(User.url() + 'sign-up', user).then(ApiUtil.processResp);
     }

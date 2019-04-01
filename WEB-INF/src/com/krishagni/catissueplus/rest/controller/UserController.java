@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import com.krishagni.catissueplus.core.administrative.domain.UserUiState;
 import com.krishagni.catissueplus.core.administrative.events.AnnouncementDetail;
 import com.krishagni.catissueplus.core.administrative.events.InstituteDetail;
 import com.krishagni.catissueplus.core.administrative.events.PasswordDetails;
@@ -339,7 +340,6 @@ public class UserController {
 	public UserSummary getCurrentUser() {
 		ResponseEvent<UserSummary> resp = userAuthService.getCurrentLoggedInUser();
 		resp.throwErrorIfUnsuccessful();
-		
 		return resp.getPayload();
  	}
 	
@@ -351,7 +351,25 @@ public class UserController {
 		resp.throwErrorIfUnsuccessful();
 		return resp.getPayload();
 	}
-	
+
+	@RequestMapping(method = RequestMethod.GET, value = "/current-user-ui-state")
+	@ResponseBody
+	@ResponseStatus(HttpStatus.OK)
+	public Map<String, Object> getCurrentUserUiState() {
+		ResponseEvent<UserUiState> resp = userService.getUiState();
+		resp.throwErrorIfUnsuccessful();
+		return resp.getPayload() == null ? Collections.emptyMap() : resp.getPayload().getState();
+	}
+
+	@RequestMapping(method = RequestMethod.PUT, value = "/current-user-ui-state")
+	@ResponseBody
+	@ResponseStatus(HttpStatus.OK)
+	public Map<String, Object> saveCurrentUserUiState(@RequestBody Map<String, Object> state) {
+		ResponseEvent<UserUiState> resp = userService.saveUiState(new RequestEvent<>(state));
+		resp.throwErrorIfUnsuccessful();
+		return resp.getPayload() == null ? Collections.emptyMap() : resp.getPayload().getState();
+	}
+
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}/institute")
 	@ResponseBody
 	@ResponseStatus(HttpStatus.OK)

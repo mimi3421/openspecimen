@@ -25,6 +25,7 @@ import com.krishagni.catissueplus.core.administrative.domain.ForgotPasswordToken
 import com.krishagni.catissueplus.core.administrative.domain.Password;
 import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.administrative.domain.User;
+import com.krishagni.catissueplus.core.administrative.domain.UserUiState;
 import com.krishagni.catissueplus.core.administrative.repository.UserDao;
 import com.krishagni.catissueplus.core.administrative.repository.UserListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
@@ -217,6 +218,18 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 			users.addAll(getUsers(crit.type("INSTITUTE").instituteName(instituteName)));
 		}
 		return users;
+	}
+
+	@Override
+	public void saveUiState(UserUiState state) {
+		getCurrentSession().saveOrUpdate(state);
+	}
+
+	@Override
+	public UserUiState getState(Long userId) {
+		return (UserUiState) getCurrentSession().getNamedQuery(GET_STATE)
+			.setParameter("userId", userId)
+			.uniqueResult();
 	}
 
 	private Criteria getUsersListQuery(UserListCriteria crit) {
@@ -485,4 +498,6 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 	private static final String GET_INACTIVE_USERS = FQN + ".getInactiveUsers";
 	
 	private static final String UPDATE_STATUS = FQN + ".updateStatus";
+
+	private static final String GET_STATE = UserUiState.class.getName() + ".getState";
 }

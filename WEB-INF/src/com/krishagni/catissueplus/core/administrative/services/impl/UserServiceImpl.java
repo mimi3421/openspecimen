@@ -28,6 +28,7 @@ import com.krishagni.catissueplus.core.administrative.domain.ForgotPasswordToken
 import com.krishagni.catissueplus.core.administrative.domain.Institute;
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.administrative.domain.UserEvent;
+import com.krishagni.catissueplus.core.administrative.domain.UserUiState;
 import com.krishagni.catissueplus.core.administrative.domain.factory.UserErrorCode;
 import com.krishagni.catissueplus.core.administrative.domain.factory.UserFactory;
 import com.krishagni.catissueplus.core.administrative.events.AnnouncementDetail;
@@ -512,8 +513,25 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 	@PlusTransactional
 	public ResponseEvent<List<SubjectRoleDetail>> getCurrentUserRoles() {
 		return rbacSvc.getSubjectRoles(new RequestEvent<>(AuthUtil.getCurrentUser().getId()));
-	}		
-	
+	}
+
+	@Override
+	@PlusTransactional
+	public ResponseEvent<UserUiState> getUiState() {
+		User user = AuthUtil.getCurrentUser();
+		return ResponseEvent.response(daoFactory.getUserDao().getState(user.getId()));
+	}
+
+	@Override
+	@PlusTransactional
+	public ResponseEvent<UserUiState> saveUiState(RequestEvent<Map<String, Object>> req) {
+		UserUiState uiState = new UserUiState();
+		uiState.setUserId(AuthUtil.getCurrentUser().getId());
+		uiState.setState(req.getPayload());
+		daoFactory.getUserDao().saveUiState(uiState);
+		return ResponseEvent.response(uiState);
+	}
+
 	@Override
 	@PlusTransactional
 	public ResponseEvent<InstituteDetail> getInstitute(RequestEvent<Long> req) {

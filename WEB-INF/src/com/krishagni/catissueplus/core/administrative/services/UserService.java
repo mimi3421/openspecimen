@@ -2,10 +2,12 @@
 package com.krishagni.catissueplus.core.administrative.services;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.saml.userdetails.SAMLUserDetailsService;
 
+import com.krishagni.catissueplus.core.administrative.domain.UserUiState;
 import com.krishagni.catissueplus.core.administrative.events.AnnouncementDetail;
 import com.krishagni.catissueplus.core.administrative.events.InstituteDetail;
 import com.krishagni.catissueplus.core.administrative.events.PasswordDetails;
@@ -47,6 +49,10 @@ public interface UserService {
 	public ResponseEvent<UserDetail> deleteUser(RequestEvent<DeleteEntityOp> req);
 
 	public ResponseEvent<List<SubjectRoleDetail>> getCurrentUserRoles();
+
+	public ResponseEvent<UserUiState> getUiState();
+
+	public ResponseEvent<UserUiState> saveUiState(RequestEvent<Map<String, Object>> req);
 
 	public ResponseEvent<InstituteDetail> getInstitute(RequestEvent<Long> req);
 

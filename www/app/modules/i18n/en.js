@@ -2777,7 +2777,9 @@
         "cp_setup_help_link": "Collection Protocol Setup",
         "cp_setup_help_link_desc": "Link to training materials on how to setup (create, update) collection protocols, events, specimen requirements, consents, label formats, and many more",
         "manual_search_link": "Search URL",
-        "manual_search_link_desc": "URL to use for showing results of users' online training manual search queries."
+        "manual_search_link_desc": "URL to use for showing results of users' online training manual search queries.",
+        "release_notes": "Release Notes",
+        "release_notes_desc": "Release Notes URL"
       }
     },
 
@@ -2790,5 +2792,12 @@
       "hundred": "100",
       "two_hundred": "200",
       "five_hundred": "500"
+    },
+
+    "new_stuff": {
+      "title": "New stuff!",
+      "announcements": "Announcements",
+      "read_more": "Read more...",
+      "loading_notes": "Loading... Please wait for a moment."
     }
 }
