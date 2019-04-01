@@ -101,4 +101,10 @@
       baseTableName="OS_EXT_APP_ID_PROPS" baseColumnNames="EXTERNAL_ID"
       referencedTableName="OS_EXTERNAL_APP_IDS" referencedColumnNames="IDENTIFIER"/>
   </changeSet>
+
+  <changeSet author="vpawar" id="Import job field separator">
+    <addColumn tableName="OS_BULK_IMPORT_JOBS">
+      <column name="FIELD_SEPARATOR" type="${text.type}(1)"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

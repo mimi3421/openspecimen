@@ -292,7 +292,7 @@ public class ImportServiceImpl implements ImportService, ApplicationListener<Con
 				return ResponseEvent.userError(ImportJobErrorCode.OBJ_SCHEMA_NOT_FOUND, detail.getObjectType());
 			}
 
-			return ResponseEvent.response(ObjectReader.getSchemaFields(schema));
+			return ResponseEvent.response(ObjectReader.getSchemaFields(schema, detail.getFieldSeparator()));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {
@@ -489,6 +489,7 @@ public class ImportServiceImpl implements ImportService, ApplicationListener<Con
 		job.setStatus(Status.QUEUED);
 		job.setAtomic(detail.isAtomic());
 		job.setParams(detail.getObjectParams());
+		job.setFieldSeparator(detail.getFieldSeparator());
 
 		setImportType(detail, job, ose);
 		setCsvType(detail, job, ose);
@@ -616,8 +617,8 @@ public class ImportServiceImpl implements ImportService, ApplicationListener<Con
 
 				ObjectSchema schema = schemaFactory.getSchema(job.getName(), job.getParams());
 				String filePath = getJobDir(job.getId()) + File.separator + "input.csv";
-				csvWriter = getOutputCsvWriter(job);
-				objReader = new ObjectReader(filePath, schema, job.getDateFormat(), job.getTimeFormat());
+				csvWriter = getOutputCsvWriter(schema, job);
+				objReader = new ObjectReader(filePath, schema, job.getDateFormat(), job.getTimeFormat(), job.getFieldSeparator());
 
 				List<String> columnNames = objReader.getCsvColumnNames();
 				columnNames.add("OS_IMPORT_STATUS");
@@ -867,9 +868,17 @@ public class ImportServiceImpl implements ImportService, ApplicationListener<Con
 			});
 		}
 
-		private CsvWriter getOutputCsvWriter(ImportJob job)
+		private CsvWriter getOutputCsvWriter(ObjectSchema schema, ImportJob job)
 		throws IOException {
-			return CsvFileWriter.createCsvFileWriter(new FileWriter(getJobOutputFilePath(job.getId())));
+			char fieldSeparator = Utility.getFieldSeparator();
+			if (StringUtils.isNotBlank(job.getFieldSeparator())) {
+				fieldSeparator = job.getFieldSeparator().charAt(0);
+			} else if (StringUtils.isNotBlank(schema.getFieldSeparator())) {
+				fieldSeparator = schema.getFieldSeparator().charAt(0);
+			}
+
+			FileWriter writer = new FileWriter(getJobOutputFilePath(job.getId()));
+			return CsvFileWriter.createCsvFileWriter(writer, fieldSeparator, '"');
 		}
 				
 		private void closeQuietly(CsvWriter writer) {

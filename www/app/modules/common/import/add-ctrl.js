@@ -15,6 +15,7 @@ angular.module('os.common.import.addctrl', ['os.common.import.importjob'])
         dateFormat: $rootScope.global.shortDateFmt,
         timeFormat: $rootScope.global.timeFmt,
         inputFileId: undefined,
+        fieldSeparator: importDetail.objectType && importDetail.objectType.fieldSeparator,
         objectParams: importDetail.objectParams || {}
       });
 
@@ -97,11 +98,12 @@ angular.module('os.common.import.addctrl', ['os.common.import.importjob'])
       $scope.importDetail.showImportType = objectType.showImportType;
       $scope.importDetail.importType = objectType.importType;
 
-      var importJob          = $scope.importJob;
-      importJob.objectType   = objectType.type;
-      importJob.importType   = objectType.importType || 'CREATE',
-      importJob.csvType      = objectType.csvType || 'SINGLE_ROW_PER_OBJ',
-      importJob.objectParams = objectType.params;
+      var importJob            = $scope.importJob;
+      importJob.objectType     = objectType.type;
+      importJob.importType     = objectType.importType || 'CREATE',
+      importJob.csvType        = objectType.csvType || 'SINGLE_ROW_PER_OBJ',
+      importJob.fieldSeparator = objectType.fieldSeparator;
+      importJob.objectParams   = objectType.params;
 
       $scope.inputFileTmplUrl  = getInputTmplUrl(importJob);
     };

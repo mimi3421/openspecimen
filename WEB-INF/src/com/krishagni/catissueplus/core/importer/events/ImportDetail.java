@@ -14,6 +14,8 @@ public class ImportDetail {
 
 	private String timeFormat;
 
+	private String fieldSeparator;
+
 	private String inputFileId;
 
 	private Map<String, String> objectParams = new HashMap<>();
@@ -58,6 +60,14 @@ public class ImportDetail {
 
 	public void setTimeFormat(String timeFormat) {
 		this.timeFormat = timeFormat;
+	}
+
+	public String getFieldSeparator() {
+		return fieldSeparator;
+	}
+
+	public void setFieldSeparator(String fieldSeparator) {
+		this.fieldSeparator = fieldSeparator;
 	}
 
 	public String getInputFileId() {

@@ -15,7 +15,7 @@
   </div>
 
   <div class="container">
-    <form class="form-horizontal">
+    <form class="form-horizontal" >
       <div class="form-group" ng-if="importDetail.entitiesFn">
         <label class="col-xs-3 control-label">
           <span translate="{{importDetail.entityLabel}}"></span>
@@ -29,8 +29,8 @@
       </div>
 
       <div class="form-group" ng-if="importDetail.types.length > 0">
-        <label class="col-xs-3 control-label" translate="bulk_imports.select_record_type">
-          Select Record Type
+        <label class="col-xs-3 control-label">
+          <span translate="bulk_imports.select_record_type">Select Record Type</span>
         </label>
         <div class="col-xs-5">
           <ui-select name="objectType" ng-model="importDetail.objectType" on-select="onTypeSelect($select.selected)">
@@ -48,8 +48,8 @@
   
     <form class="form-horizontal" action="{{importJobsFileUrl}}">
       <div class="form-group">
-        <label class="col-xs-3 control-label" translate="bulk_imports.input_file">
-          Input File
+        <label class="col-xs-3 control-label">
+          <span translate="bulk_imports.input_file">Input File</span>
         </label>
         <div class="col-xs-5">
           <div os-file-upload ctrl="fileImporter"></div>
@@ -61,7 +61,7 @@
         </div>
         <div class="clearfix">
           <div class="col-xs-offset-3 col-xs-4">
-            <a href="{{inputFileTmplUrl}}" target="_blank">
+            <a href="{{inputFileTmplUrl}}&fieldSeparator={{importJob.fieldSeparator}}" target="_blank">
               <span translate="bulk_imports.download_input_file_tmpl">
                 Download Input File Template
               </span>
@@ -73,8 +73,8 @@
 
     <form class="form-horizontal">
       <div class="form-group" ng-hide="importDetail.showImportType == false">
-        <label class="col-xs-3 control-label" translate="bulk_imports.import_type">
-          Import Type
+        <label class="col-xs-3 control-label">
+          <span translate="bulk_imports.import_type">Import Type</span>
         </label>
         <div class="col-xs-6 clearfix">
           <label class="radio-inline col-xs-3">
@@ -88,9 +88,9 @@
         </div>
       </div>
 
-      <div class="form-group">
-        <label class="col-xs-3 control-label" translate="bulk_imports.date_time_format">
-          Date and Time Format
+      <div class="form-group" ng-show="showAdvanced">
+        <label class="col-xs-3 control-label">
+          <span translate="bulk_imports.date_time_format">Date and Time Format</span>
         </label>
         <div class="col-xs-3">
           <os-pvs name="dateFormat" ng-model="importJob.dateFormat" attribute="date_format"
@@ -108,19 +108,37 @@
           </div>
         </div>
       </div>
-    </form>
 
-    <div class="os-divider"></div>
-
-    <div class="form-group">
-      <div class="col-xs-offset-3 col-xs-6">
-        <button class="btn btn-primary" ng-click="import()">
-          <span translate="common.buttons.validate_and_import">Validate and Import</span>
-        </button>
-        <button class="btn os-btn-text" ng-click="back()">
-          <span translate="common.buttons.discard">Discard</span>
-        </button>
+      <div class="form-group" ng-show="showAdvanced">
+        <label class="col-xs-3 control-label">
+          <span translate="bulk_imports.field_separator">Field Separator</span>
+        </label>
+        <div class="col-xs-1">
+          <input type="text" class="form-control" ng-model="importJob.fieldSeparator" maxlength="1">
+        </div>
       </div>
-    </div>
+
+      <div class="form-group" ng-init="showAdvanced=false">
+        <div class="col-xs-offset-3 col-xs-6">
+          <a ng-click="showAdvanced=!showAdvanced">
+            <span ng-show="showAdvanced"  translate="bulk_imports.hide_adv_settings">Hide Advanced Settings</span>
+            <span ng-show="!showAdvanced" translate="bulk_imports.show_adv_settings">Show Advanced Settings</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="os-divider"></div>
+
+      <div class="form-group">
+        <div class="col-xs-offset-3 col-xs-6">
+          <button class="btn btn-primary" ng-click="import()">
+            <span translate="common.buttons.validate_and_import">Validate and Import</span>
+          </button>
+          <button class="btn os-btn-text" ng-click="back()">
+            <span translate="common.buttons.discard">Discard</span>
+          </button>
+        </div>
+      </div>
+    </form>
   </div>
 </div>

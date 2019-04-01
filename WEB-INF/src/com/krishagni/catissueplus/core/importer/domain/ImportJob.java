@@ -37,6 +37,8 @@ public class ImportJob extends BaseEntity {
 
 	private String timeFormat;
 
+	private String fieldSeparator;
+
 	private volatile Status status;
 	
 	private Long totalRecords;
@@ -93,6 +95,14 @@ public class ImportJob extends BaseEntity {
 
 	public void setTimeFormat(String timeFormat) {
 		this.timeFormat = timeFormat;
+	}
+
+	public String getFieldSeparator() {
+		return fieldSeparator;
+	}
+
+	public void setFieldSeparator(String fieldSeparator) {
+		this.fieldSeparator = fieldSeparator;
 	}
 
 	public Status getStatus() {

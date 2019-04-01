@@ -66,7 +66,7 @@ public class BulkObjectImportController {
 		}
 		
 		ObjectSchemaCriteria detail = new ObjectSchemaCriteria();
-		detail.setObjectType(schemaName);		
+		detail.setObjectType(schemaName);
 		detail.setParams(params);
 		
 		RequestEvent<ObjectSchemaCriteria> req = new RequestEvent<>(detail);

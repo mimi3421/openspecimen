@@ -9,6 +9,8 @@ import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProvider;
 import com.thoughtworks.xstream.io.xml.Dom4JDriver;
@@ -21,6 +23,8 @@ public class ObjectSchema {
 	private String name;
 
 	private boolean flattened;
+
+	private String fieldSeparator;
 	
 	private Record record;
 	
@@ -38,6 +42,18 @@ public class ObjectSchema {
 
 	public void setFlattened(boolean flattened) {
 		this.flattened = flattened;
+	}
+
+	public String getFieldSeparator() {
+		return fieldSeparator;
+	}
+
+	public void setFieldSeparator(String fieldSeparator) {
+		if (StringUtils.isNotBlank(fieldSeparator)) {
+			fieldSeparator = fieldSeparator.substring(0, 1);
+		}
+
+		this.fieldSeparator = fieldSeparator;
 	}
 
 	public Record getRecord() {
@@ -68,6 +84,7 @@ public class ObjectSchema {
 		xstream.addPermission(AnyTypePermission.ANY);
 
 		xstream.alias("object-schema", ObjectSchema.class);
+		xstream.aliasAttribute(ObjectSchema.class, "fieldSeparator", "field-separator");
 		
 		xstream.alias("record", Record.class);
 		xstream.aliasAttribute(Record.class, "type", "type");

@@ -51,8 +51,18 @@ public class ObjectReader implements Closeable {
 	private Map<Record, List<Integer>> columnIndicesMap = new HashMap<>();
 
 	public ObjectReader(String filePath, ObjectSchema schema, String dateFmt, String timeFmt) {
+		this(filePath, schema, dateFmt, timeFmt, null);
+	}
+
+	public ObjectReader(String filePath, ObjectSchema schema, String dateFmt, String timeFmt, String fieldSeparator) {
 		try {
-			this.csvReader = CsvFileReader.createCsvFileReader(filePath, true);
+			char separatorChar = Utility.getFieldSeparator();
+			fieldSeparator = StringUtils.isNotBlank(fieldSeparator) ? fieldSeparator : schema.getFieldSeparator();
+			if (StringUtils.isNotBlank(fieldSeparator)) {
+				separatorChar = fieldSeparator.charAt(0);
+			}
+
+			this.csvReader = CsvFileReader.createCsvFileReader(filePath, true, separatorChar);
 			this.schema = schema;
 			if (StringUtils.isNotBlank(schema.getRecord().getName())) {
 				this.objectClass = Class.forName(schema.getRecord().getName());
@@ -105,8 +115,19 @@ public class ObjectReader implements Closeable {
 	}
 	
 	public static String getSchemaFields(ObjectSchema schema) {
+		return getSchemaFields(schema, null);
+	}
+
+	public static String getSchemaFields(ObjectSchema schema, String reqSeparator) {
+		char fieldSeparator = Utility.getFieldSeparator();
+		if (StringUtils.isNotBlank(reqSeparator)) {
+			fieldSeparator = reqSeparator.charAt(0);
+		} else if (StringUtils.isNotBlank(schema.getFieldSeparator())) {
+			fieldSeparator = schema.getFieldSeparator().charAt(0);
+		}
+
 		List<String> columnNames = getSchemaFields(schema.getRecord(), "");
-		return Utility.stringListToCsv(columnNames);
+		return Utility.stringListToCsv(columnNames, true, fieldSeparator);
 	}
 			
 	private Object parseObject() {

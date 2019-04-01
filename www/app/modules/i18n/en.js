@@ -1881,7 +1881,7 @@
     "confirm_job_stop": "Are you sure you want to stop the job #{{jobId}}?",
     "select_extn": "Select Form",
     "input_file": "Input Records File",
-    "download_input_file_tmpl": "Download Template File",
+    "download_input_file_tmpl": "Download template file",
     "import_type": "Import Type",
     "object_type": "Object Type",
     "create": "Create",
@@ -1908,6 +1908,10 @@
     "jobs_list": "Bulk Import Jobs",
     "view_jobs": "View Past Imports",
     "import": "Import",
+
+    "field_separator": "Field Separator",
+    "show_adv_settings": "Show advanced settings",
+    "hide_adv_settings": "Hide advanced settings",
 
     "object_types": {
       "user": "Users",
