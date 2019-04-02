@@ -80,6 +80,10 @@ public class CollectionProtocolDetail extends CollectionProtocolSummary {
 
 	private ExtensionDetail extensionDetail;
 
+	private String aliquotLabelFmtToUse;
+
+	private String specimenBarcodeFmtToUse;
+
 	//
 	// mostly used for export and import of CP
 	// 
@@ -337,6 +341,22 @@ public class CollectionProtocolDetail extends CollectionProtocolSummary {
 		this.extensionDetail = extensionDetail;
 	}
 
+	public String getAliquotLabelFmtToUse() {
+		return aliquotLabelFmtToUse;
+	}
+
+	public void setAliquotLabelFmtToUse(String aliquotLabelFmtToUse) {
+		this.aliquotLabelFmtToUse = aliquotLabelFmtToUse;
+	}
+
+	public String getSpecimenBarcodeFmtToUse() {
+		return specimenBarcodeFmtToUse;
+	}
+
+	public void setSpecimenBarcodeFmtToUse(String specimenBarcodeFmtToUse) {
+		this.specimenBarcodeFmtToUse = specimenBarcodeFmtToUse;
+	}
+
 	public List<ConsentTierDetail> getConsents() {
 		return consents;
 	}
@@ -382,6 +402,8 @@ public class CollectionProtocolDetail extends CollectionProtocolSummary {
 		result.setDerivativeLabelFmt(cp.getDerivativeLabelFormat());
 		result.setAliquotLabelFmt(cp.getAliquotLabelFormat());
 		result.setSpecimenBarcodeFmt(cp.getSpecimenBarcodeFormat());
+		result.setAliquotLabelFmtToUse(cp.getAliquotLabelFormatToUse());
+		result.setSpecimenBarcodeFmtToUse(cp.getSpecimenBarcodeFormatToUse());
 		result.setVisitNameFmt(cp.getVisitNameFormat());
 		result.setManualPpidEnabled(cp.isManualPpidEnabled());
 		result.setManualVisitNameEnabled(cp.isManualVisitNameEnabled());

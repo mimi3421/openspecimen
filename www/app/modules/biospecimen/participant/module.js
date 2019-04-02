@@ -310,7 +310,7 @@ angular.module('os.biospecimen.participant',
               registrationDate: new Date(), participant: participant,
               specimenLabelFmt: cp.specimenLabelFmt,
               derivativeLabelFmt: cp.derivativeLabelFmt,
-              aliquotLabelFmt: cp.aliquotLabelFmt
+              aliquotLabelFmt: cp.aliquotLabelFmtToUse
             });
           },
 
