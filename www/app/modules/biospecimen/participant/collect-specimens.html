@@ -77,6 +77,11 @@
                 </span>
                 <os-specimen-desc cp="cp" specimen="specimen" show-req-label="true"></os-specimen-desc>
 
+                <span class="pull-right">
+                  <button class="btn btn-xs btn-default" ng-click="remove(specimen)">
+                    <span class="fa fa-remove"></span>
+                  </button>
+                </span>
                 <span ng-if="specimen.aliquotGrp.length > 1">
                   <div class="btn-group">
                     <button class="btn btn-xs btn-default" ng-if="specimen.expanded"
@@ -90,9 +95,9 @@
                       <span>({{specimen.aliquotGrp.length}})</span>
                     </button>
                     <button class="btn btn-xs btn-default" ng-disabled="specimen.expanded"
-                       ng-if = "!cp.manualSpecLabelEnabled && !specimen.label && !!specimen.labelFmt"
                        bs-popover trigger="click" data-container="body"
-                       placement="bottom" content-template="aliquot-count.html">
+                       placement="bottom" content-template="aliquot-count.html"
+                       ng-if="!cp.manualSpecLabelEnabled && !!specimen.labelFmt">
                        <span class="fa fa-ellipsis-h"></span>
                     </button>
                   </div>

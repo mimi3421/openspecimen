@@ -570,6 +570,10 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
 
       function shallowCopy(spmn) {
         var copy = new Specimen(spmn);
+        delete copy.id;
+        delete copy.barcode;
+        delete copy.label;
+
         copy.children = [];
 
         if (spmn.storageLocation) {
