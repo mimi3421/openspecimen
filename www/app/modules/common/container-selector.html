@@ -36,7 +36,10 @@
     </div>
 
     <div class="os-table-body">
-      <div class="row" ng-repeat="container in containers | openedTreeNodes" ng-class="{'selected': container.selected}">
+      <div class="row" ng-repeat="container in containers | openedTreeNodes" ng-class="{'selected': container.selected}"
+        ng-init="storeAvail = (entityType == 'storage_container' ||
+          (entityType == 'specimen' && container.usedFor == 'STORAGE' && container.storeSpecimensEnabled) ||
+          (entityType == 'order_item' && container.usedFor == 'DISTRIBUTION' && container.storeSpecimensEnabled))">
         <div class="col col-xs-6">
           <div class="clearfix">
             <div class="pull-left">
@@ -52,28 +55,22 @@
           </div>
         </div>
         <div class="col col-xs-2" ng-switch on="container.positionLabelingMode == 'NONE'">
-          <span ng-switch-when="true" translate="common.not_applicable">
-            Not Applicable
-          </span>
+          <span ng-switch-when="true"> - </span>
           <span ng-switch-when="false">
             {{container.noOfRows}} x {{container.noOfColumns}}
           </span>
         </div>
         <div class="col col-xs-2" ng-switch on="container.positionLabelingMode == 'NONE'">
-          <span ng-switch-when="true" translate="common.not_applicable">
-            Not Applicable
-          </span>
+          <span ng-switch-when="true"> - </span>
           <span ng-switch-when="false">
-            {{container.freePositions}}
+            <span ng-show="storeAvail">{{container.freePositions}}</span>
+            <span ng-show="!storeAvail"> - </span>
           </span>
         </div>
         <div class="col col-xs-2">
           <button class="btn btn-xs btn-success" ng-click="toggleContainerSelection(container)"
-            ng-if="(entityType == 'storage_container' || 
-                    (entityType == 'specimen' && container.usedFor == 'STORAGE' && container.storeSpecimensEnabled) ||
-                    (entityType == 'order_item' && container.usedFor == 'DISTRIBUTION' && container.storeSpecimensEnabled)) &&
-                   !container.selected && 
-                   (container.freePositions > 0 || container.positionLabelingMode == 'NONE')">
+            ng-if="storeAvail && !container.selected &&
+              (container.freePositions > 0 || container.positionLabelingMode == 'NONE')">
             <span class="fa fa-check"></span>
             <span translate="common.buttons.select">Select</span>
           </button>
