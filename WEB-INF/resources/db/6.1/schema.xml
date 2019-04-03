@@ -124,4 +124,10 @@
       baseTableName="OS_USER_UI_STATES" baseColumnNames="USER_ID"
       referencedTableName="CATISSUE_USER" referencedColumnNames="IDENTIFIER"/>
   </changeSet>
+
+  <changeSet author="vpawar" id="CP setting whether to close parent specimens after children creation">
+    <addColumn tableName="CATISSUE_COLLECTION_PROTOCOL">
+      <column name="CLOSE_PARENT_SPMNS" type="${boolean.type}" defaultValueBoolean="false"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

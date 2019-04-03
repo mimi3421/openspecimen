@@ -343,6 +343,10 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
               specimen.printLabel = printLabel(printSettings, specimen);
             }
 
+            if (specimen.children && specimen.children.some(function(s) { return s.selected; })) {
+              specimen.closeAfterChildrenCreation = cp.closeParentSpecimens;
+            }
+
             if (specimen.closeAfterChildrenCreation) {
               specimen.selected = true;
             }
@@ -1220,17 +1224,22 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
 
       function init() {
         var specimens = CollectSpecimensSvc.getSpecimens();
-        CollectSpecimensSvc.cleanupSpecimens(specimens);
         specimens.forEach(
           function(spmn) {
             if (!spmn.status || spmn.status == 'Pending') {
               spmn.status = 'Collected';
             }
 
+            if (spmn.children && spmn.children.some(function(s) { return s.selected; })) {
+              spmn.closeAfterChildrenCreation = cp.closeParentSpecimens;
+            }
+
             spmn.externalIds = spmn.externalIds || [];
             ExtensionsUtil.createExtensionFieldMap(spmn);
           }
         );
+
+        CollectSpecimensSvc.cleanupSpecimens(specimens);
 
         var opts = $scope.opts = {viewCtx: $scope, onValueChange: onValueChangeCb};
         var groups = $scope.customFieldGroups = SpecimenUtil.sdeGroupSpecimens(

@@ -63,6 +63,8 @@
 
     <property name="barcodingEnabled" column="BARCODING_ENABLED"/>
 
+    <property name="closeParentSpecimens" column="CLOSE_PARENT_SPMNS"/>
+
     <property name="unsignedConsentDocumentURL" column="UNSIGNED_CONSENT_DOC_URL"/>
 
     <property name="containerSelectionStrategy" column="CONTAINER_SEL_STRATEGY"/>

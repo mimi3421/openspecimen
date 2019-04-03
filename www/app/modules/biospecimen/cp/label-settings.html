@@ -25,7 +25,7 @@
 
 <script type="text/ng-template" id="modules/biospecimen/cp/label-settings-overview.html">
   <div>
-    <ul class="os-key-values os-one-col">
+    <ul class="os-key-values os-one-col md-col">
       <li class="item" ng-if="!cp.specimenCentric">
         <strong class="key key-sm" translate="cp.label_format.ppid">PPID Format</strong>
         <span class="value value-md">{{settingCtx.cp.ppidFmt | osNoValue}}</span>
@@ -52,13 +52,20 @@
       </li>
 
       <li class="item">
-        <strong class="key key-sm" translate="cp.specimen_barcode_fmt">Specimen Barcode Format</strong>
+        <strong class="key key-sm" translate="cp.specimen_barcode_fmt">Barcode Format</strong>
         <span class="value value-md">{{settingCtx.cp.specimenBarcodeFmt | osNoValue}}</span>
       </li>
 
       <li class="item">
         <strong class="key key-sm" translate="cp.label_format.manual">User Inputs Allowed</strong>
         <span class="value value-md">{{settingCtx.userInputLabels | osNoValue}}</span>
+      </li>
+
+      <li class="item">
+        <strong class="key key-sm" translate="cp.close_parent_spmns">Close Parent</strong>
+        <span class="value value-md">
+          {{settingCtx.cp.closeParentSpecimens | osBoolValue: 'common.yes': 'common.no': '' | osNoValue}}
+        </span>
       </li>
 
       <li class="item" ng-if="!cp.specimenCentric">
@@ -233,6 +240,22 @@
         <label class="checkbox-inline">
           <input type="checkbox" ng-model="settingCtx.cp.manualSpecLabelEnabled">
           <span translate="cp.spec_labels">Specimen Labels</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="control-label col-xs-3">
+        <span translate="cp.close_parent_spmns">Close Parent Specimens</span>
+      </label>
+      <div class="col-xs-9">
+        <label class="radio-inline">
+          <input type="radio" name="closeParents" ng-model="settingCtx.cp.closeParentSpecimens" ng-value="true">
+          <span translate="common.yes">Yes</span>
+        </label>
+        <label class="radio-inline">
+          <input type="radio" name="closeParents" ng-model="settingCtx.cp.closeParentSpecimens" ng-value="false">
+          <span translate="common.no">No</span>
         </label>
       </div>
     </div>

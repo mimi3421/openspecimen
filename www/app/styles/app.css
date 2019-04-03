@@ -594,6 +594,10 @@ h4.os-sub-section-title, h5.os-sub-section-title, h6.os-sub-section-title {
   padding-left: 300px;
 }
 
+.os-key-values.md-col .item {
+  padding-left: 250px;
+}
+
 .os-kv-vertical .os-key-values .item {
   float: none;
   padding-left: 0px;
@@ -656,6 +660,11 @@ h4.os-sub-section-title, h5.os-sub-section-title, h6.os-sub-section-title {
   clear: left;
   margin-left: -150px;
   width: 150px;
+}
+
+.os-key-values.md-col .item .key {
+  margin-left: -250px;
+  width: 250px;
 }
 
 .os-key-values.bg-col .item .key {

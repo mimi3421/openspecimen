@@ -108,5 +108,6 @@
 
   <include file="db/6.1/schema.xml"/>
   <include file="db/6.1/config.xml"/>
+  <include file="db/6.1/audit.xml"/>
   <include file="db/6.1/permissible-values.xml"/>
 </databaseChangeLog>
