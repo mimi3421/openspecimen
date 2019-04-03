@@ -37,6 +37,7 @@ import com.krishagni.catissueplus.core.de.domain.DeObject;
 
 
 public class ParticipantFactoryImpl implements ParticipantFactory {
+	private static final String DEAD_STATUS = "Dead";
 
 	private DaoFactory daoFactory;
 	
@@ -184,14 +185,15 @@ public class ParticipantFactoryImpl implements ParticipantFactory {
 			participant.setBirthDate(birthDate);
 		}
 
-		if (!partial || detail.isAttrModified("deathDate")) {
+		if (!DEAD_STATUS.equals(participant.getVitalStatus())) {
+			participant.setDeathDate(null);
+		} else if (!partial || detail.isAttrModified("deathDate")) {
 			Date deathDate = detail.getDeathDate();
 
 			if (deathDate != null && deathDate.after(Calendar.getInstance().getTime())) {
 				oce.addError(ParticipantErrorCode.INVALID_DEATH_DATE);
 			}
 
-			// TODO: how do we set vital status to dead now?
 			participant.setDeathDate(deathDate);
 		}
 
