@@ -30,3 +30,12 @@
   border-bottom-color: #66AFE9;
 }
 
+
+.os-date-picker input[disabled] + span {
+  cursor: not-allowed;
+}
+
+.os-date-picker input[disabled] + span button {
+  background: #eee;
+  pointer-events: none;
+}
