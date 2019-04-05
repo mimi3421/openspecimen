@@ -64,4 +64,14 @@
       );
     </sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="Enable/disable HTML markup in DE form captions">
+    <sql>
+      call add_cfg_prop(
+        'common', 'de_form_html_markup',
+        'de_form_html_markup', 'de_form_html_markup_desc',
+        'BOOLEAN', 'true'
+      );
+    </sql>
+  </changeSet>
 </databaseChangeLog>

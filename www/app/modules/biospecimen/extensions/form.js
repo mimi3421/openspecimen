@@ -3,7 +3,7 @@
 * Css changes are in extension.css file.
 */
 angular.module('os.biospecimen.extensions', ['os.biospecimen.models'])
-  .directive('osDeForm', function($http, $rootScope, Form, ApiUrls, ExtensionsUtil, LocationChangeListener) {
+  .directive('osDeForm', function($http, $rootScope, Form, ApiUrls, ExtensionsUtil, LocationChangeListener, SettingUtil) {
     return {
       restrict: 'A',
       controller: function() {
@@ -80,11 +80,17 @@ angular.module('os.biospecimen.extensions', ['os.biospecimen.models'])
             disableFields  : opts.disableFields || []
           };
 
-          ctrl.form = new edu.common.de.Form(args);
-          ctrl.form.render();
+          SettingUtil.getSetting('common', 'de_form_html_markup').then(
+            function(setting) {
+              args.allowHtmlCaptions = setting.value;
+              ctrl.form = new edu.common.de.Form(args);
+              ctrl.form.render();
+              LocationChangeListener.preventChange();
+              addWatchForDomChanges(opts);
+            }
+          );
+
           onceRendered = true;
-          LocationChangeListener.preventChange();
-          addWatchForDomChanges(opts); 
         }, true);
 
         if (attrs.extendedObj) {

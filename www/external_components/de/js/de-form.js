@@ -368,7 +368,7 @@ edu.common.de.Form = function(args) {
     if (args.showPanel == false) {
       this.formDiv.append(formCtrls);
     } else {
-      var panel = edu.common.de.Utility.panel(caption, formCtrls, 'default');
+      var panel = edu.common.de.Utility.panel(caption, formCtrls, 'default', args);
       this.formDiv.append(panel);
     }
     this.setValue(this.formData);
@@ -508,7 +508,14 @@ edu.common.de.Form = function(args) {
   };
 
   this.fieldLabel = function(name, label) {
-    return $("<label/>").addClass("control-label").prop('for', name).append($("<span/>").text(label));
+    var labelEl = $("<span/>");
+    if (args.allowHtmlCaptions != false && args.allowHtmlCaptions != 'false') {
+      labelEl.append(label);
+    } else {
+      labelEl.text(label);
+    }
+
+    return $("<label/>").addClass("control-label").prop('for', name).append(labelEl);
   };
 
   this.getActionButtons = function() {
@@ -1639,12 +1646,20 @@ edu.common.de.SubFormField = function(id, sfField, args) {
 
   this.getHeading = function() {
     var heading = $("<div/>").addClass("form-group clearfix").css("white-space", "nowrap");
+
+    var captionElFactory;
+    if (args.allowHtmlCaptions != 'false' && args.allowHtmlCaptions != false) {
+      captionEl = function(caption) { return $("<span/>").append(caption); };
+    } else {
+      captionEl = function(caption) { return $("<span/>").text(caption); };
+    }
+
     for (var i = 0; i < this.fields.length; ++i) {
       var field = this.fields[i];
       var column = $("<div/>").css("width", this.fieldWidth + '%')
         .css("min-width", getSfFieldMinWidth(field))
         .addClass("de-sf-cell")
-        .text(field.caption);
+        .append(captionEl(field.caption));
       heading.append(column);
     }
 
@@ -1926,11 +1941,18 @@ edu.common.de.FileUploadField = function(id, field, args) {
   };
 };
 
-edu.common.de.Note = function(id, field) {
+edu.common.de.Note = function(id, field, args) {
   this.inputEl = null;
 
   this.render = function() {
-    this.inputEl = $("<div/>").text(field.caption);
+    var captionEl = $("<span/>");
+    if (args.allowHtmlCaptions != 'false' && args.allowHtmlCaptions != false) {
+      captionEl.append(field.caption);
+    } else {
+      captionEl.text(field.caption);
+    }
+
+    this.inputEl = $("<div/>").append(captionEl);
     if (field.heading == true || field.type == 'heading') {
       this.inputEl.addClass('de-heading');
     }
@@ -2003,15 +2025,23 @@ edu.common.de.Utility = {
   /**
    * Valid values for context are primary, success, info, warning, danger
    */
-  panel: function(title, content, context) {
+  panel: function(title, content, context, opts) {
     if (!context) {
       context = "default";
     }
 
     var panelDiv = $("<div/>").addClass("panel").addClass("panel-" + context);
     if (title) {
+      var textEl = $("<span/>");
+      if (opts.allowHtmlCaptions == 'false' || opts.allowHtmlCaptions == false) {
+        textEl.text(title);
+      } else {
+        textEl.append(title);
+      }
+
+      var titleDiv = $("<div/>").addClass("panel-title").append(textEl);
+
       var panelHeading = $("<div/>").addClass("panel-heading");
-      var titleDiv = $("<div/>").addClass("panel-title").text(title);
       panelHeading.append(titleDiv);
       panelDiv.append(panelHeading);
     }

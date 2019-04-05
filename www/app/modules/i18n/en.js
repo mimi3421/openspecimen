@@ -2654,7 +2654,9 @@
         "eapp_msg_retention_period": "Message Retention Period",
         "eapp_msg_retention_period_desc": "Number of days to retain the external application messages in the database before deleting them",
         "search_delay": "Search Delay",
-        "search_delay_desc": "Time in milliseconds to wait between users input before executing the search action."
+        "search_delay_desc": "Time in milliseconds to wait between users input before executing the search action.",
+        "de_form_html_markup": "HTML Markup",
+        "de_form_html_markup_desc": "Enable to allow HTML decorated custom field labels"
       },
 
       "email": {
