@@ -102,7 +102,7 @@
                 </div>
                 <div id="{{::form.name}}.{{::field.name}}"
                   data-arg="{{::form.name}}.{{::field.name}}"
-                  ng-repeat="field in form.staticFields | filter: {caption: queryLocal.searchField}">
+                  ng-repeat="field in form.staticFields | filter: queryLocal.searchField">
                   <span class="os-query-form-field" ng-class="{'selected': queryLocal.currFilter.field == field}"
                     ng-click="onFieldSelect(field, $event)">
                     {{::field.caption}}
@@ -122,7 +122,7 @@
                     ng-show="(form.showExtnFields || extnForm.showExtnFields) && filteredExtnFields.length > 0">
                     <div id="{{::form.name}}.{{::field.name}}" 
                       data-arg="{{::form.name}}.{{::field.name}}"
-                      ng-repeat="field in filteredExtnFields  = (extnForm.fields | filter: {caption: queryLocal.searchField})">
+                      ng-repeat="field in filteredExtnFields  = (extnForm.fields | filter: queryLocal.searchField)">
                       <span class="os-query-form-field"
                         ng-click="onFieldSelect(field, $event)">
                         {{::field.caption}}

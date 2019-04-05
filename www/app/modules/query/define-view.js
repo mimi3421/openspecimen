@@ -532,6 +532,19 @@ angular.module('os.query.defineview', ['os.query.models'])
       node.form.getFields().then(
         function(fields) {
           node.children = processFields(node.form.caption, node.form.name + ".", fields);
+          node.children = node.children.sort(
+            function(f1, f2) {
+              if (f1.type == 'field' && f2.type == 'field') {
+                return 0;
+              } else if (f1.type == 'field') {
+                return -1;
+              } else if (f2.type == 'field') {
+                return 1;
+              } else {
+                return f1.val < f2.val ? -1 : (f1.val > f2.val) ? 1 : 0;
+              }
+            }
+          );
           deferred.resolve(node.children);
         }
       );

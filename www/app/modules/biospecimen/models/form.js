@@ -287,7 +287,7 @@ angular.module('os.biospecimen.models.form', ['os.common.models'])
         }
       }
 
-      return extnForms;
+      return extnForms.sort(function(f1, f2) { return f1.caption < f2.caption ? -1 : (f1.caption > f2.caption ? 1 : 0); });
     };
 
     return Form;
