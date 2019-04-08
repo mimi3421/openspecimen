@@ -3,9 +3,11 @@ package com.krishagni.catissueplus.core.biospecimen.services.impl;
 import org.apache.commons.lang3.StringUtils;
 
 import com.krishagni.catissueplus.core.biospecimen.domain.Participant;
+import com.krishagni.catissueplus.core.biospecimen.domain.factory.CprErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.events.ParticipantDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.ParticipantRegistrationsList;
 import com.krishagni.catissueplus.core.biospecimen.services.CollectionProtocolRegistrationService;
+import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 import com.krishagni.catissueplus.core.importer.events.ImportObjectDetail;
@@ -38,6 +40,10 @@ public class MultiCprImporter implements ObjectImporter<ParticipantRegistrations
 			}
 
 			if (detail.isCreate()) {
+				if (regsList.getRegistrations() == null || regsList.getRegistrations().isEmpty()) {
+					return ResponseEvent.userError(CprErrorCode.CP_REQUIRED);
+				}
+
 				return cprSvc.createRegistrations(new RequestEvent<>(regsList));
 			} else {
 				return cprSvc.updateRegistrations(new RequestEvent<>(regsList));
