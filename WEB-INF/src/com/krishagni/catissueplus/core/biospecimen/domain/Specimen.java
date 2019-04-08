@@ -1016,9 +1016,11 @@ public class Specimen extends BaseExtensionEntity {
 		//	if (!isActive()) {
 		//		return;
 		//	}
-		
-		setLabel(specimen.getLabel());
-		setBarcode(specimen.getBarcode());
+		if (!isDeleted()) {
+			setLabel(specimen.getLabel());
+			setBarcode(specimen.getBarcode());
+		}
+
 		setImageId(specimen.getImageId());
 		setInitialQuantity(specimen.getInitialQuantity());
 		setAvailableQuantity(specimen.getAvailableQuantity());
@@ -1472,6 +1474,13 @@ public class Specimen extends BaseExtensionEntity {
 	public void updatePosition(StorageContainerPosition newPosition, User user, Date time, String comments) {
 		if (!isCollected()) {
 			return;
+		}
+
+		if (isDeleted()) {
+			//
+			// deleted specimens will not have any locations assigned to them
+			//
+			newPosition = null;
 		}
 
 		if (newPosition != null) {
