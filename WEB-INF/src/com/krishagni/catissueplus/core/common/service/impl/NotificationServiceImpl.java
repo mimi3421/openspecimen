@@ -107,15 +107,20 @@ public class NotificationServiceImpl implements NotificationService {
 		notification.setCreatedBy(AuthUtil.getCurrentUser());
 		notification.setCreationTime(Calendar.getInstance().getTime());
 
-		Set<UserNotification> notifiedUsers = users.stream().map(user -> {
-			UserNotification un = new UserNotification();
-			un.setNotification(notification);
-			un.setUser(user);
-			un.setStatus(UserNotification.Status.UNREAD);
-			return un;
-		}).collect(Collectors.toSet());
+		Set<UserNotification> notifiedUsers = users.stream()
+			.filter(user -> !user.isContact())
+			.map(user -> {
+				UserNotification un = new UserNotification();
+				un.setNotification(notification);
+				un.setUser(user);
+				un.setStatus(UserNotification.Status.UNREAD);
+				return un;
+			})
+			.collect(Collectors.toSet());
 
-		notification.setNotifiedUsers(notifiedUsers);
-		daoFactory.getUserNotificationDao().saveOrUpdate(notification);
+		if (!notifiedUsers.isEmpty()) {
+			notification.setNotifiedUsers(notifiedUsers);
+			daoFactory.getUserNotificationDao().saveOrUpdate(notification);
+		}
 	}
 }

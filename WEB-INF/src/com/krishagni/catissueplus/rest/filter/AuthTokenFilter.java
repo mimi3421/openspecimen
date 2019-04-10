@@ -142,6 +142,12 @@ public class AuthTokenFilter extends GenericFilterBean {
 			return;
 		}
 
+		if (userDetails.isContact()) {
+			AuthUtil.clearTokenCookie(httpReq, httpResp);
+			httpResp.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Contacts are not allowed to sign-in");
+			return;
+		}
+
 		AuthUtil.setCurrentUser(userDetails, authToken, httpReq);
 		Date callStartTime = Calendar.getInstance().getTime();
 		chain.doFilter(req, resp);

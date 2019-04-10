@@ -78,6 +78,12 @@ angular.module('os.administrative.user.addedit', ['os.administrative.models'])
       loadSites($scope.user.instituteName, siteName);
     }
 
+    $scope.onContactTypeSelect = function() {
+      $scope.user.manageForms = false;
+      $scope.user.domainName = undefined;
+      $scope.user.loginName = undefined;
+    }
+
     $scope.createUser = function() {
       if (!$scope.user.id || $scope.user.instituteName == prevInstitute) {
         saveUser();

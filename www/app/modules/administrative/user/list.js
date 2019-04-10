@@ -1,7 +1,7 @@
 
 angular.module('os.administrative.user.list', ['os.administrative.models'])
   .controller('UserListCtrl', function(
-    $scope, $state, $modal, currentUser,
+    $scope, $state, $modal, $translate, currentUser,
     osRightDrawerSvc, User, ItemsHolder, PvManager,
     Util, DeleteUtil, CheckList, Alerts, ListPagerOpts) {
 
@@ -27,6 +27,7 @@ angular.module('os.administrative.user.list', ['os.administrative.models'])
         }
 
         loadActivityStatuses();
+        loadUserTypes();
         Util.filter($scope, 'userFilterOpts', loadUsers);
         pvInit = true;
       });
@@ -41,6 +42,18 @@ angular.module('os.administrative.user.list', ['os.administrative.models'])
           if (idx != -1) {
             $scope.activityStatuses.splice(idx, 1);
           }
+        }
+      );
+    }
+
+    function loadUserTypes() {
+      $translate('user.types.NONE').then(
+        function() {
+          $scope.userTypes = ['SUPER', 'INSTITUTE', 'CONTACT', 'NONE'].map(
+            function(type) {
+              return {type: type, name: $translate.instant('user.types.' + type)};
+            }
+          );
         }
       );
     }

@@ -28,6 +28,10 @@ public class NotifUtil {
 		Set<UserNotification> userNotifs = new HashSet<>();
 		urlKeyUsersMap.forEach((urlKey, users) ->
 			users.forEach(user -> {
+				if (user.isContact()) {
+					return;
+				}
+
 				UserNotification userNotif = new UserNotification();
 				userNotif.setUrlKey(urlKey);
 				userNotif.setUser(user);
@@ -37,7 +41,9 @@ public class NotifUtil {
 			})
 		);
 
-		notif.setNotifiedUsers(userNotifs);
-		daoFactory.getUserNotificationDao().saveOrUpdate(notif);
+		if (!userNotifs.isEmpty()) {
+			notif.setNotifiedUsers(userNotifs);
+			daoFactory.getUserNotificationDao().saveOrUpdate(notif);
+		}
 	}
 }

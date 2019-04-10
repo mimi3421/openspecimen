@@ -763,6 +763,7 @@
     <property name="taskExecutor" ref="taskExecutor"/>
     <property name="templateService" ref="templateService"/>
     <property name="cfgSvc" ref="cfgSvc"/>
+    <property name="daoFactory" ref="biospecimenDaoFactory"/>
   </bean>
 
   <bean id="changeLogSvc" class="com.krishagni.catissueplus.core.common.service.impl.ChangeLogServiceImpl">

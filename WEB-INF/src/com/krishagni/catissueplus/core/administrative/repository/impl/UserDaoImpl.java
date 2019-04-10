@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -204,7 +205,7 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 		}
 
 		return getCurrentSession().getNamedQuery(UPDATE_STATUS)
-			.setString("activityStatus", status)
+			.setParameter("activityStatus", status)
 			.setParameterList("userIds", users.stream().map(u -> u.getId()).collect(Collectors.toList()))
 			.executeUpdate();
 	}
@@ -218,6 +219,15 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 			users.addAll(getUsers(crit.type("INSTITUTE").instituteName(instituteName)));
 		}
 		return users;
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public Map<String, String> getEmailIdUserTypes(Collection<String> emailIds) {
+		List<Object[]> rows = getCurrentSession().getNamedQuery(GET_EMAIL_ID_TYPES)
+			.setParameterList("emailIds", emailIds)
+			.list();
+		return rows.stream().collect(Collectors.toMap(row -> (String)row[0], row -> ((User.Type)row[1]).name()));
 	}
 
 	@Override
@@ -498,6 +508,8 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 	private static final String GET_INACTIVE_USERS = FQN + ".getInactiveUsers";
 	
 	private static final String UPDATE_STATUS = FQN + ".updateStatus";
+
+	private static final String GET_EMAIL_ID_TYPES = FQN + ".getEmailIdTypes";
 
 	private static final String GET_STATE = UserUiState.class.getName() + ".getState";
 }

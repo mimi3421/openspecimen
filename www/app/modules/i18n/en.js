@@ -1154,6 +1154,8 @@
     "address": "Address",
     "super_admin": "Super Administrator",
     "inst_admin": "Institute Administrator",
+    "regular": "Regular",
+    "contact": "Contact",
     "manage_forms": "Manage Forms?",
     "login_details": "Login Details",
     "permissions": "Permissions",
@@ -1248,9 +1250,10 @@
     },
     
     "types": {
-      "SUPER": "Super Administrator",
-      "INSTITUTE": "Institute Administrator",
-      "NONE": "None"
+      "SUPER": "Super Admin",
+      "INSTITUTE": "Institute Admin",
+      "CONTACT": "Contact",
+      "NONE": "Regular"
     },
 
     "filter": {

@@ -2,6 +2,7 @@
 package com.krishagni.catissueplus.core.administrative.domain.factory.impl;
 
 import java.util.Calendar;
+import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -131,10 +132,14 @@ public class UserFactoryImpl implements UserFactory {
 	private void setLoginName(UserDetail detail, User user, OpenSpecimenException ose) {
 		String loginName = detail.getLoginName();
 		if (StringUtils.isBlank(loginName)) {
-			ose.addError(UserErrorCode.LOGIN_NAME_REQUIRED);
-			return;
+			if (!user.isContact()) {
+				ose.addError(UserErrorCode.LOGIN_NAME_REQUIRED);
+				return;
+			}
+
+			loginName = UUID.randomUUID().toString();
 		}
-		
+
 		user.setLoginName(loginName);
 	}
 	
@@ -264,8 +269,12 @@ public class UserFactoryImpl implements UserFactory {
 	private void setAuthDomain(UserDetail detail, User user, OpenSpecimenException ose) {
 		String domainName = detail.getDomainName();
 		if (StringUtils.isBlank(domainName)) {
-			ose.addError(UserErrorCode.DOMAIN_NAME_REQUIRED);
-			return;
+			if (!user.isContact()) {
+				ose.addError(UserErrorCode.DOMAIN_NAME_REQUIRED);
+				return;
+			}
+
+			domainName = User.DEFAULT_AUTH_DOMAIN;
 		}
 
 		AuthDomain authDomain = daoFactory.getAuthDao().getAuthDomainByName(domainName);
@@ -290,6 +299,10 @@ public class UserFactoryImpl implements UserFactory {
 			case SUPER:
 			case INSTITUTE:
 				user.setManageForms(true);
+				break;
+
+			case CONTACT:
+				user.setManageForms(false);
 				break;
 
 			default:

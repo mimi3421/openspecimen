@@ -14,47 +14,50 @@ import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.repository.Dao;
 
 public interface UserDao extends Dao<User> {
-	public List<User> getUsers(UserListCriteria criteria);
+	List<User> getUsers(UserListCriteria criteria);
 	
-	public Long getUsersCount(UserListCriteria criteria);
+	Long getUsersCount(UserListCriteria criteria);
 
-	public List<User> getUsersByIds(Collection<Long> userIds);
+	List<User> getUsersByIds(Collection<Long> userIds);
 	
-	public List<User> getUsersByIdsAndInstitute(Collection<Long> userIds, Long instituteId);
+	List<User> getUsersByIdsAndInstitute(Collection<Long> userIds, Long instituteId);
 	
-	public User getUser(String loginName, String domain);
+	User getUser(String loginName, String domain);
 
 	List<User> getUsers(Collection<String> loginNames, String domain);
 	
-	public User getSystemUser();
+	User getSystemUser();
 	
-	public User getUserByEmailAddress(String emailAddress);
+	User getUserByEmailAddress(String emailAddress);
 	
-	public Boolean isUniqueLoginName(String loginName, String domainName);
+	Boolean isUniqueLoginName(String loginName, String domainName);
 	
-	public Boolean isUniqueEmailAddress(String emailAddress);
+	Boolean isUniqueEmailAddress(String emailAddress);
 	
-	public List<DependentEntityDetail> getDependentEntities(Long userId);
+	List<DependentEntityDetail> getDependentEntities(Long userId);
 	
-	public ForgotPasswordToken getFpToken(String token);
+	ForgotPasswordToken getFpToken(String token);
 	
-	public ForgotPasswordToken getFpTokenByUser(Long userId);
+	ForgotPasswordToken getFpTokenByUser(Long userId);
 	
-	public void saveFpToken(ForgotPasswordToken token);
+	void saveFpToken(ForgotPasswordToken token);
 	
-	public void deleteFpToken(ForgotPasswordToken token);
+	void deleteFpToken(ForgotPasswordToken token);
 
-	public List<String> getActiveUsersEmailIds(Date startDate, Date endDate);
+	List<String> getActiveUsersEmailIds(Date startDate, Date endDate);
 	
-	public List<Password> getPasswordsUpdatedBefore(Date updateDate);
+	List<Password> getPasswordsUpdatedBefore(Date updateDate);
 	
-	public List<User> getInactiveUsers(Date lastLoginTime);
+	List<User> getInactiveUsers(Date lastLoginTime);
 	
-	public int updateStatus(List<User> users, String status);
+	int updateStatus(List<User> users, String status);
 
 	List<User> getSuperAndInstituteAdmins(String instituteName);
 
 	void saveUiState(UserUiState state);
 
 	UserUiState getState(Long userId);
+
+	// [{emailId, type}, {'abc@localhost', 'SUPER'}]
+	Map<String, String> getEmailIdUserTypes(Collection<String> emailIds);
 }

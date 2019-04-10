@@ -184,5 +184,14 @@
       where
         user.id in (:userIds)
     </query>
+
+    <query name="getEmailIdTypes">
+      select
+        u.emailAddress, u.type
+      from
+        com.krishagni.catissueplus.core.administrative.domain.User u
+      where
+        u.emailAddress in (:emailIds)
+    </query>
   </class>
 </hibernate-mapping>

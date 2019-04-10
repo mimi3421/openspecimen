@@ -256,7 +256,7 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 			if (isSignupReq) {
 				sendUserSignupEmail(user);
 				notifyUserSignup(user);
-			} else {
+			} else if (!user.isContact()) {
 				ForgotPasswordToken token = generateForgotPwdToken(user);
 				sendUserCreatedEmail(user, token);
 				notifyUserUpdated(user, "created");

@@ -20,6 +20,8 @@ public class UserSummary implements Serializable {
 
 	private Long id;
 
+	private String type;
+
 	private String firstName;
 
 	private String lastName;
@@ -52,6 +54,14 @@ public class UserSummary implements Serializable {
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
 	}
 
 	public String getFirstName() {
@@ -176,28 +186,29 @@ public class UserSummary implements Serializable {
 	}
 
 	public static UserSummary from(User user) {
-		UserSummary userSummary = new UserSummary();
-		userSummary.setId(user.getId());
-		userSummary.setFirstName(user.getFirstName());
-		userSummary.setLastName(user.getLastName());
-		userSummary.setLoginName(user.getLoginName());
-		userSummary.setDomain(user.getAuthDomain().getName());
-		userSummary.setEmailAddress(user.getEmailAddress());
-		userSummary.setAdmin(user.isAdmin());
-		userSummary.setInstituteAdmin(user.isInstituteAdmin());
-		userSummary.setCreationDate(user.getCreationDate());
-		userSummary.setManageForms(user.getManageForms());
-		userSummary.setActivityStatus(user.getActivityStatus());
+		UserSummary result = new UserSummary();
+		result.setId(user.getId());
+		result.setType(user.getType().name());
+		result.setFirstName(user.getFirstName());
+		result.setLastName(user.getLastName());
+		result.setLoginName(user.getLoginName());
+		result.setDomain(user.getAuthDomain().getName());
+		result.setEmailAddress(user.getEmailAddress());
+		result.setAdmin(user.isAdmin());
+		result.setInstituteAdmin(user.isInstituteAdmin());
+		result.setCreationDate(user.getCreationDate());
+		result.setManageForms(user.getManageForms());
+		result.setActivityStatus(user.getActivityStatus());
 
 		if (user.getInstitute() != null) {
-			userSummary.setInstituteName(user.getInstitute().getName());
+			result.setInstituteName(user.getInstitute().getName());
 		}
 
 		if (user.getPrimarySite() != null) {
-			userSummary.setPrimarySite(user.getPrimarySite().getName());
+			result.setPrimarySite(user.getPrimarySite().getName());
 		}
 
-		return userSummary;
+		return result;
 	}
 	
 	public static List<UserSummary> from(Collection<User> users) {

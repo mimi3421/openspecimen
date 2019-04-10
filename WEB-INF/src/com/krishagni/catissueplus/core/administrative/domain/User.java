@@ -36,6 +36,7 @@ import com.krishagni.rbac.domain.SubjectRole;
 @Audited
 public class User extends BaseEntity implements UserDetails {
 	public enum Type {
+		CONTACT,
 		SUPER,
 		INSTITUTE,
 		NONE
@@ -210,6 +211,10 @@ public class User extends BaseEntity implements UserDetails {
 		this.type = type;
 	}
 
+	public boolean isContact() {
+		return Type.CONTACT == getType();
+	}
+
 	public boolean isAdmin() {
 		return Type.SUPER == getType();
 	}
@@ -290,6 +295,8 @@ public class User extends BaseEntity implements UserDetails {
 	}
 
 	public void update(User user) {
+		setType(user.getType());
+
 		updateStatus(user.getActivityStatus());
 		if (isDisabled()) {
 			return;
@@ -297,19 +304,25 @@ public class User extends BaseEntity implements UserDetails {
 
 		setFirstName(user.getFirstName());
 		setLastName(user.getLastName());
-		setAuthDomain(user.getAuthDomain());
 		setAddress(user.getAddress());
 		setInstitute(user.getInstitute());
 		setPrimarySite(user.getPrimarySite());
 		setEmailAddress(user.getEmailAddress());
-		setLoginName(user.getLoginName());
 		setPhoneNumber(user.getPhoneNumber());
 		setComments(user.getComments());
-		setType(user.getType());
-		setManageForms(user.canManageForms());
+
+		if (!isContact()) {
+			setAuthDomain(user.getAuthDomain());
+			setLoginName(user.getLoginName());
+			setManageForms(user.canManageForms());
+		}
 	}
 
 	public void changePassword(String newPassword) {
+		if (isContact()) {
+			return;
+		}
+
 		if (StringUtils.isBlank(newPassword) || !isValidPasswordPattern(newPassword)) {
 			throw OpenSpecimenException.userError(UserErrorCode.PASSWD_VIOLATES_RULES);
 		}

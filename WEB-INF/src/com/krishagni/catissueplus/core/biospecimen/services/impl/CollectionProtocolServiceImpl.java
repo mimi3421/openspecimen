@@ -1550,6 +1550,10 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 
 	private void addDefaultPiRoles(CollectionProtocol cp, List<User> notifUsers, User user, String cpOp) {
 		try {
+			if (user.isContact()) {
+				return;
+			}
+
 			for (String role : getDefaultPiRoles()) {
 				addRole(cp, notifUsers, user, role, cpOp);
 			}
@@ -1572,6 +1576,10 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 	private void addDefaultCoordinatorRoles(CollectionProtocol cp, List<User> notifUsers, Collection<User> coordinators, String cpOp) {
 		try {
 			for (User user : coordinators) {
+				if (user.isContact()) {
+					continue;
+				}
+
 				for (String role : getDefaultCoordinatorRoles()) {
 					addRole(cp, notifUsers, user, role, cpOp);
 				}

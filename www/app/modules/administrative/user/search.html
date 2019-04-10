@@ -23,7 +23,11 @@
           placeholder="{{'user.activity_status' | translate}}">
         </os-select>
       </div>
-
+      <div class="form-group">
+        <os-select os-md-input ng-model="userFilterOpts.type" list="userTypes"
+          select-prop="type" display-prop="name" placeholder="{{'user.type' | translate}}">
+        </os-select>
+      </div>
       <os-clear-filters opts="userFilterOpts"></os-clear-filters>
     </div>
   </div>

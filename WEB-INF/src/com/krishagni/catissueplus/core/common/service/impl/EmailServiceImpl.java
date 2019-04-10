@@ -39,7 +39,9 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.common.OpenSpecimenAppCtxProvider;
+import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.domain.Email;
 import com.krishagni.catissueplus.core.common.service.ConfigChangeListener;
 import com.krishagni.catissueplus.core.common.service.ConfigurationService;
@@ -69,6 +71,8 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 	
 	private ConfigurationService cfgSvc;
 
+	private DaoFactory daoFactory;
+
 	private ImapMailReceiver mailReceiver;
 
 	private ScheduledFuture<?> receiverFuture;
@@ -85,6 +89,14 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 	
 	public void setCfgSvc(ConfigurationService cfgSvc) {
 		this.cfgSvc = cfgSvc;
+	}
+
+	public DaoFactory getDaoFactory() {
+		return daoFactory;
+	}
+
+	public void setDaoFactory(DaoFactory daoFactory) {
+		this.daoFactory = daoFactory;
 	}
 
 	@Override
@@ -183,31 +195,21 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 			}
 
 			MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8"); // true = multipart
-			String[] toRcpts = filterInvalidEmails(mail.getToAddress());
+			message.setSubject(mail.getSubject());
+
+			String[] toRcpts = filterEmailIds("To", mail.getToAddress());
 			if (toRcpts.length == 0) {
-				logger.error("Invalid email recipient addresses: " + toString(mail.getToAddress()));
 				return false;
 			}
 
-			message.setSubject(mail.getSubject());
 			message.setTo(toRcpts);
 			
 			if (mail.getBccAddress() != null) {
-				String[] bccRcpts = filterInvalidEmails(mail.getBccAddress());
-				if (bccRcpts.length == 0) {
-					logger.error("Invalid email BCC addresses: " + toString(mail.getBccAddress()));
-				}
-
-				message.setBcc(bccRcpts);
+				message.setBcc(filterEmailIds("Bcc", mail.getBccAddress()));
 			}
 			
 			if (mail.getCcAddress() != null) {
-				String[] ccRcpts = filterInvalidEmails(mail.getCcAddress());
-				if (ccRcpts.length == 0) {
-					logger.error("Invalid email CC addresses: " + toString(mail.getCcAddress()));
-				}
-
-				message.setCc(ccRcpts);
+				message.setCc(filterEmailIds("Cc", mail.getCcAddress()));
 			}
 			
 			message.setText(mail.getBody(), true); // true = isHtml
@@ -336,12 +338,38 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 		return getTemplate(FOOTER_TMPL);
 	}
 
+	private String[] filterEmailIds(String field, String[] emailIds) {
+		String[] validEmailIds = filterInvalidEmails(emailIds);
+		if (validEmailIds.length == 0) {
+			logger.error("Invalid email IDs in " + field + " : " + toString(emailIds));
+			return validEmailIds;
+		}
+
+		String[] nonContactEmailIds = filterContactEmails(validEmailIds);
+		if (nonContactEmailIds.length == 0) {
+			logger.debug("Only contact email IDs in " + field + " : " + toString(validEmailIds));
+		}
+
+		return nonContactEmailIds;
+	}
+
 	private String[] filterInvalidEmails(String[] emailIds) {
 		if (emailIds == null) {
 			return new String[0];
 		}
 
 		return Arrays.stream(emailIds).filter(Utility::isValidEmail).toArray(String[]::new);
+	}
+
+	@PlusTransactional
+	private String[] filterContactEmails(String[] emailIds) {
+		try {
+			Map<String, String> emailIdTypes = daoFactory.getUserDao().getEmailIdUserTypes(Arrays.asList(emailIds));
+			return Arrays.stream(emailIds).filter(emailId -> !"CONTACT".equals(emailIdTypes.get(emailId))).toArray(String[]::new);
+		} catch (Throwable t) {
+			logger.error("Error filtering contact email IDs", t);
+			return emailIds;
+		}
 	}
 
 	private String toString(String[] arr) {

@@ -82,7 +82,8 @@
             <span>{{user.emailAddress}}</span>
           </td>
           <td class="col">
-            <span>{{user.loginName}}</span>
+            <span ng-show="user.type != 'CONTACT'">{{user.loginName}}</span>
+            <span ng-show="user.type == 'CONTACT'">{{'' | osNoValue}}</span>
           </td>
           <td class="col">
             <span>{{user.instituteName | osNoValue}}</span>
@@ -91,12 +92,8 @@
             <span>{{user.primarySite | osNoValue}}</span>
           </td>
           <td class="col" ng-switch on="!!user.creationDate">
-            <span ng-switch-when="true">
-              {{user.creationDate | date: global.dateFmt}}
-            </span>
-            <span ng-switch-when="false" translate="common.na">
-              Not Available
-            </span>
+            <span ng-switch-when="true"> {{user.creationDate | date: global.dateFmt}} </span>
+            <span ng-switch-when="false"> {{'' | osNoValue}} </span>
           </td>
         </tr>
       </tbody>
