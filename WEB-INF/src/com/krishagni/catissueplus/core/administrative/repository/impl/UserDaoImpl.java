@@ -298,6 +298,7 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 		addInstituteRestriction(criteria, listCrit.instituteName());
 		addDomainRestriction(criteria, listCrit.domainName());
 		addTypeRestriction(criteria, listCrit.type());
+		addExcludeTypesRestriction(criteria, listCrit.excludeTypes());
 		addActiveSinceRestriction(criteria, listCrit.activeSince());
 		addRoleRestrictions(criteria, listCrit);
 		addResourceRestrictions(criteria, listCrit);
@@ -347,6 +348,15 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 		}
 
 		criteria.add(Restrictions.eq("u.type", User.Type.valueOf(type)));
+	}
+
+	private void addExcludeTypesRestriction(Criteria criteria, List<String> excludeTypes) {
+		if (CollectionUtils.isEmpty(excludeTypes)) {
+			return;
+		}
+
+		List<User.Type> types = excludeTypes.stream().map(User.Type::valueOf).collect(Collectors.toList());
+		criteria.add(Restrictions.not(Restrictions.in("u.type", types)));
 	}
 	
 	private void addInstituteRestriction(Criteria criteria, String instituteName) {

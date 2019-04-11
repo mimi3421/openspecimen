@@ -123,7 +123,7 @@
     <div class="form-group">
       <label class="control-label col-xs-3" translate="participant.specimen_kit.sender">Sender</label>
       <div class="col-xs-6">
-        <os-users name="sender" ng-model="ctx.kitDetail.sender"
+        <os-users name="sender" ng-model="ctx.kitDetail.sender" exclude-contacts
           placeholder="{{'participant.specimen_kit.sender' | translate}}" required>
         </os-users>
         <div os-field-error field="kitForm.sender"></div>

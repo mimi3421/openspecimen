@@ -1,15 +1,19 @@
 
 angular.module('os.administrative.user.dropdown', ['os.administrative.models'])
   .directive('osUsers', function($filter, AuthorizationService, User) {
-    function loadUsers(scope, searchTerm, ctrl, queryParams, listFn) {
+    function loadUsers(scope, searchTerm, ctrl, attrs) {
       var opts = angular.extend({searchString : searchTerm}, scope.filterOpts || {});
-      if (queryParams) {
-        angular.extend(opts, JSON.parse(queryParams));
+      if (attrs.queryParams) {
+        angular.extend(opts, JSON.parse(attrs.queryParams));
+      }
+
+      if (attrs.hasOwnProperty('excludeContacts')) {
+        opts.excludeType = 'CONTACT';
       }
 
       ctrl.listLoaded = true;
 
-      var promise = !listFn ? User.query(opts) : scope.listFn(opts);
+      var promise = !attrs.listFn ? User.query(opts) : scope.listFn(opts);
       promise.then(
         function(result) {
           scope.users = result;
@@ -80,7 +84,7 @@ angular.module('os.administrative.user.dropdown', ['os.administrative.models'])
             return;
           }
 
-          loadUsers($scope, searchTerm, ctrl, $attrs.queryParams, $attrs.listFn);
+          loadUsers($scope, searchTerm, ctrl, $attrs);
         };
 
         $scope.$watch('filterOpts', function(newVal, oldVal) {
@@ -88,7 +92,7 @@ angular.module('os.administrative.user.dropdown', ['os.administrative.models'])
             return;
           }
 
-          loadUsers($scope, undefined, ctrl, $attrs.queryParams, $attrs.listFn);
+          loadUsers($scope, undefined, ctrl, $attrs);
         });
 
         $attrs.$observe('queryParams',
@@ -101,7 +105,7 @@ angular.module('os.administrative.user.dropdown', ['os.administrative.models'])
               return;
             }
 
-            loadUsers($scope, undefined, ctrl, $attrs.queryParams, $attrs.listFn);
+            loadUsers($scope, undefined, ctrl, $attrs);
           }
         );
       },

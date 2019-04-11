@@ -72,7 +72,7 @@
     <div class="form-group">
       <label class="col-xs-3 control-label" translate="specimens.created_by">Created By</label>
       <div class="col-xs-6">
-        <os-users name="createdBy" ng-model="aliquotSpec.createdBy" default-current-user
+        <os-users name="createdBy" ng-model="aliquotSpec.createdBy" default-current-user exclude-contacts
           placeholder="{{'specimens.created_by' | translate}}" required>
         </os-users>
         <div os-field-error field="aliquotForm.createdBy"></div>

@@ -47,7 +47,8 @@
     <div class="os-folder-users-section" ng-if="folder.sharedWithAll != 1 && folder.sharedWithAll != true">
       <label translate="queries.share_folder_with_users">Share folder with following users</label>
       <div class="users-select-container">
-        <os-users multiple ng-model="folder.sharedWith" placeholder="{{'queries.users' | translate}}"></os-users>
+        <os-users multiple ng-model="folder.sharedWith" exclude-contacts placeholder="{{'queries.users' | translate}}">
+        </os-users>
       </div>
     </div>
   </div>

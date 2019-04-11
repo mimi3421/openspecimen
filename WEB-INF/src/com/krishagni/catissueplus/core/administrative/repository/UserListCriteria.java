@@ -20,6 +20,8 @@ public class UserListCriteria extends AbstractListCriteria<UserListCriteria> {
 
 	private String type;
 
+	private List<String> excludeTypes;
+
 	private Date activeSince;
 
 	private String siteName;
@@ -97,6 +99,15 @@ public class UserListCriteria extends AbstractListCriteria<UserListCriteria> {
 
 	public UserListCriteria type(String type) {
 		this.type = type;
+		return self();
+	}
+
+	public List<String> excludeTypes() {
+		return excludeTypes;
+	}
+
+	public UserListCriteria excludeTypes(List<String> excludeTypes) {
+		this.excludeTypes = excludeTypes;
 		return self();
 	}
 

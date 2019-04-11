@@ -142,13 +142,8 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 	public ResponseEvent<List<UserSummary>> getUsers(RequestEvent<UserListCriteria> req) {
 		UserListCriteria crit = req.getPayload();
 
-		if (StringUtils.isNotBlank(crit.type())) {
-			try {
-				User.Type.valueOf(crit.type());
-			} catch (IllegalArgumentException iae) {
-				return ResponseEvent.userError(UserErrorCode.INVALID_TYPE, crit.type());
-			}
-		}
+		validateTypes(crit.type());
+		validateTypes(crit.excludeTypes());
 
 		List<User> users = daoFactory.getUserDao().getUsers(addUserListCriteria(crit));
 		return ResponseEvent.response(UserSummary.from(users));
@@ -157,7 +152,12 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 	@Override
 	@PlusTransactional
 	public ResponseEvent<Long> getUsersCount(RequestEvent<UserListCriteria> req) {
-		return ResponseEvent.response(daoFactory.getUserDao().getUsersCount(addUserListCriteria(req.getPayload())));
+		UserListCriteria crit = req.getPayload();
+
+		validateTypes(crit.type());
+		validateTypes(crit.excludeTypes());
+
+		return ResponseEvent.response(daoFactory.getUserDao().getUsersCount(addUserListCriteria(crit)));
 	}
 
 	@Override
@@ -592,6 +592,24 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		exportSvc.registerObjectsGenerator("user", this::getUsersGenerator);
+	}
+
+	private void validateTypes(Collection<String> types) {
+		if (CollectionUtils.isEmpty(types)) {
+			return;
+		}
+
+		types.forEach(this::validateTypes);
+	}
+
+	private void validateTypes(String type) {
+		if (StringUtils.isNotBlank(type)) {
+			try {
+				User.Type.valueOf(type);
+			} catch (IllegalArgumentException iae) {
+				throw OpenSpecimenException.userError(UserErrorCode.INVALID_TYPE, type);
+			}
+		}
 	}
 
 	private UserListCriteria addUserListCriteria(UserListCriteria crit) {

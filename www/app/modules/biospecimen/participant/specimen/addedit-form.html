@@ -171,7 +171,7 @@
     <div class="form-group" ng-if="inputSpmn.lineage != 'New' && inputSpmn.status == 'Collected'">
       <label class="col-xs-3 control-label" translate="specimens.created_by">Created By</label>
       <div class="col-xs-6">
-        <os-users name="createdBy" ng-model="inputSpmn.createdBy" default-current-user
+        <os-users name="createdBy" ng-model="inputSpmn.createdBy" default-current-user exclude-contacts
           placeholder="{{'specimens.created_by' | translate}}" required>
         </os-users>
         <div os-field-error field="sform.createdBy"></div>

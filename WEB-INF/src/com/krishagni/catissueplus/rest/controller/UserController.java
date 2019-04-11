@@ -54,57 +54,60 @@ public class UserController {
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
 	public List<UserSummary> getUsers(
-			@RequestParam(value = "start", required = false, defaultValue = "0") 
-			int start,
+		@RequestParam(value = "start", required = false, defaultValue = "0")
+		int start,
 
-			@RequestParam(value = "maxResults", required = false, defaultValue = "100") 
-			int maxResults,
+		@RequestParam(value = "maxResults", required = false, defaultValue = "100")
+		int maxResults,
 
-			@RequestParam(value = "searchString", required = false) 
-			String searchString,
+		@RequestParam(value = "searchString", required = false)
+		String searchString,
 
-			@RequestParam(value = "name", required = false)
-			String name,
+		@RequestParam(value = "name", required = false)
+		String name,
 
-			@RequestParam(value = "loginName", required = false)
-			String loginName,
+		@RequestParam(value = "loginName", required = false)
+		String loginName,
 
-			@RequestParam(value = "institute", required = false)
-			String institute,
+		@RequestParam(value = "institute", required = false)
+		String institute,
 
-			@RequestParam(value = "domainName", required = false)
-			String domainName,
+		@RequestParam(value = "domainName", required = false)
+		String domainName,
 
-			@RequestParam(value = "activityStatus", required = false)
-			String activityStatus,
+		@RequestParam(value = "activityStatus", required = false)
+		String activityStatus,
 
-			@RequestParam(value = "listAll", required = false, defaultValue = "true")
-			boolean listAll,
+		@RequestParam(value = "listAll", required = false, defaultValue = "true")
+		boolean listAll,
 
-			@RequestParam(value = "includeStats", required = false, defaultValue = "false")
-			boolean includeStats,
+		@RequestParam(value = "includeStats", required = false, defaultValue = "false")
+		boolean includeStats,
 
-			@RequestParam(value = "type", required = false)
-			String type,
+		@RequestParam(value = "type", required = false)
+		String type,
 
-			@RequestParam(value = "activeSince", required = false)
-			@DateTimeFormat(pattern="yyyy-MM-dd")
-			Date activeSince,
+		@RequestParam(value = "excludeType", required = false)
+		String[] excludeTypes,
 
-			@RequestParam(value = "site", required = false)
-			String siteName,
+		@RequestParam(value = "activeSince", required = false)
+		@DateTimeFormat(pattern="yyyy-MM-dd")
+		Date activeSince,
 
-			@RequestParam(value = "cp", required = false)
-			String cpShortTitle,
+		@RequestParam(value = "site", required = false)
+		String siteName,
 
-			@RequestParam(value = "role", required = false)
-			String[] roles,
+		@RequestParam(value = "cp", required = false)
+		String cpShortTitle,
 
-			@RequestParam(value = "resource", required = false)
-			String resourceName,
+		@RequestParam(value = "role", required = false)
+		String[] roles,
 
-			@RequestParam(value = "op", required = false)
-			String[] ops) {
+		@RequestParam(value = "resource", required = false)
+		String resourceName,
+
+		@RequestParam(value = "op", required = false)
+		String[] ops) {
 		
 		UserListCriteria crit = new UserListCriteria()
 			.startAt(start)
@@ -118,6 +121,7 @@ public class UserController {
 			.listAll(listAll)
 			.includeStat(includeStats)
 			.type(type)
+			.excludeTypes(excludeTypes != null ? Arrays.asList(excludeTypes) : null)
 			.activeSince(activeSince)
 			.siteName(siteName)
 			.cpShortTitle(cpShortTitle)
@@ -137,30 +141,36 @@ public class UserController {
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
 	public Map<String, Long> getUsersCount(
-			@RequestParam(value = "searchString", required = false) 
-			String searchString,
+		@RequestParam(value = "searchString", required = false)
+		String searchString,
 			
-			@RequestParam(value = "name", required = false)
-			String name,
+		@RequestParam(value = "name", required = false)
+		String name,
 			
-			@RequestParam(value = "loginName", required = false)
-			String loginName,
+		@RequestParam(value = "loginName", required = false)
+		String loginName,
 			
-			@RequestParam(value = "institute", required = false)
-			String institute,
+		@RequestParam(value = "institute", required = false)
+		String institute,
 			
-			@RequestParam(value = "domainName", required = false)
-			String domainName,
+		@RequestParam(value = "domainName", required = false)
+		String domainName,
 			
-			@RequestParam(value = "activityStatus", required = false)
-			String activityStatus,
+		@RequestParam(value = "activityStatus", required = false)
+		String activityStatus,
 			
-			@RequestParam(value = "listAll", required = false, defaultValue = "true")
-			boolean listAll,
+		@RequestParam(value = "listAll", required = false, defaultValue = "true")
+		boolean listAll,
 
-			@RequestParam(value = "activeSince", required = false)
-			@DateTimeFormat(pattern="yyyy-MM-dd")
-			Date activeSince) {
+		@RequestParam(value = "type", required = false)
+		String type,
+
+		@RequestParam(value = "excludeType", required = false)
+		String[] excludeTypes,
+
+		@RequestParam(value = "activeSince", required = false)
+		@DateTimeFormat(pattern="yyyy-MM-dd")
+		Date activeSince) {
 		
 		UserListCriteria crit = new UserListCriteria()
 			.query(searchString)
@@ -169,6 +179,8 @@ public class UserController {
 			.instituteName(institute)
 			.domainName(domainName)
 			.activityStatus(activityStatus)
+			.type(type)
+			.excludeTypes(excludeTypes != null ? Arrays.asList(excludeTypes) : null)
 			.listAll(listAll)
 			.activeSince(activeSince);
 		
