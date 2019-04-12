@@ -69,6 +69,12 @@ public class SearchServiceImpl implements SearchService, InitializingBean {
 			return Collections.emptyList();
 		}
 
+		searchTerm = searchTerm.replaceAll("\\\\", "\\\\\\\\")
+			.replaceAll("_", "\\\\_")
+			.replaceAll("%", "\\\\%")
+			.toLowerCase();
+
+
 		if (AuthUtil.isAdmin()) {
 			return daoFactory.getSearchEntityKeywordDao().getMatches(searchTerm, maxResults)
 				.stream().map(SearchResult::from).collect(Collectors.toList());

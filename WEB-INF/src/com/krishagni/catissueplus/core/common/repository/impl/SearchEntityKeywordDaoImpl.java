@@ -15,8 +15,9 @@ public class SearchEntityKeywordDaoImpl extends AbstractDao<SearchEntityKeyword>
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public List<SearchEntityKeyword> getKeywords(String entity, Long entityId, String key) {
-		return getCurrentSession().getNamedQuery(GET_KEYWORDS)
+		return (List<SearchEntityKeyword>) getCurrentSession().getNamedQuery(GET_KEYWORDS)
 			.setParameter("entity", entity)
 			.setParameter("entityId", entityId)
 			.setParameter("key", key)
@@ -24,13 +25,8 @@ public class SearchEntityKeywordDaoImpl extends AbstractDao<SearchEntityKeyword>
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public List<SearchEntityKeyword> getMatches(String searchTerm, int maxResults) {
-		if (isMySQL()) {
-			searchTerm = searchTerm.replaceAll("\\\\", "\\\\\\\\")
-				.replaceAll("_", "\\\\_");
-		}
-
-		searchTerm = searchTerm.replaceAll("%", "\\\\%").toLowerCase();
 		List<Object[]> rows = getCurrentSession().getNamedSQLQuery(GET_MATCHES)
 			.setParameter("value", searchTerm + "%")
 			.setMaxResults(maxResults <= 0 ? 100 : maxResults)
@@ -54,10 +50,8 @@ public class SearchEntityKeywordDaoImpl extends AbstractDao<SearchEntityKeyword>
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public List<String> getMatchingEntities(String searchTerm) {
-		searchTerm = searchTerm.replaceAll("\\\\", "\\\\\\\\")
-			.replaceAll("_", "\\\\_")
-			.replaceAll("%", "\\\\%").toLowerCase();
 		return (List<String>) getCurrentSession().getNamedQuery(GET_MATCHING_ENTITIES)
 			.setParameter("value", searchTerm + "%")
 			.list();
