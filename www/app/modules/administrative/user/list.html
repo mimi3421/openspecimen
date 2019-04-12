@@ -167,27 +167,37 @@
 
 <script type="text/ng-template" id="modules/administrative/user/bulk-user-ops.html">
   <div>
-    <button class="default" title="{{'user.tooltip.edit_users' | translate}}" ng-click="editUsers()">
+    <button class="default" ng-click="editUsers()">
       <span class="fa fa-pencil"></span>
       <span translate="common.buttons.edit">Edit</span>
     </button>
 
-    <button class="default" title="{{'user.tooltip.delete_users' | translate}}" ng-click="deleteUsers()">
+    <button class="default" ng-click="archiveUsers()">
+      <span class="fa fa-archive"></span>
+      <span translate="common.buttons.archive">Archive</span>
+    </button>
+
+    <button class="default" ng-click="reactivateUsers()">
+      <span class="fa fa-check"></span>
+      <span translate="common.buttons.reactivate">Reactivate</span>
+    </button>
+
+    <button class="default" ng-click="deleteUsers()">
       <span class="fa fa-trash"></span>
       <span translate="common.buttons.delete">Delete</span>
     </button>
 
-    <button class="default" title="{{'user.tooltip.lock_users' | translate}}" ng-click="lockUsers()">
+    <button class="default" ng-click="lockUsers()">
       <span class="fa fa-lock"></span>
       <span translate="user.lock_users">Lock</span>
     </button>
 
-    <button class="default" title="{{'user.tooltip.unlock_users' | translate}}" ng-click="unlockUsers()">
+    <button class="default" ng-click="unlockUsers()">
       <span class="fa fa-unlock"></span>
       <span translate="user.unlock_users">Unlock</span>
     </button>
 
-    <button class="default" title="{{'user.tooltip.approve_users' | translate}}" ng-click="approveUsers()">
+    <button class="default" ng-click="approveUsers()">
       <span class="fa fa-check"></span>
       <span translate="user.approve_users">Approve</span>
     </button>

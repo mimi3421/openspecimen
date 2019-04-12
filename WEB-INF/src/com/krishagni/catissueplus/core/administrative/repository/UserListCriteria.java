@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.List;
 
 public class UserListCriteria extends AbstractListCriteria<UserListCriteria> {
+	private static final String ARCHIVED = "Archived";
+
 	private String name;
 	
 	private String loginName;
@@ -62,6 +64,10 @@ public class UserListCriteria extends AbstractListCriteria<UserListCriteria> {
 	}
 
 	public UserListCriteria activityStatus(String activityStatus) {
+		if (ARCHIVED.equalsIgnoreCase(activityStatus)) {
+			activityStatus = "Closed";
+		}
+
 		this.activityStatus = activityStatus;
 		return self();
 	}

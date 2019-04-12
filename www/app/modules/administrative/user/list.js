@@ -36,12 +36,21 @@ angular.module('os.administrative.user.list', ['os.administrative.models'])
     function loadActivityStatuses() {
       PvManager.loadPvs('activity-status').then(
         function(result) {
-          $scope.activityStatuses = [].concat(result);
-          $scope.activityStatuses.push('Locked');
-          var idx = $scope.activityStatuses.indexOf('Disabled');
+          var statuses = [].concat(result);
+          statuses.push('Locked');
+          var idx = statuses.indexOf('Disabled');
           if (idx != -1) {
-            $scope.activityStatuses.splice(idx, 1);
+            statuses.splice(idx, 1);
           }
+
+          idx = statuses.indexOf('Closed');
+          if (idx != -1) {
+            statuses[idx] = 'Archived';
+          } else {
+            statuses.push('Archived');
+          }
+
+          $scope.activityStatuses = statuses.sort();
         }
       );
     }
@@ -167,6 +176,14 @@ angular.module('os.administrative.user.list', ['os.administrative.models'])
 
     $scope.lockUsers = function() {
       updateStatus(['Active'], 'Locked', 'user.users_locked');
+    }
+
+    $scope.archiveUsers = function() {
+      updateStatus(['Locked', 'Active', 'Expired'], 'Closed', 'user.users_archived');
+    }
+
+    $scope.reactivateUsers = function() {
+      updateStatus(['Closed'], 'Active', 'user.users_reactivated');
     }
 
     $scope.pageSizeChanged = function() {

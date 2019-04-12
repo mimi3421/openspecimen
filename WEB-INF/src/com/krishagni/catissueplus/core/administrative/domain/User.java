@@ -348,7 +348,11 @@ public class User extends BaseEntity implements UserDetails {
 	public List<DependentEntityDetail> getDependentEntities() {
 		return daoFactory.getUserDao().getDependentEntities(getId());
 	}
-	
+
+	public void close() {
+		setActivityStatus(Status.ACTIVITY_STATUS_CLOSED.getStatus());
+	}
+
 	public void delete() {
 		List<DependentEntityDetail> dependentEntities = getDependentEntities();
 		if (!dependentEntities.isEmpty()) {

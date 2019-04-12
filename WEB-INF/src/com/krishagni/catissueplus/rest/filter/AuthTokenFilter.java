@@ -111,7 +111,7 @@ public class AuthTokenFilter extends GenericFilterBean {
 			return;
 		}
 
-		User userDetails = null;
+		User user = null;
 		String authToken = AuthUtil.getAuthTokenFromHeader(httpReq);
 		if (authToken == null) {
 			authToken = AuthUtil.getTokenFromCookie(httpReq);
@@ -125,14 +125,14 @@ public class AuthTokenFilter extends GenericFilterBean {
 
 			ResponseEvent<AuthToken> atResp = authService.validateToken(new RequestEvent<>(tokenDetail));
 			if (atResp.isSuccessful()) {
-				userDetails = atResp.getPayload().getUser();
+				user = atResp.getPayload().getUser();
 				loginAuditLog = atResp.getPayload().getLoginAuditLog();
 			}
 		} else if(httpReq.getHeader(HttpHeaders.AUTHORIZATION) != null) {
-			userDetails = doBasicAuthentication(httpReq, httpResp);
+			user = doBasicAuthentication(httpReq, httpResp);
 		}
 		
-		if (userDetails == null) {
+		if (user == null) {
 			String clientHdr = httpReq.getHeader(OS_CLIENT_HDR);
 			if (clientHdr != null && clientHdr.equals("webui")) {
 				setUnauthorizedResp(req, resp, chain, false);
@@ -142,20 +142,26 @@ public class AuthTokenFilter extends GenericFilterBean {
 			return;
 		}
 
-		if (userDetails.isContact()) {
+		if (user.isContact() || user.isClosed()) {
 			AuthUtil.clearTokenCookie(httpReq, httpResp);
-			httpResp.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Contacts are not allowed to sign-in");
+			httpResp.sendError(
+				HttpServletResponse.SC_UNAUTHORIZED,
+				String.format(
+					"%s (%d) is not allowed to sign-in. Type = %s, Status = %s",
+					user.formattedName(), user.getId(), user.getType().name(), user.getActivityStatus()
+				)
+			);
 			return;
 		}
 
-		AuthUtil.setCurrentUser(userDetails, authToken, httpReq);
+		AuthUtil.setCurrentUser(user, authToken, httpReq);
 		Date callStartTime = Calendar.getInstance().getTime();
 		chain.doFilter(req, resp);
 		AuthUtil.clearCurrentUser();
 
 		if (isRecordableApi(httpReq)) {
 			UserApiCallLog userAuditLog = new UserApiCallLog();
-			userAuditLog.setUser(userDetails);
+			userAuditLog.setUser(user);
 			userAuditLog.setUrl(httpReq.getRequestURI());
 			userAuditLog.setMethod(httpReq.getMethod());
 			userAuditLog.setCallStartTime(callStartTime);

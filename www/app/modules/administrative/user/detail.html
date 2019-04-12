@@ -8,8 +8,12 @@
           </a>
         </li>
       </ul>
-
-      <h3>{{user | osUserDisplayName}}</h3>
+      <h3>
+        <span>{{user | osUserDisplayName}}</span>
+        <span class="btn os-status-closed" ng-if="user.activityStatus == 'Closed'" translate="common.archived">
+          Archived
+        </span>
+      </h3>
     </div>
 
     <div class="os-btns right">

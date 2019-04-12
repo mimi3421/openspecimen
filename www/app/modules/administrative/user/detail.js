@@ -33,8 +33,13 @@ angular.module('os.administrative.user.detail', ['os.administrative.models'])
     }
 
     $scope.activate = function() {
-      var msgKey = $scope.user.activityStatus == 'Locked' ? 'user.user_unlocked' : 'user.user_request_approved';
-      updateStatus('Active', msgKey);
+      var s = $scope.user.activityStatus;
+      var msgKey = s == 'Locked' ? 'user_unlocked' : (s == 'Closed' ? 'user_reactivated' : 'user_request_approved');
+      updateStatus('Active', 'user.' + msgKey);
+    }
+
+    $scope.archive = function() {
+      updateStatus('Closed', 'user.user_archived');
     }
 
     $scope.lock = function() {

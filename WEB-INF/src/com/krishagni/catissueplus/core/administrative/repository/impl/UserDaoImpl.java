@@ -32,6 +32,7 @@ import com.krishagni.catissueplus.core.administrative.repository.UserListCriteri
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.repository.AbstractDao;
+import com.krishagni.catissueplus.core.common.util.Status;
 import com.krishagni.catissueplus.core.common.util.Utility;
 
 public class UserDaoImpl extends AbstractDao<User> implements UserDao {
@@ -336,10 +337,11 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 	
 	private void addActivityStatusRestriction(Criteria criteria, String activityStatus) {
 		if (StringUtils.isBlank(activityStatus)) {
-			return;
+			criteria.add(Restrictions.ne("u.activityStatus", Status.ACTIVITY_STATUS_CLOSED.getStatus()));
+		} else {
+			criteria.add(Restrictions.eq("u.activityStatus", activityStatus));
 		}
-		
-		criteria.add(Restrictions.eq("u.activityStatus", activityStatus));
+
 	}
 
 	private void addTypeRestriction(Criteria criteria, String type) {

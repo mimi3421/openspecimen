@@ -8,9 +8,19 @@
           <span translate="common.buttons.edit">Edit</span>
         </button>
         <button show-if-allowed="userResource.updateOpts" class="default" ng-click="lock()"
-          ng-if="user.type != 'CONTACT' && user.activityStatus != 'Locked'">
+          ng-if="user.type != 'CONTACT' && user.activityStatus != 'Locked' && user.activityStatus != 'Closed'">
           <span class="fa fa-lock"></span>
           <span translate="user.lock_users">Lock</span>
+        </button>
+        <button show-if-allowed="userResource.updateOpts" class="default" ng-click="archive()"
+          ng-if="user.activityStatus != 'Closed'">
+          <span class="fa fa-archive"></span>
+          <span translate="common.buttons.archive">Archive</span>
+        </button>
+        <button show-if-allowed="userResource.updateOpts" class="default" ng-click="activate()"
+          ng-if="user.activityStatus == 'Closed'">
+          <span class="fa fa-check"></span>
+          <span translate="common.buttons.reactivate">Reactivate</span>
         </button>
         <button show-if-allowed="userResource.deleteOpts" class="default" ng-click="deleteUser()">
           <span class="fa fa-trash"></span>
@@ -18,7 +28,8 @@
         </button>
         <button class="default" ui-sref="user-password({userId: user.id})"
           ng-if="user.type != 'CONTACT' && user.domainName == global.defaultDomain &&
-                 currentUser.id != user.id && currentUser.admin">
+                 currentUser.id != user.id && currentUser.admin &&
+                 user.activityStatus == 'Active'">
           <span class="fa fa-key"></span>
           <span translate="common.buttons.reset_password">Reset Password</span>
         </button>

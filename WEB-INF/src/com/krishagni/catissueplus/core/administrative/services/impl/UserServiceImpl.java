@@ -313,6 +313,8 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 			} else if (isDeleted(currentStatus, newStatus)) {
 				user.delete();
 				notifyUserUpdated(user, "deleted");
+			} else if (isClosed(currentStatus, newStatus)) {
+				user.close();
 			}
 
 			return ResponseEvent.response(UserDetail.from(user));
@@ -909,6 +911,7 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 	private boolean isStatusChangeAllowed(String newStatus) {
 		return newStatus.equals(Status.ACTIVITY_STATUS_ACTIVE.getStatus()) || 
 			newStatus.equals(Status.ACTIVITY_STATUS_LOCKED.getStatus()) ||
+			newStatus.equals(Status.ACTIVITY_STATUS_CLOSED.getStatus()) ||
 			newStatus.equals(Status.ACTIVITY_STATUS_DISABLED.getStatus());
 	}
 	
@@ -925,6 +928,11 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 	private boolean isDeleted(String currentStatus, String newStatus) {
 		return !currentStatus.equals(Status.ACTIVITY_STATUS_DISABLED.getStatus()) &&
 			newStatus.equals(Status.ACTIVITY_STATUS_DISABLED.getStatus());
+	}
+
+	private boolean isClosed(String currentStatus, String newStatus) {
+		return !currentStatus.equals(Status.ACTIVITY_STATUS_CLOSED.getStatus()) &&
+			newStatus.equals(Status.ACTIVITY_STATUS_CLOSED.getStatus());
 	}
 		
 	private Institute getCurrUserInstitute() {
