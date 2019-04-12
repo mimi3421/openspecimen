@@ -92,8 +92,8 @@
         create table tmp_specimen_stats (
           specimen_id bigint(19) not null,
           collector_id bigint(19) default null,
-          collection_procedure varchar(50) default null,
-          collection_container varchar(50) default null,
+          collection_procedure varchar(255) default null,
+          collection_container varchar(255) default null,
           collection_time timestamp null default null,
           receiver_id bigint(19) default null,
           received_quality varchar(255) default null,
@@ -232,8 +232,8 @@
         execute immediate 'create table tmp_specimen_stats (
           specimen_id number(19) not null,
           collector_id number(19) default null,
-          collection_procedure varchar2(50) default null,
-          collection_container varchar2(50) default null,
+          collection_procedure varchar2(255) default null,
+          collection_container varchar2(255) default null,
           collection_time timestamp default null,
           receiver_id number(19) default null,
           received_quality varchar2(255) default null,
