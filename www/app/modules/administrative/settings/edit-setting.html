@@ -21,6 +21,10 @@
         <span ng-switch-when="BOOLEAN">
           {{existingSetting.value | osBoolValue: 'common.enabled': 'common.disabled': 'common.not_specified'}}
         </span>
+        <span ng-switch-when="CHAR" ng-switch on="existingSetting.value.charCodeAt(0) <= 32">
+          <span ng-switch-when="true">Code: {{existingSetting.value.charCodeAt(0)}}</span>
+          <span ng-switch-default>{{existingSetting.value | osNoValue}}</span>
+        </span>
         <span ng-switch-default>
           {{existingSetting.value | osNoValue}}
         </span>
@@ -42,7 +46,7 @@
         <input type="password" name="value" class="form-control" ng-model="setting.value" 
           ng-if="setting.type == 'STRING' && setting.secured"></input>
         <input type="text" name="value" class="form-control" ng-model="setting.value" 
-          ng-maxlength="1" ng-if="setting.type == 'CHAR'"></input>
+          ng-maxlength="1" ng-if="setting.type == 'CHAR'" ng-trim="false"></input>
         <input type="text" name="value" class="form-control" ng-model="setting.value" 
           ng-pattern="/^[0-9]*$/" ng-if="setting.type == 'INT'"></input>
         <div ng-if="setting.type == 'BOOLEAN'">

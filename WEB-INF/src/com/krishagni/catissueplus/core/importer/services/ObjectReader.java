@@ -57,8 +57,8 @@ public class ObjectReader implements Closeable {
 	public ObjectReader(String filePath, ObjectSchema schema, String dateFmt, String timeFmt, String fieldSeparator) {
 		try {
 			char separatorChar = Utility.getFieldSeparator();
-			fieldSeparator = StringUtils.isNotBlank(fieldSeparator) ? fieldSeparator : schema.getFieldSeparator();
-			if (StringUtils.isNotBlank(fieldSeparator)) {
+			fieldSeparator = (fieldSeparator != null && fieldSeparator.length() > 0) ? fieldSeparator : schema.getFieldSeparator();
+			if (fieldSeparator != null && fieldSeparator.length() > 0) {
 				separatorChar = fieldSeparator.charAt(0);
 			}
 
@@ -150,9 +150,7 @@ public class ObjectReader implements Closeable {
 	
 	private Map<String, Object> parseObject(Record record, String prefix)
 	throws Exception {
-		Map<String, Object> props = new LinkedHashMap<>();
-		props.putAll(parseFields(record, prefix));
-		
+		Map<String, Object> props = new LinkedHashMap<>(parseFields(record, prefix));
 		if (record.getSubRecords() == null) {
 			return props;
 		}

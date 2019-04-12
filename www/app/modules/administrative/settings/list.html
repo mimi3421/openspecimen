@@ -65,6 +65,10 @@
                     <span ng-switch-when="BOOLEAN">
                       {{setting.value | osBoolValue: 'common.enabled': 'common.disabled': 'common.not_specified'}}
                     </span>
+                    <span ng-switch-when="CHAR" ng-switch on="setting.value.charCodeAt(0) <= 32">
+                      <span ng-switch-when="true">Code: {{setting.value.charCodeAt(0)}}</span>
+                      <span ng-switch-default>{{setting.value | osNoValue}}</span>
+                    </span>
                     <span ng-switch-when="FILE" ng-switch on="!!setting.value" ng-click="$event.stopPropagation();">
                       <a ng-switch-when="true" href="{{setting.getFileDownloadUrl()}}" target="_blank">
                         <span>{{setting.value}}</span>
