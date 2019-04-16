@@ -25,10 +25,12 @@ angular.module('os.common.audit')
                   auditInfo.createdOn = audit.createdOn;
                 }
 
-                if (audit.lastUpdatedOn < auditInfo.lastUpdatedOn) {
+                if (audit.lastUpdatedOn > auditInfo.lastUpdatedOn) {
                   auditInfo.lastUpdatedBy = audit.lastUpdatedBy;
                   auditInfo.lastUpdatedOn = audit.lastUpdatedOn;
                 }
+
+                auditInfo.revisionsCount += audit.revisionsCount;
               }
             }
           );

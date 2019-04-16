@@ -213,8 +213,8 @@ public class ParticipantServiceImpl implements ParticipantService, ObjectAccesso
 		ose.checkAndThrow();
 		
 		existing.update(newParticipant);
-		daoFactory.getParticipantDao().saveOrUpdate(existing);
 		existing.addOrUpdateExtension();
+		daoFactory.getParticipantDao().saveOrUpdate(existing);
 	}
 
 	@Override

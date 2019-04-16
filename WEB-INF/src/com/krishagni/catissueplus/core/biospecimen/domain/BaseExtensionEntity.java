@@ -5,11 +5,15 @@ import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.hibernate.envers.Audited;
 
 import com.krishagni.catissueplus.core.de.domain.DeObject;
 
+@Audited
 public abstract class BaseExtensionEntity extends BaseEntity {
 	private DeObject extension;
+
+	protected Integer extensionRev;
 
 	public DeObject getExtensionIfPresent() {
 		return extension;
@@ -32,9 +36,19 @@ public abstract class BaseExtensionEntity extends BaseEntity {
 			return;			
 		}
 		
-		extension.saveOrUpdate();
+		if (extension.saveOrUpdate()) {
+			extensionRev = (extensionRev == null) ? 1 : extensionRev + 1;
+		}
 	}
-	
+
+	public Integer getExtensionRev() {
+		return extensionRev;
+	}
+
+	public void setExtensionRev(Integer extensionRev) {
+		this.extensionRev = extensionRev;
+	}
+
 	public boolean hasPhiFields() {
 		return getExtension() != null && getExtension().hasPhiFields();
 	}

@@ -134,6 +134,17 @@ public class StorageContainerPosition extends BaseEntity implements Comparable<S
 		this.supressAccessChecks = supressAccessChecks;
 	}
 
+	@Override
+	public BaseEntity getRoot() {
+		if (getOccupyingSpecimen() != null) {
+			return getOccupyingSpecimen();
+		} else if (getOccupyingContainer() != null) {
+			return getOccupyingContainer();
+		} else {
+			return null;
+		}
+	}
+
 	public void update(StorageContainerPosition other) {
 		//
 		// Ideally when container changes, we should first remove it from old container

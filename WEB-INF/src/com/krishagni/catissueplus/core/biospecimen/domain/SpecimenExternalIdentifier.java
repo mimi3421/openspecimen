@@ -42,4 +42,9 @@ public class SpecimenExternalIdentifier extends BaseEntity {
 	public void setSpecimen(Specimen specimen) {
 		this.specimen = specimen;
 	}
+
+	@Override
+	public BaseEntity getRoot() {
+		return getSpecimen();
+	}
 }

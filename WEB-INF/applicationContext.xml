@@ -299,6 +299,7 @@
   </bean>
   
   <bean id="auditService" class="com.krishagni.catissueplus.core.audit.services.impl.AuditServiceImpl">
+    <property name="sessionFactory" ref="sessionFactory"/>
     <property name="daoFactory" ref="biospecimenDaoFactory"/>
     <property name="objectAccessorFactory" ref="objectAccessorFactory"/>
     <property name="taskExecutor" ref="taskExecutor"/>

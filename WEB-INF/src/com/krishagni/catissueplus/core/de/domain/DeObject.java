@@ -110,21 +110,22 @@ public abstract class DeObject {
 		return form != null ? form.getCaption() : null;
 	}
 
-	public void saveOrUpdate() {
+	public boolean saveOrUpdate() {
 		try {
 			Container form = getForm();
 			UserContext userCtx = getUserCtx();
 			FormData formData = prepareFormData(form);
-			
-			boolean isInsert = (this.id == null);						
+
+			int revision = formData.getRevision();
+			boolean isInsert = (this.id == null);
 			this.id = formDataMgr.saveOrUpdateFormData(userCtx, formData);
-			
-			if (isInsert) {
+			if (isInsert && this.id != null) {
 				saveRecordEntry();			
 			}
-			
+
 			attrs.clear();
 			attrs.addAll(getAttrs(formData));
+			return revision != formData.getRevision();
 		} catch(IllegalArgumentException ex) {
 			throw OpenSpecimenException.userError(FormErrorCode.INVALID_DATA, ex.getMessage());
 		} catch (DataAccessException dae) {
@@ -680,7 +681,7 @@ public abstract class DeObject {
 		public boolean isSubForm() {
 			return "subForm".equals(type);
 		}
-		
+
 		public boolean isOneToOne() {
 			if (ctrlValue != null && ctrlValue.getControl() instanceof SubFormControl) {
 				return ((SubFormControl)ctrlValue.getControl()).isOneToOne();

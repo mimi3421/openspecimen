@@ -26,6 +26,16 @@
 
     <property name="externalSubjectId" column="EXTERNAL_SUBJECT_ID"/>
 
+    <property name="extensionRev" column="EXTENSION_REV"/>
+
+    <property name="creationTime" column="CREATION_TIME"/>
+
+    <many-to-one name="creator" column="CREATOR"/>
+
+    <property name="updateTime" column="UPDATE_TIME"/>
+
+    <many-to-one name="updater" column="UPDATER"/>
+
     <many-to-one name="site" column="SITE_ID"/>
 
     <property name="activityStatus" column="ACTIVITY_STATUS"/>

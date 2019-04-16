@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -23,7 +24,25 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.envers.AuditReaderFactory;
+import org.hibernate.SessionFactory;
+import org.hibernate.envers.Audited;
+import org.hibernate.event.service.spi.EventListenerRegistry;
+import org.hibernate.event.spi.EventType;
+import org.hibernate.event.spi.PreCollectionRecreateEvent;
+import org.hibernate.event.spi.PreCollectionRecreateEventListener;
+import org.hibernate.event.spi.PreCollectionRemoveEvent;
+import org.hibernate.event.spi.PreCollectionRemoveEventListener;
+import org.hibernate.event.spi.PreCollectionUpdateEvent;
+import org.hibernate.event.spi.PreCollectionUpdateEventListener;
+import org.hibernate.event.spi.PreDeleteEvent;
+import org.hibernate.event.spi.PreDeleteEventListener;
+import org.hibernate.event.spi.PreInsertEvent;
+import org.hibernate.event.spi.PreInsertEventListener;
+import org.hibernate.event.spi.PreUpdateEvent;
+import org.hibernate.event.spi.PreUpdateEventListener;
+import org.hibernate.internal.SessionFactoryImpl;
+import org.hibernate.persister.entity.EntityPersister;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.krishagni.catissueplus.core.administrative.domain.User;
@@ -37,8 +56,10 @@ import com.krishagni.catissueplus.core.audit.events.RevisionDetail;
 import com.krishagni.catissueplus.core.audit.events.RevisionEntityRecordDetail;
 import com.krishagni.catissueplus.core.audit.repository.RevisionsListCriteria;
 import com.krishagni.catissueplus.core.audit.services.AuditService;
+import com.krishagni.catissueplus.core.biospecimen.domain.BaseEntity;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
+import com.krishagni.catissueplus.core.common.TransactionalThreadLocals;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.ExportedFileDetail;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
@@ -54,7 +75,7 @@ import com.krishagni.catissueplus.core.common.util.MessageUtil;
 import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.rbac.common.errors.RbacErrorCode;
 
-public class AuditServiceImpl implements AuditService {
+public class AuditServiceImpl implements AuditService, InitializingBean {
 
 	private static Log logger = LogFactory.getLog(AuditServiceImpl.class);
 
@@ -62,11 +83,17 @@ public class AuditServiceImpl implements AuditService {
 
 	private static final String REV_EMAIL_TMPL = "audit_entity_revisions";
 
+	private SessionFactory sessionFactory;
+
 	private DaoFactory daoFactory;
 
 	private ObjectAccessorFactory objectAccessorFactory;
 
 	private ThreadPoolTaskExecutor taskExecutor;
+
+	public void setSessionFactory(SessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
+	}
 
 	public void setDaoFactory(DaoFactory daoFactory) {
 		this.daoFactory = daoFactory;
@@ -195,6 +222,19 @@ public class AuditServiceImpl implements AuditService {
 		Date lastApiCallTime = daoFactory.getAuditDao().getLatestApiCallTime(userId, token);
 		long timeSinceLastApiCallInMilli = Calendar.getInstance().getTime().getTime() - lastApiCallTime.getTime();
 		return TimeUnit.MILLISECONDS.toMinutes(timeSinceLastApiCallInMilli);
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		EventListenerRegistry reg = ((SessionFactoryImpl) sessionFactory).getServiceRegistry().getService(EventListenerRegistry.class);
+
+		PersistEventListener listener = new PersistEventListener();
+		reg.getEventListenerGroup(EventType.PRE_INSERT).appendListener(listener);
+		reg.getEventListenerGroup(EventType.PRE_UPDATE).appendListener(listener);
+		reg.getEventListenerGroup(EventType.PRE_DELETE).appendListener(listener);
+		reg.getEventListenerGroup(EventType.PRE_COLLECTION_RECREATE).appendListener(listener);
+		reg.getEventListenerGroup(EventType.PRE_COLLECTION_UPDATE).appendListener(listener);
+		reg.getEventListenerGroup(EventType.PRE_COLLECTION_REMOVE).appendListener(listener);
 	}
 
 	private List<AuditDetail> getEntityAuditDetail(List<AuditEntityQueryCriteria> criteria) {
@@ -591,5 +631,199 @@ public class AuditServiceImpl implements AuditService {
 
 	private String getTs(Date date) {
 		return new SimpleDateFormat("yyyyMMdd_HHmm").format(date);
+	}
+
+	private class PersistEventListener
+		implements PreInsertEventListener, PreUpdateEventListener, PreDeleteEventListener,
+		PreCollectionRecreateEventListener, PreCollectionUpdateEventListener, PreCollectionRemoveEventListener {
+
+		private ThreadLocal<IdentityHashMap<BaseEntity, Boolean>> entities =
+			new ThreadLocal<IdentityHashMap<BaseEntity, Boolean>>() {
+				@Override
+				protected IdentityHashMap<BaseEntity, Boolean> initialValue() {
+					TransactionalThreadLocals.getInstance().register(this);
+					return new IdentityHashMap<>();
+				}
+			};
+
+		@Override
+		public boolean onPreInsert(PreInsertEvent event) {
+			if (!(event.getEntity() instanceof BaseEntity)) {
+				return false;
+			}
+
+			BaseEntity entity = (BaseEntity) event.getEntity();
+			boolean update = false;
+			if (entity.getRoot() != null) {
+				entity = entity.getRoot();
+				update = true;
+			}
+
+			if (entities.get().containsKey(entity)) {
+				return false;
+			}
+
+			Map<String, Object> props = new HashMap<>();
+			if (update) {
+				entity.setUpdater(AuthUtil.getCurrentUser());
+				entity.setUpdateTime(Calendar.getInstance().getTime());
+
+				props.put("updater", entity.getUpdater());
+				props.put("updateTime", entity.getUpdateTime());
+			} else {
+				entity.setCreator(AuthUtil.getCurrentUser());
+				entity.setCreationTime(Calendar.getInstance().getTime());
+
+				props.put("creator", entity.getCreator());
+				props.put("creationTime", entity.getCreationTime());
+			}
+
+			updateState(event.getPersister(), event.getState(), props);
+			entities.get().put(entity, true);
+			return false;
+		}
+
+		@Override
+		public boolean onPreUpdate(PreUpdateEvent event) {
+			if (!(event.getEntity() instanceof BaseEntity)) {
+				return false;
+			}
+
+			BaseEntity entity = (BaseEntity) event.getEntity();
+			if (entity.getRoot() != null) {
+				entity = entity.getRoot();
+			}
+
+			if (entities.get().containsKey(entity)) {
+				return false;
+			}
+
+			entity.setUpdater(AuthUtil.getCurrentUser());
+			entity.setUpdateTime(Calendar.getInstance().getTime());
+
+			Map<String, Object> props = new HashMap<>();
+			props.put("updater", entity.getUpdater());
+			props.put("updateTime", entity.getUpdateTime());
+			updateState(event.getPersister(), event.getState(), props);
+
+			entities.get().put(entity, true);
+			return false;
+		}
+
+		@Override
+		public boolean onPreDelete(PreDeleteEvent event) {
+			if (!(event.getEntity() instanceof BaseEntity)) {
+				return false;
+			}
+
+			BaseEntity entity = (BaseEntity) event.getEntity();
+			if (entity.getRoot() != null) {
+				entity = entity.getRoot();
+			}
+
+			if (entities.get().containsKey(entity)) {
+				return false;
+			}
+
+			entity.setUpdater(AuthUtil.getCurrentUser());
+			entity.setUpdateTime(Calendar.getInstance().getTime());
+
+			Map<String, Object> props = new HashMap<>();
+			props.put("updater", entity.getUpdater());
+			props.put("updateTime", entity.getUpdateTime());
+			updateState(event.getPersister(), event.getDeletedState(), props);
+
+			entities.get().put(entity, true);
+			return false;
+		}
+
+		@Override
+		public void onPreRecreateCollection(PreCollectionRecreateEvent event) {
+			if (!(event.getAffectedOwnerOrNull() instanceof BaseEntity)) {
+				return;
+			}
+
+			BaseEntity entity = (BaseEntity) event.getAffectedOwnerOrNull();
+			if (entity.getRoot() != null) {
+				entity = entity.getRoot();
+			}
+
+			if (entities.get().containsKey(entity)) {
+				return;
+			}
+
+			if (entity.getId() != null) {
+				entity.setUpdater(AuthUtil.getCurrentUser());
+				entity.setUpdateTime(Calendar.getInstance().getTime());
+			} else {
+				entity.setCreator(AuthUtil.getCurrentUser());
+				entity.setCreationTime(Calendar.getInstance().getTime());
+			}
+
+			entities.get().put(entity, true);
+		}
+
+		@Override
+		public void onPreUpdateCollection(PreCollectionUpdateEvent event) {
+			if (!(event.getAffectedOwnerOrNull() instanceof BaseEntity)) {
+				return;
+			}
+
+			BaseEntity entity = (BaseEntity) event.getAffectedOwnerOrNull();
+			if (entity.getRoot() != null) {
+				entity = entity.getRoot();
+			}
+
+			if (entities.get().containsKey(entity)) {
+				return;
+			}
+
+			entity.setUpdater(AuthUtil.getCurrentUser());
+			entity.setUpdateTime(Calendar.getInstance().getTime());
+			entities.get().put(entity, true);
+		}
+
+		@Override
+		public void onPreRemoveCollection(PreCollectionRemoveEvent event) {
+			if (!(event.getAffectedOwnerOrNull() instanceof BaseEntity)) {
+				return;
+			}
+
+			BaseEntity entity = (BaseEntity) event.getAffectedOwnerOrNull();
+			if (entity.getRoot() != null) {
+				entity = entity.getRoot();
+			}
+
+			if (entities.get().containsKey(entity)) {
+				return;
+			}
+
+			entity.setUpdater(AuthUtil.getCurrentUser());
+			entity.setUpdateTime(Calendar.getInstance().getTime());
+			entities.get().put(entity, true);
+		}
+
+		private void updateState(EntityPersister persister, Object[] state, Map<String, Object> values) {
+			if (values == null || values.isEmpty()) {
+				return;
+			}
+
+			int idx = -1, count = 0;
+			for (String prop : persister.getPropertyNames()) {
+				++idx;
+
+				Object value = values.get(prop);
+				if (value == null) {
+					continue;
+				}
+
+				state[idx] = value;
+				++count;
+
+				if (count == values.size()) {
+					break;
+				}
+			}
+		}
 	}
 }

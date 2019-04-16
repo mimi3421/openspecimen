@@ -417,6 +417,42 @@
     </row>
 
     <row>
+      <datePicker>
+        <name>creationTime</name>
+        <udn>creationTime</udn>
+        <caption>#getMessage("common_creation_time")</caption>
+        <column>CREATION_TIME</column>
+      </datePicker>
+    </row>
+
+    <row>
+      <userField>
+        <name>creator</name>
+        <udn>creator</udn>
+        <caption>#getMessage("common_creator")</caption>
+        <column>CREATOR</column>
+      </userField>
+    </row>
+
+    <row>
+      <datePicker>
+        <name>updateTime</name>
+        <udn>updateTime</udn>
+        <caption>#getMessage("common_update_time")</caption>
+        <column>UPDATE_TIME</column>
+      </datePicker>
+    </row>
+
+    <row>
+      <userField>
+        <name>updater</name>
+        <udn>updater</udn>
+        <caption>#getMessage("common_updater")</caption>
+        <column>UPDATER</column>
+      </userField>
+    </row>
+
+    <row>
       <subForm>
         <name>requirement</name>
         <udn>requirement</udn>

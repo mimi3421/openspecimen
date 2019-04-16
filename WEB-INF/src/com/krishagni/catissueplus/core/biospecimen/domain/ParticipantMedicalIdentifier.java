@@ -47,6 +47,11 @@ public class ParticipantMedicalIdentifier extends BaseEntity {
 	}
 
 	@Override
+	public BaseEntity getRoot() {
+		return getParticipant();
+	}
+
+	@Override
 	public boolean sameAs(Object pmiObj) {
 		if (!(pmiObj instanceof ParticipantMedicalIdentifier)) {
 			return false;

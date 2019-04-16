@@ -22,10 +22,20 @@ import org.hibernate.proxy.HibernateProxyHelper;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
 
+import com.krishagni.catissueplus.core.administrative.domain.User;
+
 public class BaseEntity {
 	private static final Map<String, Set<String>> entityProperties = new ConcurrentHashMap<>();
 
 	protected Long id;
+
+	protected User creator;
+
+	protected Date creationTime;
+
+	protected User updater;
+
+	protected Date updateTime;
 	
 	protected transient List<Runnable> onSaveProcs;
 
@@ -37,6 +47,42 @@ public class BaseEntity {
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public User getCreator() {
+		return creator;
+	}
+
+	public void setCreator(User creator) {
+		this.creator = creator;
+	}
+
+	public Date getCreationTime() {
+		return creationTime;
+	}
+
+	public void setCreationTime(Date creationTime) {
+		this.creationTime = creationTime;
+	}
+
+	public User getUpdater() {
+		return updater;
+	}
+
+	public void setUpdater(User updater) {
+		this.updater = updater;
+	}
+
+	public Date getUpdateTime() {
+		return updateTime;
+	}
+
+	public void setUpdateTime(Date updateTime) {
+		this.updateTime = updateTime;
+	}
+
+	public BaseEntity getRoot() {
+		return null;
 	}
 
 	public List<Runnable> getOnSaveProcs() {

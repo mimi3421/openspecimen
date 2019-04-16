@@ -45,6 +45,16 @@
 
     <property name="imageId" column="IMAGE_ID"/>
 
+    <property name="extensionRev" column="EXTENSION_REV"/>
+
+    <property name="creationTime" column="CREATION_TIME"/>
+
+    <many-to-one name="creator" column="CREATOR"/>
+
+    <property name="updateTime" column="UPDATE_TIME"/>
+
+    <many-to-one name="updater" column="UPDATER"/>
+
     <set name="biohazards" table="OS_SPECIMEN_BIOHAZARDS" cascade="all-delete-orphan" batch-size="25">
       <key column="SPECIMEN_ID" />
       <element column="BIOHAZARD" type="string" />

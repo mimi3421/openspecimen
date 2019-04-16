@@ -38,17 +38,11 @@
       <element column="CLINICAL_DIAGNOSIS" type="string"/>
     </set>
 
-    <many-to-one name="registration"
-      class="com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration"
-      column="COLLECTION_PROTOCOL_REG_ID" />
+    <many-to-one name="registration" column="COLLECTION_PROTOCOL_REG_ID" />
 
-    <many-to-one name="cpEvent"
-      class="com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolEvent" 
-      column="COLLECTION_PROTOCOL_EVENT_ID" />
+    <many-to-one name="cpEvent" column="COLLECTION_PROTOCOL_EVENT_ID" />
 
-    <many-to-one name="site" 
-      class="com.krishagni.catissueplus.core.administrative.domain.Site"
-      column="SITE_ID" />
+    <many-to-one name="site" column="SITE_ID" />
 
     <set name="specimens" table="CATISSUE_SPECIMEN" inverse="true" cascade="save-update">
       <key column="SPECIMEN_COLLECTION_GROUP_ID"/>
@@ -59,6 +53,16 @@
     <many-to-one name="missedBy" column="MISSED_BY"/>
     
     <property name="cohort" column="COHORT"/>
+
+    <property name="extensionRev" column="EXTENSION_REV"/>
+
+    <property name="creationTime" column="CREATION_TIME"/>
+
+    <many-to-one name="creator" column="CREATOR"/>
+
+    <property name="updateTime" column="UPDATE_TIME"/>
+
+    <many-to-one name="updater" column="UPDATER"/>
 
     <filter name="activeEntity"/>
 

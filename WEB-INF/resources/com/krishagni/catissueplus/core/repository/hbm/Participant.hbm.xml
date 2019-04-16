@@ -37,6 +37,14 @@
 
     <property name="empi" column="EMPI_ID"/>
 
+    <property name="creationTime" column="CREATION_TIME"/>
+
+    <many-to-one name="creator" column="CREATOR"/>
+
+    <property name="updateTime" column="UPDATE_TIME"/>
+
+    <many-to-one name="updater" column="UPDATER"/>
+
     <set name="ethnicities" table="OS_PARTICIPANT_ETHNICITIES" cascade="all-delete-orphan">
       <key column="PARTICIPANT_ID"/>
       <element column="ETHNICITY" type="string"/>

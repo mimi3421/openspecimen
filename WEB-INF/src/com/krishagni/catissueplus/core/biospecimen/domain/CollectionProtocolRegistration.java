@@ -60,6 +60,8 @@ public class CollectionProtocolRegistration extends BaseEntity {
 	private Set<ConsentTierResponse> consentResponses = new HashSet<>();
 
 	private String barcode;
+
+	private Integer extensionRev;
 	
 	@Autowired
 	@Qualifier("ppidGenerator")
@@ -121,6 +123,18 @@ public class CollectionProtocolRegistration extends BaseEntity {
 
 	public String getCpShortTitle() {
 		return getCollectionProtocol().getShortTitle();
+	}
+
+	public Integer getExtensionRev() {
+		if (participant != null && participant.getExtensionRev() != null) {
+			return (extensionRev == null ? 0 : extensionRev) + participant.getExtensionRev();
+		} else {
+			return extensionRev;
+		}
+	}
+
+	public void setExtensionRev(Integer extensionRev) {
+		this.extensionRev = extensionRev;
 	}
 
 	@NotAudited
