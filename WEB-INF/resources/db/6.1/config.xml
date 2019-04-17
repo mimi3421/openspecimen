@@ -74,4 +74,14 @@
       );
     </sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="CP label and miscellaneous settings help link">
+    <sql>
+      call add_cfg_prop(
+        'training', 'cp_misc_settings_help',
+        'cp_misc_settings_help', 'cp_misc_settings_help_desc',
+        'STRING', 'https://openspecimen.atlassian.net/wiki/x/TgBvG'
+      );
+    </sql>
+  </changeSet>
 </databaseChangeLog>
