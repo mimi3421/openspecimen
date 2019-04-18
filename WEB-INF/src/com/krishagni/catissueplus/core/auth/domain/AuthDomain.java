@@ -1,9 +1,7 @@
 
 package com.krishagni.catissueplus.core.auth.domain;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -12,17 +10,21 @@ import org.apache.commons.logging.LogFactory;
 import com.krishagni.catissueplus.core.auth.domain.factory.AuthProviderErrorCode;
 import com.krishagni.catissueplus.core.auth.services.AuthenticationService;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
+import com.krishagni.catissueplus.core.common.util.Status;
+import com.krishagni.catissueplus.core.common.util.Utility;
 
 public class AuthDomain {
 	private static final Log logger = LogFactory.getLog(AuthDomain.class);
 
-	private static Map<String, AuthenticationService> authProviderMap = new HashMap<String, AuthenticationService>();
+	private static Map<Long, AuthenticationService> authProviderMap = new HashMap<>();
 
 	private Long id;
 
 	private String name;
 
 	private AuthProvider authProvider;
+
+	private String activityStatus;
 
 	public Long getId() {
 		return id;
@@ -51,38 +53,52 @@ public class AuthDomain {
 	public AuthenticationService getAuthProviderInstance() {
 		return getAuthProviderInstance(this.getAuthProvider());
 	}
-	
+
+	public String getActivityStatus() {
+		return activityStatus;
+	}
+
+	public void setActivityStatus(String activityStatus) {
+		this.activityStatus = activityStatus;
+	}
+
 	public void update(AuthDomain domain) {
+		setName(domain.getName());
+
 		Map<String, String> newProps = domain.getAuthProvider().getProps();
-		Map<String, String> oldProps = this.authProvider.getProps();
-		List<String> oldNames = new ArrayList<String>(oldProps.keySet());
-		
-		for (Map.Entry<String, String> entry: newProps.entrySet()) {
-			oldNames.remove(entry.getKey());
-			oldProps.put(entry.getKey(), entry.getValue());
-		}
-		
-		for (String name: oldNames) {
-			oldProps.remove(name);
+		Map<String, String> oldProps = authProvider.getProps();
+
+		oldProps.clear();
+		oldProps.putAll(newProps);
+
+		if (Status.isDisabledStatus(domain.getActivityStatus())) {
+			delete();
 		}
 
 		//
 		// Removing updated domain's auth provider implementation instance from cached
 		// instances so that new instance with new properties can be created
 		//
-		authProviderMap.remove(domain.getAuthProvider().getAuthType());
+		authProviderMap.remove(domain.getAuthProvider().getId());
+	}
+
+	public void delete() {
+		setName(Utility.getDisabledValue(getName(), 64));
+		setActivityStatus(Status.ACTIVITY_STATUS_DISABLED.getStatus());
+		getAuthProvider().setAuthType(Utility.getDisabledValue(getAuthProvider().getAuthType(), 64));
+		authProviderMap.remove(getAuthProvider().getId());
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private AuthenticationService getAuthProviderInstance(AuthProvider authProvider) {
 		try {
-			AuthenticationService authService = authProviderMap.get(authProvider.getAuthType());
+			AuthenticationService authService = authProviderMap.get(authProvider.getId());
 			if (authService == null) {
 				Class authImplClass = (Class) Class.forName(authProvider.getImplClass());
 				authService = (AuthenticationService) authImplClass
 							.getConstructor(Map.class)
 							.newInstance(authProvider.getProps());
-				authProviderMap.put(authProvider.getAuthType(), authService);
+				authProviderMap.put(authProvider.getId(), authService);
 			}
 			
 			return authService;

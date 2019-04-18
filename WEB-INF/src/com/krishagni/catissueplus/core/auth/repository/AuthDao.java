@@ -12,28 +12,27 @@ import com.krishagni.catissueplus.core.common.repository.Dao;
 
 public interface AuthDao extends Dao<AuthDomain> {
 
-	public List<AuthDomain> getAuthDomains(int maxResults);
+	List<AuthDomain> getAuthDomains(int maxResults);
 	
-	public AuthDomain getAuthDomainByName(String domainName);
+	AuthDomain getAuthDomainByName(String domainName);
 	
-	public AuthDomain getAuthDomainByType(String authType);
+	AuthDomain getAuthDomainByType(String authType);
 
-	public Boolean isUniqueAuthDomainName(String domainName);
+	Boolean isUniqueAuthDomainName(String domainName);
 
-	public AuthProvider getAuthProviderByType(String authType);
+	AuthProvider getAuthProviderByType(String authType);
 	
-	public AuthToken getAuthTokenByKey(String key);
+	AuthToken getAuthTokenByKey(String key);
 	
-	public void saveAuthToken(AuthToken token);
+	void saveAuthToken(AuthToken token);
 	
-	public void deleteInactiveAuthTokens(Date expiresOn);
+	void deleteInactiveAuthTokens(Date expiresOn);
 	
-	public void deleteAuthToken(AuthToken token);
+	void deleteAuthToken(AuthToken token);
 	
-	public List<LoginAuditLog> getLoginAuditLogsByUser(Long userId, int maxResults);
+	List<LoginAuditLog> getLoginAuditLogsByUser(Long userId, int maxResults);
 	
-	public void saveLoginAuditLog(LoginAuditLog log);
+	void saveLoginAuditLog(LoginAuditLog log);
 	
-	public int deleteAuthTokensByUser(List<Long> userIds);
-
+	int deleteAuthTokensByUser(List<Long> userIds);
 }

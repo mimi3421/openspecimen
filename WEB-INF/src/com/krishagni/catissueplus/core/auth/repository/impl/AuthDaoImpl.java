@@ -12,6 +12,11 @@ import com.krishagni.catissueplus.core.common.repository.AbstractDao;
 
 public class AuthDaoImpl extends AbstractDao<AuthDomain> implements AuthDao {
 
+	@Override
+	public Class<AuthDomain> getType() {
+		return AuthDomain.class;
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<AuthDomain> getAuthDomains(int maxResults) {

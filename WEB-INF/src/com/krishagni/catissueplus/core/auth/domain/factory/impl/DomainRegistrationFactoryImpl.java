@@ -9,9 +9,11 @@ import com.krishagni.catissueplus.core.auth.domain.AuthProvider;
 import com.krishagni.catissueplus.core.auth.domain.factory.AuthProviderErrorCode;
 import com.krishagni.catissueplus.core.auth.domain.factory.DomainRegistrationFactory;
 import com.krishagni.catissueplus.core.auth.events.AuthDomainDetail;
-import com.krishagni.catissueplus.core.auth.services.AuthenticationService;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
+import com.krishagni.catissueplus.core.common.errors.ActivityStatusErrorCode;
+import com.krishagni.catissueplus.core.common.errors.ErrorType;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
+import com.krishagni.catissueplus.core.common.util.Status;
 
 public class DomainRegistrationFactoryImpl implements DomainRegistrationFactory {
 
@@ -23,55 +25,74 @@ public class DomainRegistrationFactoryImpl implements DomainRegistrationFactory 
 	}
 	
 	@Override
-	public AuthDomain createDomain(AuthDomainDetail detail) {
-		AuthDomain authDomain = new AuthDomain();
-		setDomainName(detail, authDomain);
-		setAuthProvider(detail, authDomain);
-		return authDomain;
+	public AuthDomain createDomain(AuthDomainDetail input) {
+		OpenSpecimenException ose = new OpenSpecimenException(ErrorType.USER_ERROR);
+
+		AuthDomain domain = new AuthDomain();
+		setDomainName(input, domain, ose);
+		setAuthProvider(input, domain, ose);
+		setActivityStatus(input, domain, ose);
+
+		ose.checkAndThrow();
+		return domain;
 	}
 	
-	private void setDomainName(AuthDomainDetail detail, AuthDomain authDomain) {
-		String domainName = detail.getName();
+	private void setDomainName(AuthDomainDetail input, AuthDomain domain, OpenSpecimenException ose) {
+		String domainName = input.getName();
 		if (StringUtils.isBlank(domainName)) {
-			throw OpenSpecimenException.userError(AuthProviderErrorCode.DOMAIN_NOT_SPECIFIED);
+			ose.addError(AuthProviderErrorCode.DOMAIN_NOT_SPECIFIED);
 		}
 		
-		authDomain.setName(domainName);
+		domain.setName(domainName);
 	}
 	
-	private void setAuthProvider(AuthDomainDetail detail, AuthDomain authDomain) {
+	private void setAuthProvider(AuthDomainDetail detail, AuthDomain authDomain, OpenSpecimenException ose) {
 		String authType = detail.getAuthType();
 		if (StringUtils.isBlank(authType)) {
-			throw OpenSpecimenException.userError(AuthProviderErrorCode.TYPE_NOT_SPECIFIED);
+			ose.addError(AuthProviderErrorCode.TYPE_NOT_SPECIFIED);
+			return;
 		}
-		
-		AuthProvider authProvider = getNewAuthProvider(detail);
-		authDomain.setAuthProvider(authProvider);
+
+		authDomain.setAuthProvider(getNewAuthProvider(detail, ose));
 	}
 
-	private AuthProvider getNewAuthProvider(AuthDomainDetail detail) {
+	private AuthProvider getNewAuthProvider(AuthDomainDetail detail, OpenSpecimenException ose) {
 		String implClass = detail.getImplClass();
 		if (StringUtils.isBlank(implClass)) {
-			throw OpenSpecimenException.userError(AuthProviderErrorCode.IMPL_NOT_SPECIFIED);
+			ose.addError(AuthProviderErrorCode.IMPL_NOT_SPECIFIED);
 		}
-		isValidImplClass(implClass);
+
+		if (!isValidImplClass(implClass)) {
+			ose.addError(AuthProviderErrorCode.INVALID_AUTH_IMPL, implClass);
+			return null;
+		}
 		
 		AuthProvider authProvider = new AuthProvider();
 		authProvider.setAuthType(detail.getAuthType());
 		authProvider.setImplClass(implClass);
 		authProvider.setProps(detail.getAuthProviderProps());
-		
 		return authProvider;
 	}
 
-	@SuppressWarnings("rawtypes")
-	private AuthenticationService isValidImplClass(String implClass) {
+	private boolean isValidImplClass(String implClass) {
 		try {
-			Class authImplClass = (Class) Class.forName(implClass);
-			return (AuthenticationService) authImplClass.newInstance();
+			Class authImplClass = Class.forName(implClass);
+			return authImplClass.newInstance() != null;
 		} catch (Exception e) {
-			throw OpenSpecimenException.userError(AuthProviderErrorCode.INVALID_AUTH_IMPL);
+			return false;
 		}
 	}
-	
+
+	private void setActivityStatus(AuthDomainDetail detail, AuthDomain authDomain, OpenSpecimenException ose) {
+		if (StringUtils.isBlank(detail.getActivityStatus())) {
+			authDomain.setActivityStatus(Status.ACTIVITY_STATUS_ACTIVE.getStatus());
+			return;
+		}
+
+		if (!Status.isValidActivityStatus(detail.getActivityStatus())) {
+			ose.addError(ActivityStatusErrorCode.INVALID, detail.getActivityStatus());
+		}
+
+		authDomain.setActivityStatus(detail.getActivityStatus());
+	}
 }

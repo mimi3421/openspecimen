@@ -13,6 +13,8 @@ public class AuthDomainDetail extends AuthDomainSummary {
 	
 	private Map<String, String> authProviderProps;
 
+	private String activityStatus;
+
 	public String getImplClass() {
 		return implClass;
 	}
@@ -37,6 +39,14 @@ public class AuthDomainDetail extends AuthDomainSummary {
 		this.authProviderProps = authProviderProps;
 	}
 
+	public String getActivityStatus() {
+		return activityStatus;
+	}
+
+	public void setActivityStatus(String activityStatus) {
+		this.activityStatus = activityStatus;
+	}
+
 	public static AuthDomainDetail from(AuthDomain authDomain) {
 		AuthDomainDetail detail = new AuthDomainDetail();
 		detail.setId(authDomain.getId());
@@ -44,7 +54,7 @@ public class AuthDomainDetail extends AuthDomainSummary {
 		detail.setAuthType(authDomain.getAuthProvider().getAuthType());
 		detail.setImplClass(authDomain.getAuthProvider().getImplClass());
 		detail.setAuthProviderProps(authDomain.getAuthProvider().getProps());
-		
+		detail.setActivityStatus(authDomain.getActivityStatus());
 		return detail;
 	}
 	

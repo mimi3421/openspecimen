@@ -216,4 +216,60 @@
         inner join catissue_participant p on cpr.participant_id = p.identifier
     </createView>
   </changeSet>
+
+  <changeSet author="vpawar" id="Use auth provider ID as FK in the auth domains table">
+    <addColumn tableName="OS_AUTH_DOMAINS">
+      <column name="PROVIDER_ID" type="${int.type}"/>
+      <column name="ACTIVITY_STATUS" type="${text.type}(16)" defaultValue="Active">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Update the auth provider ID" dbms="mysql">
+    <sql>
+      update
+        os_auth_domains d
+        inner join os_auth_providers p on p.auth_type = d.auth_type
+      set
+        d.provider_id = p.identifier
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Update the auth provider ID" dbms="oracle">
+    <sql>
+      merge into
+        os_auth_domains d
+      using (
+        select
+          *
+        from
+          os_auth_providers
+        ) p on (p.auth_type = d.auth_type)
+      when matched then
+        update set d.provider_id = p.identifier
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Add FK on provider of the auth domains">
+    <addForeignKeyConstraint constraintName="FK_DOMAIN_PROVIDER_FK"
+      baseTableName="OS_AUTH_DOMAINS" baseColumnNames="PROVIDER_ID"
+       referencedTableName="OS_AUTH_PROVIDERS" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Auth provider ID cannot be null">
+    <addNotNullConstraint tableName="OS_AUTH_DOMAINS" columnName="PROVIDER_ID" columnDataType="${int.type}"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Remove the now redundant auth type from the domains table - 1">
+    <dropForeignKeyConstraint baseTableName="OS_AUTH_DOMAINS" constraintName="FK_AUTH_DOMAINS_AUTH_TYPE"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Remove the now redundant auth type from the domains table - 2">
+    <dropColumn tableName="OS_AUTH_DOMAINS" columnName="AUTH_TYPE"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Drop unique constraint on auth type">
+    <dropUniqueConstraint tableName="OS_AUTH_PROVIDERS" constraintName="AUTH_TYPE" uniqueColumns="AUTH_TYPE"/>
+  </changeSet>
 </databaseChangeLog>

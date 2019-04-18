@@ -3,6 +3,8 @@ package com.krishagni.catissueplus.core.auth.services.impl;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.krishagni.catissueplus.core.auth.domain.AuthDomain;
 import com.krishagni.catissueplus.core.auth.domain.factory.AuthProviderErrorCode;
 import com.krishagni.catissueplus.core.auth.domain.factory.DomainRegistrationFactory;
@@ -40,14 +42,27 @@ public class DomainRegistrationServiceImpl implements DomainRegistrationService 
 
 	@Override
 	@PlusTransactional
+	public ResponseEvent<AuthDomainDetail> getDomain(RequestEvent<AuthDomainSummary> req) {
+		try {
+			AccessCtrlMgr.getInstance().ensureUserIsAdmin();
+
+			AuthDomain domain = getDomain(req.getPayload().getId(), req.getPayload().getName());
+			return ResponseEvent.response(AuthDomainDetail.from(domain));
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
+		} catch (Exception e) {
+			return ResponseEvent.serverError(e);
+		}
+	}
+
+	@Override
+	@PlusTransactional
 	public ResponseEvent<AuthDomainDetail> registerDomain(RequestEvent<AuthDomainDetail> req) {
 		try {
 			AccessCtrlMgr.getInstance().ensureUserIsAdmin();
 
-			AuthDomainDetail detail = req.getPayload();			
-			AuthDomain authDomain = domainRegFactory.createDomain(detail);
-			
-			ensureUniqueDomainName(authDomain.getName());
+			AuthDomain authDomain = domainRegFactory.createDomain(req.getPayload());
+			ensureUniqueDomainName(null, authDomain);
 			daoFactory.getAuthDao().saveOrUpdate(authDomain);
 			return ResponseEvent.response(AuthDomainDetail.from(authDomain));
 		} catch (OpenSpecimenException ose) {
@@ -56,33 +71,71 @@ public class DomainRegistrationServiceImpl implements DomainRegistrationService 
 			return ResponseEvent.serverError(e);
 		}
 	}
-	
+
+	@Override
 	@PlusTransactional
 	public ResponseEvent<AuthDomainDetail> updateDomain(RequestEvent<AuthDomainDetail> req) {
 		try {
 			AccessCtrlMgr.getInstance().ensureUserIsAdmin();
 
 			AuthDomainDetail detail = req.getPayload();
-			AuthDomain existingDomain = daoFactory.getAuthDao().getAuthDomainByName(detail.getName());
-			if (existingDomain == null) {
-				throw OpenSpecimenException.userError(AuthProviderErrorCode.DOMAIN_NOT_FOUND); 
-			}
-			
+			AuthDomain existing = getDomain(detail.getId(), detail.getName());
+
 			AuthDomain authDomain = domainRegFactory.createDomain(detail);
-			existingDomain.update(authDomain);
+			ensureUniqueDomainName(existing, authDomain);
+			existing.update(authDomain);
 			
-			return  ResponseEvent.response(AuthDomainDetail.from(existingDomain));
+			return  ResponseEvent.response(AuthDomainDetail.from(existing));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {
 			return ResponseEvent.serverError(e);
 		}
 	}
-	
 
-	private void ensureUniqueDomainName(String domainName) {
-		if (!daoFactory.getAuthDao().isUniqueAuthDomainName(domainName)) {
+	@Override
+	@PlusTransactional
+	public ResponseEvent<AuthDomainDetail> deleteDomain(RequestEvent<AuthDomainSummary> req) {
+		try {
+			AccessCtrlMgr.getInstance().ensureUserIsAdmin();
+
+			AuthDomainSummary input = req.getPayload();
+			AuthDomain existing = getDomain(input.getId(), input.getName());
+			existing.delete();
+
+			return ResponseEvent.response(AuthDomainDetail.from(existing));
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
+		} catch (Exception e) {
+			return ResponseEvent.serverError(e);
+		}
+	}
+
+	private void ensureUniqueDomainName(AuthDomain existing, AuthDomain newDomain) {
+		if (existing != null && existing.getName().equals(newDomain.getName())) {
+			return;
+		}
+
+		if (!daoFactory.getAuthDao().isUniqueAuthDomainName(newDomain.getName())) {
 			throw OpenSpecimenException.userError(AuthProviderErrorCode.DUP_DOMAIN_NAME);
 		}
+	}
+
+	private AuthDomain getDomain(Long id, String name) {
+		Object key = null;
+		AuthDomain existing = null;
+		if (id != null) {
+			key = id;
+			existing = daoFactory.getAuthDao().getById(id);
+		} else if (StringUtils.isNotBlank(name)) {
+			key = name;
+			existing = daoFactory.getAuthDao().getAuthDomainByName(name);
+		}
+
+		if (existing == null) {
+			throw OpenSpecimenException.userError(AuthProviderErrorCode.DOMAIN_NOT_FOUND, key);
+		}
+
+		return existing;
 	}
 }

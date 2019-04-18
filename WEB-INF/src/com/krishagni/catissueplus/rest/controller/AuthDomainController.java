@@ -3,8 +3,6 @@ package com.krishagni.catissueplus.rest.controller;
 
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -28,46 +26,49 @@ import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 public class AuthDomainController {
 
 	@Autowired
-	private DomainRegistrationService domainRegService;
-
-	@Autowired
-	private HttpServletRequest httpServletRequest;
+	private DomainRegistrationService domainRegSvc;
 
 	@RequestMapping(method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
-	public List<AuthDomainSummary> getAuthDomains(
-			@RequestParam(value = "maxResults", required = false, defaultValue = "1000") 
-			int maxResults) {
+	public List<AuthDomainSummary> getDomains(
+		@RequestParam(value = "maxResults", required = false, defaultValue = "1000")
+		int maxResults) {
 		
 		ListAuthDomainCriteria crit = new ListAuthDomainCriteria().maxResults(maxResults);
-		RequestEvent<ListAuthDomainCriteria> req = new RequestEvent<ListAuthDomainCriteria>(crit);
-		ResponseEvent<List<AuthDomainSummary>> resp = domainRegService.getDomains(req);
-		resp.throwErrorIfUnsuccessful();
-		
-		return resp.getPayload();
+		return ResponseEvent.unwrap(domainRegSvc.getDomains(RequestEvent.wrap(crit)));
+	}
+
+	@RequestMapping(method = RequestMethod.GET, value="/{id}")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public AuthDomainDetail getDomain(@PathVariable("id") Long domainId) {
+		AuthDomainSummary crit = new AuthDomainSummary();
+		crit.setId(domainId);
+		return ResponseEvent.unwrap(domainRegSvc.getDomain(RequestEvent.wrap(crit)));
 	}
 
 	@RequestMapping(method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
-	public AuthDomainDetail registerDomain(@RequestBody AuthDomainDetail domainDetail) {
-		RequestEvent<AuthDomainDetail> req = new RequestEvent<AuthDomainDetail>(domainDetail);
-		ResponseEvent<AuthDomainDetail> resp = domainRegService.registerDomain(req);
-		resp.throwErrorIfUnsuccessful();
-		
-		return resp.getPayload();
+	public AuthDomainDetail registerDomain(@RequestBody AuthDomainDetail domain) {
+		return ResponseEvent.unwrap(domainRegSvc.registerDomain(RequestEvent.wrap(domain)));
 	}
 	
 	@RequestMapping(method = RequestMethod.PUT, value="/{id}")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
-	public AuthDomainDetail updaterDomain(@PathVariable Long id, @RequestBody AuthDomainDetail domainDetail) {
-		domainDetail.setId(id);
-		RequestEvent<AuthDomainDetail> req = new RequestEvent<AuthDomainDetail>(domainDetail);
-		ResponseEvent<AuthDomainDetail> resp = domainRegService.updateDomain(req);
-		resp.throwErrorIfUnsuccessful();
-		
-		return resp.getPayload();
+	public AuthDomainDetail updateDomain(@PathVariable("id") Long id, @RequestBody AuthDomainDetail domain) {
+		domain.setId(id);
+		return ResponseEvent.unwrap(domainRegSvc.updateDomain(RequestEvent.wrap(domain)));
+	}
+
+	@RequestMapping(method = RequestMethod.DELETE, value="/{id}")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public AuthDomainDetail deleteDomain(@PathVariable("id") Long id) {
+		AuthDomainSummary domain = new AuthDomainSummary();
+		domain.setId(id);
+		return ResponseEvent.unwrap(domainRegSvc.deleteDomain(RequestEvent.wrap(domain)));
 	}
 }
