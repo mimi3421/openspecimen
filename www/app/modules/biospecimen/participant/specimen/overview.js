@@ -13,7 +13,7 @@ angular.module('os.biospecimen.specimen.overview', ['os.biospecimen.models'])
         obj: {cpr: cpr, visit: visit, specimen: specimen},
         inObjs: ['specimen', 'calcSpecimen',],
         exObjs: ['specimen.events'],
-        watcher: ['specimen.collectionEvent.user', 'specimen.receivedEvent.user'],
+        watcher: ['specimen.storageLocation', 'specimen.collectionEvent.user', 'specimen.receivedEvent.user'],
         showActivity: showSpmnActivity
       }
 

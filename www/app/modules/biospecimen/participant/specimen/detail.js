@@ -86,6 +86,7 @@ angular.module('os.biospecimen.specimen.detail', [])
         }
       }).result.then(
         function() {
+          specimen.storageLocation = undefined;
           specimen.activityStatus = 'Closed';
           specimenUpdatedInline();
         }
