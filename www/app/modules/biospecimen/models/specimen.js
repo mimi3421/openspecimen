@@ -397,8 +397,8 @@ angular.module('os.biospecimen.models.specimen', ['os.common.models', 'os.biospe
     function updateSpecimenStatus(specimen, statusSpec) {
       return $http.put(Specimen.url() + '/' + specimen.$id() + '/status', statusSpec).then(
         function(result) {
-          angular.extend(specimen, result.data);
-          return new Specimen(result);
+          specimen.activityStatus = result.data.activityStatus;
+          return specimen;
         }
       );
     }
