@@ -269,7 +269,11 @@
     <dropColumn tableName="OS_AUTH_DOMAINS" columnName="AUTH_TYPE"/>
   </changeSet>
 
-  <changeSet author="vpawar" id="Drop unique constraint on auth type">
+  <changeSet author="vpawar" id="Drop unique constraint on auth type if it exists" dbms="mysql">
     <dropUniqueConstraint tableName="OS_AUTH_PROVIDERS" constraintName="AUTH_TYPE" uniqueColumns="AUTH_TYPE"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Drop unique constraint on auth type if it exists" dbms="oracle">
+    <sql>call os_drop_unique_constraint('OS_AUTH_PROVIDERS', 'AUTH_TYPE')</sql>
   </changeSet>
 </databaseChangeLog>
