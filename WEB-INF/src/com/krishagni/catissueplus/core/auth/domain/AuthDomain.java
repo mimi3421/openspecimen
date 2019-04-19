@@ -51,7 +51,7 @@ public class AuthDomain {
 	}
 
 	public AuthenticationService getAuthProviderInstance() {
-		return getAuthProviderInstance(this.getAuthProvider());
+		return getAuthProviderInstance(getAuthProvider());
 	}
 
 	public String getActivityStatus() {
@@ -79,7 +79,12 @@ public class AuthDomain {
 		// Removing updated domain's auth provider implementation instance from cached
 		// instances so that new instance with new properties can be created
 		//
-		authProviderMap.remove(domain.getAuthProvider().getId());
+		authProviderMap.remove(getAuthProvider().getId());
+
+		//
+		// re-init the cache
+		//
+		getAuthProviderInstance();
 	}
 
 	public void delete() {

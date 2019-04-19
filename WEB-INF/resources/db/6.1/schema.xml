@@ -269,11 +269,74 @@
     <dropColumn tableName="OS_AUTH_DOMAINS" columnName="AUTH_TYPE"/>
   </changeSet>
 
-  <changeSet author="vpawar" id="Drop unique constraint on auth type if it exists" dbms="mysql">
+  <changeSet author="vpawar" id="Drop unique constraint on auth type" dbms="mysql">
     <dropUniqueConstraint tableName="OS_AUTH_PROVIDERS" constraintName="AUTH_TYPE" uniqueColumns="AUTH_TYPE"/>
   </changeSet>
 
   <changeSet author="vpawar" id="Drop unique constraint on auth type if it exists" dbms="oracle">
     <sql>call os_drop_unique_constraint('OS_AUTH_PROVIDERS', 'AUTH_TYPE')</sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Use domain ID as FK in the users table">
+    <addColumn tableName="CATISSUE_USER">
+      <column name="DOMAIN_ID" type="${int.type}"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Update the users domain ID" dbms="mysql">
+    <sql>
+      update
+        catissue_user u
+        inner join os_auth_domains d on d.domain_name = u.domain_name
+      set
+        u.domain_id = d.identifier
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Update the users domain ID" dbms="oracle">
+    <sql>
+      merge into
+        catissue_user u
+      using (
+        select
+          *
+        from
+          os_auth_domains
+      ) d on (d.domain_name = u.domain_name)
+      when matched then
+        update set u.domain_id = d.identifier
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="User domain ID cannot be null">
+    <addNotNullConstraint tableName="CATISSUE_USER" columnName="DOMAIN_ID" columnDataType="${int.type}"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Remove the now redundant domain name from the users table - 1" dbms="mysql">
+    <dropUniqueConstraint tableName="CATISSUE_USER" constraintName="CAT_USER_LNAME_DOMAIN_UQ"
+      uniqueColumns="LOGIN_NAME,DOMAIN_NAME"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Remove the now redundant domain name from the users table - 1" dbms="oracle">
+    <sql>call os_drop_unique_constraint('CATISSUE_USER', 'LOGIN_NAME,DOMAIN_NAME')</sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Remove the now redundant domain name from the users table - 2">
+    <dropForeignKeyConstraint baseTableName="CATISSUE_USER" constraintName="FK_USER_DOMAIN_NAME"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Remove the now redundant domain name from the users table - 3">
+    <dropColumn tableName="CATISSUE_USER" columnName="DOMAIN_NAME"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Add unique constraint on login name and domain ID of users table">
+    <addUniqueConstraint constraintName="USER_DOMAIN_LOGIN_UQ"
+      tableName="CATISSUE_USER" columnNames="LOGIN_NAME,DOMAIN_ID"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Add FK on the user domain">
+    <addForeignKeyConstraint constraintName="FK_USER_DOMAIN_ID"
+      baseTableName="CATISSUE_USER" baseColumnNames="DOMAIN_ID"
+      referencedTableName="OS_AUTH_DOMAINS" referencedColumnNames="IDENTIFIER"/>
   </changeSet>
 </databaseChangeLog>
