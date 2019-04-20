@@ -317,8 +317,8 @@
       uniqueColumns="LOGIN_NAME,DOMAIN_NAME"/>
   </changeSet>
 
-  <changeSet author="vpawar" id="Remove the now redundant domain name from the users table - 1" dbms="oracle">
-    <sql>call os_drop_unique_constraint('CATISSUE_USER', 'LOGIN_NAME,DOMAIN_NAME')</sql>
+  <changeSet author="vpawar" id="Remove the now redundant domain name from the users table - 1" runOnChange="true" dbms="oracle">
+    <sql>call os_drop_unique_constraint('CATISSUE_USER', 'LOGIN_NAME DOMAIN_NAME')</sql>
   </changeSet>
 
   <changeSet author="vpawar" id="Remove the now redundant domain name from the users table - 2">
