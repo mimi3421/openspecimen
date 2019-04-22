@@ -307,10 +307,11 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 	}
 
 	private void addNonSystemUserRestriction(Criteria criteria) {
-		criteria.add( // not system user
-			Restrictions.not(Restrictions.conjunction()
-				.add(Restrictions.in("u.loginName", excludeUsersList()))
-				.add(Restrictions.eq("u.authDomain.name", User.DEFAULT_AUTH_DOMAIN))
+		criteria.createAlias("u.authDomain", "domain")
+			.add( // not system user
+				Restrictions.not(Restrictions.conjunction()
+					.add(Restrictions.in("u.loginName", excludeUsersList()))
+					.add(Restrictions.eq("domain.name", User.DEFAULT_AUTH_DOMAIN))
 			)
 		);
 	}
@@ -374,9 +375,8 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 		if (StringUtils.isBlank(domainName)) {
 			return;
 		}
-		
-		criteria.createAlias("u.authDomain", "domain")
-			.add(Restrictions.eq("domain.name", domainName));
+
+		criteria.add(Restrictions.eq("domain.name", domainName));
 	}
 
 	private void addActiveSinceRestriction(Criteria criteria, Date activeSince) {
