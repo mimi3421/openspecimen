@@ -3,13 +3,14 @@ angular.module('openspecimen')
   .directive('osHelp', function(SettingUtil) {
     function linker(scope, element, attrs) {
       scope.link = '';
-
-      var module = attrs.module ? attrs.module : 'training';
-      if (attrs.link) {
-        loadLink(scope, module, attrs.link);
+      if (attrs.url) {
+        scope.link = attrs.url;
+      } else {
+        var module = attrs.module ? attrs.module : 'training';
+        if (attrs.link) {
+          loadLink(scope, module, attrs.link);
+        }
       }
-
-
     }
 
     function loadLink(scope, module, property) {
