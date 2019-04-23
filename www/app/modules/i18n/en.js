@@ -116,6 +116,7 @@
       "update": "Update",
       "create": "Create",
       "delete": "Delete",
+      "remove": "Remove",
       "import": "Import",
       "archive": "Archive",
       "reactivate": "Reactivate",

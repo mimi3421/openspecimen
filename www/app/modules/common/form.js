@@ -67,7 +67,19 @@ angular.module('os.common.form', [])
         };
 
         this.isValidForm = function() {
-          return !this._form.$invalid;
+          if (this._form.$invalid) {
+            return false;
+          }
+
+          if (this._form.osExtnCtrls) {
+            for (var i = 0; i < this._form.osExtnCtrls.length; ++i) {
+              if (!this._form.osExtnCtrls[i].validate()) {
+                return false;
+              }
+            }
+          }
+
+          return true;
         };
 
         this.isInteracted = function(field) {
@@ -127,7 +139,7 @@ angular.module('os.common.form', [])
     };
   })
 
-  .directive('osFormSubmit', function($document, httpRespInterceptor, Alerts, LocationChangeListener) {
+  .directive('osFormSubmit', function($document, $timeout, httpRespInterceptor, Alerts, LocationChangeListener) {
     function onSubmit(scope, ctrl, element, attrs) {
       var form = ctrl.getForm();
       if (form.$pending) {
@@ -151,10 +163,14 @@ angular.module('os.common.form', [])
           }
 
           scope.$eval(attrs.osFormSubmit);
-          ctrl.formEl.addClass('os-form-submitting');
-          httpRespInterceptor.addListener(
+          $timeout(
             function() {
-              ctrl.formEl.removeClass('os-form-submitting');
+              ctrl.formEl.addClass('os-form-submitting');
+              httpRespInterceptor.addListener(
+                function() {
+                  ctrl.formEl.removeClass('os-form-submitting');
+                }
+              );
             }
           );
         } else {

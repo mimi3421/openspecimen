@@ -30,6 +30,12 @@ angular.module('os.biospecimen.extensions', ['os.biospecimen.models'])
       },
 
       link: function(scope, element, attrs, ctrl) {
+        var parentForm = attrs.parentForm && scope[attrs.parentForm];
+        if (parentForm) {
+          parentForm.osExtnCtrls = parentForm.osExtnCtrls || [];
+          parentForm.osExtnCtrls.push(ctrl);
+        }
+
         if (!!attrs.ctrl) {
           var parts = attrs.ctrl.split("\.")
           var obj = scope;

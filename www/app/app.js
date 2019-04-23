@@ -157,16 +157,23 @@ osApp.config(function(
     }
 
     function addListener(listener) {
-      if (completedReqs >= totalReqs && completedReqs != 0) {
+      if (completedReqs >= totalReqs) {
         listener();
       } else {
         listeners.push(listener);
       }
     }
 
+    function isHtmlReq(config) {
+      return config.method == 'GET' &&
+        (config.url.substr(0, 7) == 'modules' || config.url.substr(0, 19) == 'plugin-ui-resources');
+    }
+
     return {
       request: function(config) {
-        ++totalReqs;
+        if (!isHtmlReq(config)) {
+          ++totalReqs;
+        }
 
         if (config.method == 'GET' && $templateCache.get(config.url) == null) {
           if (config.url.indexOf('modules') == 0 || config.url.indexOf('plugin-ui-resources') == 0) {
@@ -182,19 +189,28 @@ osApp.config(function(
       },
 
       response: function(response) {
-        ++completedReqs;
+        var apiCall = !isHtmlReq(response.config);
+        if (apiCall) {
+          ++completedReqs;
+        }
 
         var httpMethods = ['POST', 'PUT', 'PATCH'];
         if (response.status == 200 && httpMethods.indexOf(response.config.method) != -1) {
           LocationChangeListener.allowChange();
         }
 
-        notifyListeners();
+        if (apiCall) {
+          notifyListeners();
+        }
+
         return response || $q.when(response);
       },
 
       responseError: function(rejection) {
-        ++completedReqs;
+        var apiCall = !isHtmlReq(rejection.config);
+        if (apiCall) {
+          ++completedReqs;
+        }
 
         if (rejection.status == 0) {
           Alerts.error("common.server_connect_error");
@@ -218,7 +234,10 @@ osApp.config(function(
           }
         } 
 
-        notifyListeners();
+        if (apiCall) {
+          notifyListeners();
+        }
+
         return $q.reject(rejection);
       },
 
@@ -269,6 +288,10 @@ osApp.config(function(
         secure  : server.secure,
         app     : server.app,
         urls    : that.urls,
+
+        getServerUrl: function() {
+          return server.url;
+        },
 
         getBaseUrl: function() {
           return server.url + 'rest/ng/';
