@@ -5,7 +5,9 @@ angular.module('openspecimen')
       restrict: 'A',
       replace: true,
       scope: {
-        ctrl: '='
+        ctrl: '=',
+
+        onUpload: '&'
       },      
       controller: function() {
         this.data = null;
@@ -63,6 +65,7 @@ angular.module('openspecimen')
 
         $timeout(function() {
           scope.ctrl = ctrl;
+          scope.caption = attrs.caption || 'No File Selected';
 
           element.find('input').fileupload({
             dataType: 'json',
@@ -74,9 +77,18 @@ angular.module('openspecimen')
             add: function (e, data) {
               element.find('span').text(data.files[0].name);
               ctrl.data = data;
+              if (attrs.uploadOnSelect == 'true' || attrs.uploadOnSelect == true) {
+                ctrl.submit();
+              }
             },
             done: function(e, data) {
+              var filename = "Unknown";
+              if (data.originalFiles && data.originalFiles.length > 0) {
+                filename = data.originalFiles[0].name;
+              }
+
               ctrl.done(data);
+              scope.onUpload({filename: filename, result: data.result});
             },
             fail: function(e, data) {
               ctrl.fail(data);
@@ -89,8 +101,8 @@ angular.module('openspecimen')
       template: 
         '<div class="os-file-upload">' +
           '<input class="form-control" name="file" type="file">' +
-          '<span class="name" translate="common.no_file_selected">' +
-             'No File Selected' +
+          '<span class="name">' +
+             '{{caption}}' +
           '</span>' +
         '</div>'
     };

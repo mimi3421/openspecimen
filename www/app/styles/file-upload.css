@@ -18,6 +18,10 @@
   background-color: #eee;
 }
 
+.os-file-upload input.form-control {
+  color: transparent;
+}
+
 @media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
   .os-file-upload .name {
     position: absolute;
@@ -25,4 +29,9 @@
     left: 17px;
     background-color: transparent;
   }
+}
+
+.os-uploaded-files .file {
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 5px;
 }

@@ -54,6 +54,7 @@
     "server_connect_error": "Unable to connect server",
     "recent_activity": "Recent Activity",
     "no_file_selected": "No File Selected",
+    "select_upload_file": "Select file to upload",
     "digits": "digits",
     "not_specified": "Not Specified",
     "not_applicable": "Not Applicable",
