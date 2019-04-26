@@ -1453,3 +1453,7 @@ form .form-group:empty {
   max-height: 150px;
   overflow: auto;
 }
+
+.os-select-container .ui-select-container.ui-select-multiple input[disabled] {
+  display: inline!important;
+}
