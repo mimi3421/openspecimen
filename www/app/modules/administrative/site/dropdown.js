@@ -93,6 +93,7 @@ angular.module('openspecimen')
           var multiple = angular.isDefined(tAttrs.multiple) ? "multiple" : "";
           var selectOption = angular.isDefined(tAttrs.multiple) ? "$item" : "$select.selected";
           var ngRequired = angular.isDefined(tAttrs.ngRequired) ? "ng-required=\"" + tAttrs.ngRequired +"\"": "";
+          var ngDisabled = angular.isDefined(tAttrs.ngDisabled) ? "ng-disabled=\"" + tAttrs.ngDisabled +"\"": "";
           var mdInput = tAttrs.mdType == 'true' ? 'os-md-input' : '';
           var showLabel = tAttrs.showLabel == 'true' && tAttrs.mdType == 'true' && !!tAttrs.placeholder;
 
@@ -103,6 +104,7 @@ angular.module('openspecimen')
             '  </label> ' +
             '  <ui-select ' + multiple + ' ng-model="$parent.ngModel" reset-search-input="true"' +
             '    append-to-body="' + bodyAppend + '" os-tabable="' + tabable + '" ' + ngRequired +
+            '    ' + ngDisabled +
             '    on-select="onSelect({$item: $item})" on-remove="onRemove({$item: $item})">' +
             '    <ui-select-match placeholder="' + tAttrs.placeholder + '"' +
             '      allow-clear="' + !angular.isDefined(tAttrs.required) + '">' +
