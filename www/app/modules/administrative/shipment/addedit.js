@@ -73,7 +73,7 @@ angular.module('os.administrative.shipment.addedit', ['os.administrative.models'
     }
 
     function setUserFilterOpts(institute) {
-      $scope.userFilterOpts = {institute: institute};
+      $scope.userFilterOpts = {institute: institute, excludeType: ['CONTACT']};
     }
 
     function setUserAndSiteList(shipment) {
