@@ -53,7 +53,7 @@ angular.module('os.administrative.form.entities', ['os.common'])
     list.addItem({
       name: 'OrderExtension',
       caption: '', key: 'entities.order_extension',
-      allCps: true, multipleRecs: false
+      allCps: true, multipleRecs: false, allowEdits: false
     });
 
     list.addItem({

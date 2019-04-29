@@ -550,7 +550,7 @@ public class FormServiceImpl implements FormService, InitializingBean {
 				opDetail.getFormId());
 
 			if (formCtx == null) {
-				return ResponseEvent.userError(FormErrorCode.NO_ASSOCIATION);
+				return ResponseEvent.userError(FormErrorCode.NO_ASSOCIATION, cpId, opDetail.getFormId()	);
 			}
 			
 			if (formCtx.isSysForm()) {

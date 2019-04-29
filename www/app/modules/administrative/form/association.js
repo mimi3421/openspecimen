@@ -5,24 +5,26 @@ angular.module('os.administrative.form.formctxts', ['os.administrative.models'])
 
     function init() {
       $scope.showFormCtxts = true;
-      $scope.extnEntities = entities;
+      $scope.extnEntities = entities.filter(function(e) { return e.allowEdits !== false; });
       $scope.form = args.form;
       $scope.cpList = cpList;
 
-      $scope.cpFormCtxts = args.formCtxts;
-      angular.forEach(args.formCtxts, function(formCtx) {
-        if (!formCtx.collectionProtocol.id) {
-          formCtx.collectionProtocol.shortTitle = $translate.instant('form.all');
-        }
+      var formCtxts = $scope.cpFormCtxts = args.formCtxts;
+      angular.forEach(formCtxts,
+        function(formCtx) {
+          if (!formCtx.collectionProtocol.id || formCtx.collectionProtocol.id == -1) {
+            formCtx.collectionProtocol.shortTitle = $translate.instant('form.all');
+          }
 
-        for (var i = 0; i < $scope.extnEntities.length; i++) {
-           var entity = $scope.extnEntities[i];
-           if (entity.name == formCtx.level) {
-             formCtx.level = entity;
-             break;
-           }
+          for (var i = 0; i < entities.length; i++) {
+            var entity = entities[i];
+            if (entity.name == formCtx.level) {
+              formCtx.level = entity;
+              break;
+            }
+          }
         }
-      });
+      );
 
       $scope.cpFormCtxt = {
         allProtocols: false,

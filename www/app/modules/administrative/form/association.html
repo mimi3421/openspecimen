@@ -31,8 +31,8 @@
               </div>
               <div class="col col-xs-1">
                 <button class="btn btn-default btn-xs" ng-click="confirmRemoveCtx(ctxt, $index)" 
-                  ng-if="!ctxt.sysForm">
-                  <i class="fa fa-trash-o"></i>
+                  ng-if="!ctxt.sysForm && ctxt.level.allowEdits !== false">
+                  <span class="fa fa-trash-o"></span>
                 </button>
               </div>
             </div>
