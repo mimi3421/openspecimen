@@ -15,6 +15,9 @@ import com.krishagni.catissueplus.core.common.ListenAttributeChanges;
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 @ListenAttributeChanges
 public class UserDetail extends AttributeModifiedSupport {
+	private static final String ARCHIVED = "Archived";
+
+	private static final String CLOSED = "Closed";
 
 	private Long id;
 
@@ -153,6 +156,10 @@ public class UserDetail extends AttributeModifiedSupport {
 	}
 
 	public void setActivityStatus(String activityStatus) {
+		if (ARCHIVED.equals(activityStatus)) {
+			activityStatus = CLOSED;
+		}
+
 		this.activityStatus = activityStatus;
 	}
 

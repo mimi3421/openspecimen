@@ -60,5 +60,9 @@
       <attribute>phoneNumber</attribute>
     </field>
 
+    <field>
+      <caption>#getMessage("user_activity_status")</caption>
+      <attribute>activityStatus</attribute>
+    </field>
   </record>
 </object-schema>
