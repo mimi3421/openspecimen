@@ -67,5 +67,17 @@
         containerType.name in (:names)
     </query>
 
+    <query name="getLeafTypeIds">
+      select
+        t.id
+      from
+        com.krishagni.catissueplus.core.administrative.domain.ContainerType t
+        left join t.canHold ch
+      where
+        ch.id is null
+      order by
+        t.name
+    </query>
+
   </class>
 </hibernate-mapping>

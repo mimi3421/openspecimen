@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.MatchMode;
@@ -45,7 +46,7 @@ public class ContainerTypeDaoImpl extends AbstractDao<ContainerType> implements 
 	@Override
 	@SuppressWarnings("unchecked")
 	public List<ContainerType> getByNames(Collection<String> names) {
-		return sessionFactory.getCurrentSession().getNamedQuery(CONTAINER_TYPES_BY_NAMES)
+		return getCurrentSession().getNamedQuery(GET_BY_NAMES)
 			.setParameterList("names", names)
 			.list();
 	}
@@ -55,6 +56,12 @@ public class ContainerTypeDaoImpl extends AbstractDao<ContainerType> implements 
 	public ContainerType getByName(String name) {
 		List<ContainerType> result = getByNames(Collections.singleton(name));
 		return result.isEmpty() ? null : result.get(0);
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<Long> getLeafTypeIds() {
+		return (List<Long>) getCurrentSession().getNamedQuery(GET_LEAF_IDS).list();
 	}
 
 	private Criteria getTypesListQuery(ContainerTypeListCriteria crit) {
@@ -75,17 +82,18 @@ public class ContainerTypeDaoImpl extends AbstractDao<ContainerType> implements 
 		query.add(Restrictions.ilike("name", name, matchMode));
 	}
 	
-	private void addCanHoldRestriction(Criteria query, String canHold) {
-		if (StringUtils.isBlank(canHold)) {
+	private void addCanHoldRestriction(Criteria query, List<String> canHold) {
+		if (CollectionUtils.isEmpty(canHold)) {
 			return;
 		}
 		
 		query.createAlias("canHold", "canHold")
-			.add(Restrictions.eq("canHold.name", canHold));
-		
+			.add(Restrictions.in("canHold.name", canHold));
 	}
 	
-	private static final String CONTAINER_TYPE_FQN = ContainerType.class.getName();
+	private static final String FQN = ContainerType.class.getName();
 	
-	private static final String CONTAINER_TYPES_BY_NAMES = CONTAINER_TYPE_FQN + ".getByNames";
+	private static final String GET_BY_NAMES = FQN + ".getByNames";
+
+	private static final String GET_LEAF_IDS = FQN + ".getLeafTypeIds";
 }

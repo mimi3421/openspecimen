@@ -1,9 +1,20 @@
 package com.krishagni.catissueplus.core.administrative.services.impl;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.InitializingBean;
 
 import com.krishagni.catissueplus.core.administrative.domain.ContainerType;
 import com.krishagni.catissueplus.core.administrative.domain.factory.ContainerTypeErrorCode;
@@ -21,11 +32,15 @@ import com.krishagni.catissueplus.core.common.events.EntityQueryCriteria;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 import com.krishagni.catissueplus.core.common.service.ObjectAccessor;
+import com.krishagni.catissueplus.core.exporter.domain.ExportJob;
+import com.krishagni.catissueplus.core.exporter.services.ExportService;
 
-public class ContainerTypeServiceImpl implements ContainerTypeService, ObjectAccessor {
+public class ContainerTypeServiceImpl implements ContainerTypeService, ObjectAccessor, InitializingBean {
 	private DaoFactory daoFactory;
 	
 	private ContainerTypeFactory containerTypeFactory;
+
+	private ExportService exportSvc;
 
 	public void setDaoFactory(DaoFactory daoFactory) {
 		this.daoFactory = daoFactory;
@@ -34,7 +49,11 @@ public class ContainerTypeServiceImpl implements ContainerTypeService, ObjectAcc
 	public void setContainerTypeFactory(ContainerTypeFactory containerTypeFactory) {
 		this.containerTypeFactory = containerTypeFactory;
 	}
-	
+
+	public void setExportSvc(ExportService exportSvc) {
+		this.exportSvc = exportSvc;
+	}
+
 	@Override
 	@PlusTransactional
 	public ResponseEvent<List<ContainerTypeSummary>> getContainerTypes(RequestEvent<ContainerTypeListCriteria> req) {
@@ -154,7 +173,12 @@ public class ContainerTypeServiceImpl implements ContainerTypeService, ObjectAcc
 		getContainerType(id, null); // ensures container type exists
 		AccessCtrlMgr.getInstance().ensureReadContainerTypeRights();
 	}
-	
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		exportSvc.registerObjectsGenerator("storageContainerType", this::getTypesGenerator);
+	}
+
 	private ContainerType getContainerType(Long id, String name) {
 		ContainerType containerType = null;
 		Object key = null;
@@ -201,5 +225,122 @@ public class ContainerTypeServiceImpl implements ContainerTypeService, ObjectAcc
 		} catch (Exception e) {
 			return ResponseEvent.serverError(e);
 		}
+	}
+
+	private Function<ExportJob, List<? extends Object>> getTypesGenerator() {
+		return new Function<ExportJob, List<? extends Object>>() {
+			private boolean paramsInited;
+
+			private boolean endOfTypes;
+
+			private List<Long> leafTypeIds;
+
+			private ContainerTypeListCriteria leafCrit = new ContainerTypeListCriteria().maxResults(100000);
+
+			private ContainerTypeListCriteria typeCrit = new ContainerTypeListCriteria().maxResults(100000);
+
+			@Override
+			public List<ContainerTypeDetail> apply(ExportJob job) {
+				initParams();
+
+				if (endOfTypes) {
+					return Collections.emptyList();
+				}
+
+				if (CollectionUtils.isNotEmpty(job.getRecordIds())) {
+					endOfTypes = true;
+					return getTypes(job.getRecordIds());
+				}
+
+				if (leafTypeIds == null) {
+					leafTypeIds = daoFactory.getContainerTypeDao().getLeafTypeIds();
+				}
+
+				if (leafTypeIds.isEmpty()) {
+					return Collections.emptyList();
+				}
+
+				int maxIdx = leafTypeIds.size() > 100 ? 100 : leafTypeIds.size();
+				List<Long> ids = leafTypeIds.subList(0, maxIdx);
+				leafTypeIds = leafTypeIds.subList(maxIdx, leafTypeIds.size());
+
+				List<ContainerType> leafTypes = daoFactory.getContainerTypeDao().getByIds(ids);
+				leafTypes.sort(Comparator.comparingInt(c -> ids.indexOf(c.getId())));
+
+				Map<Long, List<ContainerType>> parentsMap = new HashMap<>();
+				List<ContainerType> types = leafTypes;
+				while (!types.isEmpty()) {
+					typeCrit.canHold(types.stream().map(ContainerType::getName).collect(Collectors.toList()));
+					types = daoFactory.getContainerTypeDao().getTypes(typeCrit);
+
+					for (ContainerType type : types) {
+						List<ContainerType> parents = parentsMap.computeIfAbsent(type.getCanHold().getId(), (k) -> new ArrayList<>());
+						parents.add(type);
+					}
+				}
+
+				List<ContainerTypeDetail> result = new ArrayList<>();
+				for (ContainerType leafType : leafTypes) {
+					List<ContainerType> workList = new ArrayList<>();
+					workList.add(leafType);
+
+					while (!workList.isEmpty()) {
+						ContainerType type = workList.remove(0);
+						result.add(ContainerTypeDetail.from(type));
+
+						List<ContainerType> parents = parentsMap.get(type.getId());
+						if (parents != null) {
+							workList.addAll(0, parents);
+						}
+					}
+				}
+
+				return result;
+			}
+
+			private void initParams() {
+				if (paramsInited) {
+					return;
+				}
+
+				endOfTypes = !AccessCtrlMgr.getInstance().hasStorageContainerEximRights();
+				paramsInited = true;
+			}
+
+			private List<ContainerTypeDetail> getTypes(List<Long> ids) {
+				List<ContainerType> types = daoFactory.getContainerTypeDao().getByIds(ids);
+				types.sort(Comparator.comparingInt(t -> ids.indexOf(t.getId())));
+
+				Set<Long> dependents = new HashSet<>();
+				Map<Long, List<Long>> parentsMap = new LinkedHashMap<>();
+				for (ContainerType type : types) {
+					if (type.getCanHold() == null || ids.indexOf(type.getCanHold().getId()) == -1) {
+						continue;
+					}
+
+					dependents.add(type.getId());
+					List<Long> parents = parentsMap.computeIfAbsent(type.getCanHold().getId(), (k) -> new ArrayList<>());
+					parents.add(type.getId());
+				}
+
+				List<ContainerTypeDetail> result = new ArrayList<>();
+				while (!types.isEmpty()) {
+					ContainerType type = types.remove(0);
+					if (dependents.contains(type.getId())) {
+						types.add(type);
+						continue;
+					}
+
+					result.add(ContainerTypeDetail.from(type));
+
+					List<Long> parents = parentsMap.get(type.getId());
+					if (parents != null) {
+						dependents.removeAll(parents);
+					}
+				}
+
+				return result;
+			}
+		};
 	}
 }

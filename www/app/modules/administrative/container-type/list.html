@@ -12,7 +12,11 @@
   </div>
 
   <div class="os-page-commands">
-    <div class="left">
+    <div class="left" ng-if="ctx.checkList.anySelected">
+      <os-export class="default" detail="ctx.exportDetail" check-list="ctx.checkList"></os-export>
+    </div>
+
+    <div class="left" ng-if="!ctx.checkList.anySelected">
       <button show-if-admin="institute" class="default" title="{{'container_type.tooltip.add' | translate}}" 
         ui-sref="container-type-addedit({containerTypeId: ''})">
         <span class="fa fa-plus"></span>
@@ -44,6 +48,8 @@
           </li>
         </ul>
       </div>
+
+      <os-export show-if-admin="institute" class="default" detail="ctx.exportDetail"></os-export>
     </div>
 
     <div class="right">
@@ -55,9 +61,19 @@
   </div>
   
   <div class="container">
+    <div class="alert alert-info os-lean-box" ng-show="ctx.checkList.count > 0">
+      <span> {{'common.items_selected_info' | translate: ctx.checkList}} </span>
+    </div>
+
     <table class="os-table os-table-hover">
       <thead class="os-table-head">
         <tr class="row">
+          <th show-if-allowed="institute" class="col os-click-esc">
+            <div class="os-select-specimen-cb">
+              <os-checkbox ng-change="ctx.checkList.toggleSelectAll()" ng-model="ctx.checkList.allSelected">
+              </os-checkbox>
+            </div>
+          </th>
           <th class="col">
             <span translate="container.name">Name</span>
           </th>
@@ -72,6 +88,13 @@
       <tbody class="os-table-body">
         <tr class="row" ng-repeat="containerType in containerTypes"
           os-row-click="showContainerTypeOverview(containerType)">
+          <td show-if-allowed="institute" class="col os-click-esc">
+            <div class="os-select-specimen-cb">
+              <os-checkbox ng-change="ctx.checkList.toggleSelectItem($index)"
+                ng-model="ctx.checkList.items[$index].selected">
+              </os-checkbox>
+            </div>
+          </td>
           <td class="col">
             <a ui-sref="container-type-detail.overview({containerTypeId: containerType.id})">
               <span>{{containerType.name}}</span>
