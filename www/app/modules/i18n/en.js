@@ -1490,6 +1490,8 @@
     "can_hold": "Can Hold",
     "bulk_import": "Import Container Types",
     "bulk_import_jobs": "Import Container Types Jobs List",
+    "delete_types":  "Are you sure you want to delete selected container types?",
+    "types_deleted": "Container types deleted",
 
     "tooltip": {
       "add": "Click to add new Container Type",

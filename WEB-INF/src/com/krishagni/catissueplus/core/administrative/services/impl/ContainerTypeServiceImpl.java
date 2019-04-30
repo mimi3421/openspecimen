@@ -27,6 +27,7 @@ import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
+import com.krishagni.catissueplus.core.common.events.BulkDeleteEntityOp;
 import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.events.EntityQueryCriteria;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
@@ -154,6 +155,29 @@ public class ContainerTypeServiceImpl implements ContainerTypeService, ObjectAcc
 	}
 
 	@Override
+	@PlusTransactional
+	public ResponseEvent<Integer> deleteContainerTypes(RequestEvent<BulkDeleteEntityOp> req) {
+		try {
+			AccessCtrlMgr.getInstance().ensureCreateOrUpdateContainerTypeRights();
+
+			int count = 0;
+			List<ContainerType> types = getTypesOrderedByDependents(new ArrayList<>(req.getPayload().getIds()));
+			Collections.reverse(types);
+			for (ContainerType type : types) {
+				type.delete();
+				daoFactory.getContainerTypeDao().saveOrUpdate(type, true);
+				++count;
+			}
+
+			return ResponseEvent.response(count);
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
+		} catch (Exception e) {
+			return ResponseEvent.serverError(e);
+		}
+	}
+
+	@Override
 	public String getObjectName() {
 		return ContainerType.getEntityName();
 	}
@@ -227,6 +251,42 @@ public class ContainerTypeServiceImpl implements ContainerTypeService, ObjectAcc
 		}
 	}
 
+	private List<ContainerType> getTypesOrderedByDependents(List<Long> ids) {
+		List<ContainerType> types = daoFactory.getContainerTypeDao().getByIds(ids);
+		types.sort(Comparator.comparingInt(t -> ids.indexOf(t.getId())));
+
+		Set<Long> dependents = new HashSet<>();
+		Map<Long, List<Long>> parentsMap = new LinkedHashMap<>();
+		for (ContainerType type : types) {
+			if (type.getCanHold() == null || ids.indexOf(type.getCanHold().getId()) == -1) {
+				continue;
+			}
+
+			dependents.add(type.getId());
+			List<Long> parents = parentsMap.computeIfAbsent(type.getCanHold().getId(), (k) -> new ArrayList<>());
+			parents.add(type.getId());
+		}
+
+		List<ContainerType> result = new ArrayList<>();
+		while (!types.isEmpty()) {
+			ContainerType type = types.remove(0);
+			if (dependents.contains(type.getId())) {
+				types.add(type);
+				continue;
+			}
+
+			result.add(type);
+
+			List<Long> parents = parentsMap.get(type.getId());
+			if (parents != null) {
+				dependents.removeAll(parents);
+			}
+		}
+
+		return result;
+	}
+
+
 	private Function<ExportJob, List<? extends Object>> getTypesGenerator() {
 		return new Function<ExportJob, List<? extends Object>>() {
 			private boolean paramsInited;
@@ -234,8 +294,6 @@ public class ContainerTypeServiceImpl implements ContainerTypeService, ObjectAcc
 			private boolean endOfTypes;
 
 			private List<Long> leafTypeIds;
-
-			private ContainerTypeListCriteria leafCrit = new ContainerTypeListCriteria().maxResults(100000);
 
 			private ContainerTypeListCriteria typeCrit = new ContainerTypeListCriteria().maxResults(100000);
 
@@ -249,7 +307,8 @@ public class ContainerTypeServiceImpl implements ContainerTypeService, ObjectAcc
 
 				if (CollectionUtils.isNotEmpty(job.getRecordIds())) {
 					endOfTypes = true;
-					return getTypes(job.getRecordIds());
+					return getTypesOrderedByDependents(job.getRecordIds()).stream()
+						.map(ContainerTypeDetail::from).collect(Collectors.toList());
 				}
 
 				if (leafTypeIds == null) {
@@ -305,41 +364,6 @@ public class ContainerTypeServiceImpl implements ContainerTypeService, ObjectAcc
 
 				endOfTypes = !AccessCtrlMgr.getInstance().hasStorageContainerEximRights();
 				paramsInited = true;
-			}
-
-			private List<ContainerTypeDetail> getTypes(List<Long> ids) {
-				List<ContainerType> types = daoFactory.getContainerTypeDao().getByIds(ids);
-				types.sort(Comparator.comparingInt(t -> ids.indexOf(t.getId())));
-
-				Set<Long> dependents = new HashSet<>();
-				Map<Long, List<Long>> parentsMap = new LinkedHashMap<>();
-				for (ContainerType type : types) {
-					if (type.getCanHold() == null || ids.indexOf(type.getCanHold().getId()) == -1) {
-						continue;
-					}
-
-					dependents.add(type.getId());
-					List<Long> parents = parentsMap.computeIfAbsent(type.getCanHold().getId(), (k) -> new ArrayList<>());
-					parents.add(type.getId());
-				}
-
-				List<ContainerTypeDetail> result = new ArrayList<>();
-				while (!types.isEmpty()) {
-					ContainerType type = types.remove(0);
-					if (dependents.contains(type.getId())) {
-						types.add(type);
-						continue;
-					}
-
-					result.add(ContainerTypeDetail.from(type));
-
-					List<Long> parents = parentsMap.get(type.getId());
-					if (parents != null) {
-						dependents.removeAll(parents);
-					}
-				}
-
-				return result;
 			}
 		};
 	}

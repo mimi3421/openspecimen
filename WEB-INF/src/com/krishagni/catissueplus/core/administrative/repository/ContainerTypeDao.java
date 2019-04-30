@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 import com.krishagni.catissueplus.core.administrative.domain.ContainerType;
+import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.repository.Dao;
 
 public interface ContainerTypeDao extends Dao<ContainerType> {
@@ -16,4 +17,6 @@ public interface ContainerTypeDao extends Dao<ContainerType> {
 	ContainerType getByName(String name);
 
 	List<Long> getLeafTypeIds();
+
+	List<DependentEntityDetail> getDependentEntities(Long typeId);
 }

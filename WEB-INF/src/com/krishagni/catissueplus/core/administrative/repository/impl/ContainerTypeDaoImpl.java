@@ -1,6 +1,7 @@
 
 package com.krishagni.catissueplus.core.administrative.repository.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -16,6 +17,7 @@ import org.hibernate.criterion.Restrictions;
 import com.krishagni.catissueplus.core.administrative.domain.ContainerType;
 import com.krishagni.catissueplus.core.administrative.repository.ContainerTypeDao;
 import com.krishagni.catissueplus.core.administrative.repository.ContainerTypeListCriteria;
+import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.repository.AbstractDao;
 
 public class ContainerTypeDaoImpl extends AbstractDao<ContainerType> implements ContainerTypeDao {
@@ -64,6 +66,24 @@ public class ContainerTypeDaoImpl extends AbstractDao<ContainerType> implements 
 		return (List<Long>) getCurrentSession().getNamedQuery(GET_LEAF_IDS).list();
 	}
 
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<DependentEntityDetail> getDependentEntities(Long typeId) {
+		List<Object[]> rows = (List<Object[]>) getCurrentSession().getNamedQuery(GET_DEPENDENTS)
+			.setParameter("typeId", typeId)
+			.list();
+
+		List<DependentEntityDetail> result = new ArrayList<>();
+		for (Object[] row : rows) {
+			DependentEntityDetail de = new DependentEntityDetail();
+			de.setName((String) row[0]);
+			de.setCount((Integer) row[1]);
+			result.add(de);
+		}
+
+		return result;
+	}
+
 	private Criteria getTypesListQuery(ContainerTypeListCriteria crit) {
 		return addSearchConditions(getCurrentSession().createCriteria(ContainerType.class), crit);
 	}
@@ -96,4 +116,6 @@ public class ContainerTypeDaoImpl extends AbstractDao<ContainerType> implements 
 	private static final String GET_BY_NAMES = FQN + ".getByNames";
 
 	private static final String GET_LEAF_IDS = FQN + ".getLeafTypeIds";
+
+	private static final String GET_DEPENDENTS = FQN + ".getDependentEntities";
 }

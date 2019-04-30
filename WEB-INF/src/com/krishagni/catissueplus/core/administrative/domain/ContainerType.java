@@ -6,15 +6,19 @@ import java.util.Set;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 
 import com.krishagni.catissueplus.core.administrative.domain.factory.ContainerTypeErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.BaseEntity;
+import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.util.Status;
 import com.krishagni.catissueplus.core.common.util.Utility;
 
 @Audited
+@Configurable
 public class ContainerType extends BaseEntity {
 	private static final String ENTITY_NAME = "container_type";
 	
@@ -45,6 +49,9 @@ public class ContainerType extends BaseEntity {
 	private Set<StorageContainer> containers = new HashSet<>();
 
 	private Set<ContainerType> canBeStoredIn = new HashSet<>();
+
+	@Autowired
+	private DaoFactory daoFactory;
 
 	public static String getEntityName() {
 		return ENTITY_NAME;
@@ -182,16 +189,13 @@ public class ContainerType extends BaseEntity {
 	}
 	
 	public List<DependentEntityDetail> getDependentEntities() {
-		return DependentEntityDetail.listBuilder()
-			.add(ContainerType.getEntityName(), getCanBeStoredIn().size())
-			.add(StorageContainer.getEntityName(), getContainers().size())
-			.build();
+		return daoFactory.getContainerTypeDao().getDependentEntities(getId());
 	}
 	
 	public void delete() {
 		List<DependentEntityDetail> dependentEntities = getDependentEntities();
 		if (!dependentEntities.isEmpty()) {
-			throw OpenSpecimenException.userError(ContainerTypeErrorCode.REF_ENTITY_FOUND);
+			throw OpenSpecimenException.userError(ContainerTypeErrorCode.REF_ENTITY_FOUND, getName());
 		}
 
 		setName(Utility.getDisabledValue(getName(), 64));

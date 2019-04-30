@@ -13,6 +13,11 @@
 
   <div class="os-page-commands">
     <div class="left" ng-if="ctx.checkList.anySelected">
+      <button class="default" ng-click="deleteTypes()">
+        <span class="fa fa-trash"></span>
+        <span translate="common.buttons.delete">Delete</span>
+      </button>
+
       <os-export class="default" detail="ctx.exportDetail" check-list="ctx.checkList"></os-export>
     </div>
 

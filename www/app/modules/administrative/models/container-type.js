@@ -1,6 +1,6 @@
 
 angular.module('os.administrative.models.containertype', ['os.common.models'])
-  .factory('ContainerType', function(osModel) {
+  .factory('ContainerType', function(osModel, $http) {
     var ContainerType = new osModel('container-types');
 
     ContainerType.prototype.getType = function() {
@@ -9,6 +9,14 @@ angular.module('os.administrative.models.containertype', ['os.common.models'])
 
     ContainerType.prototype.getDisplayName = function() {
       return this.name;
+    }
+
+    ContainerType.bulkDelete = function(typeIds) {
+      return $http.delete(ContainerType.url(), {params: {id: typeIds, forceDelete: true}}).then(
+        function(resp) {
+          return resp.data;
+        }
+      );
     }
     
     return ContainerType;

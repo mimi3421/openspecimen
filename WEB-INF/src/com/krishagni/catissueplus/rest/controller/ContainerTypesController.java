@@ -1,7 +1,9 @@
 
 package com.krishagni.catissueplus.rest.controller;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +22,7 @@ import com.krishagni.catissueplus.core.administrative.events.ContainerTypeDetail
 import com.krishagni.catissueplus.core.administrative.events.ContainerTypeSummary;
 import com.krishagni.catissueplus.core.administrative.repository.ContainerTypeListCriteria;
 import com.krishagni.catissueplus.core.administrative.services.ContainerTypeService;
+import com.krishagni.catissueplus.core.common.events.BulkDeleteEntityOp;
 import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.events.EntityQueryCriteria;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
@@ -149,7 +152,20 @@ public class ContainerTypesController {
 		resp.throwErrorIfUnsuccessful();
 		return resp.getPayload();
 	}
-	
+
+	@RequestMapping(method = RequestMethod.DELETE)
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public Map<String, Integer> deleteContainerTypes(@RequestParam(value = "id") Long[] ids) {
+		BulkDeleteEntityOp op = new BulkDeleteEntityOp();
+		op.setIds(new HashSet<>(Arrays.asList(ids)));
+
+		RequestEvent<BulkDeleteEntityOp> req = new RequestEvent<>(op);
+		ResponseEvent<Integer> resp = containerTypeSvc.deleteContainerTypes(req);
+		resp.throwErrorIfUnsuccessful();
+		return Collections.singletonMap("count", resp.getPayload());
+	}
+
 	private ContainerTypeDetail getContainerType(EntityQueryCriteria crit) {
 		RequestEvent<EntityQueryCriteria> req = new RequestEvent<EntityQueryCriteria>(crit);
 		ResponseEvent<ContainerTypeDetail> resp = containerTypeSvc.getContainerType(req);

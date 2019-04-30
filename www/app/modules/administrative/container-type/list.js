@@ -1,5 +1,5 @@
 angular.module('os.administrative.containertype.list', ['os.administrative.models'])
-  .controller('ContainerTypeListCtrl', function($scope, $state, CheckList, ContainerType, Util, ListPagerOpts) {
+  .controller('ContainerTypeListCtrl', function($scope, $state, CheckList, ContainerType, Util, DeleteUtil, ListPagerOpts) {
 
     var pagerOpts;
 
@@ -27,6 +27,24 @@ angular.module('os.administrative.containertype.list', ['os.administrative.model
     function getContainerTypesCount() {
       return ContainerType.getCount($scope.containerTypeFilterOpts);
     }
+
+    function getTypeIds(types) {
+      return types.map(function(t) { return t.id; });
+    }
+
+    $scope.deleteTypes = function() {
+      var types = $scope.ctx.checkList.getSelectedItems();
+      var opts = {
+        confirmDelete:  'container_type.delete_types',
+        successMessage: 'container_type.types_deleted',
+        onBulkDeletion: function() {
+          loadContainerTypes($scope.containerTypeFilterOpts);
+        }
+      }
+
+      DeleteUtil.bulkDelete({bulkDelete: ContainerType.bulkDelete}, getTypeIds(types), opts);
+    }
+
 
     $scope.showContainerTypeOverview = function(containerType) {
       $state.go('container-type-detail.overview', {containerTypeId: containerType.id});
