@@ -3,6 +3,7 @@ package com.krishagni.catissueplus.core.de.services.impl;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -93,6 +94,10 @@ public class ExtensionsImporter implements ObjectImporter<Map<String, Object>, M
 	
 	private ResponseEvent<Map<String, Object>> createOrUpdateRecord(ImportObjectDetail<Map<String, Object>> importDetail) {
 		Map<String, Object> extnObj = importDetail.getObject();
+		Map<String, Object> formValueMap = (Map<String, Object>)extnObj.get("formValueMap");
+		if (formValueMap == null) {
+			return ResponseEvent.response(Collections.emptyMap());
+		}
 
 		Map<String, String> params  = importDetail.getParams();
 		String entityType = params.get("entityType");
@@ -139,11 +144,9 @@ public class ExtensionsImporter implements ObjectImporter<Map<String, Object>, M
 			return ResponseEvent.userError(FormErrorCode.NO_ASSOCIATION, cp.getShortTitle(), form.getCaption());
 		}
 		
-		Map<String, Object> appData = new HashMap<String, Object>();
+		Map<String, Object> appData = new HashMap<>();
 		appData.put("formCtxtId", formCtxId);
 		appData.put("objectId", objectId);
-		
-		Map<String, Object> formValueMap = (Map<String, Object>)extnObj.get("formValueMap");
 		formValueMap.put("appData", appData);
 
 		initFileFields(importDetail.getUploadedFilesDir(), form, formValueMap);
@@ -226,7 +229,7 @@ public class ExtensionsImporter implements ObjectImporter<Map<String, Object>, M
 		FormRecordCriteria crit = new FormRecordCriteria();
 		crit.setFormId(form.getId());
 		crit.setRecordId(Long.parseLong(recordId));
-		ResponseEvent<Long> resp = formSvc.deleteRecord(new RequestEvent<FormRecordCriteria>(crit));
+		ResponseEvent<Long> resp = formSvc.deleteRecord(new RequestEvent<>(crit));
 		resp.throwErrorIfUnsuccessful();
 		
 		return ResponseEvent.response(importDetail.getObject());
