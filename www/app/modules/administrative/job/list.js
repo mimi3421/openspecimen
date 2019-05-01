@@ -1,6 +1,8 @@
 
 angular.module('os.administrative.job.list', ['os.administrative.models'])
-  .controller('JobListCtrl', function($scope, $modal, $translate, Util, ScheduledJob, DeleteUtil, Alerts, ListPagerOpts) {
+  .controller('JobListCtrl', function(
+    $scope, $modal, $translate, $state,
+    Util, ScheduledJob, DeleteUtil, Alerts, ListPagerOpts) {
 
     var pagerOpts, filterOpts;
 
@@ -49,6 +51,10 @@ angular.module('os.administrative.job.list', ['os.administrative.models'])
       );
     }
     
+    $scope.showJobEdit = function(job) {
+      $state.go('job-addedit', {jobId: job.id});
+    }
+
     $scope.executeJob = function(job) {
       if (!job.rtArgsProvided) {
         runJob(job);

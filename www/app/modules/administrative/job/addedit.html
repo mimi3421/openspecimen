@@ -277,7 +277,8 @@
 
       <div class="form-group">
         <div class="col-xs-offset-3 col-xs-6">
-          <button ng-switch on="!!job.id" class="btn btn-primary" os-form-submit="saveOrUpdateJob()">
+          <button show-if-allowed="jobResource.updateOpts" class="btn btn-primary"
+            os-form-submit="saveOrUpdateJob()" ng-switch on="!!job.id">
             <span ng-switch-when="false" translate="common.buttons.create">Create</span>
             <span ng-switch-when="true" translate="common.buttons.update">Update</span>
           </button>

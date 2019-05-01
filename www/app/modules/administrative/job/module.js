@@ -12,14 +12,13 @@ angular.module('os.administrative.job',
         abstract: true,
         template: '<div ui-view></div>',
         controller: function($scope) {
-          // Storage Container Authorization Options
           $scope.jobResource = {
             readOpts  : {resource: 'ScheduledJob', operations: ['Read']},
             createOpts: {resource: 'ScheduledJob', operations: ['Create']},
             updateOpts: {resource: 'ScheduledJob', operations: ['Update']},
             runOpts   : {resource: 'ScheduledJob', operations: ['Read']},
             deleteOpts: {resource: 'ScheduledJob', operations: ['Delete']}
-          }
+          };
         },
         parent: 'signed-in'
       })
