@@ -311,10 +311,14 @@
                   <span ng-switch-when="false"> {{field.value | osNoValue}} </span>
                 </span>
               </td>
-              <td class="col">
+              <td class="col" ng-switch on="specimen.availableQty > 0">
                 <os-spmn-measure name="qty" specimen="specimen" quantity="item.quantity" md-input
                   ensure-range="[{tgt: 0, cmp: 'gte', errorKey: 'distQtyLtZero'}]"
-                  on-change="setStatus(item)" ng-required="specimen.availableQty > 0">
+                  on-change="setStatus(item)" required ng-switch-when="true">
+                </os-spmn-measure>
+                <os-spmn-measure name="qty" specimen="specimen" quantity="item.quantity" md-input
+                  ensure-range="[{tgt: 0, cmp: 'gte', errorKey: 'distQtyLtZero'}]"
+                  on-change="setStatus(item)" ng-switch-default>
                 </os-spmn-measure>
                 <div os-field-error field="sform.qty"></div>
               </td>

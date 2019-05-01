@@ -96,13 +96,20 @@
                   </os-select>
                   <div os-field-error field="sform.orderName"></div>
                 </td>
-                <td class="col" ng-init="item.$$qtyReq = (item.quantity > 0)">
+                <td class="col" ng-init="item.$$qtyReq = (item.quantity > 0)" ng-switch on="item.$$qtyReq">
                   <os-spmn-measure name="qty" md-input specimen="item.specimen" quantity="item.quantity"
                     ensure-range="[
                       {tgt: item.distQty, cmp: 'le', errorKey: 'retQtyGtDistQty'},
                       {tgt: 0, cmp: 'gt', errorKey: 'distQtyLeZero'}
                     ]"
-                    ng-required="item.$$qtyReq">
+                    required ng-switch-when="true">
+                  </os-spmn-measure>
+                  <os-spmn-measure name="qty" md-input specimen="item.specimen" quantity="item.quantity"
+                    ensure-range="[
+                      {tgt: item.distQty, cmp: 'le', errorKey: 'retQtyGtDistQty'},
+                      {tgt: 0, cmp: 'gt', errorKey: 'distQtyLeZero'}
+                    ]"
+                    ng-switch-default>
                   </os-spmn-measure>
                   <div os-field-error field="sform.qty"></div>
                 </td>
