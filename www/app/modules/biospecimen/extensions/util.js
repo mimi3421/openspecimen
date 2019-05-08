@@ -3,11 +3,16 @@ angular.module('os.biospecimen.extensions.util', [])
   .factory('ExtensionsUtil', function($modal, Form, Alerts, ApiUrls) {
     var filesUrl = ApiUrls.getBaseUrl() + 'form-files';
 
-    function getFileDownloadUrl(formId, recordId, ctrlName) {
+    function getFileDownloadUrl(formId, recordId, ctrlName, fileId) {
       var params = '?formId=' + formId +
-                   '&recordId=' + recordId +
-                   '&ctrlName=' + ctrlName +
-                   '&_reqTime=' + new Date().getTime();
+        '&ctrlName=' + ctrlName +
+        '&_reqTime=' + new Date().getTime();
+
+      if (fileId) {
+        params += '&fileId=' + fileId;
+      } else {
+        params += '&recordId=' + recordId;
+      }
 
       return filesUrl + params;
     }

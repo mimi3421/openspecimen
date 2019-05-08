@@ -1803,7 +1803,7 @@ edu.common.de.FileUploadField = function(id, field, args) {
     var that = this;
     this.inputEl  = $("<div/>") 
       .prop({title: field.toolTip})
-      .addClass("de-fileupload form-control clearfix");
+      .addClass("de-fileupload form-control");
     this.fileNameSpan = $("<span/>");
     this.inputEl.append(this.fileNameSpan);
 
@@ -1895,10 +1895,11 @@ edu.common.de.FileUploadField = function(id, field, args) {
       } else {
         var url = "#";
         if (typeof args.fileDownloadUrl == "function") {
-          url = args.fileDownloadUrl(args.id, this.recId, field.fqn);
+          url = args.fileDownloadUrl(args.id, this.recId, field.fqn, this.value.fileId);
         } else {
           url = args.fileDownloadUrl;
         }
+
         var link = $("<a/>").attr({href: url, target: "_blank"}).text(this.value.filename);
         this.fileNameSpan.append(link);
       }

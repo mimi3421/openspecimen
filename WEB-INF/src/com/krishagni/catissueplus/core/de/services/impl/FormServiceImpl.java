@@ -471,8 +471,15 @@ public class FormServiceImpl implements FormService, InitializingBean {
 	@Override
 	@PlusTransactional
 	public ResponseEvent<FileDetail> getFileDetail(RequestEvent<GetFileDetailOp> req) {
-		GetFileDetailOp opDetail = req.getPayload();
-		FileControlValue fcv = formDataMgr.getFileControlValue(opDetail.getFormId(), opDetail.getRecordId(), opDetail.getCtrlName());
+		GetFileDetailOp op = req.getPayload();
+
+		FileControlValue fcv = null;
+		if (op.getRecordId() != null) {
+			fcv = formDataMgr.getFileControlValue(op.getFormId(), op.getRecordId(), op.getCtrlName());
+		} else if (StringUtils.isNotBlank(op.getFileId())) {
+			fcv = formDataMgr.getFileControlValue(op.getFormId(), op.getCtrlName(), op.getFileId());
+		}
+
 		if (fcv == null) {
 			return ResponseEvent.userError(FormErrorCode.FILE_NOT_FOUND);
 		}

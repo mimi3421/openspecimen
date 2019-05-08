@@ -40,21 +40,25 @@ public class FormFilesController {
 	@RequestMapping(method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
 	public void downloadFile(
-		@RequestParam(value = "formId", required = true)
+		@RequestParam(value = "formId")
 		Long formId,
 
-		@RequestParam(value = "recordId", required = true)
+		@RequestParam(value = "ctrlName")
+		String ctrlName,
+
+		@RequestParam(value = "recordId", required = false)
 		Long recordId,
 
-		@RequestParam(value = "ctrlName", required = true)
-		String ctrlName,
+		@RequestParam(value = "fileId", required = false)
+		String fileId,
 
 		HttpServletResponse response) {
 		
 		GetFileDetailOp req = new GetFileDetailOp();
 		req.setFormId(formId);
-		req.setRecordId(recordId);
 		req.setCtrlName(ctrlName);
+		req.setRecordId(recordId);
+		req.setFileId(fileId);
 		
 		FileDetail file = response(formSvc.getFileDetail(request(req)));
 		Utility.sendToClient(response, file.getFilename(), file.getContentType(), new File(file.getPath()));

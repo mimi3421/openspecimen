@@ -1,20 +1,28 @@
 angular.module("os.biospecimen.extensions")
   .directive("osExtensionOverview", function(ExtensionsUtil) {
 
-     function processAttrs(formId, recordId, attrs) {
-       angular.forEach(attrs, function(attr) {
-         if (attr.type == 'subForm') {
-           if (attr.value instanceof Array) {
-             angular.forEach(attr.value, function(sfAttrs) {
-               processAttrs(formId, recordId, sfAttrs);
-             })
-           }
-         } else {
-           if (attr.type == 'fileUpload') {
-             attr.$$fileDownloadUrl = ExtensionsUtil.getFileDownloadUrl(formId, recordId, attr.name);
+     function processAttrs(formId, recordId, prefix, attrs) {
+       angular.forEach(attrs,
+         function(attr) {
+           if (attr.type == 'subForm') {
+             prefix = prefix || '';
+             var sfPrefix = prefix + attr.name + '.';
+
+             if (attr.value instanceof Array) {
+               angular.forEach(attr.value,
+                 function(sfAttrs) {
+                   processAttrs(formId, recordId, sfPrefix, sfAttrs);
+                 }
+               );
+             }
+           } else {
+             if (attr.type == 'fileUpload') {
+               attr.$$fileDownloadUrl = ExtensionsUtil.getFileDownloadUrl(
+                 formId, recordId, prefix + attr.name, attr.value && attr.value.fileId);
+             }
            }
          }
-       });
+       );
      }
 
      return {
@@ -28,7 +36,7 @@ angular.module("os.biospecimen.extensions")
        },
 
        link: function(scope, element, attrs) {
-         processAttrs(scope.extObject.formId, scope.extObject.id, scope.extObject.attrs);
+         processAttrs(scope.extObject.formId, scope.extObject.id, '', scope.extObject.attrs);
        }
      }
   });

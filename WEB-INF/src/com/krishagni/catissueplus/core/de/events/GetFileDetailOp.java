@@ -5,16 +5,26 @@ public class GetFileDetailOp {
 	
 	private Long formId;
 	
-	private Long recordId;
-	
 	private String ctrlName;
-	
+
+	private Long recordId;
+
+	private String fileId;
+
 	public Long getFormId() {
 		return formId;
 	}
 
 	public void setFormId(Long formId) {
 		this.formId = formId;
+	}
+
+	public String getCtrlName() {
+		return ctrlName;
+	}
+
+	public void setCtrlName(String ctrlName) {
+		this.ctrlName = ctrlName;
 	}
 
 	public Long getRecordId() {
@@ -25,11 +35,11 @@ public class GetFileDetailOp {
 		this.recordId = recordId;
 	}
 
-	public String getCtrlName() {
-		return ctrlName;
+	public String getFileId() {
+		return fileId;
 	}
 
-	public void setCtrlName(String ctrlName) {
-		this.ctrlName = ctrlName;
+	public void setFileId(String fileId) {
+		this.fileId = fileId;
 	}
 }
