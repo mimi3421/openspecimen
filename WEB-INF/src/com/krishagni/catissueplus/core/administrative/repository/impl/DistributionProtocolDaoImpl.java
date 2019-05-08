@@ -195,6 +195,10 @@ public class DistributionProtocolDaoImpl extends AbstractDao<DistributionProtoco
 			query.add(searchCond);
 		}
 
+		if (StringUtils.isBlank(crit.query()) && StringUtils.isNotBlank(crit.irbIdLike())) {
+			query.add(Restrictions.ilike("irbId", crit.irbIdLike(), MatchMode.ANYWHERE));
+		}
+
 		applyIdsFilter(query, "id", crit.ids());
 		addPiCondition(query, crit);
 		addIrbIdCondition(query, crit);

@@ -12,6 +12,8 @@ public class DpListCriteria extends AbstractListCriteria<DpListCriteria> {
 	private Long piId;
 
 	private String irbId;
+
+	private String irbIdLike;
 	
 	private String receivingInstitute;
 
@@ -52,6 +54,15 @@ public class DpListCriteria extends AbstractListCriteria<DpListCriteria> {
 
 	public DpListCriteria irbId(String irbId) {
 		this.irbId = irbId;
+		return self();
+	}
+
+	public String irbIdLike() {
+		return irbIdLike;
+	}
+
+	public DpListCriteria irbIdLike(String irbIdLike) {
+		this.irbIdLike = irbIdLike;
 		return self();
 	}
 	

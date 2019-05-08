@@ -9,6 +9,8 @@ import com.krishagni.catissueplus.core.common.events.AbstractListCriteria;
 public class CpListCriteria extends AbstractListCriteria<CpListCriteria> {
 	
 	private String title;
+
+	private String irbId;
 	
 	private Long piId;
 	
@@ -29,6 +31,15 @@ public class CpListCriteria extends AbstractListCriteria<CpListCriteria> {
 	
 	public CpListCriteria title(String title) {
 		this.title = title;
+		return self();
+	}
+
+	public String irbId() {
+		return irbId;
+	}
+
+	public CpListCriteria irbId(String irbId) {
+		this.irbId = irbId;
 		return self();
 	}
 	

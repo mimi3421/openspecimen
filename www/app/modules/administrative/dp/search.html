@@ -11,6 +11,11 @@
       </div>
 
       <div class="form-group">
+        <input os-md-input type="text" ng-model="dpFilterOpts.irbId" class="form-control"
+          placeholder="{{'dp.irb_id' | translate}}">
+      </div>
+
+      <div class="form-group">
         <div os-md-input ng-model="dpFilterOpts.piId" placeholder="{{'dp.filter.pi' | translate}}">
           <os-users ng-model="dpFilterOpts.piId" placeholder="{{'dp.filter.pi' | translate}}" select-prop="id">
           </os-users>

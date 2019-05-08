@@ -96,6 +96,9 @@ public class CollectionProtocolsController {
 			
 			@RequestParam(value = "title", required = false)
 			String title,
+
+			@RequestParam(value = "irbId", required = false)
+			String irbId,
 			
 			@RequestParam(value = "piId", required = false)
 			Long piId,
@@ -115,6 +118,7 @@ public class CollectionProtocolsController {
 		CpListCriteria crit = new CpListCriteria()
 			.query(searchStr)
 			.title(title)
+			.irbId(irbId)
 			.piId(piId)
 			.repositoryName(repositoryName)
 			.includePi(detailedList)
@@ -136,7 +140,10 @@ public class CollectionProtocolsController {
 			
 			@RequestParam(value = "title", required = false)
 			String title,
-			
+
+			@RequestParam(value = "irbId", required = false)
+			String irbId,
+
 			@RequestParam(value = "piId", required = false)
 			Long piId,
 			
@@ -146,6 +153,7 @@ public class CollectionProtocolsController {
 		CpListCriteria crit = new CpListCriteria()
 			.query(searchStr)
 			.title(title)
+			.irbId(irbId)
 			.piId(piId)
 			.repositoryName(repositoryName);
 		

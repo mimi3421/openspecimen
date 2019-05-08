@@ -371,10 +371,10 @@ public class CollectionProtocolDaoImpl extends AbstractDao<CollectionProtocol> i
 		return addSearchConditions(query, cpCriteria);
 	}
 
-	private Criteria addSearchConditions(Criteria query, CpListCriteria cpCriteria) {
-		String searchString = cpCriteria.query();
+	private Criteria addSearchConditions(Criteria query, CpListCriteria crit) {
+		String searchString = crit.query();
 		if (StringUtils.isBlank(searchString)) {
-			searchString = cpCriteria.title();
+			searchString = crit.title();
 		} 
 		
 		if (StringUtils.isNotBlank(searchString)) {
@@ -382,27 +382,30 @@ public class CollectionProtocolDaoImpl extends AbstractDao<CollectionProtocol> i
 					.add(Restrictions.ilike("title", searchString, MatchMode.ANYWHERE))
 					.add(Restrictions.ilike("shortTitle", searchString, MatchMode.ANYWHERE));
 			
-			if (StringUtils.isNotBlank(cpCriteria.query())) {
+			if (StringUtils.isNotBlank(crit.query())) {
 				searchCond.add(Restrictions.ilike("irbIdentifier", searchString, MatchMode.ANYWHERE));
 			}	
 			
 			query.add(searchCond);
 		}
-		
-		Long piId = cpCriteria.piId();
-		if (piId != null) {
-			query.add(Restrictions.eq("pi.id", piId));
+
+		if (StringUtils.isBlank(crit.query()) && StringUtils.isNotBlank(crit.irbId())) {
+			query.add(Restrictions.ilike("irbIdentifier", crit.irbId(), MatchMode.ANYWHERE));
+		}
+
+		if (crit.piId() != null) {
+			query.add(Restrictions.eq("pi.id", crit.piId()));
 		}
 		
-		String repositoryName = cpCriteria.repositoryName();
+		String repositoryName = crit.repositoryName();
 		if (StringUtils.isNotBlank(repositoryName)) {
 			query.createCriteria("sites", "cpSite")
 				.createAlias("cpSite.site", "site")
 				.add(Restrictions.eq("site.name", repositoryName));
 		}
 
-		applyIdsFilter(query, "id", cpCriteria.ids());
-		addSiteCpsCond(query, cpCriteria.siteCps());
+		applyIdsFilter(query, "id", crit.ids());
+		addSiteCpsCond(query, crit.siteCps());
 		return query;
 	}
 	
