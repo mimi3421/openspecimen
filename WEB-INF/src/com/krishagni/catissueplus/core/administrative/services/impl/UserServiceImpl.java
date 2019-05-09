@@ -1004,6 +1004,11 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 
 	private void onAccountActivation(User user, String prevStatus) {
 		if (prevStatus.equals(Status.ACTIVITY_STATUS_PENDING.getStatus())) {
+			ForgotPasswordToken oldToken = daoFactory.getUserDao().getFpTokenByUser(user.getId());
+			if (oldToken != null) {
+				daoFactory.getUserDao().deleteFpToken(oldToken);
+			}
+
 			ForgotPasswordToken token = generateForgotPwdToken(user);
 			sendUserCreatedEmail(user, token);
 			notifyUserUpdated(user, "approved");

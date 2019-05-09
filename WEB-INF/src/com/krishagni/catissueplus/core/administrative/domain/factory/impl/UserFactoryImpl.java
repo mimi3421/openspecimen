@@ -16,6 +16,7 @@ import com.krishagni.catissueplus.core.administrative.domain.factory.UserFactory
 import com.krishagni.catissueplus.core.administrative.events.UserDetail;
 import com.krishagni.catissueplus.core.auth.domain.AuthDomain;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
+import com.krishagni.catissueplus.core.common.errors.ActivityStatusErrorCode;
 import com.krishagni.catissueplus.core.common.errors.ErrorType;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.util.Status;
@@ -212,7 +213,20 @@ public class UserFactoryImpl implements UserFactory {
 			status = Status.ACTIVITY_STATUS_ACTIVE.getStatus();
 		}
 
+		if (!isValidStatus(status)) {
+			ose.addError(ActivityStatusErrorCode.INVALID, status);
+		}
+
 		user.setActivityStatus(status);
+	}
+
+	private boolean isValidStatus(String status) {
+		return status.equals(Status.ACTIVITY_STATUS_ACTIVE.getStatus()) ||
+			status.equals(Status.ACTIVITY_STATUS_DISABLED.getStatus()) ||
+			status.equals(Status.ACTIVITY_STATUS_CLOSED.getStatus()) ||
+			status.equals(Status.ACTIVITY_STATUS_LOCKED.getStatus()) ||
+			status.equals(Status.ACTIVITY_STATUS_EXPIRED.getStatus()) ||
+			status.equals(Status.ACTIVITY_STATUS_PENDING.getStatus());
 	}
 
 	private void setActivityStatus(UserDetail detail, User existing, User user, OpenSpecimenException ose) {
