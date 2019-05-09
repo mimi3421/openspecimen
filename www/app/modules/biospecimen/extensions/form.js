@@ -139,6 +139,12 @@ angular.module('os.biospecimen.extensions', ['os.biospecimen.models'])
               angular.element(this).siblings().wrapAll("<div class='col-xs-6'></div>");
             }
           );
+
+          element.find('.de-note').each(
+            function() {
+              angular.element(this).addClass("col-xs-offset-3 col-xs-8");
+            }
+          );
         }
       }
     }

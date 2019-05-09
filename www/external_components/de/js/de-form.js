@@ -1953,7 +1953,7 @@ edu.common.de.Note = function(id, field, args) {
       captionEl.text(field.caption);
     }
 
-    this.inputEl = $("<div/>").append(captionEl);
+    this.inputEl = $("<div class='de-note'/>").append(captionEl);
     if (field.heading == true || field.type == 'heading') {
       this.inputEl.addClass('de-heading');
     }
