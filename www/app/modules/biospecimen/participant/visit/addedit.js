@@ -29,6 +29,8 @@ angular.module('os.biospecimen.visit.addedit', [])
           site: getVisitSite(cpr, latestVisit, currVisit)
         });
         delete currVisit.anticipatedVisitDate;
+      } else if (currVisit.status == 'Pending') {
+        currVisit.visitDate = new Date();
       }
 
       if ($stateParams.missedVisit == 'true') {

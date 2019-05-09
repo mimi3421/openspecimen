@@ -235,7 +235,7 @@
             </div>
             <div class="col-xs-3 input">
               <os-date-picker name="visitDate" date="visit.visitDate" required md-type="true"
-                placeholder="{{'specimens.visit_date' | translate}}">
+                on-change="updateCollDate()" placeholder="{{'specimens.visit_date' | translate}}">
               </os-date-picker>
               <div os-field-error field="collectionForm.visitDate"></div>
             </div>

@@ -365,7 +365,12 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
           );
         }
 
-        visit.visitDate = visit.visitDate || new Date();
+        if (visit.status != 'Complete') {
+          visit.visitDate = new Date();
+        } else {
+          visit.visitDate = visit.visitDate || new Date();
+        }
+
         visit.cprId = cpr.id;
         delete visit.anticipatedVisitDate;
         if (!!latestVisit) {
@@ -827,6 +832,10 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
           });
         }
       };
+
+      $scope.updateCollDate = function() {
+        $scope.collDetail.collectionDate = $scope.visit.visitDate;
+      }
 
       $scope.togglePrintLabels = setAliquotGrpPrintLabel;
         
