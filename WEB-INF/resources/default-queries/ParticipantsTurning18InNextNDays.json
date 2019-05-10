@@ -46,11 +46,11 @@
             "field": "CollectionProtocol.shortTitle",
             "hideOptions": false,
             "id": 4,
-            "op": "IN",
+            "op": "EXISTS",
             "parameterized": true,
             "subQueryId": null,
             "values": [
-                "LCPH"
+                null
             ]
         }
     ],
