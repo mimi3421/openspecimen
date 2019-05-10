@@ -18,9 +18,9 @@ angular.module('os.administrative.dp.list', ['os.administrative.models'])
     function loadDps(filterOpts) {
       DistributionProtocol.query(filterOpts).then(
         function(dps) {
+          pagerOpts.refreshOpts(dps);
           $scope.distributionProtocols = dps;
           $scope.ctx.checkList = new CheckList(dps);
-          pagerOpts.refreshOpts(dps);
         }
       );
     }

@@ -28,9 +28,9 @@ angular.module('os.administrative.container')
     function loadSpecimens(filterOpts) {
       container.getSpecimens(filterOpts).then(
         function(specimens) {
+          $scope.lctx.pagerOpts.refreshOpts(specimens);
           $scope.lctx.specimens = specimens;
           $scope.lctx.checkList = new CheckList(specimens);
-          $scope.lctx.pagerOpts.refreshOpts(specimens);
         }
       );
     }

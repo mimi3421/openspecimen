@@ -18,9 +18,9 @@ angular.module('os.administrative.site.list', ['os.administrative.models'])
     function loadSites(filterOpts) {
       Site.query(filterOpts).then(
         function(siteList) {
+          pagerOpts.refreshOpts(siteList);
           $scope.siteList = siteList;
           $scope.ctx.checkList = new CheckList(siteList);
-          pagerOpts.refreshOpts(siteList);
         }
       );
     };

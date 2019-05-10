@@ -22,6 +22,8 @@ angular.module('os.administrative.container.list', ['os.administrative.models'])
     function loadContainers(filterOpts) {
       Container.list(filterOpts).then(
         function(containers) {
+          pagerOpts.refreshOpts(containers);
+
           angular.forEach(containers,
             function(container) {
               if (container.capacity) {
@@ -32,7 +34,6 @@ angular.module('os.administrative.container.list', ['os.administrative.models'])
 
           $scope.containerList = containers;
           $scope.ctx.checkList = new CheckList(containers);
-          pagerOpts.refreshOpts(containers);
         }
       );
     }

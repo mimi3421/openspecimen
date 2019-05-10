@@ -20,9 +20,10 @@ angular.module('os.biospecimen.cp.list', ['os.biospecimen.models'])
     }
 
     function setList(list) {
+      pagerOpts.refreshOpts(list);
+
       $scope.cpList = list;
       $scope.ctx.checkList = new CheckList(list);
-      pagerOpts.refreshOpts(list);
     }
 
     function getCpCount() {

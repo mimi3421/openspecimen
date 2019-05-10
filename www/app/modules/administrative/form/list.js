@@ -18,9 +18,9 @@ angular.module('os.administrative.form.list', ['os.administrative.models'])
 
     function loadForms(filterOpts) {
       Form.query(filterOpts).then(function(result) {
+        pagerOpts.refreshOpts(result);
         $scope.formsList = result;
         $scope.ctx.checkList = new CheckList(result);
-        pagerOpts.refreshOpts(result);
       })
     }
 

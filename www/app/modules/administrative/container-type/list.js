@@ -14,9 +14,10 @@ angular.module('os.administrative.containertype.list', ['os.administrative.model
     function loadContainerTypes(filterOpts) {
       ContainerType.query(filterOpts).then(
         function(containerTypes) {
+          pagerOpts.refreshOpts(containerTypes);
+
           $scope.containerTypes = containerTypes;
           $scope.ctx.checkList = new CheckList(containerTypes);
-          pagerOpts.refreshOpts(containerTypes);
           if (Object.keys(filterOpts).length == 0) {
             $scope.canHolds = angular.copy(containerTypes);
           }

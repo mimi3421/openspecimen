@@ -17,9 +17,9 @@ angular.module('os.administrative.institute.list', ['os.administrative.models'])
     function loadInstitutes(filterOpts) {
       Institute.query(filterOpts).then(
         function(instituteList) {
+          pagerOpts.refreshOpts(instituteList);
           $scope.instituteList = instituteList;
           $scope.ctx.checkList = new CheckList(instituteList);
-          pagerOpts.refreshOpts(instituteList);
         }
       );
     }
