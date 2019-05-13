@@ -92,16 +92,16 @@ public class ObjectReader implements Closeable {
 	}
 	
 	public List<String> getCsvColumnNames() {
-		return new ArrayList<String>(Arrays.asList(csvReader.getColumnNames()));
+		return new ArrayList<>(Arrays.asList(csvReader.getColumnNames()));
 	}
 	
 	public List<String> getCsvRow() {
-		return new ArrayList<String>(Arrays.asList(currentRow));
+		return new ArrayList<>(Arrays.asList(currentRow));
 	}
 	
 	public String getRowKey() {
 		return keyColumnIndices.stream()
-			.map(index -> index < currentRow.length ? currentRow[index] : StringUtils.EMPTY)
+			.map(index -> index > -1 && index < currentRow.length ? currentRow[index] : StringUtils.EMPTY)
 			.collect(Collectors.joining("_"));
 	}
 
