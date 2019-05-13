@@ -25,6 +25,8 @@ angular.module('os.administrative.models.dp', ['os.common.models'])
       );
     }
 
+    DistributionProtocol.MAX_DPS = 2000;
+
     DistributionProtocol.prototype.getType = function() {
       return 'distribution_protocol';
     }

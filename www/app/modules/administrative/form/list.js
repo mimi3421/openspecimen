@@ -30,7 +30,7 @@ angular.module('os.administrative.form.list', ['os.administrative.models'])
 
     function getCpList() {
       if (!cpListQ) {
-        cpListQ = CollectionProtocol.list({detailedList: false, maxResults: 1000});
+        cpListQ = CollectionProtocol.list({detailedList: false, maxResults: CollectionProtocol.MAX_CPS});
       }
 
       return cpListQ;

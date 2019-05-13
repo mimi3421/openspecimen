@@ -156,7 +156,7 @@ angular.module('os.administrative.container.addedit', ['os.administrative.models
     function loadAllCps(siteName) {
       siteName = !siteName ? $scope.container.siteName : siteName;
 
-      CollectionProtocol.query({repositoryName: siteName, maxResults: 1000}).then(
+      CollectionProtocol.query({repositoryName: siteName, maxResults: CollectionProtocol.MAX_CPS}).then(
         function(cps) {
           $scope.cps = cps.map(function(cp) { return cp.shortTitle; });
 
@@ -221,7 +221,7 @@ angular.module('os.administrative.container.addedit', ['os.administrative.models
     };
 
     function loadAllDps(query) {
-      DistributionProtocol.query({query: query, maxResults: 1000}).then(
+      DistributionProtocol.query({query: query, maxResults: DistributionProtocol.MAX_DPS}).then(
         function(dps) {
           $scope.dps = dps.map(function(dp) { return dp.shortTitle; });
 

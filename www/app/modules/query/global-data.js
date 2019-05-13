@@ -19,7 +19,7 @@ angular.module('os.query.globaldata', ['os.query.models', 'os.biospecimen.models
       
       if (!this.cpsQ) {
         var that = this;
-        this.cpsQ = CollectionProtocol.list({detailedList: false, maxResults: 1000}).then(
+        this.cpsQ = CollectionProtocol.list({detailedList: false, maxResults: CollectionProtocol.MAX_CPS}).then(
           function(result) {
             result.unshift({id: -1, shortTitle: 'None', title: 'None'});
             that.cpList = result;

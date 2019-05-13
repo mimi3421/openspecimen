@@ -25,6 +25,8 @@ angular.module('os.biospecimen.models.cp', ['os.common.models'])
         }
       );
 
+    CollectionProtocol.MAX_CPS = 2000;
+
     CollectionProtocol.list = function(opts) {
       var defOpts = {detailedList: true};
       return CollectionProtocol.query(angular.extend(defOpts, opts || {}));
@@ -36,7 +38,7 @@ angular.module('os.biospecimen.models.cp', ['os.common.models'])
         resource: 'ParticipantPhi',
         op: 'Create',
         title: searchTitle,
-        maxResults: !maxResults ? 1000 : maxResults
+        maxResults: !maxResults ? CollectionProtocol.MAX_CPS : maxResults
       };
 
       return $http.get(CollectionProtocol.url() + 'byop', {params: params}).then(
