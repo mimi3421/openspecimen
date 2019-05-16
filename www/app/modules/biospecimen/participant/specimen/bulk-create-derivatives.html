@@ -15,6 +15,12 @@
   </div>
   
   <div class="container">
+    <div class="os-alert-container show inline" ng-if="ctx.warnPerfIssue">
+      <div class="alert alert-warning">
+        <span translate="specimens.warn_large_no_derivatives">The UI has not been designed to handle creation of such large number of derived specimens. You might notice slowness in page rendering. In such a scenario, we recommend you to use bulk import option.</span>
+      </div>
+    </div>
+
     <form name="derivativesForm" os-form-validator="derivativesForm" novalidate class="form-horizontal" os-storage-positions
       ng-switch on="ctx.showCustomFields">
 
@@ -44,12 +50,6 @@
 
 <script type="text/ng-template" id="modules/biospecimen/participant/specimen/static-derived-specs.html">
   <div>
-    <div class="os-alert-container show inline" ng-if="ctx.warnPerfIssue">
-      <div class="alert alert-warning">
-        <span translate="specimens.warn_large_no_derivatives">The UI has not been designed to handle creation of such large number of derived specimens. You might notice slowness in page rendering. In such a scenario, we recommend you to use bulk import option.</span>
-      </div>
-    </div>
-
     <div class="os-bottom-border" ng-if="ctx.derivedSpmns.length > 1">
       <a ng-click="copyFirstToAll()">
         <span translate="specimens.copy_first_to_all">Copy first to all</span>

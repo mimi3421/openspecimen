@@ -15,6 +15,12 @@
   </div>
   
   <div class="container" ng-switch on="ctx.showCustomFields">
+    <div class="os-alert-container show inline" ng-if="ctx.warnPerfIssue">
+      <div class="alert alert-warning">
+        <span translate="specimens.warn_large_no_aliquots">The UI has not been designed to handle creation of such large number of aliquots. You might notice slowness in page rendering. In such a scenario, we recommend you to use bulk import option.</span>
+      </div>
+    </div>
+
     <div ng-switch-when="true">
       <div ng-include src="'modules/biospecimen/participant/specimen/custom-aliquot-specs.html'"></div>
     </div>
@@ -98,12 +104,6 @@
 
 <script type="text/ng-template" id="modules/biospecimen/participant/specimen/aliquot-specs.html">
   <div>
-    <div class="os-alert-container show inline" ng-if="ctx.warnPerfIssue">
-      <div class="alert alert-warning">
-        <span translate="specimens.warn_large_no_aliquots">The UI has not been designed to handle creation of such large number of aliquots. You might notice slowness in page rendering. In such a scenario, we recommend you to use bulk import option.</span>
-      </div>
-    </div>
-
     <form name="aliquotsForm" os-form-validator="aliquotsForm" novalidate>
       <div class="os-bottom-border" ng-if="ctx.aliquotsSpec.length > 1">
         <a ng-click="copyFirstToAll()">
