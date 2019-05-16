@@ -36,7 +36,8 @@ angular.module('os.biospecimen.specimen')
         showCustomFields: true,
         derivedSpmns: derivedSpmns,
         inputLabels: inputLabels,
-        spmnHeaders: spmnHeaders
+        spmnHeaders: spmnHeaders,
+        warnPerfIssue: derivedSpmns.length > 50
       };
 
       var opts = $scope.opts = {

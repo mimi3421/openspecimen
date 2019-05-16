@@ -51,7 +51,8 @@ angular.module('os.biospecimen.specimen')
         aliquots: [],
         aliquotQtyReq: aliquotQtyReq,
         inputLabels: inputLabels,
-        spmnHeaders: spmnHeaders
+        spmnHeaders: spmnHeaders,
+        warnPerfIssue: aliquotsSpec.length > 50
       };
 
       var opts = $scope.opts = {
