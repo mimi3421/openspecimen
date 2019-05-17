@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1049,25 +1050,27 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 	 * Filters input collection of specimens based on printLabel flag
 	 */
 	private List<PrintItem<Specimen>> getSpecimenPrintItems(Collection<Specimen> specimens) {
-		List<PrintItem<Specimen>> printItems = new ArrayList<PrintItem<Specimen>>();
-		for (Specimen specimen : specimens) {
-			Integer copies = null;
-			if (specimen.getSpecimenRequirement() != null) {
-				copies = specimen.getSpecimenRequirement().getLabelPrintCopiesToUse();
-			}
+		List<PrintItem<Specimen>> printItems = new ArrayList<>();
+		specimens.stream().sorted(Comparator.comparingLong(Specimen::getId)).forEach(
+			(specimen) -> {
+				Integer copies = null;
+				if (specimen.getSpecimenRequirement() != null) {
+					copies = specimen.getSpecimenRequirement().getLabelPrintCopiesToUse();
+				}
 
-			if (specimen.isPrintLabel()) {
-				printItems.add(PrintItem.make(specimen, copies));
-			}
+				if (specimen.isPrintLabel()) {
+					printItems.add(PrintItem.make(specimen, copies));
+				}
 
-			if (CollectionUtils.isNotEmpty(specimen.getSpecimensPool())) {
-				printItems.addAll(getSpecimenPrintItems(specimen.getSpecimensPool()));
-			}
+				if (CollectionUtils.isNotEmpty(specimen.getSpecimensPool())) {
+					printItems.addAll(getSpecimenPrintItems(specimen.getSpecimensPool()));
+				}
 
-			if (CollectionUtils.isNotEmpty(specimen.getChildCollection())) {
-				printItems.addAll(getSpecimenPrintItems(specimen.getChildCollection()));
+				if (CollectionUtils.isNotEmpty(specimen.getChildCollection())) {
+					printItems.addAll(getSpecimenPrintItems(specimen.getChildCollection()));
+				}
 			}
-		}
+		);
 
 		return printItems;
 	}
