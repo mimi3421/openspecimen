@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ImportObjectDetail<T> {
+	private String id;
+
 	private T object;
 	
 	private boolean create;
@@ -11,6 +13,14 @@ public class ImportObjectDetail<T> {
 	private Map<String, String> params = new HashMap<>();
 
 	private String uploadedFilesDir;
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
 
 	public T getObject() {
 		return object;

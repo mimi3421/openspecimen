@@ -820,6 +820,7 @@ public class ImportServiceImpl implements ImportService, ApplicationListener<Con
 		private String importObject(final ObjectImporter<Object, Object> importer, Object object, Map<String, String> params) {
 			try {
 				ImportObjectDetail<Object> detail = new ImportObjectDetail<>();
+				detail.setId(job.getId().toString());
 				detail.setCreate(job.getType() == Type.CREATE);
 				detail.setObject(object);
 				detail.setParams(params);
