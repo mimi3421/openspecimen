@@ -3,9 +3,11 @@ package com.krishagni.catissueplus.core.common.service.impl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -71,8 +73,19 @@ public class SearchServiceImpl implements SearchService, InitializingBean {
 
 		searchTerm = searchTerm.toLowerCase();
 		if (AuthUtil.isAdmin()) {
-			return daoFactory.getSearchEntityKeywordDao().getMatches(searchTerm, maxResults)
-				.stream().map(SearchResult::from).collect(Collectors.toList());
+			List<SearchEntityKeyword> entities = daoFactory.getSearchEntityKeywordDao().getMatches(searchTerm, maxResults);
+			Set<String> seenEntities = new HashSet<>();
+
+			List<SearchResult> results = new ArrayList<>();
+			for (SearchEntityKeyword entity : entities) {
+				String entityKey = entity.getEntity() + "-" + entity.getEntityId();
+				if (seenEntities.add(entityKey)) {
+					results.add(SearchResult.from(entity));
+				}
+			}
+
+			seenEntities.clear();
+			return results;
 		}
 
 		List<String> entities = daoFactory.getSearchEntityKeywordDao().getMatchingEntities(searchTerm);
