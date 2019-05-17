@@ -61,7 +61,7 @@
     "enabled": "Enabled",
     "disabled": "Disabled",
     "update": "Update",
-    "loading": "Loading ...",
+    "loading": "Loading...",
     "help": "Help",
     "search": "Search",
     "online_help": "Online Help",
@@ -80,7 +80,7 @@
     "show_only_first": "Show first",
     "confirm_navigation": " You've unsaved form changes. If you navigate away from this page without submitting form, the changes will be lost. Are you sure you want to leave this page?",
     "footer_note": "<a href=\"http://www.openspecimen.org\" target=\"_blank\">OpenSpecimen</a> - powered by <a href=\"http://www.krishagni.com\" target=\"_blank\">Krishagni</a>",
-    "download_initiated": "Download of file initiated. Please check your download directory ...",
+    "download_initiated": "Download of file initiated. Please check your download directory...",
     "error": "Error",
     "use_system_setting": "Use System Setting",
     "invalid_expr": "Invalid expression: {{expr}}",
@@ -254,7 +254,7 @@
     "consents_waived_updated": "Participant consent {{waived ? 'waived' : 'enabled'}} successfully.",
     "unsigned_consent_url": "Unsigned Consent Form URL",
     "consent_tiers": "Consent Tiers", 
-    "add_consent_tier": "Add Statement ...",
+    "add_consent_tier": "Add Statement...",
     "no_consents": "No consents to show",
     "consents_are_waived": "Consents are waived",
 
@@ -266,16 +266,16 @@
     "copy_cpe": "Copy",
     "remove_cpe": "Delete",
     "close_cpe": "Close",
-    "no_cpes": "There are no collection protocol events to show. Please create an event by clicking on Add Event ...",
-    "add_cpe": "Add Event ...",
+    "no_cpes": "There are no collection protocol events to show. Please create an event by clicking on Add Event...",
+    "add_cpe": "Add Event...",
     "cpe_list": "Events",
     "cpe_code": "Event Code",
     "cpe_point": "Event Point",
     "cpe_point_unit": "Unit",
     "cpe_point_label": "Event Label",
-    "deleting_event": "Deleting Event ...",
+    "deleting_event": "Deleting Event...",
     "confirm_delete_event": "Event '{{eventLabel}}' and its specimen requirements will be deleted. Are you sure you want to proceed?",
-    "closing_event": "Closing Event ...",
+    "closing_event": "Closing Event...",
     "confirm_close_event": "Event '{{eventLabel}}' and its specimen requirements will be closed. Closed events and requirements cannot be reopened. Are you sure you want to proceed?",
 
     "bulk_import": "Biospecimen Data",
@@ -764,7 +764,7 @@
     },
 
     "labels_print_job_created": "Specimen labels print job {{jobId}} created successfully",
-    "labels_print_download": "Downloading labels print CSV file ...",
+    "labels_print_download": "Downloading labels print CSV file...",
     "spmn_aliquots": "Specimen Aliquots",
     "spmn_derivatives": "Specimen Derivatives",
     "new_aliquot_count": "Number of aliquots",
@@ -913,7 +913,7 @@
       "derivative": "Derivative"
     },
 
-    "no_srs": "There are no specimen requirements to show. Create a new requirement by clicking Add Specimen Requirement ...",
+    "no_srs": "There are no specimen requirements to show. Create a new requirement by clicking Add Specimen Requirement...",
     "new_sr": "New Specimen Requirement",
     "create_pooled_spmn": "Creating pooled specimen?",
     "name": "Name",
@@ -940,9 +940,9 @@
     "receiver": "Receiver",
     "collection_container": "Collection Container",
     "collection_proc": "Collection Procedure",
-    "deleting_sr": "Deleting Requirement ...",
+    "deleting_sr": "Deleting Requirement...",
     "confirm_delete_sr": "Selected requirement and all its children will be deleted. Are you sure you want to proceed?",
-    "closing_sr": "Closing Requirement ...",
+    "closing_sr": "Closing Requirement...",
     "confirm_close_sr": "Selected requirement and all its children will be closed. Closed requirements cannot be reopened. Are you sure you want to proceed?",
     "lbl_fmt_required_for_auto_print": "Pre-printing requires specimen label format to be specified either at CP level or requirement level",
     "ctx_menu": {
@@ -961,7 +961,7 @@
       "update_aliquot": "Update Aliquot",
       "create_derivative": "Create Derivative",
       "update_derivative": "Update Derivative",
-      "add_sr": "Add Specimen Requirement ..."
+      "add_sr": "Add Specimen Requirement..."
     },
 
     "errors": {
@@ -1083,7 +1083,7 @@
     "dist_spmns_count": "Distributed Specimens",
     "all_sites": "All current and future sites",
     "consent_tiers": "Consent Tiers",
-    "add_consent_tier": "Add Consent Tier ...",
+    "add_consent_tier": "Add Consent Tier...",
     "delete_consent_tier": "{{entityType}} {{entityName}} of {{entity.dpShortTitle}} will be deleted forever. Are you sure you want to proceed?",
     "select_dist_site": "Please select at least one distributing site",
     "reserved_spmns": "Reserved Specimens",
@@ -1214,12 +1214,12 @@
     "role": {
        "roles": "Roles",
        "new_role": "New Role",
-       "add_role": "Add Role ...",
+       "add_role": "Add Role...",
        "update_role": "Update Role",
        "site": "Site",
        "cp": "Collection Protocol",
        "role": "Role",
-       "no_roles": "There are no roles to show. Add a new role by clicking Add Role ...",
+       "no_roles": "There are no roles to show. Add a new role by clicking Add Role...",
        "all": "All Current and Future"
     },
 
@@ -1376,7 +1376,7 @@
     "containers_deleted": "Containers deleted successfully",
     "no_containers_match_search": "No containers match search criteria to store specimen/s",
     "created_by": "Created By",
-    "loading_map": "Loading container map. Please wait for a moment ...",
+    "loading_map": "Loading container map. Please wait for a moment...",
     "error_loading_map": "System encountered an error loading container map. Please report this incident to system administrator.",
     "added_specimens": "Successfully added {{spmnsCount}} specimens to the container.",
     "position_labeling": "Position Labeling",
@@ -1412,12 +1412,12 @@
     },
 
     "labels_print_job_created": "Container labels print job {{jobId}} created successfully",
-    "labels_print_download": "Downloading labels print CSV file ...",
+    "labels_print_download": "Downloading labels print CSV file...",
     "print_labels": "Print labels",
 
     "specimens" : {
-      "report_gen_initiated": "Generating container specimens report ...",
-      "downloading_report": "Downloading container specimens report ...",
+      "report_gen_initiated": "Generating container specimens report...",
+      "downloading_report": "Downloading container specimens report...",
       "report_will_be_emailed": "Generating container specimens report is taking more time than anticipated. Link to download report will be sent to you by email",
       "no_specimens_for_specimen_list": "Please select atleast one specimen to add to cart"
     },
@@ -1684,10 +1684,11 @@
     "select_query_def_file": "Select Query File",
     "new_query": "New Query",
     "select_cp": "Select a Collection Protocol",
+    "invalid_cp": "Invalid collection protocol: {{cpId}}",
     "add_filter": "Add Filter",
     "edit_filter": "Edit Filter",
     "search_field": "Search Field",
-    "loading_form_fields": "Loading form fields. Please wait for a moment ...",
+    "loading_form_fields": "Loading form fields. Please wait for a moment...",
     "operator": "Operator",
     "select_op": "Select Operator",
     "cond_value": "Condition Value",
@@ -1712,11 +1713,11 @@
     "visits": "Visits",
     "specimens": "Specimens",
     "waiting_for_count": "Please wait for a moment while we count Participants and Specimens matching your criteria",
-    "waiting_for_records": "Loading records, please wait for a moment ...",
+    "waiting_for_records": "Loading records, please wait for a moment...",
     "export_to_get_all": "Export records to get all records",
     "know_why_export_has_more_data": "Click here to know why exported file has more records",
     "error": "Error occurred. Please contact system administrator for further resolution",
-    "export_initiated": "Query results export has been initiated. Export file download should start in few moments ...",
+    "export_initiated": "Query results export has been initiated. Export file download should start in few moments...",
     "invalid_form_or_field": "Invalid form or field <b>{{field}}</b>. <a href=\"https://openspecimen.atlassian.net/wiki/x/MQD7BQ\" target=\"_blank\">Click here</a> for more details",
     "field": "Field",
     "downloading_data_file": "Downloading query results export data file",
@@ -1842,7 +1843,7 @@
       "type": "Type",
       "time_of_exec": "Time of Execution",
       "time_to_finish": "Time to Finish (seconds)",
-      "loading": "Loading audit logs. Please wait for a moment ...",
+      "loading": "Loading audit logs. Please wait for a moment...",
       "no_logs": "No audit logs to show",
       "unsaved_query": "Unsaved Query",
       "filter": "Audit Logs Filter"
@@ -1852,7 +1853,7 @@
     "search_cp": "Search Collection Protocol",
     "no_catalog": "No catalog configured for {{shortTitle}}",
     "search_filter_value": "Search Filter Value",
-    "multiple_filter_values": "Enter filter values separated by a comma, tab or newline ...",
+    "multiple_filter_values": "Enter filter values separated by a comma, tab or newline...",
     "hide_filter_values": "Hide Options"
   },
 
@@ -1978,7 +1979,7 @@
 
   "export": {
     "title": "Export Records",
-    "initiated": "Export records has been initiated. Records file download should start in few moments ...",
+    "initiated": "Export records has been initiated. Records file download should start in few moments...",
     "downloading_file": "Downloading records file",
     "file_will_be_emailed": "Export records job {{id}} is taking longer time to finish. Link to download records file will be sent to you by e-mail",
     "failed": "Export job {{id}} failed with errors. Please contact system administrator for help!",
@@ -1998,8 +1999,8 @@
     "participants": "Participants",
     "specimens": "Specimens",
     "comments": "Comments",
-    "report_gen_initiated": "Generating specimen kit report ...",
-    "downloading_report": "Downloading specimen kit report ...",
+    "report_gen_initiated": "Generating specimen kit report...",
+    "downloading_report": "Downloading specimen kit report...",
     "report_will_be_emailed": "Generating specimen kit report is taking more time than anticipated. Link to download report will be sent to you by email",
 
     "menu": {
@@ -2088,8 +2089,8 @@
     "child_specimens_added": "Successfully added {{count}} child specimens",
     "available_spmns": "Available Specimens",
     "enter_specimen_label": "Enter specimen labels or barcodes separated by a comma, tab or newline",
-    "report_gen_initiated": "Generating cart specimens report ...",
-    "downloading_report": "Downloading cart specimens report ...",
+    "report_gen_initiated": "Generating cart specimens report...",
+    "downloading_report": "Downloading cart specimens report...",
     "report_will_be_emailed": "Generating cart specimens report is taking more time than anticipated. Link to download report will be sent to you by email"
   },
 
@@ -2124,18 +2125,18 @@
     "enter_specimen_label": "To add specimens to distribution list, enter labels or barcodes separated by a comma, tab or newline and click add",
     "more_specimens_than_limit": "The order list has more specimens than the allowed limit ({{limit}}) for editing details using UI. Please consider using bulk import option if you like to specify additional details (quantity, cost etc) of the specimens to be distributed. The UI limit of {{limit}} can be modified from the settings page: Settings -> Order Specimens UI Limit.",
     "more_specimens_warning": "{{allowed == 0 ? 'No more specimens can be added' : 'You can add only ' +  allowed + ' more specimens using UI'}}. If you want to distribute more than {{limit}} specimens then consider using either bulk import option or specimens cart. The UI limit of {{limit}} can be modified from the settings page: Settings -> Order Specimens UI Limit.",
-    "loading_items": "Loading order items. Please wait for a moment ...",
+    "loading_items": "Loading order items. Please wait for a moment...",
     "more_time": "Saving distribution order is taking more time than anticipated. An email notification will be sent to you on successful distribution of specimens",
     "holding_loc_draft_not_allowed": "Cannot save draft, as one or more specimens are assigned holding locations.",
 
-    "report_gen_initiated": "Generating distribution order report ...",
-    "downloading_report": "Downloading distribution order report ...",
+    "report_gen_initiated": "Generating distribution order report...",
+    "downloading_report": "Downloading distribution order report...",
     "report_will_be_emailed": "Generating distribution order report is taking more time than anticipated. Link to download report will be sent to you by email",
     "bulk_import": "Bulk Import Orders",
     "bulk_import_jobs": "Import Orders Job List",
 
     "labels_print_job_created": "Distribution labels print job {{jobId}} created successfully",
-    "labels_print_download": "Downloading labels print CSV file ...",
+    "labels_print_download": "Downloading labels print CSV file...",
 
     "filters": "Filters",
 
@@ -2244,12 +2245,12 @@
     "enter_specimen_label": "To add specimens to shipment, enter labels or barcodes separated by a comma, tab or newline and click add",
     "enter_container_names": "To add containers to shipment, enter container names separated by a comma, tab or newline and click add",
     "multi_site_specimens": "Can't ship specimens from multiple storage sites",
-    "loading_specimens": "Loading shipment specimens. Please wait for a moment ...",
-    "loading_containers": "Loading shipment containers. Please wait for a moment ...",
+    "loading_specimens": "Loading shipment specimens. Please wait for a moment...",
+    "loading_containers": "Loading shipment containers. Please wait for a moment...",
 
     "filters": "Filters",
-    "report_gen_initiated": "Generating shipment report ...",
-    "downloading_report": "Downloading shipment report ...",
+    "report_gen_initiated": "Generating shipment report...",
+    "downloading_report": "Downloading shipment report...",
     "report_will_be_emailed": "Generating shipment report is taking more time than anticipated. Link to download report will be sent to you by email",
     "bulk_import": "Bulk Import Shipments",
     "bulk_import_jobs": "Import Shipments Job List",
@@ -2301,7 +2302,7 @@
 
   "notifs": {
     "title": "Notifications",
-    "loading": "Loading notifications. Please wait for a moment ... ",
+    "loading": "Loading notifications. Please wait for a moment... ",
     "no_notifs": "No notifications to show",
     "view_all": "View All Notifications"
   },

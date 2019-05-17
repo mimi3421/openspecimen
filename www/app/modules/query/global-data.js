@@ -221,7 +221,9 @@ angular.module('os.query.globaldata', ['os.query.models', 'os.biospecimen.models
 
           var selectedCp = queryCtx.selectedCp = getCp(cps, savedQuery.cpId || -1);
           if (!selectedCp) {
-            return undefined;
+            queryGlobal.clearQueryCtx();
+            Alerts.error("queries.invalid_cp", {cpId: savedQuery.cpId});
+            throw "Invalid CP: " + savedQuery.cpId;
           }
 
           return queryGlobal.setupFilters(selectedCp, savedQuery, queryCtx);
