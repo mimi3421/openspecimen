@@ -70,6 +70,7 @@ import com.krishagni.catissueplus.core.importer.repository.ListImportJobsCriteri
 import com.krishagni.catissueplus.core.importer.services.ImportService;
 import com.krishagni.catissueplus.core.importer.services.ObjectImporter;
 import com.krishagni.catissueplus.core.importer.services.ObjectImporterFactory;
+import com.krishagni.catissueplus.core.importer.services.ObjectImporterLifecycle;
 import com.krishagni.catissueplus.core.importer.services.ObjectReader;
 import com.krishagni.catissueplus.core.importer.services.ObjectSchemaFactory;
 
@@ -682,13 +683,22 @@ public class ImportServiceImpl implements ImportService, ApplicationListener<Con
 		private Status processRows0(ObjectReader objReader, CsvWriter csvWriter) {
 			boolean stopped;
 			ObjectImporter<Object, Object> importer = importerFactory.getImporter(job.getName());
+			startImporter(job.getId(), importer);
+
 			if (job.getCsvtype() == CsvType.MULTIPLE_ROWS_PER_OBJ) {
 				stopped = processMultipleRowsPerObj(objReader, csvWriter, importer);
 			} else {
 				stopped = processSingleRowPerObj(objReader, csvWriter, importer);
 			}
 
-			return stopped ? Status.STOPPED : (failedRecords > 0) ? Status.FAILED : Status.COMPLETED;
+			if (stopped) {
+				return Status.STOPPED;
+			} else if (failedRecords > 0) {
+				return Status.FAILED;
+			} else {
+				shutdownImporter(job.getId(), importer);
+				return Status.COMPLETED;
+			}
 		}
 
 		private boolean processSingleRowPerObj(ObjectReader objReader, CsvWriter csvWriter, ObjectImporter<Object, Object> importer) {
@@ -849,7 +859,33 @@ public class ImportServiceImpl implements ImportService, ApplicationListener<Con
 				}
 			}
 		}
-		
+
+		private void startImporter(Long jobId, ObjectImporter<Object, Object> importer) {
+			if (!(importer instanceof ObjectImporterLifecycle)) {
+				return;
+			}
+
+			txTmpl.execute((txnStatus) -> {
+				((ObjectImporterLifecycle) importer).start(jobId.toString());
+				return null;
+			});
+		}
+
+		private void shutdownImporter(Long jobId, ObjectImporter<Object, Object> importer) {
+			if (!(importer instanceof ObjectImporterLifecycle)) {
+				return;
+			}
+
+			try {
+				txTmpl.execute((txnStatus) -> {
+					((ObjectImporterLifecycle) importer).stop(jobId.toString());
+					return null;
+				});
+			} catch (Exception e) {
+				logger.error("Error stopping the importer", e);
+			}
+		}
+
 		private void saveJob(long totalRecords, long failedRecords, Status status) {
 			job.setTotalRecords(totalRecords);
 			job.setFailedRecords(failedRecords);

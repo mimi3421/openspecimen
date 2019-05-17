@@ -8,7 +8,7 @@ import com.krishagni.catissueplus.core.importer.services.ObjectImporterFactory;
 
 public class ObjectImporterFactoryImpl implements ObjectImporterFactory {
 	
-	private Map<String, ObjectImporter<?, ?>> importersMap = new HashMap<String, ObjectImporter<?, ?>>();
+	private Map<String, ObjectImporter<?, ?>> importersMap = new HashMap<>();
 	
 	public void setImportersMap(Map<String, ObjectImporter<?, ?>> importersMap) {
 		this.importersMap = importersMap;
