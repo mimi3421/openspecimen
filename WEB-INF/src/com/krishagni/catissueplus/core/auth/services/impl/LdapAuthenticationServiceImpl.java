@@ -2,6 +2,8 @@ package com.krishagni.catissueplus.core.auth.services.impl;
 
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
@@ -15,6 +17,8 @@ import com.krishagni.catissueplus.core.auth.services.AuthenticationService;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 
 public class LdapAuthenticationServiceImpl implements AuthenticationService {
+
+	private final static Log logger = LogFactory.getLog(LdapAuthenticationServiceImpl.class);
 	
 	private LdapAuthenticationProvider provider;
 	
@@ -34,6 +38,7 @@ public class LdapAuthenticationServiceImpl implements AuthenticationService {
 
 			provider.authenticate(authenticationToken);
 		} catch (AuthenticationException e) {
+			logger.error("User authentication failed", e);
 			throw OpenSpecimenException.userError(AuthErrorCode.INVALID_CREDENTIALS);
 		}
 	}	
