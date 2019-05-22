@@ -691,12 +691,13 @@ public class ImportServiceImpl implements ImportService, ApplicationListener<Con
 				stopped = processSingleRowPerObj(objReader, csvWriter, importer);
 			}
 
+			shutdownImporter(job.getId(), importer, stopped);
+
 			if (stopped) {
 				return Status.STOPPED;
 			} else if (failedRecords > 0) {
 				return Status.FAILED;
 			} else {
-				shutdownImporter(job.getId(), importer);
 				return Status.COMPLETED;
 			}
 		}
@@ -872,14 +873,18 @@ public class ImportServiceImpl implements ImportService, ApplicationListener<Con
 			});
 		}
 
-		private void shutdownImporter(Long jobId, ObjectImporter<Object, Object> importer) {
+		private void shutdownImporter(Long jobId, ObjectImporter<Object, Object> importer, boolean stopped) {
 			if (!(importer instanceof ObjectImporterLifecycle)) {
 				return;
 			}
 
 			try {
+				Map<String, Object> runCtxt = new HashMap<>();
+				runCtxt.put("stopped", stopped);
+				runCtxt.put("failedRecords", failedRecords);
+
 				txTmpl.execute((txnStatus) -> {
-					((ObjectImporterLifecycle) importer).stop(jobId.toString());
+					((ObjectImporterLifecycle) importer).stop(jobId.toString(), runCtxt);
 					return null;
 				});
 			} catch (Exception e) {
