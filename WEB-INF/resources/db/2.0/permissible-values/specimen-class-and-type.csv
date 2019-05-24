@@ -1,8 +1,4 @@
 IDENTIFIER,CONCEPT_CODE,DEFINITION,PARENT_IDENTIFIER,value,PUBLIC_ID,SORTORDER
-getNextPvId(),,,null,Molecular,2003991,null
-getNextPvId(),,,null,Cell,2003991,null
-getNextPvId(),,,null,Fluid,2003991,null
-getNextPvId(),,,null,Tissue,2003991,null
 getNextPvId(),,,"getPvParentId('2003991', 'Molecular')","RNA, poly-A enriched",null,null
 getNextPvId(),,,"getPvParentId('2003991', 'Molecular')","RNA, nuclear",null,null
 getNextPvId(),,,"getPvParentId('2003991', 'Molecular')",Not Specified,null,null

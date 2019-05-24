@@ -1,6 +1,6 @@
-IDENTIFIER,CONCEPT_CODE,DEFINITION,PARENT_IDENTIFIER,value,PUBLIC_ID,SORTORDER
-getNextPvId(),,,null,Not Applicable,2003992,null
-getNextPvId(),,,null,Right,2003992,null
-getNextPvId(),,,null,Left,2003992,null
-getNextPvId(),,,null,Not Specified,2003992,null
-getNextPvId(),,,null,Bilateral,2003992,null
+"IDENTIFIER","CONCEPT_CODE","DEFINITION","value","PUBLIC_ID"
+"getNextPvId()","","","Not Applicable","2003992"
+"getNextPvId()","","","Right","2003992"
+"getNextPvId()","","","Left","2003992"
+"getNextPvId()","","","Not Specified","2003992"
+"getNextPvId()","","","Bilateral","2003992"
