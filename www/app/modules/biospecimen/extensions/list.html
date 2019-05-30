@@ -137,7 +137,7 @@
               <span>{{record.updateTime | date: global.dateTimeFmt}}</span>
             </td>
             <td class="col col-xs-1 os-click-esc">
-              <span ng-if="extnOpts.isEntityActive">
+              <span ng-if="extnOpts.isEntityActive && !selectedForm.sysForm">
                 <button show-if-allowed="extnOpts.update" class="btn btn-xs btn-default"
                   ui-sref="{{extnState}}addedit({formId: record.formId, recordId: record.recordId, formCtxId: record.fcId})">
                   <span class="fa fa-pencil"></span>
