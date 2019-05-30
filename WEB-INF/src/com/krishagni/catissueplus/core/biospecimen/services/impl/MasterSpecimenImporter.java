@@ -170,11 +170,13 @@ public class MasterSpecimenImporter implements ObjectImporter<MasterSpecimenDeta
 		specimenDetail.setPathology(detail.getPathology());
 		specimenDetail.setInitialQty(detail.getInitialQty());
 		specimenDetail.setConcentration(detail.getConcentration());
+		specimenDetail.setFreezeThawCycles(detail.getFreezeThawCycles());
 		specimenDetail.setCreatedOn(detail.getCreatedOn());
 		specimenDetail.setCreatedBy(detail.getCreatedBy());
 		specimenDetail.setComments(detail.getComments());
 		specimenDetail.setExtensionDetail(detail.getExtensionDetail());
 		specimenDetail.setExternalIds(detail.getExternalIds());
+		specimenDetail.setStatus(StringUtils.isBlank(detail.getCollectionStatus()) ? Specimen.COLLECTED : detail.getCollectionStatus());
 		
 		setParentLabel(detail, specimenDetail);
 		setLocation(detail, specimenDetail);

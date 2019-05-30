@@ -142,6 +142,11 @@
     </field>
 
     <field>
+      <caption>#getMessage("specimen_freeze_thaw_cycles")</caption>
+      <attribute>freezeThawCycles</attribute>
+    </field>
+
+    <field>
       <type>datetime</type>
       <caption>#getMessage("specimen_created_on")</caption>
       <attribute>createdOn</attribute>
@@ -184,6 +189,11 @@
         <attribute>value</attribute>
       </field>
     </record>
+
+    <field>
+      <caption>#getMessage("specimen_collection_status")</caption>
+      <attribute>collectionStatus</attribute>
+    </field>
 
     <field>
       <caption>#getMessage("specimen_location_container")</caption>
