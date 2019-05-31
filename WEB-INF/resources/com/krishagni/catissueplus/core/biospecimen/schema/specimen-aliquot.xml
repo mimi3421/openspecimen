@@ -17,14 +17,34 @@
     </field>
 
     <field>
-      <caption>#getMessage("specimen_qty_per_aliquot")</caption>
-      <attribute>qtyPerAliquot</attribute>
+      <caption>#getMessage("specimen_labels")</caption>
+      <attribute>labels</attribute>
+    </field>
+
+    <field>
+      <caption>#getMessage("specimen_barcodes")</caption>
+      <attribute>barcodes</attribute>
     </field>
 
     <field>
       <caption>#getMessage("specimen_no_of_aliquots")</caption>
       <attribute>noOfAliquots</attribute>
-    </field>  
+    </field>
+
+    <field>
+      <caption>#getMessage("specimen_qty_per_aliquot")</caption>
+      <attribute>qtyPerAliquot</attribute>
+    </field>
+
+    <field>
+      <caption>#getMessage("specimen_class")</caption>
+      <attribute>specimenClass</attribute>
+    </field>
+
+    <field>
+      <caption>#getMessage("specimen_type")</caption>
+      <attribute>type</attribute>
+    </field>
 
     <field>
       <caption>#getMessage("specimen_concentration")</caption>
