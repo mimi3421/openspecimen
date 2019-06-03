@@ -195,7 +195,16 @@ public class CollectionProtocolDaoImpl extends AbstractDao<CollectionProtocol> i
 				.list();
 		return rows.stream().map(row -> SiteCpPair.make((Long) row[1], (Long) row[2], (Long) row[0])).collect(Collectors.toSet());
 	}
-	
+
+	@Override
+	public boolean isCpAffiliatedToUserInstitute(Long cpId, Long userId) {
+		Integer count = (Integer) getCurrentSession().getNamedQuery(IS_CP_RELATED_TO_USER_INSTITUTE)
+			.setParameter("cpId", cpId)
+			.setParameter("userId", userId)
+			.uniqueResult();
+		return count != null && count > 0;
+	}
+
 	@Override
 	public CollectionProtocolEvent getCpe(Long cpeId) {
 		List<CollectionProtocolEvent> events = getCpes(Collections.singleton(cpeId));
@@ -353,7 +362,7 @@ public class CollectionProtocolDaoImpl extends AbstractDao<CollectionProtocol> i
 	public Class<CollectionProtocol> getType() {
 		return CollectionProtocol.class;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private List<Object[]> getCpList(CpListCriteria cpCriteria) {
 		return addProjections(getCpQuery(cpCriteria), cpCriteria)
@@ -515,6 +524,8 @@ public class CollectionProtocolDaoImpl extends AbstractDao<CollectionProtocol> i
 	private static final String GET_EXPIRING_CPS = FQN + ".getExpiringCps";
 	
 	private static final String GET_CP_BY_CODE = FQN + ".getByCode";
+
+	private static final String IS_CP_RELATED_TO_USER_INSTITUTE = FQN + ".ensureCpIsAffiliatedtoUserInstitute";
 	
 	private static final String GET_SITE_IDS_BY_CP_IDS = FQN + ".getRepoIdsByCps";
 	

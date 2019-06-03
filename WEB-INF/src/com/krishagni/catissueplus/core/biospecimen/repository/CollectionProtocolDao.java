@@ -44,6 +44,8 @@ public interface CollectionProtocolDao extends Dao<CollectionProtocol> {
 	
 	public Set<SiteCpPair> getSiteCps(Collection<Long> cpIds);
 
+	public boolean isCpAffiliatedToUserInstitute(Long cpId, Long userId);
+
 	public CollectionProtocolEvent getCpe(Long cpeId);
 	
 	public List<CollectionProtocolEvent> getCpes(Collection<Long> cpeIds);

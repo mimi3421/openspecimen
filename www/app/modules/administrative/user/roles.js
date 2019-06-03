@@ -94,16 +94,19 @@ angular.module('os.administrative.user.roles', ['os.administrative.models', 'os.
 
     $scope.loadCps = function(site) {
       var cpsToRemove = [];
-
-      angular.forEach($scope.userRoles.allSites, function(role) {
-        cpsToRemove.push(role.collectionProtocol);
-      });
-
-      angular.forEach($scope.userRoles.siteCpRoles, function(role) {
-        if (role.site == site) {
+      angular.forEach($scope.userRoles.allSites,
+        function(role) {
           cpsToRemove.push(role.collectionProtocol);
         }
-      });
+      );
+
+      angular.forEach($scope.userRoles.siteCpRoles,
+        function(role) {
+          if (role.site == site) {
+            cpsToRemove.push(role.collectionProtocol);
+          }
+        }
+      );
 
       var cpListOpts = {detailedList: false, maxResults: CollectionProtocol.MAX_CPS};
       if (site != $scope.all) {
@@ -112,17 +115,25 @@ angular.module('os.administrative.user.roles', ['os.administrative.models', 'os.
 
       CollectionProtocol.list(cpListOpts).then(
         function(result) {
-          $scope.cps = [];
-          angular.forEach(result, function(cp) {
-            if (cpsToRemove.indexOf(cp.shortTitle) == -1 || $scope.currentRole.collectionProtocol == cp.shortTitle) {
-              $scope.cps.push(cp.shortTitle);
+          var currentRole = $scope.currentRole;
+          var cps = $scope.cps = [];
+          angular.forEach(result,
+            function(cp) {
+              if (cpsToRemove.indexOf(cp.shortTitle) == -1 || currentRole.collectionProtocol == cp.shortTitle) {
+                cps.push(cp.shortTitle);
+              }
             }
-          });
+          );
 
-          if (result.length == $scope.cps.length) {
-            $scope.cps.splice(0, 0, $scope.all);
+          if (result.length == cps.length) {
+            cps.splice(0, 0, $scope.all);
           }
-      });
+
+          if (currentRole.collectionProtocol && cps.indexOf(currentRole.collectionProtocol) == -1) {
+            currentRole.collectionProtocol = undefined;
+          }
+        }
+      );
     }
 
     function updateUserRoles(userRole) {

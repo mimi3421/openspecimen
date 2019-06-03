@@ -423,7 +423,7 @@ public class RbacServiceImpl implements RbacService {
 			SubjectRole sr = null;
 			switch (subjectRoleOp.getOp()) {
 				case ADD:
-					sr = createSubjectRole(subjectRoleOp.getSubjectRole());
+					sr = createSubjectRole(subject, subjectRoleOp.getSubjectRole());
 					AccessCtrlMgr.getInstance().ensureCreateUpdateUserRolesRights(user, sr.getSite());
 					resp = subject.addRole(sr);
 					break;
@@ -435,7 +435,7 @@ public class RbacServiceImpl implements RbacService {
 					oldSrDetails.put("collectionProtocol", oldSr.getCollectionProtocol());
 					oldSrDetails.put("role", oldSr.getRole());
 					
-					sr = createSubjectRole(subjectRoleOp.getSubjectRole());
+					sr = createSubjectRole(subject, subjectRoleOp.getSubjectRole());
 					AccessCtrlMgr.getInstance().ensureCreateUpdateUserRolesRights(user, sr.getSite());
 					resp = subject.updateRole(sr);
 					break;
@@ -770,7 +770,7 @@ public class RbacServiceImpl implements RbacService {
 		return result;
 	}
 	
-	private SubjectRole createSubjectRole(SubjectRoleDetail srd) {
+	private SubjectRole createSubjectRole(Subject subject, SubjectRoleDetail srd) {
 		RoleDetail detail = srd.getRole();
 		if (detail == null || StringUtils.isEmpty(detail.getName())) {
 			throw OpenSpecimenException.userError(RbacErrorCode.ROLE_NAME_REQUIRED);
@@ -780,13 +780,34 @@ public class RbacServiceImpl implements RbacService {
 		if (role == null) {
 			throw OpenSpecimenException.userError(RbacErrorCode.ROLE_NOT_FOUND);
 		}
-		
+
+		CollectionProtocol cp = getCollectionProtocol(srd);
+		Site site = getSite(srd);
+
 		SubjectRole sr = new SubjectRole();
 		sr.setId(srd.getId());
-		sr.setCollectionProtocol(getCollectionProtocol(srd));
-		sr.setSite(getSite(srd));
+		sr.setCollectionProtocol(cp);
+		sr.setSite(site);
 		sr.setRole(role);
 		sr.setSystemRole(srd.getSystemRole());
+		sr.setSubject(subject);
+
+		if (site == null) {
+			if (cp != null) {
+				boolean valid = daoFactory.getCollectionProtocolDao().isCpAffiliatedToUserInstitute(cp.getId(), subject.getId());
+				if (!valid) {
+					throw OpenSpecimenException.userError(RbacErrorCode.INV_CP_USER, cp.getShortTitle());
+				}
+			}
+		} else {
+			if (cp != null) {
+				boolean valid = cp.getRepositories().stream().anyMatch(cpSite -> cpSite.equals(site));
+				if (!valid) {
+					throw OpenSpecimenException.userError(RbacErrorCode.INV_CP_SITE, site.getName(), cp.getShortTitle());
+				}
+			}
+		}
+
 		return sr;
 	}
 
