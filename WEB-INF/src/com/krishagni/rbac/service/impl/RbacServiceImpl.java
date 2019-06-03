@@ -800,6 +800,10 @@ public class RbacServiceImpl implements RbacService {
 				}
 			}
 		} else {
+			if (!daoFactory.getSiteDao().isAffiliatedToUserInstitute(site.getId(), subject.getId())) {
+				throw OpenSpecimenException.userError(RbacErrorCode.INV_SITE_USER, site.getName());
+			}
+
 			if (cp != null) {
 				boolean valid = cp.getRepositories().stream().anyMatch(cpSite -> cpSite.equals(site));
 				if (!valid) {

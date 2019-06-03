@@ -10,23 +10,25 @@ import com.krishagni.catissueplus.core.common.repository.Dao;
 
 public interface SiteDao extends Dao<Site> {
 
-	public List<Site> getSites(SiteListCriteria crit);
+	List<Site> getSites(SiteListCriteria crit);
 
-	public Long getSitesCount(SiteListCriteria crit);
+	Long getSitesCount(SiteListCriteria crit);
 
-	public List<Site> getSitesByNames(Collection<String> siteNames);
+	List<Site> getSitesByNames(Collection<String> siteNames);
 	
-	public Site getSiteByName(String siteName);
+	Site getSiteByName(String siteName);
 
-	public Site getSiteByCode(String code);
+	Site getSiteByCode(String code);
 	
 	//
 	// At present this is only returning count of CPs by site
 	// in future this would be extended to return other stats
 	// related to site
 	//
-	public Map<Long, Integer> getCpCountBySite(Collection<Long> siteIds);
+	Map<Long, Integer> getCpCountBySite(Collection<Long> siteIds);
 
 
-	public Map<String, Object> getSiteIds(String key, Object value);
+	Map<String, Object> getSiteIds(String key, Object value);
+
+	boolean isAffiliatedToUserInstitute(Long siteId, Long userId);
 }

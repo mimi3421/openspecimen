@@ -96,6 +96,19 @@
       group by
         site.id
     </query>
+
+    <sql-query name="ensureSiteIsAffiliatedtoUserInstitute">
+      <return-scalar column="site_count" type="int"/>
+
+      select
+        count(s.identifier) as site_count
+      from
+        catissue_site s
+        inner join catissue_user u on u.institute_id = s.institute_id
+      where
+        s.identifier = :siteId and
+        u.identifier = :userId
+    </sql-query>
   </class>
 </hibernate-mapping>
  	

@@ -95,6 +95,15 @@ public class SiteDaoImpl extends AbstractDao<Site> implements SiteDao {
 		return getObjectIds("siteId", key, value);
 	}
 
+	@Override
+	public boolean isAffiliatedToUserInstitute(Long siteId, Long userId) {
+		Integer count = (Integer) getCurrentSession().getNamedQuery(IS_AFFILIATED_TO_USER_INST)
+			.setParameter("siteId", siteId)
+			.setParameter("userId", userId)
+			.uniqueResult();
+		return count != null && count > 0;
+	}
+
 	private Criteria getSitesListQuery(SiteListCriteria crit) {
 		Criteria query = sessionFactory.getCurrentSession()
 			.createCriteria(Site.class)
@@ -135,4 +144,6 @@ public class SiteDaoImpl extends AbstractDao<Site> implements SiteDao {
 	private static final String GET_SITE_BY_CODE = FQN + ".getSiteByCode";
 	
 	private static final String GET_CP_COUNT_BY_SITES = FQN + ".getCpCountBySites";
+
+	private static final String IS_AFFILIATED_TO_USER_INST = FQN + ".ensureSiteIsAffiliatedtoUserInstitute";
 }

@@ -42,7 +42,9 @@ public enum RbacErrorCode implements ErrorCode {
 
 	INV_CP_USER,
 
-	INV_CP_SITE;
+	INV_CP_SITE,
+
+	INV_SITE_USER;
 	
 	@Override
 	public String code() {
