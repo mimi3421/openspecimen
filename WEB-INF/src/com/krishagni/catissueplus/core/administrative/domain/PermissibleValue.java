@@ -1,12 +1,16 @@
 
 package com.krishagni.catissueplus.core.administrative.domain;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.krishagni.catissueplus.core.biospecimen.domain.BaseEntity;
+import com.krishagni.catissueplus.core.common.util.Utility;
 
 public class PermissibleValue extends BaseEntity {
 	private String value;
@@ -89,10 +93,22 @@ public class PermissibleValue extends BaseEntity {
 		setParent(other.getParent());
 		setValue(other.getValue());
 		setSortOrder(other.getSortOrder());
-		setProps(other);
+		updateProps(other);
+	}
+
+	public static String getValue(PermissibleValue pv) {
+		return pv != null ? pv.getValue() : null;
+	}
+
+	public static Set<String> toValueSet(Collection<PermissibleValue> pvs) {
+		return Utility.nullSafeStream(pvs).map(pv -> getValue(pv)).collect(Collectors.toSet());
+	}
+
+	public static List<String> toValueList(Collection<PermissibleValue> pvs) {
+		return Utility.nullSafeStream(pvs).map(pv -> getValue(pv)).collect(Collectors.toList());
 	}
 	
-	private void setProps(PermissibleValue other) {
+	private void updateProps(PermissibleValue other) {
 		getProps().keySet().retainAll(other.getProps().keySet());
 		getProps().putAll(other.getProps());
 	}

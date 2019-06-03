@@ -15,6 +15,7 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
+import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
 import com.krishagni.catissueplus.core.administrative.events.StorageLocationSummary;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenRequirement;
@@ -401,7 +402,7 @@ public class SpecimenDetail extends SpecimenInfo {
 		}
 
 		result.setReqCode(sr != null ? sr.getCode() : null);
-		result.setBiohazards(new HashSet<>(specimen.getBiohazards()));
+		result.setBiohazards(PermissibleValue.toValueSet(specimen.getBiohazards()));
 		result.setComments(specimen.getComment());
 		result.setReserved(specimen.isReserved());
 

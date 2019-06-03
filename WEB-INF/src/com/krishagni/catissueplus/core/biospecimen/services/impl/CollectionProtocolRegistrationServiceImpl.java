@@ -26,6 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
 
+import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
 import com.krishagni.catissueplus.core.audit.services.impl.DeleteLogUtil;
 import com.krishagni.catissueplus.core.biospecimen.ConfigParams;
 import com.krishagni.catissueplus.core.biospecimen.domain.AnonymizeEvent;
@@ -1138,8 +1139,8 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 			visitDetail.setCprId(cpr.getId());
 			visitDetail.setEventId(cpe.getId());
 			visitDetail.setSite(collectionSite);
-			visitDetail.setClinicalDiagnoses(Collections.singleton(cpe.getClinicalDiagnosis()));
-			visitDetail.setClinicalStatus(cpe.getClinicalStatus());
+			visitDetail.setClinicalDiagnoses(Collections.singleton(cpe.getClinicalDiagnosis().getValue()));
+			visitDetail.setClinicalStatus(PermissibleValue.getValue(cpe.getClinicalStatus()));
 			visitDetail.setStatus(Visit.VISIT_STATUS_PENDING);
 
 			int interval = 0;
@@ -1368,7 +1369,7 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 							}
 
 							detail.setStatement(resp.getStatement());
-							detail.setResponse(resp.getResponse());
+							detail.setResponse(PermissibleValue.getValue(resp.getResponse()));
 							firstResp = false;
 						}
 					}
@@ -1408,7 +1409,7 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 
 			private Collection<ConsentTierResponse> getSortedResponses(CollectionProtocolRegistration cpr) {
 				return cpr.getConsentResponses().stream()
-					.filter(r1 -> StringUtils.isNotBlank(r1.getResponse()))
+					.filter(r1 -> r1 != null && r1.getResponse() != null)
 					.sorted((r1, r2) -> r1.getConsentTier().getId().compareTo(r2.getConsentTier().getId()))
 					.collect(Collectors.toList());
 			}

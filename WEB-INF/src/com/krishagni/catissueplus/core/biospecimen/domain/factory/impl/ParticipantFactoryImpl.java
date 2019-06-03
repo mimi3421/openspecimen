@@ -1,23 +1,20 @@
 
 package com.krishagni.catissueplus.core.biospecimen.domain.factory.impl;
 
-import static com.krishagni.catissueplus.core.common.PvAttributes.ETHNICITY;
-import static com.krishagni.catissueplus.core.common.PvAttributes.GENDER;
-import static com.krishagni.catissueplus.core.common.PvAttributes.GENOTYPE;
-import static com.krishagni.catissueplus.core.common.PvAttributes.RACE;
-import static com.krishagni.catissueplus.core.common.PvAttributes.VITAL_STATUS;
-import static com.krishagni.catissueplus.core.common.service.PvValidator.areValid;
-import static com.krishagni.catissueplus.core.common.service.PvValidator.isValid;
+import static com.krishagni.catissueplus.core.common.PvAttributes.*;
 
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 
+import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
 import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.administrative.domain.factory.SiteErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.Participant;
@@ -29,6 +26,7 @@ import com.krishagni.catissueplus.core.biospecimen.events.ParticipantDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.PmiDetail;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.common.errors.ActivityStatusErrorCode;
+import com.krishagni.catissueplus.core.common.errors.ErrorCode;
 import com.krishagni.catissueplus.core.common.errors.ErrorType;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.util.ConfigUtil;
@@ -164,14 +162,9 @@ public class ParticipantFactoryImpl implements ParticipantFactory {
 		if (partial && !detail.isAttrModified("vitalStatus")) {
 			return;
 		}
-		
-		String vitalStatus = detail.getVitalStatus();		
-		if (!isValid(VITAL_STATUS, vitalStatus)) {
-			oce.addError(ParticipantErrorCode.INVALID_VITAL_STATUS);
-			return;
-		}
-		
-		participant.setVitalStatus(vitalStatus);
+
+		String vitalStatus = detail.getVitalStatus();
+		participant.setVitalStatus(getPv(VITAL_STATUS, vitalStatus, ParticipantErrorCode.INVALID_VITAL_STATUS, oce));
 	}
 
 	private void setBirthAndDeathDate(ParticipantDetail detail, Participant participant, boolean partial, OpenSpecimenException oce) {
@@ -227,13 +220,8 @@ public class ParticipantFactoryImpl implements ParticipantFactory {
 			return;
 		}
 		
-		String gender = detail.getGender();		
-		if (!isValid(GENDER, gender)) {
-			oce.addError(ParticipantErrorCode.INVALID_GENDER);
-			return;
-		}
-		
-		participant.setGender(gender);
+		String gender = detail.getGender();
+		participant.setGender(getPv(GENDER, gender, ParticipantErrorCode.INVALID_GENDER, oce));
 	}
 
 	private void setRace(ParticipantDetail detail, Participant participant, boolean partial, OpenSpecimenException oce) {
@@ -246,12 +234,7 @@ public class ParticipantFactoryImpl implements ParticipantFactory {
 			return;
 		}
 
-		if (!areValid(RACE, races)) {
-			oce.addError(ParticipantErrorCode.INVALID_RACE);
-			return;
-		}
-		
-		participant.setRaces(races);
+		participant.setRaces(getPvs(RACE, races, ParticipantErrorCode.INVALID_RACE, oce));
 	}
 
 	private void setEthnicity(ParticipantDetail detail, Participant participant, boolean partial, OpenSpecimenException oce) {
@@ -264,12 +247,7 @@ public class ParticipantFactoryImpl implements ParticipantFactory {
 			return;
 		}
 
-		if (!areValid(ETHNICITY, ethnicities)) {
-			oce.addError(ParticipantErrorCode.INVALID_ETHNICITY);
-			return;
-		}
-		
-		participant.setEthnicities(ethnicities);
+		participant.setEthnicities(getPvs(ETHNICITY, ethnicities, ParticipantErrorCode.INVALID_ETHNICITY, oce));
 	}
 	
 	private void setPmi(
@@ -342,5 +320,30 @@ public class ParticipantFactoryImpl implements ParticipantFactory {
 		DeObject extension = DeObject.createExtension(detail.getExtensionDetail(), participant);
 		participant.setExtension(extension);
 	}
-	
+
+	private PermissibleValue getPv(String attr, String value, ErrorCode invErrorCode, OpenSpecimenException ose) {
+		if (StringUtils.isBlank(value)) {
+			return null;
+		}
+
+		PermissibleValue pv = daoFactory.getPermissibleValueDao().getPv(attr, value);
+		if (pv == null) {
+			ose.addError(invErrorCode);
+		}
+
+		return pv;
+	}
+
+	private Set<PermissibleValue> getPvs(String attr, Collection<String> values, ErrorCode invErrorCode, OpenSpecimenException ose) {
+		if (CollectionUtils.isEmpty(values)) {
+			return new HashSet<>();
+		}
+
+		List<PermissibleValue> pvs = daoFactory.getPermissibleValueDao().getPvs(attr, values);
+		if (pvs.size() != values.size()) {
+			ose.addError(invErrorCode);
+		}
+
+		return new HashSet<>(pvs);
+	}
 }

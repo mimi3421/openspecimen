@@ -4,37 +4,19 @@
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping auto-import="false">
-    <class
-        name="com.krishagni.catissueplus.core.biospecimen.domain.ConsentTierResponse"
-        table="CATISSUE_CONSENT_TIER_RESPONSE">
-    
-        <id
-            name="id"
-            column="IDENTIFIER"
-            type="long"
-        >
-            <generator class="native">
-                <param name="sequence">CATISSUE_CONSENT_TIER_RES_SEQ</param>
-            </generator>
-        </id>
+  <class name="com.krishagni.catissueplus.core.biospecimen.domain.ConsentTierResponse" table="CATISSUE_CONSENT_TIER_RESPONSE">
+    <id name="id" column="IDENTIFIER" type="long">
+      <generator class="native">
+        <param name="sequence">CATISSUE_CONSENT_TIER_RES_SEQ</param>
+      </generator>
+    </id>
 
-        <property
-            name="response"
-            type="string"
-            column="RESPONSE"
-        />
+    <many-to-one name="response" column="RESPONSE_ID" fetch="join"/>
 
-        <many-to-one
-            name="consentTier"
-            class="com.krishagni.catissueplus.core.biospecimen.domain.CpConsentTier"
-            column="CONSENT_TIER_ID"
-        />
+    <many-to-one name="consentTier"
+      class="com.krishagni.catissueplus.core.biospecimen.domain.CpConsentTier"
+      column="CONSENT_TIER_ID" fetch="join"/>
 
-        <many-to-one
-            name="cpr"
-            class="com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration"
-            column="COLL_PROT_REG_ID"
-        />
-        
-    </class>
+    <many-to-one name="cpr" column="COLL_PROT_REG_ID"/>
+  </class>
 </hibernate-mapping>

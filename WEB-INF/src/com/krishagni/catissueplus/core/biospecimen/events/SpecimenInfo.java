@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainerPosition;
 import com.krishagni.catissueplus.core.administrative.events.StorageLocationSummary;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolEvent;
@@ -457,13 +458,13 @@ public class SpecimenInfo extends AttributeModifiedSupport implements Comparable
 
 		result.setLabel(specimen.getLabel());
 		result.setBarcode(specimen.getBarcode());
-		result.setType(specimen.getSpecimenType());
-		result.setSpecimenClass(specimen.getSpecimenClass());
+		result.setType(PermissibleValue.getValue(specimen.getSpecimenType()));
+		result.setSpecimenClass(PermissibleValue.getValue(specimen.getSpecimenClass()));
 		result.setLineage(specimen.getLineage());
-		result.setAnatomicSite(specimen.getTissueSite());
-		result.setLaterality(specimen.getTissueSide());
+		result.setAnatomicSite(PermissibleValue.getValue(specimen.getTissueSite()));
+		result.setLaterality(PermissibleValue.getValue(specimen.getTissueSide()));
 		result.setStatus(specimen.getCollectionStatus());
-		result.setPathology(specimen.getPathologicalStatus());
+		result.setPathology(PermissibleValue.getValue(specimen.getPathologicalStatus()));
 		result.setInitialQty(specimen.getInitialQuantity());
 		result.setAvailableQty(specimen.getAvailableQuantity());
 		result.setConcentration(specimen.getConcentration());
@@ -503,7 +504,7 @@ public class SpecimenInfo extends AttributeModifiedSupport implements Comparable
 		if (specimen.getCollRecvDetails() != null) {
 			result.setCollectionContainer(specimen.getCollRecvDetails().getCollContainer());
 		} else if (specimen.isPrimary() && specimen.getSpecimenRequirement() != null) {
-			result.setCollectionContainer(specimen.getSpecimenRequirement().getCollectionContainer());
+			result.setCollectionContainer(PermissibleValue.getValue(specimen.getSpecimenRequirement().getCollectionContainer()));
 		}
 
 		SpecimenChildrenEvent parentEvent = specimen.getParentEvent();
@@ -528,16 +529,16 @@ public class SpecimenInfo extends AttributeModifiedSupport implements Comparable
 		result.setReqLabel(anticipated.getName());
 		result.setSortOrder(anticipated.getSortOrder());
 		result.setBarcode(null);
-		result.setType(anticipated.getSpecimenType());
-		result.setSpecimenClass(anticipated.getSpecimenClass());
+		result.setType(PermissibleValue.getValue(anticipated.getSpecimenType()));
+		result.setSpecimenClass(PermissibleValue.getValue(anticipated.getSpecimenClass()));
 		result.setLineage(anticipated.getLineage());
-		result.setAnatomicSite(anticipated.getAnatomicSite());
-		result.setLaterality(anticipated.getLaterality());
-		result.setPathology(anticipated.getPathologyStatus());
+		result.setAnatomicSite(PermissibleValue.getValue(anticipated.getAnatomicSite()));
+		result.setLaterality(PermissibleValue.getValue(anticipated.getLaterality()));
+		result.setPathology(PermissibleValue.getValue(anticipated.getPathologyStatus()));
 		result.setInitialQty(anticipated.getInitialQuantity());
 		result.setConcentration(anticipated.getConcentration());
 		result.setParentId(null);
-		result.setCollectionContainer(anticipated.getCollectionContainer());
+		result.setCollectionContainer(PermissibleValue.getValue(anticipated.getCollectionContainer()));
 
 		StorageLocationSummary location = new StorageLocationSummary();
 		result.setStorageLocation(location);

@@ -19,7 +19,7 @@ public class SpecimenCollectionContainerPrintToken extends AbstractLabelTmplToke
 			specimen = specimen.getParentSpecimen();
 		}
 
-		return specimen.getCollectionEvent().getContainer();
+		return specimen.getCollectionEvent().getContainer().getValue();
 	}
 
 }

@@ -110,4 +110,11 @@
   <include file="db/6.1/config.xml"/>
   <include file="db/6.1/audit.xml"/>
   <include file="db/6.1/permissible-values.xml"/>
+
+  <include file="db/6.2/schema.xml"/>
+  <include file="db/6.2/audit.xml"/>
+  <include file="db/6.2/migration.xml"/>
+
+  <!-- Views are created always at the last -->
+  <include file="db/views.xml"/>
 </databaseChangeLog>

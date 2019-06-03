@@ -15,6 +15,8 @@ import com.krishagni.catissueplus.core.common.service.ConfigChangeListener;
 import com.krishagni.catissueplus.core.common.service.ConfigurationService;
 import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.catissueplus.core.de.UserContextImpl;
+import com.krishagni.catissueplus.core.de.ui.PvControlFactory;
+import com.krishagni.catissueplus.core.de.ui.PvFieldMapper;
 import com.krishagni.catissueplus.core.de.ui.SiteControlFactory;
 import com.krishagni.catissueplus.core.de.ui.SiteFieldMapper;
 import com.krishagni.catissueplus.core.de.ui.StorageContainerControlFactory;
@@ -103,6 +105,9 @@ public class DeInitializer implements InitializingBean {
 		
 		ControlManager.getInstance().registerFactory(SiteControlFactory.getInstance());
 		ControlMapper.getInstance().registerControlMapper("siteField", new SiteFieldMapper());
+
+		ControlManager.getInstance().registerFactory(PvControlFactory.getInstance());
+		ControlMapper.getInstance().registerControlMapper("pvField", new PvFieldMapper());
 
 		InputStream in = null;
 		try {

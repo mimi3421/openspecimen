@@ -69,8 +69,10 @@ public class RecentlyUsedContainerSelectionStrategy implements ContainerSelectio
 		// first lookup containers used for (cp, class, type) combination
 		//
 		List<StorageContainer> containers = getRecentlySelectedContainerQuery(crit)
-			.add(Restrictions.eq("spmn.specimenClass", crit.specimen().getSpecimenClass()))
-			.add(Restrictions.eq("spmn.specimenType", crit.specimen().getType()))
+			.createAlias("spmn.specimenClass", "spmnClass")
+			.add(Restrictions.eq("spmnClass.value", crit.specimen().getSpecimenClass()))
+			.createAlias("spmn.specimenType", "spmnType")
+			.add(Restrictions.eq("spmnType.value", crit.specimen().getType()))
 			.list();
 
 		if (CollectionUtils.isNotEmpty(containers)) {

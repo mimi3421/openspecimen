@@ -21,5 +21,4 @@ public class SiteFieldMapper extends DefaultControlMapper {
 		getCommonProperties(controlProps, control);
 		return controlProps;
 	}
-
 }

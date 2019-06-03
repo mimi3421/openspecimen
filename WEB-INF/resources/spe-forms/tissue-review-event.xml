@@ -44,15 +44,13 @@
     </row>
 
     <row>
-      <dropDown>
+      <pvField>
         <name>histologicalQuality</name>
         <udn>histologicalQuality</udn>
         <caption>#getMessage("tissue_rev_event_histological_quality")</caption>
-        <column>HISTOLOGICAL_QUALITY</column>
-        <options>
-          <sql>select value from catissue_permissible_value where public_id = 'histological_quality' order by value</sql>
-        </options>
-      </dropDown>
+        <column>HISTOLOGICAL_QUALITY_ID</column>
+        <attribute>histological_quality</attribute>
+      </pvField>
     </row>
 
     <row>
@@ -78,7 +76,6 @@
         <mandatory>true</mandatory>
       </datePicker>
     </row>
-
 
     <row>
       <textArea>

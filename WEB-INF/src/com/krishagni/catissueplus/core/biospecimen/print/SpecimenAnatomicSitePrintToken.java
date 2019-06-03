@@ -1,5 +1,6 @@
 package com.krishagni.catissueplus.core.biospecimen.print;
 
+import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.common.domain.AbstractLabelTmplToken;
 import com.krishagni.catissueplus.core.common.domain.LabelTmplToken;
@@ -14,6 +15,6 @@ public class SpecimenAnatomicSitePrintToken extends AbstractLabelTmplToken imple
 	@Override
 	public String getReplacement(Object object) {
 		Specimen specimen = (Specimen)object;
-		return specimen.getTissueSite();
+		return PermissibleValue.getValue(specimen.getTissueSite());
 	}
 }

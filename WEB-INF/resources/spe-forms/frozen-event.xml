@@ -8,18 +8,14 @@
     <primaryKey>IDENTIFIER</primaryKey>
 
     <row>
-      <dropDown>
+      <pvField>
         <name>frozenMethod</name>
         <udn>frozenMethod</udn>
         <caption>#getMessage("frozen_event_frozen_method")</caption>
-        <column>METHOD</column>
-        <options>
-          <sql>
-            select value from catissue_permissible_value where public_id = 'frozen_method' order by value
-          </sql>
-        </options>
+        <column>METHOD_ID</column>
+        <attribute>frozen_method</attribute>
         <mandatory>true</mandatory>
-      </dropDown>
+      </pvField>
     </row>
 
     <row>

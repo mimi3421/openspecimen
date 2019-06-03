@@ -23,7 +23,7 @@
 
     <property name="birthDate" column="BIRTH_DATE" />
 
-    <property name="gender" column="GENDER" />
+    <many-to-one name="gender" column="GENDER_ID" fetch="join"/>
 
     <property name="sexGenotype" column="GENOTYPE" />
 
@@ -33,7 +33,7 @@
 
     <property name="deathDate" column="DEATH_DATE" />
 
-    <property name="vitalStatus" column="VITAL_STATUS" />
+    <many-to-one name="vitalStatus" column="VITAL_STATUS_ID" fetch="join"/>
 
     <property name="empi" column="EMPI_ID"/>
 
@@ -45,9 +45,9 @@
 
     <many-to-one name="updater" column="UPDATER"/>
 
-    <set name="ethnicities" table="OS_PARTICIPANT_ETHNICITIES" cascade="all-delete-orphan">
+    <set name="ethnicities" table="OS_PARTICIPANT_ETHNICITIES">
       <key column="PARTICIPANT_ID"/>
-      <element column="ETHNICITY" type="string"/>
+      <many-to-many class="com.krishagni.catissueplus.core.administrative.domain.PermissibleValue" column="ETHNICITY_ID"/>
     </set>
 
     <set name="pmis" table="CATISSUE_PART_MEDICAL_ID" inverse="true" cascade="all-delete-orphan">
@@ -61,9 +61,9 @@
       <filter name="activeEntity"/>
     </set>
 
-    <set name="races" table="CATISSUE_RACE" cascade="all-delete-orphan">
+    <set name="races" table="CATISSUE_RACE">
       <key column="PARTICIPANT_ID" />
-      <element column="RACE_NAME" type="string" />
+      <many-to-many class="com.krishagni.catissueplus.core.administrative.domain.PermissibleValue" column="RACE_ID"/>
     </set>
     
     <filter name="activeEntity"/>

@@ -594,7 +594,8 @@ public class SpecimenDaoImpl extends AbstractDao<Specimen> implements SpecimenDa
 			return;
 		}
 
-		query.add(Restrictions.eq("specimenType", crit.type()));
+		query.createAlias("specimenType", "typePv")
+			.add(Restrictions.eq("typePv.value", crit.type()));
 	}
 
 	private void addAnatomicSiteCond(Criteria query, SpecimenListCriteria crit) {
@@ -602,7 +603,8 @@ public class SpecimenDaoImpl extends AbstractDao<Specimen> implements SpecimenDa
 			return;
 		}
 
-		query.add(Restrictions.eq("tissueSite", crit.anatomicSite()));
+		query.createAlias("tissueSite", "anatomicSitePv")
+			.add(Restrictions.eq("anatomicSitePv.value", crit.anatomicSite()));
 	}
 
 	private void addAvailableSpecimenCond(Criteria query, SpecimenListCriteria crit) {

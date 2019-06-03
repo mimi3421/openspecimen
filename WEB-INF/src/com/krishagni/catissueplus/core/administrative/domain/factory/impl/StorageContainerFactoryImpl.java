@@ -1,7 +1,6 @@
 package com.krishagni.catissueplus.core.administrative.domain.factory.impl;
 
 import static com.krishagni.catissueplus.core.common.PvAttributes.SPECIMEN_CLASS;
-import static com.krishagni.catissueplus.core.common.service.PvValidator.areValid;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -15,6 +14,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import com.krishagni.catissueplus.core.administrative.domain.AutoFreezerProvider;
 import com.krishagni.catissueplus.core.administrative.domain.ContainerType;
 import com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol;
+import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
 import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainer;
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainerPosition;
@@ -732,13 +732,19 @@ public class StorageContainerFactoryImpl implements StorageContainerFactory {
 	}
 
 	private void setAllowedSpecimenClasses(StorageContainerDetail detail, StorageContainer container, OpenSpecimenException ose) {
-		Set<String> allowedSpecimenClasses = detail.getAllowedSpecimenClasses();		
-		if (!areValid(SPECIMEN_CLASS, allowedSpecimenClasses)) {
+		Set<String> allowedSpecimenClasses = detail.getAllowedSpecimenClasses();
+		if (CollectionUtils.isEmpty(allowedSpecimenClasses)) {
+			return;
+		}
+
+		List<PermissibleValue> classPvs = daoFactory.getPermissibleValueDao()
+			.getPvs(SPECIMEN_CLASS, allowedSpecimenClasses);
+		if (classPvs.size() != allowedSpecimenClasses.size()) {
 			ose.addError(SpecimenErrorCode.INVALID_SPECIMEN_CLASS);
 			return;
 		}
-						
-		container.setAllowedSpecimenClasses(allowedSpecimenClasses);		
+
+		container.setAllowedSpecimenClasses(new HashSet<>(classPvs));
 	}
 	
 	private void setAllowedSpecimenClasses(StorageContainerDetail detail, StorageContainer existing, StorageContainer container, OpenSpecimenException ose) {
@@ -751,12 +757,25 @@ public class StorageContainerFactoryImpl implements StorageContainerFactory {
 	
 	private void setAllowedSpecimenTypes(StorageContainerDetail detail, StorageContainer container, OpenSpecimenException ose) {
 		Set<String> allowedSpecimenTypes = detail.getAllowedSpecimenTypes();
-		if (!areValid(SPECIMEN_CLASS, 1, allowedSpecimenTypes)) {
+		if (CollectionUtils.isEmpty(allowedSpecimenTypes)) {
+			return;
+		}
+
+		List<PermissibleValue> typePvs = daoFactory.getPermissibleValueDao()
+			.getPvs(SPECIMEN_CLASS, allowedSpecimenTypes);
+		if (typePvs.size() != allowedSpecimenTypes.size()) {
 			ose.addError(SpecimenErrorCode.INVALID_SPECIMEN_TYPE);
 			return;
 		}
-						
-		container.setAllowedSpecimenTypes(allowedSpecimenTypes);		
+
+		for (PermissibleValue typePv : typePvs) {
+			if (typePv.getParent() == null) {
+				ose.addError(SpecimenErrorCode.INVALID_SPECIMEN_TYPE);
+				return;
+			}
+		}
+
+		container.setAllowedSpecimenTypes(new HashSet<>(typePvs));
 	}
 	
 	private void setAllowedSpecimenTypes(StorageContainerDetail detail, StorageContainer existing, StorageContainer container, OpenSpecimenException ose) {

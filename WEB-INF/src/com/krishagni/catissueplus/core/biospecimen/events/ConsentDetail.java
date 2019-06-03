@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.annotate.JsonIgnore;
 
+import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
 import com.krishagni.catissueplus.core.administrative.events.Mergeable;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
 import com.krishagni.catissueplus.core.biospecimen.domain.ConsentTierResponse;
@@ -176,7 +177,7 @@ public class ConsentDetail extends AttributeModifiedSupport implements Mergeable
 
 			ConsentTierResponse answer = respMap.get(consentTier.getStatement().getCode());
 			if (answer != null) {
-				response.setResponse(answer.getResponse());
+				response.setResponse(PermissibleValue.getValue(answer.getResponse()));
 			}
 
 			consent.getResponses().add(response);

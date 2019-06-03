@@ -13,8 +13,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
+import org.hibernate.envers.RelationTargetAuditMode;
 import org.springframework.beans.BeanUtils;
 
+import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
 import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol.VisitNamePrintMode;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.CpeErrorCode;
@@ -41,9 +43,9 @@ public class CollectionProtocolEvent extends BaseEntity implements Comparable<Co
 	
 	private Site defaultSite;
 
-	private String clinicalDiagnosis;
+	private PermissibleValue clinicalDiagnosis;
 	
-	private String clinicalStatus;
+	private PermissibleValue clinicalStatus;
 
 	private VisitNamePrintMode visitNamePrintMode;
 
@@ -51,9 +53,9 @@ public class CollectionProtocolEvent extends BaseEntity implements Comparable<Co
 	
 	private String activityStatus;
 
-	private Set<SpecimenRequirement> specimenRequirements = new LinkedHashSet<SpecimenRequirement>();
+	private Set<SpecimenRequirement> specimenRequirements = new LinkedHashSet<>();
 
-	private Set<Visit> specimenCollectionGroups = new HashSet<Visit>();
+	private Set<Visit> specimenCollectionGroups = new HashSet<>();
 
 	private transient int offset = 0;
 
@@ -112,19 +114,21 @@ public class CollectionProtocolEvent extends BaseEntity implements Comparable<Co
 		this.defaultSite = defaultSite;
 	}
 
-	public String getClinicalDiagnosis() {
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	public PermissibleValue getClinicalDiagnosis() {
 		return clinicalDiagnosis;
 	}
 
-	public void setClinicalDiagnosis(String clinicalDiagnosis) {
+	public void setClinicalDiagnosis(PermissibleValue clinicalDiagnosis) {
 		this.clinicalDiagnosis = clinicalDiagnosis;
 	}
 
-	public String getClinicalStatus() {
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	public PermissibleValue getClinicalStatus() {
 		return clinicalStatus;
 	}
 
-	public void setClinicalStatus(String clinicalStatus) {
+	public void setClinicalStatus(PermissibleValue clinicalStatus) {
 		this.clinicalStatus = clinicalStatus;
 	}
 

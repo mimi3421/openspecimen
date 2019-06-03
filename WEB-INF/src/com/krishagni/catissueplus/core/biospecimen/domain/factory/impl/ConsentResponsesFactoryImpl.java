@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
 import com.krishagni.catissueplus.core.biospecimen.domain.ConsentResponses;
@@ -159,12 +160,15 @@ public class ConsentResponsesFactoryImpl implements ConsentResponsesFactory {
 
 
 		String respStr = detail.getResponse();
-		if (!isValid(CONSENT_RESPONSE, respStr)) {
-			ose.addError(CprErrorCode.INVALID_CONSENT_RESPONSE, respStr);
-			return null;
+		PermissibleValue respPv = null;
+		if (StringUtils.isNotBlank(respStr)) {
+			respPv = daoFactory.getPermissibleValueDao().getPv(CONSENT_RESPONSE, respStr);
+			if (respPv == null) {
+				ose.addError(CprErrorCode.INVALID_CONSENT_RESPONSE, respStr);
+			}
 		}
 
-		response.setResponse(respStr);
+		response.setResponse(respPv);
 		return response;
 	}
 }

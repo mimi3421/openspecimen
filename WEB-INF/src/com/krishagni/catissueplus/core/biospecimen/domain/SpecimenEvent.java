@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.administrative.repository.UserDao;
+import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.common.service.ConfigurationService;
 import com.krishagni.catissueplus.core.de.domain.DeObject;
 
@@ -27,7 +28,7 @@ public abstract class SpecimenEvent extends DeObject {
 	private Specimen specimen;
 	
 	@Autowired
-	private UserDao userDao;
+	protected DaoFactory daoFactory;
 	
 	@Autowired
 	private ConfigurationService cfgSvc;
@@ -95,7 +96,7 @@ public abstract class SpecimenEvent extends DeObject {
 		String userIdStr = (String)values.get("user");
 		if (StringUtils.isNotBlank(userIdStr)) {
 			Long userId = Long.parseLong(userIdStr);
-			this.user = userDao.getById(userId);
+			this.user = daoFactory.getUserDao().getById(userId);
 		}
 		
 		String timeStr = (String)values.get("time");

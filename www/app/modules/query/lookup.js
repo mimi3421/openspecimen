@@ -36,6 +36,9 @@ angular.module('os.query.lookup', [])
         $scope.searchTerm = function(searchTerm) {
           var params = {};
           params[opts.searchTermName] = searchTerm;
+          if (opts.filters) {
+            angular.extend(params, opts.filters);
+          }
 
           $http.get(url, {params: params}).then(
             function(result) {

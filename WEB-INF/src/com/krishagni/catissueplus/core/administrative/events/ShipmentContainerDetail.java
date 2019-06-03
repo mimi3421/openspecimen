@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
 import com.krishagni.catissueplus.core.administrative.domain.ShipmentContainer;
 
 public class ShipmentContainerDetail implements Comparable<ShipmentContainerDetail>, Serializable {
@@ -60,11 +61,7 @@ public class ShipmentContainerDetail implements Comparable<ShipmentContainerDeta
 		ShipmentContainerDetail detail = new ShipmentContainerDetail();
 		detail.setId(shipmentContainer.getId());
 		detail.setContainer(StorageContainerSummary.from(shipmentContainer.getContainer()));
-
-		if (shipmentContainer.getReceivedQuality() != null) {
-			detail.setReceivedQuality(shipmentContainer.getReceivedQuality().toString());
-		}
-
+		detail.setReceivedQuality(PermissibleValue.getValue(shipmentContainer.getReceivedQuality()));
 		return detail;
 	}
 

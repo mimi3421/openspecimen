@@ -14,6 +14,6 @@ public class SpecimenTypePrintToken extends AbstractLabelTmplToken implements La
 	@Override
 	public String getReplacement(Object object) {
 		Specimen specimen = (Specimen)object;
-		return specimen.getSpecimenType();
+		return specimen.getSpecimenType().getValue();
 	}
 }

@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
+import org.hibernate.envers.RelationTargetAuditMode;
 
 import com.krishagni.catissueplus.core.administrative.domain.factory.SiteErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.BaseExtensionEntity;
@@ -33,7 +34,7 @@ public class Site extends BaseExtensionEntity {
 
 	private String code;
 
-	private String type;
+	private PermissibleValue type;
 
 	private String activityStatus;
 
@@ -83,11 +84,12 @@ public class Site extends BaseExtensionEntity {
 		this.code = code;
 	}
 
-	public String getType() {
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	public PermissibleValue getType() {
 		return type;
 	}
 
-	public void setType(String type) {
+	public void setType(PermissibleValue type) {
 		this.type = type;
 	}
 

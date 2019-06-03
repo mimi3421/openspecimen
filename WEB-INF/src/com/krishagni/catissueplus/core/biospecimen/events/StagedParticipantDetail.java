@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
+import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
 import com.krishagni.catissueplus.core.biospecimen.domain.StagedParticipant;
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
@@ -40,11 +41,11 @@ public class StagedParticipantDetail extends ParticipantDetail {
 		result.setActivityStatus(participant.getActivityStatus());
 		result.setBirthDate(participant.getBirthDate());
 		result.setDeathDate(participant.getDeathDate());
-		result.setGender(participant.getGender());
+		result.setGender(PermissibleValue.getValue(participant.getGender()));
 		result.setEmpi(participant.getEmpi());
 		result.setSexGenotype(participant.getSexGenotype());
 		result.setUid(participant.getUid());
-		result.setVitalStatus(participant.getVitalStatus());
+		result.setVitalStatus(PermissibleValue.getValue(participant.getVitalStatus()));
 
 		result.setPmis(participant.getPmiList().stream().map(pmi -> {
 			PmiDetail pmiDetail = new PmiDetail();
@@ -55,11 +56,11 @@ public class StagedParticipantDetail extends ParticipantDetail {
 
 
 		if (CollectionUtils.isNotEmpty(participant.getRaces())) {
-			result.setRaces(new HashSet<>(participant.getRaces()));
+			result.setRaces(PermissibleValue.toValueSet(participant.getRaces()));
 		}
 
 		if (CollectionUtils.isNotEmpty(participant.getEthnicities())) {
-			result.setEthnicities(new HashSet<>(participant.getEthnicities()));
+			result.setEthnicities(PermissibleValue.toValueSet(participant.getEthnicities()));
 		}
 
 		result.setUpdatedTime(participant.getUpdatedTime());

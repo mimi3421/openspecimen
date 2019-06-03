@@ -82,90 +82,56 @@
     </row>
 
     <row>
-      <dropDown>
+      <pvField>
         <name>class</name>
         <udn>class</udn>
         <caption>#getMessage("specimen_class")</caption>
-        <column>SPECIMEN_CLASS</column>
-        <options>
-          <sql>
-            select
-              value
-            from
-              catissue_permissible_value
-            where
-              public_id = 'specimen_type' and
-              parent_identifier is null
-            order by value
-          </sql>
-        </options>
-      </dropDown>
+        <column>SPECIMEN_CLASS_ID</column>
+        <attribute>specimen_type</attribute>
+        <rootValue>true</rootValue>
+      </pvField>
     </row>
 
     <row>
-      <dropDown>
+      <pvField>
         <name>type</name>
         <udn>type</udn>
         <caption>#getMessage("specimen_type")</caption>
-        <column>SPECIMEN_TYPE</column>
-        <options>
-          <sql>
-            select
-              distinct value
-            from
-              catissue_permissible_value
-            where
-              public_id = 'specimen_type' and
-              parent_identifier is not null
-            order by value
-          </sql>
-        </options>
-      </dropDown>
+        <column>SPECIMEN_TYPE_ID</column>
+        <attribute>specimen_type</attribute>
+        <leafValue>true</leafValue>
+      </pvField>
     </row>
 
     <row>
-      <dropDown>
+      <pvField>
         <name>tissueSite</name>
         <udn>tissueSite</udn>
         <caption>#getMessage("specimen_anatomic_site")</caption>
-        <column>TISSUE_SITE</column>
-        <options>
-          <sql>
-            select 
-              pv.value 
-            from 
-              catissue_permissible_value pv 
-            where 
-              pv.public_id = 'anatomic_site'
-            order by
-              value
-          </sql>
-        </options>
-      </dropDown>
+        <column>ANATOMIC_SITE_ID</column>
+        <attribute>anatomic_site</attribute>
+        <leafValue>true</leafValue>
+      </pvField>
     </row>
 
     <row>
-      <dropDown>
+      <pvField>
         <name>tissueSide</name>
         <udn>tissueSide</udn>
         <caption>#getMessage("specimen_laterality")</caption>
-        <column>TISSUE_SIDE</column>
-        <options>
-          <sql>select value from catissue_permissible_value where public_id = 'laterality' order by value</sql>
-        </options>
-      </dropDown>
+        <column>LATERALITY_ID</column>
+        <attribute>laterality</attribute>
+      </pvField>
     </row>
 
     <row>
-      <dropDown>
+      <pvField>
         <name>pathologicalStatus</name>
         <udn>pathologicalStatus</udn>
         <caption>#getMessage("specimen_pathological_status")</caption>
-        <column>PATHOLOGICAL_STATUS</column>
-        <options>
-          <sql>select value from catissue_permissible_value where public_id = 'pathology_status' order by value</sql>
-        </options>
-      </dropDown>
+        <column>PATHOLOGICAL_STATUS_ID</column>
+        <attribute>pathology_status</attribute>
+      </pvField>
     </row>
 
     <row>
@@ -227,19 +193,16 @@
     </row>
 
     <row>
-      <listBox>
+      <pvField>
         <name>biohazards</name>
         <udn>biohazards</udn>
         <caption>#getMessage("specimen_biohazard")</caption>
-        <multiSelect>true</multiSelect>
-        <table>OS_SPECIMEN_BIOHAZARDS</table>
-        <column>BIOHAZARD</column>
-        <foreignKey>SPECIMEN_ID</foreignKey>
-        <parentKey>IDENTIFIER</parentKey>
-        <options>
-          <sql>select value from catissue_permissible_value where public_id = 'specimen_biohazard' order by value</sql>
-        </options>
-      </listBox>
+        <multiple>true</multiple>
+        <collectionTable>OS_SPECIMEN_BIOHAZARDS</collectionTable>
+        <collectionKey>SPECIMEN_ID</collectionKey>
+        <column>BIOHAZARD_ID</column>
+        <attribute>specimen_biohazard</attribute>
+      </pvField>
     </row>
 
     <row>
@@ -1159,15 +1122,13 @@
         </row>
 
         <row>
-          <dropDown>
+          <pvField>
             <name>receivedQuality</name>
             <udn>receivedQuality</udn>
             <caption>#getMessage("specimen_shipment_recv_quality")</caption>
-            <column>RECEIVED_QUALITY</column>
-            <options>
-              <sql>select value from catissue_permissible_value where public_id = 'shipment_item_received_quality' order by value</sql>
-            </options>
-          </dropDown>
+            <column>RECEIVED_QUALITY_ID</column>
+            <attribute>shipment_item_received_quality</attribute>
+          </pvField>
         </row>
 
         <row>

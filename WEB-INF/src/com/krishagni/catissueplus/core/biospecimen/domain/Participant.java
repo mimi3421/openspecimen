@@ -15,7 +15,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
+import org.hibernate.envers.RelationTargetAuditMode;
 
+import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
 import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.ParticipantErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.ParticipantUtil;
@@ -44,13 +46,13 @@ public class Participant extends BaseExtensionEntity {
 
 	private Date birthDate;
 
-	private String gender;
+	private PermissibleValue gender;
 
 	private String sexGenotype;
 
-	private Set<String> races = new HashSet<>();
+	private Set<PermissibleValue> races = new HashSet<>();
 
-	private Set<String> ethnicities = new HashSet<>();
+	private Set<PermissibleValue> ethnicities = new HashSet<>();
 
 	private String uid;
 
@@ -58,7 +60,7 @@ public class Participant extends BaseExtensionEntity {
 
 	private Date deathDate;
 
-	private String vitalStatus;
+	private PermissibleValue vitalStatus;
 	
 	private String empi;
 	
@@ -112,11 +114,12 @@ public class Participant extends BaseExtensionEntity {
 		this.birthDate = birthDate;
 	}
 
-	public String getGender() {
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	public PermissibleValue getGender() {
 		return gender;
 	}
 
-	public void setGender(String gender) {
+	public void setGender(PermissibleValue gender) {
 		this.gender = gender;
 	}
 
@@ -128,19 +131,21 @@ public class Participant extends BaseExtensionEntity {
 		this.sexGenotype = sexGenotype;
 	}
 
-	public Set<String> getRaces() {
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	public Set<PermissibleValue> getRaces() {
 		return races;
 	}
 
-	public void setRaces(Set<String> races) {
+	public void setRaces(Set<PermissibleValue> races) {
 		this.races = races;
 	}
 
-	public Set<String> getEthnicities() {
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	public Set<PermissibleValue> getEthnicities() {
 		return ethnicities;
 	}
 
-	public void setEthnicities(Set<String> ethnicities) {
+	public void setEthnicities(Set<PermissibleValue> ethnicities) {
 		this.ethnicities = ethnicities;
 	}
 
@@ -180,11 +185,12 @@ public class Participant extends BaseExtensionEntity {
 		this.deathDate = deathDate;
 	}
 
-	public String getVitalStatus() {
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	public PermissibleValue getVitalStatus() {
 		return vitalStatus;
 	}
 
-	public void setVitalStatus(String vitalStatus) {
+	public void setVitalStatus(PermissibleValue vitalStatus) {
 		this.vitalStatus = vitalStatus;
 	}
 

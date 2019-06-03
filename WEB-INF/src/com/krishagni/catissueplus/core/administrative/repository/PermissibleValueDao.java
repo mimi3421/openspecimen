@@ -11,7 +11,7 @@ import com.krishagni.catissueplus.core.common.repository.Dao;
 public interface PermissibleValueDao extends Dao<PermissibleValue>{
 	public List<PermissibleValue> getPvs(ListPvCriteria crit);	
 	
-	public List<String> getSpecimenClasses();
+	public List<PermissibleValue> getSpecimenClasses();
 	
 	public List<String> getSpecimenTypes(Collection<String> specimenClasses);
 
@@ -22,6 +22,16 @@ public interface PermissibleValueDao extends Dao<PermissibleValue>{
 	public PermissibleValue getByValue(String attribute, String value);
 	
 	public List<PermissibleValue> getByPropertyKeyValue(String attribute,String propName, String propValue);
+
+	public PermissibleValue getPv(String attribute, String value);
+
+	public PermissibleValue getPv(String attribute, String value, boolean leafNode);
+
+	public PermissibleValue getPv(String attribute, String parentValue, String value);
+
+	public List<PermissibleValue> getPvs(String attribute, Collection<String> values);
+
+	public List<PermissibleValue> getPvs(String attribute, String parentValue, Collection<String> values, boolean leafNode);
 
 	public boolean exists(String attribute, Collection<String> values);
 	

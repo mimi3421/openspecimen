@@ -13,6 +13,6 @@ public class PathStatusLabelToken extends AbstractOrderItemLabelToken {
 
 	@Override
 	public String getLabel(DistributionOrderItem orderItem) {
-		return PvUtil.getInstance().getAbbr(PvAttributes.PATH_STATUS, orderItem.getSpecimen().getPathologicalStatus(), StringUtils.EMPTY);
+		return PvUtil.getInstance().getAbbr(orderItem.getSpecimen().getPathologicalStatus(), StringUtils.EMPTY);
 	}
 }

@@ -6,6 +6,7 @@ import static com.krishagni.catissueplus.core.common.service.PvValidator.isValid
 
 import org.apache.commons.lang.StringUtils;
 
+import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
 import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.administrative.domain.factory.SiteErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
@@ -207,13 +208,14 @@ public class CpeFactoryImpl implements CpeFactory {
 		if (StringUtils.isBlank(clinicalDiagnosis)) {
 			return;
 		}
-		
-		if (!isValid(CLINICAL_DIAG, clinicalDiagnosis)) {
+
+		PermissibleValue cdPv = daoFactory.getPermissibleValueDao().getPv(CLINICAL_DIAG, clinicalDiagnosis);
+		if (cdPv == null) {
 			ose.addError(CpeErrorCode.INVALID_CLINICAL_DIAGNOSIS, clinicalDiagnosis);
 			return;
 		}
 		
-		cpe.setClinicalDiagnosis(clinicalDiagnosis);
+		cpe.setClinicalDiagnosis(cdPv);
 	}
 	
 	public void setClinicalStatus(CollectionProtocolEventDetail detail, CollectionProtocolEvent cpe, OpenSpecimenException ose) {
@@ -221,13 +223,14 @@ public class CpeFactoryImpl implements CpeFactory {
 		if (StringUtils.isBlank(clinicalStatus)) {
 			return;
 		}
-		
-		if (!isValid(CLINICAL_STATUS, clinicalStatus)) {
+
+		PermissibleValue statusPv = daoFactory.getPermissibleValueDao().getPv(CLINICAL_STATUS, clinicalStatus);
+		if (statusPv == null) {
 			ose.addError(CpeErrorCode.INVALID_CLINICAL_STATUS, clinicalStatus);
 			return;
 		}
 		
-		cpe.setClinicalStatus(clinicalStatus);
+		cpe.setClinicalStatus(statusPv);
 	}
 
 	private void setVisitNamePrintMode(CollectionProtocolEventDetail detail, CollectionProtocolEvent cpe, OpenSpecimenException ose) {

@@ -12,7 +12,7 @@
         <name>reason</name>
         <udn>reason</udn>
         <caption>#getMessage("disposal_event_reason")</caption>
-	<column>REASON</column>
+	    <column>REASON</column>
         <height>2</height>
       </textArea>
     </row>

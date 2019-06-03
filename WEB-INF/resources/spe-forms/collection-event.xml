@@ -8,33 +8,25 @@
     <primaryKey>IDENTIFIER</primaryKey>
 
     <row>
-      <dropDown>
+      <pvField>
         <name>procedure</name>
         <udn>procedure</udn>
         <caption>#getMessage("collection_event_procedure")</caption>
-        <column>COLLECTION_PROCEDURE</column>
-        <options>
-          <sql>
-            select value from catissue_permissible_value where public_id = 'collection_procedure' order by value
-          </sql>
-        </options>
+        <column>COLLECTION_PROCEDURE_ID</column>
         <mandatory>true</mandatory>
-      </dropDown>
+        <attribute>collection_procedure</attribute>
+      </pvField>
     </row>
 
     <row>
-      <dropDown>
+      <pvField>
         <name>container</name>
         <udn>container</udn>
         <caption>#getMessage("collection_event_container")</caption>
-        <column>CONTAINER</column>
-        <options>
-          <sql>
-            select value from catissue_permissible_value where public_id = 'collection_container' order by value
-          </sql>
-        </options>
+        <column>COLLECTION_CONTAINER_ID</column>
         <mandatory>true</mandatory>
-      </dropDown>
+        <attribute>collection_container</attribute>
+      </pvField>
     </row>
 
     <row>

@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
+import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolEvent;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
 import com.krishagni.catissueplus.core.biospecimen.domain.Visit;
@@ -229,8 +230,8 @@ public class VisitDetail extends VisitSummary {
 	public static VisitDetail from(Visit visit, boolean partial, boolean excludePhi) {
 		VisitDetail detail = new VisitDetail();
 		detail.setActivityStatus(visit.getActivityStatus());
-		detail.setClinicalDiagnoses(new HashSet<>(visit.getClinicalDiagnoses()));
-		detail.setClinicalStatus(visit.getClinicalStatus());
+		detail.setClinicalDiagnoses(PermissibleValue.toValueSet(visit.getClinicalDiagnoses()));
+		detail.setClinicalStatus(PermissibleValue.getValue(visit.getClinicalStatus()));
 		detail.setStatus(visit.getStatus());
 		detail.setComments(visit.getComments());
 		detail.setId(visit.getId());
@@ -238,8 +239,8 @@ public class VisitDetail extends VisitSummary {
 		detail.setSprName(visit.getSprName());
 		detail.setSprLocked(visit.isSprLocked());
 		detail.setVisitDate(visit.getVisitDate());
-		detail.setMissedReason(visit.getMissedReason());
-		detail.setCohort(visit.getCohort());
+		detail.setMissedReason(PermissibleValue.getValue(visit.getMissedReason()));
+		detail.setCohort(PermissibleValue.getValue(visit.getCohort()));
 
 		if (excludePhi && StringUtils.isNotBlank(visit.getSurgicalPathologyNumber())) {
 			detail.setSurgicalPathologyNumber("###");
@@ -291,10 +292,10 @@ public class VisitDetail extends VisitSummary {
 		detail.setCpTitle(event.getCollectionProtocol().getTitle());
 		detail.setCode(event.getCode());
 		detail.setSite(event.getDefaultSite() != null ? event.getDefaultSite().getName() : null);
-		detail.setClinicalStatus(event.getClinicalStatus());
+		detail.setClinicalStatus(PermissibleValue.getValue(event.getClinicalStatus()));
 
-		if (StringUtils.isNotBlank(event.getClinicalDiagnosis())) {
-			detail.setClinicalDiagnoses(Collections.singleton(event.getClinicalDiagnosis()));
+		if (event.getClinicalDiagnosis() != null) {
+			detail.setClinicalDiagnoses(PermissibleValue.toValueSet(Collections.singleton(event.getClinicalDiagnosis())));
 		}
 
 		return detail;

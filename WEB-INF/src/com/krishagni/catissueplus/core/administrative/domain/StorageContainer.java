@@ -21,11 +21,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
+import org.hibernate.envers.RelationTargetAuditMode;
 
 import com.krishagni.catissueplus.core.administrative.domain.factory.StorageContainerErrorCode;
 import com.krishagni.catissueplus.core.administrative.repository.ContainerRestrictionsCriteria;
 import com.krishagni.catissueplus.core.administrative.repository.StorageContainerDao;
-import com.krishagni.catissueplus.core.biospecimen.domain.BaseEntity;
 import com.krishagni.catissueplus.core.biospecimen.domain.BaseExtensionEntity;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
@@ -149,9 +149,9 @@ public class StorageContainer extends BaseExtensionEntity {
 	//
 	// all types of these specimen classes are allowed
 	//
-	private Set<String> allowedSpecimenClasses = new HashSet<>();
+	private Set<PermissibleValue> allowedSpecimenClasses = new HashSet<>();
 	
-	private Set<String> allowedSpecimenTypes = new HashSet<>();
+	private Set<PermissibleValue> allowedSpecimenTypes = new HashSet<>();
 	
 	private Set<CollectionProtocol> allowedCps = new HashSet<>();
 
@@ -168,9 +168,9 @@ public class StorageContainer extends BaseExtensionEntity {
 	//
 	private StorageContainerStats stats;
 	
-	private Set<String> compAllowedSpecimenClasses = new HashSet<>();
+	private Set<PermissibleValue> compAllowedSpecimenClasses = new HashSet<>();
 	
-	private Set<String> compAllowedSpecimenTypes = new HashSet<>();
+	private Set<PermissibleValue> compAllowedSpecimenTypes = new HashSet<>();
 	
 	private Set<CollectionProtocol> compAllowedCps = new HashSet<>();
 
@@ -430,19 +430,21 @@ public class StorageContainer extends BaseExtensionEntity {
 		this.descendentContainers = descendentContainers;
 	}
 
-	public Set<String> getAllowedSpecimenClasses() {
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	public Set<PermissibleValue> getAllowedSpecimenClasses() {
 		return allowedSpecimenClasses;
 	}
 
-	public void setAllowedSpecimenClasses(Set<String> allowedSpecimenClasses) {
+	public void setAllowedSpecimenClasses(Set<PermissibleValue> allowedSpecimenClasses) {
 		this.allowedSpecimenClasses = allowedSpecimenClasses;
 	}
 
-	public Set<String> getAllowedSpecimenTypes() {
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	public Set<PermissibleValue> getAllowedSpecimenTypes() {
 		return allowedSpecimenTypes;
 	}
 
-	public void setAllowedSpecimenTypes(Set<String> allowedSpecimenTypes) {
+	public void setAllowedSpecimenTypes(Set<PermissibleValue> allowedSpecimenTypes) {
 		this.allowedSpecimenTypes = allowedSpecimenTypes;
 	}
 
@@ -497,20 +499,20 @@ public class StorageContainer extends BaseExtensionEntity {
 	}
 
 	@NotAudited
-	public Set<String> getCompAllowedSpecimenClasses() {
+	public Set<PermissibleValue> getCompAllowedSpecimenClasses() {
 		return compAllowedSpecimenClasses;
 	}
 
-	public void setCompAllowedSpecimenClasses(Set<String> compAllowedSpecimenClasses) {
+	public void setCompAllowedSpecimenClasses(Set<PermissibleValue> compAllowedSpecimenClasses) {
 		this.compAllowedSpecimenClasses = compAllowedSpecimenClasses;
 	}
 
 	@NotAudited
-	public Set<String> getCompAllowedSpecimenTypes() {
+	public Set<PermissibleValue> getCompAllowedSpecimenTypes() {
 		return compAllowedSpecimenTypes;
 	}
 
-	public void setCompAllowedSpecimenTypes(Set<String> compAllowedSpecimenTypes) {
+	public void setCompAllowedSpecimenTypes(Set<PermissibleValue> compAllowedSpecimenTypes) {
 		this.compAllowedSpecimenTypes = compAllowedSpecimenTypes;
 	}
 
@@ -793,7 +795,7 @@ public class StorageContainer extends BaseExtensionEntity {
 		if (isDistributionContainer()) {
 			return canContainSpecimen(specimen.getDp());
 		} else {
-			return canContainSpecimen(specimen.getCollectionProtocol(), specimen.getSpecimenClass(), specimen.getSpecimenType());
+			return canContainSpecimen(specimen.getCollectionProtocol(), specimen.getSpecimenClass().getValue(), specimen.getSpecimenType().getValue());
 		}
 	}
 	
@@ -802,12 +804,12 @@ public class StorageContainer extends BaseExtensionEntity {
 			return getCompAllowedDps().isEmpty() || getCompAllowedDps().containsAll(container.getCompAllowedDps());
 		}
 
-		Set<String> allowedClasses = getCompAllowedSpecimenClasses();
+		Set<PermissibleValue> allowedClasses = getCompAllowedSpecimenClasses();
 		if (!allowedClasses.containsAll(container.getCompAllowedSpecimenClasses())) {
 			return false;
 		}
 		
-		Set<String> allowedTypes = getCompAllowedSpecimenTypes();
+		Set<PermissibleValue> allowedTypes = getCompAllowedSpecimenTypes();
 		if (!allowedTypes.containsAll(container.getCompAllowedSpecimenTypes())) {
 			allowedTypes = computeAllAllowedSpecimenTypes();
 			if (!allowedTypes.containsAll(container.getCompAllowedSpecimenTypes())) { 
@@ -832,10 +834,10 @@ public class StorageContainer extends BaseExtensionEntity {
 		if (!isStoreSpecimenEnabled()) {
 			return false;
 		}
-		
-		if (!getCompAllowedSpecimenClasses().contains(specimenClass) && 
-				!getCompAllowedSpecimenTypes().contains(specimenType)) {
-			return false;						
+
+		if (!contains(getCompAllowedSpecimenClasses(), specimenClass) &&
+				!contains(getCompAllowedSpecimenTypes(), specimenType)) {
+			return false;
 		}
 		
 		if (!getCompAllowedCps().isEmpty()) {
@@ -918,7 +920,7 @@ public class StorageContainer extends BaseExtensionEntity {
 		}
 	}
 	
-	public Set<String> computeAllowedSpecimenClasses() {
+	public Set<PermissibleValue> computeAllowedSpecimenClasses() {
 		if (CollectionUtils.isNotEmpty(getAllowedSpecimenTypes()) || 
 				CollectionUtils.isNotEmpty(getAllowedSpecimenClasses())) {
 			return new HashSet<>(getAllowedSpecimenClasses());
@@ -931,8 +933,8 @@ public class StorageContainer extends BaseExtensionEntity {
 		return new HashSet<>(getDaoFactory().getPermissibleValueDao().getSpecimenClasses());
 	}
 	
-	public Set<String> computeAllowedSpecimenTypes() {
-		Set<String> types = new HashSet<>();
+	public Set<PermissibleValue> computeAllowedSpecimenTypes() {
+		Set<PermissibleValue> types = new HashSet<>();
 		if (CollectionUtils.isNotEmpty(getAllowedSpecimenTypes())) {
 			types.addAll(getAllowedSpecimenTypes());
 		} else if (CollectionUtils.isEmpty(getAllowedSpecimenClasses()) && getParentContainer() != null) {
@@ -1262,8 +1264,8 @@ public class StorageContainer extends BaseExtensionEntity {
 		return getDaoFactory().getStorageContainerDao().getSpecimensCount(getId());
 	}
 	
-	private Set<String> computeAllAllowedSpecimenTypes() {
-		Set<String> types = new HashSet<String>();
+	private Set<PermissibleValue> computeAllAllowedSpecimenTypes() {
+		Set<PermissibleValue> types = new HashSet<>();
 		
 		if (CollectionUtils.isNotEmpty(getAllowedSpecimenTypes())) {
 			types.addAll(getAllowedSpecimenTypes());
@@ -1273,9 +1275,11 @@ public class StorageContainer extends BaseExtensionEntity {
 			}
 		}
 
-		Set<String> classes = getCompAllowedSpecimenClasses();
+		Set<PermissibleValue> classes = getCompAllowedSpecimenClasses();
 		if (CollectionUtils.isNotEmpty(classes)) {
-			types.addAll(getDaoFactory().getPermissibleValueDao().getSpecimenTypes(classes));
+			for (PermissibleValue classPv : classes) {
+				types.addAll(classPv.getChildren());
+			}
 		}
 				
 		return types;
@@ -1650,5 +1654,9 @@ public class StorageContainer extends BaseExtensionEntity {
 		}
 
 		return code;
+	}
+
+	private boolean contains(Collection<PermissibleValue> pvs, String value) {
+		return Utility.nullSafeStream(pvs).anyMatch(pv -> pv.getValue().equals(value));
 	}
 }

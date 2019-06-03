@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol;
+import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainer;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.common.ListenAttributeChanges;
@@ -180,11 +181,11 @@ public class StorageContainerDetail extends StorageContainerSummary {
 			result.setCellDisplayProp(StorageContainer.CellDisplayProp.SPECIMEN_LABEL.name());
 		}
 
-		result.setAllowedSpecimenClasses(new HashSet<>(container.getAllowedSpecimenClasses()));
-		result.setCalcAllowedSpecimenClasses(new HashSet<>(container.getCompAllowedSpecimenClasses()));
+		result.setAllowedSpecimenClasses(PermissibleValue.toValueSet(container.getAllowedSpecimenClasses()));
+		result.setCalcAllowedSpecimenClasses(PermissibleValue.toValueSet(container.getCompAllowedSpecimenClasses()));
 
-		result.setAllowedSpecimenTypes(new HashSet<>(container.getAllowedSpecimenTypes()));
-		result.setCalcAllowedSpecimenTypes(new HashSet<>(container.getCompAllowedSpecimenTypes()));
+		result.setAllowedSpecimenTypes(PermissibleValue.toValueSet(container.getAllowedSpecimenTypes()));
+		result.setCalcAllowedSpecimenTypes(PermissibleValue.toValueSet(container.getCompAllowedSpecimenTypes()));
 		
 		result.setAllowedCollectionProtocols(getCpNames(container.getAllowedCps()));		
 		result.setCalcAllowedCollectionProtocols(getCpNames(container.getCompAllowedCps()));

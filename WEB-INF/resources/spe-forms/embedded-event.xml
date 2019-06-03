@@ -8,18 +8,14 @@
     <primaryKey>IDENTIFIER</primaryKey>
 
     <row>
-      <dropDown>
+      <pvField>
         <name>embeddingMedium</name>
         <udn>embeddingMedium</udn>
         <caption>#getMessage("embedded_event_embedding_medium")</caption>
-        <column>EMBEDDING_MEDIUM</column>
-        <options>
-          <sql>
-            select value from catissue_permissible_value where public_id = 'embedding_medium' order by value
-          </sql>
-        </options>
+        <column>EMBEDDING_MEDIUM_ID</column>
+        <attribute>embedding_medium</attribute>
         <mandatory>true</mandatory>
-      </dropDown>
+      </pvField>
     </row>
 
     <row>
@@ -45,7 +41,6 @@
         <mandatory>true</mandatory>
       </datePicker>
     </row>
-
 
     <row>
       <textArea>

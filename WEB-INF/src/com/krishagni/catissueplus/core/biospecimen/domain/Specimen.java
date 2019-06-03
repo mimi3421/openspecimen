@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -28,6 +29,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.krishagni.catissueplus.core.administrative.domain.DistributionOrderItem;
 import com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol;
+import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
 import com.krishagni.catissueplus.core.administrative.domain.SpecimenReservedEvent;
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainer;
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainerPosition;
@@ -74,19 +76,19 @@ public class Specimen extends BaseExtensionEntity {
 	
 	private static final String ENTITY_NAME = "specimen";
 
-	private String tissueSite;
+	private PermissibleValue tissueSite;
 
-	private String tissueSide;
+	private PermissibleValue tissueSide;
 
-	private String pathologicalStatus;
+	private PermissibleValue pathologicalStatus;
 
 	private String lineage;
 
 	private BigDecimal initialQuantity;
 
-	private String specimenClass;
+	private PermissibleValue specimenClass;
 
-	private String specimenType;
+	private PermissibleValue specimenType;
 
 	private BigDecimal concentration;
 
@@ -106,7 +108,7 @@ public class Specimen extends BaseExtensionEntity {
 
 	private String collectionStatus;
 	
-	private Set<String> biohazards = new HashSet<>();
+	private Set<PermissibleValue> biohazards = new HashSet<>();
 
 	private Integer freezeThawCycles;
 
@@ -218,15 +220,16 @@ public class Specimen extends BaseExtensionEntity {
 	public static String getEntityName() {
 		return ENTITY_NAME;
 	}
-	
-	public String getTissueSite() {
+
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	public PermissibleValue getTissueSite() {
 		return tissueSite;
 	}
 
-	public void setTissueSite(String tissueSite) {
-		if (StringUtils.isNotBlank(this.tissueSite) && !this.tissueSite.equals(tissueSite)) {
+	public void setTissueSite(PermissibleValue tissueSite) {
+		if (!Objects.equals(this.tissueSite, tissueSite)) {
 			getChildCollection().stream()
-				.filter(child -> child.isAliquot() || this.tissueSite.equals(child.getTissueSite()))
+				.filter(child -> child.isAliquot() || Objects.equals(this.tissueSite, child.getTissueSite()))
 				.forEach(child -> child.setTissueSite(tissueSite));
 			
 			getSpecimensPool().forEach(poolSpmn -> poolSpmn.setTissueSite(tissueSite));
@@ -235,14 +238,15 @@ public class Specimen extends BaseExtensionEntity {
 		this.tissueSite = tissueSite;
 	}
 
-	public String getTissueSide() {
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	public PermissibleValue getTissueSide() {
 		return tissueSide;
 	}
 
-	public void setTissueSide(String tissueSide) {
-		if (StringUtils.isNotBlank(this.tissueSide) && !this.tissueSide.equals(tissueSide)) {
+	public void setTissueSide(PermissibleValue tissueSide) {
+		if (!Objects.equals(this.tissueSide, tissueSide)) {
 			getChildCollection().stream()
-				.filter(child -> child.isAliquot() || this.tissueSide.equals(child.getTissueSide()))
+				.filter(child -> child.isAliquot() || Objects.equals(this.tissueSide, child.getTissueSide()))
 				.forEach(child -> child.setTissueSide(tissueSide));
 			
 			getSpecimensPool().forEach(poolSpmn -> poolSpmn.setTissueSide(tissueSide));
@@ -251,12 +255,13 @@ public class Specimen extends BaseExtensionEntity {
 		this.tissueSide = tissueSide;
 	}
 
-	public String getPathologicalStatus() {
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	public PermissibleValue getPathologicalStatus() {
 		return pathologicalStatus;
 	}
 
-	public void setPathologicalStatus(String pathologicalStatus) {
-		if (StringUtils.isNotBlank(this.pathologicalStatus) && !this.pathologicalStatus.equals(pathologicalStatus)) {
+	public void setPathologicalStatus(PermissibleValue pathologicalStatus) {
+		if (!Objects.equals(this.pathologicalStatus, pathologicalStatus)) {
 			for (Specimen child : getChildCollection()) {
 				if (child.isAliquot()) {
 					child.setPathologicalStatus(pathologicalStatus);
@@ -287,12 +292,13 @@ public class Specimen extends BaseExtensionEntity {
 		this.initialQuantity = initialQuantity;
 	}
 
-	public String getSpecimenClass() {
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	public PermissibleValue getSpecimenClass() {
 		return specimenClass;
 	}
 
-	public void setSpecimenClass(String specimenClass) {
-		if (StringUtils.isNotBlank(this.specimenClass) && !this.specimenClass.equals(specimenClass)) {
+	public void setSpecimenClass(PermissibleValue specimenClass) {
+		if (!Objects.equals(this.specimenClass, specimenClass)) {
 			for (Specimen child : getChildCollection()) {
 				if (child.isAliquot()) {
 					child.setSpecimenClass(specimenClass);
@@ -307,12 +313,13 @@ public class Specimen extends BaseExtensionEntity {
 		this.specimenClass = specimenClass;
 	}
 
-	public String getSpecimenType() {
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	public PermissibleValue getSpecimenType() {
 		return specimenType;
 	}
 
-	public void setSpecimenType(String specimenType) {
-		if (StringUtils.isNotBlank(this.specimenType) && !this.specimenType.equals(specimenType)) {
+	public void setSpecimenType(PermissibleValue specimenType) {
+		if (!Objects.equals(this.specimenType, specimenType)) {
 			for (Specimen child : getChildCollection()) {
 				if (child.isAliquot()) {
 					child.setSpecimenType(specimenType);
@@ -333,7 +340,7 @@ public class Specimen extends BaseExtensionEntity {
 
 	public void setConcentration(BigDecimal concentration) {
 		if (concentrationInit) {
-			if (this.concentration == concentration) {
+			if (Objects.equals(this.concentration, concentration)) {
 				return;
 			}
 
@@ -422,15 +429,16 @@ public class Specimen extends BaseExtensionEntity {
 		this.collectionStatus = collectionStatus;
 	}
 
-	public Set<String> getBiohazards() {
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	public Set<PermissibleValue> getBiohazards() {
 		return biohazards;
 	}
 
-	public void setBiohazards(Set<String> biohazards) {
+	public void setBiohazards(Set<PermissibleValue> biohazards) {
 		this.biohazards = biohazards;
 	}
 	
-	public void updateBiohazards(Set<String> biohazards) {
+	public void updateBiohazards(Set<PermissibleValue> biohazards) {
 		getBiohazards().addAll(biohazards);
 		getBiohazards().retainAll(biohazards);
 		
@@ -1529,6 +1537,10 @@ public class Specimen extends BaseExtensionEntity {
 	public void initCollections() {
 		getBiohazards().size();
 		getExternalIds().size();
+	}
+
+	public static String getDesc(PermissibleValue specimenClass, PermissibleValue type) {
+		return getDesc(specimenClass.getValue(), type.getValue());
 	}
 
 	public static String getDesc(String specimenClass, String type) {

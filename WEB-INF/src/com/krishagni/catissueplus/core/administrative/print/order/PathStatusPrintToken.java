@@ -15,6 +15,6 @@ public class PathStatusPrintToken extends AbstractLabelTmplToken implements Labe
 	@Override
 	public String getReplacement(Object object) {
 		DistributionOrderItem item = (DistributionOrderItem) object;
-		return PvUtil.getInstance().getAbbr(PvAttributes.PATH_STATUS, item.getSpecimen().getPathologicalStatus());
+		return PvUtil.getInstance().getAbbr(item.getSpecimen().getPathologicalStatus(), null);
 	}
 }

@@ -19,6 +19,8 @@ import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
+import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
+import com.krishagni.catissueplus.core.biospecimen.domain.Participant;
 import com.krishagni.catissueplus.core.biospecimen.domain.Visit;
 import com.krishagni.catissueplus.core.biospecimen.services.SprPdfGenerator;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
@@ -85,9 +87,11 @@ public class SprText2PdfGenerator implements SprPdfGenerator {
 		header.setWidthPercentage(100);
 		header.setSpacingAfter(4f);
 
+		Participant participant = visit.getRegistration().getParticipant();
+
 		Map<String, String> headerInfo = new LinkedHashMap<String, String>();
 		headerInfo.put(getMessage("spr_protocol_name"), visit.getCollectionProtocol().getShortTitle());
-		headerInfo.put(getMessage("spr_gender"), visit.getRegistration().getParticipant().getGender());
+		headerInfo.put(getMessage("spr_gender"), PermissibleValue.getValue(participant.getGender()));
 		headerInfo.put(getMessage("spr_printed_by"),
 				AuthUtil.getCurrentUser().getLastName() + ", " + AuthUtil.getCurrentUser().getFirstName());
 		headerInfo.put(getMessage("spr_visit_name"), visit.getName());
@@ -103,7 +107,7 @@ public class SprText2PdfGenerator implements SprPdfGenerator {
 
 		headerInfo.put(getMessage("spr_printed_on_date"), Utility.getDateString(new Date()));
 		headerInfo.put(getMessage("spr_participant_race"), 
-				Utility.stringListToCsv(visit.getRegistration().getParticipant().getRaces(), false));
+				Utility.stringListToCsv(PermissibleValue.toValueList(participant.getRaces()), false));
 		headerInfo.put(getMessage("spr_visit_date"), Utility.getYear(visit.getVisitDate()).toString());
 		
 		for (Map.Entry<String, String> entry : headerInfo.entrySet()) {

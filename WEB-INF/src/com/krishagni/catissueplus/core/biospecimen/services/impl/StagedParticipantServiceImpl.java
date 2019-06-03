@@ -1,7 +1,9 @@
 package com.krishagni.catissueplus.core.biospecimen.services.impl;
 
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -10,13 +12,17 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 
+import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
 import com.krishagni.catissueplus.core.biospecimen.domain.StagedParticipant;
 import com.krishagni.catissueplus.core.biospecimen.domain.StagedParticipantMedicalIdentifier;
+import com.krishagni.catissueplus.core.biospecimen.domain.factory.ParticipantErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.events.PmiDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.StagedParticipantDetail;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.biospecimen.services.StagedParticipantService;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
+import com.krishagni.catissueplus.core.common.PvAttributes;
+import com.krishagni.catissueplus.core.common.errors.ErrorCode;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
@@ -76,8 +82,8 @@ public class StagedParticipantServiceImpl implements StagedParticipantService {
 		participant.setFirstName(detail.getFirstName());
 		participant.setLastName(detail.getLastName());
 		participant.setBirthDate(detail.getBirthDate());
-		participant.setGender(detail.getGender());
-		participant.setVitalStatus(detail.getVitalStatus());
+		participant.setGender(getPv(PvAttributes.GENDER, detail.getGender(), ParticipantErrorCode.INVALID_GENDER));
+		participant.setVitalStatus(getPv(PvAttributes.VITAL_STATUS, detail.getVitalStatus(), ParticipantErrorCode.INVALID_VITAL_STATUS));
 		participant.setUpdatedTime(Calendar.getInstance().getTime());
 
 		if (StringUtils.isNotBlank(detail.getSource())) {
@@ -95,12 +101,12 @@ public class StagedParticipantServiceImpl implements StagedParticipantService {
 
 		Set<String> races = detail.getRaces();
 		if (CollectionUtils.isNotEmpty(races)) {
-			participant.setRaces(races);
+			participant.setRaces(getPvs(PvAttributes.RACE, races, ParticipantErrorCode.INVALID_RACE));
 		}
 
 		Set<String> ethnicities = detail.getEthnicities();
 		if (CollectionUtils.isNotEmpty(ethnicities)) {
-			participant.setEthnicities(ethnicities);
+			participant.setRaces(getPvs(PvAttributes.ETHNICITY, ethnicities, ParticipantErrorCode.INVALID_ETHNICITY));
 		}
 	}
 
@@ -117,5 +123,31 @@ public class StagedParticipantServiceImpl implements StagedParticipantService {
 				return pmi;
 			}
 		).collect(Collectors.toSet());
+	}
+
+	public PermissibleValue getPv(String attr, String value, ErrorCode invErrorCode) {
+		if (StringUtils.isBlank(value)) {
+			return null;
+		}
+
+		PermissibleValue pv = daoFactory.getPermissibleValueDao().getPv(attr, value);
+		if (pv == null) {
+			throw OpenSpecimenException.userError(invErrorCode);
+		}
+
+		return pv;
+	}
+
+	public Set<PermissibleValue> getPvs(String attr, Collection<String> values, ErrorCode invErrorCode) {
+		if (CollectionUtils.isEmpty(values)) {
+			return new HashSet<>();
+		}
+
+		List<PermissibleValue> pvs = daoFactory.getPermissibleValueDao().getPvs(attr, values);
+		if (pvs.size() != values.size()) {
+			throw OpenSpecimenException.userError(invErrorCode);
+		}
+
+		return new HashSet<>(pvs);
 	}
 }

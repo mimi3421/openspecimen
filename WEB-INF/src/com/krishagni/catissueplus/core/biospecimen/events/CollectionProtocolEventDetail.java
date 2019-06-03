@@ -9,6 +9,7 @@ import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolEvent;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenRequirement;
 
@@ -202,8 +203,8 @@ public class CollectionProtocolEventDetail {
 		detail.setEventLabel(event.getEventLabel());
 		detail.setEventPoint(event.getEventPoint());
 		detail.setEventPointUnit(event.getEventPointUnit() != null ? event.getEventPointUnit().name(): null);
-		detail.setClinicalDiagnosis(event.getClinicalDiagnosis());
-		detail.setClinicalStatus(event.getClinicalStatus());
+		detail.setClinicalDiagnosis(PermissibleValue.getValue(event.getClinicalDiagnosis()));
+		detail.setClinicalStatus(PermissibleValue.getValue(event.getClinicalStatus()));
 		detail.setCpId(event.getCollectionProtocol().getId());
 		detail.setCollectionProtocol(event.getCollectionProtocol().getTitle());
 		detail.setCpShortTitle(event.getCollectionProtocol().getShortTitle());

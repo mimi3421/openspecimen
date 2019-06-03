@@ -3,6 +3,7 @@ package com.krishagni.catissueplus.core.administrative.domain;
 import java.util.List;
 
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.RelationTargetAuditMode;
 
 import com.krishagni.catissueplus.core.administrative.domain.factory.StorageContainerErrorCode;
 import com.krishagni.catissueplus.core.administrative.events.ShipmentItemsListCriteria;
@@ -19,7 +20,7 @@ public class ShipmentContainer extends BaseEntity {
 
 	private StorageContainer container;
 
-	private String receivedQuality;
+	private PermissibleValue receivedQuality;
 
 	public Shipment getShipment() {
 		return shipment;
@@ -37,11 +38,12 @@ public class ShipmentContainer extends BaseEntity {
 		this.container = container;
 	}
 
-	public String getReceivedQuality() {
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	public PermissibleValue getReceivedQuality() {
 		return receivedQuality;
 	}
 
-	public void setReceivedQuality(String receivedQuality) {
+	public void setReceivedQuality(PermissibleValue receivedQuality) {
 		this.receivedQuality = receivedQuality;
 	}
 
@@ -93,7 +95,7 @@ public class ShipmentContainer extends BaseEntity {
 		getContainer().moveTo(other.getContainer().getSite(), parentContainer, position);
 	}
 
-	private void receiveSpecimens(String receivedQuality) {
+	private void receiveSpecimens(PermissibleValue receivedQuality) {
 		DaoFactory daoFactory = OpenSpecimenAppCtxProvider.getBean("biospecimenDaoFactory");
 
 		int startAt = 0, maxSpmns = 50;

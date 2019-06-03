@@ -14,6 +14,6 @@ public class SpecimenPathologyStatusToken extends AbstractSpecimenLabelToken {
 	
 	@Override
 	public String getLabel(Specimen specimen) {
-		return PvUtil.getInstance().getAbbr(PvAttributes.PATH_STATUS, specimen.getPathologicalStatus(), StringUtils.EMPTY);
+		return PvUtil.getInstance().getAbbr(specimen.getPathologicalStatus(), StringUtils.EMPTY);
 	}
 }

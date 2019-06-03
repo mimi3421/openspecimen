@@ -16,7 +16,7 @@
     <many-to-one name="specimen" column="SPECIMEN_ID"/>
 
     <many-to-one name="shipmentContainer" column="SHIPMENT_CONTAINER_ID"/>
-      
-    <property name="receivedQuality" column="RECEIVED_QUALITY"/>
+
+    <many-to-one name="receivedQuality" column="RECEIVED_QUALITY_ID" fetch="join"/>
   </class>
 </hibernate-mapping>

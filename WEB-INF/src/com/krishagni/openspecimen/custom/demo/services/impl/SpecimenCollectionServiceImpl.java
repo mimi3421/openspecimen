@@ -158,11 +158,10 @@ public class SpecimenCollectionServiceImpl implements SpecimenCollectionService 
 		specimen.setStatus(Specimen.COLLECTED);
 		specimen.setCreatedOn(Calendar.getInstance().getTime());
 		specimen.setReqId(sr.getId());
-		specimen.setSpecimenClass(sr.getSpecimenClass());
-		specimen.setType(sr.getSpecimenType());
-		
-		RequestEvent<SpecimenDetail> req = new RequestEvent<SpecimenDetail>(specimen);
-		ResponseEvent<SpecimenDetail> resp = specimenSvc.createSpecimen(req);
+		specimen.setSpecimenClass(sr.getSpecimenClass().getValue());
+		specimen.setType(sr.getSpecimenType().getValue());
+
+		ResponseEvent<SpecimenDetail> resp = specimenSvc.createSpecimen(new RequestEvent<>(specimen));
 		resp.throwErrorIfUnsuccessful();
 		return resp.getPayload();
 	}

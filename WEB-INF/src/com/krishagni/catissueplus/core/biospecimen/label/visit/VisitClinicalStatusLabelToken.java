@@ -1,7 +1,8 @@
 package com.krishagni.catissueplus.core.biospecimen.label.visit;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
+import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
 import com.krishagni.catissueplus.core.biospecimen.domain.Visit;
 
 public class VisitClinicalStatusLabelToken extends AbstractVisitLabelToken {
@@ -12,11 +13,7 @@ public class VisitClinicalStatusLabelToken extends AbstractVisitLabelToken {
 
 	@Override
 	public String getLabel(Visit visit, String... args) {
-		String clinicalStatus = visit.getClinicalStatus();
-		if (StringUtils.isBlank(clinicalStatus)) {
-			clinicalStatus	 = StringUtils.EMPTY;
-		}
-
-		return clinicalStatus;
+		PermissibleValue clinicalStatus = visit.getClinicalStatus();
+		return clinicalStatus != null ? clinicalStatus.getValue() : StringUtils.EMPTY;
 	}
 }

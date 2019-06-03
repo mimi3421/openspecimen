@@ -198,8 +198,8 @@ public class StorageContainerPositionDetail implements Comparable<StorageContain
 			Specimen specimen = position.getOccupyingSpecimen();
 
 			Map<String, Object> props = new HashMap<>();
-			props.put("specimenClass", specimen.getSpecimenClass());
-			props.put("type",          specimen.getSpecimenType());
+			props.put("specimenClass", specimen.getSpecimenClass().getValue());
+			props.put("type",          specimen.getSpecimenType().getValue());
 
 			if (specimen.getBarcode() != null) {
 				props.put("barcode", specimen.getBarcode());

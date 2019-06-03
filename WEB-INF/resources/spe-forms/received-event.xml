@@ -8,18 +8,14 @@
     <primaryKey>IDENTIFIER</primaryKey>
 
     <row>
-      <dropDown>
+      <pvField>
         <name>quality</name>
         <udn>quality</udn>
         <caption>#getMessage("received_event_quality")</caption>
-        <column>RECEIVED_QUALITY</column>
-        <options>
-          <sql>
-            select value from catissue_permissible_value where public_id = 'receive_quality' order by value
-          </sql>
-        </options>
+        <column>RECEIVED_QUALITY_ID</column>
+        <attribute>receive_quality</attribute>
         <mandatory>true</mandatory>
-      </dropDown>
+      </pvField>
     </row>
 
     <row>
@@ -45,7 +41,6 @@
         <mandatory>true</mandatory>
       </datePicker>
     </row>
-
 
     <row>
       <textArea>

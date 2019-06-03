@@ -66,11 +66,11 @@ public class LeastEmptyContainerSelectionStrategy implements ContainerSelectionS
 		sql += groupByLaterSql;
 		return sessionFactory.getCurrentSession().createSQLQuery(sql)
 			.addScalar("containerId", LongType.INSTANCE)
-			.setLong("cpId", crit.specimen().getCpId())
-			.setString("specimenClass", crit.specimen().getSpecimenClass())
-			.setString("specimenType", crit.specimen().getType())
-			.setInteger("minFreeLocs", crit.getRequiredPositions(aliquotsInSameContainer))
-			.setDate("reservedLaterThan", crit.reservedLaterThan())
+			.setParameter("cpId", crit.specimen().getCpId())
+			.setParameter("specimenClass", crit.specimen().getSpecimenClass())
+			.setParameter("specimenType", crit.specimen().getType())
+			.setParameter("minFreeLocs", crit.getRequiredPositions(aliquotsInSameContainer))
+			.setParameter("reservedLaterThan", crit.reservedLaterThan())
 			.setMaxResults(crit.numContainers())
 			.list();
 	}

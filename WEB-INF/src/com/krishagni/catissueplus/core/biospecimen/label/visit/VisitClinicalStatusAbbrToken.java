@@ -2,8 +2,8 @@ package com.krishagni.catissueplus.core.biospecimen.label.visit;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
 import com.krishagni.catissueplus.core.biospecimen.domain.Visit;
-import com.krishagni.catissueplus.core.common.PvAttributes;
 import com.krishagni.catissueplus.core.common.util.PvUtil;
 
 public class VisitClinicalStatusAbbrToken extends AbstractVisitLabelToken {
@@ -14,6 +14,7 @@ public class VisitClinicalStatusAbbrToken extends AbstractVisitLabelToken {
 
 	@Override
 	public String getLabel(Visit visit, String... args) {
-		return PvUtil.getInstance().getAbbr(PvAttributes.CLINICAL_STATUS, visit.getClinicalStatus(), StringUtils.EMPTY);
+		PermissibleValue clinicalStatus = visit.getClinicalStatus();
+		return PvUtil.getInstance().getAbbr(clinicalStatus, StringUtils.EMPTY);
 	}
 }

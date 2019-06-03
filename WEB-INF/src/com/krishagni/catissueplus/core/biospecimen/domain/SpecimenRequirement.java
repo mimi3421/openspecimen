@@ -13,8 +13,10 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
+import org.hibernate.envers.RelationTargetAuditMode;
 import org.springframework.beans.BeanUtils;
 
+import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol.SpecimenLabelAutoPrintMode;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.SrErrorCode;
@@ -31,15 +33,15 @@ public class SpecimenRequirement extends BaseEntity implements Comparable<Specim
 	
 	private String lineage;
 		
-	private String specimenClass;
+	private PermissibleValue specimenClass;
 
-	private String specimenType;
-	
-	private String anatomicSite;
+	private PermissibleValue specimenType;
 
-	private String laterality;
+	private PermissibleValue anatomicSite;
+
+	private PermissibleValue laterality;
 			
-	private String pathologyStatus;
+	private PermissibleValue pathologyStatus;
 	
 	private String storageType;
 	
@@ -49,9 +51,9 @@ public class SpecimenRequirement extends BaseEntity implements Comparable<Specim
 	
 	private User collector;
 
-	private String collectionProcedure;
+	private PermissibleValue collectionProcedure;
 
-	private String collectionContainer;
+	private PermissibleValue collectionContainer;
 
 	private User receiver;
 
@@ -101,43 +103,48 @@ public class SpecimenRequirement extends BaseEntity implements Comparable<Specim
 		this.lineage = lineage;
 	}
 
-	public String getSpecimenClass() {
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	public PermissibleValue getSpecimenClass() {
 		return specimenClass;
 	}
 
-	public void setSpecimenClass(String specimenClass) {
+	public void setSpecimenClass(PermissibleValue specimenClass) {
 		this.specimenClass = specimenClass;
 	}
 
-	public String getSpecimenType() {
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	public PermissibleValue getSpecimenType() {
 		return specimenType;
 	}
 
-	public void setSpecimenType(String specimenType) {
+	public void setSpecimenType(PermissibleValue specimenType) {
 		this.specimenType = specimenType;
 	}
 
-	public String getAnatomicSite() {
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	public PermissibleValue getAnatomicSite() {
 		return anatomicSite;
 	}
 
-	public void setAnatomicSite(String anatomicSite) {
+	public void setAnatomicSite(PermissibleValue anatomicSite) {
 		this.anatomicSite = anatomicSite;
 	}
 
-	public String getLaterality() {
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	public PermissibleValue getLaterality() {
 		return laterality;
 	}
 
-	public void setLaterality(String laterality) {
+	public void setLaterality(PermissibleValue laterality) {
 		this.laterality = laterality;
 	}
 
-	public String getPathologyStatus() {
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	public PermissibleValue getPathologyStatus() {
 		return pathologyStatus;
 	}
 
-	public void setPathologyStatus(String pathologyStatus) {
+	public void setPathologyStatus(PermissibleValue pathologyStatus) {
 		this.pathologyStatus = pathologyStatus;
 	}
 
@@ -173,19 +180,21 @@ public class SpecimenRequirement extends BaseEntity implements Comparable<Specim
 		this.collector = collector;
 	}
 
-	public String getCollectionProcedure() {
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	public PermissibleValue getCollectionProcedure() {
 		return collectionProcedure;
 	}
 
-	public void setCollectionProcedure(String collectionProcedure) {
+	public void setCollectionProcedure(PermissibleValue collectionProcedure) {
 		this.collectionProcedure = collectionProcedure;
 	}
 
-	public String getCollectionContainer() {
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	public PermissibleValue getCollectionContainer() {
 		return collectionContainer;
 	}
 
-	public void setCollectionContainer(String collectionContainer) {
+	public void setCollectionContainer(PermissibleValue collectionContainer) {
 		this.collectionContainer = collectionContainer;
 	}
 
@@ -599,8 +608,8 @@ public class SpecimenRequirement extends BaseEntity implements Comparable<Specim
 		}
 	}
 	
-	private void update(String anatomicSite, String laterality, BigDecimal concentration,
-		String specimenClass, String specimenType, String pathologyStatus) {
+	private void update(PermissibleValue anatomicSite, PermissibleValue laterality, BigDecimal concentration,
+		PermissibleValue specimenClass, PermissibleValue specimenType, PermissibleValue pathologyStatus) {
 
 		setAnatomicSite(anatomicSite);
 		setLaterality(laterality);

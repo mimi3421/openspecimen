@@ -28,15 +28,13 @@
     </row>
 
     <row>
-      <dropDown>
+      <pvField>
         <name>receivedQuality</name>
         <udn>receivedQuality</udn>
         <caption>#getMessage("shipment_item_recv_quality")</caption>
-        <column>RECEIVED_QUALITY</column>
-        <options>
-          <sql>select value from catissue_permissible_value where public_id = 'shipment_item_received_quality' order by value</sql>
-        </options>
-      </dropDown>
+        <column>RECEIVED_QUALITY_ID</column>
+        <attribute>shipment_item_received_quality</attribute>
+      </pvField>
     </row>
 
     <row>

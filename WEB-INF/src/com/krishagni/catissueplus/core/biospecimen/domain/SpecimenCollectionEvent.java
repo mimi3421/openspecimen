@@ -7,36 +7,39 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Configurable;
 
+import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
+import com.krishagni.catissueplus.core.common.PvAttributes;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
 
 @Configurable
 public class SpecimenCollectionEvent extends SpecimenEvent {
-	private String procedure;
+	private PermissibleValue procedure;
 	
-	private String container;
+	private PermissibleValue container;
 
 	public SpecimenCollectionEvent(Specimen specimen) {
 		super(specimen);
 	}
 	
-	public String getProcedure() {
+	public PermissibleValue getProcedure() {
 		loadRecordIfNotLoaded();
 		return procedure;
 	}
 
-	public void setProcedure(String procedure) {
+	public void setProcedure(PermissibleValue procedure) {
 		loadRecordIfNotLoaded();
 		this.procedure = procedure;
 	}
 
-	public String getContainer() {
+	public PermissibleValue getContainer() {
 		loadRecordIfNotLoaded();
 		return container;
 	}
 
-	public void setContainer(String container) {
+	public void setContainer(PermissibleValue container) {
 		loadRecordIfNotLoaded();
 		this.container = container;
 	}
@@ -49,15 +52,27 @@ public class SpecimenCollectionEvent extends SpecimenEvent {
 	@Override
 	public Map<String, Object> getEventAttrs() {
 		Map<String, Object> attrs = new HashMap<>();
-		attrs.put("procedure", procedure);
-		attrs.put("container", container);
+		attrs.put("procedure", procedure != null ? procedure.getId().toString() : null);
+		attrs.put("container", container != null ? container.getId().toString() : null);
 		return attrs;
 	}
 	
 	@Override
 	public void setEventAttrs(Map<String, Object> attrValues) {
-		this.procedure = (String)attrValues.get("procedure");
-		this.container = (String)attrValues.get("container");		
+		//
+		// TODO: load both values in a single SQL
+		//
+		String procIdStr = (String)attrValues.get("procedure");
+		if (StringUtils.isNotBlank(procIdStr)) {
+			Long procId = Long.parseLong(procIdStr);
+			this.procedure = daoFactory.getPermissibleValueDao().getById(procId);
+		}
+
+		String contIdStr = (String)attrValues.get("container");
+		if (StringUtils.isNotBlank(contIdStr)) {
+			Long contId = Long.parseLong(contIdStr);
+			this.container = daoFactory.getPermissibleValueDao().getById(contId);
+		}
 	}
 	
 	@Override
@@ -82,14 +97,15 @@ public class SpecimenCollectionEvent extends SpecimenEvent {
 	
 	public static SpecimenCollectionEvent createFromSr(Specimen specimen) {
 		SpecimenCollectionEvent event = new SpecimenCollectionEvent(specimen);
-		event.setContainer(Specimen.NOT_SPECIFIED);
-		event.setProcedure(Specimen.NOT_SPECIFIED);
-		
 		SpecimenRequirement sr = specimen.getSpecimenRequirement();
 		if (sr != null) {
 			event.setContainer(sr.getCollectionContainer());
 			event.setProcedure(sr.getCollectionProcedure());
 			event.setUser(sr.getCollector());
+		} else {
+			// TODO: load both values in a single SQL
+			event.setContainer(event.daoFactory.getPermissibleValueDao().getPv(PvAttributes.CONTAINER, Specimen.NOT_SPECIFIED));
+			event.setProcedure(event.daoFactory.getPermissibleValueDao().getPv(PvAttributes.COLL_PROC, Specimen.NOT_SPECIFIED));
 		}
 
 		Date collectionTime;

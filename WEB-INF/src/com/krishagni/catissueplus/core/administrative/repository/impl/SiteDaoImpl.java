@@ -13,6 +13,7 @@ import org.hibernate.Criteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.sql.JoinType;
 
 import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.administrative.repository.SiteDao;
@@ -107,6 +108,7 @@ public class SiteDaoImpl extends AbstractDao<Site> implements SiteDao {
 	private Criteria getSitesListQuery(SiteListCriteria crit) {
 		Criteria query = sessionFactory.getCurrentSession()
 			.createCriteria(Site.class)
+			.createAlias("type", "type", JoinType.LEFT_OUTER_JOIN)
 			.add(Restrictions.eq("activityStatus", Status.ACTIVITY_STATUS_ACTIVE.getStatus()));
 
 		return addSearchConditions(query, crit);
@@ -127,11 +129,11 @@ public class SiteDaoImpl extends AbstractDao<Site> implements SiteDao {
 		}
 
 		if (CollectionUtils.isNotEmpty(listCrit.includeTypes())) {
-			query.add(Restrictions.in("type", listCrit.includeTypes()));
+			query.add(Restrictions.in("type.value", listCrit.includeTypes()));
 		}
 
 		if (CollectionUtils.isNotEmpty(listCrit.excludeTypes())) {
-			query.add(Restrictions.not(Restrictions.in("type", listCrit.excludeTypes())));
+			query.add(Restrictions.not(Restrictions.in("type.value", listCrit.excludeTypes())));
 		}
 
 		return query;

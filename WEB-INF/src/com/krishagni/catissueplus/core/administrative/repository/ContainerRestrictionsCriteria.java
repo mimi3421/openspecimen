@@ -4,6 +4,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol;
+import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
 import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.common.events.AbstractListCriteria;
@@ -13,9 +14,9 @@ public class ContainerRestrictionsCriteria extends AbstractListCriteria<Containe
 
 	private Long containerId;
 
-	private Set<String> spmnClasses;
+	private Set<PermissibleValue> spmnClasses;
 
-	private Set<String> spmnTypes;
+	private Set<PermissibleValue> spmnTypes;
 
 	private Set<CollectionProtocol> cps;
 
@@ -37,20 +38,20 @@ public class ContainerRestrictionsCriteria extends AbstractListCriteria<Containe
 		return self();
 	}
 
-	public Set<String> specimenClasses() {
+	public Set<PermissibleValue> specimenClasses() {
 		return spmnClasses;
 	}
 
-	public ContainerRestrictionsCriteria specimenClasses(Set<String> spmnClasses) {
+	public ContainerRestrictionsCriteria specimenClasses(Set<PermissibleValue> spmnClasses) {
 		this.spmnClasses = spmnClasses;
 		return self();
 	}
 
-	public Set<String> specimenTypes() {
+	public Set<PermissibleValue> specimenTypes() {
 		return spmnTypes;
 	}
 
-	public ContainerRestrictionsCriteria specimenTypes(Set<String> spmnTypes) {
+	public ContainerRestrictionsCriteria specimenTypes(Set<PermissibleValue> spmnTypes) {
 		this.spmnTypes = spmnTypes;
 		return self();
 	}

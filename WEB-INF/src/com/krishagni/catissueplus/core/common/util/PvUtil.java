@@ -28,6 +28,10 @@ public class PvUtil {
 
 	public String getAbbr(String attr, String value, String defVal) {
 		PermissibleValue pv = daoFactory.getPermissibleValueDao().getByValue(attr, value);
+		return getAbbr(pv, defVal);
+	}
+
+	public String getAbbr(PermissibleValue pv, String defVal) {
 		if (pv == null) {
 			return defVal;
 		}

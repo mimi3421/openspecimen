@@ -3,6 +3,7 @@ package com.krishagni.catissueplus.core.administrative.events;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
 import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.common.AttributeModifiedSupport;
 import com.krishagni.catissueplus.core.common.ListenAttributeChanges;
@@ -90,7 +91,7 @@ public class SiteSummary extends AttributeModifiedSupport {
 		detail.setName(site.getName());
 		detail.setInstituteName(site.getInstitute().getName());
 		detail.setCode(site.getCode());
-		detail.setType(site.getType());
+		detail.setType(PermissibleValue.getValue(site.getType()));
 		detail.setActivityStatus(site.getActivityStatus());
 	}
 	

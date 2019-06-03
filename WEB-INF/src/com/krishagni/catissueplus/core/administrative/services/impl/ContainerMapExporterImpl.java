@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 import org.springframework.context.MessageSource;
 
+import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
 import com.krishagni.catissueplus.core.administrative.domain.PositionAssigner;
 import com.krishagni.catissueplus.core.administrative.domain.RowMajorPositionAssigner;
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainer;
@@ -77,12 +78,12 @@ public class ContainerMapExporterImpl implements ContainerMapExporter {
 			container.getCompAllowedSpecimenTypes().isEmpty()) {
 			types.add(getMessage(ALL));
 		} else {
-			for (String specimenClass : container.getCompAllowedSpecimenClasses()) {
-				types.add(specimenClass);
+			for (PermissibleValue specimenClass : container.getCompAllowedSpecimenClasses()) {
+				types.add(specimenClass.getValue());
 			}
 			
-			for (String type : container.getCompAllowedSpecimenTypes()) {
-				types.add(type);
+			for (PermissibleValue type : container.getCompAllowedSpecimenTypes()) {
+				types.add(type.getValue());
 			}
 		}
 		writer.writeNext(types.toArray(new String[0]));

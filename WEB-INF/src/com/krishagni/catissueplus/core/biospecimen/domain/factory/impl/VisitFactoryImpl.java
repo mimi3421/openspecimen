@@ -7,12 +7,14 @@ import static com.krishagni.catissueplus.core.common.service.PvValidator.isValid
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
 import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.administrative.domain.factory.SiteErrorCode;
@@ -260,16 +262,17 @@ public class VisitFactoryImpl implements VisitFactory {
 
 	private void setClinicalDiagnosis(VisitDetail visitDetail, Visit visit, OpenSpecimenException ose) {
 		Set<String> clinicalDiagnoses = visitDetail.getClinicalDiagnoses();
-		if (clinicalDiagnoses == null) {
+		if (clinicalDiagnoses == null || CollectionUtils.isEmpty(clinicalDiagnoses)) {
 			return;
 		}
 
-		if (!areValid(CLINICAL_DIAG, clinicalDiagnoses)) {
+		List<PermissibleValue> cdPvs = daoFactory.getPermissibleValueDao().getPvs(CLINICAL_DIAG, clinicalDiagnoses);
+		if (cdPvs.size() != clinicalDiagnoses.size()) {
 			ose.addError(VisitErrorCode.INVALID_CLINICAL_DIAGNOSIS);
 			return;
 		}
-		
-		visit.setClinicalDiagnoses(clinicalDiagnoses);
+
+		visit.setClinicalDiagnoses(new HashSet<>(cdPvs));
 	}
 	
 	private void setClinicalDiagnosis(VisitDetail detail, Visit existing, Visit visit, OpenSpecimenException ose) {
@@ -282,12 +285,17 @@ public class VisitFactoryImpl implements VisitFactory {
 	
 	private void setClinicalStatus(VisitDetail visitDetail, Visit visit, OpenSpecimenException ose) {
 		String clinicalStatus = visitDetail.getClinicalStatus();
-		if (!isValid(CLINICAL_STATUS, clinicalStatus)) {
-			ose.addError(VisitErrorCode.INVALID_CLINICAL_STATUS);
-			return;			
+		if (StringUtils.isBlank(clinicalStatus)) {
+			return;
 		}
-		
-		visit.setClinicalStatus(clinicalStatus);
+
+		PermissibleValue statusPv = daoFactory.getPermissibleValueDao().getPv(CLINICAL_STATUS, clinicalStatus);
+		if (statusPv == null) {
+			ose.addError(VisitErrorCode.INVALID_CLINICAL_STATUS);
+			return;
+		}
+
+		visit.setClinicalStatus(statusPv);
 	}
 	
 	private void setClinicalStatus(VisitDetail detail, Visit existing, Visit visit, OpenSpecimenException ose) {
@@ -346,12 +354,18 @@ public class VisitFactoryImpl implements VisitFactory {
 		}
 
 		String missedReason = detail.getMissedReason();
-		if (!isValid(MISSED_VISIT_REASON, missedReason)) {
+		if (StringUtils.isBlank(missedReason)) {
+			visit.setMissedReason(null);
+			return;
+		}
+
+		PermissibleValue mrPv = daoFactory.getPermissibleValueDao().getPv(MISSED_VISIT_REASON, missedReason);
+		if (mrPv == null) {
 			ose.addError(VisitErrorCode.INVALID_MISSED_REASON);
 			return;
 		}
-		
-		visit.setMissedReason(missedReason);
+
+		visit.setMissedReason(mrPv);
 	}
 	
 	private void setMissedVisitReason(VisitDetail detail, Visit existing, Visit visit, OpenSpecimenException ose) {
@@ -439,12 +453,17 @@ public class VisitFactoryImpl implements VisitFactory {
 	
 	private void setCohort(VisitDetail visitDetail, Visit visit, OpenSpecimenException ose) {
 		String cohort = visitDetail.getCohort();
-		if (!isValid(COHORT, cohort)) {
+		if (StringUtils.isBlank(cohort)) {
+			return;
+		}
+
+		PermissibleValue cohortPv = daoFactory.getPermissibleValueDao().getPv(COHORT, cohort);
+		if (cohortPv == null) {
 			ose.addError(VisitErrorCode.INVALID_COHORT, cohort);
 			return;
 		}
-		
-		visit.setCohort(cohort);
+
+		visit.setCohort(cohortPv);
 	}
 	
 	private void setCohort(VisitDetail detail, Visit existing, Visit visit, OpenSpecimenException ose) {

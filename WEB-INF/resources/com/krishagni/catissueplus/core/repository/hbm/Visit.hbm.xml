@@ -5,15 +5,13 @@
 
 <hibernate-mapping auto-import="false">
   <class name="com.krishagni.catissueplus.core.biospecimen.domain.Visit" table="CATISSUE_SPECIMEN_COLL_GROUP" batch-size="100">
-
-
     <id name="id" column="IDENTIFIER">
       <generator class="native">
         <param name="sequence">CATISSUE_SPECIMEN_COLL_GRP_SEQ</param>
       </generator>
     </id>
 
-    <property name="clinicalStatus" column="CLINICAL_STATUS" />
+    <many-to-one name="clinicalStatus" column="CLINICAL_STATUS_ID" fetch="join"/>
 
     <property name="activityStatus" column="ACTIVITY_STATUS" />
 
@@ -31,11 +29,11 @@
 
     <property name="visitDate" type="timestamp" column="COLLECTION_TIMESTAMP" />
 
-    <property name="missedReason" column="MISSED_REASON" />
+    <many-to-one name="missedReason" column="MISSED_REASON_ID" fetch="join"/>
 
-    <set name="clinicalDiagnoses" table="OS_VISIT_CLIN_DIAGNOSES" cascade="all-delete-orphan">
+    <set name="clinicalDiagnoses" table="OS_VISIT_CLIN_DIAGNOSES">
       <key column="VISIT_ID"/>
-      <element column="CLINICAL_DIAGNOSIS" type="string"/>
+      <many-to-many class="com.krishagni.catissueplus.core.administrative.domain.PermissibleValue" column="CLINICAL_DIAGNOSIS_ID"/>
     </set>
 
     <many-to-one name="registration" column="COLLECTION_PROTOCOL_REG_ID" />
@@ -52,7 +50,7 @@
 
     <many-to-one name="missedBy" column="MISSED_BY"/>
     
-    <property name="cohort" column="COHORT"/>
+    <many-to-one name="cohort" column="COHORT_ID" fetch="join"/>
 
     <property name="extensionRev" column="EXTENSION_REV"/>
 
@@ -125,56 +123,6 @@
         lower(v.surgicalPathologyNumber) = :sprNo and
         cp.id = :cpId
     </query>
-
-    <!-- TODO: Below query getVisitsSummaryByCprId should be removed before v5.0 RC -->
-    <!-- sql-query name="getVisitsSummaryByCprId">
-      <return-scalar column="id" type="long"/>
-      <return-scalar column="eventId" type="long"/>
-      <return-scalar column="name" type="string"/>
-      <return-scalar column="eventStatus" type="string"/>
-      <return-scalar column="label" type="string"/>
-      <return-scalar column="calendarPoint" type="int"/>
-      <return-scalar column="eventPointUnit" type="string"/>
-      <return-scalar column="status" type="string"/>
-      <return-scalar column="visitDate" type="timestamp"/>
-      <return-scalar column="regDate" type="timestamp"/>
-      <return-scalar column="missedReason" type="string"/>
-      <return-scalar column="cpId" type="long"/>
-
-      select
-        scg.identifier as id, cpe.identifier as eventId, scg.name as name, cpe.activity_status as eventStatus,
-        cpe.collection_point_label as label, cpe.study_calendar_event_point as calendarPoint, cpe.event_point_unit as eventPointUnit,
-        scg.collection_status as status, scg.collection_timestamp as visitDate, cpr.registration_date as regDate,
-        scg.missed_reason as missedReason, cpr.collection_protocol_id as cpId
-      from   
-        catissue_coll_prot_reg cpr
-        inner join catissue_coll_prot_event cpe 
-          on cpe.collection_protocol_id = cpr.collection_protocol_id
-        left join catissue_specimen_coll_group scg 
-          on scg.collection_protocol_event_id = cpe.identifier and 
-             scg.collection_protocol_reg_id = cpr.identifier and
-             scg.activity_status != 'Disabled'
-      where
-        cpr.identifier = :cprId and
-        cpr.activity_status != 'Disabled'
-
-      union
-
-      select
-        scg.identifier as id, null as eventId, scg.name as name, null as eventStatus,
-        null as label, null as calendarPoint, null as eventPointUnit,
-        scg.collection_status as status, scg.collection_timestamp as visitDate, cpr.registration_date as regDate,
-        scg.missed_reason as missedReason, cpr.collection_protocol_id as cpId
-      from
-        catissue_coll_prot_reg cpr
-        inner join catissue_specimen_coll_group scg 
-          on scg.collection_protocol_event_id is null  and
-             scg.collection_protocol_reg_id = cpr.identifier and
-             scg.activity_status != 'Disabled'
-      where
-        cpr.identifier = :cprId and
-        cpr.activity_status != 'Disabled'
-    </sql-query -->
 
     <sql-query name="getVisitStats">
       <return-scalar column="visitId" type="long"/>

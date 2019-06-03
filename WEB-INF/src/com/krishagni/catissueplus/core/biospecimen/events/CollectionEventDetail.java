@@ -1,5 +1,6 @@
 package com.krishagni.catissueplus.core.biospecimen.events;
 
+import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenCollectionEvent;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenCollectionReceiveDetail;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
@@ -33,8 +34,8 @@ public class CollectionEventDetail extends SpecimenEventDetail {
 		CollectionEventDetail detail = new CollectionEventDetail();
 		fromTo(ce, detail);
 
-		detail.setContainer(ce.getContainer());
-		detail.setProcedure(ce.getProcedure());
+		detail.setContainer(PermissibleValue.getValue(ce.getContainer()));
+		detail.setProcedure(PermissibleValue.getValue(ce.getProcedure()));
 		return detail;
 	}
 

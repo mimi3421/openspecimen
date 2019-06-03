@@ -93,14 +93,14 @@
       </many-to-many>
     </set>
 
-    <set name="allowedSpecimenClasses" table="OS_STOR_CONT_SPEC_CLASSES" cascade="all-delete-orphan">
+    <set name="allowedSpecimenClasses" table="OS_STOR_CONT_SPEC_CLASSES">
       <key column="STORAGE_CONTAINER_ID"/>
-      <element column="SPECIMEN_CLASS" type="string"/>
+      <many-to-many class="com.krishagni.catissueplus.core.administrative.domain.PermissibleValue" column="SPECIMEN_CLASS_ID"/>
     </set>
 
-    <set name="allowedSpecimenTypes" table="OS_STOR_CONT_SPEC_TYPES" cascade="all-delete-orphan">
+    <set name="allowedSpecimenTypes" table="OS_STOR_CONT_SPEC_TYPES">
       <key column="STORAGE_CONTAINER_ID"/>
-      <element column="SPECIMEN_TYPE" type="string"/>
+      <many-to-many class="com.krishagni.catissueplus.core.administrative.domain.PermissibleValue" column="SPECIMEN_TYPE_ID"/>
     </set>
             
     <set name="allowedCps" table="OS_STOR_CONTAINER_CPS">
@@ -113,14 +113,14 @@
       <many-to-many class="com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol" column="DP_ID"/>
     </set>
 
-    <set name="compAllowedSpecimenClasses" table="OS_STOR_CONT_COMP_SPEC_CLASSES" cascade="all-delete-orphan">
+    <set name="compAllowedSpecimenClasses" table="OS_STOR_CONT_COMP_SPEC_CLASSES">
       <key column="STORAGE_CONTAINER_ID"/>
-      <element column="SPECIMEN_CLASS" type="string"/>
+      <many-to-many class="com.krishagni.catissueplus.core.administrative.domain.PermissibleValue" column="SPECIMEN_CLASS_ID"/>
     </set>
 
-    <set name="compAllowedSpecimenTypes" table="OS_STOR_CONT_COMP_SPEC_TYPES" cascade="all-delete-orphan">
+    <set name="compAllowedSpecimenTypes" table="OS_STOR_CONT_COMP_SPEC_TYPES">
       <key column="STORAGE_CONTAINER_ID"/>
-      <element column="SPECIMEN_TYPE" type="string"/>
+      <many-to-many class="com.krishagni.catissueplus.core.administrative.domain.PermissibleValue" column="SPECIMEN_TYPE_ID"/>
     </set>
             
     <set name="compAllowedCps" table="OS_STOR_CONTAINER_COMP_CPS">
@@ -307,9 +307,10 @@
             select
               count(*)
             from
-              os_stor_cont_comp_spec_classes
+              os_stor_cont_comp_spec_classes cc
+              inner join catissue_permissible_value pcc on pcc.identifier = cc.specimen_class_id
             where
-              specimen_class = :specimenClass and
+              pcc.value = :specimenClass and
               storage_container_id = c.identifier
           ) > 0
           or
@@ -317,9 +318,10 @@
             select
               count(*)
             from
-              os_stor_cont_comp_spec_types
+              os_stor_cont_comp_spec_types ct
+              inner join catissue_permissible_value pct on pct.identifier = ct.specimen_type_id
             where
-              specimen_type = :specimenType and
+              pct.value = :specimenType and
               storage_container_id = c.identifier
           ) > 0
         )
@@ -354,17 +356,18 @@
       <return-scalar column="specimens" type="integer"/>
 
       select
-        s.specimen_type as type, count(s.identifier) as specimens
+        pt.value as type, count(s.identifier) as specimens
       from
         os_storage_containers f
         inner join os_containers_hierarchy h on h.ancestor_id = f.identifier
         inner join os_container_positions p on p.storage_container_id = h.descendent_id
         inner join catissue_specimen s on s.identifier = p.occupying_specimen_id
+        inner join catissue_permissible_value pt on pt.identifier = s.specimen_type_id
       where
         f.activity_status != 'Disabled' and
         f.identifier = :containerId
       group by
-        s.specimen_type
+        pt.value
     </sql-query>
 
     <sql-query name="getDescendantContainerIds">

@@ -130,8 +130,8 @@ public class PermissibleValueDetails {
 			details.setParentValue(permissibleValue.getParent().getValue());
 		}
 		
-		if (permissibleValue.getProps() != null) {
-			details.setProps(permissibleValue.getProps());;
+		if (permissibleValue.getProps() != null && !permissibleValue.getProps().isEmpty()) {
+			details.setProps(permissibleValue.getProps());
 		}
 		
 		return details;
