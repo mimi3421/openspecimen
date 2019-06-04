@@ -4,9 +4,7 @@
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-  <class
-    name="com.krishagni.catissueplus.core.auth.domain.LoginAuditLog"
-    table="OS_LOGIN_AUDIT_LOGS">
+  <class name="com.krishagni.catissueplus.core.auth.domain.LoginAuditLog" table="OS_LOGIN_AUDIT_LOGS">
     
     <id name="id" column="IDENTIFIER">
       <generator class="native">
@@ -39,11 +37,10 @@
       select
         count(distinct u.identifier) as usersCnt
       from
-        os_login_audit_logs log
-        inner join catissue_user u on log.user_id = u.identifier
+        os_user_api_calls_log log
+        inner join catissue_user u on u.identifier = log.user_id
       where
-        log.is_login_successful = 1 and
-        log.login_time between :fromDate and :toDate and
+        log.call_start_time between :fromDate and :toDate and
         (:instituteId is null or u.institute_id = :instituteId)
     </sql-query>
 
