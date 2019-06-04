@@ -171,6 +171,7 @@ public class CollectionProtocolFactoryImpl implements CollectionProtocolFactory 
 		cp.setSopDocumentUrl(input.getSopDocumentUrl());
 		cp.setSopDocumentName(input.getSopDocumentName());
 		setDistributionProtocolSettings(input, cp, ose);
+		setCollectionProtocolExtension(input, cp, ose);
 		ose.checkAndThrow();
 		return cp;
 	}
