@@ -545,9 +545,13 @@ public class SpecimenRequirement extends BaseEntity implements Comparable<Specim
 			result.setCode(getCode());
 		}
 
-		Set<SpecimenRequirement> childSrs = new LinkedHashSet<SpecimenRequirement>();
+		Set<SpecimenRequirement> childSrs = new LinkedHashSet<>();
 		int order = 1;
 		for (SpecimenRequirement childSr : getOrderedChildRequirements()) {
+			if (childSr.isClosed()) {
+				continue;
+			}
+
 			SpecimenRequirement copiedSr = childSr.deepCopy(cpe, result, null);
 			copiedSr.setSortOrder(order++);
 			childSrs.add(copiedSr);
@@ -560,8 +564,12 @@ public class SpecimenRequirement extends BaseEntity implements Comparable<Specim
 		}
 
 		order = 1;
-		Set<SpecimenRequirement> specimenPoolReqs = new LinkedHashSet<SpecimenRequirement>();
+		Set<SpecimenRequirement> specimenPoolReqs = new LinkedHashSet<>();
 		for (SpecimenRequirement specimenPoolReq : getSpecimenPoolReqs()) {
+			if (specimenPoolReq.isClosed()) {
+				continue;
+			}
+
 			SpecimenRequirement copiedSr = specimenPoolReq.deepCopy(cpe, null, result);			
 			copiedSr.setSortOrder(order++);
 			specimenPoolReqs.add(copiedSr);

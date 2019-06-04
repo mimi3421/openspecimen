@@ -690,6 +690,10 @@ public class CollectionProtocol extends BaseExtensionEntity {
 	
 	public void copyEventsTo(CollectionProtocol cp) {
 		for (CollectionProtocolEvent cpe : getOrderedCpeList()) {
+			if (cpe.isClosed()) {
+				continue;
+			}
+
 			cp.addCpe(cpe.deepCopy());
 		}
 	}

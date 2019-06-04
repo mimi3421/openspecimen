@@ -105,6 +105,7 @@ import com.krishagni.catissueplus.core.common.util.ConfigUtil;
 import com.krishagni.catissueplus.core.common.util.EmailUtil;
 import com.krishagni.catissueplus.core.common.util.MessageUtil;
 import com.krishagni.catissueplus.core.common.util.NotifUtil;
+import com.krishagni.catissueplus.core.common.util.Status;
 import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.catissueplus.core.query.Column;
 import com.krishagni.catissueplus.core.query.ListConfig;
@@ -1420,6 +1421,10 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 		}
 		
 		for (CollectionProtocolEventDetail event : events) {
+			if (Status.isClosedOrDisabledStatus(event.getActivityStatus())) {
+				continue;
+			}
+
 			event.setCollectionProtocol(cpTitle);
 			ResponseEvent<CollectionProtocolEventDetail> resp = addEvent(new RequestEvent<>(event));
 			resp.throwErrorIfUnsuccessful();
@@ -1435,11 +1440,14 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 		}
 		
 		for (SpecimenRequirementDetail sr : srs) {
+			if (Status.isClosedOrDisabledStatus(sr.getActivityStatus())) {
+				continue;
+			}
+
 			sr.setEventId(eventId);
 			
 			if (sr.getLineage().equals(Specimen.NEW)) {
-				RequestEvent<SpecimenRequirementDetail> req = new RequestEvent<SpecimenRequirementDetail>(sr);
-				ResponseEvent<SpecimenRequirementDetail> resp = addSpecimenRequirement(req);
+				ResponseEvent<SpecimenRequirementDetail> resp = addSpecimenRequirement(new RequestEvent<>(sr));
 				resp.throwErrorIfUnsuccessful();
 				
 				importSpecimenReqs(eventId, resp.getPayload().getId(), sr.getChildren());

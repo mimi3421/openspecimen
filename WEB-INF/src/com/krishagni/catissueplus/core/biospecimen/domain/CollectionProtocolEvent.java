@@ -255,6 +255,10 @@ public class CollectionProtocolEvent extends BaseEntity implements Comparable<Co
 	}
 	
 	public CollectionProtocolEvent copy() {
+		if (isClosed()) {
+			throw OpenSpecimenException.userError(CpeErrorCode.CLOSED, getEventLabel());
+		}
+
 		CollectionProtocolEvent copy = new CollectionProtocolEvent();
 		BeanUtils.copyProperties(this, copy, EXCLUDE_COPY_PROPS);
 		return copy;
@@ -272,6 +276,10 @@ public class CollectionProtocolEvent extends BaseEntity implements Comparable<Co
 
 		int order = 1;
 		for (SpecimenRequirement sr : topLevelSrs) {
+			if (sr.isClosed()) {
+				continue;
+			}
+
 			SpecimenRequirement copiedSr = sr.deepCopy(cpe);
 			copiedSr.setSortOrder(order++);
 			cpe.addSpecimenRequirement(copiedSr);
