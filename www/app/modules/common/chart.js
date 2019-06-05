@@ -56,15 +56,14 @@ angular.module('openspecimen')
     }
 
     function addCategoryTimeAxis(options) {
-      options.scales = {
-        xAxes: [{
-          type: 'time',
-          time: {
-            parser: ui.os.global.shortDateFmt.toUpperCase() + ' HH:mm',
-            displayFormat: ui.os.global.dateFmt.toUpperCase()
-          }
-        }]
-      };
+      options.scales = options.scales || {};
+      options.scales.xAxes = [{
+        type: 'time',
+        time: {
+          parser: ui.os.global.shortDateFmt.toUpperCase() + ' HH:mm',
+          displayFormat: ui.os.global.dateFmt.toUpperCase()
+        }
+      }]
     }
 
     return {
