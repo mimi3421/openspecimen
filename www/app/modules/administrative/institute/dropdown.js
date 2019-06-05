@@ -50,13 +50,14 @@ angular.module('openspecimen')
         var selectOption = angular.isDefined(tAttrs.multiple) ? '$item' : '$select.selected';
         var ngRequired   = angular.isDefined(tAttrs.ngRequired) ? 'ng-required="' + tAttrs.ngRequired + '"' : '';
         var mdInput      = tAttrs.mdType == 'true' ? 'os-md-input' : '';
+        var allowClear   = 'allow-clear="' + (tAttrs.required == undefined) + '"';
 
         return '' +
           '<div class="os-select-container ' + mdInput + '">' +
             '<ui-select ' + multiple + ' ng-model="$parent.ngModel" reset-search-input="true"' +
               'on-select="onSelect({institute: $item})"' +
               ' append-to-body="' + bodyAppend + '" os-tabable="' + tabable + '" ' + ngRequired + '>' +
-              '<ui-select-match placeholder="{{$parent.placeholder}}">' +
+              '<ui-select-match placeholder="{{$parent.placeholder}}" ' + allowClear + '>' +
                 '{{' + selectOption + '}}' +
               '</ui-select-match>' +
               '<ui-select-choices repeat="institute in institutes" ' +
