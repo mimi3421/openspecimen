@@ -93,7 +93,12 @@ angular.module('openspecimen')
           var multiple = angular.isDefined(tAttrs.multiple) ? "multiple" : "";
           var selectOption = angular.isDefined(tAttrs.multiple) ? "$item" : "$select.selected";
           var ngRequired = angular.isDefined(tAttrs.ngRequired) ? "ng-required=\"" + tAttrs.ngRequired +"\"": "";
-          var ngDisabled = angular.isDefined(tAttrs.ngDisabled) ? "ng-disabled=\"" + tAttrs.ngDisabled +"\"": "";
+
+          var ngDisabled = "";
+          if (angular.isDefined(tAttrs.ngDisabled)) {
+            ngDisabled = "ng-disabled=\"" + tAttrs.ngDisabled.replace(/"/g, "'") + "\"";
+          }
+
           var mdInput = tAttrs.mdType == 'true' ? 'os-md-input' : '';
           var showLabel = tAttrs.showLabel == 'true' && tAttrs.mdType == 'true' && !!tAttrs.placeholder;
 
