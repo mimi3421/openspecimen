@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.HttpHeaders;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -40,7 +41,7 @@ import com.krishagni.catissueplus.rest.RestErrorController;
 
 public class AuthTokenFilter extends GenericFilterBean {
 	private static final String OS_CLIENT_HDR = "X-OS-API-CLIENT";
-	
+
 	private static final String BASIC_AUTH = "Basic ";
 	
 	private static final String DEFAULT_AUTH_DOMAIN = "openspecimen";
@@ -99,7 +100,7 @@ public class AuthTokenFilter extends GenericFilterBean {
 		httpResp.setHeader("Access-Control-Allow-Origin", "http://localhost:9000");
 		httpResp.setHeader("Access-Control-Allow-Credentials", "true");
 		httpResp.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, PATCH, OPTIONS");
-		httpResp.setHeader("Access-Control-Allow-Headers", "Origin, Accept, Content-Type, X-OS-API-TOKEN, X-OS-API-CLIENT");
+		httpResp.setHeader("Access-Control-Allow-Headers", "Origin, Accept, Content-Type, X-OS-API-TOKEN, X-OS-API-CLIENT, X-OS-IMPERSONATE-USER");
 		httpResp.setHeader("Access-Control-Expose-Headers", "Content-Disposition, Content-Length, Content-Type");
 
 		httpResp.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
@@ -154,7 +155,22 @@ public class AuthTokenFilter extends GenericFilterBean {
 			return;
 		}
 
-		AuthUtil.setCurrentUser(user, authToken, httpReq);
+		User impersonatedUser = null;
+		if (user.isAdmin()) {
+			String impUserStr = AuthUtil.getImpersonateUser(httpReq);
+			if (StringUtils.isNotBlank(impUserStr)) {
+				impersonatedUser = getUser(impUserStr);
+				if (impersonatedUser == null) {
+					httpResp.sendError(HttpServletResponse.SC_BAD_REQUEST, "User " + impUserStr + " does not exist!");
+					return;
+				} else if (!impersonatedUser.isActive()) {
+					httpResp.sendError(HttpServletResponse.SC_BAD_REQUEST, "User " + impUserStr + " is not active!");
+					return;
+				}
+			}
+		}
+
+		AuthUtil.setCurrentUser(impersonatedUser != null ? impersonatedUser : user, authToken, httpReq);
 		Date callStartTime = Calendar.getInstance().getTime();
 		chain.doFilter(req, resp);
 		AuthUtil.clearCurrentUser();
@@ -162,6 +178,7 @@ public class AuthTokenFilter extends GenericFilterBean {
 		if (isRecordableApi(httpReq)) {
 			UserApiCallLog userAuditLog = new UserApiCallLog();
 			userAuditLog.setUser(user);
+			userAuditLog.setImpersonatedUser(impersonatedUser);
 			userAuditLog.setUrl(httpReq.getRequestURI());
 			userAuditLog.setMethod(httpReq.getMethod());
 			userAuditLog.setCallStartTime(callStartTime);
@@ -286,5 +303,20 @@ public class AuthTokenFilter extends GenericFilterBean {
 			e.printStackTrace();
 			return unknownError;
 		}
+	}
+
+	private User getUser(String userString) {
+		String[] parts = userString.split("/", 2);
+
+		String domain = "openspecimen";
+		String loginName = null;
+		if (parts.length == 2) {
+			domain = parts[0];
+			loginName = parts[1];
+		} else {
+			loginName = parts[0];
+		}
+
+		return authService.getUser(domain, loginName);
 	}
 }

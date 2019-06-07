@@ -391,7 +391,8 @@ osApp.config(function(
     ui.os.global = $rootScope.global = {
       defaultDomain: 'openspecimen',	
       filterWaitInterval: ui.os.appProps.searchDelay,
-      appProps: ui.os.appProps
+      appProps: ui.os.appProps,
+      impersonate: !!$cookies['osImpersonateUser']
     };
 
     Setting.getLocale().then(

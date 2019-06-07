@@ -28,6 +28,8 @@ public class AuthUtil {
 
 	private static final String OS_AUTH_TOKEN_HDR = "X-OS-API-TOKEN";
 
+	private static final String OS_IMP_USER_HDR = "X-OS-IMPERSONATE-USER";
+
 	public static Authentication getAuth() {
 		return SecurityContextHolder.getContext().getAuthentication();
 	}
@@ -99,33 +101,7 @@ public class AuthUtil {
 	}
 	
 	public static String getTokenFromCookie(HttpServletRequest httpReq) {
-		String cookieHdr = httpReq.getHeader("Cookie");
-		if (StringUtils.isBlank(cookieHdr)) {
-			return null;
-		}
-
-		String[] cookies = cookieHdr.split(";");
-		String authToken = null;
-		for (String cookie : cookies) {
-			if (!cookie.trim().startsWith("osAuthToken")) {
-				continue;
-			}
-
-			String[] authTokenParts = cookie.trim().split("=");
-			if (authTokenParts.length == 2) {
-				try {
-					authToken = URLDecoder.decode(authTokenParts[1], "utf-8");
-					if (authToken.startsWith("%") || Utility.isQuoted(authToken)) {
-						authToken = authToken.substring(1, authToken.length() - 1);
-					}
-				} catch (Exception e) {
-					logger.error("Error obtaining token from cookie", e);
-				}
-				break;
-			}
-		}
-
-		return authToken;
+		return getCookieValue(httpReq, "osAuthToken");
 	}
 
 	public static void setTokenCookie(HttpServletRequest httpReq, HttpServletResponse httpResp, String authToken) {
@@ -153,6 +129,15 @@ public class AuthUtil {
 		return httpReq.getHeader(OS_AUTH_TOKEN_HDR);
 	}
 
+	public static String getImpersonateUser(HttpServletRequest httpReq) {
+		String impUserString = httpReq.getHeader(OS_IMP_USER_HDR);
+		if (StringUtils.isNotBlank(impUserString)) {
+			return impUserString;
+		}
+
+		return getCookieValue(httpReq, "osImpersonateUser");
+	}
+
 	private static String getContextPath(HttpServletRequest httpReq) {
 		String path = ConfigUtil.getInstance().getAppUrl();
 		if (StringUtils.isBlank(path)) {
@@ -170,5 +155,35 @@ public class AuthUtil {
 		}
 
 		return path;
+	}
+
+	private static String getCookieValue(HttpServletRequest httpReq, String cookieName) {
+		String cookieHdr = httpReq.getHeader("Cookie");
+		if (StringUtils.isBlank(cookieHdr)) {
+			return null;
+		}
+
+		String value = null;
+		String[] cookies = cookieHdr.split(";");
+		for (String cookie : cookies) {
+			if (!cookie.trim().startsWith(cookieName)) {
+				continue;
+			}
+
+			String[] parts = cookie.trim().split("=");
+			if (parts.length == 2) {
+				try {
+					value = URLDecoder.decode(parts[1], "utf-8");
+					if (value.startsWith("%") || Utility.isQuoted(value)) {
+						value = value.substring(1, value.length() - 1);
+					}
+				} catch (Exception e) {
+					logger.error("Error obtaining " + cookieName + " from cookie", e);
+				}
+				break;
+			}
+		}
+
+		return value;
 	}
 }

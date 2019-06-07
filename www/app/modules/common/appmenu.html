@@ -78,6 +78,15 @@
     </ul>
   </div>
 
+  <div class="os-user-impersonate-warn" ng-if="global.impersonate">
+    <div class="text">
+      <span>{{'user.impersonate_warning' | translate: {user: currentUser} }}</span>
+      <a ng-click="returnToAccount()">
+        <span translate="user.return_back_to_account">Return back to your account.</span>
+      </a>
+    </div>
+  </div>
+
   <div>
     <div class="os-alert-container" ng-class="{'show': alerts.length > 0}">
       <alert type="{{alert.type}}" ng-repeat="alert in alerts" close="alert.close()">

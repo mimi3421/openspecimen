@@ -8,6 +8,8 @@ import com.krishagni.catissueplus.core.biospecimen.domain.BaseEntity;
 
 public class UserApiCallLog extends BaseEntity {
 	private User user;
+
+	private User impersonatedUser;
 	
 	private String url;
 	
@@ -27,6 +29,14 @@ public class UserApiCallLog extends BaseEntity {
 
 	public void setUser(User user) {
 		this.user = user;
+	}
+
+	public User getImpersonatedUser() {
+		return impersonatedUser;
+	}
+
+	public void setImpersonatedUser(User impersonatedUser) {
+		this.impersonatedUser = impersonatedUser;
 	}
 
 	public String getUrl() {

@@ -33,6 +33,12 @@
           <span class="fa fa-key"></span>
           <span translate="common.buttons.reset_password">Reset Password</span>
         </button>
+        <button class="default" ng-click="impersonate()"
+          ng-if="user.type != 'CONTACT' && user.activityStatus == 'Active' &&
+                 currentUser.id != user.id && currentUser.admin">
+          <span class="fa fa-user-secret"></span>
+          <span translate="user.impersonate">Impersonate</span>
+        </button>
       </div>
     </div>
   </div>

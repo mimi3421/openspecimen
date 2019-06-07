@@ -1457,3 +1457,24 @@ form .form-group:empty {
 .os-select-container .ui-select-container.ui-select-multiple input[disabled] {
   display: inline!important;
 }
+
+.os-user-impersonate-warn {
+  position: absolute;
+  top: 40px;
+  left: 30%;
+  width: 40%;
+  text-align: center;
+  z-index: 10;
+}
+
+.os-user-impersonate-warn .text {
+  background: #c33;
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+
+.os-user-impersonate-warn .text a {
+  color: #fff;
+  text-decoration: underline;
+}

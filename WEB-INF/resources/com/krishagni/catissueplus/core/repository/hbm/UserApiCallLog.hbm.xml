@@ -4,9 +4,7 @@
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
     
 <hibernate-mapping auto-import="false">
-  <class
-    name="com.krishagni.catissueplus.core.audit.domain.UserApiCallLog"
-    table="OS_USER_API_CALLS_LOG">
+  <class name="com.krishagni.catissueplus.core.audit.domain.UserApiCallLog" table="OS_USER_API_CALLS_LOG">
 
     <id name="id" column="IDENTIFIER">
       <generator class="native">
@@ -15,6 +13,8 @@
     </id>
     
     <many-to-one name="user" column="USER_ID" />
+
+    <many-to-one name="impersonatedUser" column="IMPERSONATED_USER_ID" />
     
     <property name="url" column="URL" />
     

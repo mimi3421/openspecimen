@@ -176,7 +176,13 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
 			return ResponseEvent.serverError(e);
 		}
 	}
-	
+
+	@Override
+	@PlusTransactional
+	public User getUser(String domainName, String loginName) {
+		return daoFactory.getUserDao().getUser(loginName, domainName);
+	}
+
 	@Scheduled(cron="0 0 12 ? * *")
 	@PlusTransactional
 	public void deleteInactiveAuthTokens() {
@@ -204,8 +210,6 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
 		return AuthUtil.encodeToken(token);
 	}
 
-
-	
 	private LoginAuditLog insertLoginAudit(User user, String ipAddress, boolean loginSuccessful) {
 		LoginAuditLog loginAuditLog = new LoginAuditLog();
 		loginAuditLog.setUser(user);

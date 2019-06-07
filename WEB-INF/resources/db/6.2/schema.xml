@@ -803,4 +803,16 @@
       //
     </sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="Track impersonated user ID in API calls log">
+    <addColumn tableName="OS_USER_API_CALLS_LOG">
+      <column name="IMPERSONATED_USER_ID" type="${int.type}"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Foreign key on impersonated user ID">
+    <addForeignKeyConstraint constraintName="FK_CALL_LOG_IMP_USER_ID"
+      baseTableName="OS_USER_API_CALLS_LOG" baseColumnNames="IMPERSONATED_USER_ID"
+      referencedTableName="CATISSUE_USER" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
 </databaseChangeLog>

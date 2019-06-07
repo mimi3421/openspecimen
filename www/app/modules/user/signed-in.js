@@ -1,7 +1,7 @@
 angular.module('openspecimen')
   .controller('SignedInCtrl', function(
-     $scope, $rootScope, currentUser, userUiState,
-     Alerts, AuthorizationService, SettingUtil) {
+     $scope, $rootScope, $state, $timeout, currentUser, userUiState,
+     AuthService, Alerts, AuthorizationService, SettingUtil) {
 
      function init() {
        $scope.alerts = Alerts.messages;
@@ -38,5 +38,15 @@ angular.module('openspecimen')
      $scope.scheduledJobReadOpts = {resource: 'ScheduledJob', operations: ['Read']};
      $scope.dpReadOpts = {resource: 'DistributionProtocol', operations: ['Read']};
 
+     $scope.returnToAccount = function() {
+       AuthService.impersonate(null);
+
+       //
+       // delayed reloading of state is present to ensure
+       // the cookie is removed from the store
+       //
+       $timeout(function() { $state.go('home', {}, {reload: true}) }, 500);
+     }
+
      init();
-  })
+  });

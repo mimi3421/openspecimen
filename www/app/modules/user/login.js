@@ -1,13 +1,31 @@
 
 angular.module('openspecimen')
-  .factory('AuthService', function($http, $rootScope, $window, ApiUtil, ApiUrls) {
+  .factory('AuthService', function($cookieStore, $http, $rootScope, $window, ApiUtil, ApiUrls) {
     var url = function() {
       return ApiUrls.getUrl('sessions');
     };
 
+    function impersonate(user) {
+      if (user) {
+        var impUserStr = user.domainName + '/' + user.loginName;
+        $http.defaults.headers.common['X-OS-IMPERSONATE-USER'] = impUserStr;
+        $cookieStore.put('osImpersonateUser', impUserStr);
+        ui.os.global.impersonate = true;
+      } else {
+        delete $http.defaults.headers.common['X-OS-IMPERSONATE-USER'];
+        $cookieStore.remove('osImpersonateUser');
+        ui.os.global.impersonate = false;
+      }
+    }
+
     return {
       authenticate: function(loginData) {
-        return $http.post(url(), loginData).then(ApiUtil.processResp);
+        return $http.post(url(), loginData).then(ApiUtil.processResp).then(
+          function(resp) {
+            impersonate(null);
+            return resp;
+          }
+        );;
       },
 
       logout: function() {
@@ -29,11 +47,14 @@ angular.module('openspecimen')
         delete $window.localStorage['osAuthToken'];
         delete $http.defaults.headers.common['X-OS-API-TOKEN'];
         delete $http.defaults.headers.common['Authorization'];
+        impersonate(null);
       },
 
       refreshCookie: function() {
         return $http.post(url() + "/refresh-cookie").then(ApiUtil.processResp);
-      }
+      },
+
+      impersonate: impersonate
     }
   })
   .controller('LoginCtrl', function(

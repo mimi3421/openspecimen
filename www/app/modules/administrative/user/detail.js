@@ -1,8 +1,8 @@
 
 angular.module('os.administrative.user.detail', ['os.administrative.models'])
   .controller('UserDetailCtrl', function(
-    $scope, $q, $translate, user, 
-    User, AuthDomain, PvManager, Alerts, DeleteUtil) {
+    $scope, $q, $translate, $state, user,
+    User, AuthDomain, AuthService, PvManager, Alerts, DeleteUtil) {
 
     function init() {
       $scope.user = user;
@@ -51,6 +51,11 @@ angular.module('os.administrative.user.detail', ['os.administrative.models'])
         onDeleteState: 'user-list',
         confirmDelete: $scope.user.activityStatus == 'Pending' ? 'user.confirm_reject' : undefined
       });
+    }
+
+    $scope.impersonate = function() {
+      AuthService.impersonate($scope.user);
+      $state.go('home', {}, {reload: true});
     }
 
     init();
