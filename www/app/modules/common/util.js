@@ -242,7 +242,7 @@ angular.module('openspecimen')
     }
 
     function downloadFile(fileUrl) {
-      var link = angular.element('<a/>').attr({href: fileUrl});
+      var link = angular.element('<a target="_blank"/>').attr({href: fileUrl});
       var clickEvent = new MouseEvent('click', {view: window, bubbles: true, cancelable: false});
       link[0].dispatchEvent(clickEvent);
     }

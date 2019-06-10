@@ -1,6 +1,6 @@
 
 angular.module('os.common.export')
-  .controller('AddEditExportJobCtrl', function($scope, $state, exportDetail, ExportJob, Alerts, Util) {
+  .controller('AddEditExportJobCtrl', function($scope, $state, $timeout, exportDetail, ExportJob, Alerts, Util) {
     function init() {
       $scope.exportDetail = exportDetail;
       exportDetail.type   = exportDetail.type || {};
@@ -42,7 +42,7 @@ angular.module('os.common.export')
           Alerts.remove(msg);
           if (savedJob.status == 'COMPLETED') {
             Alerts.info('export.downloading_file');
-            Util.downloadFile(savedJob.fileUrl());
+            $timeout(function() { Util.downloadFile(savedJob.fileUrl()); }, 250);
           } else if (savedJob.status == 'FAILED') {
             Alerts.error('export.failed', savedJob);
           } else {
