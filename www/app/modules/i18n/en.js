@@ -701,6 +701,7 @@
     "manual_selection": "Manual allocation",
     "reallocate": "Rerun auto allocation",
     "clear_positions": "Clear positions",
+    "clear_positions_incl_boxes": "Clear container names and positions",
     "copy_first_to_all": "Copy first to all",
     "row": "Row",
     "column": "Column",

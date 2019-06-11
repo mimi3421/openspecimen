@@ -29,7 +29,7 @@
                         </a>
                       </li>
                       <li ng-if="autoPosAllocate">
-                        <a ng-click="selectPositionsManually()">
+                        <a ng-click="selectPositionsManually(0)">
                           <span translate="specimens.manual_selection">Manual selection</span>
                         </a>
                       </li>
@@ -39,8 +39,13 @@
                         </a>
                       </li>
                       <li>
-                        <a ng-click="selectPositionsManually(true)">
+                        <a ng-click="selectPositionsManually(1)">
                           <span translate="specimens.clear_positions">Clear positions</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a ng-click="selectPositionsManually(2)">
+                          <span translate="specimens.clear_positions_incl_boxes">Clear positions</span>
                         </a>
                       </li>
                     </ul>

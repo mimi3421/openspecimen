@@ -1178,7 +1178,12 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
           .then(reassignSelectedStatus, reassignSelectedStatus);
       }
 
-      $scope.selectPositionsManually = function(clearPositions) {
+      //
+      // action = 0 -> cancel reservation
+      // action = 1 -> cancel reservation and clear positions
+      // action = 2 -> cancel reservation, clear container names and positions
+      //
+      $scope.selectPositionsManually = function(action) {
         $q.when(CollectSpecimensSvc.cancelReservation($scope.specimens)).then(
           function() {
             $scope.autoPosAllocate = false;
@@ -1190,8 +1195,10 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
                 }
 
                 delete loc.reservationId;
-                if (clearPositions) {
+                if (action == 1) {
                   loc.positionX = loc.positionY = loc.position = undefined;
+                } else if (action == 2) {
+                  spmn.storageLocation = {};
                 }
               }
             );
