@@ -123,8 +123,22 @@ public class ExportServiceImpl implements ExportService {
 		genFactories.put(type, genFactory);
 	}
 
-	@PlusTransactional
 	private Pair<ExportJob, Future<Integer>> exportObjects(ExportDetail detail) {
+		ExportJob job = createJob(detail);
+		ExportTask task = new ExportTask(job);
+
+		Future<Integer> result;
+		if (detail.isSynchronous()) {
+			result = CompletableFuture.completedFuture(task.call());
+		} else {
+			result = taskExecutor.submit(task);
+		}
+
+		return Pair.make(job, result);
+	}
+
+	@PlusTransactional
+	private ExportJob createJob(ExportDetail detail) {
 		ObjectSchema schema = schemaFactory.getSchema(detail.getObjectType(), detail.getParams());
 		if (schema == null) {
 			throw OpenSpecimenException.userError(ExportErrorCode.INVALID_OBJECT_TYPE, detail.getObjectType());
@@ -144,17 +158,7 @@ public class ExportServiceImpl implements ExportService {
 		job.setRecordIds(detail.getRecordIds());
 		job.setDisableNotifs(detail.isDisableNotifs());
 		exportJobDao.saveOrUpdate(job.markInProgress(), true);
-
-		ExportTask task = new ExportTask(job);
-
-		Future<Integer> result = null;
-		if (detail.isSynchronous()) {
-			result = CompletableFuture.completedFuture(task.call());
-		} else {
-			result = taskExecutor.submit(task);
-		}
-
-		return Pair.make(job, result);
+		return job;
 	}
 
 	private class ExportTask implements Callable<Integer> {

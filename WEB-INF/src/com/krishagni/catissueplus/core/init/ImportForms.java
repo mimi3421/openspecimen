@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.common.dynamicextensions.nutility.ContainerParser;
 import krishagni.catissueplus.beans.FormContextBean;
 
 import org.apache.commons.io.IOUtils;
@@ -157,7 +158,11 @@ public abstract class ImportForms implements InitializingBean {
 				}
 
 				in.reset();
-				formId = Container.createContainer(userCtx, in, isCreateTable());
+
+				Container form = new ContainerParser(in).parse();
+				form.disableDeletedCtrlsTracking(true);
+
+				formId = Container.createContainer(userCtx, form, isCreateTable());
 				saveOrUpdateFormCtx(formFile, formId);
 				daoFactory.getFormDao().insertFormChangeLog(formFile, newDigest, formId);
 			} finally {
