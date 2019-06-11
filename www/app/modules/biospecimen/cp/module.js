@@ -46,6 +46,11 @@ angular.module('os.biospecimen.cp',
               operations: ['Create']
             });
 
+            var cpUpdateAllowed = AuthorizationService.isAllowed({
+              resource: 'CollectionProtocol',
+              operations: ['Update']
+            });
+
             var participantEximAllowed = AuthorizationService.isAllowed({
               resource: 'ParticipantPhi',
               operations: ['Export Import']
@@ -58,6 +63,7 @@ angular.module('os.biospecimen.cp',
 
             return {
               cpCreateAllowed: cpCreateAllowed,
+              cpUpdateAllowed: cpCreateAllowed || cpUpdateAllowed,
               participantImportAllowed: participantEximAllowed,
               visitSpecimenImportAllowed: visitSpmnEximAllowed,
               participantExportAllowed: participantEximAllowed,

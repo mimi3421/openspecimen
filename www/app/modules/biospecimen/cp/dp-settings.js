@@ -10,7 +10,9 @@ angular.module('os.biospecimen.cp.dp', [])
       };
 
       initCpDps();
-      loadDps();
+      if ($scope.dpCtx.editAllowed) {
+        loadDps();
+      }
     }
 
     function initCpDps() {

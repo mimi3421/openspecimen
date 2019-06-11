@@ -405,7 +405,7 @@
       "data_cfg_help": "JSON configuration of custom data source to use for creating file attached to CP report email",
       "metrics_help": "JSON configuration of metrics to be displayed in email report",
       "email_tmpl_help": "Template HTML markup to be used for composing CP report email",
-      "none": "Custom report settings not created for the CP. Create by clicking on \"Customise Report\" button.",
+      "none": "No custom report settings created for the CP.",
       "malformed_metrics": "Metrics Configuration JSON syntax is incorrect.",
       "malformed_data_cfg": "Data Configuration JSON is incorrect."
     },

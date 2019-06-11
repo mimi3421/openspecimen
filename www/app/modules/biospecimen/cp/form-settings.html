@@ -4,7 +4,7 @@
       <span translate="cp.forms.title">Forms</span>
     </div>
     <div class="panel-body">
-      <div class="os-alert-container inline show">
+      <div class="os-alert-container inline show" ng-show="cpsCtx.cpUpdateAllowed">
         <div class="alert alert-info">
           <span translate="cp.forms.help">Drag and drop forms to reorder the forms data entry sequence</span>
         </div>
@@ -26,7 +26,7 @@
           <span>{{form.caption}}</span>
         </div>
       </div>
-      <div class="list-group-item" ng-if="entityForms.modified">
+      <div class="list-group-item" ng-if="entityForms.modified && cpsCtx.cpUpdateAllowed">
         <button class="btn btn-primary" ng-click="save(entityForms)">
           <span translate="common.buttons.save">Save</span>
         </button>
