@@ -1,10 +1,10 @@
-IDENTIFIER,CONCEPT_CODE,DEFINITION,PARENT_IDENTIFIER,value,PUBLIC_ID,SORTORDER
-getNextPvId(),,,null,Pending,scg_collection_status,null
-getNextPvId(),,,null,Pending-Partially Complete,scg_collection_status,null
-getNextPvId(),,,null,Overdue,scg_collection_status,null
-getNextPvId(),,,null,Overdue-Partially Complete,scg_collection_status,null
-getNextPvId(),,,null,Complete,scg_collection_status,null
-getNextPvId(),,,null,Complete-Late,scg_collection_status,null
-getNextPvId(),,,null,Incomplete,scg_collection_status,null
-getNextPvId(),,,null,Not Collected,scg_collection_status,null
-getNextPvId(),,,null,Missed Collection,scg_collection_status,null
+"IDENTIFIER","CONCEPT_CODE","DEFINITION","value","PUBLIC_ID"
+"getNextPvId()","","","Pending","scg_collection_status"
+"getNextPvId()","","","Pending-Partially Complete","scg_collection_status"
+"getNextPvId()","","","Overdue","scg_collection_status"
+"getNextPvId()","","","Overdue-Partially Complete","scg_collection_status"
+"getNextPvId()","","","Complete","scg_collection_status"
+"getNextPvId()","","","Complete-Late","scg_collection_status"
+"getNextPvId()","","","Incomplete","scg_collection_status"
+"getNextPvId()","","","Not Collected","scg_collection_status"
+"getNextPvId()","","","Missed Collection","scg_collection_status"

@@ -325,7 +325,7 @@
   </bean>
 
   <bean id="spmnTypePropsSvc" class="com.krishagni.catissueplus.core.biospecimen.services.impl.SpecimenTypePropsServiceImpl">
-    <property name="daoFactory" ref="biospecimenDaoFactory"/>
+    <property name="sessionFactory" ref="sessionFactory"/>
   </bean>
 
   <bean id="specimenTokenRegistrar" class="com.krishagni.catissueplus.core.common.domain.DefaultLabelTmplTokenRegistrar">
