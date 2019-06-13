@@ -117,6 +117,8 @@ angular.module('openspecimen')
 
             if (scope.data.categoryType == 'DATE') {
               addCategoryTimeAxis(scope.options);
+            } else {
+              scope.options.scales.xAxes = [];
             }
           }
         );
