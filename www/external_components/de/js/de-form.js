@@ -1910,7 +1910,12 @@ edu.common.de.FileUploadField = function(id, field, args) {
       this.fileNameSpan.text("");
       this.fileNameSpan.children().remove();
       this.removeBtn.addClass("hidden");
-      this.fileNameInput.val("").change();
+
+      if (!!this.fileNameInput.val()) {
+        this.fileNameInput.val("").change();
+      } else {
+        this.fileNameInput.val("");
+      }
     }
 
     return this;
@@ -2298,7 +2303,7 @@ edu.common.de.LookupField = function(params, callback) {
     if (params) {
       searchFilters = params.searchFilters || {};
     }
-    return this.svc.getEntities(qTerm, searchFilters);
+    return this.svc.getEntities(qTerm, searchFilters, field);
   };
 };
 
@@ -2313,7 +2318,7 @@ edu.common.de.LookupSvc = function(params) {
 
   var defaultValue;
 
-  this.getEntities = function(queryTerm, searchFilters) {
+  this.getEntities = function(queryTerm, searchFilters, field) {
     var deferred = $.Deferred();
 
     var resultKey = '_default';
@@ -2342,7 +2347,7 @@ edu.common.de.LookupSvc = function(params) {
         type: 'GET', 
         url: baseUrl, 
         headers: this.getHeaders(), 
-        data: this.searchRequest(queryTerm, searchFilters)
+        data: this.searchRequest(queryTerm, searchFilters, field)
       });
     } else if (xhrMap[resultKey]) {
       xhr = xhrMap[resultKey];
@@ -2351,7 +2356,7 @@ edu.common.de.LookupSvc = function(params) {
         type: 'GET', 
         url: baseUrl, 
         headers: this.getHeaders(), 
-        data: this.searchRequest(queryTerm, searchFilters)});
+        data: this.searchRequest(queryTerm, searchFilters, field)});
     }
    
    
