@@ -576,11 +576,13 @@ public class Visit extends BaseExtensionEntity {
 		return getCollectionProtocol().getId();
 	}
 
+	public boolean hasCollectedSpecimens() {
+		return getSpecimens().stream().anyMatch(s -> s.isActiveOrClosed() && s.isCollected());
+	}
+
 	private void ensureNoActiveChildObjects() {
-		for (Specimen specimen : getSpecimens()) {
-			if (specimen.isActiveOrClosed() && specimen.isCollected()) {
-				throw OpenSpecimenException.userError(SpecimenErrorCode.REF_ENTITY_FOUND);
-			}
+		if (hasCollectedSpecimens()) {
+			throw OpenSpecimenException.userError(SpecimenErrorCode.REF_ENTITY_FOUND);
 		}
 	}
 	
