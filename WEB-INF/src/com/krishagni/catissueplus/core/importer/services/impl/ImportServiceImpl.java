@@ -547,12 +547,12 @@ public class ImportServiceImpl implements ImportService, ApplicationListener<Con
 				try {
 					logger.info("Picked import job " + job.getId() + " for processing");
 					new ImporterTask(job).run();
-				} catch (Exception e) {
-					logger.error("Error running the job " + job.getId() + " to completion", e);
+				} catch (Throwable t) {
+					logger.error("Error running the job " + job.getId() + " to completion", t);
 				}
 			}
-		} catch (Exception e) {
-			logger.error("Import jobs scheduler encountered a fatal exception. Stopping to run import jobs.", e);
+		} catch (Throwable t) {
+			logger.error("Import jobs scheduler encountered a fatal exception. Stopping to run import jobs.", t);
 		}
 	}
 
@@ -629,22 +629,22 @@ public class ImportServiceImpl implements ImportService, ApplicationListener<Con
 
 				Status status = processRows(objReader, csvWriter);
 				saveJob(totalRecords, failedRecords, status);
-			} catch (Exception e) {
-				logger.error("Error running import records job", e);
+			} catch (Throwable t) {
+				logger.error("Error running import records job", t);
 				saveJob(totalRecords, failedRecords, Status.FAILED);
 
 				String[] errorLine = null;
-				if (e instanceof CsvException) {
-					errorLine = ((CsvException) e).getErroneousLine();
+				if (t instanceof CsvException) {
+					errorLine = ((CsvException) t).getErroneousLine();
 				}
 
 				if (errorLine == null) {
-					errorLine = new String[] { e.getMessage() };
+					errorLine = new String[] { t.getMessage() };
 				}
 
 				if (csvWriter != null) {
 					csvWriter.writeNext(errorLine);
-					csvWriter.writeNext(new String[] { ExceptionUtils.getFullStackTrace(e) });
+					csvWriter.writeNext(new String[] { ExceptionUtils.getFullStackTrace(t) });
 				}
 			} finally {
 				ImporterContextHolder.getInstance().clearContext();
@@ -938,9 +938,9 @@ public class ImportServiceImpl implements ImportService, ApplicationListener<Con
 				String entityName = getEntityName();
 				String op = getMsg("bulk_import_ops_" + job.getType());
 				String [] subjParams = new String[] {
-						job.getId().toString(),
-						op,
-						entityName
+					job.getId().toString(),
+					op,
+					entityName
 				};
 
 				Map<String, Object> props = new HashMap<>();
