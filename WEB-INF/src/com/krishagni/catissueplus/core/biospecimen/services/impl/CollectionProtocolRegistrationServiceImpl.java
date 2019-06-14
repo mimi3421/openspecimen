@@ -281,7 +281,7 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 
 			AccessCtrlMgr.getInstance().ensureDeleteCprRights(cpr);
 			cpr.setOpComments(crit.getReason());
-			cpr.delete(!crit.isForceDelete());
+			cpr.delete(!crit.isForceDelete(), crit.booleanParam("checkOnlyCollectedSpmns"));
 			DeleteLogUtil.getInstance().log(cpr);
 			return ResponseEvent.response(CollectionProtocolRegistrationDetail.from(cpr, false));
 		} catch (OpenSpecimenException ose) {

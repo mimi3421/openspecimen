@@ -274,12 +274,16 @@ public class CollectionProtocolRegistration extends BaseEntity {
 	}
 	
 	public void delete() {
-		delete(!isForceDelete());
+		delete(!isForceDelete(), false);
 	}
 
 	public void delete(boolean checkDependency) {
+		delete(checkDependency, false);
+	}
+
+	public void delete(boolean checkDependency, boolean checkOnlyCollectedSpmns) {
 		if (checkDependency) {
-			ensureNoActiveChildObjects();
+			ensureNoActiveChildObjects(checkOnlyCollectedSpmns);
 		}
 		
 		for (Visit visit : getVisits()) {
@@ -380,11 +384,13 @@ public class CollectionProtocolRegistration extends BaseEntity {
 		getConsentResponses().removeAll(existingResps.values());
 	}
 
-	private void ensureNoActiveChildObjects() {
+	private void ensureNoActiveChildObjects(boolean checkOnlyCollectedSpmns) {
 		for (Visit visit : getVisits()) {
-			if (visit.isActive() && visit.isCompleted()) {
+			if (checkOnlyCollectedSpmns && visit.hasCollectedSpecimens()) {
 				throw OpenSpecimenException.userError(ParticipantErrorCode.REF_ENTITY_FOUND);
-			}			
+			} else if (!checkOnlyCollectedSpmns && visit.isActive() && visit.isCompleted()) {
+				throw OpenSpecimenException.userError(ParticipantErrorCode.REF_ENTITY_FOUND);
+			}
 		}
 	}	
 	

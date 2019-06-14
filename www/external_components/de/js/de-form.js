@@ -1910,7 +1910,12 @@ edu.common.de.FileUploadField = function(id, field, args) {
       this.fileNameSpan.text("");
       this.fileNameSpan.children().remove();
       this.removeBtn.addClass("hidden");
-      this.fileNameInput.val("").change();
+
+      if (!!this.fileNameInput.val()) {
+        this.fileNameInput.val("").change();
+      } else {
+        this.fileNameInput.val("");
+      }
     }
 
     return this;
