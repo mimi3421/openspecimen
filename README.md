@@ -43,7 +43,6 @@ Features
  * Highly configurable user interface
  * Mobile and tablet apps
  
-
 Online Resources
 ----------------
 Website: http://www.openspecimen.org
