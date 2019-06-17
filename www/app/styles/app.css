@@ -1377,18 +1377,21 @@ form .form-group:empty {
 .ui-select-placeholder,
 .ui-select-search::placeholder,
 .form-control::placeholder {
-  opacity: 0;
+  /*opacity: 0;*/
+  color: transparent;
 }
 
 .ui-select-container.ng-invalid-required .ui-select-placeholder,
 .os-select-container.ng-invalid-required .ui-select-placeholder,
 .ng-invalid-required.form-control::placeholder {
   opacity: 1;
+  color: #999;
 }
 
 .os-italic.ui-select-placeholder,
 .os-italic::placeholder {
   font-style: italic;
+  color: #999;
 }
 
 .os-no-label-form *::placeholder,
@@ -1396,6 +1399,7 @@ form .form-group:empty {
 .os-md-input .ui-select-placeholder,
 .os-md-input *::placeholder {
   opacity: 1;
+  color: #999;
 }
 
 .os-multi-parts-control label.control-label {
