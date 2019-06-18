@@ -815,4 +815,17 @@
       baseTableName="OS_USER_API_CALLS_LOG" baseColumnNames="IMPERSONATED_USER_ID"
       referencedTableName="CATISSUE_USER" referencedColumnNames="IDENTIFIER"/>
   </changeSet>
+
+  <changeSet author="vpawar" id="Transfer event from/to position display coordinates">
+    <addColumn tableName="CATISSUE_TRANSFER_EVENT_PARAM">
+      <column name="FROM_ROW" type="${text.type}(32)"/>
+      <column name="FROM_COL" type="${text.type}(32)"/>
+      <column name="TO_ROW" type="${text.type}(32)"/>
+      <column name="TO_COL" type="${text.type}(32)"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Update existing transfer events' from/to position display coordinates">
+    <customChange class="com.krishagni.catissueplus.core.upgrade.UpdateTransferEventDisplayFormat"/>
+  </changeSet>
 </databaseChangeLog>
