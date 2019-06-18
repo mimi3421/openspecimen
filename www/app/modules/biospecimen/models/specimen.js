@@ -388,7 +388,8 @@ angular.module('os.biospecimen.models.specimen', ['os.common.models', 'os.biospe
         function(e1, e2) { 
           var t1 = e1.time || 0;
           var t2 = e2.time || 0;
-          return t2 - t1;
+          var diff = t2 - t1;
+          return diff != 0 ? diff : (e2.id - e1.id);
         }
       );
       return eventsList;
