@@ -896,9 +896,9 @@
       "distributed": "Distributed",
       "returned": "Returned",
       "reserved": "Reserved",
-      "virtual": "Not Stored",
-      "unplanned": "Unplanned Collection",
-      "collected": "Planned Collection",
+      "virtual": "Collected, Not Stored",
+      "unplanned": "Unplanned Collection, Stored",
+      "collected": "Planned Collection, Stored",
       "missed": "Missed Collection",
       "not-collected": "Not Collected",
       "pending": "Pending"

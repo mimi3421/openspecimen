@@ -86,23 +86,11 @@
                 </div>
               </div>
             </td>
-            <td class="col col-xs-4 os-word-break" ng-switch on="!!specimen.label">
-              <span ng-switch-when="true">{{specimen.label}}</span>
-              <span ng-switch-default>
-                <span ng-if="!!specimen.reqLabel">{{specimen.reqLabel}}</span>
-                <span ng-if="!specimen.reqLabel" translate="pvs.not_specified"></span>
-              </span>
+            <td class="col col-xs-4 os-word-break">
+              <span>{{specimen.label | osNoValue}}</span>
             </td>
-            <td class="col col-xs-3 os-word-break" ng-switch on="!!specimen.storageLocation.name">
-              <span ng-switch-when="true">
-                <os-disp-storage-position position="specimen.storageLocation"></os-disp-storage-position>
-              </span>
-              <span ng-switch-when="false">
-                <span ng-switch on="specimen.storageType != 'Virtual' && (!specimen.status || specimen.status == 'Pending')">
-                  <span ng-switch-when="true">&nbsp;</span>
-                  <span ng-switch-when="false" translate="specimens.virtually_located">Virtual</span>
-                </span>
-              </span>
+            <td class="col col-xs-3 os-word-break">
+              <os-disp-storage-position position="specimen.storageLocation"></os-disp-storage-position>
             </td>
           </tr>
         </tbody>
