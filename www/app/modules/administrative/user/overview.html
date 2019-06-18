@@ -29,7 +29,7 @@
         <button class="default" ui-sref="user-password({userId: user.id})"
           ng-if="user.type != 'CONTACT' && user.domainName == global.defaultDomain &&
                  currentUser.id != user.id && currentUser.admin &&
-                 user.activityStatus == 'Active'">
+                 user.activityStatus == 'Active' || user.activityStatus == 'Expired'">
           <span class="fa fa-key"></span>
           <span translate="common.buttons.reset_password">Reset Password</span>
         </button>
@@ -47,8 +47,11 @@
       <div class="alert alert-info" ng-if="user.activityStatus == 'Pending' && currentUser.admin">
         <span>{{'user.request_pending' | translate: user }}</span>
       </div>
-      <div show-if-allowed="userResource.updateOpts" class="alert alert-info" ng-if="user.activityStatus == 'Locked'">
+      <div class="alert alert-info" ng-if="user.activityStatus == 'Locked'">
         <span>{{'user.locked' | translate: user }}</span>
+      </div>
+      <div class="alert alert-info" ng-if="user.activityStatus == 'Expired'">
+        <span>{{'user.expired' | translate: user }}</span>
       </div>
       <ul class="os-key-values os-two-cols">
         <li class="item" ng-show="user.type != 'CONTACT'">

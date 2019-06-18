@@ -1185,7 +1185,7 @@
     "user_request_approved": "User request approved",
     "activity_status": "Activity Status",
     "confirm_reject": "Rejecting the User {{entityName}} will delete this user from the database. Are you sure you want to go ahead?",
-    "locked": "User {{firstName}} {{lastName}} has been locked. Unlock?",
+    "locked": "User account has been locked.",
     "unlock_user": "Unlock User",
     "unlock_users": "Unlock",
     "user_unlocked": "User unlocked",
@@ -1202,6 +1202,7 @@
     "users_archived": "{{count}} {{count == 1 ? 'user' : 'users'}} archived",
     "user_reactivated": "User reactivated",
     "users_reactivated": "{{count}} {{count == 1 ? 'user' : 'users'}} reactivated",
+    "expired": "User account password has expired. Reset the password.",
 
     "confirm_institute_update_title": "Update Institute?",
     "confirm_institute_update_q": "Changing the institute will remove all the site specific roles assigned to the {{count > 1 ? 'users' : 'user'}}. Are you sure you want to proceed?",

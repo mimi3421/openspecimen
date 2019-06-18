@@ -38,6 +38,7 @@ angular.module('os.administrative.user.list', ['os.administrative.models'])
         function(result) {
           var statuses = [].concat(result);
           statuses.push('Locked');
+          statuses.push('Expired');
           var idx = statuses.indexOf('Disabled');
           if (idx != -1) {
             statuses.splice(idx, 1);
