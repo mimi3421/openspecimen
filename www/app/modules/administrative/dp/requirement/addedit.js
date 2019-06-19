@@ -1,31 +1,19 @@
 angular.module('os.administrative.dp.requirement.addedit', ['os.administrative.models'])
-  .controller('DprAddEditCtrl', function(
-    $scope, $state, distributionProtocol, dpr, extensionCtxt,
-    ExtensionsUtil, PvManager) {
+  .controller('DprAddEditCtrl', function($scope, $state, distributionProtocol, dpr, extensionCtxt, ExtensionsUtil) {
 
     function init() {
+      $scope.lctx = {type: dpr.specimenType};
       $scope.dpr = dpr;
       $scope.deFormCtrl = {};
       $scope.extnOpts = ExtensionsUtil.getExtnOpts(dpr, extensionCtxt);
-      loadAllSpecimenTypes();
     }
 
-    function loadAllSpecimenTypes() {
-      $scope.specimenTypes = [];
-      
-      return PvManager.loadPvsByParent('specimen-class', undefined, true).then(
-        function(specimenTypes) {
-          angular.forEach(specimenTypes, function(type) {
-            if ($scope.specimenTypes.indexOf(type.value) < 0) {
-              $scope.specimenTypes.push(type.value);
-            }
-          });
-        }
-      );
-    }
-  
     $scope.cancel = function() {
       $state.go('req-list');
+    }
+
+    $scope.onTypeSelect = function(type) {
+      dpr.specimenType = type.type;
     }
     
     $scope.save = function() {
@@ -49,4 +37,3 @@ angular.module('os.administrative.dp.requirement.addedit', ['os.administrative.m
     init();
     
   });
-

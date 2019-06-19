@@ -3,9 +3,9 @@
     <div class="form-group">
       <label class="col-xs-3 control-label" translate="dp.distribution_order.specimen_type">Specimen Type</label>
       <div class="col-xs-6">
-        <os-select ng-model="dpr.specimenType" list="specimenTypes"
+        <os-specimen-types specimen="lctx" on-select="onTypeSelect(type)"
           placeholder="{{'dp.distribution_order.specimen_type' | translate}}">
-        </os-select>
+        </os-specimen-types>
       </div>
     </div>
      
