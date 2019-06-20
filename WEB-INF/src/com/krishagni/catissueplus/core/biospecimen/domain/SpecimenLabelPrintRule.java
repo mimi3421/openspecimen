@@ -80,7 +80,7 @@ public class SpecimenLabelPrintRule extends LabelPrintRule {
 			return false;
 		}
 
-		if (CollectionUtils.isNotEmpty(cps) && !cps.stream().anyMatch(cp -> cp.equals(specimen.getCollectionProtocol()))) {
+		if (CollectionUtils.isNotEmpty(cps) && cps.stream().noneMatch(cp -> cp.equals(specimen.getCollectionProtocol()))) {
 			return false;
 		}
 
@@ -89,11 +89,11 @@ public class SpecimenLabelPrintRule extends LabelPrintRule {
 			return false;
 		}
 
-		if (StringUtils.isNotBlank(specimenClass) && !specimenClass.equals(specimen.getSpecimenClass())) {
+		if (StringUtils.isNotBlank(specimenClass) && !specimenClass.equals(specimen.getSpecimenClass().getValue())) {
 			return false;
 		}
 		
-		if (StringUtils.isNotBlank(specimenType) && !specimenType.equals(specimen.getSpecimenType())) {
+		if (StringUtils.isNotBlank(specimenType) && !specimenType.equals(specimen.getSpecimenType().getValue())) {
 			return false;
 		}
 

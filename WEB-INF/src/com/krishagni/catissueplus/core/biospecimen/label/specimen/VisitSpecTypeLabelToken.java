@@ -28,7 +28,7 @@ public class VisitSpecTypeLabelToken extends AbstractUniqueIdToken<Specimen> {
 	@Override
 	public Number getUniqueId(Specimen specimen, String... args) {
 		String visitName = specimen.getVisit().getName();
-		String key = visitName + "_" + specimen.getSpecimenType();
+		String key = visitName + "_" + specimen.getSpecimenType().getId().toString();
 		Long uniqueId = daoFactory.getUniqueIdGenerator().getUniqueId(name, key);
 		return uniqueId == 1L && !eqArg("output_one", 1, args) ? -1 : uniqueId;
 	}
