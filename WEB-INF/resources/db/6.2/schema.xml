@@ -828,4 +828,12 @@
   <changeSet author="vpawar" id="Update existing transfer events' from/to position display coordinates">
     <customChange class="com.krishagni.catissueplus.core.upgrade.UpdateTransferEventDisplayFormat"/>
   </changeSet>
+
+  <changeSet author="vpawar" id="Update PPI specimen type UID sequence key values to use type PV ID">
+    <customChange class="com.krishagni.catissueplus.core.upgrade.UpdatePpiSpecimenTypeUidSequence"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Update visit specimen type UID sequence key values to use type PV ID">
+    <customChange class="com.krishagni.catissueplus.core.upgrade.UpdateVisitSpecimenTypeUidSequence"/>
+  </changeSet>
 </databaseChangeLog>
