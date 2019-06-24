@@ -1,9 +1,10 @@
 package com.krishagni.catissueplus.core.administrative.domain.factory.impl;
 
 import static com.krishagni.catissueplus.core.common.PvAttributes.*;
-import static com.krishagni.catissueplus.core.common.service.PvValidator.isValid;
 
 import java.math.BigDecimal;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -13,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol;
 import com.krishagni.catissueplus.core.administrative.domain.DpRequirement;
+import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
 import com.krishagni.catissueplus.core.administrative.domain.factory.DistributionProtocolErrorCode;
 import com.krishagni.catissueplus.core.administrative.domain.factory.DpRequirementErrorCode;
 import com.krishagni.catissueplus.core.administrative.domain.factory.DpRequirementFactory;
@@ -107,13 +109,17 @@ public class DpRequirementFactoryImpl implements DpRequirementFactory {
 	}
 	
 	private void setSpecimenType(DpRequirementDetail detail, DpRequirement dpr, OpenSpecimenException ose) {
-		String specimenType = detail.getSpecimenType();
-		if (!isValid(SPECIMEN_CLASS, 1, specimenType, true)) {
+		if (StringUtils.isBlank(detail.getSpecimenType())) {
+			return;
+		}
+
+		PermissibleValue typePv = getPv(SPECIMEN_CLASS, detail.getSpecimenType(), false);
+		if (typePv == null) {
 			ose.addError(SpecimenErrorCode.INVALID_SPECIMEN_TYPE);
 			return;
 		}
 		
-		dpr.setSpecimenType(specimenType);
+		dpr.setSpecimenType(typePv);
 	}
 
 	private void setAnatomicSite(DpRequirementDetail detail, DpRequirement existing, DpRequirement dpr, OpenSpecimenException ose) {
@@ -125,13 +131,17 @@ public class DpRequirementFactoryImpl implements DpRequirementFactory {
 	}
 
 	private void setAnatomicSite(DpRequirementDetail detail, DpRequirement dpr, OpenSpecimenException ose) {
-		String anatomicSite = detail.getAnatomicSite();
-		if (!isValid(SPECIMEN_ANATOMIC_SITE, anatomicSite, true)) {
+		if (StringUtils.isBlank(detail.getAnatomicSite())) {
+			return;
+		}
+
+		PermissibleValue anatomicSitePv = getPv(SPECIMEN_ANATOMIC_SITE, detail.getAnatomicSite(), true);
+		if (anatomicSitePv == null) {
 			ose.addError(SpecimenErrorCode.INVALID_ANATOMIC_SITE);
 			return;
 		}
-		
-		dpr.setAnatomicSite(anatomicSite);
+
+		dpr.setAnatomicSite(anatomicSitePv);
 	}
 
 	private void setPathologyStatuses(DpRequirementDetail detail, DpRequirement existing, DpRequirement dpr, OpenSpecimenException ose) {
@@ -148,16 +158,14 @@ public class DpRequirementFactoryImpl implements DpRequirementFactory {
 			return;
 		}
 
-		List<String> invalidPathStatuses = pathologyStatuses.stream()
-			.filter(pathology -> !isValid(PATH_STATUS, pathology))
-			.collect(Collectors.toList());
-
-		if (CollectionUtils.isNotEmpty(invalidPathStatuses)) {
-			ose.addError(DpRequirementErrorCode.INVALID_PATHOLOGY_STATUSES, StringUtils.join(invalidPathStatuses));
+		List<PermissibleValue> pathPvs = getPvs(PATH_STATUS, pathologyStatuses);
+		if (pathPvs.size() != pathologyStatuses.size()) {
+			pathologyStatuses.removeAll(pathPvs.stream().map(pv -> pv.getValue()).collect(Collectors.toSet()));
+			ose.addError(DpRequirementErrorCode.INVALID_PATHOLOGY_STATUSES, StringUtils.join(pathologyStatuses));
 			return;
 		}
 
-		dpr.setPathologyStatuses(pathologyStatuses);
+		dpr.setPathologyStatuses(new HashSet<>(pathPvs));
 	}
 
 	private void setClinicalDiagnosis(DpRequirementDetail detail, DpRequirement existing, DpRequirement dpr, OpenSpecimenException ose) {
@@ -169,13 +177,17 @@ public class DpRequirementFactoryImpl implements DpRequirementFactory {
 	}
 
 	private void setClinicalDiagnosis(DpRequirementDetail detail, DpRequirement dpr, OpenSpecimenException ose) {
-		String clinicalDiagnosis = detail.getClinicalDiagnosis();
-		if (!isValid(CLINICAL_DIAG, clinicalDiagnosis)) {
+		if (StringUtils.isBlank(detail.getClinicalDiagnosis())) {
+			return;
+		}
+
+		PermissibleValue cdPv = getPv(CLINICAL_DIAG, detail.getClinicalDiagnosis(), false);
+		if (cdPv == null) {
 			ose.addError(VisitErrorCode.INVALID_CLINICAL_DIAGNOSIS);
 			return;
 		}
 
-		dpr.setClinicalDiagnosis(detail.getClinicalDiagnosis());
+		dpr.setClinicalDiagnosis(cdPv);
 	}
 
 	private void setCost(DpRequirementDetail detail, DpRequirement existing, DpRequirement dpr, OpenSpecimenException ose) {
@@ -285,5 +297,13 @@ public class DpRequirementFactoryImpl implements DpRequirementFactory {
 	private void setExtension(DpRequirementDetail detail, DpRequirement dpr, OpenSpecimenException ose) {
 		DeObject extension = DeObject.createExtension(detail.getExtensionDetail(), dpr);
 		dpr.setExtension(extension);
+	}
+
+	private PermissibleValue getPv(String attribute, String value, boolean leafNode) {
+		return daoFactory.getPermissibleValueDao().getPv(attribute, value, leafNode);
+	}
+
+	private List<PermissibleValue> getPvs(String attribute, Collection<String> values) {
+		return daoFactory.getPermissibleValueDao().getPvs(attribute, values);
 	}
 }

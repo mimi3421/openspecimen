@@ -1,14 +1,13 @@
 package com.krishagni.catissueplus.core.administrative.events;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.krishagni.catissueplus.core.administrative.domain.DpRequirement;
+import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
 import com.krishagni.catissueplus.core.common.AttributeModifiedSupport;
 import com.krishagni.catissueplus.core.common.ListenAttributeChanges;
 import com.krishagni.catissueplus.core.de.events.ExtensionDetail;
@@ -160,10 +159,10 @@ public class DpRequirementDetail extends AttributeModifiedSupport {
 		
 		detail.setId(dpr.getId());
 		detail.setDp(DistributionProtocolSummary.from(dpr.getDistributionProtocol()));
-		detail.setSpecimenType(dpr.getSpecimenType());
-		detail.setAnatomicSite(dpr.getAnatomicSite());
-		detail.setPathologyStatuses(new HashSet<>(dpr.getPathologyStatuses()));
-		detail.setClinicalDiagnosis(dpr.getClinicalDiagnosis());
+		detail.setSpecimenType(PermissibleValue.getValue(dpr.getSpecimenType()));
+		detail.setAnatomicSite(PermissibleValue.getValue(dpr.getAnatomicSite()));
+		detail.setPathologyStatuses(PermissibleValue.toValueSet(dpr.getPathologyStatuses()));
+		detail.setClinicalDiagnosis(PermissibleValue.getValue(dpr.getClinicalDiagnosis()));
 		detail.setCost(dpr.getCost());
 		detail.setSpecimenCount(dpr.getSpecimenCount());
 		detail.setQuantity(dpr.getQuantity());

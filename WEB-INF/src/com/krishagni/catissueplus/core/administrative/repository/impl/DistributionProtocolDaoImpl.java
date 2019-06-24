@@ -133,7 +133,7 @@ public class DistributionProtocolDaoImpl extends AbstractDao<DistributionProtoco
 		addOrderStatProjections(query, listCrit);
 		
 		List<Object []> rows = query.list();
-		List<DistributionOrderStat> result = new ArrayList<DistributionOrderStat>();
+		List<DistributionOrderStat> result = new ArrayList<>();
 		for (Object[] row : rows) {
 			DistributionOrderStat detail = getDOStats(row, listCrit);
 			result.add(detail);
@@ -277,14 +277,15 @@ public class DistributionProtocolDaoImpl extends AbstractDao<DistributionProtoco
 		
 		for (String attr : crit.groupByAttrs()) {
 			String prop = props.get(attr);
-			projs.add(Projections.groupProperty(prop));
+			query.createAlias(prop, attr + "pv");
+			projs.add(Projections.groupProperty(attr + "pv.value"));
 		}
 		
 		query.setProjection(projs);
 	}
 	
 	private Map<String, String> getProps() {
-		Map<String, String> props = new HashMap<String, String>();
+		Map<String, String> props = new HashMap<>();
 		props.put("specimenType", "specimen.specimenType");
 		props.put("anatomicSite", "specimen.tissueSite");
 		props.put("pathologyStatus", "specimen.pathologicalStatus");

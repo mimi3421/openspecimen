@@ -294,14 +294,8 @@ public class DistributionProtocol extends BaseExtensionEntity {
 		return getDistributingSites().stream().map(DpDistributionSite::getInstitute).collect(Collectors.toSet());
 	}
 	
-	public boolean hasRequirement(String specimenType, String anatomicSite, Set<String> pathologyStatuses, String clinicalDiagnosis) {
-		for (DpRequirement req : getRequirements()) {
-			if (req.equalsSpecimenGroup(specimenType, anatomicSite, pathologyStatuses, clinicalDiagnosis)) {
-				return true;
-			}
-		}
-		
-		return false;
+	public boolean hasRequirement(DpRequirement dpr) {
+		return getRequirements().stream().anyMatch(req -> req.equalsSpecimenGroup(dpr));
 	}
 
 	@Override

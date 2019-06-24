@@ -38,9 +38,7 @@ public class DpRequirementController {
 	@RequestMapping(method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
-	public List<DpRequirementDetail> getAllRequirements(
-			@RequestParam(value = "dpId", required = true)
-			Long dpId) {
+	public List<DpRequirementDetail> getAllRequirements(@RequestParam(value = "dpId") Long dpId) {
 		ResponseEvent<List<DpRequirementDetail>> resp = dpSvc.getRequirements(getRequest(dpId));
 		resp.throwErrorIfUnsuccessful();
 		return resp.getPayload();

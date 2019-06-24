@@ -836,4 +836,42 @@
   <changeSet author="vpawar" id="Update visit specimen type UID sequence key values to use type PV ID">
     <customChange class="com.krishagni.catissueplus.core.upgrade.UpdateVisitSpecimenTypeUidSequence"/>
   </changeSet>
+
+  <changeSet author="vpawar" id="Normalised DP requirement PVs">
+    <addColumn tableName="OS_DP_REQUIREMENTS">
+      <column name="SPECIMEN_TYPE_ID" type="${int.type}"/>
+      <column name="ANATOMIC_SITE_ID" type="${int.type}"/>
+      <column name="CLINICAL_DIAGNOSIS_ID" type="${int.type}"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="vpawar" id="FK on DP requirement specimen type">
+    <addForeignKeyConstraint constraintName="FK_DPR_SPECIMEN_TYPE"
+      baseTableName="OS_DP_REQUIREMENTS" baseColumnNames="SPECIMEN_TYPE_ID"
+      referencedTableName="CATISSUE_PERMISSIBLE_VALUE" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="FK on DP requirement anatomic site">
+    <addForeignKeyConstraint constraintName="FK_DPR_ANATOMIC_SITE"
+      baseTableName="OS_DP_REQUIREMENTS" baseColumnNames="ANATOMIC_SITE_ID"
+      referencedTableName="CATISSUE_PERMISSIBLE_VALUE" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="FK on DP requirement clinical diagnosis">
+    <addForeignKeyConstraint constraintName="FK_DPR_CLINICAL_DIAGNOSIS"
+      baseTableName="OS_DP_REQUIREMENTS" baseColumnNames="CLINICAL_DIAGNOSIS_ID"
+      referencedTableName="CATISSUE_PERMISSIBLE_VALUE" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Normalised DP requirement pathology status">
+    <addColumn tableName="OS_DPR_PATHOLOGY_STATUSES">
+      <column name="PATHOLOGY_STATUS_ID" type="${int.type}"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="vpawar" id="FK on DP requirement pathology status">
+    <addForeignKeyConstraint constraintName="FK_DPR_PATH_STATUS"
+      baseTableName="OS_DPR_PATHOLOGY_STATUSES" baseColumnNames="PATHOLOGY_STATUS_ID"
+      referencedTableName="CATISSUE_PERMISSIBLE_VALUE" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
 </databaseChangeLog>

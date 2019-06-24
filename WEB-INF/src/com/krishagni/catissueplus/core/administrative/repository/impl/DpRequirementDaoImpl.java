@@ -21,12 +21,11 @@ public class DpRequirementDaoImpl extends AbstractDao<DpRequirement>
 	@Override
 	@SuppressWarnings("unchecked")
 	public Map<Long, DprStat> getDistributionStatByDp(Long dpId) {
-		List<Object[]> rows = sessionFactory.getCurrentSession()
-				.getNamedQuery(GET_DISTRIBUTION_STAT)
-				.setLong("dpId", dpId)
-				.list();
+		List<Object[]> rows = getCurrentSession().getNamedQuery(GET_DISTRIBUTION_STAT)
+			.setLong("dpId", dpId)
+			.list();
 		
-		Map<Long, DprStat> result = new HashMap<Long, DprStat>();
+		Map<Long, DprStat> result = new HashMap<>();
 		for (Object[] row : rows) {
 			DprStat stat = new DprStat();
 			stat.setDistributedCnt((Long) row[1]);

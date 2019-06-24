@@ -211,4 +211,18 @@
       <column name="RECEIVED_QUALITY_ID" type="${int.type}"/>
     </addColumn>
   </changeSet>
+
+  <changeSet author="vpawar" id="Normalised DP requirement PVs">
+    <addColumn tableName="OS_DP_REQUIREMENTS_AUD">
+      <column name="SPECIMEN_TYPE_ID" type="${int.type}"/>
+      <column name="ANATOMIC_SITE_ID" type="${int.type}"/>
+      <column name="CLINICAL_DIAGNOSIS_ID" type="${int.type}"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Normalised DP requirement pathology status">
+    <addColumn tableName="OS_DPR_PATHOLOGY_STATUSES_AUD">
+      <column name="PATHOLOGY_STATUS_ID" type="${int.type}"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

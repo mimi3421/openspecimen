@@ -4,8 +4,7 @@
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping auto-import="false">
-  <class name="com.krishagni.catissueplus.core.administrative.domain.DpRequirement"
-    table="OS_DP_REQUIREMENTS">
+  <class name="com.krishagni.catissueplus.core.administrative.domain.DpRequirement" table="OS_DP_REQUIREMENTS">
 
     <id name="id" column="IDENTIFIER">
       <generator class="native">
@@ -13,18 +12,18 @@
       </generator>
     </id>
     
-    <many-to-one name="distributionProtocol" column="DP_ID" />
+    <many-to-one name="distributionProtocol" column="DP_ID" fetch="join"/>
     
-    <property name="specimenType" column="SPECIMEN_TYPE" />
+    <many-to-one name="specimenType" column="SPECIMEN_TYPE_ID" fetch="join"/>
     
-    <property name="anatomicSite" column="ANATOMIC_SITE" />
+    <many-to-one name="anatomicSite" column="ANATOMIC_SITE_ID" fetch="join"/>
     
-    <set name="pathologyStatuses" table="OS_DPR_PATHOLOGY_STATUSES" cascade="all-delete-orphan">
+    <set name="pathologyStatuses" table="OS_DPR_PATHOLOGY_STATUSES">
       <key column="DPR_ID"/>
-      <element column="PATHOLOGY_STATUS" type="string"/>
+      <many-to-many class="com.krishagni.catissueplus.core.administrative.domain.PermissibleValue" column="PATHOLOGY_STATUS_ID"/>
     </set>
 
-    <property name="clinicalDiagnosis" column="CLINICAL_DAIGNOSIS"/>
+    <many-to-one name="clinicalDiagnosis" column="CLINICAL_DIAGNOSIS_ID" fetch="join"/>
 
     <property name="cost" column="COST"/>
     

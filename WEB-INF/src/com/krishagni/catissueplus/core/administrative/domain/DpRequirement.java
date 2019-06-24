@@ -2,11 +2,12 @@ package com.krishagni.catissueplus.core.administrative.domain;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.RelationTargetAuditMode;
 
 import com.krishagni.catissueplus.core.biospecimen.domain.BaseExtensionEntity;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
@@ -19,13 +20,13 @@ public class DpRequirement extends BaseExtensionEntity {
 
 	private DistributionProtocol distributionProtocol;
 	
-	private String specimenType;
+	private PermissibleValue specimenType;
 	
-	private String anatomicSite;
+	private PermissibleValue anatomicSite;
 	
-	private Set<String> pathologyStatuses = new HashSet<>();
+	private Set<PermissibleValue> pathologyStatuses = new HashSet<>();
 
-	private String clinicalDiagnosis;
+	private PermissibleValue clinicalDiagnosis;
 
 	private BigDecimal cost;
 	
@@ -44,36 +45,40 @@ public class DpRequirement extends BaseExtensionEntity {
 	public void setDistributionProtocol(DistributionProtocol distributionProtocol) {
 		this.distributionProtocol = distributionProtocol;
 	}
-	
-	public String getSpecimenType() {
+
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	public PermissibleValue getSpecimenType() {
 		return specimenType;
 	}
 	
-	public void setSpecimenType(String specimenType) {
+	public void setSpecimenType(PermissibleValue specimenType) {
 		this.specimenType = specimenType;
 	}
-	
-	public String getAnatomicSite() {
+
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	public PermissibleValue getAnatomicSite() {
 		return anatomicSite;
 	}
 	
-	public void setAnatomicSite(String anatomicSite) {
+	public void setAnatomicSite(PermissibleValue anatomicSite) {
 		this.anatomicSite = anatomicSite;
 	}
-	
-	public Set<String> getPathologyStatuses() {
+
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	public Set<PermissibleValue> getPathologyStatuses() {
 		return pathologyStatuses;
 	}
 	
-	public void setPathologyStatuses(Set<String> pathologyStatuses) {
+	public void setPathologyStatuses(Set<PermissibleValue> pathologyStatuses) {
 		this.pathologyStatuses = pathologyStatuses;
 	}
 
-	public String getClinicalDiagnosis() {
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	public PermissibleValue getClinicalDiagnosis() {
 		return clinicalDiagnosis;
 	}
 
-	public void setClinicalDiagnosis(String clinicalDiagnosis) {
+	public void setClinicalDiagnosis(PermissibleValue clinicalDiagnosis) {
 		this.clinicalDiagnosis = clinicalDiagnosis;
 	}
 
@@ -140,11 +145,11 @@ public class DpRequirement extends BaseExtensionEntity {
 		return equalsSpecimenGroup(dpr.getSpecimenType(), dpr.getAnatomicSite(), dpr.getPathologyStatuses(), dpr.getClinicalDiagnosis());
 	}
 
-	public boolean equalsSpecimenGroup(String specimenType, String anatomicSite, Set<String> pathologyStatuses, String clinicalDiagnosis) {
-		return StringUtils.equals(getSpecimenType(), specimenType) &&
-				StringUtils.equals(getAnatomicSite(), anatomicSite) &&
-				arePathologyStatusesEqual(pathologyStatuses) &&
-				StringUtils.equals(getClinicalDiagnosis(), clinicalDiagnosis);
+	public boolean equalsSpecimenGroup(PermissibleValue specimenType, PermissibleValue anatomicSite, Set<PermissibleValue> pathologyStatuses, PermissibleValue clinicalDiagnosis) {
+		return Objects.equals(getSpecimenType(), specimenType) &&
+			Objects.equals(getAnatomicSite(), anatomicSite) &&
+			arePathologyStatusesEqual(pathologyStatuses) &&
+			Objects.equals(getClinicalDiagnosis(), clinicalDiagnosis);
 	}
 
 	public void delete() {
@@ -153,7 +158,7 @@ public class DpRequirement extends BaseExtensionEntity {
 
 	public int getMatchPoints(Specimen specimen) {
 		int points = 0;
-		if (StringUtils.isNotBlank(getSpecimenType())) {
+		if (getSpecimenType() != null) {
 			if (!getSpecimenType().equals(specimen.getSpecimenType())) {
 				return 0;
 			}
@@ -169,7 +174,7 @@ public class DpRequirement extends BaseExtensionEntity {
 			points += 30;
 		}
 
-		if (StringUtils.isNotBlank(getAnatomicSite())) {
+		if (getAnatomicSite() != null) {
 			if (!getAnatomicSite().equals(specimen.getTissueSite())) {
 				return 0;
 			}
@@ -177,7 +182,7 @@ public class DpRequirement extends BaseExtensionEntity {
 			points += 20;
 		}
 
-		if (StringUtils.isNotBlank(getClinicalDiagnosis())) {
+		if (getClinicalDiagnosis() != null) {
 			if (!specimen.getVisit().getClinicalDiagnoses().contains(getClinicalDiagnosis())) {
 				return 0;
 			}
@@ -188,15 +193,13 @@ public class DpRequirement extends BaseExtensionEntity {
 		return points;
 	}
 
-	private boolean arePathologyStatusesEqual(Set<String> pathologyStatuses) {
+	private boolean arePathologyStatusesEqual(Set<PermissibleValue> pathologyStatuses) {
 		boolean isEmptyOldPaths = CollectionUtils.isEmpty(getPathologyStatuses());
 		boolean isEmptyNewPaths = CollectionUtils.isEmpty(pathologyStatuses);
 
 		if (isEmptyOldPaths && isEmptyNewPaths) {
 			return true;
-		}
-
-		if (isEmptyOldPaths || isEmptyNewPaths) {
+		} else if (isEmptyOldPaths || isEmptyNewPaths) {
 			return false;
 		}
 

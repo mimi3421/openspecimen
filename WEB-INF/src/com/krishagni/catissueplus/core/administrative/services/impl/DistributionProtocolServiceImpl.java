@@ -309,8 +309,7 @@ public class DistributionProtocolServiceImpl implements DistributionProtocolServ
 	
 	@Override
 	@PlusTransactional
-	public ResponseEvent<List<DistributionOrderStat>> getOrderStats(
-			RequestEvent<DistributionOrderStatListCriteria> req) {
+	public ResponseEvent<List<DistributionOrderStat>> getOrderStats(RequestEvent<DistributionOrderStatListCriteria> req) {
 		try {
 			DistributionOrderStatListCriteria crit = req.getPayload();
 			List<DistributionOrderStat> stats = getOrderStats(crit);
@@ -636,8 +635,10 @@ public class DistributionProtocolServiceImpl implements DistributionProtocolServ
 	}
 
 	private void ensureSpecimenPropertyPresent(DpRequirement dpr, OpenSpecimenException ose) {
-		if (StringUtils.isBlank(dpr.getSpecimenType()) && StringUtils.isBlank(dpr.getAnatomicSite()) &&
-			CollectionUtils.isEmpty(dpr.getPathologyStatuses()) && StringUtils.isBlank(dpr.getClinicalDiagnosis())) {
+		if (dpr.getSpecimenType() == null &&
+			dpr.getAnatomicSite() == null &&
+			CollectionUtils.isEmpty(dpr.getPathologyStatuses()) &&
+			dpr.getClinicalDiagnosis() == null) {
 			ose.addError(DpRequirementErrorCode.SPEC_PROPERTY_REQUIRED);
 		}
 	}
@@ -648,8 +649,7 @@ public class DistributionProtocolServiceImpl implements DistributionProtocolServ
 		}
 		
 		DistributionProtocol dp = newDpr.getDistributionProtocol();
-		if (dp.hasRequirement(newDpr.getSpecimenType(), newDpr.getAnatomicSite(), newDpr.getPathologyStatuses(),
-			newDpr.getClinicalDiagnosis())) {
+		if (dp.hasRequirement(newDpr)) {
 			ose.addError(DpRequirementErrorCode.ALREADY_EXISTS);
 		}
 	}

@@ -345,4 +345,24 @@
     <sql>call set_pv_ids('os_shipment_containers', 'received_quality', 'received_quality_id', 'shipment_item_received_quality');</sql>
     <sql>call set_pv_ids('os_shipment_containers_aud', 'received_quality', 'received_quality_id', 'shipment_item_received_quality');</sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="DP requirement: specimen type">
+    <sql>call set_pv_ids('os_dp_requirements', 'specimen_type', 'specimen_type_id', 'specimen_type');</sql>
+    <sql>call set_pv_ids('os_dp_requirements_aud', 'specimen_type', 'specimen_type_id', 'specimen_type');</sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="DP requirement: anatomic site">
+    <sql>call set_leaf_pv_ids('os_dp_requirements', 'anatomic_site', 'anatomic_site_id', 'anatomic_site');</sql>
+    <sql>call set_leaf_pv_ids('os_dp_requirements_aud', 'anatomic_site', 'anatomic_site_id', 'anatomic_site');</sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="DP requirement: clinical diagnosis">
+    <sql>call set_pv_ids('os_dp_requirements', 'clinical_daignosis', 'clinical_diagnosis_id', 'clinical_diagnosis');</sql>
+    <sql>call set_pv_ids('os_dp_requirements_aud', 'clinical_daignosis', 'clinical_diagnosis_id', 'clinical_diagnosis');</sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="DP requirement: pathology status">
+    <sql>call set_pv_ids('os_dpr_pathology_statuses', 'pathology_status', 'pathology_status_id', 'pathology_status');</sql>
+    <sql>call set_pv_ids('os_dpr_pathology_statuses_aud', 'pathology_status', 'pathology_status_id', 'pathology_status');</sql>
+  </changeSet>
 </databaseChangeLog>
