@@ -54,8 +54,8 @@ angular.module('os.biospecimen.participant.addedit', ['os.biospecimen.models', '
       $scope.extnOpts = ExtensionsUtil.getExtnOpts(
         $scope.cpr.participant, extensionCtxt, $scope.disableFieldOpts.customFields);
 
+      $scope.cpr.participant.addPmi($scope.cpr.participant.newPmi());
       if (!hasDict) {
-        $scope.cpr.participant.addPmi($scope.cpr.participant.newPmi());
         loadPvs();
       }
     };
@@ -339,9 +339,7 @@ angular.module('os.biospecimen.participant.addedit', ['os.biospecimen.models', '
         function(lockedFields) {
           clearFields($scope, lockedFields);
           angular.extend($scope.cpr.participant, matchedParticipant);
-          if (!hasDict) {
-            $scope.cpr.participant.addPmi($scope.cpr.participant.newPmi());
-          }
+          $scope.cpr.participant.addPmi($scope.cpr.participant.newPmi());
 
           if (matchedCpr) {
             delete matchedCpr.participant;
