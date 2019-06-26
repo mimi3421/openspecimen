@@ -131,7 +131,7 @@ angular.module('os.biospecimen.specimen')
       return Specimen.save(specimensToSave).then(
         function(result) {
           if (closeParent) {
-            scope.parentSpecimen.children.push(result[0].children[0]);
+            scope.parentSpecimen.children = result[0].children;
             scope.parentSpecimen.activityStatus = 'Closed';
           } else {
             scope.parentSpecimen.children.push(result[0]);
