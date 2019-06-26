@@ -19,7 +19,8 @@ angular.module('os.biospecimen.participant.overview', ['os.biospecimen.models'])
           {objectId: cpr.id, objectName: 'collection_protocol_registration'},
           {objectId: cpr.participant.id, objectName: 'participant'}
         ],
-        showAnonymize: storePhi
+        showAnonymize: storePhi,
+        watchOn: ['cpr.participant']
       }
 
       $scope.occurredVisitsCols = initVisitTab(visitsTab.occurred, $scope.occurredVisits);
@@ -84,6 +85,7 @@ angular.module('os.biospecimen.participant.overview', ['os.biospecimen.models'])
         ok: function() {
           $scope.cpr.anonymize().then(
             function(savedCpr) {
+              $scope.cpr.participant = null;
               angular.extend($scope.cpr, savedCpr);
               ExtensionsUtil.createExtensionFieldMap($scope.cpr.participant);
               Alerts.success("participant.anonymized_successfully");
