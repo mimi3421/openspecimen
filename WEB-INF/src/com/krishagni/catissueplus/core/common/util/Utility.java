@@ -418,6 +418,10 @@ public class Utility {
 		return Period.between(startDt, endDt).getYears();
 	}
 
+	public static int cmp(Date d1, Date d2) {
+		return (d1 == d2) ? 0 : (d1 == null ? -1 : (d2 == null ? 1 : d1.compareTo(d2)));
+	}
+
 	public static boolean isEmpty(Map<?, ?> map) {
 		return map == null || map.isEmpty();
 	}
