@@ -54,10 +54,24 @@ osApp.config(function(
         }
       })
       .state('alert-msg', {
-        url: '/alert?redirectTo&type&msg',
-        controller: function($state, $stateParams, Alerts) {
-          Alerts.add($stateParams.msg, $stateParams.type);
-          $state.go($stateParams.redirectTo || 'home');
+        url: '/alert?type&msg',
+        views: {
+          'nav-buttons': {
+            template: '<div></div>',
+            controller: function() { }
+          },
+
+          'app-body': {
+            template: '<div class="os-center-box" style="margin-top: 100px;">' +
+                      '  <div class="alert alert-{{actx.type}}">{{actx.msg}}</div>' +
+                      '  <button type="submit" class="btn btn-block btn-primary" ui-sref="login">' +
+                      '    <span translate="user.sign_in">Sign in</span>' +
+                      '  </button>' +
+                      '</div>',
+            controller: function($scope, $stateParams) {
+              $scope.actx = {type: $stateParams.type, msg: $stateParams.msg};
+            }
+          }
         },
         parent: 'default'
       })
