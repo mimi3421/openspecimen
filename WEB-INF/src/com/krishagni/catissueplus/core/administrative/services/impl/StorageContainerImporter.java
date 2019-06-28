@@ -19,8 +19,9 @@ public class StorageContainerImporter implements ObjectImporter<StorageContainer
 	public ResponseEvent<StorageContainerDetail> importObject(RequestEvent<ImportObjectDetail<StorageContainerDetail>> req) {
 		try {
 			ImportObjectDetail<StorageContainerDetail> detail = req.getPayload();
-			RequestEvent<StorageContainerDetail> containerReq = new RequestEvent<StorageContainerDetail>(detail.getObject());
+			RequestEvent<StorageContainerDetail> containerReq = new RequestEvent<>(detail.getObject());
 			if (detail.isCreate()) {
+				detail.getObject().setId(null);
 				return containerSvc.createStorageContainer(containerReq);
 			} else {
 				return containerSvc.patchStorageContainer(containerReq);
