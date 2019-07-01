@@ -6,6 +6,7 @@ angular.module('os.common.delete')
 
       var modalInstance = $modal.open({
         templateUrl: 'modules/common/delete/modal.html',
+        backdrop: 'static',
         controller: 'EntityDeleteCtrl',
         resolve: {
           entityProps: function() {

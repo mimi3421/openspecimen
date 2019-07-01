@@ -4,6 +4,7 @@ angular.module('os.common.delete', [])
     function init() {
       dependentEntities = dependentEntities || [];
 
+      $scope.submitted         = false;
       $scope.entity            = entityProps.entity;
       $scope.entityProps       = entityProps;
       $scope.dependentEntities = dependentEntities;
@@ -35,14 +36,19 @@ angular.module('os.common.delete', [])
     }
 
     function bulkDelete() {
-      $scope.entity.bulkDelete(entityProps.entityIds, entityProps.reason).then(onBulkDeletion)
+      $scope.entity.bulkDelete(entityProps.entityIds, entityProps.reason).then(onBulkDeletion, submitFailed)
     };
 
+    function submitFailed() {
+      $scope.submitted = false;
+    }
+
     $scope.delete = function () {
+      $scope.submitted = true;
       if (entityProps.entityIds) {
         bulkDelete();
       } else {
-        $scope.entity.$remove(!!entityProps.forceDelete, entityProps.reason).then(onDeletion);
+        $scope.entity.$remove(!!entityProps.forceDelete, entityProps.reason).then(onDeletion, submitFailed);
       }
     };
 
