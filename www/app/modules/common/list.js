@@ -115,6 +115,8 @@ angular.module('openspecimen')
                   ctx.sortBy = undefined;
                 }
               }
+
+              ctrl.onDataLoad(ctx.data);
             }
           );
         }
@@ -180,6 +182,10 @@ angular.module('openspecimen')
         this.sortBy = sortBy;
 
         this.getExpressionValues = getExpressionValues;
+
+        this.onDataLoad = function(data) {
+          // no-op
+        }
 
         init();
       },

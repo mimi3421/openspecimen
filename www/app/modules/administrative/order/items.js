@@ -60,6 +60,23 @@ angular.module('os.administrative.order')
     $scope.setListCtrl = function(listCtrl) {
       ctx.listCtrl = listCtrl;
       ctx.showSearch = listCtrl.haveFilters;
+
+      if (order.status != 'PENDING') {
+        return;
+      }
+
+      ctx.listCtrl.onDataLoad = function(data) {
+        if (!data || !data.columns) {
+          return;
+        }
+
+        for (var i = 0; i < data.columns.length; ++i) {
+          if (!!data.columns[i].expr && data.columns[i].expr.indexOf('Specimen.specimenOrders.status') != -1) {
+            data.columns[i].hide = true;
+            break;
+          }
+        }
+      }
     }
 
     $scope.showSpecimen = function(row) {
