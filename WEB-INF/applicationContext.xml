@@ -237,6 +237,7 @@
 
   <bean id="stagedParticipantSvc" class="com.krishagni.catissueplus.core.biospecimen.services.impl.StagedParticipantServiceImpl">
     <property name="daoFactory" ref="biospecimenDaoFactory"/>
+    <property name="participantSvc" ref="participantSvc"/>
   </bean>
 
   <bean id="participantAnonymizer" class="com.krishagni.catissueplus.core.biospecimen.services.impl.ParticipantAnonymizer">

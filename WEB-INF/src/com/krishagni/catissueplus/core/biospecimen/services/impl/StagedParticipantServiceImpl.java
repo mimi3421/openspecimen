@@ -10,15 +10,20 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeanUtils;
 
 import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
+import com.krishagni.catissueplus.core.biospecimen.domain.Participant;
 import com.krishagni.catissueplus.core.biospecimen.domain.StagedParticipant;
 import com.krishagni.catissueplus.core.biospecimen.domain.StagedParticipantMedicalIdentifier;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.ParticipantErrorCode;
+import com.krishagni.catissueplus.core.biospecimen.events.ParticipantDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.PmiDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.StagedParticipantDetail;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
+import com.krishagni.catissueplus.core.biospecimen.services.ParticipantService;
 import com.krishagni.catissueplus.core.biospecimen.services.StagedParticipantService;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.PvAttributes;
@@ -28,11 +33,18 @@ import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 
 public class StagedParticipantServiceImpl implements StagedParticipantService {
+	private static final Log logger = LogFactory.getLog(StagedParticipantServiceImpl.class);
 
 	private DaoFactory daoFactory;
 
+	private ParticipantService participantSvc;
+
 	public void setDaoFactory(DaoFactory daoFactory) {
 		this.daoFactory = daoFactory;
+	}
+
+	public void setparticipantSvc(ParticipantService participantSvc) {
+		this.participantSvc = participantSvc;
 	}
 
 	@Override
@@ -40,12 +52,39 @@ public class StagedParticipantServiceImpl implements StagedParticipantService {
 	public ResponseEvent<StagedParticipantDetail> saveOrUpdateParticipant(RequestEvent<StagedParticipantDetail> req) {
 		try {
 			StagedParticipantDetail detail = req.getPayload();
+			updateParticipantIfExists(detail);
 			StagedParticipant savedParticipant = saveOrUpdateParticipant(getMatchingParticipant(detail), detail);
 			return ResponseEvent.response(StagedParticipantDetail.from(savedParticipant));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {
 			return ResponseEvent.serverError(e);
+		}
+	}
+
+	private void updateParticipantIfExists(StagedParticipantDetail input) {
+		Participant existing = daoFactory.getParticipantDao().getByEmpi(input.getEmpi());
+
+		if (existing == null) {
+			return;
+		}
+
+		ParticipantDetail detail = ParticipantDetail.from(existing, false);
+		detail.setEmpi(input.getEmpi());
+		detail.setUid(input.getUid());
+		detail.setEthnicities(input.getEthnicities());
+		detail.setGender(input.getGender());
+		detail.setLastName(input.getLastName());
+		detail.setFirstName(input.getFirstName());
+		detail.setMiddleName(input.getMiddleName());
+		detail.setBirthDate(input.getBirthDate());
+		detail.setRaces(input.getRaces());
+		detail.setPmis(input.getPmis());
+		detail.setSource(input.getSource());
+
+		ResponseEvent<ParticipantDetail> resp = participantSvc.updateParticipant(new RequestEvent<>(detail));
+		if (resp.isSuccessful()) {
+			logger.info("Matching participant (empi: '" + detail.getEmpi() + "') found and updated!");
 		}
 	}
 
