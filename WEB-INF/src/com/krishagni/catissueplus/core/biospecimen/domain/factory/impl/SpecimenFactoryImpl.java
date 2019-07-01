@@ -1198,8 +1198,9 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 			} else {
 				position = container.getReservedPosition(posTwo, posOne, location.getReservationId());
 				if (position != null) {
-					container.getOccupiedPositions().remove(position);
-					position = container.createPosition(posOne, posTwo);
+					position.setReservationId(null);
+					position.setBlocked(null);
+					position.setReservationTime(null);
 				} else if (container.canSpecimenOccupyPosition(specimen.getId(), posOne, posTwo)) {
 					position = container.createPosition(posOne, posTwo);
 				} else {
