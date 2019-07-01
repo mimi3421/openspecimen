@@ -51,6 +51,8 @@ public class ExpressionUtil {
 			Map<String, Method> methods = new HashMap<>();
 			methods.put("containsAny", CollectionUtils.class.getDeclaredMethod("containsAny", Collection.class, Collection.class));
 			methods.put("yearsBetween", Utility.class.getDeclaredMethod("yearsBetween", Date.class, Date.class));
+			methods.put("monthsBetween", Utility.class.getDeclaredMethod("monthsBetween", Date.class, Date.class));
+			methods.put("daysBetween", Utility.class.getDeclaredMethod("daysBetween", Date.class, Date.class));
 			methods.put("cmp", Utility.class.getDeclaredMethod("cmp", Date.class, Date.class));
 			return methods;
 		} catch (Exception e) {
