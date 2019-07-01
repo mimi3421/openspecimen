@@ -208,8 +208,6 @@ public class Specimen extends BaseExtensionEntity {
 	//
 	// Records the derivatives or aliquots created from this specimen in current action/transaction
 	//
-	private transient SpecimenChildrenEvent derivativeEvent;
-
 	private transient SpecimenChildrenEvent aliquotEvent;
 
 	//
@@ -1678,7 +1676,11 @@ public class Specimen extends BaseExtensionEntity {
 			throw OpenSpecimenException.userError(SpecimenErrorCode.EDIT_NOT_ALLOWED, getLabel());
 		}
 
-		SpecimenChildrenEvent currentEvent = childSpmn.isAliquot() ? aliquotEvent : derivativeEvent;
+		SpecimenChildrenEvent currentEvent = null;
+		if (childSpmn.isAliquot()) {
+			currentEvent = aliquotEvent;
+		}
+
 		if (currentEvent == null) {
 			currentEvent = new SpecimenChildrenEvent();
 			currentEvent.setSpecimen(this);
@@ -1692,8 +1694,6 @@ public class Specimen extends BaseExtensionEntity {
 
 		if (childSpmn.isAliquot()) {
 			aliquotEvent = currentEvent;
-		} else if (childSpmn.isDerivative()) {
-			derivativeEvent = currentEvent;
 		}
 	}
 
