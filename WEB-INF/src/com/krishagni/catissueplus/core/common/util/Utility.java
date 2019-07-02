@@ -404,22 +404,37 @@ public class Utility {
 		return yearsBetween(birthDate, null);
 	}
 
-	public static Integer yearsBetween(Date from, Date to) {
-		if (from == null) {
-			return null;
-		}
+	public static Integer yearsBetween(Date start, Date end) {
+		Period period = getPeriodBetween(start, end);
+		return period != null ? period.getYears() : null;
+	}
 
-		LocalDate startDt = LocalDate.from(from.toInstant().atZone(ZoneId.systemDefault()));
-		LocalDate endDt = LocalDate.now();
-		if (to != null) {
-			endDt = LocalDate.from(to.toInstant().atZone(ZoneId.systemDefault()));
-		}
+	public static Integer monthsBetween(Date start, Date end) {
+		Period period = getPeriodBetween(start, end);
+		return period != null ? period.getMonths() : null;
+	}
 
-		return Period.between(startDt, endDt).getYears();
+	public static Integer daysBetween(Date start, Date end) {
+		Period period = getPeriodBetween(start, end);
+		return period != null ? period.getDays() : null;
 	}
 
 	public static int cmp(Date d1, Date d2) {
-		return (d1 == d2) ? 0 : (d1 == null ? -1 : (d2 == null ? 1 : d1.compareTo(d2)));
+		return cmp(d1, d2, false);
+	}
+
+	public static int cmp(Date d1, Date d2, boolean onlyDate) {
+		if (d1 == d2) {
+			return 0;
+		} else if (d1 == null) {
+			return -1;
+		} else if (d2 == null) {
+			return 1;
+		} else if (onlyDate) {
+			return chopTime(d1).compareTo(chopTime(d2));
+		} else {
+			return d1.compareTo(d2);
+		}
 	}
 
 	public static boolean isEmpty(Map<?, ?> map) {
@@ -758,10 +773,6 @@ public class Utility {
 		return false;
 	}
 
-	public static long daysBetween(Date start, Date end) {
-		return TimeUnit.DAYS.convert(end.getTime() - start.getTime(), TimeUnit.MILLISECONDS);
-	}
-
 	public static boolean isValidDateFormat(String format) {
 		boolean isValid = true;
 		try {
@@ -802,5 +813,19 @@ public class Utility {
 
 	public static <T> Stream<T> stream(Collection<T> coll) {
 		return Optional.ofNullable(coll).map(Collection::stream).orElse(Stream.empty());
+	}
+
+	private static Period getPeriodBetween(Date from, Date to) {
+		if (from == null) {
+			return null;
+		}
+
+		LocalDate startDt = LocalDate.from(from.toInstant().atZone(ZoneId.systemDefault()));
+		LocalDate endDt = LocalDate.now();
+		if (to != null) {
+			endDt = LocalDate.from(to.toInstant().atZone(ZoneId.systemDefault()));
+		}
+
+		return Period.between(startDt, endDt);
 	}
 }
