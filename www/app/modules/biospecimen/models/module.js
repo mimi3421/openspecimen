@@ -14,6 +14,7 @@ angular.module('os.biospecimen.models',
     'os.biospecimen.models.specimenlist',
     'os.biospecimen.models.specimenevent',
     'os.biospecimen.models.specimenkit',
-    'os.biospecimen.models.consentstatement'
+    'os.biospecimen.models.consentstatement',
+    'os.biospecimen.models.cpgroup'
   ]
 );

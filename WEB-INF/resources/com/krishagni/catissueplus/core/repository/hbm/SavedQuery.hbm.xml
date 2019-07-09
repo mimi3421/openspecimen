@@ -15,6 +15,8 @@
 
     <property name="cpId" column="CP_ID"/>
 
+    <property name="cpGroupId" column="CP_GROUP_ID"/>
+
     <many-to-one name="createdBy" column="CREATED_BY" cascade="none"/>
      
     <many-to-one name="lastUpdatedBy" column="LAST_UPDATED_BY" cascade="none"/>

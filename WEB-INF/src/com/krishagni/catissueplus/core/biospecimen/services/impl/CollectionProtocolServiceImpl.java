@@ -75,12 +75,12 @@ import com.krishagni.catissueplus.core.biospecimen.events.CopyCpeOpDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.CpQueryCriteria;
 import com.krishagni.catissueplus.core.biospecimen.events.CpReportSettingsDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.CpWorkflowCfgDetail;
-import com.krishagni.catissueplus.core.biospecimen.events.CpWorkflowCfgDetail.WorkflowDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.CprSummary;
 import com.krishagni.catissueplus.core.biospecimen.events.FileDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.MergeCpDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenPoolRequirements;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenRequirementDetail;
+import com.krishagni.catissueplus.core.biospecimen.events.WorkflowDetail;
 import com.krishagni.catissueplus.core.biospecimen.repository.CollectionProtocolDao;
 import com.krishagni.catissueplus.core.biospecimen.repository.CpListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.repository.CprListCriteria;
@@ -1131,25 +1131,7 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 			}
 
 			AccessCtrlMgr.getInstance().ensureUpdateCpRights(cp);
-			CpWorkflowConfig cfg = daoFactory.getCollectionProtocolDao().getCpWorkflows(input.getCpId());
-			if (cfg == null) {
-				cfg = new CpWorkflowConfig();
-				cfg.setCp(cp);
-			}
-
-			if (!input.isPatch()) {
-				cfg.getWorkflows().clear();
-			}
-
-			if (input.getWorkflows() != null) {
-				for (WorkflowDetail detail : input.getWorkflows().values()) {
-					Workflow wf = new Workflow();
-					BeanUtils.copyProperties(detail, wf);
-					cfg.getWorkflows().put(wf.getName(), wf);
-				}
-			}
-
-			daoFactory.getCollectionProtocolDao().saveCpWorkflows(cfg);
+			CpWorkflowConfig cfg = saveWorkflows(cp, input);
 			return ResponseEvent.response(CpWorkflowCfgDetail.from(cfg));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
@@ -1157,7 +1139,7 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 			return ResponseEvent.serverError(e);
 		}
 	}
-	
+
 	@Override
 	@PlusTransactional
 	public ResponseEvent<List<CollectionProtocolSummary>> getRegisterEnabledCps(
@@ -1234,6 +1216,31 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 	public void afterPropertiesSet() throws Exception {
 		listSvc.registerListConfigurator("participant-list-view", this::getParticipantsListConfig);
 		listSvc.registerListConfigurator("specimen-list-view", this::getSpecimenListConfig);
+	}
+
+
+	@Override
+	public CpWorkflowConfig saveWorkflows(CollectionProtocol cp, CpWorkflowCfgDetail input) {
+		CpWorkflowConfig cfg = daoFactory.getCollectionProtocolDao().getCpWorkflows(cp.getId());
+		if (cfg == null) {
+			cfg = new CpWorkflowConfig();
+			cfg.setCp(cp);
+		}
+
+		if (!input.isPatch()) {
+			cfg.getWorkflows().clear();
+		}
+
+		if (input.getWorkflows() != null) {
+			for (WorkflowDetail detail : input.getWorkflows().values()) {
+				Workflow wf = new Workflow();
+				BeanUtils.copyProperties(detail, wf);
+				cfg.getWorkflows().put(wf.getName(), wf);
+			}
+		}
+
+		daoFactory.getCollectionProtocolDao().saveCpWorkflows(cfg);
+		return cfg;
 	}
 
 	private CpListCriteria addCpListCriteria(CpListCriteria crit) {

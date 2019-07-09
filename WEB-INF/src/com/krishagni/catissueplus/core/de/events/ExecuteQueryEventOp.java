@@ -6,6 +6,8 @@ import org.apache.commons.lang3.StringUtils;
 public class ExecuteQueryEventOp  {
 	
 	private Long cpId;
+
+	private Long cpGroupId;
 	
 	private String drivingForm;
 
@@ -31,6 +33,14 @@ public class ExecuteQueryEventOp  {
 
 	public void setCpId(Long cpId) {
 		this.cpId = cpId;
+	}
+
+	public Long getCpGroupId() {
+		return cpGroupId;
+	}
+
+	public void setCpGroupId(Long cpGroupId) {
+		this.cpGroupId = cpGroupId;
 	}
 
 	public String getDrivingForm() {

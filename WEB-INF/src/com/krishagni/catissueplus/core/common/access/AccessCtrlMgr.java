@@ -3,6 +3,7 @@ package com.krishagni.catissueplus.core.common.access;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -25,12 +26,14 @@ import com.krishagni.catissueplus.core.administrative.repository.SiteListCriteri
 import com.krishagni.catissueplus.core.administrative.repository.UserListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.ConfigParams;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
+import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolGroup;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolSite;
 import com.krishagni.catissueplus.core.biospecimen.domain.Participant;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.domain.Visit;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.CpErrorCode;
+import com.krishagni.catissueplus.core.biospecimen.domain.factory.CpGroupErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.CprErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.SpecimenErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.VisitErrorCode;
@@ -298,6 +301,22 @@ public class AccessCtrlMgr {
 
 	public Set<Long> getRegisterEnabledCpIds(List<String> siteNames) {
 		return getEligibleCpIds(Resource.PARTICIPANT.getName(), new String[] {Operation.CREATE.getName()}, siteNames);
+	}
+
+	public Set<Long> getReadAccessGroupCpIds(Long groupId) {
+		CollectionProtocolGroup group = bsDaoFactory.getCpGroupDao().getById(groupId);
+		if (group == null) {
+			throw OpenSpecimenException.userError(CpGroupErrorCode.NOT_FOUND, groupId);
+		}
+
+		Set<Long> allowedCpIds = getEligibleCpIds(Resource.CP.getName(), new String[] { Operation.READ.getName() }, null);
+		if (allowedCpIds == null) {
+			return new HashSet<>(group.getCpIds());
+		} else if (allowedCpIds.isEmpty()) {
+			return Collections.emptySet();
+		} else {
+			return group.getCpIds().stream().filter(allowedCpIds::contains).collect(Collectors.toSet());
+		}
 	}
 
 	//

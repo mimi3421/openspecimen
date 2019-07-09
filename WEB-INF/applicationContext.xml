@@ -200,6 +200,18 @@
     <property name="listSvc" ref="listSvc"/>
     <property name="rptSettingsFactory" ref="reportSettingsFact"/>
   </bean>
+
+  <bean id="cpGroupFactory" class="com.krishagni.catissueplus.core.biospecimen.domain.factory.impl.CollectionProtocolGroupFactoryImpl">
+    <property name="daoFactory" ref="biospecimenDaoFactory"/>
+  </bean>
+
+  <bean id="cpGroupSvc" class="com.krishagni.catissueplus.core.biospecimen.services.impl.CollectionProtocolGroupServiceImpl">
+    <property name="groupFactory" ref="cpGroupFactory"/>
+    <property name="daoFactory" ref="biospecimenDaoFactory"/>
+    <property name="formDao" ref="formDao"/>
+    <property name="formSvc" ref="formSvc"/>
+    <property name="cpSvc" ref="cpSvc"/>
+  </bean>
   
   <bean id="participantFactory" class="com.krishagni.catissueplus.core.biospecimen.domain.factory.impl.ParticipantFactoryImpl">
     <property name="daoFactory" ref="biospecimenDaoFactory"/>

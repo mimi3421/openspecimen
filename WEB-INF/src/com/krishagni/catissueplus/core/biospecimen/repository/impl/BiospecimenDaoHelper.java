@@ -20,6 +20,8 @@ import org.hibernate.criterion.Subqueries;
 import org.hibernate.sql.JoinType;
 
 import com.krishagni.catissueplus.core.administrative.domain.Site;
+import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
+import com.krishagni.catissueplus.core.biospecimen.repository.CpGroupListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.repository.SpecimenListCriteria;
 import com.krishagni.catissueplus.core.common.access.SiteCpPair;
 
@@ -140,6 +142,38 @@ public class BiospecimenDaoHelper {
 		}
 
 		return "(" + StringUtils.join(cpSitesCond, " or ") + ")";
+	}
+
+	public DetachedCriteria getCpIdsFilter(Collection<SiteCpPair> siteCps) {
+		DetachedCriteria filter = DetachedCriteria.forClass(CollectionProtocol.class, "cp")
+			.setProjection(Projections.distinct(Projections.property("cp.id")));
+
+		boolean siteAdded = false, instAdded = false;
+		Disjunction orCond = Restrictions.disjunction();
+		for (SiteCpPair siteCp : siteCps) {
+			if (siteCp.getCpId() != null) {
+				orCond.add(Restrictions.eq("cp.id", siteCp.getCpId()));
+			} else {
+				if (!siteAdded) {
+					filter.createAlias("cp.sites", "cpSite")
+						.createAlias("cpSite.site", "site");
+					siteAdded = true;
+				}
+
+				if (siteCp.getSiteId() != null) {
+					orCond.add(Restrictions.eq("site.id", siteCp.getSiteId()));
+				} else {
+					if (!instAdded) {
+						filter.createAlias("site.institute", "institute");
+						instAdded = true;
+					}
+
+					orCond.add(Restrictions.eq("institute.id", siteCp.getInstituteId()));
+				}
+			}
+		}
+
+		return filter.add(orCond);
 	}
 
 	private Criterion getSiteIdRestriction(String property, SiteCpPair siteCp) {

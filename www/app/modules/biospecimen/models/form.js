@@ -155,12 +155,14 @@ angular.module('os.biospecimen.models.form', ['os.common.models'])
     }
 
     Form.prototype.getFields = function() {
-      var cpId = -1;
+      var cpId = -1, cpGroupId = undefined;
       if (!!this.cp) {
         cpId = this.cp.id;
+      } else if (!!this.cpGroup) {
+        cpGroupId = this.cpGroup.id
       }
 
-      var params = {cpId: cpId, extendedFields: true};
+      var params = {cpId: cpId, cpGroupId: cpGroupId, extendedFields: true};
       var d = $q.defer();
       var that = this;
       if (this.fields) {

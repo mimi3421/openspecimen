@@ -157,19 +157,23 @@ public class FormsController {
 			@PathVariable("id") 
 			Long formId,
 			
-			@RequestParam(value="prefixParentCaption", required=false, defaultValue="false") 
+			@RequestParam(value = "prefixParentCaption", required = false, defaultValue = "false")
 			boolean prefixParentCaption,
 			
-			@RequestParam(value="cpId", required=false, defaultValue="-1") 
+			@RequestParam(value = "cpId", required = false, defaultValue = "-1")
 			Long cpId,
+
+			@RequestParam(value = "cpGroupId", required = false)
+			Long cpGroupId,
 			
-			@RequestParam(value="extendedFields", required=false, defaultValue="false") 
+			@RequestParam(value = "extendedFields", required = false, defaultValue = "false")
 			boolean extendedFields) {
 		
 		ListFormFields crit = new ListFormFields();
 		crit.setFormId(formId);
 		crit.setPrefixParentFormCaption(prefixParentCaption);
 		crit.setCpId(cpId);
+		crit.setCpGroupId(cpGroupId);
 		crit.setExtendedFields(extendedFields);
 		
 		ResponseEvent<List<FormFieldSummary>> resp = formSvc.getFormFields(getRequest(crit));

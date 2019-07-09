@@ -150,7 +150,7 @@ angular.module('os.query.results', ['os.query.models'])
       var aql = getAql(true, true);
       var outputIsoFmt = (qc.reporting.type != 'crosstab');
       var opts = {outputColumnExprs: qc.outputColumnExprs};
-      QueryExecutor.getRecords(qc.id, qc.selectedCp.id, aql, qc.wideRowMode || 'DEEP', outputIsoFmt, opts).then(
+      QueryExecutor.getRecords(qc.id, qc.selectedCp, aql, qc.wideRowMode || 'DEEP', outputIsoFmt, opts).then(
         function(result) {
           currResults = result;
           $scope.resultsCtx.waitingForRecords = false;
@@ -319,7 +319,7 @@ angular.module('os.query.results', ['os.query.models'])
         if (facet.valuesQ) {
           q = facet.valuesQ;
         } else {
-          q = facet.valuesQ = QueryExecutor.getFacetValues($scope.queryCtx.selectedCp.id, [facet.expr], undefined, criteria);
+          q = facet.valuesQ = QueryExecutor.getFacetValues($scope.queryCtx.selectedCp, [facet.expr], undefined, criteria);
         }
       }
 
@@ -351,7 +351,7 @@ angular.module('os.query.results', ['os.query.models'])
       var counters = $scope.resultsCtx.counters;
       counters.waiting = true;
       counters.error = false;
-      QueryExecutor.getCount(qc.id, qc.selectedCp.id, aql).then(
+      QueryExecutor.getCount(qc.id, qc.selectedCp, aql).then(
         function(result) {
           counters.waiting = false;
           angular.extend(counters, result);
@@ -647,7 +647,7 @@ angular.module('os.query.results', ['os.query.models'])
       var alert = Alerts.info('queries.export_initiated', {}, false);  
       var aql = getAql(false);
       var opts = {outputColumnExprs: qc.outputColumnExprs};
-      QueryExecutor.exportQueryResultsData(qc.id, qc.selectedCp.id, aql, qc.wideRowMode || 'DEEP', opts).then(
+      QueryExecutor.exportQueryResultsData(qc.id, qc.selectedCp, aql, qc.wideRowMode || 'DEEP', opts).then(
         function(result) {
           Alerts.remove(alert);
           if (result.completed) {

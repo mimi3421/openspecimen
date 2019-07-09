@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
-import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Junction;
 import org.hibernate.criterion.MatchMode;
@@ -472,35 +471,7 @@ public class CollectionProtocolDaoImpl extends AbstractDao<CollectionProtocol> i
 			return;
 		}
 
-		boolean siteAdded = false, instAdded = false;
-		DetachedCriteria filter = DetachedCriteria.forClass(CollectionProtocol.class, "cp");
-		Disjunction orCond = Restrictions.disjunction();
-
-		for (SiteCpPair siteCp : siteCps) {
-			if (siteCp.getCpId() != null) {
-				orCond.add(Restrictions.eq("cp.id", siteCp.getCpId()));
-			} else {
-				if (!siteAdded) {
-					filter.createAlias("cp.sites", "cpSite")
-						.createAlias("cpSite.site", "site");
-					siteAdded = true;
-				}
-
-				if (siteCp.getSiteId() != null) {
-					orCond.add(Restrictions.eq("site.id", siteCp.getSiteId()));
-				} else {
-					if (!instAdded) {
-						filter.createAlias("site.institute", "institute");
-						instAdded = true;
-					}
-
-					orCond.add(Restrictions.eq("institute.id", siteCp.getInstituteId()));
-				}
-			}
-		}
-
-		filter.add(orCond).setProjection(Projections.distinct(Projections.property("cp.id")));
-		query.add(Subqueries.propertyIn("id", filter));
+		query.add(Subqueries.propertyIn("id", BiospecimenDaoHelper.getInstance().getCpIdsFilter(siteCps)));
 	}
 
 	private static final String FQN = CollectionProtocol.class.getName();

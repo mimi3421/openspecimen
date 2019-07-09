@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.GZIPOutputStream;
@@ -813,6 +814,10 @@ public class Utility {
 
 	public static <T> Stream<T> stream(Collection<T> coll) {
 		return Optional.ofNullable(coll).map(Collection::stream).orElse(Stream.empty());
+	}
+
+	public static <T> String join(Collection<T> coll, Function<T, String> mapper, String delimiter) {
+		return Utility.nullSafeStream(coll).map(mapper).collect(Collectors.joining(delimiter));
 	}
 
 	private static Period getPeriodBetween(Date from, Date to) {

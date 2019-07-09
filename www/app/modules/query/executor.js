@@ -4,10 +4,15 @@ angular.module('os.query.executor', [])
     var queryUrl = ApiUrls.getBaseUrl() + 'query';
 
     return {
-      getCount: function(queryId, cpId, aql) {
+      getCount: function(queryId, cp, aql) {
+        if (typeof cp == 'number') {
+          cp = {id: cp};
+        }
+
         var req = {
           savedQueryId: queryId, 
-          cpId: cpId, 
+          cpId: !cp.$$cpGroup ? cp.id : undefined,
+          cpGroupId: cp.$$cpGroup ? cp.id : undefined,
           drivingForm: 'Participant',
           runType: 'Count',
           aql: aql
@@ -28,12 +33,17 @@ angular.module('os.query.executor', [])
         );
       },
 
-      getRecords: function(queryId, cpId, aql, wideRowMode, outputIsoFmt, opts) {
+      getRecords: function(queryId, cp, aql, wideRowMode, outputIsoFmt, opts) {
+        if (typeof cp == 'number') {
+          cp = {id: cp};
+        }
+
         opts = opts || {};
 
         var req = {
           savedQueryId: queryId, 
-          cpId: cpId,
+          cpId: !cp.$$cpGroup ? cp.id : undefined,
+          cpGroupId: cp.$$cpGroup ? cp.id : undefined,
           drivingForm: 'Participant',
           runType: 'Data', 
           aql: aql, 
@@ -48,12 +58,17 @@ angular.module('os.query.executor', [])
         );
       },
 
-      exportQueryResultsData: function(queryId, cpId, aql, wideRowMode, opts) {
+      exportQueryResultsData: function(queryId, cp, aql, wideRowMode, opts) {
+        if (typeof cp == 'number') {
+          cp = {id: cp};
+        }
+
         opts = opts || {};
 
         var req = {
           savedQueryId: queryId,
-          cpId: cpId,
+          cpId: !cp.$$cpGroup ? cp.id : undefined,
+          cpGroupId: cp.$$cpGroup ? cp.id : undefined,
           drivingForm: 'Participant',
           runType: 'Export',
           aql: aql,
@@ -74,8 +89,18 @@ angular.module('os.query.executor', [])
         Util.downloadFile(queryUrl + '/export?fileId=' + fileId + '&filename=' + filename);
       },
 
-      getFacetValues: function(cpId, facetExprs, searchTerm, restriction) {
-        var op = {cpId: cpId, facets: facetExprs, searchTerm: searchTerm, restriction: restriction};
+      getFacetValues: function(cp, facetExprs, searchTerm, restriction) {
+        if (typeof cp == 'number') {
+          cp = {id: cp};
+        }
+
+        var op = {
+          cpId: !cp.$$cpGroup ? cp.id : undefined,
+          cpGroupId: cp.$$cpGroup ? cp.id : undefined,
+          facets: facetExprs,
+          searchTerm: searchTerm,
+          restriction: restriction
+        };
         return $http.post(queryUrl + '/facet-values', op).then(
           function(result) {
             return result.data;

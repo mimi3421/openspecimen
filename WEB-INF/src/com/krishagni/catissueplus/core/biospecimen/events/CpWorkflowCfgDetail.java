@@ -4,10 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
-import org.springframework.beans.BeanUtils;
 
 import com.krishagni.catissueplus.core.biospecimen.domain.CpWorkflowConfig;
-import com.krishagni.catissueplus.core.biospecimen.domain.CpWorkflowConfig.Workflow;
 
 public class CpWorkflowCfgDetail {
 	private Long cpId;
@@ -54,60 +52,12 @@ public class CpWorkflowCfgDetail {
 
 	public static CpWorkflowCfgDetail from(CpWorkflowConfig cfg) {
 		CpWorkflowCfgDetail result = new CpWorkflowCfgDetail();
-
+		result.setWorkflows(WorkflowDetail.from(cfg.getWorkflows().values()));
 		if (cfg.getCp() != null) {
 			result.setCpId(cfg.getCp().getId());
 			result.setShortTitle(cfg.getCp().getShortTitle());
 		}
 
-		for (Workflow workflow : cfg.getWorkflows().values()) {
-			WorkflowDetail wfDetail = new WorkflowDetail();
-			BeanUtils.copyProperties(workflow, wfDetail);
-			result.getWorkflows().put(wfDetail.getName(), wfDetail);			
-		}
-		
 		return result;
-	}
-	
-	public static class WorkflowDetail {
-		private String name;
-		
-		private String view;
-		
-		private String ctrl;
-		
-		private Map<String, Object> data = new HashMap<String, Object>();
-		
-		public String getName() {
-			return name;
-		}
-
-		public void setName(String name) {
-			this.name = name;
-		}
-
-		public String getView() {
-			return view;
-		}
-
-		public void setView(String view) {
-			this.view = view;
-		}
-
-		public String getCtrl() {
-			return ctrl;
-		}
-
-		public void setCtrl(String ctrl) {
-			this.ctrl = ctrl;
-		}
-
-		public Map<String, Object> getData() {
-			return data;
-		}
-
-		public void setData(Map<String, Object> data) {
-			this.data = data;
-		}		
 	}
 }

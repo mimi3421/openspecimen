@@ -70,7 +70,7 @@ public class CpWorkflowConfig extends BaseEntity {
 		
 		private String ctrl;
 		
-		private Map<String, Object> data = new HashMap<String, Object>();
+		private Map<String, Object> data = new HashMap<>();
 
 		public String getName() {
 			return name;

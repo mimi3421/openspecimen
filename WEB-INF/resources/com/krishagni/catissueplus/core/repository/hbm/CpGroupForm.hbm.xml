@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-mapping PUBLIC
+  "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping auto-import="false">
+  <class name="com.krishagni.catissueplus.core.biospecimen.domain.CpGroupForm" table="OS_CP_GROUP_FORMS">
+    <id name="id" column="IDENTIFIER">
+      <generator class="native">
+        <param name="sequence">OS_CP_GROUP_FORMS_SEQ</param>
+      </generator>
+    </id>
+
+    <property name="level" column="ENTITY_TYPE"/>
+
+    <many-to-one name="group" column="GROUP_ID"/>
+
+    <many-to-one name="form" column="FORM_ID" fetch="join"/>
+
+    <property name="multipleRecords" column="MULTIPLE_RECORDS"/>
+  </class>
+</hibernate-mapping>

@@ -27,6 +27,8 @@ public class FormSummary {
 
 	private String entityType;
 
+	private boolean multipleRecords;
+
 	public Long getFormId() {
 		return formId;
 	}
@@ -97,6 +99,14 @@ public class FormSummary {
 
 	public void setEntityType(String entityType) {
 		this.entityType = entityType;
+	}
+
+	public boolean isMultipleRecords() {
+		return multipleRecords;
+	}
+
+	public void setMultipleRecords(boolean multipleRecords) {
+		this.multipleRecords = multipleRecords;
 	}
 
 	public static FormSummary from(Form form) {

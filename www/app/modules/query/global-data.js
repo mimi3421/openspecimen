@@ -1,10 +1,12 @@
 
 angular.module('os.query.globaldata', ['os.query.models', 'os.biospecimen.models'])
   .factory('QueryGlobalData', function(
-    $q, $http, ApiUrls, CollectionProtocol, Form, SavedQuery, QueryFolder, QueryUtil, Util, Alerts) {
+    $q, $http, ApiUrls, CollectionProtocol, CollectionProtocolGroup,
+    Form, SavedQuery, QueryFolder, QueryUtil, Util, Alerts) {
 
     var QueryGlobalData = function() {
       this.cpsQ = undefined;
+      this.cpGroupsQ = undefined;
       this.cpList = undefined;
       this.defSelectList = undefined;
 
@@ -18,17 +20,42 @@ angular.module('os.query.globaldata', ['os.query.models', 'os.biospecimen.models
       var d = $q.defer();
       
       if (!this.cpsQ) {
-        var that = this;
         this.cpsQ = CollectionProtocol.list({detailedList: false, maxResults: CollectionProtocol.MAX_CPS}).then(
           function(result) {
             result.unshift({id: -1, shortTitle: 'None', title: 'None'});
-            that.cpList = result;
-            return that.cpList;
+            angular.forEach(result,
+              function(cp) {
+                cp.type = 'Collection Protocols';
+              }
+            );
+
+            return result;
+          }
+        );
+
+        this.cpGroupsQ = CollectionProtocolGroup.query({maxResults: CollectionProtocolGroup.MAX_GROUPS}).then(
+          function(result) {
+            angular.forEach(result,
+              function(grp) {
+                grp.shortTitle = grp.name;
+                grp.type = 'Collection Protocol Groups';
+                grp.$$cpGroup = true;
+              }
+            );
+
+            return result;
           }
         );
       }
 
-      this.cpsQ.then(function(result) { d.resolve(result); });
+      var that = this;
+      $q.all([this.cpsQ, this.cpGroupsQ]).then(
+        function(resultArr) {
+          that.cpList = resultArr[0].concat(resultArr[1]);
+          d.resolve(that.cpList);
+        }
+      );
+
       return d.promise;
     };
 
@@ -76,11 +103,15 @@ angular.module('os.query.globaldata', ['os.query.models', 'os.biospecimen.models
           function(forms) { 
             Util.unshiftAll(cp.forms, angular.copy(forms));
 
-            var refCp = new CollectionProtocol(cp);
+            var refCp = cp.$$cpGroup ? new CollectionProtocolGroup(cp) : new CollectionProtocol(cp);
             delete refCp.forms;
 
             angular.forEach(cp.forms, function(form) {
-              form.cp = refCp;
+              if (refCp.$$cpGroup) {
+                form.cpGroup = refCp;
+              } else {
+                form.cp = refCp;
+              }
               form.fields = undefined;
             });
             d.resolve(cp.forms);
@@ -219,11 +250,16 @@ angular.module('os.query.globaldata', ['os.query.models', 'os.biospecimen.models
             savedQuery.cpId = cpId;
           }
 
-          var selectedCp = queryCtx.selectedCp = getCp(cps, savedQuery.cpId || -1);
+          var selectedCp = queryCtx.selectedCp = getCp(cps, savedQuery.cpId || -1, savedQuery.cpGroupId);
           if (!selectedCp) {
             queryGlobal.clearQueryCtx();
-            Alerts.error("queries.invalid_cp", {cpId: savedQuery.cpId});
-            throw "Invalid CP: " + savedQuery.cpId;
+            if (savedQuery.cpGroupId > 0) {
+              Alerts.error("queries.invalid_cp_group", {cpGroupId: savedQuery.cpGroupId});
+              throw "Invalid CP Group: " + savedQuery.cpGroupId;
+            } else {
+              Alerts.error("queries.invalid_cp", {cpId: savedQuery.cpId});
+              throw "Invalid CP: " + savedQuery.cpId;
+            }
           }
 
           return queryGlobal.setupFilters(selectedCp, savedQuery, queryCtx);
@@ -231,9 +267,10 @@ angular.module('os.query.globaldata', ['os.query.models', 'os.biospecimen.models
       );
     }
 
-    function getCp(cps, cpId) {
+    function getCp(cps, cpId, cpGroupId) {
       for (var i = 0; i < cps.length; ++i) {
-        if (cps[i].id == cpId) {
+        if ((cpGroupId > 0 && cps[i].$$cpGroup && cps[i].id == cpGroupId) ||
+            (!cpGroupId && !cps[i].$$cpGroup && cps[i].id == cpId)) {
           return cps[i];
         }
       }

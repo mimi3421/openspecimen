@@ -412,8 +412,40 @@
 
     "import_workflows": "Import Workflows",
     "export_workflows": "Export Workflows",
-    "workflows_file": "Workflows JSON file",
-    "workflows_imported": "Workflows imported."
+    "workflows_file": "Workflows JSON File",
+    "workflows_imported": "Workflows Imported."
+  },
+
+  "cp_groups": {
+    "list": "Collection Protocol Groups",
+    "name": "Name",
+    "cp": "Collection Protocol",
+    "cps": "Collection Protocols",
+    "create_group": "Create Group",
+    "no_cp_specified": "Group has no collection protocols. Add at least one collection protocol to the group.",
+
+    "participant": "Participant",
+    "visit": "Visit",
+    "specimen": "Specimen",
+    "custom_fields": "Custom Fields",
+    "forms": "Forms",
+    "no_forms": "No Forms",
+    "add_form": "Add Form",
+    "select_form": "Select Form",
+    "multiple_recs_allowed": "Multiple records allowed",
+    "remove_forms": "Remove {{forms.length > 1 ? 'forms' : 'form'}}",
+    "remove_forms_q": "You will lose data if you remove the selected {{forms.length > 1 ? 'forms' : 'form'}}. Do you want to continue?",
+
+    "workflows": "Workflows",
+    "export_workflows": "Export Workflows",
+    "import_workflows": "Import Workflows",
+    "workflows_file": "Workflows JSON File",
+    "workflows_imported": "Workflows Imported.",
+
+    "menu": {
+      "overview": "Overview",
+      "forms": "Forms"
+    }
   },
 
   "participant": {
@@ -1690,7 +1722,8 @@
     "select_query_def_file": "Select Query File",
     "new_query": "New Query",
     "select_cp": "Select a Collection Protocol",
-    "invalid_cp": "Invalid collection protocol: {{cpId}}",
+    "invalid_cp": "Invalid Collection Protocol: {{cpId}}",
+    "invalid_cp_group": "Invalid Collection Protocol Group: {{cpGroupId}}",
     "add_filter": "Add Filter",
     "edit_filter": "Edit Filter",
     "search_field": "Search Field",

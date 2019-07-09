@@ -108,4 +108,6 @@ public interface DaoFactory {
 	MessageLogDao getMessageLogDao();
 
 	SearchEntityKeywordDao getSearchEntityKeywordDao();
+
+	CollectionProtocolGroupDao getCpGroupDao();
 } 

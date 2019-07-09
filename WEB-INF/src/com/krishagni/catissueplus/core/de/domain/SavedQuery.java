@@ -28,6 +28,8 @@ public class SavedQuery {
 	private Long lastRunCount;
 	
 	private Long cpId;
+
+	private Long cpGroupId;
 	
 	private String drivingForm;
 
@@ -121,6 +123,18 @@ public class SavedQuery {
 		}
 
 		this.cpId = cpId;
+	}
+
+	public Long getCpGroupId() {
+		return cpGroupId;
+	}
+
+	public void setCpGroupId(Long cpGroupId) {
+		if (cpGroupId != null && cpGroupId == -1L) {
+			cpGroupId = null;
+		}
+
+		this.cpGroupId = cpGroupId;
 	}
 
 	public String getDrivingForm() {
@@ -246,6 +260,7 @@ public class SavedQuery {
 		}
 		
 		query.cpId = cpId;
+		query.cpGroupId = cpGroupId;
 		query.selectList = selectList;
 		query.filters = filters;
 		query.queryExpression = queryExpression;
@@ -278,6 +293,7 @@ public class SavedQuery {
 			this.title = query.title;
 		}
 		this.cpId = (query.cpId != null && query.cpId == -1L) ? null : query.cpId;
+		this.cpGroupId = (query.cpGroupId != null && query.cpGroupId == -1L) ? null : query.cpGroupId;
 		this.selectList = query.selectList;
 		this.filters = query.filters;
 		this.queryExpression = query.queryExpression;
@@ -303,6 +319,7 @@ public class SavedQuery {
 	public void update(SavedQuery query) {
 		setTitle(query.getTitle());
 		setCpId(query.getCpId());
+		setCpGroupId(query.getCpGroupId());
 		setDrivingForm(query.getDrivingForm());
 		setLastUpdatedBy(query.getLastUpdatedBy());
 		setLastUpdated(query.getLastUpdated());

@@ -891,4 +891,97 @@
       );
     </sql>
   </changeSet>
+
+  <!-- CP groups -->
+  <changeSet author="vpawar" id="CP Group: CP groups">
+    <createTable tableName="OS_CP_GROUPS">
+      <column name="IDENTIFIER" type="${int.type}" autoIncrement="${autoIncrement}">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="NAME" type="${text.type}(64)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet author="vpawar" id="CP Group: Group CPs">
+    <createTable tableName="OS_CP_GROUP_CPS">
+      <column name="GROUP_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CP_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet author="vpawar" id="CP Group: FK on group ID">
+    <addForeignKeyConstraint constraintName="FK_CP_GROUP_ID"
+      baseTableName="OS_CP_GROUP_CPS" baseColumnNames="GROUP_ID"
+      referencedTableName="OS_CP_GROUPS" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="CP Group: FK on group CP ID">
+    <addForeignKeyConstraint constraintName="FK_CP_GROUP_CP_ID"
+      baseTableName="OS_CP_GROUP_CPS" baseColumnNames="CP_ID"
+      referencedTableName="CATISSUE_COLLECTION_PROTOCOL" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="CP Group: Group ID generator" dbms="oracle">
+    <createSequence sequenceName="OS_CP_GROUPS_SEQ" startValue="1" incrementBy="1" ordered="true"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="CP Group: group forms">
+    <createTable tableName="OS_CP_GROUP_FORMS">
+      <column name="IDENTIFIER" type="${int.type}" autoIncrement="${autoIncrement}">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="GROUP_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="ENTITY_TYPE" type="${text.type}(32)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="FORM_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="MULTIPLE_RECORDS" type="${boolean.type}" defaultValue="0">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet author="vpawar" id="CP Group: Group form ID generator" dbms="oracle">
+    <createSequence sequenceName="OS_CP_GROUP_FORMS_SEQ" startValue="1" incrementBy="1" ordered="true"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="CP Group: FK on forms group ID">
+    <addForeignKeyConstraint constraintName="FK_GRP_FORMS_GROUP_ID"
+      baseTableName="OS_CP_GROUP_FORMS" baseColumnNames="GROUP_ID"
+      referencedTableName="OS_CP_GROUPS" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="CP Group: FK on group form ID">
+    <addForeignKeyConstraint constraintName="FK_GRP_FORMS_FORM_ID"
+      baseTableName="OS_CP_GROUP_FORMS" baseColumnNames="FORM_ID"
+      referencedTableName="DYEXTN_CONTAINERS" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="CP Group: Group ID in saved queries">
+    <addColumn tableName="CATISSUE_SAVED_QUERIES">
+      <column name="CP_GROUP_ID" type="${int.type}"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="vpawar" id="CP Group: FK on saved queries CP group ID">
+    <addForeignKeyConstraint constraintName="FK_SAVED_QUERIES_CP_GRP_ID"
+      baseTableName="CATISSUE_SAVED_QUERIES" baseColumnNames="CP_GROUP_ID"
+      referencedTableName="OS_CP_GROUPS" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="CP Group: Group workflows">
+    <addColumn tableName="OS_CP_GROUPS">
+      <column name="WORKFLOWS" type="${clob.type}"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

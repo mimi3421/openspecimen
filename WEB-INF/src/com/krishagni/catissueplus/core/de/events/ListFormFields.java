@@ -5,6 +5,8 @@ public class ListFormFields {
 	private Long formId;
 	
 	private Long cpId;
+
+	private Long cpGroupId;
 	
 	private boolean extendedFields;
 	
@@ -32,6 +34,14 @@ public class ListFormFields {
 
 	public void setCpId(Long cpId) {
 		this.cpId = cpId;
+	}
+
+	public Long getCpGroupId() {
+		return cpGroupId;
+	}
+
+	public void setCpGroupId(Long cpGroupId) {
+		this.cpGroupId = cpGroupId;
 	}
 
 	public boolean isExtendedFields() {

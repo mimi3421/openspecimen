@@ -90,7 +90,7 @@ angular.module('os.query.addedit', ['os.query.models', 'os.query.util', 'os.quer
 
       ql.waitingForCnt = true;
       ql.countResults = undefined;
-      QueryExecutor.getCount(undefined, ql.selectedCp.id, aql).then(
+      QueryExecutor.getCount(undefined, ql.selectedCp, aql).then(
         function(result) {
           ql.waitingForCnt = false;
           ql.countResults = result;

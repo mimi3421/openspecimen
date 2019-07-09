@@ -8,6 +8,8 @@ import com.krishagni.catissueplus.core.de.domain.SavedQuery;
 
 public class SavedQueryDetail extends SavedQuerySummary {
 	private Long cpId;
+
+	private Long cpGroupId;
 	
 	private String drivingForm;
 
@@ -33,6 +35,14 @@ public class SavedQueryDetail extends SavedQuerySummary {
 
 	public void setCpId(Long cpId) {
 		this.cpId = cpId;
+	}
+
+	public Long getCpGroupId() {
+		return cpGroupId;
+	}
+
+	public void setCpGroupId(Long cpGroupId) {
+		this.cpGroupId = cpGroupId;
 	}
 
 	public String getDrivingForm() {
@@ -113,6 +123,7 @@ public class SavedQueryDetail extends SavedQuerySummary {
 		detail.setId(savedQuery.getId());
 		detail.setTitle(savedQuery.getTitle());
 		detail.setCpId(savedQuery.getCpId());
+		detail.setCpGroupId(savedQuery.getCpGroupId());
 		detail.setDrivingForm(savedQuery.getDrivingForm());		
 		detail.setCreatedBy(UserSummary.from(savedQuery.getCreatedBy()));
 		detail.setLastModifiedBy(UserSummary.from(savedQuery.getLastUpdatedBy()));

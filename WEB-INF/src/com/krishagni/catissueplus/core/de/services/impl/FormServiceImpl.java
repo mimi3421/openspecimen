@@ -24,11 +24,14 @@ import org.springframework.web.multipart.MultipartFile;
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.administrative.repository.FormListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
+import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolGroup;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
+import com.krishagni.catissueplus.core.biospecimen.domain.CpGroupForm;
 import com.krishagni.catissueplus.core.biospecimen.domain.Participant;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenSavedEvent;
 import com.krishagni.catissueplus.core.biospecimen.domain.Visit;
+import com.krishagni.catissueplus.core.biospecimen.domain.factory.CpGroupErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.CprErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.SpecimenErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.VisitErrorCode;
@@ -237,42 +240,18 @@ public class FormServiceImpl implements FormService, InitializingBean {
 		Container form = getContainer(op.getFormId(), null);
 		
 		List<FormFieldSummary> fields = getFormFields(form);
-		Long cpId = op.getCpId();
 		if (!op.isExtendedFields()) {
 			return ResponseEvent.response(fields);
 		}
 
-		if (cpId == null || cpId < 0) {
-			cpId = -1L;
-		}
-		
-		String formName = form.getName();
-		String entityType = customFieldEntities.get(formName);
-		if (StringUtils.isNotBlank(entityType)) {
-			Map<String, Object> extnInfo = getExtensionInfo(cpId, entityType);
-			if (extnInfo == null && cpId != -1L) {
-				extnInfo = getExtensionInfo(-1L, entityType);
-			}
-
-			if (extnInfo != null) {
-				Long extnFormId = (Long)extnInfo.get("formId");
-				fields.add(getExtensionField("customFields", "Custom Fields", Arrays.asList(extnFormId)));
-			}
+		Long cpId = op.getCpId();
+		Long groupId = op.getCpGroupId();
+		if (groupId == null || groupId <= 0) {
+			fields.addAll(getCpFields(cpId, form));
+		} else {
+			fields.addAll(getCpGroupFields(groupId, form));
 		}
 
-		if (!staticExtendedForms.contains(formName)) {
-			return ResponseEvent.response(fields);
-		}
-		
-		List<Long> extendedFormIds = formDao.getFormIds(cpId, formName);
-		if (formName.equals(PARTICIPANT_FORM)) {
-			extendedFormIds.addAll(0, formDao.getFormIds(-1L, COMMON_PARTICIPANT));
-		} else if (formName.equals(SPECIMEN_FORM)) {
-			extendedFormIds.addAll(formDao.getFormIds(cpId, SPECIMEN_EVENT_FORM));
-		}
-
-		FormFieldSummary field = getExtensionField("extensions", "Extensions", extendedFormIds);
-		fields.add(field);
 		return ResponseEvent.response(fields);
 	}
     
@@ -769,6 +748,86 @@ public class FormServiceImpl implements FormService, InitializingBean {
 		return crit;
 	}
 
+	private List<FormFieldSummary> getCpFields(Long cpId, Container form) {
+		List<FormFieldSummary> fields = new ArrayList<>();
+		if (cpId == null || cpId < 0) {
+			cpId = -1L;
+		}
+
+		String formName = form.getName();
+		String entityType = customFieldEntities.get(formName);
+		if (StringUtils.isNotBlank(entityType)) {
+			Map<String, Object> extnInfo = getExtensionInfo(cpId, entityType);
+			if (extnInfo == null && cpId != -1L) {
+				extnInfo = getExtensionInfo(-1L, entityType);
+			}
+
+			if (extnInfo != null) {
+				Long extnFormId = (Long)extnInfo.get("formId");
+				fields.add(getExtensionField("customFields", "Custom Fields", Collections.singletonList(extnFormId)));
+			}
+		}
+
+		if (!staticExtendedForms.contains(formName)) {
+			return fields;
+		}
+
+		List<Long> extendedFormIds = formDao.getFormIds(cpId, formName);
+		if (formName.equals(PARTICIPANT_FORM)) {
+			extendedFormIds.addAll(0, formDao.getFormIds(-1L, COMMON_PARTICIPANT));
+		} else if (formName.equals(SPECIMEN_FORM)) {
+			extendedFormIds.addAll(formDao.getFormIds(-1L, SPECIMEN_EVENT_FORM));
+		}
+
+		fields.add(getExtensionField("extensions", "Extensions", extendedFormIds));
+		return fields;
+	}
+
+	private List<FormFieldSummary> getCpGroupFields(Long groupId, Container form) {
+		if (groupId == null || groupId <= 0) {
+			return Collections.emptyList();
+		}
+
+		CollectionProtocolGroup group = null;
+		if (customFieldEntities.containsKey(form.getName()) || staticExtendedForms.contains(form.getName())) {
+			group = daoFactory.getCpGroupDao().getById(groupId);
+			if (group == null) {
+				throw OpenSpecimenException.userError(CpGroupErrorCode.NOT_FOUND, groupId);
+			}
+		}
+
+		if (group == null) {
+			return Collections.emptyList();
+		}
+
+		List<FormFieldSummary> fields = new ArrayList<>();
+
+		String entityType = customFieldEntities.get(form.getName());
+		if (StringUtils.isNotBlank(entityType)) {
+			List<Long> formIds = group.getForms(entityType).stream()
+				.map(f -> f.getForm().getId())
+				.collect(Collectors.toList());
+			fields.add(getExtensionField("customFields", "Custom Fields", formIds));
+		}
+
+		if (!staticExtendedForms.contains(form.getName())) {
+			return fields;
+		}
+
+		List<Long> extendedFormIds = group.getForms(form.getName()).stream()
+			.map(f -> f.getForm().getId())
+			.collect(Collectors.toList());
+
+		if (form.getName().equals(PARTICIPANT_FORM)) {
+			extendedFormIds.addAll(0, formDao.getFormIds(-1L, COMMON_PARTICIPANT));
+		} else if (form.getName().equals(SPECIMEN_FORM)) {
+			extendedFormIds.addAll(formDao.getFormIds(-1L, SPECIMEN_EVENT_FORM));
+		}
+
+		fields.add(getExtensionField("extensions", "Extensions", extendedFormIds));
+		return fields;
+	}
+
 	private FormFieldSummary getExtensionField(String name, String caption, List<Long> extendedFormIds ) {
 		FormFieldSummary field = new FormFieldSummary();
 		field.setName(name);
@@ -792,49 +851,6 @@ public class FormServiceImpl implements FormService, InitializingBean {
 		return field;
 	}
 
-	//
-	// The idea was to sort forms in the backend
-	// However, at present the workflows is fully UI concept.
-	// therefore junked this idea and sorted forms in UI.
-	// remove this code after 31/12/2017
-	//
-//	private List<FormCtxtSummary> sortForms(Long cpId, String entityType, List<FormCtxtSummary> forms) {
-//		CpWorkflowConfig cfg = daoFactory.getCollectionProtocolDao().getCpWorkflows(cpId);
-//		if (cfg == null) {
-//			return forms;
-//		}
-//
-//		Map<String, CpWorkflowConfig.Workflow> workflows = cfg.getWorkflows();
-//		if (workflows == null || workflows.isEmpty() || !workflows.containsKey("forms")) {
-//			return forms;
-//		}
-//
-//		CpWorkflowConfig.Workflow workflow = workflows.get("forms");
-//		if (workflow.getData() == null || workflow.getData().isEmpty() || workflow.getData().get(entityType) == null) {
-//			return forms;
-//		}
-//
-//		List<Map<String, Object>> order = (List<Map<String, Object>>)workflow.getData().get(entityType);
-//		List<Long> orderedFormIds = order.stream().map(f -> ((Number)f.get("id")).longValue()).collect(Collectors.toList());
-//
-//		Collections.sort(forms, (f1, f2) -> {
-//			int f1Idx = orderedFormIds.indexOf(f1.getFormId());
-//			int f2Idx = orderedFormIds.indexOf(f2.getFormId());
-//
-//			if (f1Idx == -1 && f2Idx == -1) {
-//				return 0;
-//			} else if (f1Idx == -1) {
-//				return 1;
-//			} else if (f2Idx == -1) {
-//				return -1;
-//			} else {
-//				return f1Idx - f2Idx;
-//			}
-//		});
-//
-//		return forms;
-//	}
-		
 	private FormData saveOrUpdateFormData(Long recordId, FormData formData, boolean isPartial) {
 		Map<String, Object> appData = formData.getAppData();
 		if (appData.get("formCtxtId") == null || appData.get("objectId") == null) {

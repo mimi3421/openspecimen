@@ -4,6 +4,7 @@ angular.module('os.biospecimen',
     'os.biospecimen.extensions',
     'os.biospecimen.participant',
     'os.biospecimen.cp',
+    'os.biospecimen.cpgroups',
     'os.biospecimen.specimenlist',
     'os.biospecimen.common',
     'os.biospecimen.consentstatement'

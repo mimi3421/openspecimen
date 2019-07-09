@@ -438,6 +438,7 @@ public class QueryServiceImpl implements QueryService {
 
 			ExecuteQueryEventOp op = new ExecuteQueryEventOp();
 			op.setCpId(query.getCpId());
+			op.setCpGroupId(query.getCpGroupId());
 			op.setDrivingForm(input.getDrivingForm());
 			op.setRunType(input.getRunType());
 			op.setWideRowMode(input.getWideRowMode());
@@ -856,7 +857,7 @@ public class QueryServiceImpl implements QueryService {
 		try {
 			GetFacetValuesOp op = req.getPayload();
 			List<FacetDetail> result = op.getFacets().stream()
-				.map(facet -> getFacetDetail(op.getCpId(), facet, op.getRestriction(), op.getSearchTerm()))
+				.map(facet -> getFacetDetail(op.getCpId(), op.getCpGroupId(), facet, op.getRestriction(), op.getSearchTerm()))
 				.collect(Collectors.toList());
 			return ResponseEvent.response(result);
 		} catch (OpenSpecimenException ose) {
@@ -890,6 +891,7 @@ public class QueryServiceImpl implements QueryService {
 		SavedQuery savedQuery = new SavedQuery();		
 		savedQuery.setTitle(detail.getTitle());
 		savedQuery.setCpId(detail.getCpId());
+		savedQuery.setCpGroupId(detail.getCpGroupId());
 		savedQuery.setSelectList(detail.getSelectList());
 		savedQuery.setFilters(detail.getFilters());
 		savedQuery.setSubQueries(Arrays.stream(detail.getFilters())
@@ -945,7 +947,7 @@ public class QueryServiceImpl implements QueryService {
 			aql = getAqlWithCpIdInSelect(user, countQuery, aql);
 		}
 
-		query.compile(rootForm, aql, getRestriction(user, op.getCpId()));
+		query.compile(rootForm, aql, getRestriction(user, op.getCpId(), op.getCpGroupId()));
 		return query;
 	}
 
@@ -957,36 +959,40 @@ public class QueryServiceImpl implements QueryService {
 		return null;
 	}
 
-	private String getRestriction(User user, Long cpId) {
-		if (user.isAdmin()) {
-			if (cpId != null && cpId != -1) {
-				return cpForm + ".id = " + cpId;
+	private String getRestriction(User user, Long cpId, Long groupId) {
+		if (groupId != null && groupId != -1) {
+			Set<Long> cpIds = AccessCtrlMgr.getInstance().getReadAccessGroupCpIds(groupId);
+			if (CollectionUtils.isEmpty(cpIds)) {
+				throw OpenSpecimenException.userError(RbacErrorCode.ACCESS_DENIED);
 			}
-		} else {
-			if (cpId != null && cpId != -1) {
+
+			return cpForm + ".id in (" + Utility.join(cpIds, Objects::toString, ",") + ")";
+		} else if (cpId != null && cpId != -1) {
+			if (!user.isAdmin()) {
 				AccessCtrlMgr.getInstance().ensureReadCpRights(cpId);
-				return cpForm + ".id = " + cpId;
-			} else {
-				Set<SiteCpPair> siteCps = AccessCtrlMgr.getInstance().getReadableSiteCps();
-				if (CollectionUtils.isEmpty(siteCps)) {
-					throw OpenSpecimenException.userError(RbacErrorCode.ACCESS_DENIED);
-				}
-
-				List<String> cpSitesConds = new ArrayList<>(); // joined by or
-				for (SiteCpPair siteCp : siteCps) {
-					String cond = getAqlSiteIdRestriction("CollectionProtocol.cpSites.siteId", siteCp);
-					if (siteCp.getCpId() != null) {
-						cond += " and CollectionProtocol.id = " + siteCp.getCpId();
-					}
-
-					cpSitesConds.add("(" + cond + ")");
-				}
-
-				return "(" + StringUtils.join(cpSitesConds, " or ") + ")";
 			}
+
+			return cpForm + ".id = " + cpId;
+		} else if (!user.isAdmin()) {
+			Set<SiteCpPair> siteCps = AccessCtrlMgr.getInstance().getReadableSiteCps();
+			if (CollectionUtils.isEmpty(siteCps)) {
+				throw OpenSpecimenException.userError(RbacErrorCode.ACCESS_DENIED);
+			}
+
+			List<String> cpSitesConds = new ArrayList<>(); // joined by or
+			for (SiteCpPair siteCp : siteCps) {
+				String cond = getAqlSiteIdRestriction("CollectionProtocol.cpSites.siteId", siteCp);
+				if (siteCp.getCpId() != null) {
+					cond += " and CollectionProtocol.id = " + siteCp.getCpId();
+				}
+
+				cpSitesConds.add("(" + cond + ")");
+			}
+
+			return "(" + StringUtils.join(cpSitesConds, " or ") + ")";
+		} else {
+			return null;
 		}
-		
-		return null;
 	}
 	
 	private String getAqlWithCpIdInSelect(User user, boolean isCount, String aql) {
@@ -1205,7 +1211,7 @@ public class QueryServiceImpl implements QueryService {
 		NotifUtil.getInstance().notify(notif, Collections.singletonMap("folder-queries", sharedUsers));
 	}
 
-	private FacetDetail getFacetDetail(Long cpId, String facet, String restriction, String searchTerm) {
+	private FacetDetail getFacetDetail(Long cpId, Long cpGroupId, String facet, String restriction, String searchTerm) {
 		String[] fieldParts = facet.split("\\.");
 		String rootForm = fieldParts[0];
 
@@ -1275,13 +1281,13 @@ public class QueryServiceImpl implements QueryService {
 			.dateFormat(ConfigUtil.getInstance().getDeDateFmt())
 			.timeFormat(ConfigUtil.getInstance().getTimeFmt())
 			.wideRowMode(WideRowMode.OFF);
-		query.compile(rootForm, aql, getRestriction(AuthUtil.getCurrentUser(), cpId));
+		query.compile(rootForm, aql, getRestriction(AuthUtil.getCurrentUser(), cpId, cpGroupId));
 
 		QueryResponse queryResp = query.getData();
 		QueryResultData queryResult = queryResp.getResultData();
 		queryResult.setScreener(screener);
 
-		Collection<Object> values = new TreeSet<Object>();
+		Collection<Object> values = new TreeSet<>();
 		for (Object[] row : queryResult.getRows()) {
 			if (row[0] != null && !row[0].toString().isEmpty()) {
 				values.add(row[0]);
@@ -1352,7 +1358,7 @@ public class QueryServiceImpl implements QueryService {
 
 		try {
 			if (proc == null) {
-				proc = new DefaultQueryExportProcessor(op.getCpId());
+				proc = new DefaultQueryExportProcessor(op.getCpId(), op.getCpGroupId());
 			}
 
 			ExportQueryDataTask task = new ExportQueryDataTask();

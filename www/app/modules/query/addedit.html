@@ -56,7 +56,7 @@
         </div>
 
         <div class="os-query-block-margin">
-          <os-select ng-model="queryLocal.selectedCp" list="cps" display-prop="shortTitle" 
+          <os-select ng-model="queryLocal.selectedCp" list="cps" display-prop="shortTitle" group-by="'type'"
             on-change="loadCpForms" ng-disabled="queryLocal.disableCpSelection">
           </os-select>
         </div>
