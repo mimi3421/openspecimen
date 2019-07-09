@@ -44,4 +44,8 @@ public class SessionUtil {
 			}
 		}
 	}
+
+	public void flush() {
+		sessionFactory.getCurrentSession().flush();
+	}
 }

@@ -58,6 +58,7 @@ import com.krishagni.catissueplus.core.common.events.NameValuePair;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
 import com.krishagni.catissueplus.core.common.util.ConfigUtil;
 import com.krishagni.catissueplus.core.common.util.NumUtil;
+import com.krishagni.catissueplus.core.common.util.SessionUtil;
 import com.krishagni.catissueplus.core.common.util.Status;
 import com.krishagni.catissueplus.core.de.domain.DeObject;
 import com.krishagni.catissueplus.core.importer.services.impl.ImporterContextHolder;
@@ -1198,9 +1199,9 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 			} else {
 				position = container.getReservedPosition(posTwo, posOne, location.getReservationId());
 				if (position != null) {
-					position.setReservationId(null);
-					position.setBlocked(null);
-					position.setReservationTime(null);
+					container.removePosition(position);
+					SessionUtil.getInstance().flush(); // Ugly but need to ensure the database is consistent with in-memory
+					position = container.createPosition(posOne, posTwo);
 				} else if (container.canSpecimenOccupyPosition(specimen.getId(), posOne, posTwo)) {
 					position = container.createPosition(posOne, posTwo);
 				} else {
