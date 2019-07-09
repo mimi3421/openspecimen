@@ -3,6 +3,7 @@ package com.krishagni.catissueplus.core.biospecimen.services.impl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -89,7 +90,7 @@ public class CollectionProtocolGroupServiceImpl implements CollectionProtocolGro
 			}
 
 			List<CollectionProtocolGroup> groups = daoFactory.getCpGroupDao().getGroups(crit.siteCps(siteCps));
-			if (crit.includeStat()) {
+			if (crit.includeStat() && !groups.isEmpty()) {
 				Map<Long, CollectionProtocolGroup> groupsMap = groups.stream()
 					.collect(Collectors.toMap(CollectionProtocolGroup::getId, g -> g));
 				Map<Long, Integer> counts = daoFactory.getCpGroupDao().getCpsCount(groupsMap.keySet());
@@ -381,9 +382,9 @@ public class CollectionProtocolGroupServiceImpl implements CollectionProtocolGro
 		//
 		List<Long> cpIds = cps.stream().map(CollectionProtocol::getId).collect(Collectors.toList());
 		for (Map.Entry<String, Set<CpGroupForm>> levelForms : group.getFormsByLevel().entrySet()) {
-			Map<Long, Set<Long>> cpFormIds = daoFactory.getCpGroupDao().getCpForms(cpIds, levelForms.getKey());
+			Map<Long, Set<Long>> cpForms = daoFactory.getCpGroupDao().getCpForms(cpIds, levelForms.getKey());
 			for (CollectionProtocol cp : cps) {
-				Set<Long> formIds = cpFormIds.get(cp.getId());
+				Set<Long> formIds = getCpFormIds(cpForms, cp.getId());
 				for (CpGroupForm form : levelForms.getValue()) {
 					addForm(cp, levelForms.getKey(), form.getForm(), form.isMultipleRecords(), formIds);
 				}
@@ -407,7 +408,7 @@ public class CollectionProtocolGroupServiceImpl implements CollectionProtocolGro
 	private void addForms(CollectionProtocolGroup group, String level, List<Pair<Form, Boolean>> inputForms) {
 		Map<Long, Set<Long>> cpForms = daoFactory.getCpGroupDao().getCpForms(group.getCpIds(), level);
 		for (CollectionProtocol cp : group.getCps()) {
-			Set<Long> formIds = cpForms.get(cp.getId());
+			Set<Long> formIds = getCpFormIds(cpForms, cp.getId());
 			for (Pair<Form, Boolean> form : inputForms) {
 				addForm(cp, level, form.first(), form.second(), formIds);
 			}
@@ -437,6 +438,19 @@ public class CollectionProtocolGroupServiceImpl implements CollectionProtocolGro
 
 		ResponseEvent<List<FormContextDetail>> resp = formSvc.addFormContexts(new RequestEvent<>(Collections.singletonList(formCtxt)));
 		resp.throwErrorIfUnsuccessful();
+	}
+
+	private Set<Long> getCpFormIds(Map<Long, Set<Long>> cpForms, Long cpId) {
+		Set<Long> result = new HashSet<>();
+		if (cpForms.get(-1L) != null) {
+			result.addAll(cpForms.get(-1L));
+		}
+
+		if (cpForms.get(cpId) != null) {
+			result.addAll(cpForms.get(cpId));
+		}
+
+		return result;
 	}
 
 	private boolean removeForms(CollectionProtocolGroup group, String level, List<Form> inputForms) {

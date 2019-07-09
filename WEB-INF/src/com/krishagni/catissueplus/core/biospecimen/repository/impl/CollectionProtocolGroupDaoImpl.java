@@ -74,7 +74,7 @@ public class CollectionProtocolGroupDaoImpl extends AbstractDao<CollectionProtoc
 	@SuppressWarnings("unchecked")
 	public Map<Long, Integer> getCpsCount(Collection<Long> groupIds) {
 		List<Object[]> rows = getCurrentSession().getNamedQuery(GET_GROUP_CPS_COUNT)
-			.setParameter("groupIds", groupIds)
+			.setParameterList("groupIds", groupIds)
 			.list();
 
 		Map<Long, Integer> result = new HashMap<>();
@@ -89,17 +89,22 @@ public class CollectionProtocolGroupDaoImpl extends AbstractDao<CollectionProtoc
 	@SuppressWarnings("unchecked")
 	public List<String> getCpsUsedInOtherGroups(CollectionProtocolGroup group) {
 		List<Long> cpIds = group.getCps().stream().map(CollectionProtocol::getId).collect(Collectors.toList());
-		return (List<String>) getCurrentSession().getNamedQuery(GET_CPS_USED_IN_GRP)
-			.setParameter("groupId", group.getId())
-			.setParameter("cpIds", cpIds)
-			.list();
+		Criteria query = getCurrentSession().createCriteria(CollectionProtocolGroup.class, "g")
+			.createAlias("g.cps", "cp")
+			.add(Restrictions.in("cp.id", cpIds))
+			.setProjection(Projections.property("cp.shortTitle"));
+		if (group.getId() != null) {
+			query.add(Restrictions.ne("g.id", group.getId()));
+		}
+
+		return (List<String>) query.list();
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public Map<Long, Set<Long>> getCpForms(List<Long> cpIds, String entityType) {
 		List<Object[]> rows = getCurrentSession().getNamedQuery(GET_CP_FORMS_BY_ENTITY)
-			.setParameter("cpIds", cpIds)
+			.setParameterList("cpIds", cpIds)
 			.setParameter("entityType", entityType)
 			.list();
 
@@ -121,8 +126,6 @@ public class CollectionProtocolGroupDaoImpl extends AbstractDao<CollectionProtoc
 	private static final String GET_BY_NAME = FQN + ".getByName";
 
 	private static final String GET_GROUP_CPS_COUNT = FQN + ".getGroupCpsCount";
-
-	private static final String GET_CPS_USED_IN_GRP = FQN + ".getCpsUsedInGroup";
 
 	private static final String GET_CP_FORMS_BY_ENTITY = FQN + ".getEntityFormsByCp";
 }

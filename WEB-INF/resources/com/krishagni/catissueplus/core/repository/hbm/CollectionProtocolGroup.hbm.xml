@@ -44,24 +44,10 @@
         os_cp_group_cps gcp
         inner join catissue_collection_protocol cp on cp.identifier = gcp.cp_id
       where
-        gcp.group_id in (:groupIds) and
+        gcp.group_id in :groupIds and
         cp.activity_status != 'Disabled'
       group by
         gcp.group_id
-    </sql-query>
-
-    <sql-query name="getCpsUsedInGroup">
-      <return-scalar column="cpTitle" type="string"/>
-
-      select
-        cp.short_title as cpTitle
-      from
-        os_cp_group_cps gcp
-        inner join os_cp_groups g on g.identifier = gcp.group_id
-        inner join catissue_collection_protocol cp on cp.identifier = gcp.cp_id
-      where
-        gcp.cp_id in (:cpIds) and
-        (:groupId is null or g.identifier != :groupId)
     </sql-query>
 
     <sql-query name="getEntityFormsByCp">
@@ -76,7 +62,7 @@
       where
         fc.deleted_on is null and
         f.deleted_on is null and
-        fc.cp_id in (:cpIds) and
+        (fc.cp_id = -1 or fc.cp_id in :cpIds) and
         fc.entity_type = :entityType
     </sql-query>
   </class>
