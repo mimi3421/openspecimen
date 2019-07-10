@@ -1,6 +1,7 @@
 package com.krishagni.catissueplus.core.audit.repository;
 
 import java.util.Date;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.krishagni.catissueplus.core.common.events.AbstractListCriteria;
@@ -14,6 +15,8 @@ public class RevisionsListCriteria extends AbstractListCriteria<RevisionsListCri
 	private Long userId;
 
 	private boolean includeModifiedProps;
+
+	private List<String> entities;
 
 	@Override
 	public RevisionsListCriteria self() {
@@ -57,6 +60,16 @@ public class RevisionsListCriteria extends AbstractListCriteria<RevisionsListCri
 	@JsonProperty("includeModifiedProps")
 	public RevisionsListCriteria includeModifiedProps(boolean includeModifiedProps) {
 		this.includeModifiedProps = includeModifiedProps;
+		return self();
+	}
+
+	public List<String> entities() {
+		return entities;
+	}
+
+	@JsonProperty("entities")
+	public RevisionsListCriteria entities(List<String> entities) {
+		this.entities = entities;
 		return self();
 	}
 
