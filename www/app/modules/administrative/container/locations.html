@@ -152,11 +152,18 @@
         </a>
       </span>
     </li>
-
     <li class="item" ng-if="!!lctx.entityInfo.specimen.barcode">
       <strong class="key key-sm" translate="specimens.barcode">Barcode</strong>
       <span class="value value-md">
         {{lctx.entityInfo.specimen.barcode | osNoValue}}
+      </span>
+    </li>
+    <li class="item" ng-if="!!lctx.entityInfo.specimen.parentLabel">
+      <strong class="key key-sm" translate="specimens.parent_specimen">Parent Specimen</strong>
+      <span class="value value-md">
+        <a ui-sref="specimen({specimenId: lctx.entityInfo.specimen.parentId})" target="_blank">
+          <span>{{lctx.entityInfo.specimen.parentLabel}}</span>
+        </a>
       </span>
     </li>
     <li class="item" ng-if="!lctx.entityInfo.specimen.$$specimenCentricCp">

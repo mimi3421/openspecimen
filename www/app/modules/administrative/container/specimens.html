@@ -41,6 +41,9 @@
             <span translate="specimens.ppid">PPID</span>
           </th>
           <th class="col">
+            <span translate="specimens.parent_specimen">Parent Specimen</span>
+          </th>
+          <th class="col">
             <span translate="specimens.label">Label</span>
           </th>
           <th class="col">
@@ -59,7 +62,16 @@
             </os-checkbox>
           </td>
           <td class="col">
-            <span>{{spmn.ppid}}</span>
+            <a ui-sref="participant-detail.overview({cpId: spmn.cpId, cprId: spmn.cprId})" ng-show="!spmn.$$cpCentric">
+              <span>{{spmn.ppid}}</span>
+            </a>
+            <span ng-show="!!spmn.$$cpCentric">{{'' | osNoValue}}</span>
+          </td>
+          <td class="col" ng-switch on="!spmn.parentLabel">
+            <span ng-switch-when="true">{{'' | osNoValue}}</span>
+            <a ui-sref="specimen({specimenId: spmn.parentId})">
+              <span>{{spmn.parentLabel}}</span>
+            </a>
           </td>
           <td class="col">
             <a ui-sref="specimen({specimenId: spmn.id})">

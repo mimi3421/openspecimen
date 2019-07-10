@@ -28,6 +28,12 @@ angular.module('os.administrative.container')
     function loadSpecimens(filterOpts) {
       container.getSpecimens(filterOpts).then(
         function(specimens) {
+          angular.forEach(specimens,
+            function(spmn) {
+              spmn.$$cpCentric = spmn.ppid && spmn.ppid.indexOf('$$cp_reg_') == 0;
+            }
+          );
+
           $scope.lctx.pagerOpts.refreshOpts(specimens);
           $scope.lctx.specimens = specimens;
           $scope.lctx.checkList = new CheckList(specimens);
