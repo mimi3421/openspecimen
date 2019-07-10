@@ -413,7 +413,7 @@ public class AuditServiceImpl implements AuditService, InitializingBean {
 			int recsCount = 0;
 
 			for (RevisionEntityRecordDetail record : revision.getRecords()) {
-				if (StringUtils.isBlank(record.getModifiedProps()) && record.getType() != 2) {
+				if (criteria.includeModifiedProps() && StringUtils.isBlank(record.getModifiedProps()) && record.getType() != 2) {
 					if (logger.isDebugEnabled()) {
 						logger.debug("Ignoring the revision record: " + record.toString());
 					}
