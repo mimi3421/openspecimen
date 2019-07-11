@@ -618,6 +618,7 @@
 
     "add": "Add",
     "update": "Update",
+    "add_n_collect": "Proceed to Collection",
 
     "names_print_job_created": "Visit names print job {{jobId}} created successfully",
 

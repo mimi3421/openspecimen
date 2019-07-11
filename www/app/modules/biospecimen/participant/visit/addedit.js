@@ -3,7 +3,7 @@ angular.module('os.biospecimen.visit.addedit', [])
   .controller('AddEditVisitCtrl', function(
     $scope, $state, $stateParams, cp, cpr, visit, latestVisit,
     extensionCtxt, hasDict, layout, onValueChangeCb, mrnAccessRestriction,
-    ParticipantSpecimensViewState, PvManager, ExtensionsUtil) {
+    ParticipantSpecimensViewState, PvManager, ExtensionsUtil, CollectSpecimensSvc) {
 
     function loadPvs() {
       $scope.visitStatuses = PvManager.getPvs('visit-status');
@@ -14,7 +14,7 @@ angular.module('os.biospecimen.visit.addedit', [])
       var currVisit = $scope.currVisit = angular.copy(visit);
       angular.extend(currVisit, {cprId: cpr.id, cpTitle: cpr.cpTitle});
 
-      $scope.visitCtx = {
+      var ctx = $scope.visitCtx = {
         obj: {visit: $scope.currVisit, cpr: cpr, cp: cp},
         opts: {viewCtx: $scope, layout: layout, onValueChange: onValueChangeCb, mdInput: false},
         inObjs: ['visit'],
@@ -28,9 +28,11 @@ angular.module('os.biospecimen.visit.addedit', [])
           clinicalDiagnoses: latestVisit ? latestVisit.clinicalDiagnoses : currVisit.clinicalDiagnoses,
           site: getVisitSite(cpr, latestVisit, currVisit)
         });
+        ctx.pendingToStart = true;
         delete currVisit.anticipatedVisitDate;
       } else if (currVisit.status == 'Pending') {
         currVisit.visitDate = new Date();
+        ctx.pendingToStart = true;
       }
 
       if ($stateParams.missedVisit == 'true') {
@@ -61,7 +63,7 @@ angular.module('os.biospecimen.visit.addedit', [])
       return site;
     }
 
-    $scope.saveVisit = function() {
+    $scope.saveVisit = function(gotoSpmnCollection) {
       var formCtrl = $scope.deFormCtrl.ctrl;
       if (formCtrl && !formCtrl.validate()) {
         return;
@@ -80,7 +82,12 @@ angular.module('os.biospecimen.visit.addedit', [])
           ParticipantSpecimensViewState.specimensUpdated($scope);
 
           angular.extend($scope.visit, angular.extend({clinicalStatus: null, cohort: null}, result));
-          $state.go('visit-detail.overview', {visitId: result.id, eventId: result.eventId});
+          if (gotoSpmnCollection) {
+            var state = $state.get('visit-detail.overview');
+            CollectSpecimensSvc.collectVisit({state: state, params: {cprId: cpr.id}}, cp, cpr.id, visit);
+          } else {
+            $state.go('visit-detail.overview', {visitId: result.id, eventId: result.eventId});
+          }
         }
       );
     };

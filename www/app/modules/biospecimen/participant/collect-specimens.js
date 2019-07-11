@@ -1229,6 +1229,10 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
         }
       };
 
+      $scope.cancel = function() {
+        CollectSpecimensSvc.navigateTo($scope, visit);
+      }
+
       init();
     })
 

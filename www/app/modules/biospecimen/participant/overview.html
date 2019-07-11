@@ -162,31 +162,25 @@
                 </td>
                 <td class="col col-xs-2">
                   <div class="os-more-option-btns">
-                    <button class="btn btn-xs btn-default" title="{{'participant.tooltip.collect_spmns' | translate}}"
-                      ng-click="collect(visit)">
-                      <span class="fa fa-flask"></span>
-                      <span translate="specimens.buttons.collect">Collect</span>
-                    </button>
-                    <span class="os-more-options">
-                      <div dropdown dropdown-append-to-body>
-                        <button class="btn btn-default dropdown-toggle" style="margin-top: -8px!important">
-                          <span class="fa fa-ellipsis-v"></span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-right" role="menu">
-                          <li show-if-allowed="specimenResource.updateOpts">
-                            <a ui-sref="visit-addedit({visitId: visit.id, eventId: visit.eventId})">
-                              <span class="fa fa-plus"></span>
-                              <span translate="visits.ctx_menu.add_visit">Add Visit</span>
-                            </a> 
-                          </li>
-                          <li>
-                            <a ui-sref="visit-detail.overview({visitId: visit.id, eventId: visit.eventId})">
-                              <span class="fa fa-eye"></span>
-                              <span translate="visits.ctx_menu.view_visit">View Visit</span>
-                            </a>
-                          </li>
-                        </ul>
-                      </div>
+                    <span dropdown show-if-allowed="specimenResource.updateOpts">
+                      <button class="btn btn-xs btn-default dropdown-toggle">
+                        <span translate="specimens.buttons.collect">Collect</span>
+                        <span class="fa fa-caret-down"></span>
+                      </button>
+                      <ul class="dropdown-menu dropdown-menu-right">
+                        <li>
+                          <a ui-sref="visit-addedit({visitId: visit.id, eventId: visit.eventId})">
+                            <span class="fa fa-list-alt"></span>
+                            <span translate="visits.title">Visit</span>
+                          </a>
+                        </li>
+                        <li>
+                          <a ng-click="collect(visit)">
+                            <span class="fa fa-flask"></span>
+                            <span translate="specimens.list">Specimens</span>
+                          </a>
+                        </li>
+                      </ul>
                     </span>
                   </div>
                 </td>
