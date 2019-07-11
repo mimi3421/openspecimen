@@ -9,7 +9,9 @@ public enum PvErrorCode implements ErrorCode {
 	
 	PARENT_ATTR_NOT_FOUND,
 	
-	NOT_FOUND;
+	NOT_FOUND,
+
+	IN_USE;
 
 	@Override
 	public String code() {		
