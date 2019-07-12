@@ -22,6 +22,7 @@ angular.module('os.common.import.addctrl', ['os.common.import.importjob'])
       $scope.importJobsFileUrl = $sce.trustAsResourceUrl(ImportJob.url() + 'input-file');
       $scope.inputFileTmplUrl  = getInputTmplUrl($scope.importJob);
       $scope.fileImporter = {};
+      $scope.submitting = false;
 
       if (importDetail.types && importDetail.types.length > 0) {
         $scope.onTypeSelect(importDetail.types[0]);
@@ -71,11 +72,13 @@ angular.module('os.common.import.addctrl', ['os.common.import.importjob'])
     }
 
     function submitJob(fileId, atomic) {
+      $scope.submitting = true;
       $scope.importJob.inputFileId = fileId;
       $scope.importJob.atomic = atomic;
       $scope.importJob.$saveOrUpdate().then(
         function(resp) {
           if (resp.status == 'TXN_SIZE_EXCEEDED') {
+            $scope.submitting = false;
             handleTxnSizeExceeded(resp, fileId);
           } else {
             Alerts.success('bulk_imports.job_submitted', resp);
@@ -86,9 +89,14 @@ angular.module('os.common.import.addctrl', ['os.common.import.importjob'])
     }
 
     $scope.import = function() {
+      $scope.submitting = true;
       $scope.fileImporter.submit().then(
         function(resp) {
           submitJob(resp.fileId, true);
+        },
+
+        function() {
+          $scope.submitting = false;
         }
       );
     };

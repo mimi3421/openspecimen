@@ -11,7 +11,8 @@ angular.module('os.biospecimen.cpgroups')
         };
       }
 
-      $scope.import = function() {
+      $scope.import = function(event) {
+        event.preventDefault();
         ictx.importer.submit().then(
           function(wfDetail) {
             angular.forEach(group.cps,

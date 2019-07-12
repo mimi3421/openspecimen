@@ -88,7 +88,7 @@ public class BulkObjectImportController {
 	@ResponseBody		
 	public Map<String, String> uploadJobInputFile(@PathVariable("file") MultipartFile file) 
 	throws IOException {
-		RequestEvent<InputStream> req = new RequestEvent<InputStream>(file.getInputStream());
+		RequestEvent<InputStream> req = new RequestEvent<>(file.getInputStream());
 		ResponseEvent<String> resp = importSvc.uploadImportJobFile(req);
 		resp.throwErrorIfUnsuccessful();
 		

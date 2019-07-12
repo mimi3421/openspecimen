@@ -20,6 +20,7 @@ angular.module('openspecimen')
         this.submit = function() {
           this.q = $q.defer();
           if (this.data) {
+            this.submitting = true;
             this.data.submit();
           } else {
             Alerts.error('common.no_file_selected');
@@ -30,10 +31,13 @@ angular.module('openspecimen')
         };
 
         this.done = function(resp) {
+          this.submitting = false;
           this.q.resolve(resp.result);
         };
 
         this.fail = function(resp) {
+          this.submitting = false;
+
           var xhr = resp.xhr('responseText');
           var status = Math.floor(xhr.status / 100);
 
