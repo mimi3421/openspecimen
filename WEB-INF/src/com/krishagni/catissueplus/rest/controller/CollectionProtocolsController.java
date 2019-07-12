@@ -105,6 +105,9 @@ public class CollectionProtocolsController {
 			
 			@RequestParam(value = "repositoryName", required = false)
 			String repositoryName,
+
+			@RequestParam(value = "instituteId", required = false)
+			Long instituteId,
 			
 			@RequestParam(value = "startAt", required = false, defaultValue = "0") 
 			int startAt,
@@ -121,6 +124,7 @@ public class CollectionProtocolsController {
 			.irbId(irbId)
 			.piId(piId)
 			.repositoryName(repositoryName)
+			.instituteId(instituteId)
 			.includePi(detailedList)
 			.includeStat(detailedList)
 			.startAt(startAt)
@@ -148,14 +152,18 @@ public class CollectionProtocolsController {
 			Long piId,
 			
 			@RequestParam(value = "repositoryName", required = false)
-			String repositoryName) {
+			String repositoryName,
+
+			@RequestParam(value = "instituteId", required = false)
+			Long instituteId) {
 		
 		CpListCriteria crit = new CpListCriteria()
 			.query(searchStr)
 			.title(title)
 			.irbId(irbId)
 			.piId(piId)
-			.repositoryName(repositoryName);
+			.repositoryName(repositoryName)
+			.instituteId(instituteId);
 		
 		ResponseEvent<Long> resp = cpSvc.getProtocolsCount(request(crit));
 		resp.throwErrorIfUnsuccessful();

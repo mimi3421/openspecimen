@@ -15,6 +15,8 @@ public class CpListCriteria extends AbstractListCriteria<CpListCriteria> {
 	private Long piId;
 	
 	private String repositoryName;
+
+	private Long instituteId;
 	
 	private boolean includePi;
 
@@ -58,6 +60,15 @@ public class CpListCriteria extends AbstractListCriteria<CpListCriteria> {
 	
 	public CpListCriteria repositoryName(String repositoryName) {
 		this.repositoryName = repositoryName;
+		return self();
+	}
+
+	public Long instituteId() {
+		return instituteId;
+	}
+
+	public CpListCriteria instituteId(Long instituteId) {
+		this.instituteId = instituteId;
 		return self();
 	}
 	

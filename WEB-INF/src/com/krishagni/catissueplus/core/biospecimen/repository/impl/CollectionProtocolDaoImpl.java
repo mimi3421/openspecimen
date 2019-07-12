@@ -410,6 +410,17 @@ public class CollectionProtocolDaoImpl extends AbstractDao<CollectionProtocol> i
 			query.createCriteria("sites", "cpSite")
 				.createAlias("cpSite.site", "site")
 				.add(Restrictions.eq("site.name", repositoryName));
+		} else if (crit.instituteId() != null) {
+			boolean addInst = CollectionUtils.isEmpty(crit.siteCps());
+			if (!addInst) {
+				addInst = crit.siteCps().stream().noneMatch(scp -> scp.getInstituteId().equals(crit.instituteId()));
+			}
+
+			if (addInst) {
+				SiteCpPair siteCp = new SiteCpPair();
+				siteCp.setInstituteId(crit.instituteId());
+				addSiteCpsCond(query, Collections.singleton(siteCp));
+			}
 		}
 
 		applyIdsFilter(query, "id", crit.ids());

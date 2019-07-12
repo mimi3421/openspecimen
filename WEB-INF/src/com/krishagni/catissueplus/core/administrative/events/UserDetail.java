@@ -31,6 +31,8 @@ public class UserDetail extends AttributeModifiedSupport {
 
 	private String loginName;
 
+	private Long instituteId;
+
 	private String instituteName;
 
 	private String primarySite;
@@ -93,6 +95,14 @@ public class UserDetail extends AttributeModifiedSupport {
 
 	public void setLoginName(String loginName) {
 		this.loginName = loginName;
+	}
+
+	public Long getInstituteId() {
+		return instituteId;
+	}
+
+	public void setInstituteId(Long instituteId) {
+		this.instituteId = instituteId;
 	}
 
 	public String getInstituteName() {
@@ -171,6 +181,7 @@ public class UserDetail extends AttributeModifiedSupport {
 		detail.setEmailAddress(user.getEmailAddress());
 		detail.setDomainName(user.getAuthDomain().getName());
 		detail.setLoginName(user.getLoginName());
+		detail.setInstituteId(user.getInstitute() != null ? user.getInstitute().getId() : null);
 		detail.setInstituteName(user.getInstitute() != null ? user.getInstitute().getName() : null);
 		detail.setPrimarySite(user.getPrimarySite() != null ? user.getPrimarySite().getName() : null);
 		detail.setType(user.getType() != null ? user.getType().name() : null);
