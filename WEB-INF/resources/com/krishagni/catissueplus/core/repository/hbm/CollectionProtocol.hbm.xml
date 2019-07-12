@@ -322,10 +322,10 @@
         catissue_collection_protocol cp
         inner join catissue_site_cp cp_site on cp_site.collection_protocol_id = cp.identifier
         inner join catissue_site site on site.identifier = cp_site.site_id
-        inner join catissue_user user on user.institute_id = site.institute_id
+        inner join catissue_user usr on usr.institute_id = site.institute_id
       where
         cp.identifier = :cpId and
-        user.identifier = :userId and
+        usr.identifier = :userId and
         cp.activity_status != 'Disabled'
     </sql-query>
   </class>
