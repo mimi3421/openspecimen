@@ -140,6 +140,7 @@
         <udn>createdOn</udn>
         <caption>#getMessage("specimen_created_on")</caption>
         <column>CREATED_ON</column>
+        <format>MM-dd-yyyy HH:mm</format>
       </datePicker>
     </row>
 
@@ -385,6 +386,7 @@
         <udn>creationTime</udn>
         <caption>#getMessage("common_creation_time")</caption>
         <column>CREATION_TIME</column>
+        <format>MM-dd-yyyy HH:mm</format>
       </datePicker>
     </row>
 
@@ -403,6 +405,7 @@
         <udn>updateTime</udn>
         <caption>#getMessage("common_update_time")</caption>
         <column>UPDATE_TIME</column>
+        <format>MM-dd-yyyy HH:mm</format>
       </datePicker>
     </row>
 
@@ -480,6 +483,7 @@
             <udn>collTime</udn>
             <caption>#getMessage("specimen_collection_date")</caption>
             <column>COLL_TIME</column>
+            <format>MM-dd-yyyy HH:mm</format>
           </datePicker>
           <dropDown>
             <name>recvQuality</name>
@@ -501,6 +505,7 @@
             <udn>recvTime</udn>
             <caption>#getMessage("specimen_received_date")</caption>
             <column>RECV_TIME</column>
+            <format>MM-dd-yyyy HH:mm</format>
           </datePicker>
         </row>
       </subForm>
@@ -916,7 +921,7 @@
             <udn>executionDate</udn>
             <caption>#getMessage("specimen_order_execution_date")</caption>
             <column>EXECUTION_DATE</column>
-            <format>MM-dd-yyyy</format>
+            <format>MM-dd-yyyy HH:mm</format>
           </datePicker>
         </row>
 
@@ -1070,7 +1075,7 @@
             <udn>shippedDate</udn>
             <caption>#getMessage("specimen_shipment_shipped_date")</caption>
             <column>SHIPPED_DATE</column>
-            <format>MM-dd-yyyy</format>
+            <format>MM-dd-yyyy HH:mm</format>
           </datePicker>
         </row>
 
@@ -1108,7 +1113,7 @@
             <udn>receivedDate</udn>
             <caption>#getMessage("specimen_shipment_received_date")</caption>
             <column>RECEIVED_DATE</column>
-            <format>MM-dd-yyyy</format>
+            <format>MM-dd-yyyy HH:mm</format>
           </datePicker>
         </row>
 

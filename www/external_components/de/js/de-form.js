@@ -1299,6 +1299,13 @@ edu.common.de.SelectField = function(id, field, args) {
     this.control.onQuery(qFunc).onChange(onChange);
     this.control.onInitSelection(initSelection).render();
 
+    if (field.toolTip) {
+      var select2Container = this.control.element.parent().find('.select2-container');
+      if (select2Container) {
+        select2Container.prop({title: field.toolTip});
+      }
+    }
+
     var hasValue = false;
     if (this.isMultiSelect) {
       if (this.value instanceof Array && this.value.length > 0) {
@@ -2220,6 +2227,14 @@ edu.common.de.LookupField = function(params, callback) {
     this.control = new Select2Search(this.inputEl);
     this.control.onQuery(qFunc).onChange(onChange);
     this.control.onInitSelection(initSelection).render();
+
+    if (field.toolTip) {
+      var select2Container = this.control.element.parent().find('.select2-container');
+      if (select2Container) {
+        select2Container.prop({title: field.toolTip});
+      }
+    }
+
     if (this.value) {
       this.control.setValue(this.value);
     }

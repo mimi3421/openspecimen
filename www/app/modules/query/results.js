@@ -15,6 +15,19 @@ angular.module('os.query.results', ['os.query.models'])
       }
     }
   })
+  .filter('osQueryDate', function($filter) {
+    return function(input) {
+      if (typeof input != 'string') {
+        return input;
+      }
+
+      if (input.indexOf('T') != -1) {
+        return $filter('date')(input, ui.os.global.dateTimeFmt);
+      } else {
+        return $filter('date')(input, ui.os.global.dateFmt);
+      }
+    };
+  })
   .controller('QueryResultsCtrl', function(
     $scope, $state, $stateParams, $modal, $document, $timeout, $interpolate, currentUser,
     queryCtx, cps, QueryCtxHolder, QueryUtil, QueryExecutor, SpecimenList, SpecimensHolder, Util, Alerts) {
@@ -484,7 +497,7 @@ angular.module('os.query.results', ['os.query.models'])
             showSummary:  showColSummary,
             summary:      summaryRow[idx],
             sortFn:       getSortFn(result.columnTypes[idx]),
-            cellFilter:   isDateColumn ? "date: global.dateTimeFmt" : undefined
+            cellFilter:   isDateColumn ? "osQueryDate" : undefined
           });
         }
       );

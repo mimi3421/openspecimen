@@ -193,6 +193,7 @@
         <udn>creationTime</udn>
         <caption>#getMessage("common_creation_time")</caption>
         <column>CREATION_TIME</column>
+        <format>MM-dd-yyyy HH:mm</format>
       </datePicker>
     </row>
     <row>
@@ -209,6 +210,7 @@
         <udn>updateTime</udn>
         <caption>#getMessage("common_update_time")</caption>
         <column>UPDATE_TIME</column>
+        <format>MM-dd-yyyy HH:mm</format>
       </datePicker>
     </row>
     <row>
