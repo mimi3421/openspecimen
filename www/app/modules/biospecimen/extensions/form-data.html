@@ -1,7 +1,8 @@
 <div>
-  <ul class="os-key-values" ng-class="{'os-one-col': showColumn == 1, 'os-two-cols': showColumn == 2}">
+  <ul class="os-key-values bg-col"
+    ng-class="{'os-one-col': showColumn == 1, 'os-two-cols': showColumn == 2, 'vertical': verticalLayout}">
     <li class="item" ng-repeat="field in data.fields | filter: {type: '!subForm'}">
-      <strong class="key key-sm">{{field.caption}}</strong>
+      <strong class="key key-sm strong">{{field.caption}}</strong>
       <span class="value value-md">
         <span ng-include src="'modules/biospecimen/extensions/field-value.html'"></span>
       </span>

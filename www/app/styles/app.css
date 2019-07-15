@@ -614,6 +614,32 @@ h4.os-sub-section-title, h5.os-sub-section-title, h6.os-sub-section-title {
   width: 50%;
 }*/
 
+.os-key-values.vertical .item {
+  padding-left: 0px;
+  width: 100%;
+}
+
+.os-key-values.vertical .item:after {
+  content: ' ';
+  display: inline-block;
+  border-bottom: 1px solid #ddd;
+  width: 100%;
+}
+
+.os-key-values.vertical .item:last-child:after {
+  width: 0%;
+}
+
+.os-key-values.vertical .item .key.key-sm {
+  margin-left: 0px;
+  width: 100%;
+}
+
+.os-key-values.vertical .item .key.key-sm.strong {
+  font-weight: 500;
+  font-style: italic;
+}
+
 .os-line-section >.key:after {
   content: '';
   display: block;
