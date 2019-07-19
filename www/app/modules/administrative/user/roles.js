@@ -109,7 +109,7 @@ angular.module('os.administrative.user.roles', ['os.administrative.models', 'os.
       );
 
       var cpListOpts = {detailedList: false, maxResults: CollectionProtocol.MAX_CPS};
-      if (site != $scope.all) {
+      if (!!site && site != $scope.all) {
         cpListOpts.repositoryName = site;
       } else {
         cpListOpts.instituteId = user.instituteId;
