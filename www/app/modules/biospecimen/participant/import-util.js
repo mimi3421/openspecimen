@@ -76,20 +76,23 @@ angular.module('os.biospecimen.participant')
       return addForms(importTypes, group, 'SpecimenCollectionGroup', entityForms['SpecimenCollectionGroup']);
     }
 
-    function getSpecimenTypes(cp, entityForms) {
+    function getSpecimenTypes(cp, allowedEntityTypes, entityForms) {
       var group = $translate.instant('specimens.title');
 
       var importTypes = [];
 
       importTypes.push({ group: group, type: 'specimen', title: 'specimens.list' });
-      importTypes.push({
-        group: group, type: 'specimenAliquot', title: 'specimens.spmn_aliquots',
-        showImportType: false, importType    : 'CREATE'
-      });
-      importTypes.push({
-        group: group, type: 'specimenDerivative', title: 'specimens.spmn_derivatives',
-        showImportType: false, importType    : 'CREATE'
-      });
+
+      if (allowedEntityTypes.indexOf('DerivativeAndAliquots') != -1) {
+        importTypes.push({
+          group: group, type: 'specimenAliquot', title: 'specimens.spmn_aliquots',
+          showImportType: false, importType    : 'CREATE'
+        });
+        importTypes.push({
+          group: group, type: 'specimenDerivative', title: 'specimens.spmn_derivatives',
+          showImportType: false, importType    : 'CREATE'
+        });
+      }
 
       if (!cp.specimenCentric) {
         importTypes.push({
@@ -137,7 +140,7 @@ angular.module('os.biospecimen.participant')
       }
 
       if (allowedEntityTypes.indexOf('Specimen') >= 0) {
-        importTypes = importTypes.concat(getSpecimenTypes(cp, entityForms));
+        importTypes = importTypes.concat(getSpecimenTypes(cp, allowedEntityTypes, entityForms));
       }
 
       angular.forEach(importTypes,

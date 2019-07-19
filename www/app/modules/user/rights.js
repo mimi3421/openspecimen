@@ -4,14 +4,13 @@ angular.module('openspecimen')
       restrict: 'A',
       link: function(scope, element, attrs) {
         scope.$watch(attrs.showIfAllowed, function(newOpts) {
-          if (!AuthorizationService.isAllowed(newOpts)) {
+          if (!newOpts || !AuthorizationService.isAllowed(newOpts)) {
             element.remove();
           }
         });
       }
     };
   })
-
   .directive('showIfAdmin', function($rootScope) {
     return {
       restrict: 'A',

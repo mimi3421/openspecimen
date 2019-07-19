@@ -317,7 +317,7 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
       $scope, $translate, $state, $document, $q, $parse, $injector, $modal,
       cp, cpr, visit, latestVisit, cpDict, spmnCollFields, mrnAccessRestriction,
       Visit, Specimen, PvManager, CollectSpecimensSvc, Container, ExtensionsUtil,
-      CpConfigSvc, Alerts, Util, SpecimenUtil) {
+      CpConfigSvc, Alerts, Util, SpecimenUtil, AuthorizationService) {
 
       var ignoreQtyWarning = false;
 
@@ -325,6 +325,10 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
         ignoreQtyWarning = CollectSpecimensSvc.ignoreQtyWarning();
         $scope.showCollVisitDetails = CollectSpecimensSvc.showCollVisitDetails();
         $scope.mrnAccessRestriction = mrnAccessRestriction;
+
+        var sites = cp.cpSites.map(function(cpSite) { return cpSite.siteName; });
+        $scope.storeSpmnsAllowed = AuthorizationService.isAllowed(
+          {sites: sites, resource: 'StorageContainer', operations: ['Read']});
 
         var printSettings = {};
         angular.forEach(cp.spmnLabelPrintSettings,

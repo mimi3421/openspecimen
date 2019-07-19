@@ -111,6 +111,7 @@
   <include file="db/6.1/permissible-values.xml"/>
 
   <include file="db/6.2/schema.xml"/>
+  <include file="db/6.2/seed-data.xml"/>
   <include file="db/6.2/audit.xml"/>
   <include file="db/6.2/migration.xml"/>
 

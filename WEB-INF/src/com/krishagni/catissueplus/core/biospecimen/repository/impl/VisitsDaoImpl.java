@@ -204,7 +204,7 @@ public class VisitsDaoImpl extends AbstractDao<Visit> implements VisitsDao {
 		}
 
 		if (CollectionUtils.isNotEmpty(crit.siteCps())) {
-			BiospecimenDaoHelper.getInstance().addSiteCpsCond(query, crit.siteCps(), crit.useMrnSites(), startAlias);
+			BiospecimenDaoHelper.getInstance().addSiteCpsCond(query, crit.siteCps(), crit.useMrnSites(), startAlias, false);
 		}
 
 		return detachedCriteria;

@@ -145,8 +145,8 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 				return ResponseEvent.error(ose);
 			}
 
-			boolean allowPhi = AccessCtrlMgr.getInstance().ensureReadSpecimenRights(specimen);
-			SpecimenDetail detail = SpecimenDetail.from(specimen, false, !allowPhi);
+			AccessCtrlMgr.SpecimenAccessRights rights = AccessCtrlMgr.getInstance().ensureReadSpecimenRights(specimen);
+			SpecimenDetail detail = SpecimenDetail.from(specimen, false, !rights.phiAccess, rights.onlyPrimarySpmns);
 			setDistributionStatus(detail);
 			return ResponseEvent.response(detail);
 		} catch (OpenSpecimenException ose) {
@@ -155,8 +155,6 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 			return ResponseEvent.serverError(e);
 		}
 	}
-
-
 
 	@Override
 	@PlusTransactional
@@ -1227,9 +1225,9 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 					lastId = specimen.getId();
 
 					try {
-						boolean hasPhi = AccessCtrlMgr.getInstance().ensureReadSpecimenRights(specimen, true);
+						AccessCtrlMgr.SpecimenAccessRights rights = AccessCtrlMgr.getInstance().ensureReadSpecimenRights(specimen, true);
 
-						SpecimenDetail detail = SpecimenDetail.from(specimen, false, !hasPhi, true);
+						SpecimenDetail detail = SpecimenDetail.from(specimen, false, !rights.phiAccess, true);
 						if (specimen.isPrimary()) {
 							detail.setCollectionEvent(CollectionEventDetail.from(specimen.getCollectionEvent()));
 							detail.setReceivedEvent(ReceivedEventDetail.from(specimen.getReceivedEvent()));

@@ -16,7 +16,7 @@
 
       <span ng-if="!!specimen.id">
         <div ng-if="!specimen.reserved && specimen.activityStatus == 'Active' && specimen.status == 'Collected'"
-          show-if-allowed="specimenResource.updateOpts" dropdown class="os-inline-btn">
+          show-if-allowed="specimenResource.allUpdateOpts" dropdown class="os-inline-btn">
           <button class="btn btn-default dropdown-toggle default">
             <span class="fa fa-plus"></span>
             <span translate="common.buttons.create">Create</span>
@@ -111,10 +111,12 @@
         </div>
       </div>
 
-      <os-specimen-tree cp="cp" cpr="cpr" visit="visit" specimens="treeSpecimens"
-        allowed-ops="specimenAllowedOps" reload="reload()"
-        pending-spmns-disp-interval="pendingSpmnsDispInterval">
-      </os-specimen-tree>
+      <span show-if-allowed="specimenResource.allReadOpts">
+        <os-specimen-tree cp="cp" cpr="cpr" visit="visit" specimens="treeSpecimens"
+          allowed-ops="specimenAllowedOps" reload="reload()"
+          pending-spmns-disp-interval="pendingSpmnsDispInterval">
+        </os-specimen-tree>
+      </span>
     </div>
     <div class="os-col os-no-border" os-right-drawer open-width="34" style="position: static;">
       <div ng-if="!!specimen.id">

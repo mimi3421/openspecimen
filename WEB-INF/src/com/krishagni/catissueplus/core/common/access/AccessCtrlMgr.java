@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -701,6 +702,23 @@ public class AccessCtrlMgr {
 		ensureVisitAndSpecimenObjectRights(visit.getRegistration(), Operation.DELETE, false);
 		ensureVisitAndSpecimenEximRights(visit.getRegistration());
 	}
+
+	//
+	// Specimen access rights
+	//
+	public static class SpecimenAccessRights {
+		public boolean admin;
+
+		public boolean allSpmns;
+
+		public boolean onlyPrimarySpmns;
+
+		public boolean phiAccess;
+
+		public boolean allowed(Specimen specimen) {
+			return admin || allSpmns || (onlyPrimarySpmns && specimen.isPrimary());
+		}
+	}
 	
 	public void ensureCreateOrUpdateSpecimenRights(Long specimenId, boolean checkPhiAccess) {
 		ensureSpecimenObjectRights(specimenId, Operation.UPDATE, checkPhiAccess);
@@ -711,8 +729,18 @@ public class AccessCtrlMgr {
 	}
 
 	public void ensureCreateOrUpdateSpecimenRights(Specimen specimen, boolean checkPhiAccess) {
-		ensureVisitAndSpecimenObjectRights(specimen.getRegistration(), Operation.UPDATE, checkPhiAccess);
-		ensureVisitAndSpecimenEximRights(specimen.getRegistration());
+		Resource[] resources;
+		if (specimen.isPrimary()) {
+			resources = new Resource[] { Resource.VISIT_N_PRIMARY_SPMN, Resource.VISIT_N_SPECIMEN };
+		} else {
+			resources = new Resource[] { Resource.VISIT_N_SPECIMEN };
+		}
+
+
+		ensureVisitAndSpecimenObjectRights(specimen.getRegistration(), resources, Operation.UPDATE, checkPhiAccess);
+		if (isImportOp() || isExportOp()) {
+			ensureVisitAndSpecimenObjectRights(specimen.getRegistration(), resources, Operation.EXIM, false);
+		}
 	}
 
 	public boolean ensureReadSpecimenRights(Long specimenId) {
@@ -723,17 +751,65 @@ public class AccessCtrlMgr {
 		return ensureSpecimenObjectRights(specimenId, Operation.READ, checkPhiAccess);
 	}
 
-	public boolean ensureReadSpecimenRights(Specimen specimen) {
+	public SpecimenAccessRights ensureReadSpecimenRights(Specimen specimen) {
 		return ensureReadSpecimenRights(specimen, specimen.hasPhiFields());
 	}
 
-	public boolean ensureReadSpecimenRights(Specimen specimen, boolean checkPhiAccess) {
-		return ensureReadSpecimenRights(specimen.getRegistration(), checkPhiAccess);
+	public SpecimenAccessRights ensureReadSpecimenRights(Specimen specimen, boolean checkPhiAccess) {
+		SpecimenAccessRights rights = new SpecimenAccessRights();
+		if (AuthUtil.isAdmin()) {
+			rights.allSpmns = true;
+			rights.admin = true;
+			rights.phiAccess = true;
+			return rights;
+		}
+
+		CollectionProtocolRegistration cpr = specimen.getRegistration();
+		Resource[] resources;
+		try {
+			resources = new Resource[] { Resource.VISIT_N_SPECIMEN };
+			boolean phiRights = ensureVisitAndSpecimenObjectRights(cpr, resources, Operation.READ, checkPhiAccess);
+			if (isImportOp() || isExportOp()) {
+				ensureVisitAndSpecimenObjectRights(cpr, resources, Operation.EXIM, false);
+			}
+
+			rights.allSpmns = true;
+			rights.phiAccess = phiRights;
+		} catch (OpenSpecimenException ose) {
+			if (!ose.containsError(RbacErrorCode.ACCESS_DENIED) || !specimen.isPrimary()) {
+				throw ose;
+			}
+
+			resources = new Resource[] { Resource.VISIT_N_PRIMARY_SPMN };
+			boolean phiRights = ensureVisitAndSpecimenObjectRights(cpr, resources, Operation.READ, checkPhiAccess);
+			if (isImportOp() || isExportOp()) {
+				ensureVisitAndSpecimenObjectRights(cpr, resources, Operation.EXIM, false);
+			}
+
+			rights.onlyPrimarySpmns = true;
+			rights.phiAccess = phiRights;
+		}
+
+		return rights;
 	}
 
 	public boolean ensureReadSpecimenRights(CollectionProtocolRegistration cpr, boolean checkPhiAccess) {
-		boolean phiAccess = ensureVisitAndSpecimenObjectRights(cpr, Operation.READ, checkPhiAccess);
-		ensureVisitAndSpecimenEximRights(cpr);
+		Resource[] resources = { Resource.VISIT_N_SPECIMEN };
+		boolean phiAccess = ensureVisitAndSpecimenObjectRights(cpr, resources, Operation.READ, checkPhiAccess);
+		if (isImportOp() || isExportOp()) {
+			ensureVisitAndSpecimenObjectRights(cpr, resources, Operation.EXIM, false);
+		}
+
+		return phiAccess;
+	}
+
+	public boolean ensureReadPrimarySpecimenRights(CollectionProtocolRegistration cpr, boolean checkPhiAccess) {
+		Resource[] resources = { Resource.VISIT_N_PRIMARY_SPMN };
+		boolean phiAccess = ensureVisitAndSpecimenObjectRights(cpr, resources, Operation.READ, checkPhiAccess);
+		if (isImportOp() || isExportOp()) {
+			ensureVisitAndSpecimenObjectRights(cpr, resources, Operation.EXIM, false);
+		}
+
 		return phiAccess;
 	}
 
@@ -758,7 +834,17 @@ public class AccessCtrlMgr {
 		String[] ops = {Operation.READ.getName()};
 		List<SiteCpPair> siteCpPairs = new ArrayList<>(getVisitAndSpecimenSiteCps(cpId, ops));
 		if (addOrderSites) {
-			siteCpPairs.addAll(getDistributionOrderSiteCps(ops));
+			Set<SiteCpPair> orderSiteCps = getDistributionOrderSiteCps(ops);
+			for (SiteCpPair orderSiteCp : orderSiteCps) {
+				orderSiteCp = orderSiteCp.copy();
+				orderSiteCp.setResource(Resource.VISIT_N_SPECIMEN.getName());
+				siteCpPairs.add(orderSiteCp);
+
+				orderSiteCp = orderSiteCp.copy();
+				orderSiteCp.setResource(Resource.VISIT_N_PRIMARY_SPMN.getName());
+				siteCpPairs.add(orderSiteCp);
+			}
+
 			siteCpPairs = deDupSiteCpPairs(siteCpPairs);
 		}
 
@@ -792,18 +878,23 @@ public class AccessCtrlMgr {
 	}
 
 	private boolean ensureVisitAndSpecimenObjectRights(CollectionProtocolRegistration cpr, Operation op, boolean checkPhiAccess) {
+		Resource[] resources = {Resource.VISIT_N_SPECIMEN, Resource.VISIT_N_PRIMARY_SPMN};
+		return ensureVisitAndSpecimenObjectRights(cpr, resources, op, checkPhiAccess);
+	}
+
+	private boolean ensureVisitAndSpecimenObjectRights(CollectionProtocolRegistration cpr, Resource[] resources, Operation op, boolean checkPhiAccess) {
 		if (AuthUtil.isAdmin()) {
 			return true;
 		}
 
 		String[] ops = null;
 		if (op == Operation.CREATE || op == Operation.UPDATE) {
-			ops = new String[]{Operation.CREATE.getName(), Operation.UPDATE.getName()};
+			ops = new String[] {Operation.CREATE.getName(), Operation.UPDATE.getName()};
 		} else {
-			ops = new String[]{op.getName()};
+			ops = new String[] {op.getName()};
 		}
 
-		ensureVisitAndSpecimenObjectRights(cpr, Resource.VISIT_N_SPECIMEN, ops);
+		ensureVisitAndSpecimenObjectRights(cpr, resources, ops);
 		return checkPhiAccess && ensurePhiRights(cpr, op);
 	}
 
@@ -814,9 +905,14 @@ public class AccessCtrlMgr {
 	}
 
 	private Set<SiteCpPair> getVisitAndSpecimenSiteCps(Long cpId, String[] ops) {
-		return getSiteCps(Resource.VISIT_N_SPECIMEN.getName(), cpId, ops);
+		return getSiteCps(
+			new String[] { Resource.VISIT_N_SPECIMEN.getName(), Resource.VISIT_N_PRIMARY_SPMN.getName() },
+			cpId,
+			ops,
+			false
+		);
 	}
-	
+
 	//////////////////////////////////////////////////////////////////////////////////////
 	//                                                                                  //
 	//         Container type object access control helper methods                      //
@@ -1195,14 +1291,15 @@ public class AccessCtrlMgr {
 
 		CollectionProtocolRegistration cpr = visit.getRegistration();
 		String[] ops = {op.getName()};
-		ensureVisitAndSpecimenObjectRights(cpr, Resource.SURGICAL_PATHOLOGY_REPORT, ops);
+		ensureVisitAndSpecimenObjectRights(cpr, new Resource[] { Resource.SURGICAL_PATHOLOGY_REPORT }, ops);
 		ensureSprEximRights(visit);
 	}
 
-	private void ensureVisitAndSpecimenObjectRights(CollectionProtocolRegistration cpr, Resource resource, String[] ops) {
+	private void ensureVisitAndSpecimenObjectRights(CollectionProtocolRegistration cpr, Resource[] resources, String[] ops) {
 		Long userId = AuthUtil.getCurrentUser().getId();
 		Long cpId = cpr.getCollectionProtocol().getId();
-		List<SubjectAccess> accessList = daoFactory.getSubjectDao().getAccessList(userId, cpId, resource.getName(), ops);
+		String[] resourceNames = Stream.of(resources).map(Resource::getName).toArray(String[]::new);
+		List<SubjectAccess> accessList = daoFactory.getSubjectDao().getAccessList(userId, cpId, resourceNames, ops);
 
 		Set<Site> cpSites = cpr.getCollectionProtocol().getRepositories();
 		if (!isAccessAllowedOnAnySite(accessList, cpSites)) {
@@ -1226,7 +1323,7 @@ public class AccessCtrlMgr {
 	private void ensureSprEximRights(Visit visit) {
 		if (isImportOp() || isExportOp()) {
 			String[] ops = {Operation.EXIM.getName()};
-			ensureVisitAndSpecimenObjectRights(visit.getRegistration(), Resource.SURGICAL_PATHOLOGY_REPORT, ops);
+			ensureVisitAndSpecimenObjectRights(visit.getRegistration(), new Resource[] { Resource.SURGICAL_PATHOLOGY_REPORT }, ops);
 		}
 	}
 
@@ -1369,7 +1466,8 @@ public class AccessCtrlMgr {
 	}
 
 	public boolean hasVisitSpecimenEximRights(Long cpId) {
-		return hasEximRights(cpId, Resource.VISIT_N_SPECIMEN.getName());
+		return hasEximRights(cpId, Resource.VISIT_N_SPECIMEN.getName()) ||
+			hasEximRights(cpId, Resource.VISIT_N_PRIMARY_SPMN.getName());
 	}
 
 	public boolean hasStorageContainerEximRights() {
@@ -1421,6 +1519,10 @@ public class AccessCtrlMgr {
 	}
 
 	public Set<SiteCpPair> getSiteCps(String resource, Long cpId, String[] ops, boolean excludeCps) {
+		return getSiteCps(new String[] { resource }, cpId, ops, excludeCps);
+	}
+
+	public Set<SiteCpPair> getSiteCps(String[] resources, Long cpId, String[] ops, boolean excludeCps) {
 		if (AuthUtil.isAdmin()) {
 			return null;
 		}
@@ -1428,9 +1530,9 @@ public class AccessCtrlMgr {
 		Long userId = AuthUtil.getCurrentUser().getId();
 		List<SubjectAccess> accessList;
 		if (cpId != null) {
-			accessList = daoFactory.getSubjectDao().getAccessList(userId, cpId, resource, ops);
+			accessList = daoFactory.getSubjectDao().getAccessList(userId, cpId, resources, ops);
 		} else {
-			accessList = daoFactory.getSubjectDao().getAccessList(userId, resource, ops);
+			accessList = daoFactory.getSubjectDao().getAccessList(userId, resources, ops);
 		}
 
 		Long instituteId = AuthUtil.getCurrentUserInstitute().getId();
@@ -1438,7 +1540,7 @@ public class AccessCtrlMgr {
 		for (SubjectAccess access : accessList) {
 			Long siteId = access.getSite() != null ? access.getSite().getId() : null;
 			cpId = access.getCollectionProtocol() != null ? access.getCollectionProtocol().getId() : null;
-			siteCps.add(SiteCpPair.make(instituteId, siteId, !excludeCps ? cpId : null));
+			siteCps.add(SiteCpPair.make(access.getResource(), instituteId, siteId, !excludeCps ? cpId : null));
 		}
 
 		return siteCps;

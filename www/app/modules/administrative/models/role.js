@@ -56,6 +56,3 @@ angular.module('os.administrative.models.role', ['os.common.models'])
     var Resource = osModel('rbac/resources');
     return Resource;
   })
-
-
-

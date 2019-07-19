@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -21,9 +22,9 @@ import org.hibernate.sql.JoinType;
 
 import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
-import com.krishagni.catissueplus.core.biospecimen.repository.CpGroupListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.repository.SpecimenListCriteria;
 import com.krishagni.catissueplus.core.common.access.SiteCpPair;
+import com.krishagni.catissueplus.core.common.events.Resource;
 
 public class BiospecimenDaoHelper {
 
@@ -37,10 +38,18 @@ public class BiospecimenDaoHelper {
 	}
 
 	public void addSiteCpsCond(Criteria query, SpecimenListCriteria crit) {
-		addSiteCpsCond(query, crit.siteCps(), crit.useMrnSites(), query.getAlias().equals("visit") ? "cpr" : "visit");
+		addSiteCpsCond(query, crit, true);
+	}
+
+	public void addSiteCpsCond(Criteria query, SpecimenListCriteria crit, boolean spmnList) {
+		addSiteCpsCond(query, crit.siteCps(), crit.useMrnSites(), query.getAlias().equals("visit") ? "cpr" : "visit", spmnList);
 	}
 
 	public void addSiteCpsCond(Criteria query, Collection<SiteCpPair> siteCps, boolean useMrnSites, String startAlias) {
+		addSiteCpsCond(query, siteCps, useMrnSites, startAlias, true);
+	}
+
+	public void addSiteCpsCond(Criteria query, Collection<SiteCpPair> siteCps, boolean useMrnSites, String startAlias, boolean spmnList) {
 		if (CollectionUtils.isEmpty(siteCps)) {
 			return;
 		}
@@ -62,6 +71,85 @@ public class BiospecimenDaoHelper {
 			.createAlias("participant.pmis", "pmi", JoinType.LEFT_OUTER_JOIN)
 			.createAlias("pmi.site", "mrnSite", JoinType.LEFT_OUTER_JOIN);
 
+		Disjunction mainCond = Restrictions.disjunction();
+		Map<String, Set<SiteCpPair>> siteCpsMap = SiteCpPair.segregateByResources(siteCps);
+		for (Map.Entry<String, Set<SiteCpPair>> siteCpEntry : siteCpsMap.entrySet()) {
+			Junction siteCpsCond = getSiteCpsCond(siteCpEntry.getValue(), useMrnSites);
+			if (spmnList && Resource.VISIT_N_PRIMARY_SPMN.getName().equals(siteCpEntry.getKey())) {
+				mainCond.add(
+					Restrictions.and(
+						Restrictions.eq("specimen.lineage", "New"),
+						siteCpsCond
+					)
+				);
+			} else {
+				mainCond.add(siteCpsCond);
+			}
+		}
+
+		query.add(mainCond);
+	}
+
+	public String getSiteCpsCondAql(Collection<SiteCpPair> siteCps, boolean useMrnSites) {
+		if (CollectionUtils.isEmpty(siteCps)) {
+			return StringUtils.EMPTY;
+		}
+
+		Map<String, Set<SiteCpPair>> siteCpsByResources = SiteCpPair.segregateByResources(siteCps);
+		StringBuilder aql = new StringBuilder();
+		for (Map.Entry<String, Set<SiteCpPair>> siteCpsEntry : siteCpsByResources.entrySet()) {
+			String restriction = getSiteCpsCondAql0(siteCpsEntry.getValue(), useMrnSites);
+			if (Resource.VISIT_N_PRIMARY_SPMN.getName().equals(siteCpsEntry.getKey())) {
+				restriction = "(Specimen.lineage = \"New\" and " + restriction + ")";
+			}
+
+			if (aql.length() > 0) {
+				aql.append(" or ");
+			}
+
+			aql.append(restriction);
+		}
+
+		if (aql.length() > 0) {
+			aql.insert(0, "(").append(")");
+		}
+
+		return aql.toString();
+	}
+
+	public DetachedCriteria getCpIdsFilter(Collection<SiteCpPair> siteCps) {
+		DetachedCriteria filter = DetachedCriteria.forClass(CollectionProtocol.class, "cp")
+			.setProjection(Projections.distinct(Projections.property("cp.id")));
+
+		boolean siteAdded = false, instAdded = false;
+		Disjunction orCond = Restrictions.disjunction();
+		for (SiteCpPair siteCp : siteCps) {
+			if (siteCp.getCpId() != null) {
+				orCond.add(Restrictions.eq("cp.id", siteCp.getCpId()));
+			} else {
+				if (!siteAdded) {
+					filter.createAlias("cp.sites", "cpSite")
+						.createAlias("cpSite.site", "site");
+					siteAdded = true;
+				}
+
+				if (siteCp.getSiteId() != null) {
+					orCond.add(Restrictions.eq("site.id", siteCp.getSiteId()));
+				} else {
+					if (!instAdded) {
+						filter.createAlias("site.institute", "institute");
+						instAdded = true;
+					}
+
+					orCond.add(Restrictions.eq("institute.id", siteCp.getInstituteId()));
+				}
+			}
+		}
+
+		return filter.add(orCond);
+	}
+
+	private Junction getSiteCpsCond(Collection<SiteCpPair> siteCps, boolean useMrnSites) {
 		Disjunction cpSitesCond = Restrictions.disjunction();
 		for (SiteCpPair siteCp : siteCps) {
 			Junction siteCond = Restrictions.disjunction();
@@ -98,10 +186,10 @@ public class BiospecimenDaoHelper {
 			cpSitesCond.add(cond);
 		}
 
-		query.add(cpSitesCond);
+		return cpSitesCond;
 	}
 
-	public String getSiteCpsCondAql(List<SiteCpPair> siteCps, boolean useMrnSites) {
+	private String getSiteCpsCondAql0(Collection<SiteCpPair> siteCps, boolean useMrnSites) {
 		if (CollectionUtils.isEmpty(siteCps)) {
 			return StringUtils.EMPTY;
 		}
@@ -142,38 +230,6 @@ public class BiospecimenDaoHelper {
 		}
 
 		return "(" + StringUtils.join(cpSitesCond, " or ") + ")";
-	}
-
-	public DetachedCriteria getCpIdsFilter(Collection<SiteCpPair> siteCps) {
-		DetachedCriteria filter = DetachedCriteria.forClass(CollectionProtocol.class, "cp")
-			.setProjection(Projections.distinct(Projections.property("cp.id")));
-
-		boolean siteAdded = false, instAdded = false;
-		Disjunction orCond = Restrictions.disjunction();
-		for (SiteCpPair siteCp : siteCps) {
-			if (siteCp.getCpId() != null) {
-				orCond.add(Restrictions.eq("cp.id", siteCp.getCpId()));
-			} else {
-				if (!siteAdded) {
-					filter.createAlias("cp.sites", "cpSite")
-						.createAlias("cpSite.site", "site");
-					siteAdded = true;
-				}
-
-				if (siteCp.getSiteId() != null) {
-					orCond.add(Restrictions.eq("site.id", siteCp.getSiteId()));
-				} else {
-					if (!instAdded) {
-						filter.createAlias("site.institute", "institute");
-						instAdded = true;
-					}
-
-					orCond.add(Restrictions.eq("institute.id", siteCp.getInstituteId()));
-				}
-			}
-		}
-
-		return filter.add(orCond);
 	}
 
 	private Criterion getSiteIdRestriction(String property, SiteCpPair siteCp) {

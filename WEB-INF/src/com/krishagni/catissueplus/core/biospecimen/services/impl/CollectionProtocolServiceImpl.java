@@ -85,6 +85,7 @@ import com.krishagni.catissueplus.core.biospecimen.repository.CollectionProtocol
 import com.krishagni.catissueplus.core.biospecimen.repository.CpListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.repository.CprListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
+import com.krishagni.catissueplus.core.biospecimen.repository.impl.BiospecimenDaoHelper;
 import com.krishagni.catissueplus.core.biospecimen.services.CollectionProtocolService;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.Tuple;
@@ -2027,7 +2028,9 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 			throw OpenSpecimenException.userError(RbacErrorCode.ACCESS_DENIED);
 		}
 
-		cfg.setRestriction(getListRestriction(siteCps));
+		boolean useMrnSites = AccessCtrlMgr.getInstance().isAccessRestrictedBasedOnMrn();
+		String restrictions = BiospecimenDaoHelper.getInstance().getSiteCpsCondAql(siteCps, useMrnSites);
+		cfg.setRestriction(restrictions);
 		cfg.setDistinct(true);
 		return cfg;
 	}
@@ -2054,66 +2057,10 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 			throw OpenSpecimenException.userError(RbacErrorCode.ACCESS_DENIED);
 		}
 
-		cfg.setRestriction(getListRestriction(access.siteCps));
+		boolean useMrnSites = AccessCtrlMgr.getInstance().isAccessRestrictedBasedOnMrn();
+		cfg.setRestriction(BiospecimenDaoHelper.getInstance().getSiteCpsCondAql(access.siteCps, useMrnSites));
 		cfg.setDistinct(true);
 		return cfg;
-	}
-
-	private String getListRestriction(Collection<SiteCpPair> siteCps) {
-		StringBuilder instituteIds = new StringBuilder();
-		StringBuilder siteIds = new StringBuilder();
-		for (SiteCpPair siteCp : siteCps) {
-			if (siteCp.getSiteId() != null) {
-				if (siteIds.length() != 0) {
-					siteIds.append(",");
-				}
-
-				siteIds.append(siteCp.getSiteId());
-			} else {
-				if (instituteIds.length() != 0) {
-					instituteIds.append(",");
-				}
-
-				instituteIds.append(siteCp.getInstituteId());
-			}
-		}
-
-		StringBuilder restriction = new StringBuilder();
-		if (AccessCtrlMgr.getInstance().isAccessRestrictedBasedOnMrn()) {
-			restriction.append("((Participant.medicalRecord.mrnSiteId exists and")
-				.append(getSiteIdRestriction("Participant.medicalRecord.mrnSiteId", instituteIds.toString(), siteIds.toString()))
-				.append(") or (Participant.medicalRecord.mrnSiteId not exists and ")
-				.append(getSiteIdRestriction("CollectionProtocol.cpSites.siteId", instituteIds.toString(), siteIds.toString()))
-				.append("))");
-		} else {
-			restriction.append(getSiteIdRestriction("CollectionProtocol.cpSites.siteId", instituteIds.toString(), siteIds.toString()));
-		}
-
-		return restriction.insert(0, "(").append(")").toString();
-	}
-
-	private String getSiteIdRestriction(String property, String instituteIds, String siteIds) {
-		StringBuilder restriction = new StringBuilder();
-
-		if (StringUtils.isNotBlank(instituteIds)) {
-			restriction.append("(").append(property).append(" in ")
-				.append(sqlRestriction(String.format(INSTITUTE_SITES_SQL, instituteIds)))
-				.append(")");
-
-			if (StringUtils.isNotBlank(siteIds)) {
-				restriction.append(" or ");
-			}
-		}
-
-		if (StringUtils.isNotBlank(siteIds)) {
-			restriction.append(property).append(" in (").append(siteIds).append(")");
-		}
-
-		return restriction.insert(0, "(").append(")").toString();
-	}
-
-	private String sqlRestriction(String restriction) {
-		return "sql(\"" + restriction + "\")";
 	}
 
 	private ListConfig getListConfig(Map<String, Object> listReq, String listName, String drivingForm) {

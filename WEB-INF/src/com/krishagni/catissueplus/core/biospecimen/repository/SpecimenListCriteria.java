@@ -15,7 +15,7 @@ public class SpecimenListCriteria extends AbstractListCriteria<SpecimenListCrite
 	private String[] collectionStatuses;
 
 	private List<SiteCpPair> siteCps;
-	
+
 	private List<String> labels;
 
 	private List<String> barcodes;
@@ -93,7 +93,7 @@ public class SpecimenListCriteria extends AbstractListCriteria<SpecimenListCrite
 		this.siteCps = siteCps;
 		return self();
 	}
-	
+
 	public List<String> labels() {
 		return labels;
 	}

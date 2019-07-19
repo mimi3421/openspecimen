@@ -57,7 +57,12 @@ angular.module('os.biospecimen.cp',
             });
 
             var visitSpmnEximAllowed = AuthorizationService.isAllowed({
-              resource: 'VisitAndSpecimen',
+              resources: ['VisitAndSpecimen', 'VisitAndPrimarySpecimen'],
+              operations: ['Export Import']
+            });
+
+            var allSpmnEximAllowed = AuthorizationService.isAllowed({
+              resources: ['VisitAndSpecimen'],
               operations: ['Export Import']
             });
 
@@ -67,7 +72,8 @@ angular.module('os.biospecimen.cp',
               participantImportAllowed: participantEximAllowed,
               visitSpecimenImportAllowed: visitSpmnEximAllowed,
               participantExportAllowed: participantEximAllowed,
-              visitSpecimenExportAllowed: visitSpmnEximAllowed
+              visitSpecimenExportAllowed: visitSpmnEximAllowed,
+              allSpmnEximAllowed: allSpmnEximAllowed
             }
           }
         },
@@ -137,6 +143,10 @@ angular.module('os.biospecimen.cp',
 
             if (cpsCtx.visitSpecimenImportAllowed) {
               entityTypes = entityTypes.concat(['SpecimenCollectionGroup', 'Specimen', 'SpecimenEvent']);
+
+              if (cpsCtx.allSpmnEximAllowed) {
+                entityTypes.push('DerivativeAndAliquots');
+              }
             }
 
             return entityTypes;

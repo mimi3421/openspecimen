@@ -10,6 +10,7 @@ angular.module('os.biospecimen.participant')
       ctrl.resourceOpts = {
         orderCreateOpts:    $scope.orderCreateOpts,
         shipmentCreateOpts: $scope.shipmentCreateOpts,
+        allSpecimenUpdateOpts: $scope.allSpecimenUpdateOpts,
         specimenUpdateOpts: $scope.specimenUpdateOpts,
         specimenDeleteOpts: $scope.specimenDeleteOpts
       }

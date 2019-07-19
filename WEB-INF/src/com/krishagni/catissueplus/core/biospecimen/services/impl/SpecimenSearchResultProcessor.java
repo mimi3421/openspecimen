@@ -3,12 +3,15 @@ package com.krishagni.catissueplus.core.biospecimen.services.impl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
 import com.krishagni.catissueplus.core.common.access.SiteCpPair;
+import com.krishagni.catissueplus.core.common.events.Resource;
 import com.krishagni.catissueplus.core.common.service.impl.AbstractSearchResultProcessor;
 
 public class SpecimenSearchResultProcessor extends AbstractSearchResultProcessor {
@@ -41,19 +44,32 @@ public class SpecimenSearchResultProcessor extends AbstractSearchResultProcessor
 
 	private String getCpSiteClause(String siteAlias, Collection<SiteCpPair> siteCps) {
 		List<String> clauses = new ArrayList<>();
-		for (SiteCpPair siteCp : siteCps) {
-			String clause;
-			if (siteCp.getSiteId() != null) {
-				clause = siteAlias + ".identifier = " + siteCp.getSiteId();
-			} else {
-				clause = siteAlias + ".institute_id = " + siteCp.getInstituteId();
+
+		Map<String, Set<SiteCpPair>> siteCpsByResources = SiteCpPair.segregateByResources(siteCps);
+		for (Map.Entry<String, Set<SiteCpPair>> siteCpEntry : siteCpsByResources.entrySet()) {
+			List<String> subClauses = new ArrayList<>();
+
+			for (SiteCpPair siteCp : siteCpEntry.getValue()) {
+				String clause;
+				if (siteCp.getSiteId() != null) {
+					clause = siteAlias + ".identifier = " + siteCp.getSiteId();
+				} else {
+					clause = siteAlias + ".institute_id = " + siteCp.getInstituteId();
+				}
+
+				if (siteCp.getCpId() != null) {
+					clause += " and cpr.collection_protocol_id = " + siteCp.getCpId();
+				}
+
+				subClauses.add("(" + clause + ")");
 			}
 
-			if (siteCp.getCpId() != null) {
-				clause += " and cpr.collection_protocol_id = " + siteCp.getCpId();
+			String clause = "(" + String.join(" or ", subClauses) + ")";
+			if (Resource.VISIT_N_PRIMARY_SPMN.getName().equals(siteCpEntry.getKey())) {
+				clause = "(spmn.lineage = 'New' and " + clause + ")";
 			}
 
-			clauses.add("(" + clause + ")");
+			clauses.add(clause);
 		}
 
 		return "(" + String.join(" or ", clauses) + ")";

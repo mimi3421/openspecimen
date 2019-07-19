@@ -657,8 +657,8 @@ public class SpecimenListServiceImpl implements SpecimenListService, Initializin
 		}
 
 		List<SiteCpPair> siteCps = AccessCtrlMgr.getInstance().getReadAccessSpecimenSiteCps();
-		String siteCpRestriction = BiospecimenDaoHelper.getInstance().getSiteCpsCondAql(
-			siteCps, AccessCtrlMgr.getInstance().isAccessRestrictedBasedOnMrn());
+		boolean useMrnSites = AccessCtrlMgr.getInstance().isAccessRestrictedBasedOnMrn();
+		String siteCpRestriction = BiospecimenDaoHelper.getInstance().getSiteCpsCondAql(siteCps, useMrnSites);
 		if (StringUtils.isNotBlank(siteCpRestriction)) {
 			restriction += " and " + siteCpRestriction;
 		}

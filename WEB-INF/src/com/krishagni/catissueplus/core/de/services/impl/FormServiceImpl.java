@@ -1323,7 +1323,11 @@ public class FormServiceImpl implements FormService, InitializingBean {
 					(spmnLabels) -> formDao.getSpecimenRecords(cpId, siteCps, form.getId(), entityType, spmnLabels, startAt, 100),
 					"spmnId",
 					(specimenId) -> daoFactory.getSpecimenDao().getById(specimenId),
-					(specimen) -> AccessCtrlMgr.getInstance().ensureReadSpecimenRights((Specimen) specimen, true),
+					(specimen) -> {
+						AccessCtrlMgr.SpecimenAccessRights rights = AccessCtrlMgr.getInstance()
+							.ensureReadSpecimenRights((Specimen) specimen, true);
+						return rights.phiAccess;
+					},
 					(spmnFormValueMap) -> {
 						Specimen specimen = (Specimen) spmnFormValueMap.first();
 						Map<String, Object> valueMap = spmnFormValueMap.second();

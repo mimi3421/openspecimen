@@ -428,15 +428,23 @@ public class SpecimenDetail extends SpecimenInfo {
 	}
 	
 	public static SpecimenDetail from(SpecimenRequirement anticipated) {
+		return SpecimenDetail.from(anticipated, false);
+	}
+
+	public static SpecimenDetail from(SpecimenRequirement anticipated, boolean excludeChildren) {
 		SpecimenDetail result = new SpecimenDetail();		
 		SpecimenInfo.fromTo(anticipated, result);
 		
 		if (anticipated.isPooledSpecimenReq()) {
-			result.setSpecimensPool(fromAnticipated(anticipated.getSpecimenPoolReqs()));
+			result.setSpecimensPool(fromAnticipated(anticipated.getSpecimenPoolReqs(), excludeChildren));
 		}
 		
 		result.setPoolSpecimen(anticipated.isSpecimenPoolReq());
-		result.setChildren(fromAnticipated(anticipated.getChildSpecimenRequirements()));
+
+		if (!excludeChildren) {
+			result.setChildren(fromAnticipated(anticipated.getChildSpecimenRequirements(), excludeChildren));
+		}
+
 		result.setLabelFmt(anticipated.getLabelTmpl());
 		if (anticipated.getLabelAutoPrintModeToUse() != null) {
 			result.setLabelAutoPrintMode(anticipated.getLabelAutoPrintModeToUse().name());
@@ -466,23 +474,25 @@ public class SpecimenDetail extends SpecimenInfo {
 			.map(s -> SpecimenDetail.from(s, partial, excludePhi, excludeChildren))
 			.collect(Collectors.toList());
 
-		merge(visit, anticipated, result, null, getReqSpecimenMap(result));
+		merge(visit, anticipated, result, null, getReqSpecimenMap(result), excludeChildren);
 		SpecimenDetail.sort(result);
 		return result;
 	}
 
 	private static Map<Long, SpecimenDetail> getReqSpecimenMap(List<SpecimenDetail> specimens) {
-		Map<Long, SpecimenDetail> reqSpecimenMap = new HashMap<Long, SpecimenDetail>();
+		Map<Long, SpecimenDetail> reqSpecimenMap = new HashMap<>();
 						
-		List<SpecimenDetail> remaining = new ArrayList<SpecimenDetail>();
+		List<SpecimenDetail> remaining = new ArrayList<>();
 		remaining.addAll(specimens);
 		
 		while (!remaining.isEmpty()) {
 			SpecimenDetail specimen = remaining.remove(0);
 			Long srId = (specimen.getReqId() == null) ? -1 : specimen.getReqId();
 			reqSpecimenMap.put(srId, specimen);
-			
-			remaining.addAll(specimen.getChildren());
+
+			if (specimen.getChildren() != null) {
+				remaining.addAll(specimen.getChildren());
+			}
 		}
 		
 		return reqSpecimenMap;
@@ -493,14 +503,19 @@ public class SpecimenDetail extends SpecimenInfo {
 			Collection<SpecimenRequirement> anticipatedSpecimens, 
 			List<SpecimenDetail> result, 
 			SpecimenDetail currentParent,
-			Map<Long, SpecimenDetail> reqSpecimenMap) {
+			Map<Long, SpecimenDetail> reqSpecimenMap,
+			boolean excludeChildren) {
 		
 		for (SpecimenRequirement anticipated : anticipatedSpecimens) {
 			SpecimenDetail specimen = reqSpecimenMap.get(anticipated.getId());
+			if (specimen != null && excludeChildren) {
+				continue;
+			}
+
 			if (specimen != null) {
-				merge(visit, anticipated.getChildSpecimenRequirements(), result, specimen, reqSpecimenMap);
+				merge(visit, anticipated.getChildSpecimenRequirements(), result, specimen, reqSpecimenMap, excludeChildren);
 			} else if (!anticipated.isClosed()) {
-				specimen = SpecimenDetail.from(anticipated);
+				specimen = SpecimenDetail.from(anticipated, excludeChildren);
 				setVisitDetails(visit, specimen);
 
 				if (currentParent == null) {
@@ -525,9 +540,10 @@ public class SpecimenDetail extends SpecimenInfo {
 		Utility.nullSafeStream(specimen.getChildren()).forEach(child -> setVisitDetails(visit, child));
 	}
 
-	private static List<SpecimenDetail> fromAnticipated(Collection<SpecimenRequirement> anticipatedSpecimens) {
+	private static List<SpecimenDetail> fromAnticipated(Collection<SpecimenRequirement> anticipatedSpecimens, boolean excludeChildren) {
 		return Utility.nullSafeStream(anticipatedSpecimens)
 			.filter(anticipated -> !anticipated.isClosed())
-			.map(SpecimenDetail::from).collect(Collectors.toList());
+			.map(s -> SpecimenDetail.from(s, excludeChildren))
+			.collect(Collectors.toList());
 	}
 }

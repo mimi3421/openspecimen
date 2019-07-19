@@ -32,7 +32,7 @@
         join s.accessList sa
       where
         s.id = :subjectId and
-        sa.resource = :resource and
+        sa.resource in (:resources) and
         sa.operation in (:operations)
     </query>
 
@@ -59,7 +59,7 @@
         left join sa.collectionProtocol cp
       where
         s.id = :subjectId and
-        sa.resource = :resource and
+        sa.resource in (:resources) and
         (cp.id is null or cp.id = :cpId) and
         sa.operation in (:operations)
     </query>

@@ -763,6 +763,7 @@
     "scan_aliquot_barcodes": "Paste or input aliquot barcodes separated by comma, tab, or newline",
     "warn_large_no_aliquots": "The page is not designed for creation of such large number of aliquots. You might notice slowness in page rendering. In such a scenario, we recommend you to use bulk import option.",
     "warn_large_no_derivatives": "The UI is not designed for creation of such large number of derived specimens. You might notice slowness in page rendering. In such a scenario, we recommend you to use bulk import option.",
+    "no_read_access": "You do not have rights to view specimens of the CP: {{cp.shortTitle}}",
 
     "hide_events": "Hide Events",
     "show_events": "Show Events",
@@ -1575,6 +1576,7 @@
       "ParticipantPhi": "Participants (PHI)",
       "ParticipantDeid": "Participants (DeId)",
       "VisitAndSpecimen": "Visits and Specimens",
+      "VisitAndPrimarySpecimen": "Visits and Primary Specimens",
       "SurgicalPathologyReport": "Path Report",
       "StorageContainer": "Storage Containers",
       "User": "Users",

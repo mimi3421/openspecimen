@@ -510,7 +510,7 @@ public class CollectionProtocolRegistrationDaoImpl extends AbstractDao<Collectio
 		}
 
 		if (CollectionUtils.isNotEmpty(crit.siteCps())) {
-			BiospecimenDaoHelper.getInstance().addSiteCpsCond(query, crit.siteCps(), crit.useMrnSites(), startAlias);
+			BiospecimenDaoHelper.getInstance().addSiteCpsCond(query, crit.siteCps(), crit.useMrnSites(), startAlias, false);
 		}
 
 		return detachedCriteria;

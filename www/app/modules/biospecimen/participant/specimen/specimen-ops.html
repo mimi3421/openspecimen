@@ -29,7 +29,7 @@
         <span translate="common.buttons.close"> Close </span>
       </a>
     </li>
-    <li show-if-allowed="resourceOpts.orderCreateOpts" ng-if="allowDistribution">
+    <li ng-if="allowDistribution">
       <a ng-click="distributeSpecimens()">
         <span class="fa fa-share"></span>
         <span translate="specimen_list.distribute">Distribute</span>
@@ -47,13 +47,13 @@
         <span translate="specimen_list.ship">Ship</span>
       </a>
     </li>
-    <li show-if-allowed="resourceOpts.specimenUpdateOpts">
+    <li show-if-allowed="resourceOpts.allSpecimenUpdateOpts">
       <a ng-click="createAliquots()">
         <span class="fa fa-share-alt"></span>
         <span translate="specimen_list.create_aliquots">Create Aliquots</span>
       </a>
     </li>
-    <li show-if-allowed="resourceOpts.specimenUpdateOpts">
+    <li show-if-allowed="resourceOpts.allSpecimenUpdateOpts">
       <a ng-click="createDerivatives()">
         <span class="fa fa-flask"></span>
         <span translate="specimen_list.create_derivatives">Create Derivatives</span>
@@ -65,13 +65,13 @@
         <span translate="specimen_list.add_event">Add Event</span>
       </a>
     </li>
-    <li show-if-allowed="resourceOpts.specimenUpdateOpts">
+    <li ng-if="allowSpmnTransfers">
       <a ng-click="transferSpecimens()">
         <span class="fa fa-arrows-h"></span>
         <span translate="specimen_list.transfer_specimens">Transfer Specimens</span>
       </a>
     </li>
-    <li show-if-allowed="resourceOpts.specimenUpdateOpts">
+    <li ng-if="allowSpmnTransfers">
       <a ng-click="retrieveSpecimens()">
         <span class="fa fa-reply"></span>
         <span translate="specimen_list.retrieve_specimens">Retrieve</span>

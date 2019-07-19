@@ -4,9 +4,7 @@
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-  <class 
-    name="com.krishagni.rbac.domain.Resource" 
-    table="RBAC_RESOURCES">
+  <class name="com.krishagni.rbac.domain.Resource" table="RBAC_RESOURCES">
 
     <id name="id" column="IDENTIFIER">
       <generator class="native">

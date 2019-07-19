@@ -18,7 +18,9 @@ angular.module('os.biospecimen.specimen.addedit', [])
         editMode: !!specimen.id, reqId: specimen.reqId, aliquotQtyReq: aliquotQtyReq,
         layout: layout, onValueChange: onValueChangeCb, mdInput: false,
         hasInfo: PluginReg.getTmpls('specimen-addedit', 'info').length > 0,
-        createDerived: createDerived, imagingEnabled: imagingEnabled
+        createDerived: createDerived, imagingEnabled: imagingEnabled,
+        allSpmnUpdate: $scope.specimenAllowedOps.allUpdate,
+        storeSpmn: $scope.specimenAllowedOps.store
       }
 
       CpConfigSvc.getCommonCfg(cp.id, 'addSpecimen').then(

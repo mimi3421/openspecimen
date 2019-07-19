@@ -312,7 +312,7 @@ public class SpecimenDaoImpl extends AbstractDao<Specimen> implements SpecimenDa
 			addLabelsCond(query, crit.labels());
 		}
 
-		addSiteCpsCond(query, crit);
+		addSiteCpsCond(query, crit, false);
 		addSpecimenListCond(query, crit);
 		return query.list();
 	}
@@ -485,6 +485,10 @@ public class SpecimenDaoImpl extends AbstractDao<Specimen> implements SpecimenDa
 
 	private void addSiteCpsCond(Criteria query, SpecimenListCriteria crit) {
 		BiospecimenDaoHelper.getInstance().addSiteCpsCond(query, crit);
+	}
+
+	private void addSiteCpsCond(Criteria query, SpecimenListCriteria crit, boolean spmnList) {
+		BiospecimenDaoHelper.getInstance().addSiteCpsCond(query, crit, spmnList);
 	}
 
 	private void addCpCond(Criteria query, SpecimenListCriteria crit) {

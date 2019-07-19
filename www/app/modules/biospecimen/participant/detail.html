@@ -53,13 +53,13 @@
           <span class="os-title" translate="participant.menu.consents">Consents</span>
         </a>
       </li>
-      <li ui-sref-active="active">
+      <li ui-sref-active="active" ng-if="cpViewCtx.spmnReadAllowed">
         <a ui-sref=".visits">
           <span class="fa fa-list-alt"></span>
           <span class="os-title" translate="participant.menu.visits">Visits</span>
         </a>
       </li>
-      <li ui-sref-active="active">
+      <li ui-sref-active="active" ng-if="cpViewCtx.spmnReadAllowed">
         <a ui-sref=".specimens">
           <span class="fa fa-flask"></span>
           <span class="os-title" translate="participant.menu.specimens">Specimens</span>
@@ -71,7 +71,7 @@
           <span class="os-title" translate="participant.menu.extensions">Forms</span>
         </a>
       </li>
-      <li ng-click="toggleTree()">
+      <li ng-click="toggleTree()" ng-if="cpViewCtx.spmnReadAllowed">
         <a>
           <span class="fa fa-sitemap"></span>
           <span class="os-title" translate="participant.menu.specimen_tree">Specimen Tree</span>
