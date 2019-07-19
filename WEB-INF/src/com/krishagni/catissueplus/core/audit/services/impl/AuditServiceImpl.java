@@ -148,7 +148,7 @@ public class AuditServiceImpl implements AuditService, InitializingBean {
 		}
 
 		Date startDate = Utility.chopSeconds(criteria.startDate());
-		Date endDate   = Utility.getEndOfDay(criteria.endDate());
+		Date endDate   = Utility.chopSeconds(criteria.endDate());
 		Date endOfDay  = Utility.getEndOfDay(Calendar.getInstance().getTime());
 		if (startDate != null && startDate.after(endOfDay)) {
 			return ResponseEvent.userError(AuditErrorCode.DATE_GT_TODAY, Utility.getDateTimeString(startDate));
@@ -166,14 +166,14 @@ public class AuditServiceImpl implements AuditService, InitializingBean {
 		} else if (startDate != null) {
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(startDate);
-			cal.add(Calendar.DAY_OF_MONTH, 30);
+			cal.add(Calendar.MONTH, 1);
 			endDate = cal.getTime().after(endOfDay) ? endOfDay : Utility.getEndOfDay(cal.getTime());
 		} else {
 			endDate = endDate != null ? endDate : endOfDay;
 
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(endDate);
-			cal.add(Calendar.DAY_OF_MONTH, -30);
+			cal.add(Calendar.MONTH, -1);
 			startDate = Utility.chopTime(cal.getTime());
 		}
 
