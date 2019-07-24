@@ -157,6 +157,8 @@
       <span translate="common.buttons.delete">Delete</span>
     </button>
 
-    <os-export show-if-admin="institute" class="default" detail="ctx.exportDetail" check-list="ctx.checkList"></os-export>
+    <os-export show-if-allowed="containerResource.importOpts" class="default" detail="ctx.exportDetail"
+      check-list="ctx.checkList">
+    </os-export>
   </div>
 </script>

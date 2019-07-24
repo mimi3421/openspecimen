@@ -1,9 +1,7 @@
 package com.krishagni.catissueplus.rest.controller;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 
@@ -37,8 +35,6 @@ import com.krishagni.catissueplus.core.de.events.QueryDataExportResult;
 import com.krishagni.catissueplus.core.de.events.QueryExecResult;
 import com.krishagni.catissueplus.core.de.services.QueryService;
 import com.krishagni.catissueplus.core.de.services.SavedQueryErrorCode;
-
-import edu.common.dynamicextensions.nutility.IoUtil;
 
 @Controller
 @RequestMapping("/query")
@@ -106,19 +102,7 @@ public class QueryController {
 			HttpServletResponse response) {
 		
 		File file = response(querySvc.getExportDataFile(request(fileId)));
-
-		response.setContentType(Utility.getContentType(filename));
-		response.setHeader("Content-Disposition", "attachment;filename=" + filename);
-
-		InputStream in = null;
-		try {
-			in = new FileInputStream(file);
-			IoUtil.copy(in, response.getOutputStream());
-		} catch (IOException e) {
-			throw new RuntimeException("Error sending file", e);
-		} finally {
-			IoUtil.close(in);
-		}
+		Utility.sendToClient(response, filename, file);
 	}
 
 	@RequestMapping(method = RequestMethod.POST, value="/facet-values")
