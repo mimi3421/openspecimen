@@ -8,6 +8,7 @@ angular.module('os.biospecimen.participant')
     function init() {
       ctrl.showAddSpmn = !sdeConfigured,
       ctrl.resourceOpts = {
+        containerReadOpts: {resource: 'StorageContainer', operations: ['Read']},
         orderCreateOpts:    $scope.orderCreateOpts,
         shipmentCreateOpts: $scope.shipmentCreateOpts,
         allSpecimenUpdateOpts: $scope.allSpecimenUpdateOpts,
