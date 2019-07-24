@@ -105,7 +105,7 @@ angular.module('os.biospecimen.specimen.addaliquots', [])
 
     $scope.onChange = function(fieldName) {
       var ctx = $scope.spmnCtx;
-      if (ctx.aopts.$$sdeFormFields) {
+      if (ctx && ctx.aopts && ctx.aopts.$$sdeFormFields) {
         ctx.aopts.$$sdeFormFields.valueChanged(undefined, ctx.aobj, 'specimen.' + fieldName, undefined);
       }
     }

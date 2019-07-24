@@ -11,7 +11,6 @@ angular.module('os.biospecimen.specimen.addderivative', [])
       $scope.visit = visit;
 
       var ps = $scope.parentSpecimen = specimen;
-      delete ps.children;
 
       var opts = {incrFreezeThawCycles: incrFreezeThawCycles};
       var derivative = $scope.derivative = SpecimenUtil.getNewDerivative($scope, opts);
@@ -21,6 +20,7 @@ angular.module('os.biospecimen.specimen.addderivative', [])
       if (hasSde) {
         var groups = SpecimenUtil.sdeGroupSpecimens(cpDict, derivedFields || [], [derivative], {});
         if (groups.length == 1 && !groups[0].noMatch) {
+          delete specimen.children;
           SpecimensHolder.setSpecimens([specimen]);
           $state.go('specimen-bulk-create-derivatives', {}, {location: 'replace'});
           return;
