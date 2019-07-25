@@ -37,6 +37,7 @@ public class OpenSpecimenException extends RuntimeException {
 	}
 	
 	public OpenSpecimenException(Long exceptionId, Throwable t) {
+		super(t);
 		this.exceptionId = exceptionId;
 		this.errorType = ErrorType.SYSTEM_ERROR;
 		this.exception = t;
