@@ -15,4 +15,9 @@ angular.module('os.biospecimen.cp')
         }
       );
     }
+
+    $scope.cancel = function(event) {
+      event.preventDefault();
+      $scope.back();
+    }
   });
