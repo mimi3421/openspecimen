@@ -150,7 +150,7 @@ public abstract class DeObject {
 			return;
 		}
 
-		re.setActivityStatus(Status.CLOSED);
+		re.delete();
 		daoFactory.getFormDao().saveOrUpdateRecordEntry(re);
 	}
 	

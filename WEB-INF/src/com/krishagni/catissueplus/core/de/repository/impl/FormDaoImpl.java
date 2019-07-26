@@ -386,34 +386,29 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<FormRecordEntryBean> getRecordEntries(Long formCtxtId, Long objectId) {
-		return sessionFactory.getCurrentSession()
-				.getNamedQuery(GET_RECORD_ENTRIES)
-				.setLong("formCtxtId", formCtxtId)
-				.setLong("objectId", objectId)
-				.list();
+		return getCurrentSession().getNamedQuery(GET_RECORD_ENTRIES)
+			.setParameter("formCtxtId", formCtxtId)
+			.setParameter("objectId", objectId)
+			.list();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public FormRecordEntryBean getRecordEntry(Long formCtxtId, Long objectId, Long recordId) {
-		List<Object[]> rows = sessionFactory.getCurrentSession()
-				.getNamedQuery(GET_RECORD_ENTRY)
-				.setLong("formCtxtId", formCtxtId)
-				.setLong("objectId", objectId)
-				.setLong("recordId", recordId)
-				.list();
-		return CollectionUtils.isEmpty(rows) ? null : getFormRecordEntry(rows.iterator().next());
+		return (FormRecordEntryBean) getCurrentSession().getNamedQuery(GET_RECORD_ENTRY)
+			.setParameter("formCtxtId", formCtxtId)
+			.setParameter("objectId", objectId)
+			.setParameter("recordId", recordId)
+			.uniqueResult();
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
 	public FormRecordEntryBean getRecordEntry(Long formId, Long recordId) {
-		List<Object[]> rows = sessionFactory.getCurrentSession()
-				.getNamedQuery(GET_REC_BY_FORM_N_REC_ID)
-				.setLong("formId", formId)
-				.setLong("recordId", recordId)
-				.list();
-		return CollectionUtils.isEmpty(rows) ? null : getFormRecordEntry(rows.iterator().next());
+		return (FormRecordEntryBean) getCurrentSession().getNamedQuery(GET_REC_BY_FORM_N_REC_ID)
+			.setParameter("formId", formId)
+			.setParameter("recordId", recordId)
+			.uniqueResult();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -933,19 +928,6 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 		objCp.setObjectId((Long) row[0]);
 		objCp.setCpId((Long) row[1]);
 		return objCp;
-	}
-	
-	private FormRecordEntryBean getFormRecordEntry(Object[] row) {
-		FormRecordEntryBean re = new FormRecordEntryBean();
-		re.setIdentifier((Long)row[0]);
-		re.setFormCtxtId((Long)row[1]);
-		re.setObjectId((Long)row[2]);
-		re.setRecordId((Long)row[3]);
-		re.setUpdatedBy((Long)row[4]);
-		re.setUpdatedTime((Date)row[5]);
-		re.setActivityStatusStr((String)row[6]);
-		re.setEntityType((String)row[7]);
-		return re;
 	}
 	
 	private List<FormSummary> getForms(List<Object[]> rows) {

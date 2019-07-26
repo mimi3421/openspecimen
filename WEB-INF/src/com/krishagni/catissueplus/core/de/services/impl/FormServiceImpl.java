@@ -494,9 +494,8 @@ public class FormServiceImpl implements FormService, InitializingBean {
 			if (recEntry == null) {
 				return ResponseEvent.userError(FormErrorCode.REC_NOT_FOUND);
 			}
-			
-			FormContextBean formCtxt = formDao.getById(recEntry.getFormCtxtId());
-			if (formCtxt.isSysForm()) {
+
+			if (recEntry.getFormCtxt().isSysForm()) {
 				return ResponseEvent.userError(FormErrorCode.SYS_REC_DEL_NOT_ALLOWED);
 			}
 			
@@ -510,7 +509,7 @@ public class FormServiceImpl implements FormService, InitializingBean {
 				ensureSpecimenUpdateRights(objectId, false);
 			}
 			
-			recEntry.setActivityStatus(Status.CLOSED);
+			recEntry.delete();
 			formDao.saveOrUpdateRecordEntry(recEntry);
 			return  ResponseEvent.response(crit.getRecordId());
 		} catch (OpenSpecimenException ose) {

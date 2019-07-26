@@ -1,6 +1,17 @@
 package krishagni.catissueplus.beans;
 
+import java.util.Collections;
 import java.util.Date;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.krishagni.catissueplus.core.administrative.domain.User;
+import com.krishagni.catissueplus.core.common.util.AuthUtil;
+
+import edu.common.dynamicextensions.domain.nui.Container;
+import edu.common.dynamicextensions.domain.nui.UserContext;
+import edu.common.dynamicextensions.napi.FormAuditManager;
+import edu.common.dynamicextensions.napi.impl.FormAuditManagerImpl;
 
 public class FormRecordEntryBean {
 
@@ -19,6 +30,8 @@ public class FormRecordEntryBean {
 	private Status status;
 	
 	private String entityType;
+
+	private FormContextBean formCtxt;
 
 	public enum Status {
 		ACTIVE, CLOSED
@@ -89,14 +102,48 @@ public class FormRecordEntryBean {
 	}
 
 	public String getEntityType() {
-		return entityType;
+		return formCtxt != null ? formCtxt.getEntityType() : null;
 	}
 
-	public void setEntityType(String entityType) {
-		this.entityType = entityType;
+	public FormContextBean getFormCtxt() {
+		return formCtxt;
+	}
+
+	public void setFormCtxt(FormContextBean formCtxt) {
+		this.formCtxt = formCtxt;
 	}
 
 	public void delete() {
 		setActivityStatus(Status.CLOSED);
+
+		FormAuditManager auditMgr = new FormAuditManagerImpl();
+		auditMgr.audit(getUserContext(), getDeForm(), Collections.emptyList(), "DELETE", getRecordId());
+	}
+
+	private UserContext getUserContext() {
+		User currentUser = AuthUtil.getCurrentUser();
+		return new UserContext() {
+			@Override
+			public Long getUserId() {
+				return currentUser.getId();
+			}
+
+			@Override
+			public String getUserName() {
+				return currentUser.getUsername();
+			}
+
+			@Override
+			public String getIpAddress() {
+				return null;
+			}
+		};
+	}
+
+	private Container getDeForm() {
+		Container container = new Container();
+		container.setId(formCtxt.getForm().getId());
+		container.setName(formCtxt.getForm().getName());
+		return container;
 	}
 }
