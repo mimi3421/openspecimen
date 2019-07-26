@@ -99,7 +99,7 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
 
 			AuthToken token = createToken(user, loginDetail);
 			if (token != null) {
-				authDetail.put("token", token.getToken());
+				authDetail.put("token", AuthUtil.encodeToken(token.getToken()));
 				authDetail.put("tokenObj", token);
 			}
 			
