@@ -130,7 +130,11 @@ public class AuthTokenFilter extends GenericFilterBean {
 				loginAuditLog = atResp.getPayload().getLoginAuditLog();
 			}
 		} else if(httpReq.getHeader(HttpHeaders.AUTHORIZATION) != null) {
-			user = doBasicAuthentication(httpReq, httpResp);
+			AuthToken token = doBasicAuthentication(httpReq, httpResp);
+			if (token != null) {
+				user = token.getUser();
+				loginAuditLog = token.getLoginAuditLog();
+			}
 		}
 		
 		if (user == null) {
@@ -189,7 +193,7 @@ public class AuthTokenFilter extends GenericFilterBean {
 		}
 	}
 
-	private User doBasicAuthentication(HttpServletRequest httpReq, HttpServletResponse httpResp) throws UnsupportedEncodingException {
+	private AuthToken doBasicAuthentication(HttpServletRequest httpReq, HttpServletResponse httpResp) throws UnsupportedEncodingException {
 		String header = httpReq.getHeader(HttpHeaders.AUTHORIZATION);
 		if (header == null || !header.startsWith(BASIC_AUTH)) {
 			return null;
@@ -211,7 +215,7 @@ public class AuthTokenFilter extends GenericFilterBean {
 		RequestEvent<LoginDetail> req = new RequestEvent<LoginDetail>(detail);
 		ResponseEvent<Map<String, Object>> resp = authService.authenticateUser(req);
 		if (resp.isSuccessful()) {
-			return (User)resp.getPayload().get("user");
+			return (AuthToken) resp.getPayload().get("tokenObj");
 		}
 
 		return null;

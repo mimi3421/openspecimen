@@ -96,10 +96,11 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
 
 			Map<String, Object> authDetail = new HashMap<>();
 			authDetail.put("user", user);
-			
-			String authToken = generateToken(user, loginDetail);
-			if (authToken != null) {
-				authDetail.put("token", authToken);
+
+			AuthToken token = createToken(user, loginDetail);
+			if (token != null) {
+				authDetail.put("token", token.getToken());
+				authDetail.put("tokenObj", token);
 			}
 			
 			return ResponseEvent.response(authDetail);
@@ -192,22 +193,27 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
 	}
 	
 	public String generateToken(User user, LoginDetail loginDetail) {
+		AuthToken token = createToken(user, loginDetail);
+		return token != null ? AuthUtil.encodeToken(token.getToken()) : null;
+	}
+
+	private AuthToken createToken(User user, LoginDetail loginDetail) {
 		LoginAuditLog loginAuditLog = insertLoginAudit(user, loginDetail.getIpAddress(), true);
 
+		AuthToken authToken = new AuthToken();
+		authToken.setIpAddress(loginDetail.getIpAddress());
+		authToken.setUser(user);
+		authToken.setLoginAuditLog(loginAuditLog);
+
 		if (loginDetail.isDoNotGenerateToken()) {
-			return null;
+			return authToken;
 		}
 
 		String token = UUID.randomUUID().toString();
-		AuthToken authToken = new AuthToken();
-		authToken.setIpAddress(loginDetail.getIpAddress());
 		authToken.setToken(token);
-		authToken.setUser(user);
-		authToken.setLoginAuditLog(loginAuditLog);
 		daoFactory.getAuthDao().saveAuthToken(authToken);
-
 		insertApiCallLog(loginDetail, user, loginAuditLog);
-		return AuthUtil.encodeToken(token);
+		return authToken;
 	}
 
 	private LoginAuditLog insertLoginAudit(User user, String ipAddress, boolean loginSuccessful) {
