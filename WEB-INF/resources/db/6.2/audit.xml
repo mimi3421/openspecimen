@@ -225,4 +225,11 @@
       <column name="PATHOLOGY_STATUS_ID" type="${int.type}"/>
     </addColumn>
   </changeSet>
+
+  <changeSet author="vpawar" id="Track the auditing of participant medical identifiers">
+    <addColumn tableName="CATISSUE_PART_MEDICAL_ID_AUD">
+      <column name="PARTICIPANT_ID" type="${int.type}"/>
+      <column name="participant_MOD" type="${boolean.type}"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

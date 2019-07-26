@@ -37,7 +37,6 @@ public class ParticipantMedicalIdentifier extends BaseEntity {
 		this.site = site;
 	}
 
-	@NotAudited
 	public Participant getParticipant() {
 		return participant;
 	}
