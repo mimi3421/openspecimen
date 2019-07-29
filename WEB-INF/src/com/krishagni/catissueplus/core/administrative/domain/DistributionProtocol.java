@@ -214,7 +214,7 @@ public class DistributionProtocol extends BaseExtensionEntity {
 		return getDistributingSites().stream().map(
 			(distSite) -> {
 				Long siteId = distSite.getSite() != null ? distSite.getSite().getId() : null;
-				return SiteCpPair.make(distSite.getInstitute().getId(), siteId, null);
+				return SiteCpPair.make("DistributionProtocol", distSite.getInstitute().getId(), siteId, null);
 			}
 		).collect(Collectors.toSet());
 	}
