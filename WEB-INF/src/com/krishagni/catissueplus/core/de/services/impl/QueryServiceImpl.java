@@ -1386,7 +1386,7 @@ public class QueryServiceImpl implements QueryService {
 					completed = promise.get(ONLINE_EXPORT_TIMEOUT_SECS, TimeUnit.SECONDS);
 					out = task.fout;
 				} catch (TimeoutException te) {
-					completed = true;
+					completed = false;
 				}
 			}
 
