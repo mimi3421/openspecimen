@@ -5,7 +5,7 @@ angular.module('os.administrative.form.list', ['os.administrative.models'])
     CollectionProtocol, Util, DeleteUtil, Alerts, ListPagerOpts, CheckList) {
 
     var cpListQ = undefined;
-    var pagerOpts, filterOpts;
+    var pagerOpts, filterOpts, ctx;
 
     function init() {
       pagerOpts = $scope.pagerOpts = new ListPagerOpts({listSizeGetter: getFormsCount});
@@ -16,8 +16,10 @@ angular.module('os.administrative.form.list', ['os.administrative.models'])
       });
 
       $scope.formsList = [];
-      $scope.ctx = {};
+      ctx = $scope.ctx = {};
+
       loadForms($scope.formFilterOpts);
+      loadPvs();
       Util.filter($scope, 'formFilterOpts', loadForms, ['maxResults', 'excludeSysForms']);
     }
 
@@ -27,6 +29,45 @@ angular.module('os.administrative.form.list', ['os.administrative.models'])
         $scope.formsList = result;
         $scope.ctx.checkList = new CheckList(result);
       })
+    }
+
+    function loadPvs() {
+      loadEntities();
+      loadCps();
+    }
+
+    function loadEntities() {
+      FormEntityReg.getEntities().then(
+        function(entities) {
+          ctx.entities = entities.sort(
+            function(e1, e2) {
+              return e1.caption < e2.caption ? -1 : (e1.caption > e2.caption  ? 1 : 0);
+            }
+          );
+        }
+      );
+    }
+
+    function loadCps(searchTerm) {
+      if (ctx.defaultCps && ctx.defaultCps.length <= 100) {
+        ctx.cps = ctx.defaultCps;
+        return;
+      }
+
+      $translate('form.all_cps').then(
+        function(caption) {
+          CollectionProtocol.query({query: searchTerm}).then(
+            function(cps) {
+              cps.unshift({id: -1, shortTitle: caption});
+              if (!searchTerm) {
+                ctx.defaultCps = cps;
+              }
+
+              ctx.cps = cps;
+            }
+          );
+        }
+      );
     }
 
     function reloadForms() {
@@ -56,6 +97,14 @@ angular.module('os.administrative.form.list', ['os.administrative.models'])
 
     function getFormIds(forms) {
       return forms.map(function(form) { return form.formId; });
+    }
+
+    $scope.searchCps = loadCps;
+
+    $scope.onCpSelect = function() {
+      filterOpts.cpId = filterOpts.cpId || [];
+      filterOpts.cpId.push(ctx.cpId);
+      ctx.cpId = undefined;
     }
 
     $scope.openForm = function(form) {

@@ -11,7 +11,7 @@ public class FormListCriteria extends AbstractListCriteria<FormListCriteria> {
 
 	private Long userId;
 
-	private Long cpId;
+	private List<Long> cpIds;
 
 	private Boolean excludeSysForm;
 
@@ -40,12 +40,12 @@ public class FormListCriteria extends AbstractListCriteria<FormListCriteria> {
 		return self();
 	}
 
-	public Long cpId() {
-		return cpId;
+	public List<Long> cpIds() {
+		return cpIds;
 	}
 
-	public FormListCriteria cpId(Long cpId) {
-		this.cpId = cpId;
+	public FormListCriteria cpIds(List<Long> cpIds) {
+		this.cpIds = cpIds;
 		return self();
 	}
 

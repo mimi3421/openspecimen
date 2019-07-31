@@ -67,12 +67,9 @@ public class FormsController {
 	public List<FormSummary> getForms(
 		@RequestParam(value = "name", required= false, defaultValue = "")
 		String name,
-			
-		@RequestParam(value = "startAt", required = false, defaultValue = "0")
-		int startAt,
-			
-		@RequestParam(value = "maxResults", required = false, defaultValue = "100")
-		int maxResults,
+
+		@RequestParam(value = "cpId", required = false)
+		List<Long> cpIds,
 
 		@RequestParam(value = "formType", required = false)
 		List<String> formTypes,
@@ -81,10 +78,17 @@ public class FormsController {
 		Boolean excludeSysForms,
 
 		@RequestParam(value = "includeStat", required = false, defaultValue = "false")
-		boolean includeStat) {
+		boolean includeStat,
+
+		@RequestParam(value = "startAt", required = false, defaultValue = "0")
+		int startAt,
+
+		@RequestParam(value = "maxResults", required = false, defaultValue = "100")
+		int maxResults) {
 
 		FormListCriteria crit = new FormListCriteria()
 			.query(name)
+			.cpIds(cpIds)
 			.entityTypes(formTypes)
 			.excludeSysForm(excludeSysForms)
 			.includeStat(includeStat)
@@ -103,6 +107,9 @@ public class FormsController {
 		@RequestParam(value = "name", required= false, defaultValue = "")
 		String name,
 
+		@RequestParam(value = "cpId", required = false)
+		List<Long> cpIds,
+
 		@RequestParam(value="formType", required = false)
 		List<String> formTypes,
 
@@ -111,6 +118,7 @@ public class FormsController {
 		
 		FormListCriteria crit = new FormListCriteria()
 			.query(name)
+			.cpIds(cpIds)
 			.entityTypes(formTypes)
 			.excludeSysForm(excludeSysForms);
 		

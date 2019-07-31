@@ -719,7 +719,9 @@ public class FormServiceImpl implements FormService, InitializingBean {
 	@Override
 	@PlusTransactional
 	public List<FormSummary> getEntityForms(Long cpId, String[] entityTypes) {
-		FormListCriteria crit = new FormListCriteria().cpId(cpId).entityTypes(Arrays.asList(entityTypes));
+		FormListCriteria crit = new FormListCriteria()
+			.cpIds(Arrays.asList(-1L, cpId))
+			.entityTypes(Arrays.asList(entityTypes));
 		return FormSummary.from(formDao.getForms(crit));
 	}
 
