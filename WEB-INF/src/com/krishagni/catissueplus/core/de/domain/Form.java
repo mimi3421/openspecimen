@@ -1,9 +1,13 @@
 package com.krishagni.catissueplus.core.de.domain;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.biospecimen.domain.BaseEntity;
+
+import krishagni.catissueplus.beans.FormContextBean;
 
 public class Form extends BaseEntity {
 	private String name;
@@ -19,6 +23,8 @@ public class Form extends BaseEntity {
 	private Date updateTime;
 
 	private Date deletedOn;
+
+	private Set<FormContextBean> associations = new HashSet<>();
 
 	public String getName() {
 		return name;
@@ -74,5 +80,13 @@ public class Form extends BaseEntity {
 
 	public void setDeletedOn(Date deletedOn) {
 		this.deletedOn = deletedOn;
+	}
+
+	public Set<FormContextBean> getAssociations() {
+		return associations;
+	}
+
+	public void setAssociations(Set<FormContextBean> associations) {
+		this.associations = associations;
 	}
 }

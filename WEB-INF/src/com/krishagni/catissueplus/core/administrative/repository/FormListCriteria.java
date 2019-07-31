@@ -1,14 +1,17 @@
 package com.krishagni.catissueplus.core.administrative.repository;
 
+import java.util.List;
 import java.util.Set;
 
 import com.krishagni.catissueplus.core.common.access.SiteCpPair;
 import com.krishagni.catissueplus.core.common.events.AbstractListCriteria;
 
 public class FormListCriteria extends AbstractListCriteria<FormListCriteria> {
-	private String formType;
+	private List<String> entityTypes;
 
 	private Long userId;
+
+	private Long cpId;
 
 	private Boolean excludeSysForm;
 
@@ -19,12 +22,12 @@ public class FormListCriteria extends AbstractListCriteria<FormListCriteria> {
 		return this;
 	}
 
-	public String getFormType() {
-		return formType;
+	public List<String> entityTypes() {
+		return entityTypes;
 	}
 
-	public FormListCriteria formType(String formType) {
-		this.formType = formType;
+	public FormListCriteria entityTypes(List<String> entityTypes) {
+		this.entityTypes = entityTypes;
 		return self();
 	}
 
@@ -34,6 +37,15 @@ public class FormListCriteria extends AbstractListCriteria<FormListCriteria> {
 
 	public FormListCriteria userId(Long userId) {
 		this.userId = userId;
+		return self();
+	}
+
+	public Long cpId() {
+		return cpId;
+	}
+
+	public FormListCriteria cpId(Long cpId) {
+		this.cpId = cpId;
 		return self();
 	}
 

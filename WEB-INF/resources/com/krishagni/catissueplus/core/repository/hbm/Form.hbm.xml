@@ -21,6 +21,11 @@
 
     <property name="deletedOn" column="DELETED_ON"/>
 
+    <set name="associations" inverse="true" mutable="false">
+      <key column="CONTAINER_ID"/>
+      <one-to-many class="krishagni.catissueplus.beans.FormContextBean"/>
+    </set>
+
     <filter name="activeForms" condition="deletedOn is null"/>
   </class>
 </hibernate-mapping>

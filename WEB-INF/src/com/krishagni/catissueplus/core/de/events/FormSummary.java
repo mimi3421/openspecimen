@@ -1,10 +1,14 @@
 package com.krishagni.catissueplus.core.de.events;
 
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import com.krishagni.catissueplus.core.common.events.UserSummary;
+import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.catissueplus.core.de.domain.Form;
 
 @JsonSerialize(include= JsonSerialize.Inclusion.NON_NULL)
@@ -118,5 +122,9 @@ public class FormSummary {
 		result.setCreationTime(form.getCreationTime());
 		result.setModificationTime(form.getUpdateTime());
 		return result;
+	}
+
+	public static List<FormSummary> from(Collection<Form> forms) {
+		return Utility.nullSafeStream(forms).map(FormSummary::from).collect(Collectors.toList());
 	}
 }

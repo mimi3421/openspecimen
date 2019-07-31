@@ -65,26 +65,31 @@ public class FormsController {
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
 	public List<FormSummary> getForms(
-			@RequestParam(value = "name", required= false, defaultValue = "")
-			String name,
+		@RequestParam(value = "name", required= false, defaultValue = "")
+		String name,
 			
-			@RequestParam(value = "startAt", required = false, defaultValue = "0")
-			int startAt,
+		@RequestParam(value = "startAt", required = false, defaultValue = "0")
+		int startAt,
 			
-			@RequestParam(value = "maxResults", required = false, defaultValue = "100") 
-			int maxResults,
-			
-			@RequestParam(value="formType", required=false, defaultValue="DataEntry")
-			String formType,
+		@RequestParam(value = "maxResults", required = false, defaultValue = "100")
+		int maxResults,
 
-			@RequestParam(value="excludeSysForms", required=false)
-			Boolean excludeSysForms) {
+		@RequestParam(value = "formType", required = false)
+		List<String> formTypes,
+
+		@RequestParam(value = "excludeSysForms", required = false)
+		Boolean excludeSysForms,
+
+		@RequestParam(value = "includeStat", required = false, defaultValue = "false")
+		boolean includeStat) {
+
 		FormListCriteria crit = new FormListCriteria()
-				.query(name)
-				.formType(formType)
-				.excludeSysForm(excludeSysForms)
-				.startAt(startAt)
-				.maxResults(maxResults);
+			.query(name)
+			.entityTypes(formTypes)
+			.excludeSysForm(excludeSysForms)
+			.includeStat(includeStat)
+			.startAt(startAt)
+			.maxResults(maxResults);
 		
 		ResponseEvent<List<FormSummary>> resp = formSvc.getForms(getRequest(crit));
 		resp.throwErrorIfUnsuccessful();
@@ -95,16 +100,19 @@ public class FormsController {
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
 	public Map<String, Long> getFormsCount(
-			@RequestParam(value = "name", required= false, defaultValue = "")
-			String name,
+		@RequestParam(value = "name", required= false, defaultValue = "")
+		String name,
 
-			@RequestParam(value="excludeSysForms", required=false)
-			Boolean excludeSysForms) {
+		@RequestParam(value="formType", required = false)
+		List<String> formTypes,
+
+		@RequestParam(value="excludeSysForms", required=false)
+		Boolean excludeSysForms) {
 		
 		FormListCriteria crit = new FormListCriteria()
-				.query(name)
-				.formType("DataEntry")
-				.excludeSysForm(excludeSysForms);
+			.query(name)
+			.entityTypes(formTypes)
+			.excludeSysForm(excludeSysForms);
 		
 		ResponseEvent<Long> resp = formSvc.getFormsCount(getRequest(crit));
 		resp.throwErrorIfUnsuccessful();
@@ -131,13 +139,13 @@ public class FormsController {
 	@RequestMapping(method = RequestMethod.GET, value="{id}/definition")
 	@ResponseStatus(HttpStatus.OK)
 	public void getFormDefinition(
-			@PathVariable("id") 
-			Long formId, 
+		@PathVariable("id")
+		Long formId,
 			
-			@RequestParam(value = "maxPvs", required = false, defaultValue = "0")
-			int maxPvListSize,
+		@RequestParam(value = "maxPvs", required = false, defaultValue = "0")
+		int maxPvListSize,
 			
-			HttpServletResponse httpResp)
+		HttpServletResponse httpResp)
 	throws IOException {
 		ResponseEvent<Container> resp = formSvc.getFormDefinition(getRequest(formId));
 		resp.throwErrorIfUnsuccessful();
@@ -154,20 +162,20 @@ public class FormsController {
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
 	public List<FormFieldSummary> getFormFields(
-			@PathVariable("id") 
-			Long formId,
+		@PathVariable("id")
+		Long formId,
 			
-			@RequestParam(value = "prefixParentCaption", required = false, defaultValue = "false")
-			boolean prefixParentCaption,
+		@RequestParam(value = "prefixParentCaption", required = false, defaultValue = "false")
+		boolean prefixParentCaption,
 			
-			@RequestParam(value = "cpId", required = false, defaultValue = "-1")
-			Long cpId,
+		@RequestParam(value = "cpId", required = false, defaultValue = "-1")
+		Long cpId,
 
-			@RequestParam(value = "cpGroupId", required = false)
-			Long cpGroupId,
+		@RequestParam(value = "cpGroupId", required = false)
+		Long cpGroupId,
 			
-			@RequestParam(value = "extendedFields", required = false, defaultValue = "false")
-			boolean extendedFields) {
+		@RequestParam(value = "extendedFields", required = false, defaultValue = "false")
+		boolean extendedFields) {
 		
 		ListFormFields crit = new ListFormFields();
 		crit.setFormId(formId);
@@ -185,17 +193,17 @@ public class FormsController {
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
 	public Map<String, Object> getFormData(
-			@PathVariable("id") 
-			Long formId,
+		@PathVariable("id")
+		Long formId,
 			
-			@PathVariable("recordId") 
-			Long recordId,
+		@PathVariable("recordId")
+		Long recordId,
 			
-			@RequestParam(value = "includeUdn", required = false, defaultValue = "false")
-			boolean includeUdn,
+		@RequestParam(value = "includeUdn", required = false, defaultValue = "false")
+		boolean includeUdn,
 
-			@RequestParam(value="includeMetadata", required = false, defaultValue = "false")
-			boolean includeMetadata) {
+		@RequestParam(value="includeMetadata", required = false, defaultValue = "false")
+		boolean includeMetadata) {
 		
 		FormRecordCriteria crit = new FormRecordCriteria();
 		crit.setFormId(formId);
@@ -240,11 +248,11 @@ public class FormsController {
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
 	public Map<String, Object> saveFormData(
-			@PathVariable("id") 
-			Long formId, 
+		@PathVariable("id")
+		Long formId,
 			
-			@RequestBody 
-			Map<String, Object> valueMap) {		
+		@RequestBody
+		Map<String, Object> valueMap) {
 		return saveOrUpdateFormData(formId, valueMap);
 	}
 	
@@ -252,11 +260,11 @@ public class FormsController {
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
 	public Map<String, Object> updateFormData(
-			@PathVariable("id") 
-			Long formId,
+		@PathVariable("id")
+		Long formId,
 			
-			@RequestBody 
-			Map<String, Object> valueMap) {		
+		@RequestBody
+		Map<String, Object> valueMap) {
 		return saveOrUpdateFormData(formId, valueMap);
 	}
 		
@@ -273,11 +281,11 @@ public class FormsController {
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
 	public List<FormContextDetail> addFormContexts(
-			@PathVariable("id") 
-			Long formId, 
+		@PathVariable("id")
+		Long formId,
 			
-			@RequestBody 
-			List<FormContextDetail> formCtxts) {
+		@RequestBody
+		List<FormContextDetail> formCtxts) {
 		
 		for (FormContextDetail formCtxt : formCtxts) {
 			formCtxt.setFormId(formId);
@@ -292,14 +300,14 @@ public class FormsController {
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
 	public Map<String, Object> removeFormContext(
-			@PathVariable("id") 
-			Long formId,
+		@PathVariable("id")
+		Long formId,
 			
-			@RequestParam(value = "entityType", required = true) 
-			String entityType,
+		@RequestParam(value = "entityType", required = true)
+		String entityType,
 			
-			@RequestParam(value = "cpId", required = true) 
-			Long cpId) {
+		@RequestParam(value = "cpId", required = true)
+		Long cpId) {
 		
 		RemoveFormContextOp op = new RemoveFormContextOp();
 		op.setCpId(cpId);
@@ -316,14 +324,14 @@ public class FormsController {
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody	
 	public List<FormRecordsList> getRecords(
-			@PathVariable("id") 
-			Long formId,
+		@PathVariable("id")
+		Long formId,
 			
-			@RequestParam(value = "objectId", required = true)
-			Long objectId,
+		@RequestParam(value = "objectId", required = true)
+		Long objectId,
 			
-			@RequestParam(value = "entityType", required = true)
-			String entityType) {
+		@RequestParam(value = "entityType", required = true)
+		String entityType) {
 		
 		GetFormRecordsListOp opDetail = new GetFormRecordsListOp();
 		opDetail.setObjectId(objectId);
@@ -395,20 +403,20 @@ public class FormsController {
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
 	public List<PermissibleValue> getFormFieldPvs(
-			@PathVariable("id") 
-			Long formId,
+		@PathVariable("id")
+		Long formId,
 			
-			@RequestParam(value = "controlName", required = true)
-			String controlName,
+		@RequestParam(value = "controlName", required = true)
+		String controlName,
 
-			@RequestParam(value = "useUdn", required = false, defaultValue = "false")
-			boolean useUdn,
+		@RequestParam(value = "useUdn", required = false, defaultValue = "false")
+		boolean useUdn,
 			
-			@RequestParam(value = "searchString", required = false, defaultValue = "")
-			String searchStr,
+		@RequestParam(value = "searchString", required = false, defaultValue = "")
+		String searchStr,
 			
-			@RequestParam(value = "maxResults", required = false, defaultValue = "100")
-			int maxResults) {
+		@RequestParam(value = "maxResults", required = false, defaultValue = "100")
+		int maxResults) {
 
 		GetFormFieldPvsOp op = new GetFormFieldPvsOp();
 		op.setFormId(formId);
@@ -426,23 +434,23 @@ public class FormsController {
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
 	public List<PermissibleValue> getFieldPvs(
-			@RequestParam(value = "formId", required = false)
-			Long formId,
+		@RequestParam(value = "formId", required = false)
+		Long formId,
 
-			@RequestParam(value = "formName", required = false)
-			String formName,
+		@RequestParam(value = "formName", required = false)
+		String formName,
 
-			@RequestParam(value = "controlName", required = true)
-			String controlName,
+		@RequestParam(value = "controlName", required = true)
+		String controlName,
 
-			@RequestParam(value = "useUdn", required = false, defaultValue = "false")
-			boolean useUdn,
+		@RequestParam(value = "useUdn", required = false, defaultValue = "false")
+		boolean useUdn,
 
-			@RequestParam(value = "searchString", required = false, defaultValue = "")
-			String searchStr,
+		@RequestParam(value = "searchString", required = false, defaultValue = "")
+		String searchStr,
 
-			@RequestParam(value = "maxResults", required = false, defaultValue = "100")
-			int maxResults) {
+		@RequestParam(value = "maxResults", required = false, defaultValue = "100")
+		int maxResults) {
 
 		GetFormFieldPvsOp op = new GetFormFieldPvsOp();
 		op.setFormId(formId);

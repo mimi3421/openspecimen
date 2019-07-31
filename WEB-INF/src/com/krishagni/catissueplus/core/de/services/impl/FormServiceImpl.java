@@ -26,7 +26,6 @@ import com.krishagni.catissueplus.core.administrative.repository.FormListCriteri
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolGroup;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
-import com.krishagni.catissueplus.core.biospecimen.domain.CpGroupForm;
 import com.krishagni.catissueplus.core.biospecimen.domain.Participant;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenSavedEvent;
@@ -175,19 +174,25 @@ public class FormServiceImpl implements FormService, InitializingBean {
     @PlusTransactional
 	public ResponseEvent<List<FormSummary>> getForms(RequestEvent<FormListCriteria> req) {
 		FormListCriteria crit = req.getPayload();
-
-		String entityType = crit.getFormType();
-		if (StringUtils.isBlank(entityType) || entityType.equals("DataEntry")) {
+		if (crit.entityTypes() != null && crit.entityTypes().size() == 1 && crit.entityTypes().contains("Query")) {
+			return ResponseEvent.response(formDao.getQueryForms());
+		} else {
 			crit = addFormsListCriteria(crit);
 			if (crit == null) {
 				return ResponseEvent.response(Collections.emptyList());
 			}
 
-			return ResponseEvent.response(formDao.getAllFormsSummary(crit));
-		} else if (entityType.equalsIgnoreCase("Query")) {
-			return ResponseEvent.response(formDao.getQueryForms());
-		} else {
-			return ResponseEvent.response(formDao.getFormsByEntityType(entityType));
+			List<Form> forms = formDao.getForms(crit);
+			List<FormSummary> result = forms.stream().map(FormSummary::from).collect(Collectors.toList());
+			if (!result.isEmpty() && crit.includeStat()) {
+				Map<Long, FormSummary> formsMap = result.stream().collect(Collectors.toMap(FormSummary::getFormId, f -> f));
+				Map<Long, Integer> cpCounts = formDao.getCpCounts(formsMap.keySet());
+				for (FormSummary form : result) {
+					form.setCpCount(cpCounts.getOrDefault(form.getFormId(), 0));
+				}
+			}
+
+			return ResponseEvent.response(result);
 		}
 	}
 
@@ -199,7 +204,7 @@ public class FormServiceImpl implements FormService, InitializingBean {
 			return ResponseEvent.response(0L);
 		}
 
-		return ResponseEvent.response(formDao.getAllFormsCount(crit));
+		return ResponseEvent.response(formDao.getFormsCount(crit));
 	}
 
     @Override
@@ -714,7 +719,8 @@ public class FormServiceImpl implements FormService, InitializingBean {
 	@Override
 	@PlusTransactional
 	public List<FormSummary> getEntityForms(Long cpId, String[] entityTypes) {
-		return formDao.getFormsByCpAndEntityType(cpId, entityTypes);
+		FormListCriteria crit = new FormListCriteria().cpId(cpId).entityTypes(Arrays.asList(entityTypes));
+		return FormSummary.from(formDao.getForms(crit));
 	}
 
 	//

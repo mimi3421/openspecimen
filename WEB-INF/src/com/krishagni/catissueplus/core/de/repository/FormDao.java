@@ -5,9 +5,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import krishagni.catissueplus.beans.FormContextBean;
-import krishagni.catissueplus.beans.FormRecordEntryBean;
-
 import com.krishagni.catissueplus.core.administrative.repository.FormListCriteria;
 import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.access.SiteCpPair;
@@ -20,6 +17,9 @@ import com.krishagni.catissueplus.core.de.events.FormRecordSummary;
 import com.krishagni.catissueplus.core.de.events.FormSummary;
 import com.krishagni.catissueplus.core.de.events.ObjectCpDetail;
 
+import krishagni.catissueplus.beans.FormContextBean;
+import krishagni.catissueplus.beans.FormRecordEntryBean;
+
 public interface FormDao extends Dao<FormContextBean> {
 	public Form getFormById(Long formId);
 
@@ -27,9 +27,11 @@ public interface FormDao extends Dao<FormContextBean> {
 
 	public List<Form> getFormsByIds(Collection<Long> formIds);
 
-	public List<FormSummary> getAllFormsSummary(FormListCriteria crit);
-	
-	public Long getAllFormsCount(FormListCriteria crit);
+	List<Form> getForms(FormListCriteria crit);
+
+	Long getFormsCount(FormListCriteria crit);
+
+	Map<Long, Integer> getCpCounts(Collection<Long> formIds);
 	
 	public boolean isSystemForm(Long formId);
 
@@ -37,10 +39,6 @@ public interface FormDao extends Dao<FormContextBean> {
 
 	public List<FormSummary> getQueryForms();
 			
-	public List<FormSummary> getFormsByEntityType(String entityType);
-
-	public List<FormSummary> getFormsByCpAndEntityType(Long cpId, String[] entityTypes);
-
 	public List<FormContextDetail> getFormContexts(Long formId);
 	
 	public List<FormCtxtSummary> getCprForms(Long cprId);
