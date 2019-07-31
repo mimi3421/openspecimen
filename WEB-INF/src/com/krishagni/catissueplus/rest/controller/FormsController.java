@@ -77,7 +77,7 @@ public class FormsController {
 		@RequestParam(value = "excludeSysForms", required = false)
 		Boolean excludeSysForms,
 
-		@RequestParam(value = "includeStat", required = false, defaultValue = "false")
+		@RequestParam(value = "includeStats", required = false, defaultValue = "false")
 		boolean includeStat,
 
 		@RequestParam(value = "startAt", required = false, defaultValue = "0")

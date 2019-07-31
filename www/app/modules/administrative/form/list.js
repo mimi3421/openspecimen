@@ -12,11 +12,11 @@ angular.module('os.administrative.form.list', ['os.administrative.models'])
       filterOpts = $scope.formFilterOpts = Util.filterOpts({
         maxResults: pagerOpts.recordsPerPage + 1,
         excludeSysForms: true,
-        includeStat: true
+        includeStats: true
       });
 
       $scope.formsList = [];
-      ctx = $scope.ctx = {};
+      ctx = $scope.ctx = {excludeAttrs: ['excludeSysForms']};
 
       loadForms($scope.formFilterOpts);
       loadPvs();
@@ -117,7 +117,6 @@ angular.module('os.administrative.form.list', ['os.administrative.models'])
           var formCtxtsModal = $modal.open({
             templateUrl: 'modules/administrative/form/association.html',
             controller: 'FormCtxtsCtrl',
-
             resolve: {
               args: function() {
                 return {

@@ -8,47 +8,53 @@
       <h5><i translate="form.not_used">Not used in any collection protocols</i></h5>   
     </div>
     <div class="os-form-association-list" ng-if="cpFormCtxts && cpFormCtxts.length > 0">
-      <h5 translate="form.used_in">
-        Used in following collection protocols
-      </h5>
-
       <div class="os-section">
-        <div class="os-table">
-          <div class="os-table-head">
-            <div class="row">
-              <div class="col col-xs-5" translate="form.collection_protocol">Collection Protocol</div>
-              <div class="col col-xs-3" translate="form.level">Level</div>
-              <div class="col col-xs-3">&nbsp;</div>
-              <div class="col col-xs-1">&nbsp;</div>
-            </div>
-          </div>
-          <div class="os-table-body">
-            <div class="row" ng-repeat="ctxt in cpFormCtxts">
-              <div class="col col-xs-5">{{ctxt.collectionProtocol.shortTitle}}</div>
-              <div class="col col-xs-3">{{ctxt.level.caption}}</div>
-              <div class="col col-xs-3">
-                <div class="os-tag" ng-if="ctxt.multiRecord" translate="form.multiple_records">Multiple Records</div>
-              </div>
-              <div class="col col-xs-1">
-                <button class="btn btn-default btn-xs" ng-click="confirmRemoveCtx(ctxt, $index)" 
-                  ng-if="!ctxt.sysForm && ctxt.level.allowEdits !== false">
-                  <span class="fa fa-trash-o"></span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <table class="os-table">
+          <thead class="os-table-head">
+            <tr class="row">
+              <th class="col col-xs-3">
+                <span translate="form.level">Level</span>
+              </th>
+              <th class="col col-xs-5">
+                <span translate="form.collection_protocol">Collection Protocol</span>
+              </th>
+              <th class="col col-xs-3">
+                <span>&nbsp;</span>
+              </th>
+              <th class="col col-xs-1">
+                <span>&nbsp;</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody class="os-table-body">
+            <tr class="row" ng-repeat="ctxt in cpFormCtxts">
+              <td class="col col-xs-3">
+                <span>{{ctxt.level.caption}}</span>
+              </td>
+              <td class="col col-xs-5">
+                <span>{{ctxt.collectionProtocol.shortTitle}}</span>
+              </td>
+              <td class="col col-xs-3">
+                <span class="os-tag" ng-if="ctxt.multiRecord" translate="form.multiple_records">Multiple Records</span>
+              </td>
+              <td class="col col-xs-1">
+                <span class="btn-group btn-group-xs" ng-if="!ctxt.sysForm && ctxt.level.allowEdits !== false">
+                  <button class="btn btn-default" ng-click="confirmRemoveCtx(ctxt, $index)">
+                    <span class="fa fa-trash-o"></span>
+                  </button>
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
     <div class="os-form-association-form">
-      <div ng-show="!cpFormCtxt.selectedEntity.allCps" translate="form.use_in_cps">
-        Use form in following collection protocols
-      </div>
-      <div ng-show="cpFormCtxt.selectedEntity.allCps" translate="form.spe_attached_to_all_cps">
-        {{cpFormCtxt.selectedEntity.caption}} forms always attached to all collection protocols. 
-      </div>
-      <div class="checkbox" ng-show="!cpFormCtxt.selectedEntity.allCps && currentUser.admin">
+      <os-select ng-model="cpFormCtxt.selectedEntity" list="extnEntities" display-prop="caption"
+        placeholder="{{'form.select_level' | translate }}" append-to-body="true">
+      </os-select>
+      <div class="checkbox" ng-show="cpFormCtxt.selectedEntity && !cpFormCtxt.selectedEntity.allCps && currentUser.admin">
         <label>
           <input type="checkbox" ng-checked="cpFormCtxt.allProtocols" ng-model="cpFormCtxt.allProtocols"/> 
           <span translate="form.all_cps">All Present and Future Collection Protocols</span>
@@ -56,12 +62,9 @@
       </div>
       <os-select multiple ng-model="cpFormCtxt.selectedCps" list="cpList" display-prop="shortTitle"
         placeholder="{{'form.select_cps' | translate}}" name="cps" append-to-body="true" 
-        ng-show="!cpFormCtxt.allProtocols && !cpFormCtxt.selectedEntity.allCps">
+        ng-show="!cpFormCtxt.allProtocols && cpFormCtxt.selectedEntity && !cpFormCtxt.selectedEntity.allCps">
       </os-select>
-      <os-select ng-model="cpFormCtxt.selectedEntity" list="extnEntities" display-prop="caption"
-        placeholder="{{'form.select_level' | translate }}" append-to-body="true">
-      </os-select>
-      <div class="checkbox" ng-show="cpFormCtxt.selectedEntity.multipleRecs != false">
+      <div class="checkbox" ng-show="cpFormCtxt.selectedEntity && cpFormCtxt.selectedEntity.multipleRecs != false">
         <label>
           <input type="checkbox" ng-checked="cpFormCtxt.isMultiRecord" ng-model="cpFormCtxt.isMultiRecord"/>
           <span translate="form.multiple_records_allowed">Multiple records allowed</span>

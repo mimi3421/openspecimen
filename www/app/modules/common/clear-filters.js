@@ -5,13 +5,16 @@ angular.module('openspecimen')
       restrict: 'E',
 
       scope: {
-        opts: '='
+        opts: '=',
+
+        doNotClear: '='
       },
 
       link: function(scope, element, attrs) {
         scope.clearFilters = function() {
           for (var opt in scope.opts) {
-            if (opt !== 'maxResults' && opt !== 'includeStats') {
+            if (opt !== 'maxResults' && opt !== 'includeStats' &&
+                (!scope.doNotClear || scope.doNotClear.indexOf(opt) == -1)) {
               delete scope.opts[opt];
             }
           }

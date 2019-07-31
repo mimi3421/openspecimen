@@ -9,17 +9,25 @@ angular.module('os.administrative.form.formctxts', ['os.administrative.models'])
       $scope.form = args.form;
       $scope.cpList = cpList;
 
+      var cpLevels = [
+        'Participant', 'ParticipantExtension', 'SpecimenCollectionGroup', 'VisitExtension',
+        'Specimen', 'SpecimenExtension', 'SpecimenEvent'
+      ]
+
       var formCtxts = $scope.cpFormCtxts = args.formCtxts;
       angular.forEach(formCtxts,
-        function(formCtx) {
-          if (!formCtx.collectionProtocol.id || formCtx.collectionProtocol.id == -1) {
-            formCtx.collectionProtocol.shortTitle = $translate.instant('form.all');
+        function(fc) {
+          var cpLevel = cpLevels.indexOf(fc.level) != -1;
+          if (cpLevel && (!fc.collectionProtocol.id || fc.collectionProtocol.id == -1)) {
+            fc.collectionProtocol.shortTitle = $translate.instant('form.all');
+          } else if (!cpLevel) {
+            fc.collectionProtocol.shortTitle = $translate.instant('form.na');
           }
 
           for (var i = 0; i < entities.length; i++) {
             var entity = entities[i];
-            if (entity.name == formCtx.level) {
-              formCtx.level = entity;
+            if (entity.name == fc.level) {
+              fc.level = entity;
               break;
             }
           }
