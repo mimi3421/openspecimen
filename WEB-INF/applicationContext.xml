@@ -451,6 +451,9 @@
         <entry key="DistributionProtocolExtension">
           <bean class="com.krishagni.catissueplus.core.de.services.impl.SingleFormContextProc"/>
         </entry>
+        <entry key="DpRequirementExtension">
+          <bean class="com.krishagni.catissueplus.core.de.services.impl.SingleFormContextProc"/>
+        </entry>
         <entry key="StorageContainerExtension">
           <bean class="com.krishagni.catissueplus.core.de.services.impl.SingleFormContextProc"/>
         </entry>
