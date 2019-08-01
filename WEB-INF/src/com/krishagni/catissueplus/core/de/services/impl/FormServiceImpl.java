@@ -297,12 +297,12 @@ public class FormServiceImpl implements FormService, InitializingBean {
 					formCtxt.setCpId(entity.equals(SPECIMEN_EVENT_FORM) ? -1 : cpId);
 					formCtxt.setEntityType(entity);
 					formCtxt.setEntityId(entityId);
-					formCtxt.setMultiRecord(formCtxtDetail.isMultiRecord());
 				}
+
+				formCtxt.setMultiRecord(formCtxtDetail.isMultiRecord());
 				formCtxt.setSortOrder(formCtxtDetail.getSortOrder());
 
 				notifyContextSaved(formCtxt);
-
 				formDao.saveOrUpdate(formCtxt);
 				formCtxtDetail.setFormCtxtId(formCtxt.getIdentifier());
 			}

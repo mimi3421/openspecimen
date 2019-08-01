@@ -1,4 +1,4 @@
-<div ng-if="showFormCtxts" class="os-form-association os-no-label-form">
+<div ng-if="view == 'show_contexts'" class="os-form-association os-no-label-form">
   <div class="os-modal-header">
     <h4>{{form.caption}}</h4>
   </div>
@@ -12,33 +12,37 @@
         <table class="os-table">
           <thead class="os-table-head">
             <tr class="row">
-              <th class="col col-xs-3">
+              <th class="col col-xs-5">
                 <span translate="form.level">Level</span>
               </th>
               <th class="col col-xs-5">
                 <span translate="form.collection_protocol">Collection Protocol</span>
               </th>
-              <th class="col col-xs-3">
-                <span>&nbsp;</span>
-              </th>
-              <th class="col col-xs-1">
+              <th class="col col-xs-2">
                 <span>&nbsp;</span>
               </th>
             </tr>
           </thead>
           <tbody class="os-table-body">
             <tr class="row" ng-repeat="ctxt in cpFormCtxts">
-              <td class="col col-xs-3">
+              <td class="col col-xs-5">
+                <span ng-show="!!ctxt.multiRecord" class="fa fa-files-o"
+                  os-tooltip="{{'form.multiple_records' | translate}}">
+                </span>
+                <span ng-show="!ctxt.multiRecord" class="fa fa-file-o"
+                  os-tooltip="{{'form.single_record' | translate}}">
+                </span>
                 <span>{{ctxt.level.caption}}</span>
               </td>
               <td class="col col-xs-5">
                 <span>{{ctxt.collectionProtocol.shortTitle}}</span>
               </td>
-              <td class="col col-xs-3">
-                <span class="os-tag" ng-if="ctxt.multiRecord" translate="form.multiple_records">Multiple Records</span>
-              </td>
-              <td class="col col-xs-1">
+              <td class="col col-xs-2">
                 <span class="btn-group btn-group-xs" ng-if="!ctxt.sysForm && ctxt.level.allowEdits !== false">
+                  <button class="btn btn-default" ng-disabled="ctxt.level.multipleRecs == false"
+                    ng-click="showEditCtx(ctxt, $index)">
+                    <span class="fa fa-pencil"></span>
+                  </button>
                   <button class="btn btn-default" ng-click="confirmRemoveCtx(ctxt, $index)">
                     <span class="fa fa-trash-o"></span>
                   </button>
@@ -86,7 +90,7 @@
   </div>
 </div>
 
-<div ng-if="!showFormCtxts">
+<div ng-if="view == 'confirm_remove'">
   <div class="os-modal-header">
     <h4>{{form.caption}}</h4>
   </div>
@@ -104,3 +108,59 @@
   </div>
 </div> 
 
+<div ng-if="view == 'edit_context'">
+  <div class="os-modal-header">
+    <h4>{{form.caption}}</h4>
+  </div>
+
+  <div class="os-modal-body">
+    <div class="form-horizontal">
+      <div class="form-group">
+        <div class="col-xs-4 control-label">
+          <label>
+            <span translate="form.level">Level</span>
+          </label>
+        </div>
+        <div class="col-xs-8 os-ctrl-padding-top">
+          <span>{{editCtxData.ctx.level.caption}}</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-xs-4 control-label">
+          <label>
+            <span translate="form.collection_protocol">Collection Protocol</span>
+          </label>
+        </div>
+        <div class="col-xs-8 os-ctrl-padding-top">
+          <span>{{editCtxData.ctx.collectionProtocol.shortTitle}}</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-xs-4 control-label">
+          <label>
+            <span translate="form.multiple_records">Multiple records allowed?</span>
+          </label>
+        </div>
+        <div class="col-xs-8">
+          <label class="radio-inline">
+            <input type="radio" name="multiRecord" ng-model="editCtxData.ctx.multiRecord" ng-value="true">
+            <span translate="common.yes">Yes</span>
+          </label>
+          <label class="radio-inline">
+            <input type="radio" name="multiRecord" ng-model="editCtxData.ctx.multiRecord" ng-value="false">
+            <span translate="common.no">No</span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="os-modal-footer">
+    <button class="btn os-btn-text" ng-click="cancelEditCtx()">
+      <span translate="common.buttons.cancel">Cancel</span>
+    </button>
+    <button class="btn btn-primary" ng-click="editCtx()">
+      <span translate="common.buttons.update">Update</span>
+    </button>
+  </div>
+</div>
