@@ -162,6 +162,11 @@ public class DistributionProtocolDaoImpl extends AbstractDao<DistributionProtoco
 		events.forEach(event -> getCurrentSession().saveOrUpdate(event));
 	}
 
+	@Override
+	public void unlinkCustomForm(Long formId) {
+		getCurrentSession().getNamedQuery(UNLINK_CUSTOM_FORM).setParameter("formId", formId).executeUpdate();
+	}
+
 	private Criteria getDpListQuery(DpListCriteria crit) {
 		return getCurrentSession().createCriteria(DistributionProtocol.class, "dp")
 				.add(Subqueries.propertyIn("dp.id", getDpIdsQuery(crit)));
@@ -367,4 +372,6 @@ public class DistributionProtocolDaoImpl extends AbstractDao<DistributionProtoco
 	private static final String GET_SPMN_COUNT_BY_DPS = FQN + ".getSpmnCountByDps";
 
 	private static final String GET_NON_CONSENTING_SPMNS = FQN + ".getNonConsentingSpecimens";
+
+	private static final String UNLINK_CUSTOM_FORM = FQN + ".unlinkCustomForm";
 }

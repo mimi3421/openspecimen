@@ -116,6 +116,7 @@ public class AbstractDao<T> implements Dao<T> {
 	protected Session getCurrentSession() {
 		Session session = sessionFactory.getCurrentSession();
 		session.enableFilter("activeEntity");
+		session.enableFilter("activeForms");
 		return session;
 	}
 

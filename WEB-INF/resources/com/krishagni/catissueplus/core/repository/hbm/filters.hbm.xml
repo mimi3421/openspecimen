@@ -5,4 +5,5 @@
 
 <hibernate-mapping auto-import="false">
   <filter-def name="activeEntity" condition="activity_status != 'Disabled'"/>
+  <filter-def name="activeForms" condition="deleted_on is null"/>
 </hibernate-mapping>

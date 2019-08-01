@@ -60,6 +60,7 @@ import com.krishagni.catissueplus.core.common.errors.ActivityStatusErrorCode;
 import com.krishagni.catissueplus.core.common.errors.ErrorType;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.BulkDeleteEntityOp;
+import com.krishagni.catissueplus.core.common.events.ConfigSettingDetail;
 import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.events.EntityQueryCriteria;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
@@ -84,6 +85,9 @@ import com.krishagni.catissueplus.core.query.ListService;
 import com.krishagni.catissueplus.core.query.ListUtil;
 import com.krishagni.rbac.common.errors.RbacErrorCode;
 
+import edu.common.dynamicextensions.domain.nui.Container;
+import edu.common.dynamicextensions.napi.FormEventsListener;
+import edu.common.dynamicextensions.napi.FormEventsNotifier;
 import krishagni.catissueplus.beans.FormContextBean;
 
 public class DistributionProtocolServiceImpl implements DistributionProtocolService, ObjectAccessor, InitializingBean {
@@ -586,6 +590,35 @@ public class DistributionProtocolServiceImpl implements DistributionProtocolServ
 	public void afterPropertiesSet()
 	throws Exception {
 		listSvc.registerListConfigurator(RESV_SPMNS_LIST_NAME, this::getReservedSpecimensConfig);
+
+		FormEventsNotifier.getInstance().addListener(
+			new FormEventsListener() {
+				@Override
+				public void onCreate(Container container) { }
+
+				@Override
+				public void preUpdate(Container container) { }
+
+				@Override
+				public void onUpdate(Container container) { }
+
+				@Override
+				public void onDelete(Container container) {
+					daoFactory.getDistributionProtocolDao().unlinkCustomForm(container.getId());
+
+					Integer currentForm = cfgSvc.getIntSetting("administrative", SYS_CUSTOM_FIELDS_FORM, -1);
+					if (!currentForm.equals(container.getId().intValue())) {
+						return;
+					}
+
+					ConfigSettingDetail cfg = new ConfigSettingDetail();
+					cfg.setModule("administrative");
+					cfg.setName(SYS_CUSTOM_FIELDS_FORM);
+					cfg.setValue(null);
+					cfgSvc.saveSetting(new RequestEvent<>(cfg)).throwErrorIfUnsuccessful();
+				}
+			}
+		);
 	}
 
 	private DpListCriteria addDpListCriteria(DpListCriteria crit) {

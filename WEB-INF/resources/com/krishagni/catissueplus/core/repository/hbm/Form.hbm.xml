@@ -26,6 +26,6 @@
       <one-to-many class="krishagni.catissueplus.beans.FormContextBean"/>
     </set>
 
-    <filter name="activeForms" condition="deletedOn is null"/>
+    <filter name="activeForms"/>
   </class>
 </hibernate-mapping>

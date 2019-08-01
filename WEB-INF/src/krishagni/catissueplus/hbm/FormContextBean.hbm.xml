@@ -29,7 +29,7 @@
 
     <many-to-one name="form" column="CONTAINER_ID" not-found="ignore" update="false" insert="false"/>
 
-    <filter name="activeForms" condition="deletedOn is null"/>
+    <filter name="activeForms"/>
 
     <sql-query name="getCpCounts">
       <return-scalar column="formId" type="long"/>

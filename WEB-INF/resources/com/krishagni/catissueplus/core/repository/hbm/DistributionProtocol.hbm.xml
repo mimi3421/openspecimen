@@ -155,5 +155,9 @@
             count(resp.identifier) = :respCount
         )
     </sql-query>
+
+    <sql-query name="unlinkCustomForm">
+      update catissue_distribution_protocol set order_extn_form_id = null where order_extn_form_id = :formId
+    </sql-query>
   </class>
 </hibernate-mapping>
