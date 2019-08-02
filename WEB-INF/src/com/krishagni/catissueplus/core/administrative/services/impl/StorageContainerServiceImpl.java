@@ -49,6 +49,7 @@ import com.krishagni.catissueplus.core.administrative.events.ContainerHierarchyD
 import com.krishagni.catissueplus.core.administrative.events.ContainerQueryCriteria;
 import com.krishagni.catissueplus.core.administrative.events.ContainerReplicationDetail;
 import com.krishagni.catissueplus.core.administrative.events.ContainerReplicationDetail.DestinationDetail;
+import com.krishagni.catissueplus.core.administrative.events.ContainerTransferEventDetail;
 import com.krishagni.catissueplus.core.administrative.events.PositionsDetail;
 import com.krishagni.catissueplus.core.administrative.events.PrintContainerLabelDetail;
 import com.krishagni.catissueplus.core.administrative.events.ReservePositionsOp;
@@ -552,6 +553,20 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 
 			printLabels(toPrint);
 			return ResponseEvent.response(result);
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
+		} catch (Exception e) {
+			return ResponseEvent.serverError(e);
+		}
+	}
+
+	@Override
+	@PlusTransactional
+	public ResponseEvent<List<ContainerTransferEventDetail>> getTransferEvents(RequestEvent<ContainerQueryCriteria> req) {
+		try {
+			StorageContainer container = getContainer(req.getPayload());
+			AccessCtrlMgr.getInstance().ensureReadContainerRights(container);
+			return ResponseEvent.response(ContainerTransferEventDetail.from(container.getTransferEvents()));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {

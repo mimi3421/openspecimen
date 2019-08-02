@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -35,6 +36,7 @@ import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
+import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.catissueplus.core.common.util.MessageUtil;
 import com.krishagni.catissueplus.core.common.util.SchemeOrdinalConverterUtil;
 import com.krishagni.catissueplus.core.common.util.Status;
@@ -163,6 +165,8 @@ public class StorageContainer extends BaseExtensionEntity {
 	
 	private Set<StorageContainerPosition> occupiedPositions = new HashSet<>();
 
+	private Set<ContainerTransferEvent> transferEvents = new LinkedHashSet<>();
+
 	//
 	// query capabilities
 	//
@@ -177,6 +181,13 @@ public class StorageContainer extends BaseExtensionEntity {
 	private Set<DistributionProtocol> compAllowedDps = new HashSet<>();
 
 	private transient StorageContainerPosition lastAssignedPos;
+
+	//
+	// transfer event
+	//
+	private transient User transferredBy;
+
+	private transient Date transferDate;
 
 	public StorageContainer() {
 		ancestorContainers.add(this);
@@ -398,6 +409,22 @@ public class StorageContainer extends BaseExtensionEntity {
 		this.lastAssignedPos = lastAssignedPos;
 	}
 
+	public User getTransferredBy() {
+		return transferredBy;
+	}
+
+	public void setTransferredBy(User transferredBy) {
+		this.transferredBy = transferredBy;
+	}
+
+	public Date getTransferDate() {
+		return transferDate;
+	}
+
+	public void setTransferDate(Date transferDate) {
+		this.transferDate = transferDate;
+	}
+
 	@NotAudited
 	public Set<StorageContainer> getChildContainers() {
 		return childContainers;
@@ -487,6 +514,15 @@ public class StorageContainer extends BaseExtensionEntity {
 
 	public void setOccupiedPositions(Set<StorageContainerPosition> occupiedPositions) {
 		this.occupiedPositions = occupiedPositions;
+	}
+
+	@NotAudited
+	public Set<ContainerTransferEvent> getTransferEvents() {
+		return transferEvents;
+	}
+
+	public void setTransferEvents(Set<ContainerTransferEvent> transferEvents) {
+		this.transferEvents = transferEvents;
 	}
 
 	@NotAudited
@@ -1409,12 +1445,33 @@ public class StorageContainer extends BaseExtensionEntity {
 	}
 	
 	private void updateContainerLocation(StorageContainer other) {
-		updateContainerLocation(other.getSite(), other.getParentContainer(), other.getPosition());
+		updateContainerLocation(
+			other.getSite(), other.getParentContainer(), other.getPosition(),
+			other.getTransferredBy(), other.getTransferDate(), other.getOpComments()
+		);
 	}
 
 	private void updateContainerLocation(Site otherSite, StorageContainer otherParentContainer, StorageContainerPosition otherPos) {
+		updateContainerLocation(otherSite, otherParentContainer, otherPos, null, null, null);
+	}
+
+	private void updateContainerLocation(
+		Site otherSite, StorageContainer otherParentContainer, StorageContainerPosition otherPos,
+		User transferredBy, Date transferDate, String transferReasons) {
 		Site existing = site;
-		
+
+		ContainerTransferEvent transferEvent = null;
+		if (!Objects.equals(site, otherSite) ||
+			!Objects.equals(parentContainer, otherParentContainer) ||
+			!StorageContainerPosition.areSame(position, otherPos)) {
+
+			transferEvent = new ContainerTransferEvent().fromLocation(site, parentContainer, position);
+			transferEvent.setContainer(this);
+			transferEvent.setUser(transferredBy != null ? transferredBy : AuthUtil.getCurrentUser());
+			transferEvent.setTime(transferDate != null ? transferDate : Calendar.getInstance().getTime());
+			transferEvent.setReason(transferReasons);
+		}
+
 		if (otherParentContainer == null) {
 			if (getParentContainer() != null) {
 				getParentContainer().removePosition(position);
@@ -1436,9 +1493,20 @@ public class StorageContainer extends BaseExtensionEntity {
 				setPosition(otherPos);
 			}			
 		}
-		
-		if (!site.equals(existing)) { // has site changed? if yes, ensure all child containers beneath it are updated
+
+		//
+		// has site changed?
+		//
+		if (!site.equals(existing)) {
+			//
+			// if yes, ensure all the child containers beneath it are updated
+			//
 			updateSite(site);
+		}
+
+		if (transferEvent != null) {
+			transferEvent.toLocation(site, parentContainer, position);
+			getTransferEvents().add(transferEvent);
 		}
 	}
 	

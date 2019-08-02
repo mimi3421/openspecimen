@@ -145,6 +145,11 @@
       <one-to-many class="com.krishagni.catissueplus.core.administrative.domain.StorageContainerPosition"/>
     </set>
 
+    <set name="transferEvents" table="OS_CONTAINER_TRANSFER_EVENTS" inverse="true" cascade="all-delete-orphan" order-by="id">
+      <key column="CONTAINER_ID"/>
+      <one-to-many class="com.krishagni.catissueplus.core.administrative.domain.ContainerTransferEvent"/>
+    </set>
+
     <many-to-one
       name="stats"
       column="IDENTIFIER"

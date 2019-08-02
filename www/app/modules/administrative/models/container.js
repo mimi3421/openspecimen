@@ -174,6 +174,14 @@ angular.module('os.administrative.models.container', ['os.common.models'])
       );
     }
 
+    Container.prototype.getTransferEvents = function() {
+      return $http.get(Container.url() + this.$id() + '/transfer-events').then(
+        function(resp) {
+          return resp.data;
+        }
+      );
+    }
+
     Container.list = function(opts) {
       var defOpts = {topLevelContainers: true};
       return Container.query(angular.extend(defOpts, opts || {}));

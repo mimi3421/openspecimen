@@ -1407,6 +1407,11 @@
     "paste_specimen_labels": "Paste or input specimen labels or barcodes separated by comma, tab, or newline",
     "no_free_locs": "Container does not have enough free locations to accommodate input specimen labels",
     "dup_labels": "Duplicate {{barcodes ? 'barcodes' : 'labels'}} entered: {{dups}}",
+    "transfer": "Transfer",
+    "transfer_container": "Transfer {{name}} to...",
+    "transferred_by": "Transferred By",
+    "transfer_time": "Date & Time",
+    "transfer_reason": "Reasons",
     "transfer_spmns": "Transfer Specimens",
     "transfer_spmns_warn": "{{storedSpmns.length > 1 ? 'Specimens' : 'Specimen'}} {{storedSpmns.join(', ')}} {{storedSpmns.length > 1 ? 'are' : 'is'}} already stored in a container. Do you really want to move {{storedSpmns.length > 1 ? 'them' : 'it'}} to a new location?",
     "replicated_successfully": "Container {{name}} replicated successfully",
@@ -1470,6 +1475,14 @@
     "replicate": "Replicate",
     "add_another": "Add Another",
 
+    "event_id": "Event ID",
+    "event_from_site": "From Site",
+    "event_from_location": "From Location",
+    "event_to_site": "To Site",
+    "event_to_location": "To Location",
+    "event_user": "User",
+    "event_time": "Time",
+
     "alloc_strategies": {
       "least_empty": "Least Empty Container",
       "recently_used": "Recently Used Container"
@@ -1508,7 +1521,8 @@
     "menu": {
       "overview": "Overview",
       "locations": "Locations",
-      "specimens": "Specimens"
+      "specimens": "Specimens",
+      "transfer_events": "Transfer Events"
     },
 
     "filter": {

@@ -36,6 +36,26 @@ angular.module('os.administrative.container.overview', ['os.administrative.model
       );
     }
 
+    $scope.move = function() {
+      $modal.open({
+        templateUrl: 'modules/administrative/container/move.html',
+        controller: 'MoveContainerCtrl',
+        resolve: {
+          container: function() {
+            var copy = angular.copy(container);
+            delete copy.parent;
+            return copy;
+          }
+        }
+      }).result.then(
+        function(resp) {
+          if (resp != false) {
+            $state.go('container-detail.overview', {containerId: resp.id}, {reload: true});
+          }
+        }
+      );
+    }
+
     $scope.printLabel = function() {
       ContainerLabelPrinter.printLabels({containerIds: [container.id]}, container.name + '.csv');
     }

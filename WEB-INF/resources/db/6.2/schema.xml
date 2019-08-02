@@ -984,4 +984,201 @@
       <column name="WORKFLOWS" type="${clob.type}"/>
     </addColumn>
   </changeSet>
+
+  <changeSet author="vpawar" id="Container transfer events">
+    <createTable tableName="OS_CONTAINER_TRANSFER_EVENTS">
+      <column name="IDENTIFIER" type="${int.type}" autoIncrement="${autoIncrement}">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="CONTAINER_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="FROM_SITE_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="FROM_CONTAINER_ID" type="${int.type}"/>
+      <column name="FROM_ROW" type="${text.type}(16)"/>
+      <column name="FROM_COLUMN" type="${text.type}(16)"/>
+      <column name="FROM_ROW_ORDINAL" type="${smallint.type}"/>
+      <column name="FROM_COLUMN_ORDINAL" type="${smallint.type}"/>
+      <column name="FROM_POSITION" type="${smallint.type}"/>
+      <column name="TO_SITE_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="TO_CONTAINER_ID" type="${int.type}"/>
+      <column name="TO_ROW" type="${text.type}(16)"/>
+      <column name="TO_COLUMN" type="${text.type}(16)"/>
+      <column name="TO_ROW_ORDINAL" type="${smallint.type}"/>
+      <column name="TO_COLUMN_ORDINAL" type="${smallint.type}"/>
+      <column name="TO_POSITION" type="${smallint.type}"/>
+      <column name="USER_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="TRANSFER_TIME" type="${timestamp.type}">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Reason for transferring the container">
+    <addColumn tableName="OS_CONTAINER_TRANSFER_EVENTS">
+      <column name="REASON" type="${text.type}(255)"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Container transfer event ID generator" dbms="oracle">
+    <createSequence sequenceName="OS_CONT_TRANSFER_EVENT_SEQ" startValue="1" incrementBy="1" ordered="true"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="FK on container transfer event - container">
+    <addForeignKeyConstraint constraintName="FK_CONT_TRAF_EVT_CONTAINER"
+      baseTableName="OS_CONTAINER_TRANSFER_EVENTS" baseColumnNames="CONTAINER_ID"
+      referencedTableName="OS_STORAGE_CONTAINERS" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="FK on container transfer event - from site">
+    <addForeignKeyConstraint constraintName="FK_CONT_TRAF_EVT_FROM_SITE"
+      baseTableName="OS_CONTAINER_TRANSFER_EVENTS" baseColumnNames="FROM_SITE_ID"
+      referencedTableName="CATISSUE_SITE" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="FK on container transfer event - from container">
+    <addForeignKeyConstraint constraintName="FK_CONT_TRAF_EVT_FROM_CONT"
+      baseTableName="OS_CONTAINER_TRANSFER_EVENTS" baseColumnNames="FROM_CONTAINER_ID"
+      referencedTableName="OS_STORAGE_CONTAINERS" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="FK on container transfer event - to site">
+    <addForeignKeyConstraint constraintName="FK_CONT_TRAF_EVT_TO_SITE"
+      baseTableName="OS_CONTAINER_TRANSFER_EVENTS" baseColumnNames="TO_SITE_ID"
+      referencedTableName="CATISSUE_SITE" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="FK on container transfer event - to container">
+    <addForeignKeyConstraint constraintName="FK_CONT_TRAF_EVT_TO_CONT"
+      baseTableName="OS_CONTAINER_TRANSFER_EVENTS" baseColumnNames="TO_CONTAINER_ID"
+      referencedTableName="OS_STORAGE_CONTAINERS" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="FK on container transfer event - user">
+    <addForeignKeyConstraint constraintName="FK_CONT_TRAF_EVT_USER"
+      baseTableName="OS_CONTAINER_TRANSFER_EVENTS" baseColumnNames="USER_ID"
+      referencedTableName="CATISSUE_USER" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Container transfer event specimens">
+    <createTable tableName="OS_CONT_TRANSFER_EVT_SPMNS">
+      <column name="IDENTIFIER" type="${int.type}" autoIncrement="${autoIncrement}">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="EVENT_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="SPECIMEN_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Container transfer event specimens event ID generator" dbms="oracle">
+    <createSequence sequenceName="OS_CONT_TRAF_EVENT_SPMN_SEQ" startValue="1" incrementBy="1" ordered="true"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="FK - container transfer specimen event id">
+    <addForeignKeyConstraint constraintName="FK_CONT_TRAF_SPMN_EVT_ID"
+      baseTableName="OS_CONT_TRANSFER_EVT_SPMNS" baseColumnNames="EVENT_ID"
+      referencedTableName="OS_CONTAINER_TRANSFER_EVENTS" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="FK - container transfer specimen id">
+    <addForeignKeyConstraint constraintName="FK_CONT_TRAF_SPMN_ID"
+      baseTableName="OS_CONT_TRANSFER_EVT_SPMNS" baseColumnNames="SPECIMEN_ID"
+      referencedTableName="CATISSUE_SPECIMEN" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Trigger to add record entry for specimen container transfer event" dbms="mysql" runOnChange="true">
+    <sql endDelimiter="//" >
+      drop trigger if exists os_trg_cont_transfer_event_re //
+    </sql>
+    <sql endDelimiter="//" >
+      create trigger os_trg_cont_transfer_event_re after insert on os_container_transfer_events
+      for each row
+      begin
+        insert into os_cont_transfer_evt_spmns
+          (event_id, specimen_id)
+        select
+          new.identifier, pos.occupying_specimen_id
+        from
+          os_containers_hierarchy ch
+          inner join os_container_positions pos on pos.storage_container_id = ch.descendent_id
+        where
+          ch.ancestor_id = new.container_id and
+          pos.occupying_specimen_id is not null;
+
+        select
+          fc.identifier into @fcId
+        from
+          catissue_form_context fc
+          inner join dyextn_containers c on c.identifier = fc.container_id
+        where
+          c.name = 'ContainerTransferEvent' and
+          c.deleted_on is null and
+          fc.deleted_on is null and
+          fc.entity_type = 'SpecimenEvent' and
+          fc.cp_id = -1;
+
+        insert into catissue_form_record_entry
+          (form_ctxt_id, object_id, record_id, updated_by, update_time, activity_status)
+        select
+          @fcId, specimen_id, identifier, new.user_id, current_timestamp(), 'ACTIVE'
+        from
+          os_cont_transfer_evt_spmns
+        where
+          event_id = new.identifier;
+      end;
+      //
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Trigger to add record entry for specimen container transfer event" dbms="oracle" runOnChange="true">
+    <sql splitStatements="false">
+      create or replace trigger os_trg_cont_transfer_event_re after insert on os_container_transfer_events
+      for each row
+      declare
+        fcId catissue_form_context.identifier%type;
+      begin
+        insert into os_cont_transfer_evt_spmns
+          (identifier, event_id, specimen_id)
+        select
+          os_cont_traf_event_spmn_seq.nextval, :new.identifier, pos.occupying_specimen_id
+        from
+          os_containers_hierarchy ch
+          inner join os_container_positions pos on pos.storage_container_id = ch.descendent_id
+        where
+          ch.ancestor_id = :new.container_id and
+          pos.occupying_specimen_id is not null;
+
+        select
+          fc.identifier into fcId
+        from
+          catissue_form_context fc
+          inner join dyextn_containers c on c.identifier = fc.container_id
+        where
+          c.name = 'ContainerTransferEvent' and
+          c.deleted_on is null and
+          fc.deleted_on is null and
+          fc.entity_type = 'SpecimenEvent' and
+          fc.cp_id = -1;
+
+        insert into catissue_form_record_entry
+          (identifier, form_ctxt_id, object_id, record_id, updated_by, update_time, activity_status)
+        select
+          catissue_form_rec_entry_seq.nextval, fcId, specimen_id, identifier, :new.user_id, current_timestamp, 'ACTIVE'
+        from
+          os_cont_transfer_evt_spmns
+        where
+          event_id = :new.identifier;
+      end;
+    </sql>
+  </changeSet>
 </databaseChangeLog>

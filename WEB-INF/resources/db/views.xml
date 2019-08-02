@@ -118,4 +118,19 @@
     </createView>
   </changeSet>
 
+  <changeSet author="vpawar" id="Container transfer specimen events" runOnChange="true">
+    <createView viewName="OS_CONT_TRAF_SPMN_EVENTS_VIEW" replaceIfExists="true">
+      select
+        evt_spmn.identifier as identifier, evt_spmn.specimen_id, evt.container_id,
+        evt.from_site_id, evt.from_container_id, evt.from_row, evt.from_column,
+        evt.from_row_ordinal, evt.from_column_ordinal, evt.from_position,
+        evt.to_site_id, evt.to_container_id, evt.to_row, evt.to_column,
+        evt.to_row_ordinal, evt.to_column_ordinal, evt.to_position,
+        evt.user_id, evt.transfer_time, evt.reason
+      from
+        os_container_transfer_events evt
+        inner join os_cont_transfer_evt_spmns evt_spmn on evt_spmn.event_id = evt.identifier
+    </createView>
+  </changeSet>
+
 </databaseChangeLog>

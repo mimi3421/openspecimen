@@ -12,6 +12,7 @@ import com.krishagni.catissueplus.core.administrative.events.ContainerDefragDeta
 import com.krishagni.catissueplus.core.administrative.events.ContainerHierarchyDetail;
 import com.krishagni.catissueplus.core.administrative.events.ContainerQueryCriteria;
 import com.krishagni.catissueplus.core.administrative.events.ContainerReplicationDetail;
+import com.krishagni.catissueplus.core.administrative.events.ContainerTransferEventDetail;
 import com.krishagni.catissueplus.core.administrative.events.PositionsDetail;
 import com.krishagni.catissueplus.core.administrative.events.PrintContainerLabelDetail;
 import com.krishagni.catissueplus.core.administrative.events.ReservePositionsOp;
@@ -70,6 +71,8 @@ public interface StorageContainerService {
 	ResponseEvent<List<StorageContainerSummary>> createContainerHierarchy(RequestEvent<ContainerHierarchyDetail> req);
 
 	ResponseEvent<List<StorageContainerSummary>> createMultipleContainers(RequestEvent<List<StorageContainerDetail>> req);
+
+	ResponseEvent<List<ContainerTransferEventDetail>> getTransferEvents(RequestEvent<ContainerQueryCriteria> req);
 
 	//
 	// printing

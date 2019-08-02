@@ -6,27 +6,40 @@
         <span class="fa fa-pencil"></span>
         <span translate="common.buttons.edit">Edit</span>
       </button>
-      <a ng-if="!ctx.dimless" class="btn default" href="{{ctx.downloadUri}}" target="_blank">
-        <span class="fa fa-download"></span>
-        <span translate="common.buttons.export">Export</span>
-      </a>
-      <button class="btn default" ng-click="printLabel()">
-        <span class="fa fa-print"></span>
-        <span translate="common.buttons.print">Print</span>
+      <button show-if-allowed="containerResource.updateOpts" class="default" ng-click="move()">
+        <span class="fa fa-exchange"></span>
+        <span translate="container.transfer">Move</span>
       </button>
-      <button show-if-allowed="containerResource.updateOpts" class="btn default" ng-click="defragment()">
-        <span class="fa fa-cubes"></span>
-        <span translate="container.defragment">Defragment</span>
-      </button>
-      <!-- button show-if-allowed="containerResource.createOpts" class="default"
-        ui-sref="container-replicate({containerId: ctx.container.id})">
-        <span class="fa fa-copy"></span>
-        <span translate="container.replicate">Replicate</span>
-      </button -->
       <button show-if-allowed="containerResource.deleteOpts" class="default" ng-click="deleteContainer()">
         <span class="fa fa-trash"></span>
         <span translate="common.buttons.delete">Delete</span>
       </button>
+      <div dropdown class="os-inline-btn">
+        <button class="btn btn-default dropdown-toggle default">
+          <span translate="common.buttons.more">More</span>
+          <span class="fa fa-caret-down"></span>
+        </button>
+        <ul class="dropdown-menu">
+          <li show-if-allowed="containerResource.updateOpts">
+            <a ng-click="defragment()">
+              <span class="fa fa-cubes" style="padding-right: 7px;"></span>
+              <span translate="container.defragment">Defragment</span>
+            </a>
+          </li>
+          <li ng-if="!ctx.dimless">
+            <a href="{{ctx.downloadUri}}" target="_blank">
+              <span class="fa fa-download"></span>
+              <span translate="common.buttons.export">Export</span>
+            </a>
+          </li>
+          <li>
+            <a ng-click="printLabel()">
+              <span class="fa fa-print"></span>
+              <span translate="common.buttons.print">Print</span>
+            </a>
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 

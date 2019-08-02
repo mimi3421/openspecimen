@@ -1,21 +1,21 @@
 package com.krishagni.catissueplus.core.administrative.events;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.codehaus.jackson.map.annotate.JsonSerialize;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol;
 import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainer;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.common.ListenAttributeChanges;
+import com.krishagni.catissueplus.core.common.events.UserSummary;
 import com.krishagni.catissueplus.core.de.events.ExtensionDetail;
 
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 @ListenAttributeChanges
 public class StorageContainerDetail extends StorageContainerSummary {
 	private Double temperature;
@@ -47,6 +47,15 @@ public class StorageContainerDetail extends StorageContainerSummary {
 	private Map<String, Integer> specimensByType;
 
 	private boolean printLabels;
+
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+	private UserSummary transferredBy;
+
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+	private Date transferDate;
+
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+	private String transferComments;
 
 	public Double getTemperature() {
 		return temperature;
@@ -166,6 +175,30 @@ public class StorageContainerDetail extends StorageContainerSummary {
 
 	public void setPrintLabels(boolean printLabels) {
 		this.printLabels = printLabels;
+	}
+
+	public UserSummary getTransferredBy() {
+		return transferredBy;
+	}
+
+	public void setTransferredBy(UserSummary transferredBy) {
+		this.transferredBy = transferredBy;
+	}
+
+	public Date getTransferDate() {
+		return transferDate;
+	}
+
+	public void setTransferDate(Date transferDate) {
+		this.transferDate = transferDate;
+	}
+
+	public String getTransferComments() {
+		return transferComments;
+	}
+
+	public void setTransferComments(String transferComments) {
+		this.transferComments = transferComments;
 	}
 
 	public static StorageContainerDetail from(StorageContainer container) {

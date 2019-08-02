@@ -30,6 +30,7 @@ import com.krishagni.catissueplus.core.administrative.events.ContainerDefragDeta
 import com.krishagni.catissueplus.core.administrative.events.ContainerHierarchyDetail;
 import com.krishagni.catissueplus.core.administrative.events.ContainerQueryCriteria;
 import com.krishagni.catissueplus.core.administrative.events.ContainerReplicationDetail;
+import com.krishagni.catissueplus.core.administrative.events.ContainerTransferEventDetail;
 import com.krishagni.catissueplus.core.administrative.events.PositionsDetail;
 import com.krishagni.catissueplus.core.administrative.events.ReservePositionsOp;
 import com.krishagni.catissueplus.core.administrative.events.StorageContainerDetail;
@@ -561,6 +562,13 @@ public class StorageContainersController {
 		ResponseEvent<List<StorageContainerSummary>> resp = storageContainerSvc.createMultipleContainers(req);
 		resp.throwErrorIfUnsuccessful();
 		return resp.getPayload();
+	}
+
+	@RequestMapping(method = RequestMethod.GET, value="/{id}/transfer-events")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public List<ContainerTransferEventDetail> getTransferEvents(@PathVariable("id") Long containerId) {
+		return ResponseEvent.unwrap(storageContainerSvc.getTransferEvents(RequestEvent.wrap(new ContainerQueryCriteria(containerId))));
 	}
 
 	//
