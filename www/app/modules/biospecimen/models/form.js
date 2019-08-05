@@ -72,7 +72,7 @@ angular.module('os.biospecimen.models.form', ['os.common.models'])
     };
 
     Form.listQueryForms = function() {
-      return Form.listForms('query');
+      return Form.listForms('Query');
     };
 
     Form.listFor = function(url, objectId, params) {
