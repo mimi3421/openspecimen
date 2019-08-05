@@ -251,6 +251,10 @@ edu.common.de.SkipLogic = function(form, fieldObj, fieldAttrs) {
     return edu.common.de.DefFieldSkipLogicCmp(expr.op, fieldValue, condValue);
   }
 
+  this.parseRule = parseRule;
+
+  this.evaluateRule = evaluateRule;
+
   this.evaluate = function() {
     if (!rule) {
       return;
