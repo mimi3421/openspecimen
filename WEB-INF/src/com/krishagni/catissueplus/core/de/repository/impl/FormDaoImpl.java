@@ -32,6 +32,7 @@ import com.krishagni.catissueplus.core.administrative.repository.FormListCriteri
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.domain.Visit;
 import com.krishagni.catissueplus.core.biospecimen.events.CollectionProtocolSummary;
+import com.krishagni.catissueplus.core.biospecimen.repository.impl.BiospecimenDaoHelper;
 import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
 import com.krishagni.catissueplus.core.common.access.SiteCpPair;
@@ -774,7 +775,12 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 			userOrCp.add(Restrictions.eq("createdBy.id", crit.userId()));
 
 			if (CollectionUtils.isNotEmpty(crit.siteCps())) {
-				userOrCp.add(Restrictions.in("fc.cpId", getCpIdsSql(crit.siteCps())));
+				userOrCp.add(
+					Subqueries.propertyIn(
+						"fc.cpId",
+						BiospecimenDaoHelper.getInstance().getCpIdsFilter(crit.siteCps())
+					)
+				);
 			}
 
 			query.add(userOrCp);
