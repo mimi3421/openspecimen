@@ -4,6 +4,7 @@ package com.krishagni.catissueplus.core.biospecimen.services.impl;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -785,15 +786,21 @@ public class VisitServiceImpl implements VisitService, ObjectAccessor, Initializ
 	}
 
 	private List<Visit> getVisitsToPrint(PrintVisitNameDetail printDetail) {
+		List<Long> ids = printDetail.getVisitIds();
+		List<String> names = printDetail.getVisitNames();
+
 		List<Visit> visits = null;
 		Object key = null;
-
-		if (CollectionUtils.isNotEmpty(printDetail.getVisitIds())) {
-			visits = daoFactory.getVisitsDao().getByIds(printDetail.getVisitIds());
-			key = printDetail.getVisitIds();
-		} else if (CollectionUtils.isNotEmpty(printDetail.getVisitNames())) {
-			visits = daoFactory.getVisitsDao().getByName(printDetail.getVisitNames());
-			key = printDetail.getVisitNames();
+		if (CollectionUtils.isNotEmpty(ids)) {
+			key = ids;
+			visits = daoFactory.getVisitsDao().getByIds(ids).stream()
+				.sorted(Comparator.comparingInt((v) -> ids.indexOf(v.getId())))
+				.collect(Collectors.toList());
+		} else if (CollectionUtils.isNotEmpty(names)) {
+			key = names;
+			visits = daoFactory.getVisitsDao().getByName(names).stream()
+				.sorted(Comparator.comparingInt((v) -> names.indexOf(v.getName())))
+				.collect(Collectors.toList());
 		}
 
 		if (CollectionUtils.isEmpty(visits)) {

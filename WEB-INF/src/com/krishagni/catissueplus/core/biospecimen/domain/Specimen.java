@@ -944,11 +944,11 @@ public class Specimen extends BaseExtensionEntity {
 			result.add(PrintItem.make(this, printCopies));
 		}
 
-		for (Specimen poolSpmn : getSpecimensPool()) {
+		for (Specimen poolSpmn : sort(getSpecimensPool())) {
 			result.addAll(poolSpmn.getPrePrintItems());
 		}
 
-		for (Specimen childSpmn : getChildCollection()) {
+		for (Specimen childSpmn : sort(getChildCollection())) {
 			result.addAll(childSpmn.getPrePrintItems());
 		}
 
