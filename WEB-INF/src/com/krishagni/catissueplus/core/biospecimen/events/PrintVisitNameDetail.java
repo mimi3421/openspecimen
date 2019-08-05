@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PrintVisitNameDetail {
-	List<Long> visitIds = new ArrayList<Long>();
+	List<Long> visitIds = new ArrayList<>();
 
-	List<String> visitNames = new ArrayList<String>();
+	List<String> visitNames = new ArrayList<>();
 
 	private int copies = 1;
 
