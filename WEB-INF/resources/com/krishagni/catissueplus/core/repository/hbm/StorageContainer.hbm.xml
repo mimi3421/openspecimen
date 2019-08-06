@@ -238,11 +238,14 @@
       <return-scalar column="parentId"      type="long"/>
       <return-scalar column="rowNo"         type="int"/>
       <return-scalar column="colNo"         type="int"/>
+      <return-scalar column="rowStr"        type="string"/>
+      <return-scalar column="colStr"        type="string"/>
 
       select
         s.identifier as containerId, s.name as containerName,
         s.no_of_rows as noOfRows, s.no_of_cols as noOfColumns, s.pos_assignment as posAssignment,
-        s.parent_container_id as parentId, p.pos_two as rowNo, p.pos_one as colNo
+        s.parent_container_id as parentId, p.pos_two as rowNo, p.pos_one as colNo,
+        p.pos_two_str as rowStr, p.pos_one_str as colStr
       from
         os_storage_containers s
         inner join os_container_positions p on p.occupying_container_id = s.identifier
@@ -254,7 +257,7 @@
       select
         s.identifier as containerId, s.name as containerName,
         s.no_of_rows as noOfRows, s.no_of_cols as noOfColumns, s.pos_assignment as posAssignment,
-        null as parentId, null as rowNo, null as colNo
+        null as parentId, null as rowNo, null as colNo, null as rowStr, null as colStr
       from
         os_storage_containers s
       where
@@ -270,11 +273,14 @@
       <return-scalar column="parentId"      type="long"/>
       <return-scalar column="rowNo"         type="int"/>
       <return-scalar column="colNo"         type="int"/>
+      <return-scalar column="rowStr"        type="string"/>
+      <return-scalar column="colStr"        type="string"/>
 
       select
         s.identifier as containerId, s.name as containerName,
         s.no_of_rows as noOfRows, s.no_of_cols as noOfColumns, null as posAssignment,
-        s.parent_container_id as parentId, p.pos_two as rowNo, p.pos_one as colNo
+        s.parent_container_id as parentId, p.pos_two as rowNo, p.pos_one as colNo,
+        p.pos_two_str as rowStr, p.pos_one_str as colStr
       from
         os_storage_containers s
         inner join os_container_positions p on p.occupying_container_id = s.identifier

@@ -65,8 +65,17 @@ angular.module('os.administrative.container.detail', ['os.administrative.models'
 
     function selectContainer(container) {
       var names = [], c = container;
+
+      var lpos = undefined;
       while (c) {
-        names.unshift(c.name);
+        names.unshift({position: lpos, name: c.name});
+        lpos = undefined;
+
+        var location = c.storageLocation;
+        if (location && location.position) {
+          lpos = '(' + location.positionY + ' x ' + location.positionX + ', ' + location.position + ')';
+        }
+
         c = c.parent;
       }
       $scope.ctx.names = names;
