@@ -722,7 +722,7 @@ public class FormServiceImpl implements FormService, InitializingBean {
 		FormListCriteria crit = new FormListCriteria()
 			.cpIds(Arrays.asList(-1L, cpId))
 			.entityTypes(Arrays.asList(entityTypes));
-		return FormSummary.from(formDao.getForms(crit));
+		return formDao.getEntityForms(crit);
 	}
 
 	//

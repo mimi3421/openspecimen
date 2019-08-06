@@ -91,7 +91,7 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 	@Override
 	public List<Form> getForms(FormListCriteria crit) {
 		return (List<Form>) getCurrentSession().createCriteria(Form.class, "form")
-			.add(Subqueries.propertyIn("form.id", getListFormsQuery(crit)))
+			.add(Subqueries.propertyIn("form.id", getListFormIdsQuery(crit)))
 			.addOrder(Order.asc("form.caption"))
 			.setFirstResult(crit.startAt())
 			.setMaxResults(crit.maxResults())
@@ -100,10 +100,45 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 
 	@Override
 	public Long getFormsCount(FormListCriteria crit) {
-		Number count = (Number) getListFormsQuery(crit).getExecutableCriteria(getCurrentSession())
+		Number count = (Number) getListFormIdsQuery(crit).getExecutableCriteria(getCurrentSession())
 			.setProjection(Projections.rowCount())
 			.uniqueResult();
 		return count.longValue();
+	}
+
+	@Override
+	public List<FormSummary> getEntityForms(FormListCriteria crit) {
+		List<Object[]> rows = (List<Object[]>) getListFormsQuery(crit)
+			.setProjection(
+				Projections.projectionList()
+					.add(Projections.property("form.id"))
+					.add(Projections.property("form.name"))
+					.add(Projections.property("form.caption"))
+					.add(Projections.property("fc.entityType"))
+					.add(Projections.property("fc.sysForm"))
+					.add(Projections.property("fc.multiRecord"))
+			)
+			.getExecutableCriteria(getCurrentSession())
+			.list();
+
+		List<FormSummary> result = new ArrayList<>();
+		for (Object[] row : rows) {
+			int idx = -1;
+			FormSummary form = new FormSummary();
+			form.setFormId((Long) row[++idx]);
+			form.setName((String) row[++idx]);
+			form.setCaption((String) row[++idx]);
+			form.setEntityType((String) row[++idx]);
+
+			Boolean sysForms = (Boolean) row[++idx];
+			form.setSysForm(sysForms != null ? sysForms : false);
+
+			Boolean multiRecords = (Boolean) row[++idx];
+			form.setMultipleRecords(multiRecords != null ? multiRecords : false);
+			result.add(form);
+		}
+
+		return result;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -757,12 +792,14 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 			});
 	}
 
+	private DetachedCriteria getListFormIdsQuery(FormListCriteria crit) {
+		return getListFormsQuery(crit).setProjection(Projections.distinct(Projections.property("form.id")));
+	}
+
 	private DetachedCriteria getListFormsQuery(FormListCriteria crit) {
 		DetachedCriteria query = DetachedCriteria.forClass(Form.class, "form")
-			.createAlias("form.associations", "fc", JoinType.LEFT_OUTER_JOIN)
-			.add(Restrictions.isNull("form.deletedOn"))
-			.add(Restrictions.isNull("fc.deletedOn"))
-			.setProjection(Projections.distinct(Projections.property("form.id")));
+			.createAlias("form.associations", "fc", JoinType.LEFT_OUTER_JOIN, Restrictions.isNull("fc.deletedOn"))
+			.add(Restrictions.isNull("form.deletedOn"));
 
 		if (StringUtils.isNotBlank(crit.query())) {
 			query.add(Restrictions.ilike("form.caption", crit.query(), MatchMode.ANYWHERE));

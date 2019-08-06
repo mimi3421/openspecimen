@@ -31,6 +31,8 @@ public interface FormDao extends Dao<FormContextBean> {
 
 	Long getFormsCount(FormListCriteria crit);
 
+	List<FormSummary> getEntityForms(FormListCriteria crit);
+
 	Map<Long, Integer> getCpCounts(Collection<Long> formIds);
 	
 	public boolean isSystemForm(Long formId);
