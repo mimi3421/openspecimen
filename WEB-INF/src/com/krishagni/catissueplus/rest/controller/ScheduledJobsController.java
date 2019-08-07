@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.krishagni.catissueplus.core.administrative.domain.ScheduledJob;
 import com.krishagni.catissueplus.core.administrative.events.JobExportDetail;
 import com.krishagni.catissueplus.core.administrative.events.JobRunsListCriteria;
@@ -114,17 +115,11 @@ public class ScheduledJobsController {
 	public List<ScheduledJobRunDetail> getJobRuns(
 		@PathVariable(value = "jobId")
 		Long jobId,
-			
-		@RequestParam(value = "startAt", required = false, defaultValue = "0")
-		int startAt,
-			
-		@RequestParam(value = "maxResults", required = false, defaultValue = "100")
-		int maxResults) {
-		
-		JobRunsListCriteria criteria = new JobRunsListCriteria()
-			.startAt(startAt)
-			.maxResults(maxResults)
-			.scheduledJobId(jobId);
+
+		@RequestParam
+		Map<String, String> params) {
+
+		JobRunsListCriteria criteria = new ObjectMapper().convertValue(params, JobRunsListCriteria.class).jobId(jobId);
 		return response(jobSvc.getJobRuns(request(criteria)));
 	}
 	

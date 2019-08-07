@@ -2479,6 +2479,8 @@
     "started_at": "Started At",
     "time_taken": "Time Taken",
     "status": "Status",
+    "start_date": "Start Date",
+    "end_date": "End Date",
 
     "tooltip": {
       "create_job": "Create new scheduled job",

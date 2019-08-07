@@ -19,8 +19,8 @@ angular.module('os.administrative.models.job', ['os.common.models'])
       );
     }
 
-    ScheduledJob.prototype.getRuns = function() {
-      return $http.get(ScheduledJob.url() + this.$id() + '/runs').then(
+    ScheduledJob.prototype.getRuns = function(params) {
+      return $http.get(ScheduledJob.url() + this.$id() + '/runs', {params: params}).then(
         function(result) {
           return result.data;
         }

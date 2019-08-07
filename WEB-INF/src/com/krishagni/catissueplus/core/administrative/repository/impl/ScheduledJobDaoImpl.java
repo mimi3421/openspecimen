@@ -61,18 +61,30 @@ public class ScheduledJobDaoImpl extends AbstractDao<ScheduledJob> implements Sc
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public List<ScheduledJobRun> getJobRuns(JobRunsListCriteria listCriteria) {
-		Criteria criteria = getCurrentSession().createCriteria(ScheduledJobRun.class)
-			.setFirstResult(listCriteria.startAt())
-			.setMaxResults(listCriteria.maxResults())
-			.addOrder(Order.desc("id"));
+	public List<ScheduledJobRun> getJobRuns(JobRunsListCriteria crit) {
+		Criteria query = getCurrentSession().createCriteria(ScheduledJobRun.class, "run")
+			.setFirstResult(crit.startAt())
+			.setMaxResults(crit.maxResults())
+			.addOrder(Order.desc("run.id"));
 		
-		if (listCriteria.scheduledJobId() != null) {
-			criteria.createAlias("scheduledJob", "job");
-			criteria.add(Restrictions.eq("job.id", listCriteria.scheduledJobId()));
+		if (crit.jobId() != null) {
+			query.createAlias("run.scheduledJob", "job")
+				.add(Restrictions.eq("job.id", crit.jobId()));
+		}
+
+		if (crit.fromDate() != null) {
+			query.add(Restrictions.ge("run.startedAt", crit.fromDate()));
+		}
+
+		if (crit.toDate() != null) {
+			query.add(Restrictions.le("run.finishedAt", crit.toDate()));
+		}
+
+		if (crit.status() != null) {
+			query.add(Restrictions.eq("run.status", crit.status()));
 		}
 		
-		return criteria.list();
+		return query.list();
 	}
 
 	@Override
