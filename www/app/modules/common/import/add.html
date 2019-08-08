@@ -88,7 +88,7 @@
         </div>
       </div>
 
-      <div class="form-group" ng-show="showAdvanced">
+      <div class="form-group">
         <label class="col-xs-3 control-label">
           <span translate="bulk_imports.date_time_format">Date and Time Format</span>
         </label>
@@ -109,21 +109,12 @@
         </div>
       </div>
 
-      <div class="form-group" ng-show="showAdvanced">
+      <div class="form-group">
         <label class="col-xs-3 control-label">
           <span translate="bulk_imports.field_separator">Field Separator</span>
         </label>
         <div class="col-xs-1">
           <input type="text" class="form-control" ng-model="importJob.fieldSeparator" ng-trim="false" maxlength="1">
-        </div>
-      </div>
-
-      <div class="form-group" ng-init="showAdvanced=false">
-        <div class="col-xs-offset-3 col-xs-6">
-          <a ng-click="showAdvanced=!showAdvanced">
-            <span ng-show="showAdvanced"  translate="bulk_imports.hide_adv_settings">Hide Advanced Settings</span>
-            <span ng-show="!showAdvanced" translate="bulk_imports.show_adv_settings">Show Advanced Settings</span>
-          </a>
         </div>
       </div>
 
