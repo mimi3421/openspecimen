@@ -100,16 +100,16 @@
                     <span class="fa fa-remove"></span>
                   </button>
                 </span>
-                <span ng-if="specimen.aliquotGrp.length > 1">
+                <span ng-if="specimen.aliquotGrp.length > 0">
                   <div class="btn-group">
                     <button class="btn btn-xs btn-default" ng-if="specimen.expanded"
                       ng-click="collapseAliquotsGroup(specimen)">
-                      <span class="fa fa-minus"></span>
+                      <span ng-show="specimen.aliquotGrp.length > 1" class="fa fa-minus"></span>
                       <span>({{specimen.aliquotGrp.length}})</span>
                     </button>
                     <button class="btn btn-xs btn-default" ng-if="!specimen.expanded"
                       ng-click="expandAliquotsGroup(specimen)">
-                      <span class="fa fa-plus"></span>
+                      <span ng-show="specimen.aliquotGrp.length > 1" class="fa fa-plus"></span>
                       <span>({{specimen.aliquotGrp.length}})</span>
                     </button>
                     <button class="btn btn-xs btn-default" ng-disabled="specimen.expanded"

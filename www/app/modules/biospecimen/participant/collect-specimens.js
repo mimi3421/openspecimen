@@ -610,6 +610,11 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
         for (var i = grp.length - 1; i >= 0 && count >= 1; --i, --count) {
           $scope.remove(grp[i]);
         }
+
+        if (!grpLeader.expanded) {
+          grpLeader.aliquotLabels = getAliquotGrpInputs(grpLeader, 'label');
+          grpLeader.aliquotBarcodes = getAliquotGrpInputs(grpLeader, 'barcode');
+        }
       }
 
       function listenContainerChanges(specimen) {
