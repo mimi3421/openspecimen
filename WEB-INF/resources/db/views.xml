@@ -133,4 +133,105 @@
     </createView>
   </changeSet>
 
+  <changeSet author="vpawar" id="Computed container hierarchy string" runOnChange="true" dbms="mysql">
+    <sql>
+      create or replace view os_container_hierarchy_view as
+      select
+        h.descendent_id as container_id,
+        group_concat(
+          concat(
+            case
+              when p.pos_one_str is not null then
+                concat(
+                  ' (',
+                      case
+                        when pr.pos_labeling_mode = 'TWO_D' then
+                          concat(p.pos_two_str, ' x ', p.pos_one_str)
+                        when pr.pos_labeling_mode = 'LINEAR' then
+                          (p.pos_two - 1) * (case when pr.pos_assignment like 'HZ%' then pr.no_of_cols else pr.no_of_rows end) + p.pos_one
+                        else
+                          'NA'
+                      end,
+                  ') -> ')
+              when p.identifier is not null then
+                ' -> '
+              else
+                ''
+            end,
+            s.name
+          )
+          order by t.hl desc
+          separator ''
+        ) as hierarchy
+      from
+        os_containers_hierarchy h
+        inner join os_storage_containers s on s.identifier = h.ancestor_id
+        inner join (
+          select
+            ancestor_id, count(*) hl
+          from
+            os_containers_hierarchy
+          group by
+            ancestor_id
+        ) t on t.ancestor_id = s.identifier
+        left join os_container_positions p on p.occupying_container_id = s.identifier
+        left join os_storage_containers pr on pr.identifier = p.storage_container_id
+      where
+        s.activity_status != 'Disabled'
+      group by
+        h.descendent_id;
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Computed container hierarchy string" runOnChange="true" dbms="oracle">
+    <sql>
+      create or replace view os_container_hierarchy_view as (
+        select
+          h.descendent_id as container_id,
+          listagg(
+            concat(
+              case
+                when p.pos_one_str is not null then
+                  concat(
+                    ' (',
+                    concat(
+                      case
+                        when pr.pos_labeling_mode = 'TWO_D' then
+                          concat(p.pos_two_str, concat(' x ', p.pos_one_str))
+                        when pr.pos_labeling_mode = 'LINEAR' then
+                          concat((p.pos_two - 1) * (case when pr.pos_assignment like 'HZ%' then pr.no_of_cols else pr.no_of_rows end) + p.pos_one, '')
+                        else
+                          'NA'
+                      end,
+                      ') -> '
+                    )
+                  )
+                when p.identifier is not null then
+                  ' -> '
+                else
+                  ''
+              end,
+              s.name
+            )
+          ) within group(order by t.hl desc) as hierarchy
+        from
+          os_containers_hierarchy h
+          inner join os_storage_containers s on s.identifier = h.ancestor_id
+          inner join (
+            select
+              ancestor_id, count(*) hl
+            from
+              os_containers_hierarchy
+            group by
+              ancestor_id
+          ) t on t.ancestor_id = s.identifier
+          left join os_container_positions p on p.occupying_container_id = s.identifier
+          left join os_storage_containers pr on pr.identifier = p.storage_container_id
+        where
+          s.activity_status != 'Disabled'
+        group by
+          h.descendent_id
+      )
+    </sql>
+  </changeSet>
 </databaseChangeLog>
