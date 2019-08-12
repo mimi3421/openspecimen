@@ -234,4 +234,14 @@
       )
     </sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="Visit clinical diagnosis with codes view - query" runOnChange="true">
+    <createView viewName="OS_VISIT_CD_VIEW" replaceIfExists="true">
+      select
+        pv.identifier, cd.visit_id, pv.value, case when length(pv.concept_code) > 0 then pv.concept_code else null end as code
+      from
+        os_visit_clin_diagnoses cd
+        inner join catissue_permissible_value pv on pv.identifier = cd.clinical_diagnosis_id
+    </createView>
+  </changeSet>
 </databaseChangeLog>

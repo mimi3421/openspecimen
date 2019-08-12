@@ -223,6 +223,37 @@
     </row>
     <row>
       <subForm>
+        <name>clinicalDiagnoses</name>
+        <udn>clinicalDiagnoses</udn>
+        <caption>#getMessage("visit_clinical_diagnoses")</caption>
+        <table>OS_VISIT_CD_VIEW</table>
+        <primaryKey>IDENTIFIER</primaryKey>
+        <foreignKey>VISIT_ID</foreignKey>
+        <parentKey>IDENTIFIER</parentKey>
+        <row>
+          <dropDown>
+            <name>value</name>
+            <udn>value</udn>
+            <caption>#getMessage("visit_cd_text")</caption>
+            <column>VALUE</column>
+            <options>
+              <sql>select value from catissue_permissible_value where public_id = 'clinical_diagnosis' order by value</sql>
+            </options>
+          </dropDown>
+          <dropDown>
+            <name>code</name>
+            <udn>code</udn>
+            <caption>#getMessage("visit_cd_code")</caption>
+            <column>CODE</column>
+            <options>
+              <sql>select concept_code from catissue_permissible_value where public_id = 'clinical_diagnosis' and length(concept_code) > 0 order by concept_code</sql>
+            </options>
+          </dropDown>
+        </row>
+      </subForm>
+    </row>
+    <row>
+      <subForm>
         <name>specimens</name>
         <udn>specimens</udn>
         <caption>#getMessage("visit_specimens")</caption>
