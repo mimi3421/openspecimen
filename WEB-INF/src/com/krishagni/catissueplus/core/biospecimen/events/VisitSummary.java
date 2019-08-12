@@ -5,7 +5,6 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.apache.commons.lang3.ObjectUtils;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import com.krishagni.catissueplus.core.common.AttributeModifiedSupport;
 import com.krishagni.catissueplus.core.common.ListenAttributeChanges;
@@ -13,7 +12,6 @@ import com.krishagni.catissueplus.core.common.domain.IntervalUnit;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
 import com.krishagni.catissueplus.core.common.util.Utility;
 
-@JsonSerialize(include= JsonSerialize.Inclusion.NON_NULL)
 @ListenAttributeChanges
 public class VisitSummary extends AttributeModifiedSupport implements Comparable<VisitSummary> {
 	private Long id;

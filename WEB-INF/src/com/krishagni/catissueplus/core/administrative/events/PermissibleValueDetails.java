@@ -2,16 +2,19 @@
 package com.krishagni.catissueplus.core.administrative.events;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
+import com.krishagni.catissueplus.core.common.util.Utility;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class PermissibleValueDetails {
 
 	private Long id;
@@ -135,5 +138,13 @@ public class PermissibleValueDetails {
 		}
 		
 		return details;
+	}
+
+	public static PermissibleValueDetails from(PermissibleValue pv) {
+		return fromDomain(pv);
+	}
+
+	public static List<PermissibleValueDetails> from(Collection<PermissibleValue> pvs) {
+		return Utility.nullSafeStream(pvs).map(PermissibleValueDetails::fromDomain).collect(Collectors.toList());
 	}
 }

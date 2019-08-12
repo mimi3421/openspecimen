@@ -5,16 +5,16 @@ import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
+import com.krishagni.catissueplus.core.administrative.events.PermissibleValueDetails;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolEvent;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
 import com.krishagni.catissueplus.core.biospecimen.domain.Visit;
@@ -25,8 +25,7 @@ import com.krishagni.catissueplus.core.common.events.UserSummary;
 import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.catissueplus.core.de.events.ExtensionDetail;
 
-
-@JsonSerialize(include= JsonSerialize.Inclusion.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @ListenAttributeChanges
 public class VisitDetail extends VisitSummary {
 	private Long cprId;
@@ -38,6 +37,8 @@ public class VisitDetail extends VisitSummary {
 	private String cpShortTitle;
 
 	private Set<String> clinicalDiagnoses;
+
+	private List<PermissibleValueDetails> diagnosisList;
 	
 	private String clinicalStatus;
 
@@ -109,6 +110,14 @@ public class VisitDetail extends VisitSummary {
 
 	public void setClinicalDiagnoses(Set<String> clinicalDiagnoses) {
 		this.clinicalDiagnoses = clinicalDiagnoses;
+	}
+
+	public List<PermissibleValueDetails> getDiagnosisList() {
+		return diagnosisList;
+	}
+
+	public void setDiagnosisList(List<PermissibleValueDetails> diagnosisList) {
+		this.diagnosisList = diagnosisList;
 	}
 
 	public String getClinicalStatus() {
@@ -231,6 +240,7 @@ public class VisitDetail extends VisitSummary {
 		VisitDetail detail = new VisitDetail();
 		detail.setActivityStatus(visit.getActivityStatus());
 		detail.setClinicalDiagnoses(PermissibleValue.toValueSet(visit.getClinicalDiagnoses()));
+		detail.setDiagnosisList(PermissibleValueDetails.from(visit.getClinicalDiagnoses()));
 		detail.setClinicalStatus(PermissibleValue.getValue(visit.getClinicalStatus()));
 		detail.setStatus(visit.getStatus());
 		detail.setComments(visit.getComments());
@@ -296,6 +306,7 @@ public class VisitDetail extends VisitSummary {
 
 		if (event.getClinicalDiagnosis() != null) {
 			detail.setClinicalDiagnoses(PermissibleValue.toValueSet(Collections.singleton(event.getClinicalDiagnosis())));
+			detail.setDiagnosisList(PermissibleValueDetails.from(Collections.singleton(event.getClinicalDiagnosis())));
 		}
 
 		return detail;

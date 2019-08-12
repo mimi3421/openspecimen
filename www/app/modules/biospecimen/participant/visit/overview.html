@@ -129,7 +129,7 @@
 
     <li class="item">
       <strong class="key key-sm" translate="visits.clinical_diagnosis">Clinical Diagnosis</strong>
-      <span class="value value-md">{{visit.clinicalDiagnoses | osArrayJoin | osNoValue}}</span>
+      <span class="value value-md">{{visit.diagnosisList | osArrayJoin: joinCd | osNoValue}}</span>
     </li>
 
     <li class="item">

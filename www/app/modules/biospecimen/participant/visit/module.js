@@ -128,6 +128,18 @@ angular.module('os.biospecimen.visit', [
           $scope.toggleShowActivity = function() {
             $scope.visitCtx.showActivity = !$scope.visitCtx.showActivity;
           }
+
+          $scope.joinCd = function(cd) {
+            if (cd.value == 'Not Specified') {
+              return null;
+            }
+
+            if (cd.conceptCode) {
+              return cd.value + ' (' + cd.conceptCode + ')';
+            } else {
+              return cd.value;
+            }
+          }
         },
         resolve: {
           spmnReqs: function(cp, CpConfigSvc) {

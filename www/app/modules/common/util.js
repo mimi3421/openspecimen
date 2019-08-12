@@ -543,6 +543,10 @@ angular.module('openspecimen')
           function(e) {
             return parsedExpr(e);
           }
+        ).filter(
+          function(e) {
+            return !!e;
+          }
         ).join(separator);
       },
 

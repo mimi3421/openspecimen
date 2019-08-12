@@ -15,7 +15,10 @@ angular.module('openspecimen')
 
       var result = [];
       angular.forEach(collection, function(item) {
-        result.push(fun(item));
+        var value = fun(item);
+        if (value) {
+          result.push(value);
+        }
       });
 
       return result.join(", ");
