@@ -5,16 +5,12 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
 
     var data = {opts: {}};
 
-    function isPending(spmn) {
-      return spmn.status == 'Pending';
-    }
-
     function getReservePositionsOp(cpId, cprId, allocRules, specimens) {
       var aliquots = {}, result = [];
 
       angular.forEach(specimens,
         function(specimen) {
-          if (specimen.storageType == 'Virtual' || !isPending(specimen)) {
+          if (specimen.storageType == 'Virtual' || (!!specimen.status && specimen.status != 'Pending')) {
             return;
           }
 
