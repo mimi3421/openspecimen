@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol;
 import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
@@ -231,7 +231,9 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 	}
 	
 	private void setLabel(SpecimenDetail detail, Specimen specimen, OpenSpecimenException ose) {
-		specimen.setLabel(detail.getLabel());
+		if (StringUtils.isNotBlank(detail.getLabel())) {
+			specimen.setLabel(detail.getLabel());
+		}
 	}
 	
 	private void setLabel(SpecimenDetail detail, Specimen existing, Specimen specimen, OpenSpecimenException ose) {

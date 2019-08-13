@@ -413,6 +413,10 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
         return spmn.status == 'Pending';
       }
 
+      function isCollectedOrPending(spmn) {
+        return spmn.status == 'Collected' || spmn.status == 'Pending';
+      }
+
       function printLabel(cpPrintSettings, specimen) {
         return (specimen.labelAutoPrintMode == 'ON_COLLECTION') ||
           (!specimen.reqId && cpPrintSettings[specimen.lineage] == 'ON_COLLECTION');
@@ -482,6 +486,7 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
         });
 
         if (grpLeader) {
+          grpLeader.$$collectedOrPending = aliquotGrp.some(isCollectedOrPending);
           grpLeader.aliquotGrp = aliquotGrp;
           listenContainerChanges(grpLeader);
         }
@@ -792,6 +797,7 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
         newLeader.aliquotGrp = members;
         newLeader.expanded = true;
         newLeader.grpLeader = null;
+        newLeader.$$collectedOrPending = specimen.$$collectedOrPending;
         angular.forEach(members, function(member) {
           if (member != newLeader) {
             member.grpLeader = newLeader;
@@ -826,29 +832,7 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
         }
       }  
 
-      $scope.statusChanged = function(specimen) {
-        if (!specimen) {
-          return;
-        }
-
-        setDescendentStatus(specimen); 
-
-        if (specimen.status == 'Collected') {
-          var curr = specimen.parent;
-          while (curr) {
-            curr.status = specimen.status;
-            curr = curr.parent;
-          }
-        }
-        
-        handleSpecimensPoolStatus(specimen);
-
-        if (!specimen.expanded) {
-          angular.forEach(specimen.aliquotGrp, function(sibling) {
-            sibling.status = specimen.status;
-          });
-        }
-      };
+      $scope.statusChanged = statusChanged;
 
       $scope.updateCollDate = function() {
         $scope.collDetail.collectionDate = $scope.visit.visitDate;
@@ -915,7 +899,11 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
         return count;
       };
 
-      function setDescendentStatus(specimen) {
+      function statusChanged(specimen) {
+        if (!specimen) {
+          return;
+        }
+
         angular.forEach(specimen.specimensPool, 
           function(poolSpmn) {
             poolSpmn.status = specimen.status;
@@ -925,10 +913,32 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
         angular.forEach(specimen.children,
           function(child) {
             child.status = specimen.status;
-            setDescendentStatus(child);
+            statusChanged(child);
           }
         );
-      };
+
+        if (specimen.status == 'Collected') {
+          var curr = specimen.parent;
+          while (curr) {
+            curr.status = specimen.status;
+            curr = curr.parent;
+          }
+        }
+
+        handleSpecimensPoolStatus(specimen);
+
+        if (!specimen.expanded && specimen.aliquotGrp) {
+          angular.forEach(specimen.aliquotGrp, function(sibling) {
+            sibling.status = specimen.status;
+          });
+
+          specimen.$$collectedOrPending = isCollectedOrPending(specimen);
+        } else if (specimen.aliquotGrp) {
+          specimen.$$collectedOrPending = specimen.aliquotGrp.some(isCollectedOrPending);
+        } else if (specimen.grpLeader && specimen.grpLeader.aliquotGrp) {
+          specimen.grpLeader.$$collectedOrPending = specimen.grpLeader.aliquotGrp.some(isCollectedOrPending);
+        }
+      }
 
       function areDupInputsPresent(input, prop) {
         var values = [];
@@ -956,16 +966,6 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
             }
 
             visited.push(uiSpecimen);
-
-            if ((cp.manualSpecLabelEnabled || !uiSpecimen.labelFmt) && !uiSpecimen.label) {
-              if (!uiSpecimen.grpLeader.expanded) {
-                //
-                // Specimen label is not specified when expected but aliquot group is
-                // in collapsed state. Therefore ignore the specimen or do not save
-                //
-                return;
-              }
-            }
 
             var specimen = getSpecimenToSave(uiSpecimen);
             specimen.children = getSpecimensToSave(cp, uiSpecimen.children, visited);
@@ -1090,7 +1090,7 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
       }
 
       function assignInputs(aliquot, inputs, prop) {
-        var inputs = Util.splitStr(inputs, /,|\t|\n/);
+        var inputs = Util.splitStr(inputs, /,|\t|\n/, true);
         var newSpmnsCnt = inputs.length - aliquot.aliquotGrp.length;
         if (newSpmnsCnt > 0) {
           addAliquotsToGrp(aliquot, newSpmnsCnt);
