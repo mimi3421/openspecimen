@@ -80,7 +80,7 @@ angular.module('os.biospecimen.participant.specimen-tree',
 
     function isAnyPendingSelected(specimens) {
       for (var i = 0; i < specimens.length; ++i) {
-        if (specimens[i].selected && specimens[i].status != 'Collected') {
+        if (specimens[i].selected && isPending(specimens[i])) {
           return true;
         }
       }
@@ -91,7 +91,7 @@ angular.module('os.biospecimen.participant.specimen-tree',
     function isAnyPendingDescendantSelected(specimen) {
       if (!!specimen.specimensPool) {
         for (var i = 0; i < specimen.specimensPool.length; ++i) {
-          if (specimen.specimensPool[i].selected && specimen.specimensPool[i].status != 'Collected') {
+          if (specimen.specimensPool[i].selected && isPending(specimen.specimensPool[i])) {
             return true;
           }
         }
@@ -102,7 +102,7 @@ angular.module('os.biospecimen.participant.specimen-tree',
       }
 
       for (var i = 0; i < specimen.children.length; ++i) {
-        if (specimen.children[i].selected && specimen.children[i].status != 'Collected') {
+        if (specimen.children[i].selected && isPending(specimen.children[i])) {
           return true;
         }
 
@@ -113,6 +113,14 @@ angular.module('os.biospecimen.participant.specimen-tree',
 
       return false;
     };
+
+    function isPending(spmn) {
+      return !spmn.status || spmn.status == 'Pending';
+    }
+
+    function isMissedOrNotCollected(spmn) {
+      return spmn.status == 'Missed Collection' || spmn.status == 'Not Collected';
+    }
 
     function getState() {
       return {state: $state.current, params: $stateParams};
@@ -338,14 +346,19 @@ angular.module('os.biospecimen.participant.specimen-tree',
           return;
         }
 
-        var specimensToCollect = [];
+        var specimensToCollect = [], missedSpmns = [];
         angular.forEach(scope.specimens, function(specimen) {
-          if ((!specimen.selected || specimen.status == 'Collected') && !isAnyPendingDescendantSelected(specimen)) {
+          if ((!specimen.selected || !isPending(specimen)) && !isAnyPendingDescendantSelected(specimen)) {
+            return;
+          }
+
+          if (isMissedOrNotCollected(specimen) || (specimen.parent && missedSpmns.indexOf(specimen.parent) != -1)) {
+            missedSpmns.push(specimen);
             return;
           }
 
           if (specimen.parent && specimen.parent.$$invisibleN) {
-            if (specimen.parent.status != 'Collected') {
+            if (isPending(specimen.parent)) {
               specimen.parent.selected = true;
             }
 
@@ -362,7 +375,7 @@ angular.module('os.biospecimen.participant.specimen-tree',
 
         var onlyCollected = true;
         for (var i = 0; i < specimensToCollect.length; ++i) {
-          if (specimensToCollect[i].status != 'Collected') {
+          if (isPending(specimensToCollect[i])) {
             onlyCollected = false;
             break;
           }

@@ -5,12 +5,16 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
 
     var data = {opts: {}};
 
+    function isPending(spmn) {
+      return spmn.status == 'Pending';
+    }
+
     function getReservePositionsOp(cpId, cprId, allocRules, specimens) {
       var aliquots = {}, result = [];
 
       angular.forEach(specimens,
         function(specimen) {
-          if (specimen.storageType == 'Virtual' || (!!specimen.status && specimen.status != 'Pending')) {
+          if (specimen.storageType == 'Virtual' || !isPending(specimen)) {
             return;
           }
 
@@ -339,7 +343,7 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
 
         $scope.specimens = CollectSpecimensSvc.getSpecimens().map(
           function(specimen) {
-            specimen.existingStatus = specimen.status;
+            specimen.existingStatus = specimen.status || 'Pending';
             specimen.isVirtual = specimen.showVirtual();
             specimen.initialQty = Util.getNumberInScientificNotation(specimen.initialQty);
             if (specimen.status != 'Collected') {
@@ -347,7 +351,7 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
               specimen.printLabel = printLabel(printSettings, specimen);
             }
 
-            if (specimen.children && specimen.children.some(function(s) { return s.selected; })) {
+            if (specimen.children && specimen.children.some(function(s) { return isPending(s) && s.selected; })) {
               specimen.closeAfterChildrenCreation = cp.closeParentSpecimens;
             }
 
@@ -364,7 +368,7 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
         if ($scope.showCollVisitDetails) {
           $scope.showCollVisitDetails = ($scope.specimens || []).some(
             function(specimen) {
-              return specimen.lineage == 'New'  && specimen.existingStatus != 'Collected';
+              return specimen.lineage == 'New'  && isPending(specimen);
             }
           );
         }
@@ -404,6 +408,10 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
         initAliquotGrps($scope.specimens);
         $scope.$on('$destroy', function() { CollectSpecimensSvc.cancelReservation($scope.specimens); });
       };
+
+      function isPending(spmn) {
+        return spmn.status == 'Pending';
+      }
 
       function printLabel(cpPrintSettings, specimen) {
         return (specimen.labelAutoPrintMode == 'ON_COLLECTION') ||
@@ -460,7 +468,7 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
         var aliquotGrp = [];
         var grpLeader = undefined;
         angular.forEach(specimen.children, function(child) {
-          if (child.lineage == 'Aliquot' && child.selected && child.existingStatus != 'Collected') {
+          if (child.lineage == 'Aliquot' && child.selected && child.existingStatus == 'Pending') {
             aliquotGrp.push(child);
 
             if (!grpLeader) {
