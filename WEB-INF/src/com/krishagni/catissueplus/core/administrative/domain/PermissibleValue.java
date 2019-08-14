@@ -27,6 +27,8 @@ public class PermissibleValue extends BaseEntity {
 	
 	private Map<String, String> props = new HashMap<>();
 
+	private String activityStatus;
+
 	public String getValue() {
 		return value;
 	}
@@ -87,12 +89,21 @@ public class PermissibleValue extends BaseEntity {
 		this.props = props;
 	}
 
+	public String getActivityStatus() {
+		return activityStatus;
+	}
+
+	public void setActivityStatus(String activityStatus) {
+		this.activityStatus = activityStatus;
+	}
+
 	public void update(PermissibleValue other) {
 		setConceptCode(other.getConceptCode());
 		setAttribute(other.getAttribute());
 		setParent(other.getParent());
 		setValue(other.getValue());
 		setSortOrder(other.getSortOrder());
+		setActivityStatus(other.getActivityStatus());
 		updateProps(other);
 	}
 

@@ -33,6 +33,8 @@
       <element column="VALUE" type="string" not-null="true"/>
     </map>
 
+    <property name="activityStatus" column="ACTIVITY_STATUS"/>
+
     <query name="getSpecimenClasses">
       select
         pv

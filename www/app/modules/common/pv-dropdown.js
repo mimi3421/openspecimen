@@ -73,8 +73,8 @@ angular.module('openspecimen')
       return formCtrl.getCachedValues(group, prop, getter);
     }
 
-    function _loadPvs(scope, attrs, searchTerm) {
-      return PvManager.loadPvs(attrs.attribute, searchTerm, addDisplayValue, attrs.showOnlyLeafValues);
+    function _loadPvs(scope, attrs, searchTerm, allStatuses) {
+      return PvManager.loadPvs(attrs.attribute, searchTerm, addDisplayValue, attrs.showOnlyLeafValues, allStatuses);
     }
 
     function _loadPvsByParent(attrs, parentVal) {
@@ -82,16 +82,6 @@ angular.module('openspecimen')
     }
 
     function setPvs(scope, searchTerm, attrs, pvs) {
-      var selectedVal = scope.$eval(attrs.ngModel);
-      if (!scope.isSelectedValFetched && !!selectedVal && selectedVal == searchTerm) {
-        //
-        // case when search was initiated to obtain selected value
-        //
-        scope.pvs = scope.pvs.concat(pvs);
-        scope.isSelectedValFetched = true;
-        return;
-      }
-
       scope.pvs = pvs;
       if (attrs.unique == 'true') {
         scope.pvs = pvs.filter(function(el, pos) { return pvs.indexOf(el) == pos; });
@@ -103,7 +93,8 @@ angular.module('openspecimen')
 
       if (!searchTerm && !scope.isSelectedValFetched) {
         // init case
-        checkAndFetchSelectedVal(scope, selectedVal, pvs);
+        var selectedVal = scope.$eval(attrs.ngModel);
+        checkAndFetchSelectedVal(scope, selectedVal, scope.pvs, attrs);
       }
     }
 
@@ -112,22 +103,28 @@ angular.module('openspecimen')
     // The selected PV is not displayed if it is not present in initial list of 100 PVs.
     // This function decides whether to initiate a search to obtain selected PV from backend
     //
-    function checkAndFetchSelectedVal(scope, selectedVal, pvs) {
-      scope.isSelectedValFetched = !selectedVal || pvs.length < 100;
-      if (!scope.isSelectedValFetched) {
-        for (var i = 0; i < pvs.length; i++) {
-          if (pvs[i].value == selectedVal) {
-            scope.isSelectedValFetched = true;
-            return;
-          }
-        }
-
-        //
-        // selected value is not in list;
-        // initiate search to retrieve it from backend
-        //
-        scope.searchPvs(selectedVal);
+    function checkAndFetchSelectedVal(scope, selectedVal, pvs, attrs) {
+      scope.isSelectedValFetched = !selectedVal;
+      if (scope.isSelectedValFetched) {
+        return;
       }
+
+      scope.isSelectedValFetched = true;
+      for (var i = 0; i < pvs.length; i++) {
+        if (pvs[i].value == selectedVal) {
+          return;
+        }
+      }
+
+      //
+      // selected value is not in list;
+      // initiate search to retrieve it from backend
+      //
+      _loadPvs(scope, attrs, selectedVal, true).then(
+        function(searchPvs) {
+          angular.forEach(searchPvs, function(p) { pvs.push(p); });
+        }
+      );
     }
 
     function addDisplayValue(input) {

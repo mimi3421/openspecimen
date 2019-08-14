@@ -35,6 +35,10 @@ angular.module('os.query.lookup', [])
 
         $scope.searchTerm = function(searchTerm) {
           var params = {};
+          if (url.indexOf('permissible-values') != -1) {
+            params.activityStatus = 'all';
+          }
+
           params[opts.searchTermName] = searchTerm;
           if (opts.filters) {
             angular.extend(params, opts.filters);

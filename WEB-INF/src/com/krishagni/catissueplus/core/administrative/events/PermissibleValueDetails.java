@@ -31,7 +31,6 @@ public class PermissibleValueDetails {
 
 	private Map<String, String> props = new HashMap<>();
 
-	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	private String activityStatus = "Active";
 	
 	public Long getId() {
@@ -122,22 +121,23 @@ public class PermissibleValueDetails {
 		this.activityStatus = activityStatus;
 	}
 
-	public static PermissibleValueDetails fromDomain(PermissibleValue permissibleValue) {
-		PermissibleValueDetails details = new PermissibleValueDetails();
-		details.setConceptCode(permissibleValue.getConceptCode());
-		details.setId(permissibleValue.getId());
-		details.setAttribute(permissibleValue.getAttribute());
-		details.setValue(permissibleValue.getValue());
-		if (permissibleValue.getParent() != null) {
-			details.setParentId(permissibleValue.getParent().getId());
-			details.setParentValue(permissibleValue.getParent().getValue());
+	public static PermissibleValueDetails fromDomain(PermissibleValue pv) {
+		PermissibleValueDetails result = new PermissibleValueDetails();
+		result.setConceptCode(pv.getConceptCode());
+		result.setId(pv.getId());
+		result.setAttribute(pv.getAttribute());
+		result.setValue(pv.getValue());
+		result.setActivityStatus(pv.getActivityStatus());
+		if (pv.getParent() != null) {
+			result.setParentId(pv.getParent().getId());
+			result.setParentValue(pv.getParent().getValue());
 		}
 		
-		if (permissibleValue.getProps() != null && !permissibleValue.getProps().isEmpty()) {
-			details.setProps(permissibleValue.getProps());
+		if (pv.getProps() != null && !pv.getProps().isEmpty()) {
+			result.setProps(pv.getProps());
 		}
 		
-		return details;
+		return result;
 	}
 
 	public static PermissibleValueDetails from(PermissibleValue pv) {

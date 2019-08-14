@@ -1181,4 +1181,12 @@
       end;
     </sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="PV activity status">
+    <addColumn tableName="CATISSUE_PERMISSIBLE_VALUE">
+      <column name="ACTIVITY_STATUS" type="${text.type}(16)" defaultValue="Active">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

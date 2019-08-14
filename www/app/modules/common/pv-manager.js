@@ -153,7 +153,7 @@ angular.module('openspecimen')
       return pvs.map(function(pv) { return transformfn(pv); });
     };
 
-    function loadPvs(attr, srchTerm, transformFn, incOnlyLeaf) {
+    function loadPvs(attr, srchTerm, transformFn, incOnlyLeaf, allStatuses) {
       var pvId = pvIdMap[attr];
       if (!pvId && pvMap[attr]) {
         return _getPvs(attr);
@@ -171,6 +171,10 @@ angular.module('openspecimen')
         params.value = srchTerm
       } else {
         params.searchString = srchTerm
+      }
+
+      if (allStatuses) {
+        params.activityStatus = 'all';
       }
 
       return $http.get(url, {params: params}).then(

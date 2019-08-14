@@ -59,6 +59,9 @@ public class PermissibleValueController {
 
 		@RequestParam(value = "includeOnlyRootValue", required = false, defaultValue="false")
 		boolean includeOnlyRootValue,
+
+		@RequestParam(value = "activityStatus", required = false)
+		String activityStatus,
 						
 		@RequestParam(value = "maxResults", required = false, defaultValue = "1000")
 		int maxResults) {
@@ -72,13 +75,9 @@ public class PermissibleValueController {
 			.parentAttribute(parentAttribute)
 			.includeOnlyLeafValue(includeOnlyLeafValue)
 			.includeOnlyRootValue(includeOnlyRootValue)
+			.activityStatus(activityStatus)
 			.maxResults(maxResults);
-		
-		RequestEvent<ListPvCriteria> req = new RequestEvent<>(crit);
-		ResponseEvent<List<PvDetail>> resp = pvSvc.getPermissibleValues(req);
-		resp.throwErrorIfUnsuccessful();
-				
-		return resp.getPayload();
+		return ResponseEvent.unwrap(pvSvc.getPermissibleValues(RequestEvent.wrap(crit)));
 	}
 
 
@@ -110,10 +109,23 @@ public class PermissibleValueController {
 		@RequestParam(value = "includeOnlyRootValue", required = false, defaultValue="false")
 		boolean includeOnlyRootValue,
 
+		@RequestParam(value = "activityStatus", required = false)
+		String activityStatus,
+
 		@RequestParam(value = "maxResults", required = false, defaultValue = "1000")
 		int maxResults) {
 
-		return getPermissibleValues(attribute, searchStr, values, includeParentValue, parentAttribute, parentValue, includeOnlyLeafValue, includeOnlyRootValue, maxResults);
+		return getPermissibleValues(
+			attribute,
+			searchStr,
+			values,
+			includeParentValue,
+			parentAttribute,
+			parentValue,
+			includeOnlyLeafValue,
+			includeOnlyRootValue,
+			activityStatus,
+			maxResults);
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/v/{id}")
