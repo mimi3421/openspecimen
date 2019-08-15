@@ -8,7 +8,8 @@ angular.module('os.biospecimen.specimen',
     'os.biospecimen.specimen.close',
     'os.biospecimen.specimen.addaliquots',
     'os.biospecimen.specimen.addderivative',
-    'os.biospecimen.specimen.bulkaddevent'
+    'os.biospecimen.specimen.bulkaddevent',
+    'os.biospecimen.extensions'
   ])
   .config(function($stateProvider) {
 
@@ -250,8 +251,9 @@ angular.module('os.biospecimen.specimen',
       .state('specimen-detail.event-overview', {
         url: '/event-overview?formId&recordId',
         templateUrl: 'modules/biospecimen/participant/specimen/event-overview.html',
-        controller: function($scope, event) {
+        controller: function($scope, event, specimen) {
           $scope.event = event;
+          event.osEntity = specimen;
         },
         resolve: {
           event: function($stateParams, Form) {
@@ -518,7 +520,26 @@ angular.module('os.biospecimen.specimen',
       });
   })
 
-  .run(function(QuickSearchSvc) {
+  .run(function(QuickSearchSvc, ExtensionsUtil) {
     var opts = {caption: 'entities.specimen', state: 'specimen-detail.overview'}
     QuickSearchSvc.register('specimen', opts);
+
+    ExtensionsUtil.registerView(
+      'ContainerTransferEvent', 'modules/biospecimen/participant/specimen/transfer-event.html');
+    ExtensionsUtil.registerView(
+      'SpecimenDistributedEvent', 'modules/biospecimen/participant/specimen/distributed-event.html');
+    ExtensionsUtil.registerView(
+      'SpecimenChildrenEvent', 'modules/biospecimen/participant/specimen/processed-event.html');
+    ExtensionsUtil.registerView(
+      'SpecimenReservedEvent', 'modules/biospecimen/participant/specimen/reserved-event.html');
+    ExtensionsUtil.registerView(
+      'SpecimenReservationCancelledEvent', 'modules/biospecimen/participant/specimen/reserved-event.html');
+    ExtensionsUtil.registerView(
+      'SpecimenReturnEvent', 'modules/biospecimen/participant/specimen/return-event.html');
+    ExtensionsUtil.registerView(
+      'SpecimenShipmentShippedEvent', 'modules/biospecimen/participant/specimen/shipment-event.html');
+    ExtensionsUtil.registerView(
+      'SpecimenShipmentReceivedEvent', 'modules/biospecimen/participant/specimen/shipment-event.html');
+    ExtensionsUtil.registerView(
+      'SpecimenTransferEvent', 'modules/biospecimen/participant/specimen/transfer-event.html');
   });

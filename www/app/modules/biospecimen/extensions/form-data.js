@@ -1,10 +1,10 @@
 
 angular.module('os.biospecimen.extensions')
-  .directive('osFormData', function(ApiUrls) {
+  .directive('osFormData', function(ApiUrls, ExtensionsUtil) {
     return {
       restrict: 'E',
 
-      templateUrl: 'modules/biospecimen/extensions/form-data.html',
+      template: '<div ng-include src="tmplUrl"></div>',
 
       scope: {
         data: '='
@@ -12,6 +12,12 @@ angular.module('os.biospecimen.extensions')
 
       link: function(scope, element, attrs) {
         scope.filesUrl = ApiUrls.getBaseUrl() + 'form-files';
+        scope.tmplUrl = 'modules/biospecimen/extensions/form-data.html';
+
+        var customTmpl = ExtensionsUtil.getViewTmpl(scope.data.name);
+        if (customTmpl) {
+          scope.tmplUrl = customTmpl;
+        }
 
         var longerCaptionFields  = 0, totalFields = 0;
         angular.forEach(scope.data.fields,

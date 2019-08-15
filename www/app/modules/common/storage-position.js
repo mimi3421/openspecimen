@@ -301,8 +301,11 @@ angular.module('openspecimen')
         '<span ng-switch on="!!position.name"> ' +
           '<span ng-switch-when="true"> ' +
             '<span>{{position.name}}</span> ' +
-            '<span ng-if="position.mode == \'LINEAR\'">({{position.position}})</span> ' +
-            '<span ng-if="position.mode == \'TWO_D\'">({{position.positionY}} x  {{position.positionX}})</span> ' +
+            '<span ng-show="position.mode == \'LINEAR\'">({{position.position}})</span> ' +
+            '<span ng-show="position.mode == \'TWO_D\'">({{position.positionY}} x {{position.positionX}})</span> ' +
+            '<span ng-show="position.mode == \'ALL\' && !!position.position"> ' +
+              '({{position.positionY}} x {{position.positionX}}, {{position.position}}) ' +
+            '</span> ' +
           '</span>' +
           '<span ng-switch-default> ' +
             '<span translate="specimens.virtually_located">Virtual</span>' +

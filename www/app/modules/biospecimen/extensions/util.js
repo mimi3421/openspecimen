@@ -181,6 +181,8 @@ angular.module('os.biospecimen.extensions.util', [])
       );
     }
 
+    var viewTmpls = {};
+
     return {
       getFileDownloadUrl: getFileDownloadUrl,
 
@@ -192,7 +194,15 @@ angular.module('os.biospecimen.extensions.util', [])
 
       sortForms: sortForms,
 
-      linkFormRecords: linkFormRecords
+      linkFormRecords: linkFormRecords,
+
+      registerView: function(name, viewTmpl) {
+        viewTmpls[name] = viewTmpl;
+      },
+
+      getViewTmpl: function(name) {
+        return viewTmpls[name];
+      }
     }
  
   });
