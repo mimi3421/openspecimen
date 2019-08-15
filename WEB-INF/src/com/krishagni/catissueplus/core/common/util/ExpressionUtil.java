@@ -54,6 +54,7 @@ public class ExpressionUtil {
 			methods.put("monthsBetween", Utility.class.getDeclaredMethod("monthsBetween", Date.class, Date.class));
 			methods.put("daysBetween", Utility.class.getDeclaredMethod("daysBetween", Date.class, Date.class));
 			methods.put("cmp", Utility.class.getDeclaredMethod("cmp", Date.class, Date.class));
+			methods.put("formatDate", Utility.class.getDeclaredMethod("format", Date.class, String.class));
 			return methods;
 		} catch (Exception e) {
 			throw OpenSpecimenException.serverError(e);

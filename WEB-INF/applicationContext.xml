@@ -132,6 +132,9 @@
         <bean class="com.krishagni.catissueplus.core.biospecimen.label.visit.VisitClinicalStatusAbbrToken"/>
         <bean class="com.krishagni.catissueplus.core.biospecimen.label.visit.VisitSiteCodeLabelToken"/>
         <bean class="com.krishagni.catissueplus.core.biospecimen.label.visit.VisitCustomFieldLabelToken"/>
+        <bean class="com.krishagni.catissueplus.core.common.EvalExprLabelToken">
+          <property name="objectName" value="visit"/>
+        </bean>
         <ref bean="extnPvLabelToken"/>
       </list>
     </property>
@@ -282,6 +285,9 @@
         <bean class="com.krishagni.catissueplus.core.biospecimen.label.cpr.ExternalSubjectIdPpidToken"/>
         <bean class="com.krishagni.catissueplus.core.biospecimen.label.cpr.RegSiteCodePpidToken"/>
         <bean class="com.krishagni.catissueplus.core.biospecimen.label.cpr.CustomFieldPpidToken"/>
+        <bean class="com.krishagni.catissueplus.core.common.EvalExprLabelToken">
+          <property name="objectName" value="cpr"/>
+        </bean>
       </list>
     </property>
   </bean>
@@ -373,6 +379,9 @@
         <bean class="com.krishagni.catissueplus.core.biospecimen.label.specimen.ParentSpecimenGreekLetterSequence"/>
         <bean class="com.krishagni.catissueplus.core.biospecimen.label.specimen.PrimarySpecimenLabelToken"/>
         <bean class="com.krishagni.catissueplus.core.biospecimen.label.specimen.SpecimenTypeAbbrUniqueIdLabelToken"/>
+        <bean class="com.krishagni.catissueplus.core.common.EvalExprLabelToken">
+          <property name="objectName" value="specimen"/>
+        </bean>
         <ref bean="extnPvLabelToken"/>
       </list>
     </property>
@@ -387,6 +396,9 @@
       <list>
         <bean class="com.krishagni.catissueplus.core.biospecimen.barcode.specimen.UniqueBarcodeToken"/>
         <bean class="com.krishagni.catissueplus.core.biospecimen.barcode.specimen.CpUniqueBarcodeToken"/>
+        <bean class="com.krishagni.catissueplus.core.common.EvalExprLabelToken">
+          <property name="objectName" value="specimen"/>
+        </bean>
       </list>
     </property>
   </bean>
@@ -517,6 +529,9 @@
         <bean class="com.krishagni.catissueplus.core.administrative.label.container.ParentContainerUniqueIdLabelToken"/>
         <bean class="com.krishagni.catissueplus.core.administrative.label.container.SiteCodeLabelToken"/>
         <bean class="com.krishagni.catissueplus.core.administrative.label.container.SiteUniqueIdLabelToken"/>
+        <bean class="com.krishagni.catissueplus.core.common.EvalExprLabelToken">
+          <property name="objectName" value="container"/>
+        </bean>
       </list>
     </property>
   </bean>
@@ -602,6 +617,9 @@
             <bean class="com.krishagni.catissueplus.core.administrative.label.order.ItemUniqueIdLabelToken"/>
             <bean class="com.krishagni.catissueplus.core.administrative.label.order.OrderIdLabelToken"/>
             <bean class="com.krishagni.catissueplus.core.administrative.label.order.PathStatusLabelToken"/>
+            <bean class="com.krishagni.catissueplus.core.common.EvalExprLabelToken">
+              <property name="objectName" value="orderItem"/>
+            </bean>
           </list>
         </property>
       </bean>

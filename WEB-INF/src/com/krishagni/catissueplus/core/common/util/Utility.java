@@ -344,6 +344,10 @@ public class Utility {
 		return new SimpleDateFormat(ConfigUtil.getInstance().getDateTimeFmt()).format(date);
 	}
 
+	public static String format(Date date, String format) {
+		return date != null ? new SimpleDateFormat(format).format(date) : null;
+	}
+
 	public static Integer getYear(Date date) {
 		if (date == null) {
 			return null;
