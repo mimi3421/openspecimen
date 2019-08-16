@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol;
 import com.krishagni.catissueplus.core.common.AttributeModifiedSupport;
 import com.krishagni.catissueplus.core.common.ListenAttributeChanges;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
+import com.krishagni.catissueplus.core.common.util.Utility;
 
 @ListenAttributeChanges
 public class DistributionProtocolSummary extends AttributeModifiedSupport {
@@ -99,13 +101,7 @@ public class DistributionProtocolSummary extends AttributeModifiedSupport {
 	}
 	
 	public static List<DistributionProtocolSummary> from(Collection<DistributionProtocol> dps) {
-		List<DistributionProtocolSummary> result = new ArrayList<DistributionProtocolSummary>();
-		
-		for (DistributionProtocol dp : dps) {
-			result.add(from(dp));
-		}
-		
-		return result;
+		return Utility.nullSafeStream(dps).map(DistributionProtocolSummary::from).collect(Collectors.toList());
 	}
 	
 	public static void copy(DistributionProtocol dp, DistributionProtocolSummary detail) {
@@ -119,5 +115,4 @@ public class DistributionProtocolSummary extends AttributeModifiedSupport {
 			detail.setDefReceivingSiteName(dp.getDefReceivingSite().getName());
 		}
 	}
-	
 }

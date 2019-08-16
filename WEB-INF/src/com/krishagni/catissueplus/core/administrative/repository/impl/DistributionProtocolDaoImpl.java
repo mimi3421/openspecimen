@@ -52,9 +52,9 @@ public class DistributionProtocolDaoImpl extends AbstractDao<DistributionProtoco
 
 	@Override
 	public Long getDistributionProtocolsCount(DpListCriteria criteria) {
-		Number count = (Number) getDpListQuery(criteria)
-				.setProjection(Projections.rowCount())
-				.uniqueResult();
+		Number count = (Number) getDpIdsQuery(criteria).getExecutableCriteria(getCurrentSession())
+			.setProjection(Projections.rowCount())
+			.uniqueResult();
 		return count.longValue();
 	}
 
@@ -208,6 +208,7 @@ public class DistributionProtocolDaoImpl extends AbstractDao<DistributionProtoco
 		addPiCondition(query, crit);
 		addIrbIdCondition(query, crit);
 		addInstCondition(query, crit);
+		addRecvSiteCondition(query, crit);
 		addDistSitesCondition(query, crit);
 		addExpiredDpsCondition(query, crit);
 		addActivityStatusCondition(query, crit);
@@ -238,6 +239,15 @@ public class DistributionProtocolDaoImpl extends AbstractDao<DistributionProtoco
 
 		query.createAlias("institute", "institute")
 			.add(Restrictions.eq("institute.name", crit.receivingInstitute().trim()));
+	}
+
+	private void addRecvSiteCondition(Criteria query, DpListCriteria crit) {
+		if (StringUtils.isBlank(crit.receivingSite())) {
+			return;
+		}
+
+		query.createAlias("defReceivingSite", "recvSite")
+			.add(Restrictions.eq("recvSite.name", crit.receivingSite().trim()));
 	}
 	
 	private void addDistSitesCondition(Criteria query, DpListCriteria crit) {

@@ -237,6 +237,10 @@ public class AccessCtrlMgr {
 		ensureDpObjectRights(dp, new Operation[] {Operation.DELETE});
 	}
 
+	public boolean hasDpEximRights() {
+		return hasEximRights(null, Resource.DP.getName());
+	}
+
 	private void ensureDpObjectRights(DistributionProtocol dp, Operation[] ops) {
 		ensureDpObjectRights(dp, ops, true);
 	}

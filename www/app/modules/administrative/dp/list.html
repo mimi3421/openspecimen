@@ -46,8 +46,11 @@
           <th class="col">
             <span translate="dp.short_title">Short Title</span>
           </th>
-          <th class="col os-desc-column">
-            <span translate="dp.title">Title</span>
+          <th class="col">
+            <span translate="dp.receiving_institute">Receiving Institute</span>
+          </th>
+          <th class="col">
+            <span translate="dp.receiving_site">Receiving Site</span>
           </th>
           <th class="col">
             <span translate="dp.pi">Principal Investigator</span>
@@ -75,9 +78,10 @@
             </a>
           </td>
           <td class="col">
-            <a ui-sref="dp-detail.overview({dpId: dp.id})">
-              <span>{{dp.title}}</span>
-            </a>
+            <span>{{dp.instituteName}}</span>
+          </td>
+          <td class="col">
+            <span>{{dp.defReceivingSiteName | osNoValue}}</span>
           </td>
           <td class="col">
             <span>{{dp.principalInvestigator | osUserDisplayName}}</span>
@@ -131,6 +135,8 @@
       </ul>
     </div>
 
+    <os-export show-if-allowed="dpResource.importOpts" class="default" detail="ctx.exportDetail"></os-export>
+
     <os-help class="os-btns btn default" link="dp_help_link"></os-help>
   </div>
 </script>
@@ -141,5 +147,9 @@
       <span class="fa fa-trash"></span>
       <span translate="common.buttons.delete">Delete</span>
     </button>
+
+    <os-export show-if-allowed="dpResource.importOpts" class="default"
+      detail="ctx.exportDetail" check-list="ctx.checkList">
+    </os-export>
   </div>
 </script>

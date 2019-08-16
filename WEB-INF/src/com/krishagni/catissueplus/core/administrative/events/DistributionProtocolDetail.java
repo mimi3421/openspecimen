@@ -6,11 +6,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol;
 import com.krishagni.catissueplus.core.administrative.domain.DpDistributionSite;
 import com.krishagni.catissueplus.core.common.ListenAttributeChanges;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
+import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.catissueplus.core.de.events.ExtensionDetail;
 import com.krishagni.catissueplus.core.de.events.FormSummary;
 import com.krishagni.catissueplus.core.de.events.SavedQuerySummary;
@@ -53,7 +56,7 @@ public class DistributionProtocolDetail extends DistributionProtocolSummary {
 	public void setInstituteName(String instituteName) {
 		this.instituteName = instituteName;
 	}
-	
+
 	public String getIrbId() {
 		return irbId;
 	}
@@ -110,6 +113,20 @@ public class DistributionProtocolDetail extends DistributionProtocolSummary {
 		this.distributingSites = distributingSites;
 	}
 
+	@JsonIgnore
+	public List<Map<String, Object>> getDistributingSitesMapList() {
+		List<Map<String, Object>> result = new ArrayList<>();
+
+		for (Map.Entry<String, List<String>> instituteSites : distributingSites.entrySet()) {
+			Map<String, Object> distSite = new HashMap<>();
+			distSite.put("institute", instituteSites.getKey());
+			distSite.put("site", instituteSites.getValue());
+			result.add(distSite);
+		}
+
+		return result;
+	}
+
 	public void setDistributingSitesMapList(List<Map<String, Object>> input) {
 		Map<String, List<String>> distributingSites = new HashMap<>();
 
@@ -157,14 +174,7 @@ public class DistributionProtocolDetail extends DistributionProtocolSummary {
 		return detail;
 	}
 
-	public static List<DistributionProtocolDetail> from(List<DistributionProtocol> distributionProtocols) {
-		List<DistributionProtocolDetail> list = new ArrayList<>();
-		
-		for (DistributionProtocol dp : distributionProtocols) {
-			list.add(from(dp));
-		}
-		
-		return list;
+	public static List<DistributionProtocolDetail> from(List<DistributionProtocol> dps) {
+		return Utility.nullSafeStream(dps).map(DistributionProtocolDetail::from).collect(Collectors.toList());
 	}
-	
 }

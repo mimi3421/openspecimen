@@ -70,6 +70,9 @@ public class DistributionProtocolController {
 			@RequestParam(value = "receivingInstitute", required = false)
 			String receivingInstitute,
 
+			@RequestParam(value = "receivingSite", required = false)
+			String receivingSite,
+
 			@RequestParam(value = "cp", required = false)
 			String cpShortTitle,
 			
@@ -96,6 +99,7 @@ public class DistributionProtocolController {
 			.piId(piId)
 			.irbIdLike(irbId)
 			.receivingInstitute(receivingInstitute)
+			.receivingSite(receivingSite)
 			.cpShortTitle(cpShortTitle)
 			.includeStat(includeStats)
 			.excludeExpiredDps(excludeExpiredDps)
@@ -124,6 +128,9 @@ public class DistributionProtocolController {
 
 			@RequestParam(value = "receivingInstitute", required = false)
 			String receivingInstitute,
+
+			@RequestParam(value = "receivingSite", required = false)
+			String receivingSite,
 			
 			@RequestParam(value = "activityStatus", required = false)
 			String activityStatus) {
@@ -134,6 +141,7 @@ public class DistributionProtocolController {
 			.piId(piId)
 			.irbIdLike(irbId)
 			.receivingInstitute(receivingInstitute)
+			.receivingSite(receivingSite)
 			.activityStatus(activityStatus);
 		
 		ResponseEvent<Long> resp = dpSvc.getDistributionProtocolsCount(getRequest(criteria));

@@ -17,6 +17,8 @@ public class DpListCriteria extends AbstractListCriteria<DpListCriteria> {
 	
 	private String receivingInstitute;
 
+	private String receivingSite;
+
 	private String cpShortTitle;
 	
 	private Set<SiteCpPair> sites;
@@ -72,6 +74,15 @@ public class DpListCriteria extends AbstractListCriteria<DpListCriteria> {
 	
 	public DpListCriteria receivingInstitute(String receivingInstitute) {
 		this.receivingInstitute = receivingInstitute;
+		return self();
+	}
+
+	public String receivingSite() {
+		return receivingSite;
+	}
+
+	public DpListCriteria receivingSite(String receivingSite) {
+		this.receivingSite = receivingSite;
 		return self();
 	}
 

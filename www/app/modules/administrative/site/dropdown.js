@@ -6,8 +6,8 @@ angular.module('openspecimen')
       scope.all_sites = $translate.instant('site.all_sites');
 
       if (attrs.institute) {
-        scope.$watch("institute", function(newVal) {
-          if (newVal == undefined) {
+        scope.$watch("institute", function(newVal, oldVal) {
+          if (oldVal == undefined && newVal == undefined) {
             return;
           }
 
