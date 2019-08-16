@@ -14,13 +14,13 @@
 </field>
 
 <field>
-  <type>date</type>
+  <type>dateOnly</type>
   <caption>#getMessage("participant_dob")</caption>
   <attribute>birthDate</attribute>
 </field>
 
 <field>
-  <type>date</type>
+  <type>dateOnly</type>
   <caption>#getMessage("participant_death_date")</caption>
   <attribute>deathDate</attribute>
 </field>

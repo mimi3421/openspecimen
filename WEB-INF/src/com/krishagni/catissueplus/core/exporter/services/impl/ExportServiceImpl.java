@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
@@ -157,6 +158,7 @@ public class ExportServiceImpl implements ExportService {
 		job.setSchema(schema);
 		job.setRecordIds(detail.getRecordIds());
 		job.setDisableNotifs(detail.isDisableNotifs());
+		job.param("timeZone", AuthUtil.getUserTimeZone());
 		exportJobDao.saveOrUpdate(job.markInProgress(), true);
 		return job;
 	}
@@ -178,17 +180,30 @@ public class ExportServiceImpl implements ExportService {
 
 		private long filesCount = 0;
 
-		private SimpleDateFormat df;
+		private SimpleDateFormat dateOnlyFormatter;
 
-		private SimpleDateFormat tf;
+		private SimpleDateFormat dateFormatter;
+
+		private SimpleDateFormat dateTimeFormatter;
 
 		ExportTask(ExportJob inputJob) {
 			job = inputJob;
 			generator = genFactories.get(job.getName()).get();
 
+			String timeZoneStr = inputJob.param("timeZone");
 			String dateFmt = ConfigUtil.getInstance().getDeDateFmt();
-			df = new SimpleDateFormat(dateFmt);
-			tf = new SimpleDateFormat(dateFmt + " " + ConfigUtil.getInstance().getTimeFmt());
+			dateOnlyFormatter = new SimpleDateFormat(dateFmt);
+			dateFormatter = new SimpleDateFormat(dateFmt);
+			dateTimeFormatter = new SimpleDateFormat(dateFmt + " " + ConfigUtil.getInstance().getTimeFmt());
+			if (StringUtils.isNotBlank(timeZoneStr)) {
+				try {
+					TimeZone tz = TimeZone.getTimeZone(timeZoneStr);
+					dateFormatter.setTimeZone(tz);
+					dateTimeFormatter.setTimeZone(tz);
+				} catch (Exception e) {
+					logger.error("Error using the timezone: " + timeZoneStr, e);
+				}
+			}
 		}
 
 
@@ -509,7 +524,9 @@ public class ExportServiceImpl implements ExportService {
 				String result;
 
 				Object value = getObject(object, field.getAttribute());
-				if ("date".equals(field.getType())) {
+				if ("dateOnly".equals(field.getType())) {
+					result = getDateOnlyString(value);
+				} else if ("date".equals(field.getType())) {
 					result = getDateString(value);
 				} else if ("datetime".equals(field.getType())) {
 					result = getDateTimeString(value);
@@ -552,12 +569,16 @@ public class ExportServiceImpl implements ExportService {
 			}
 		}
 
+		private String getDateOnlyString(Object input) {
+			return getFormattedDateTimeString(dateOnlyFormatter, input);
+		}
+
 		private String getDateString(Object input) {
-			return getFormattedDateTimeString(df, input);
+			return getFormattedDateTimeString(dateFormatter, input);
 		}
 
 		private String getDateTimeString(Object input) {
-			return getFormattedDateTimeString(tf, input);
+			return getFormattedDateTimeString(dateTimeFormatter, input);
 		}
 
 		private String getFormattedDateTimeString(SimpleDateFormat formatter, Object input) {

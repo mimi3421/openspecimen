@@ -59,13 +59,13 @@
     </record>
     
     <field>
-      <type>date</type>
+      <type>dateOnly</type>
       <caption>#getMessage("cp_start_date")</caption>
       <attribute>startDate</attribute>
     </field>
   
     <field>
-      <type>date</type>
+      <type>dateOnly</type>
       <caption>#getMessage("cp_end_date")</caption>
       <attribute>endDate</attribute>
     </field>

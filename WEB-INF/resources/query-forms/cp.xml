@@ -50,6 +50,7 @@
         <udn>startDate</udn>
         <caption>#getMessage("cp_start_date")</caption>
         <column>START_DATE</column>
+        <format>MM-dd-yyyy/dateOnly</format>
       </datePicker>
     </row>
     <row>
@@ -58,6 +59,7 @@
         <udn>endDate</udn>
         <caption>#getMessage("cp_end_date")</caption>
         <column>END_DATE</column>
+        <format>MM-dd-yyyy/dateOnly</format>
       </datePicker>
     </row>
     <row>

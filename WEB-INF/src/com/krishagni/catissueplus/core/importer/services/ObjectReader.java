@@ -253,7 +253,7 @@ public class ObjectReader implements Closeable {
 			return null;
 		} else if (value.trim().equals(SET_TO_BLANK)) {
 			return SET_TO_BLANK;
-		} else if (field.getType() != null && field.getType().equals("date")) {
+		} else if (field.getType() != null && (field.getType().equals("date") || field.getType().equals("dateOnly"))) {
 			return parseDate(value);
 		} else if (field.getType() != null && field.getType().equals("datetime")) {
 			return parseDateTime(value);

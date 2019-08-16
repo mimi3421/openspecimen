@@ -47,7 +47,7 @@
         <udn>dateOfBirth</udn>
         <caption>#getMessage("participant_dob")</caption>
         <column>DOB</column>
-        <format>MM-dd-yyyy</format>
+        <format>MM-dd-yyyy/dateOnly</format>
         <phi>true</phi>
       </datePicker>
     </row>
@@ -57,7 +57,7 @@
         <udn>deathDate</udn>
         <caption>#getMessage("participant_death_date")</caption>
         <column>DEATH_DATE</column>
-        <format>MM-dd-yyyy</format>
+        <format>MM-dd-yyyy/dateOnly</format>
         <phi>true</phi>
       </datePicker>
     </row>

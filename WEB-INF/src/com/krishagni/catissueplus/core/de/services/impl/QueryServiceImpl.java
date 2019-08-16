@@ -935,7 +935,8 @@ public class QueryServiceImpl implements QueryService {
 			.outputIsoDateTime(op.isOutputIsoDateTime())
 			.outputExpression(op.isOutputColumnExprs())
 			.dateFormat(ConfigUtil.getInstance().getDeDateFmt())
-			.timeFormat(ConfigUtil.getInstance().getTimeFmt());
+			.timeFormat(ConfigUtil.getInstance().getTimeFmt())
+			.timeZone(AuthUtil.getUserTimeZone());
 		query.compile(rootForm, op.getAql());
 
 		String aql = op.getAql();
@@ -1280,6 +1281,7 @@ public class QueryServiceImpl implements QueryService {
 			.ic(true)
 			.dateFormat(ConfigUtil.getInstance().getDeDateFmt())
 			.timeFormat(ConfigUtil.getInstance().getTimeFmt())
+			.timeZone(AuthUtil.getUserTimeZone())
 			.wideRowMode(WideRowMode.OFF);
 		query.compile(rootForm, aql, getRestriction(AuthUtil.getCurrentUser(), cpId, cpGroupId));
 

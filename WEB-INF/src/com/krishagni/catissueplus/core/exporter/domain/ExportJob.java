@@ -96,6 +96,22 @@ public class ExportJob extends BaseEntity {
 		this.params = params;
 	}
 
+	public void param(String name, String value) {
+		if (params == null) {
+			params = new HashMap<>();
+		}
+
+		params.putIfAbsent(name, value);
+	}
+
+	public String param(String name) {
+		if (params == null) {
+			return null;
+		}
+
+		return params.get(name);
+	}
+
 	public ObjectSchema getSchema() {
 		return schema;
 	}

@@ -3,6 +3,7 @@ package com.krishagni.catissueplus.core.common.util;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.util.Collection;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -13,6 +14,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
@@ -67,14 +69,20 @@ public class AuthUtil {
 		return null;
 	}
 
+	public static String getUserTimeZone() {
+		UserAuthToken token = (UserAuthToken) SecurityContextHolder.getContext().getAuthentication();
+		return token != null ? token.getTimeZone() : null;
+	}
+
 	public static void setCurrentUser(User user) {
 		setCurrentUser(user, null, null);
 	}
 
 	public static void setCurrentUser(User user, String authToken, HttpServletRequest httpReq) {
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user, authToken, user.getAuthorities());
+		UserAuthToken token = new UserAuthToken(user, authToken, user.getAuthorities());
 		if (httpReq != null) {
 			token.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpReq));
+			token.setTimeZone(httpReq.getHeader("X-OS-CLIENT-TZ"));
 		}
 
 		SecurityContextHolder.getContext().setAuthentication(token);
@@ -185,5 +193,25 @@ public class AuthUtil {
 		}
 
 		return value;
+	}
+
+	private static class UserAuthToken extends UsernamePasswordAuthenticationToken {
+		private String timeZone;
+
+		public UserAuthToken(Object principal, Object credentials) {
+			super(principal, credentials);
+		}
+
+		public UserAuthToken(Object principal, Object credentials, Collection<? extends GrantedAuthority> authorities) {
+			super(principal, credentials, authorities);
+		}
+
+		public String getTimeZone() {
+			return timeZone;
+		}
+
+		public void setTimeZone(String timeZone) {
+			this.timeZone = timeZone;
+		}
 	}
 }
