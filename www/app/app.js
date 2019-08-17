@@ -344,6 +344,7 @@ osApp.config(function(
     });
 
     $http.defaults.headers.common['X-OS-API-CLIENT'] = "webui";
+    $http.defaults.headers.common['X-OS-CLIENT-TZ'] = Intl.DateTimeFormat().resolvedOptions().timeZone;
     $http.defaults.withCredentials = true;
 
     if ($window.localStorage['osAuthToken']) {
