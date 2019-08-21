@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
+import java.util.TimeZone;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -337,11 +337,31 @@ public class Utility {
 	}
 
 	public static String getDateString(Date date) {
-		return new SimpleDateFormat(ConfigUtil.getInstance().getDateFmt()).format(date);
+		return getDateString(date, false);
+	}
+
+	public static String getDateString(Date date, boolean dateOnly) {
+		SimpleDateFormat sdf = new SimpleDateFormat(ConfigUtil.getInstance().getDateFmt());
+		if (dateOnly) {
+			return sdf.format(date);
+		}
+
+		TimeZone timeZone = AuthUtil.getUserTimeZone();
+		if (timeZone != null) {
+			sdf.setTimeZone(timeZone);
+		}
+
+		return sdf.format(date);
 	}
 
 	public static String getDateTimeString(Date date) {
-		return new SimpleDateFormat(ConfigUtil.getInstance().getDateTimeFmt()).format(date);
+		SimpleDateFormat sdf = new SimpleDateFormat(ConfigUtil.getInstance().getDateTimeFmt());
+		TimeZone timeZone = AuthUtil.getUserTimeZone();
+		if (timeZone != null) {
+			sdf.setTimeZone(timeZone);
+		}
+
+		return sdf.format(date);
 	}
 
 	public static String format(Date date, String format) {

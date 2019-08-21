@@ -4,9 +4,7 @@
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping auto-import="false">
-  <class
-    name="com.krishagni.catissueplus.core.importer.domain.ImportJob"
-    table="OS_BULK_IMPORT_JOBS">
+  <class name="com.krishagni.catissueplus.core.importer.domain.ImportJob" table="OS_BULK_IMPORT_JOBS">
 	
     <id name="id" column="IDENTIFIER">
       <generator class="native">
@@ -26,6 +24,8 @@
     <property name="dateFormat" column="DATE_FORMAT"/>
 
     <property name="timeFormat" column="TIME_FORMAT"/>
+
+    <property name="timeZone" column="TIME_ZONE"/>
 
     <property name="fieldSeparator" column="FIELD_SEPARATOR"/>
  

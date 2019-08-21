@@ -232,4 +232,11 @@
       <column name="participant_MOD" type="${boolean.type}"/>
     </addColumn>
   </changeSet>
+
+  <changeSet author="vpawar" id="User time zone">
+    <addColumn tableName="CATISSUE_USER_AUD">
+      <column name="TIME_ZONE" type="${text.type}(32)"/>
+      <column name="timeZone_MOD" type="${boolean.type}"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

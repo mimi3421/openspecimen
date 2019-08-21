@@ -4,6 +4,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.Collection;
+import java.util.TimeZone;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -69,9 +70,15 @@ public class AuthUtil {
 		return null;
 	}
 
-	public static String getUserTimeZone() {
+	public static TimeZone getUserTimeZone() {
 		UserAuthToken token = (UserAuthToken) SecurityContextHolder.getContext().getAuthentication();
-		return token != null ? token.getTimeZone() : null;
+		if (token == null) {
+			return null;
+		}
+
+		User currUser = getCurrentUser();
+		String timeZone = currUser != null && currUser.getTimeZone() != null ? currUser.getTimeZone() : token.getTimeZone();
+		return toTimeZone(timeZone);
 	}
 
 	public static void setCurrentUser(User user) {
@@ -193,6 +200,20 @@ public class AuthUtil {
 		}
 
 		return value;
+	}
+
+	private static TimeZone toTimeZone(String timeZone) {
+		if (StringUtils.isBlank(timeZone)) {
+			return null;
+		}
+
+		try {
+			return TimeZone.getTimeZone(timeZone);
+		} catch (Exception e) {
+			logger.error("Error obtaining time zone information for: " + timeZone, e);
+		}
+
+		return null;
 	}
 
 	private static class UserAuthToken extends UsernamePasswordAuthenticationToken {

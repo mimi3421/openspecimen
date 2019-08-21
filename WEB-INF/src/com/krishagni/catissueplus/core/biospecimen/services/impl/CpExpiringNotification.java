@@ -87,7 +87,7 @@ public class CpExpiringNotification implements ScheduledTask {
 	
 	private void notifyCpExpiryReminder(CollectionProtocol cp) {
 		Map<String, Object> emailProps = new HashMap<>();
-		String[] subjParams = {cp.getShortTitle(), Utility.getDateString(cp.getEndDate())};
+		String[] subjParams = {cp.getShortTitle(), Utility.getDateString(cp.getEndDate(), true)};
 		emailProps.put("$subject", subjParams);
 		emailProps.put("cp", cp);
 		emailProps.put("ccAdmin", false);

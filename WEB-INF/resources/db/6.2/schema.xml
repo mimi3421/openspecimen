@@ -1189,4 +1189,16 @@
       </column>
     </addColumn>
   </changeSet>
+
+  <changeSet author="vpawar" id="User time zone">
+    <addColumn tableName="CATISSUE_USER">
+      <column name="TIME_ZONE" type="${text.type}(32)"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Time zone to use for bulk importing the records in the input CSV file">
+    <addColumn tableName="OS_BULK_IMPORT_JOBS">
+      <column name="TIME_ZONE" type="${text.type}(32)"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

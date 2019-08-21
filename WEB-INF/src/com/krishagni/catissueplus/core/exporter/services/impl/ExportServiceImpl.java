@@ -150,6 +150,7 @@ public class ExportServiceImpl implements ExportService {
 			throw  OpenSpecimenException.userError(ExportErrorCode.NO_GEN_FOR_OBJECT_TYPE, detail.getObjectType());
 		}
 
+		TimeZone tz = AuthUtil.getUserTimeZone();
 		ExportJob job = new ExportJob();
 		job.setName(detail.getObjectType());
 		job.setCreatedBy(AuthUtil.getCurrentUser());
@@ -158,7 +159,7 @@ public class ExportServiceImpl implements ExportService {
 		job.setSchema(schema);
 		job.setRecordIds(detail.getRecordIds());
 		job.setDisableNotifs(detail.isDisableNotifs());
-		job.param("timeZone", AuthUtil.getUserTimeZone());
+		job.param("timeZone", tz != null ? tz.getID() : null);
 		exportJobDao.saveOrUpdate(job.markInProgress(), true);
 		return job;
 	}

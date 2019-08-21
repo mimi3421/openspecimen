@@ -14,6 +14,8 @@ public class ImportDetail {
 
 	private String timeFormat;
 
+	private String timeZone;
+
 	private String fieldSeparator;
 
 	private String inputFileId;
@@ -60,6 +62,14 @@ public class ImportDetail {
 
 	public void setTimeFormat(String timeFormat) {
 		this.timeFormat = timeFormat;
+	}
+
+	public String getTimeZone() {
+		return timeZone;
+	}
+
+	public void setTimeZone(String timeZone) {
+		this.timeZone = timeZone;
 	}
 
 	public String getFieldSeparator() {

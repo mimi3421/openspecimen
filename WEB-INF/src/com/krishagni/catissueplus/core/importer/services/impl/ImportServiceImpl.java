@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executors;
@@ -39,6 +40,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.administrative.events.MergedObject;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
+import com.krishagni.catissueplus.core.common.errors.CommonErrorCode;
 import com.krishagni.catissueplus.core.common.errors.ErrorType;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
@@ -495,6 +497,7 @@ public class ImportServiceImpl implements ImportService, ApplicationListener<Con
 		setImportType(detail, job, ose);
 		setCsvType(detail, job, ose);
 		setDateAndTimeFormat(detail, job, ose);
+		setTimeZone(detail, job, ose);
 		ose.checkAndThrow();
 
 		importJobDao.saveOrUpdate(job, true);
@@ -531,6 +534,25 @@ public class ImportServiceImpl implements ImportService, ApplicationListener<Con
 		}
 
 		job.setTimeFormat(timeFormat);
+	}
+
+	private void setTimeZone(ImportDetail detail, ImportJob job, OpenSpecimenException ose) {
+		String timeZone = detail.getTimeZone();
+		if (StringUtils.isNotBlank(timeZone)) {
+			try {
+				TimeZone tz = TimeZone.getTimeZone(timeZone);
+			} catch (Exception e) {
+				ose.addError(CommonErrorCode.INVALID_TZ, timeZone);
+				return;
+			}
+		} else {
+			TimeZone tz = AuthUtil.getUserTimeZone();
+			if (tz != null) {
+				timeZone = tz.getID();
+			}
+		}
+
+		job.setTimeZone(timeZone);
 	}
 
 	private void runImportJobScheduler() {
@@ -620,6 +642,7 @@ public class ImportServiceImpl implements ImportService, ApplicationListener<Con
 				String filePath = getJobDir(job.getId()) + File.separator + "input.csv";
 				csvWriter = getOutputCsvWriter(schema, job);
 				objReader = new ObjectReader(filePath, schema, job.getDateFormat(), job.getTimeFormat(), job.getFieldSeparator());
+				objReader.setTimeZone(job.getTimeZone());
 
 				List<String> columnNames = objReader.getCsvColumnNames();
 				columnNames.add("OS_IMPORT_STATUS");

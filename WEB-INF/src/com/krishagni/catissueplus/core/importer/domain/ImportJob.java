@@ -37,6 +37,8 @@ public class ImportJob extends BaseEntity {
 
 	private String timeFormat;
 
+	private String timeZone;
+
 	private String fieldSeparator;
 
 	private volatile Status status;
@@ -95,6 +97,14 @@ public class ImportJob extends BaseEntity {
 
 	public void setTimeFormat(String timeFormat) {
 		this.timeFormat = timeFormat;
+	}
+
+	public String getTimeZone() {
+		return timeZone;
+	}
+
+	public void setTimeZone(String timeZone) {
+		this.timeZone = timeZone;
 	}
 
 	public String getFieldSeparator() {

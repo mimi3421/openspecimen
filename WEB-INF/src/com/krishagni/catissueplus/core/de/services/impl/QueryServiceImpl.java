@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -929,6 +930,7 @@ public class QueryServiceImpl implements QueryService {
 			rootForm = op.getDrivingForm();
 		}
 
+		TimeZone tz = AuthUtil.getUserTimeZone();
 		Query query = Query.createQuery()
 			.wideRowMode(WideRowMode.valueOf(op.getWideRowMode()))
 			.ic(true)
@@ -936,7 +938,7 @@ public class QueryServiceImpl implements QueryService {
 			.outputExpression(op.isOutputColumnExprs())
 			.dateFormat(ConfigUtil.getInstance().getDeDateFmt())
 			.timeFormat(ConfigUtil.getInstance().getTimeFmt())
-			.timeZone(AuthUtil.getUserTimeZone());
+			.timeZone(tz != null ? tz.getID() : null);
 		query.compile(rootForm, op.getAql());
 
 		String aql = op.getAql();
@@ -1276,12 +1278,13 @@ public class QueryServiceImpl implements QueryService {
 		}
 		aqlFmtArgs.add(restrictionCond);
 
+		TimeZone tz = AuthUtil.getUserTimeZone();
 		String aql = String.format(aqlFmt, aqlFmtArgs.toArray());
 		Query query = Query.createQuery()
 			.ic(true)
 			.dateFormat(ConfigUtil.getInstance().getDeDateFmt())
 			.timeFormat(ConfigUtil.getInstance().getTimeFmt())
-			.timeZone(AuthUtil.getUserTimeZone())
+			.timeZone(tz != null ? tz.getID() : null)
 			.wideRowMode(WideRowMode.OFF);
 		query.compile(rootForm, aql, getRestriction(AuthUtil.getCurrentUser(), cpId, cpGroupId));
 

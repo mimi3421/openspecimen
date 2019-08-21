@@ -1244,6 +1244,7 @@
     "user_reactivated": "User reactivated",
     "users_reactivated": "{{count}} {{count == 1 ? 'user' : 'users'}} reactivated",
     "expired": "User account password has expired. Reset the password.",
+    "time_zone": "Time Zone",
 
     "confirm_institute_update_title": "Update Institute?",
     "confirm_institute_update_q": "Changing the institute will remove all the site specific roles assigned to the {{count > 1 ? 'users' : 'user'}}. Are you sure you want to proceed?",

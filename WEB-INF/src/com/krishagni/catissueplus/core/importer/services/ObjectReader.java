@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
@@ -45,6 +46,8 @@ public class ObjectReader implements Closeable {
 	private String dateFmt;
 	
 	private String timeFmt;
+
+	private TimeZone timeZone;
 	
 	private List<Integer> keyColumnIndices = new ArrayList<>();
 
@@ -77,6 +80,19 @@ public class ObjectReader implements Closeable {
 		} catch (CsvException csvEx) {
 			throw csvEx;
 		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public void setTimeZone(String timeZone) {
+		if (StringUtils.isBlank(timeZone)) {
+			return;
+		}
+
+		try {
+			this.timeZone = TimeZone.getTimeZone(timeZone);
+		} catch (Exception e) {
+			logger.error("Error obtaining the time zone: " + timeZone, e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -254,7 +270,7 @@ public class ObjectReader implements Closeable {
 		} else if (value.trim().equals(SET_TO_BLANK)) {
 			return SET_TO_BLANK;
 		} else if (field.getType() != null && (field.getType().equals("date") || field.getType().equals("dateOnly"))) {
-			return parseDate(value);
+			return parseDate(value, field.getType().equals("dateOnly"));
 		} else if (field.getType() != null && field.getType().equals("datetime")) {
 			return parseDateTime(value);
 		} else if (field.getType() != null && field.getType().equals("boolean")) {
@@ -358,16 +374,25 @@ public class ObjectReader implements Closeable {
 			return parseDate(value, dateFmt);
 		}		
 	}
-	
-	private Long parseDate(String value)
+
+	private Long parseDate(String value, boolean dateOnly)
 	throws ParseException {
-		return parseDate(value, dateFmt);
+		return parseDate(value, dateFmt, dateOnly);
 	}
-	
+
 	private Long parseDate(String value, String fmt)
+	throws ParseException {
+		return parseDate(value, fmt, false);
+	}
+
+	private Long parseDate(String value, String fmt, boolean dateOnly)
 	throws ParseException {
 		SimpleDateFormat sdf = new SimpleDateFormat(fmt);
 		sdf.setLenient(false);
+		if (!dateOnly && timeZone != null) {
+			sdf.setTimeZone(timeZone);
+		}
+
 		return sdf.parse(value).getTime();
 	}
 
@@ -384,7 +409,7 @@ public class ObjectReader implements Closeable {
 
 		String row = columnIndices.stream()
 			.map(i -> isSetToBlankField(currentRow[i]) ? "null" : currentRow[i])
-			.filter(column -> StringUtils.isNotBlank(column))
+			.filter(StringUtils::isNotBlank)
 			.collect(Collectors.joining("_"));
 		return Utility.getDigest(row);
 	}

@@ -1,7 +1,7 @@
 angular.module('os.administrative.user.addedit', ['os.administrative.models'])
   .controller('UserAddEditCtrl', function(
     $scope, $rootScope, $state, $stateParams, user, users,
-    User, Institute, AuthDomain, Util) {
+    User, Institute, AuthDomain, Util, TimeZone) {
 
     var instituteSites = {}, prevInstitute;
 
@@ -21,6 +21,13 @@ angular.module('os.administrative.user.addedit', ['os.administrative.models'])
           if (!$scope.user.id && $scope.domains.length == 1) {
             $scope.user.domainName = $scope.domains[0];
           }
+        }
+      );
+
+      $scope.timeZones = [];
+      TimeZone.query().then(
+        function(timeZones) {
+          $scope.timeZones = timeZones;
         }
       );
     }

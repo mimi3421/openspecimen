@@ -89,6 +89,11 @@
           <span class="value value-md">{{'user.types.' + user.type | translate}}</span>
         </li>
 
+        <li class="item">
+          <strong class="key key-sm" translate="user.time_zone">Time Zone</strong>
+          <span class="value value-md">{{user.timeZone | osNoValue}}</span>
+        </li>
+
         <li show-if-admin class="item">
           <strong class="key key-sm" translate="user.manage_forms">Manage Forms?</strong>
           <span class="value value-md" ng-switch on="user.manageForms">

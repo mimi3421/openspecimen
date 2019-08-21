@@ -45,6 +45,8 @@ public class UserDetail extends AttributeModifiedSupport {
 
 	private String address;
 
+	private String timeZone;
+
 	private Date creationDate;
 
 	private String activityStatus;
@@ -153,6 +155,14 @@ public class UserDetail extends AttributeModifiedSupport {
 		this.address = address;
 	}
 
+	public String getTimeZone() {
+		return timeZone;
+	}
+
+	public void setTimeZone(String timeZone) {
+		this.timeZone = timeZone;
+	}
+
 	public Date getCreationDate() {
 		return creationDate;
 	}
@@ -187,6 +197,7 @@ public class UserDetail extends AttributeModifiedSupport {
 		detail.setType(user.getType() != null ? user.getType().name() : null);
 		detail.setPhoneNumber(user.getPhoneNumber());
 		detail.setManageForms(user.getManageForms());
+		detail.setTimeZone(user.getTimeZone());
 		detail.setAddress(user.getAddress());
 		detail.setCreationDate(user.getCreationDate());
 		detail.setActivityStatus(user.getActivityStatus());

@@ -115,6 +115,15 @@
         </div>
       </div>
 
+      <div class="form-group">
+        <label class="col-xs-3 control-label" translate="user.time_zone">Time Zone</label>
+        <div class="col-xs-6">
+          <os-select ng-model="user.timeZone" list="timeZones" display-prop="name" select-prop="id"
+            placeholder="{{'user.time_zone' | translate}}">
+          </os-select>
+        </div>
+      </div>
+
       <div show-if-admin="institute" class="form-group" ng-if="user.type == 'NONE'">
         <label class="col-xs-3 control-label">Manage Forms?</label>
         <div class="col-xs-6">
