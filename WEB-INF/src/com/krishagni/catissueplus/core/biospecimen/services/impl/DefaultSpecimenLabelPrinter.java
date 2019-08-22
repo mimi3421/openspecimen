@@ -49,6 +49,10 @@ public class DefaultSpecimenLabelPrinter extends AbstractLabelPrinter<Specimen> 
 
 	@Override
 	protected boolean isApplicableFor(LabelPrintRule rule, Specimen specimen, User user, String ipAddr) {
+		if (StringUtils.isBlank(specimen.getLabel()) || specimen.isMissedOrNotCollected()) {
+			return false;
+		}
+
 		SpecimenLabelPrintRule spmnLabelPrintRule = (SpecimenLabelPrintRule) rule;
 		return spmnLabelPrintRule.isApplicableFor(specimen, user, ipAddr);
 	}

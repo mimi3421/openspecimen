@@ -44,6 +44,10 @@ public class DefaultVisitLabelPrinter extends AbstractLabelPrinter<Visit> implem
 
 	@Override
 	protected boolean isApplicableFor(LabelPrintRule rule, Visit visit, User user, String ipAddr) {
+		if (StringUtils.isNotBlank(visit.getName()) || visit.isMissedOrNotCollected()) {
+			return false;
+		}
+
 		VisitLabelPrintRule visitLabelPrintRule = (VisitLabelPrintRule) rule;
 		return visitLabelPrintRule.isApplicableFor(visit, user, ipAddr);
 	}
