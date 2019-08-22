@@ -60,6 +60,10 @@ angular.module('os.biospecimen.cpgroups')
               }
             );
           }
+
+          $scope.cancel = function() {
+            $modalInstance.close('dismiss');
+          }
         }
       });
     }
