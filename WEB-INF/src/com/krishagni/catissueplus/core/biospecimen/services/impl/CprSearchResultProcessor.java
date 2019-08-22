@@ -52,6 +52,11 @@ public class CprSearchResultProcessor extends AbstractSearchResultProcessor impl
 		return String.format(QUERY, joinCondition, whereClause);
 	}
 
+	@Override
+	protected String getEntityPropsQuery() {
+		return ENTITY_PROPS_QUERY;
+	}
+
 	private String getCpSiteClause(String siteAlias, Collection<SiteCpPair> siteCps) {
 		List<String> clauses = new ArrayList<>();
 		for (SiteCpPair siteCp : siteCps) {
@@ -101,4 +106,13 @@ public class CprSearchResultProcessor extends AbstractSearchResultProcessor impl
 
 	private static final String EXCLUDE_PHI_RECS =
 		"k.name not in ('empi', 'uid', 'medicalRecordNumber', 'firstName', 'lastName')";
+
+	private static final String ENTITY_PROPS_QUERY =
+		"select " +
+		"  cpr.identifier as entityId, \"collection_protocol\" as \"name\", cp.short_title as \"value\" " +
+		"from " +
+		"  catissue_coll_prot_reg cpr " +
+		"  inner join catissue_collection_protocol cp on cp.identifier = cpr.collection_protocol_id " +
+		"where " +
+		"  cpr.identifier in (:entityIds)";
 }

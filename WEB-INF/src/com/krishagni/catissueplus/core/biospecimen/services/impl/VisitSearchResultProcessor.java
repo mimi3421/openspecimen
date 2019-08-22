@@ -39,6 +39,11 @@ public class VisitSearchResultProcessor extends AbstractSearchResultProcessor {
 		return String.format(QUERY, joinCondition, whereClause);
 	}
 
+	@Override
+	protected String getEntityPropsQuery() {
+		return ENTITY_PROPS_QUERY;
+	}
+
 	private String getCpSiteClause(String siteAlias, Collection<SiteCpPair> siteCps) {
 		List<String> clauses = new ArrayList<>();
 		for (SiteCpPair siteCp : siteCps) {
@@ -86,4 +91,14 @@ public class VisitSearchResultProcessor extends AbstractSearchResultProcessor {
 
 	private static final String PMI_WHERE_COND =
 		"((ps.identifier is not null and %s) or (ps.identifier is null and %s))";
+
+	private static final String ENTITY_PROPS_QUERY =
+		"select " +
+		"  visit.identifier as entityId, \"collection_protocol\" as \"name\", cp.short_title as \"value\" " +
+		"from " +
+		"  catissue_specimen_coll_group visit " +
+		"  inner join catissue_coll_prot_reg cpr on cpr.identifier = visit.collection_protocol_reg_id " +
+		"  inner join catissue_collection_protocol cp on cp.identifier = cpr.collection_protocol_id " +
+		"where " +
+		"  visit.identifier in (:entityIds)";
 }

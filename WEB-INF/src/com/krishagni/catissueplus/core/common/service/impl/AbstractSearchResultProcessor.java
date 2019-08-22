@@ -1,9 +1,13 @@
 package com.krishagni.catissueplus.core.common.service.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.SessionFactory;
 import org.hibernate.type.LongType;
@@ -47,7 +51,36 @@ public abstract class AbstractSearchResultProcessor implements SearchResultProce
 		return results;
 	}
 
+	@Override
+	public Map<Long, Map<String, Object>> getEntityProps(Collection<Long> entityIds) {
+		String propsQuery = getEntityPropsQuery();
+		if (StringUtils.isBlank(propsQuery) || CollectionUtils.isEmpty(entityIds)) {
+			return Collections.emptyMap();
+		}
+
+		List<Object[]> rows = getSessionFactory().getCurrentSession().createSQLQuery(propsQuery)
+			.addScalar("entityId", LongType.INSTANCE)
+			.addScalar("name", StringType.INSTANCE)
+			.addScalar("value", StringType.INSTANCE)
+			.setParameterList("entityIds", entityIds)
+			.list();
+
+		Map<Long, Map<String, Object>> result = new HashMap<>();
+		for (Object[] row : rows) {
+			int idx = -1;
+			Long entityId = (Long) row[++idx];
+			Map<String, Object> entityProps = result.computeIfAbsent(entityId, (k) -> new HashMap<>());
+			entityProps.put((String) row[++idx], row[++idx]);
+		}
+
+		return result;
+	}
+
 	protected String getQuery() {
+		return null;
+	}
+
+	protected String getEntityPropsQuery() {
 		return null;
 	}
 

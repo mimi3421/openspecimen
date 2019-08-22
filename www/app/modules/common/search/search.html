@@ -16,8 +16,14 @@
             <small>{{match.group}}</small>
           </div>
           <div ng-class="{'true': 'col-xs-7', 'false': 'col-xs-12'}[match.id > 0]">
-            <span class="fa" ng-class="{'fa fa-graduation-cap': match.id == 0}"></span>
+            <span class="fa fa-graduation-cap" ng-show="match.id == 0"></span>
             <span ng-bind-html="match.caption | highlight: $select.search"></span>
+          </div>
+        </div>
+        <div class="row" ng-show="!!match.props">
+          <div class="col-xs-5">&nbsp;</div>
+          <div class="col-xs-7">
+            <small>{{match.props}}</small>
           </div>
         </div>
       </ui-select-choices>

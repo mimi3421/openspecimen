@@ -42,6 +42,11 @@ public class SpecimenSearchResultProcessor extends AbstractSearchResultProcessor
 		return String.format(QUERY, joinCondition, whereClause);
 	}
 
+	@Override
+	protected String getEntityPropsQuery() {
+		return ENTITY_PROPS_QUERY;
+	}
+
 	private String getCpSiteClause(String siteAlias, Collection<SiteCpPair> siteCps) {
 		List<String> clauses = new ArrayList<>();
 
@@ -102,4 +107,13 @@ public class SpecimenSearchResultProcessor extends AbstractSearchResultProcessor
 
 	private static final String PMI_WHERE_COND =
 		"((ps.identifier is not null and %s) or (ps.identifier is null and %s))";
+
+	private static final String ENTITY_PROPS_QUERY =
+		"select " +
+		"  specimen.identifier as entityId, \"collection_protocol\" as \"name\", cp.short_title as \"value\" " +
+		"from " +
+		"  catissue_specimen specimen " +
+		"  inner join catissue_collection_protocol cp on cp.identifier = specimen.collection_protocol_id " +
+		"where " +
+		"  specimen.identifier in (:entityIds)";
 }

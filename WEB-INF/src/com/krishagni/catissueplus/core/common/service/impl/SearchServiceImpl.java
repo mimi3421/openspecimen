@@ -85,6 +85,7 @@ public class SearchServiceImpl implements SearchService, InitializingBean {
 			}
 
 			seenEntities.clear();
+			addEntityProps(results);
 			return results;
 		}
 
@@ -121,7 +122,7 @@ public class SearchServiceImpl implements SearchService, InitializingBean {
 			}
 		}
 
-
+		addEntityProps(results);
 		return results.stream().sorted((r1, r2) -> {
 			int cmp = rankMap.get(r1.getEntity()).compareTo(rankMap.get(r2.getEntity()));
 			if (cmp == 0) {
@@ -177,6 +178,26 @@ public class SearchServiceImpl implements SearchService, InitializingBean {
 		}
 
 		processor.addKeywords(keywords);
+	}
+
+	private void addEntityProps(List<SearchResult> results) {
+		Map<String, Map<Long, SearchResult>> resultsByEntity = new HashMap<>();
+		for (SearchResult result : results) {
+			Map<Long, SearchResult> entityResults = resultsByEntity.computeIfAbsent(result.getEntity(), (k) -> new HashMap<>());
+			entityResults.put(result.getEntityId(), result);
+		}
+
+		for (Map.Entry<String, Map<Long, SearchResult>> entityResults : resultsByEntity.entrySet()) {
+			SearchResultProcessor proc = resultProcessors.get(entityResults.getKey());
+			if (proc == null) {
+				continue;
+			}
+
+			Map<Long, Map<String, Object>> entityProps = proc.getEntityProps(entityResults.getValue().keySet());
+			for (Map.Entry<Long, SearchResult> entityResult : entityResults.getValue().entrySet()) {
+				entityResult.getValue().setEntityProps(entityProps.get(entityResult.getKey()));
+			}
+		}
 	}
 
 	private class EntityEventListener implements PostInsertEventListener, PostUpdateEventListener, PostDeleteEventListener {

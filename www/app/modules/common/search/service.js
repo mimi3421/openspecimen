@@ -30,6 +30,13 @@ angular.module('os.common.search.service', [])
       var opts = entitySearchMap[match.entity];
       match.group = $translate.instant(opts && opts.caption);
       match.caption = match.value;
+      match.props = null;
+      angular.forEach(match.entityProps,
+        function(value) {
+          match.props = match.props || '';
+          match.props += (!!match.props ?  ', ' : '') + value;
+        }
+      );
     }
 
     function getState(entity) {
