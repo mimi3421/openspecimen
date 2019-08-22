@@ -365,6 +365,19 @@ h4 + .btn-group {
   width: 100%;
 }
 
+.os-btn-info {
+  border: 0px;
+  padding: 2px 0px 0px 0px;
+  margin-top: -5px;
+  font-size: 20px;
+  width: 32px;
+  color: rgb(66, 139, 202);
+}
+
+.os-btn-info:hover {
+  color: rgb(66, 139, 202);
+}
+
 .panel .panel-heading .os-btns {
   position: absolute;
   top: 5px;
