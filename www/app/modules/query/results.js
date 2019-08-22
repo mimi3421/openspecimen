@@ -156,7 +156,7 @@ angular.module('os.query.results', ['os.query.models'])
       var qc = $scope.queryCtx;
       $scope.showAddToSpecimenList = showAddToSpecimenList();
       $scope.resultsCtx.waitingForRecords = true;
-      $scope.resultsCtx.error = false;
+      $scope.resultsCtx.error = $scope.resultsCtx.moreData = false;
 
       currResults = {};
 
@@ -414,6 +414,7 @@ angular.module('os.query.results', ['os.query.models'])
     function preparePivotTable(result) {
       $scope.resultsCtx.rows = result.rows;
       $scope.resultsCtx.columnLabels = result.columnLabels;
+      $scope.resultsCtx.moreData = (result.dbRowsCount >= 10000);
 
       var numGrpCols = $scope.queryCtx.reporting.params.groupRowsBy.length;
       for (var i = 0; i < numGrpCols; ++i) {

@@ -117,25 +117,30 @@
 
       <div class="os-full-height-container" ng-class="{true: 'col-xs-9', false: 'col-xs-12'}[resultsCtx.hasFacets]">
         <div class="grid-panel os-full-size-container">
-          <div ng-if="resultsCtx.waitingForRecords">
-            <span translate="queries.waiting_for_records">
-              Loading records, please wait for a moment ...
-            </span>
+          <div class="os-alert-container inline" ng-if="resultsCtx.waitingForRecords">
+            <div class="alert alert-info">
+              <span translate="queries.waiting_for_records">Loading records, please wait for a moment ...</span>
+            </div>
           </div>
 
           <div ng-if="!resultsCtx.waitingForRecords && resultsCtx.error">
             <span translate="queries.error"></span>
           </div>
 
-          <div ng-if="resultsCtx.moreData">
-            <span translate="queries.export_to_get_all">Export to view all records.</span>
-            <a href="https://openspecimen.atlassian.net/wiki/x/ogYR" target="_blank"
-              translate="queries.know_why_export_has_more_data">
-              Click here to know why exported data file have more records.
-            </a>
+          <div class="os-alert-container inline" ng-if="resultsCtx.moreData">
+            <div class="alert alert-warning">
+              <span translate="queries.export_to_get_all" translate-values="queryCtx.reporting">
+                Export to view all records.
+              </span>
+              <a href="https://openspecimen.atlassian.net/wiki/x/ogYR" target="_blank"
+                translate="queries.know_why_export_has_more_data" translate-values="queryCtx.reporting">
+                Click here to know why exported data file have more records.
+              </a>
+            </div>
           </div>
 
-          <div class="os-full-size-container" ng-if="!resultsCtx.waitingForRecords && !resultsCtx.error">
+          <div class="os-full-size-container" ng-style="resultsCtx.moreData && {'height': 'calc(100% - 102px)'}"
+            ng-if="!resultsCtx.waitingForRecords && !resultsCtx.error">
             <div class="os-full-size-container" ng-if="queryCtx.reporting.type == 'crosstab'">
               <div class="os-full-size-container" os-pivot-table="resultsCtx.pivotTableOpts"> </div>
             </div>
