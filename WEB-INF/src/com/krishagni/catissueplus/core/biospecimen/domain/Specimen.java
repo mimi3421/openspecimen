@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -483,6 +484,10 @@ public class Specimen extends BaseExtensionEntity {
 		this.specimenRequirement = specimenRequirement;
 	}
 
+	public Long getReqId() {
+		return specimenRequirement.getId();
+	}
+
 	public StorageContainerPosition getPosition() {
 		return position;
 	}
@@ -921,7 +926,7 @@ public class Specimen extends BaseExtensionEntity {
 
 
 		List<Specimen> pendingSpecimens = createPendingSpecimens(getSpecimenRequirement(), this);
-		preCreatedSpmnsMap = pendingSpecimens.stream().collect(Collectors.toMap(s -> s.getSpecimenRequirement().getId(), s -> s));
+		preCreatedSpmnsMap = pendingSpecimens.stream().collect(Collectors.toMap(Specimen::getReqId, s -> s));
 
 		List<PrintItem<Specimen>> printItems = pendingSpecimens.stream()
 			.filter(spmn -> spmn.getParentSpecimen().equals(this))
@@ -1137,7 +1142,6 @@ public class Specimen extends BaseExtensionEntity {
 				throw OpenSpecimenException.userError(SpecimenErrorCode.COLL_OR_MISSED_PARENT_REQ);
 			} else {
 				updateHierarchyStatus(collectionStatus);
-				createMissedChildSpecimens();
 			}
 		} else if (isNotCollected(collectionStatus)) {
 			if (!getVisit().isCompleted() && !getVisit().isNotCollected()) {
@@ -1146,7 +1150,6 @@ public class Specimen extends BaseExtensionEntity {
 				throw OpenSpecimenException.userError(SpecimenErrorCode.COLL_OR_NC_PARENT_REQ);
 			} else {
 				updateHierarchyStatus(collectionStatus);
-				createNotCollectedSpecimens();
 			}
 		} else if (isPending(collectionStatus)) {
 			if (!getVisit().isCompleted() && !getVisit().isPending()) {
@@ -1529,6 +1532,31 @@ public class Specimen extends BaseExtensionEntity {
 		return getPosition() != null && getPosition().getContainer().isDistributionContainer();
 	}
 
+	public void updateHierarchyStatus() {
+		updateHierarchyStatus(getCollectionStatus());
+	}
+
+	public void updateHierarchyStatus(String collectionStatus) {
+		updateHierarchyStatus0(collectionStatus);
+
+		List<Specimen> createdSpmns = null;
+		if (isMissed(collectionStatus)) {
+			createdSpmns = createMissedChildSpecimens();
+		} else if (isNotCollected(collectionStatus)) {
+			createdSpmns = createNotCollectedSpecimens();
+		}
+
+		if (CollectionUtils.isEmpty(createdSpmns)) {
+			return;
+		}
+
+		if (preCreatedSpmnsMap == null) {
+			preCreatedSpmnsMap = new HashMap<>();
+		}
+
+		preCreatedSpmnsMap.putAll(createdSpmns.stream().collect(Collectors.toMap(Specimen::getReqId, s -> s)));
+	}
+
 	//
 	// HSEARCH-1350: https://hibernate.atlassian.net/browse/HSEARCH-1350
 	//
@@ -1765,7 +1793,7 @@ public class Specimen extends BaseExtensionEntity {
 		thisEvent.update(otherEvent);
 	}
 	
-	private void updateHierarchyStatus(String status) {
+	private void updateHierarchyStatus0(String status) {
 		setCollectionStatus(status);
 
 		if (getId() != null && !isCollected(status)) {
@@ -1783,7 +1811,7 @@ public class Specimen extends BaseExtensionEntity {
 			deleteEvents();
 		}
 
-		getChildCollection().forEach(child -> child.updateHierarchyStatus(status));
+		getChildCollection().forEach(child -> child.updateHierarchyStatus0(status));
 	}
 
 	public void checkPoolStatusConstraints() {
@@ -1819,24 +1847,25 @@ public class Specimen extends BaseExtensionEntity {
 		}
 	}
 
-	private void createMissedChildSpecimens() {
-		createChildSpecimens(Specimen.MISSED_COLLECTION);
+	private List<Specimen> createMissedChildSpecimens() {
+		return createChildSpecimens(Specimen.MISSED_COLLECTION);
 	}
 
-	private void createNotCollectedSpecimens() {
-		createChildSpecimens(Specimen.NOT_COLLECTED);
+	private List<Specimen> createNotCollectedSpecimens() {
+		return createChildSpecimens(Specimen.NOT_COLLECTED);
 	}
 
-	private void createChildSpecimens(String status) {
+	private List<Specimen> createChildSpecimens(String status) {
 		if (getSpecimenRequirement() == null) {
-			return;
+			return Collections.emptyList();
 		}
 
-		Set<SpecimenRequirement> anticipated = new HashSet<>(getSpecimenRequirement().getChildSpecimenRequirements());
+		List<Specimen> result = new ArrayList<>();
+		Set<SpecimenRequirement> anticipated = new LinkedHashSet<>(getSpecimenRequirement().getOrderedChildRequirements());
 		for (Specimen childSpmn : getChildCollection()) {
 			if (childSpmn.getSpecimenRequirement() != null) {
 				anticipated.remove(childSpmn.getSpecimenRequirement());
-				childSpmn.createChildSpecimens(status);
+				result.addAll(childSpmn.createChildSpecimens(status));
 			}
 		}
 
@@ -1847,8 +1876,11 @@ public class Specimen extends BaseExtensionEntity {
 			specimen.setCollectionStatus(status);
 			getChildCollection().add(specimen);
 
-			specimen.createChildSpecimens(status);
+			result.add(specimen);
+			result.addAll(specimen.createChildSpecimens(status));
 		}
+
+		return result;
 	}
 
 	private void autoCollectParentSpecimens(Specimen childSpmn) {

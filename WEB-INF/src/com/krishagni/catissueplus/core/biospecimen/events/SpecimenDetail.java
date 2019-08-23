@@ -383,7 +383,6 @@ public class SpecimenDetail extends SpecimenInfo {
 					result.setSpecimensPool(getSpecimens(specimen.getVisit(), sr.getSpecimenPoolReqs(), specimen.getSpecimensPool(), partial, excludePhi, excludeChildren));
 				}
 				result.setPoolSpecimen(sr.isSpecimenPoolReq());
-
 				result.setChildren(getSpecimens(specimen.getVisit(), sr.getChildSpecimenRequirements(), specimen.getChildCollection(), partial, excludePhi, excludeChildren));
 			}
 

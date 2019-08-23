@@ -867,8 +867,7 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 		if (existing == null || !existing.isCollected()) {
 			existing = collectPoolSpecimens(detail, existing, reqSpmnsMap);
 			specimen = saveOrUpdate(detail, null, existing, parent);
-
-			if (specimen.isPrimary() && specimen.getPreCreatedSpmnsMap() != null) {
+			if (specimen.getPreCreatedSpmnsMap() != null) {
 				reqSpmnsMap.putAll(specimen.getPreCreatedSpmnsMap());
 			}
 		} else {
@@ -977,6 +976,10 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 			incrParentFreezeThawCycles(detail, specimen);
 			specimen.setUid(detail.getUid());
 			specimen.setParentUid(detail.getParentUid());
+		}
+
+		if (existing == null && specimen.isMissedOrNotCollected()) {
+			specimen.updateHierarchyStatus();
 		}
 
 		daoFactory.getSpecimenDao().saveOrUpdate(specimen);
