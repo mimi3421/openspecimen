@@ -128,7 +128,7 @@
       <pvField>
         <name>clinicalDiagnosis</name>
         <udn>clinicalDiagnosis</udn>
-        <caption>#getMessage("visit_clinical_diagnosis")</caption>
+        <caption>#getMessage("visit_clinical_diagnosis_deprecated")</caption>
         <multiple>true</multiple>
         <collectionTable>OS_VISIT_CLIN_DIAGNOSES</collectionTable>
         <collectionKey>VISIT_ID</collectionKey>
@@ -225,7 +225,7 @@
       <subForm>
         <name>clinicalDiagnoses</name>
         <udn>clinicalDiagnoses</udn>
-        <caption>#getMessage("visit_clinical_diagnoses")</caption>
+        <caption>#getMessage("visit_clinical_diagnosis")</caption>
         <table>OS_VISIT_CD_VIEW</table>
         <primaryKey>IDENTIFIER</primaryKey>
         <foreignKey>VISIT_ID</foreignKey>
