@@ -91,7 +91,7 @@
         <span>&nbsp;</span>
       </div>
     </li>
-    <li class="item" ng-if="childReq.lineage == 'New'">
+    <li class="item" ng-if="childReq.lineage == 'New' || childReq.lineage == 'Derived'">
       <strong class="key key-sm" translate="srs.sort_order">Sort Order</strong>
       <div class="value value-md">
         <span>{{childReq.sortOrder | osNoValue}}</span>

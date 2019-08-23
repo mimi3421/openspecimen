@@ -36,6 +36,8 @@ public class DerivedSpecimenRequirement {
 	private String storageType;
 	
 	private String code;
+
+	private Integer sortOrder;
 	
 	public String getCpShortTitle() {
 		return cpShortTitle;
@@ -171,5 +173,13 @@ public class DerivedSpecimenRequirement {
 
 	public void setCode(String code) {
 		this.code = code;
+	}
+
+	public Integer getSortOrder() {
+		return sortOrder;
+	}
+
+	public void setSortOrder(Integer sortOrder) {
+		this.sortOrder = sortOrder;
 	}
 }

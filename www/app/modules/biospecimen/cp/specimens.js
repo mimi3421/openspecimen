@@ -42,6 +42,7 @@ angular.module('os.biospecimen.cp.specimens', ['os.biospecimen.models'])
         }
       );
 
+      angular.forEach(reqs, function(req) { req.children = sortReqs(req.children); });
       return reqs;
     }
 
@@ -94,7 +95,7 @@ angular.module('os.biospecimen.cp.specimens', ['os.biospecimen.models'])
         parent.children.push(child);
       });
 
-      $scope.specimenRequirements = Specimen.flatten(specimenRequirements);
+      $scope.specimenRequirements = Specimen.flatten(sortReqs(specimenRequirements));
     };
 
     var pvsLoaded = false;

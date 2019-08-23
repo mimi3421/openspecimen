@@ -123,6 +123,7 @@ public class SpecimenRequirementFactoryImpl implements SpecimenRequirementFactor
 		derived.setLineage(Specimen.DERIVED);
 		derived.setName(req.getName());
 		derived.setLabelPrintCopies(req.getLabelPrintCopies());
+		derived.setSortOrder(req.getSortOrder());
 
 		setSpecimenClass(req.getSpecimenClass(), derived, ose);
 		setSpecimenType(req.getSpecimenClass(), req.getType(), derived, ose);

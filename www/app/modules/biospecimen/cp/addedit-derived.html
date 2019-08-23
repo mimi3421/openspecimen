@@ -89,7 +89,6 @@
             display-prop="displayName" select-prop="name" on-change="ensureLabelFmtSpecified(childReq, 'Derivative')"
             os-md-input placeholder="{{'srs.when_to_print' | translate}}">
           </os-select>
-          <div os-field-warn="'srs.lbl_fmt_required_for_auto_print'" ng-if="!childReq.labelFmtSpecified"></div>
         </div>
       </div>
 
@@ -101,6 +100,14 @@
         </div>
       </div>
 
+      <div class="col-xs-3">
+        <div class="form-group">
+          <input name="sortOrder" ng-model="childReq.sortOrder" os-md-input class="form-control" type="text"
+            placeholder="{{'srs.sort_order' | translate}}" ng-pattern="/^[0-9]+$/">
+          <div os-field-error field="derivativeForm.sortOrder"></div>
+        </div>
+      </div>
+
       <div class="col-xs-3 os-text-checkbox md-input">
         <div class="checkbox">
           <os-checkbox ng-model="childReq.$$storedInRepo"></os-checkbox>
@@ -108,6 +115,12 @@
         <div class="message">
           <span translate="srs.storage_type">Stored in Repository?</span>
         </div>
+      </div>
+    </div>
+
+    <div class="form-group clearfix">
+      <div class="col-xs-12">
+        <div os-field-warn="'srs.lbl_fmt_required_for_auto_print'" ng-if="!childReq.labelFmtSpecified"></div>
       </div>
     </div>
 
