@@ -110,7 +110,7 @@ public class SpecimenSearchResultProcessor extends AbstractSearchResultProcessor
 
 	private static final String ENTITY_PROPS_QUERY =
 		"select " +
-		"  specimen.identifier as entityId, \"collection_protocol\" as \"name\", cp.short_title as \"value\" " +
+		"  specimen.identifier as entityId, 'collection_protocol' as name, cp.short_title as value " +
 		"from " +
 		"  catissue_specimen specimen " +
 		"  inner join catissue_collection_protocol cp on cp.identifier = specimen.collection_protocol_id " +

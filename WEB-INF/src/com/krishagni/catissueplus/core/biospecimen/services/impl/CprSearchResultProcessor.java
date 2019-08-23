@@ -109,7 +109,7 @@ public class CprSearchResultProcessor extends AbstractSearchResultProcessor impl
 
 	private static final String ENTITY_PROPS_QUERY =
 		"select " +
-		"  cpr.identifier as entityId, \"collection_protocol\" as \"name\", cp.short_title as \"value\" " +
+		"  cpr.identifier as entityId, 'collection_protocol' as name, cp.short_title as value " +
 		"from " +
 		"  catissue_coll_prot_reg cpr " +
 		"  inner join catissue_collection_protocol cp on cp.identifier = cpr.collection_protocol_id " +

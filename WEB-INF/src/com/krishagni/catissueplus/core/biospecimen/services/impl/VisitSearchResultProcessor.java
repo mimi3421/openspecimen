@@ -94,7 +94,7 @@ public class VisitSearchResultProcessor extends AbstractSearchResultProcessor {
 
 	private static final String ENTITY_PROPS_QUERY =
 		"select " +
-		"  visit.identifier as entityId, \"collection_protocol\" as \"name\", cp.short_title as \"value\" " +
+		"  visit.identifier as entityId, 'collection_protocol' as name, cp.short_title as value " +
 		"from " +
 		"  catissue_specimen_coll_group visit " +
 		"  inner join catissue_coll_prot_reg cpr on cpr.identifier = visit.collection_protocol_reg_id " +
