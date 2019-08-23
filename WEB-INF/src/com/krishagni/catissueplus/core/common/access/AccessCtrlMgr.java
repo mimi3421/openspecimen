@@ -1058,7 +1058,7 @@ public class AccessCtrlMgr {
 	
 	@SuppressWarnings("unchecked")
 	public Set<SiteCpPair> getDistributionOrderAllowedSites(DistributionProtocol dp) {
-		Set<SiteCpPair> dpSites = dp.getAllowedDistributingSites();
+		Set<SiteCpPair> dpSites = dp.getAllowedDistributingSites(Resource.ORDER.getName());
 
 		if (AuthUtil.isAdmin()) {
 			return dpSites;
@@ -1108,7 +1108,7 @@ public class AccessCtrlMgr {
 		}
 
 		Set<SiteCpPair> allowedSites = getSiteCps(Resource.ORDER, op);
-		if (!SiteCpPair.contains(allowedSites, dp.getAllowedDistributingSites())) {
+		if (!SiteCpPair.contains(allowedSites, dp.getAllowedDistributingSites(Resource.ORDER.getName()))) {
 			throw OpenSpecimenException.userError(RbacErrorCode.ACCESS_DENIED);
 		}
 	}

@@ -882,7 +882,7 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 		Map<Long, Specimen> specimenMap = spmnWithoutDps.stream().collect(Collectors.toMap(Specimen::getId, Function.identity()));
 		Map<Long, Set<SiteCpPair>> spmnSites = daoFactory.getSpecimenDao().getSpecimenSites(spmnWithoutDps.stream().map(Specimen::getId).collect(Collectors.toSet()));
 
-		String errorLabels = notAllowedSpecimenLabels(specimenMap, spmnSites, dp.getAllowedDistributingSites());
+		String errorLabels = notAllowedSpecimenLabels(specimenMap, spmnSites, dp.getAllowedDistributingSites(null));
 		if (StringUtils.isNotBlank(errorLabels)) {
 			ose.addError(DistributionOrderErrorCode.INVALID_SPECIMENS_FOR_DP, errorLabels, dp.getShortTitle());
 			return;
@@ -893,6 +893,7 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 		}
 
 		Set<SiteCpPair> allowedSites = AccessCtrlMgr.getInstance().getDistributionOrderAllowedSites(dp);
+		allowedSites.forEach(s -> s.setResource(null));
 		errorLabels = notAllowedSpecimenLabels(specimenMap, spmnSites, allowedSites);
 		if (StringUtils.isNotBlank(errorLabels)) {
 			ose.addError(DistributionOrderErrorCode.SPMNS_DENIED, errorLabels);
