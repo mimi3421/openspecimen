@@ -65,6 +65,9 @@ angular.module('os.biospecimen.models.specimen', ['os.common.models', 'os.biospe
         specimen.depth = depth || 0;
         specimen.parent = specimen.parent || parent;
         specimen.pooledSpecimen = specimen.pooledSpecimen || pooledSpecimen;
+        if (specimen.parent && (specimen.parent.status == 'Missed Collection' || specimen.parent.status == 'Not Collected')) {
+          specimen.status = specimen.parent.status;
+        }
 
         var hasSpecimensPool = false;
         if (depth == 0) {
