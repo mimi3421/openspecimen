@@ -1047,7 +1047,7 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 						if (count > 0) {
 							logger.info(String.format("Cleaned up %d stale container slot reservations", count));
 						}
-					} catch (Exception e) {
+					} catch (Throwable e) {
 						logger.error("Error deleting older reserved container slots", e);
 					}
 				}
