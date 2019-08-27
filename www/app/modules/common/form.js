@@ -1,5 +1,5 @@
-function osRequired(conditional) {
-  return function($timeout) {
+function osRequired(conditional, $timeout) {
+  return function() {
     function updatePlaceholder(element, text) {
       if (element.hasClass('os-select-container')) {
         element.find('.ui-select-placeholder').addClass('os-italic').text(text);
@@ -285,6 +285,6 @@ angular.module('os.common.form', [])
     };
   })
 
-  .directive('required', osRequired(false))
+  .directive('required', function($timeout) { return osRequired(false, $timeout)(); })
 
-  .directive('ngRequired', osRequired(true));
+  .directive('ngRequired', function($timeout) { return osRequired(true, $timeout)(); })
