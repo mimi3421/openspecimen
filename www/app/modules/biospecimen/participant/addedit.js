@@ -155,7 +155,16 @@ angular.module('os.biospecimen.participant.addedit', ['os.biospecimen.models', '
             cpr.participant.registeredCps = registeredCps;
 
             if (event) {
-              gotoSpmnCollection(savedCpr, event);
+              if (cp.spmnLabelPrePrintMode == 'ON_REGISTRATION') {
+                Visit.listFor(savedCpr.id, false).then(
+                  function(visits) {
+                    var pendingVisit = visits.find(function(v) { return v.status == 'Pending' && v.eventId == event.id });
+                    gotoSpmnCollection(cpr, event, pendingVisit);
+                  }
+                );
+              } else {
+                gotoSpmnCollection(savedCpr, event);
+              }
             } else {
               $state.go('participant-detail.overview', {cprId: savedCpr.id});
             }
@@ -166,9 +175,13 @@ angular.module('os.biospecimen.participant.addedit', ['os.biospecimen.models', '
       );
     };
 
-    function gotoSpmnCollection(cpr, event) {
+    function gotoSpmnCollection(cpr, event, pendingVisit) {
       var state = $state.get('participant-detail.overview');
-      var visit = new Visit({cpId: cp.id, cprId: cpr.id, eventId: event.id});
+      var visit = pendingVisit;
+      if (!visit) {
+        visit = new Visit({cpId: cp.id, cprId: cpr.id, eventId: event.id});
+      }
+
       CollectSpecimensSvc.collectVisit({state: state, params: {cprId: cpr.id}}, cp, cpr.id, visit);
     }
 
