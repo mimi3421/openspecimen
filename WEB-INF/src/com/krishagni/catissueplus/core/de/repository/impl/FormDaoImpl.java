@@ -19,7 +19,6 @@ import org.hibernate.Query;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Junction;
 import org.hibernate.criterion.MatchMode;
-import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
@@ -33,6 +32,7 @@ import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.domain.Visit;
 import com.krishagni.catissueplus.core.biospecimen.events.CollectionProtocolSummary;
 import com.krishagni.catissueplus.core.biospecimen.repository.impl.BiospecimenDaoHelper;
+import com.krishagni.catissueplus.core.common.OrderByNotNullProperty;
 import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
 import com.krishagni.catissueplus.core.common.access.SiteCpPair;
@@ -92,7 +92,7 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 	public List<Form> getForms(FormListCriteria crit) {
 		return (List<Form>) getCurrentSession().createCriteria(Form.class, "form")
 			.add(Subqueries.propertyIn("form.id", getListFormIdsQuery(crit)))
-			.addOrder(Order.asc("form.caption"))
+			.addOrder(OrderByNotNullProperty.desc("form.updateTime", "form.creationTime"))
 			.setFirstResult(crit.startAt())
 			.setMaxResults(crit.maxResults())
 			.list();
