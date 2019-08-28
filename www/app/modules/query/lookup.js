@@ -35,7 +35,7 @@ angular.module('os.query.lookup', [])
 
         $scope.searchTerm = function(searchTerm) {
           var params = {};
-          if (url.indexOf('permissible-values') != -1) {
+          if (url.indexOf('permissible-values') != -1 || url.indexOf('users') != -1) {
             params.activityStatus = 'all';
           }
 

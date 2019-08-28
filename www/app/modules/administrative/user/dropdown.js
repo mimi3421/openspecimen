@@ -11,6 +11,10 @@ angular.module('os.administrative.user.dropdown', ['os.administrative.models'])
         opts.excludeType = 'CONTACT';
       }
 
+      if (attrs.hasOwnProperty('includeArchived')) {
+        opts.activityStatus = opts.activityStatus || 'all';
+      }
+
       ctrl.listLoaded = true;
 
       var promise = !attrs.listFn ? User.query(opts) : scope.listFn(opts);

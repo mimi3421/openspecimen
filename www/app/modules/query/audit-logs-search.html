@@ -13,7 +13,8 @@
 
     <div class="form-group">
       <div os-md-input ng-model="ctx.filterOpts.userId" placeholder="{{'queries.users' | translate}}">
-        <os-users ng-model="ctx.filterOpts.userId" placeholder="{{'queries.users' | translate}}" select-prop="id">
+        <os-users ng-model="ctx.filterOpts.userId" include-archived
+          placeholder="{{'queries.users' | translate}}" select-prop="id">
         </os-users>
       </div>
     </div>

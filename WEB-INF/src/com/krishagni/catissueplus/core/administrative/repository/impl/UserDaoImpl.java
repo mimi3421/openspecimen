@@ -339,10 +339,9 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 	private void addActivityStatusRestriction(Criteria criteria, String activityStatus) {
 		if (StringUtils.isBlank(activityStatus)) {
 			criteria.add(Restrictions.ne("u.activityStatus", Status.ACTIVITY_STATUS_CLOSED.getStatus()));
-		} else {
+		} else if (!activityStatus.equalsIgnoreCase("all")) {
 			criteria.add(Restrictions.eq("u.activityStatus", activityStatus));
 		}
-
 	}
 
 	private void addTypeRestriction(Criteria criteria, String type) {
