@@ -61,8 +61,12 @@ public class SamlFilter extends FilterChainProxy {
 
 		try {
 			boolean samlEnabled = enableSaml();
-			if (samlEnabled && !isAuthenticated(httpReq)) {
-				AuthUtil.clearTokenCookie(httpReq, httpResp);
+			boolean metadataReq = isMetadataReq(httpReq);
+			if (samlEnabled && (metadataReq || !isAuthenticated(httpReq))) {
+				if (!metadataReq) {
+					AuthUtil.clearTokenCookie(httpReq, httpResp);
+				}
+
 				super.doFilter(request, response, chain);
 			} else {
 				httpResp.sendRedirect(appUrl + "/#/home");
@@ -128,5 +132,9 @@ public class SamlFilter extends FilterChainProxy {
 		RequestEvent<TokenDetail> atReq = new RequestEvent<>(tokenDetail);
 		ResponseEvent<AuthToken> atResp = authService.validateToken(atReq);
 		return atResp.isSuccessful();
+	}
+
+	private boolean isMetadataReq(HttpServletRequest httpReq) {
+		return httpReq != null && httpReq.getRequestURI().endsWith("/saml/metadata");
 	}
 }
