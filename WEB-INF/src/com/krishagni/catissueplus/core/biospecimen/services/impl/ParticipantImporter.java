@@ -9,6 +9,7 @@ import com.krishagni.catissueplus.core.biospecimen.events.ParticipantDetail;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.biospecimen.services.ParticipantService;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
+import com.krishagni.catissueplus.core.common.errors.CommonErrorCode;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
@@ -44,7 +45,9 @@ public class ParticipantImporter implements ObjectImporter<ParticipantDetail, Pa
 				setParticipantId(participant);
 				return participantSvc.patchParticipant(new RequestEvent<>(participant));
 			} else {
-				return null;
+				return ResponseEvent.userError(
+					CommonErrorCode.INVALID_INPUT,
+					"Participants can only be edited! Please consider using participant registrations template");
 			}
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
