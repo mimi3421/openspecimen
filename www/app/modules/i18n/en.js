@@ -2892,7 +2892,7 @@
     },
 
     "new_stuff": {
-      "title": "New stuff!",
+      "title": "What's new?",
       "announcements": "Announcements",
       "read_more": "Read more...",
       "loading_notes": "Loading... Please wait for a moment."
