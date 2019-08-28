@@ -24,6 +24,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
 
+import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.administrative.domain.factory.UserErrorCode;
 import com.krishagni.catissueplus.core.administrative.events.StorageLocationSummary;
@@ -404,18 +405,18 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 			OpenSpecimenException ose = new OpenSpecimenException(ErrorType.USER_ERROR);
 			
 			SpecimenAliquotsSpec spec = req.getPayload();
-			Specimen parentSpecimen = getSpecimen(spec.getParentId(), spec.getCpShortTitle(), spec.getParentLabel(), ose);
+			Specimen parentSpmn = getSpecimen(spec.getParentId(), spec.getCpShortTitle(), spec.getParentLabel(), ose);
 			ose.checkAndThrow();
 			
-			if (!parentSpecimen.isCollected()) {
-				return ResponseEvent.userError(SpecimenErrorCode.NOT_COLLECTED, parentSpecimen.getLabel());
+			if (!parentSpmn.isCollected()) {
+				return ResponseEvent.userError(SpecimenErrorCode.NOT_COLLECTED, parentSpmn.getLabel());
 			}
 
 			SpecimenDetail derived = null;
-			if ((StringUtils.isNotBlank(spec.getSpecimenClass()) && !spec.getSpecimenClass().equals(parentSpecimen.getSpecimenClass())) ||
-				(StringUtils.isNotBlank(spec.getType()) && !spec.getType().equals(parentSpecimen.getSpecimenType())) ||
-				(spec.createDerived() && !parentSpecimen.isDerivative())) {
-				derived = getDerivedSpecimen(parentSpecimen, spec);
+			if ((StringUtils.isNotBlank(spec.getSpecimenClass()) && !spec.getSpecimenClass().equals(parentSpmn.getSpecimenClass().getValue())) ||
+				(StringUtils.isNotBlank(spec.getType()) && !spec.getType().equals(parentSpmn.getSpecimenType().getValue())) ||
+				(spec.createDerived() && !parentSpmn.isDerivative())) {
+				derived = getDerivedSpecimen(parentSpmn, spec);
 			}
 
 			Integer count = spec.getNoOfAliquots();
@@ -434,7 +435,7 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 				count = barcodes.size();
 			}
 
-			BigDecimal parentQty = derived != null ? derived.getInitialQty() : parentSpecimen.getAvailableQuantity();
+			BigDecimal parentQty = derived != null ? derived.getInitialQty() : parentSpmn.getAvailableQuantity();
 			boolean aliquotQtyReq = ConfigUtil.getInstance().getBoolSetting(ConfigParams.MODULE, ConfigParams.ALIQUOT_QTY_REQ, true);
 			if ((count == null && (parentQty == null || aliquotQty == null)) ||
 				(parentQty == null && aliquotQty == null && aliquotQtyReq)) {
@@ -454,8 +455,8 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 				aliquot.setInitialQty(aliquotQty);
 				aliquot.setAvailableQty(aliquotQty);
 				aliquot.setConcentration(spec.getConcentration());
-				aliquot.setParentLabel(derived == null ? parentSpecimen.getLabel() : null);
-				aliquot.setParentId(derived == null ? parentSpecimen.getId() : null);
+				aliquot.setParentLabel(derived == null ? parentSpmn.getLabel() : null);
+				aliquot.setParentId(derived == null ? parentSpmn.getId() : null);
 				aliquot.setCreatedOn(spec.getCreatedOn());
 				aliquot.setCreatedBy(spec.getCreatedBy());
 				aliquot.setFreezeThawCycles(spec.getFreezeThawCycles());
@@ -503,7 +504,7 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 
 			ResponseEvent<List<SpecimenDetail>> resp = collectSpecimens(new RequestEvent<>(inputSpmns));
 			if (resp.isSuccessful() && spec.closeParent()) {
-				parentSpecimen.close(AuthUtil.getCurrentUser(), new Date(), "");
+				parentSpmn.close(AuthUtil.getCurrentUser(), new Date(), "");
 			}
 
 			return resp;
