@@ -70,6 +70,9 @@ angular.module('openspecimen')
           },
           users: function() {
             return [];
+          },
+          currentUser: function() {
+            return null;
           }
         },
         controller: 'UserAddEditCtrl',
