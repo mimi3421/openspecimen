@@ -108,6 +108,10 @@ public class AuthUtil {
 	}
 	
 	public static String encodeToken(String token) {
+		if (token == null) {
+			return null;
+		}
+
 		return new String(Base64.encode(token.getBytes()));
 	}
 	
