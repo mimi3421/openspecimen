@@ -155,7 +155,7 @@ public class ExportServiceImpl implements ExportService {
 		job.setName(detail.getObjectType());
 		job.setCreatedBy(AuthUtil.getCurrentUser());
 		job.setCreationTime(Calendar.getInstance().getTime());
-		job.setParams(detail.getParams());
+		job.setParams(new HashMap<>(detail.getParams()));
 		job.setSchema(schema);
 		job.setRecordIds(detail.getRecordIds());
 		job.setDisableNotifs(detail.isDisableNotifs());
