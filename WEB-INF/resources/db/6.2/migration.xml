@@ -365,4 +365,33 @@
     <sql>call set_pv_ids('os_dpr_pathology_statuses', 'pathology_status', 'pathology_status_id', 'pathology_status');</sql>
     <sql>call set_pv_ids('os_dpr_pathology_statuses_aud', 'pathology_status', 'pathology_status_id', 'pathology_status');</sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="Anticipated specimens: visit PV attributes">
+    <sql>call set_pv_ids('os_cpr_anticipated_spmns', 'clinical_status', 'clinical_status_id', 'clinical_status');</sql>
+    <sql>call set_pv_ids('os_cpr_anticipated_spmns', 'clinical_diagnosis', 'clinical_diagnosis_id', 'clinical_diagnosis');</sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Anticipated specimens: not specified type">
+    <sql>
+      update
+        os_cpr_anticipated_spmns
+      set
+        specimen_type = concat(specimen_type, concat(' - ', specimen_class))
+      where
+        specimen_type = 'Not Specified'
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Anticipated specimens: specimen PV attributes">
+    <sql>call set_pv_ids('os_cpr_anticipated_spmns', 'specimen_class', 'specimen_class_id', 'specimen_type');</sql>
+    <sql>call set_pv_ids('os_cpr_anticipated_spmns', 'specimen_type', 'specimen_type_id', 'specimen_type');</sql>
+    <sql>call set_pv_ids('os_cpr_anticipated_spmns', 'anatomic_site', 'anatomic_site_id', 'anatomic_site');</sql>
+    <sql>call set_pv_ids('os_cpr_anticipated_spmns', 'laterality', 'laterality_id', 'laterality');</sql>
+    <sql>call set_pv_ids('os_cpr_anticipated_spmns', 'path_status', 'path_status_id', 'pathology_status');</sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Anticipated specimens: specimen PV attributes - 2">
+    <sql>call set_pv_ids('os_cpr_anticipated_spmns', 'collection_container', 'collection_container_id', 'collection_container');</sql>
+    <sql>call set_pv_ids('os_cpr_anticipated_spmns', 'collection_procedure', 'collection_procedure_id', 'collection_procedure');</sql>
+  </changeSet>
 </databaseChangeLog>

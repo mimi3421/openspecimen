@@ -804,6 +804,20 @@
     </sql>
   </changeSet>
 
+  <changeSet author="vpawar" id="PV: Anticipated specimens table">
+    <addColumn tableName="OS_CPR_ANTICIPATED_SPMNS">
+      <column name="CLINICAL_STATUS_ID" type="${int.type}"/>
+      <column name="CLINICAL_DIAGNOSIS_ID" type="${int.type}"/>
+      <column name="SPECIMEN_CLASS_ID" type="${int.type}"/>
+      <column name="SPECIMEN_TYPE_ID" type="${int.type}"/>
+      <column name="ANATOMIC_SITE_ID" type="${int.type}"/>
+      <column name="LATERALITY_ID" type="${int.type}"/>
+      <column name="PATH_STATUS_ID" type="${int.type}"/>
+      <column name="COLLECTION_CONTAINER_ID" type="${int.type}"/>
+      <column name="COLLECTION_PROCEDURE_ID" type="${int.type}"/>
+    </addColumn>
+  </changeSet>
+
   <changeSet author="vpawar" id="Track impersonated user ID in API calls log">
     <addColumn tableName="OS_USER_API_CALLS_LOG">
       <column name="IMPERSONATED_USER_ID" type="${int.type}"/>
