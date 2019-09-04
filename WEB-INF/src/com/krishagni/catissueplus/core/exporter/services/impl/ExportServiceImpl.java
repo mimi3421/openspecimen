@@ -155,13 +155,22 @@ public class ExportServiceImpl implements ExportService {
 		job.setName(detail.getObjectType());
 		job.setCreatedBy(AuthUtil.getCurrentUser());
 		job.setCreationTime(Calendar.getInstance().getTime());
-		job.setParams(new HashMap<>(detail.getParams()));
+		job.setParams(getParams(detail.getParams()));
 		job.setSchema(schema);
 		job.setRecordIds(detail.getRecordIds());
 		job.setDisableNotifs(detail.isDisableNotifs());
 		job.param("timeZone", tz != null ? tz.getID() : null);
 		exportJobDao.saveOrUpdate(job.markInProgress(), true);
 		return job;
+	}
+
+	private Map<String, String> getParams(Map<String, String> params) {
+		Map<String, String> result = new HashMap<>();
+		if (params != null) {
+			result.putAll(params);
+		}
+
+		return result;
 	}
 
 	private class ExportTask implements Callable<Integer> {
