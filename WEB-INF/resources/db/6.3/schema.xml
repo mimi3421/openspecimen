@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+  http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+  <changeSet author="vpawar" id="Container maintenance tasks">
+    <createTable tableName="OS_CONTAINER_TASKS">
+      <column name="IDENTIFIER" type="${int.type}" autoIncrement="${autoIncrement}">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="NAME" type="${text.type}(32)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="DESCRIPTION" type="${text.type}(512)"/>
+      <column name="ACTIVITY_STATUS" type="${text.type}(16)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Container task ID generator" dbms="oracle">
+    <createSequence sequenceName="OS_CONT_TASK_SEQ" startValue="1" incrementBy="1" ordered="true"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Scheduled container activities">
+    <createTable tableName="OS_SCHED_CONT_ACTIVITIES">
+      <column name="IDENTIFIER" type="${int.type}" autoIncrement="${autoIncrement}">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="CONTAINER_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="NAME" type="${text.type}(64)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="START_DATE" type="${timestamp.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CYCLE_INTERVAL" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CYCLE_INTERVAL_UNIT" type="${text.type}(16)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="TASK_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="REM_INTERVAL" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="REM_INTERVAL_UNIT" type="${text.type}(16)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="REPEAT_CYCLE" type="${boolean.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="ACTIVITY_STATUS" type="${text.type}(16)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Scheduled container activity ID generator" dbms="oracle">
+    <createSequence sequenceName="OS_SCHED_CONT_ACTIVITY_SEQ" startValue="1" incrementBy="1" ordered="true"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="FK on scheduled activity container">
+    <addForeignKeyConstraint constraintName="FK_SCHED_ACTIVITIES_CONT_ID"
+      baseTableName="OS_SCHED_CONT_ACTIVITIES" baseColumnNames="CONTAINER_ID"
+      referencedTableName="OS_STORAGE_CONTAINERS" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="FK on scheduled container activity task">
+    <addForeignKeyConstraint constraintName="FK_SCHED_ACTIVITIES_TASK_ID"
+      baseTableName="OS_SCHED_CONT_ACTIVITIES" baseColumnNames="TASK_ID"
+      referencedTableName="OS_CONTAINER_TASKS" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Scheduled activity users">
+    <createTable tableName="OS_SCHED_CONT_ACTIVITY_USERS">
+      <column name="ACTIVITY_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="USER_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet author="vpawar" id="FK on scheduled container activity users activity">
+    <addForeignKeyConstraint constraintName="FK_SCHED_CONT_ACT_USERS_ACT_ID"
+      baseTableName="OS_SCHED_CONT_ACTIVITY_USERS" baseColumnNames="ACTIVITY_ID"
+      referencedTableName="OS_SCHED_CONT_ACTIVITIES" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="FK on scheduled container activity user">
+    <addForeignKeyConstraint constraintName="FK_SCHED_CONT_ACT_USER_ID"
+      baseTableName="OS_SCHED_CONT_ACTIVITY_USERS" baseColumnNames="USER_ID"
+      referencedTableName="CATISSUE_USER" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Container activities log">
+    <createTable tableName="OS_CONTAINER_ACTIVITY_LOGS">
+      <column name="IDENTIFIER" type="${int.type}" autoIncrement="${autoIncrement}">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="CONTAINER_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="ACTIVITY_ID" type="${int.type}"/>
+      <column name="TASK_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="PERFORMED_BY" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="ACTIVITY_DATE" type="${timestamp.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="TIME_TAKEN" type="${int.type}"/>
+      <column name="COMMENTS" type="${text.type}(512)"/>
+      <column name="ACTIVITY_STATUS" type="${text.type}(16)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Container activity log ID sequence generator">
+    <createSequence sequenceName="OS_CONT_ACTIVITY_LOG_SEQ" startValue="1" incrementBy="1" ordered="true"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="FK on container activity log - container">
+    <addForeignKeyConstraint constraintName="FK_CONT_ACT_LOG_CONT_ID"
+      baseTableName="OS_CONTAINER_ACTIVITY_LOGS" baseColumnNames="CONTAINER_ID"
+      referencedTableName="OS_STORAGE_CONTAINERS" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="FK on container activity log - activity">
+    <addForeignKeyConstraint constraintName="FK_CONT_ACT_LOG_ACT_ID"
+      baseTableName="OS_CONTAINER_ACTIVITY_LOGS" baseColumnNames="ACTIVITY_ID"
+      referencedTableName="OS_SCHED_CONT_ACTIVITIES" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="FK on container activity log - task">
+    <addForeignKeyConstraint constraintName="FK_CONT_ACT_LOG_TASK_ID"
+      baseTableName="OS_CONTAINER_ACTIVITY_LOGS" baseColumnNames="TASK_ID"
+      referencedTableName="OS_CONTAINER_TASKS" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="FK on container activity log - performed by">
+    <addForeignKeyConstraint constraintName="FK_CONT_ACT_LOG_USER_ID"
+      baseTableName="OS_CONTAINER_ACTIVITY_LOGS" baseColumnNames="PERFORMED_BY"
+      referencedTableName="CATISSUE_USER" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+</databaseChangeLog>

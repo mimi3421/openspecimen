@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+  http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+  <changeSet author="vpawar" id="Scheduled job to send container maintenance task reminder email notifications" dbms="mysql">
+    <sql>
+      select identifier into @userId from catissue_user where login_name = '$system';
+
+      insert into os_scheduled_jobs
+        (identifier, name, created_by, start_date, repeat_schedule, scheduled_minute, scheduled_hour, activity_status,
+         type, command, task_impl_fqn, rt_args_provided)
+      values
+        (default, 'Container maintenance tasks reminder', @userId, now(), 'DAILY', 00, 01, 'Active',
+         'INTERNAL', null, 'com.krishagni.catissueplus.core.administrative.services.impl.ContainerMaintenanceReminderTask', 0)
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Scheduled job to process failed external app messages" dbms="oracle">
+    <sql endDelimiter="//">
+      declare
+        userId number;
+      begin
+        select identifier into userId from catissue_user where login_name like '$system';
+
+        insert into os_scheduled_jobs
+          (identifier, name, created_by, start_date, repeat_schedule, scheduled_minute, scheduled_hour, activity_status,
+           type, command, task_impl_fqn, rt_args_provided)
+        values
+          (OS_SCHEDULED_JOBS_SEQ.nextval, 'Container maintenance tasks reminder', userId, SYSDATE, 'DAILY', 00, 01, 'Active',
+           'INTERNAL', null, 'com.krishagni.catissueplus.core.administrative.services.impl.ContainerMaintenanceReminderTask', 0);
+      end;
+      //
+    </sql>
+  </changeSet>
+</databaseChangeLog>

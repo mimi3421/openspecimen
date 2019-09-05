@@ -45,6 +45,12 @@
           <span class="os-title" translate="container.menu.transfer_events"> Transfer Events </span>
         </a>
       </li>
+      <li ui-sref-active="active" ng-if="!ctx.container.storageLocation">
+        <a ui-sref=".maintenance">
+          <span class="fa fa-calendar"></span>
+          <span class="os-title" translate="container.menu.maintenance"> Maintenance </span>
+        </a>
+      </li>
     </ul>
   </div>
 

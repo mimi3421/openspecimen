@@ -83,6 +83,14 @@ public class AccessCtrlMgr {
 		}
 	}
 
+	public void ensureUserIsAdminOrInstituteAdmin() {
+		User user = AuthUtil.getCurrentUser();
+
+		if (user == null || (!user.isAdmin() && !user.isInstituteAdmin())) {
+			throw OpenSpecimenException.userError(RbacErrorCode.ADMIN_RIGHTS_REQUIRED);
+		}
+	}
+
 	//////////////////////////////////////////////////////////////////////////////////////
 	//                                                                                  //
 	//          User object access control helper methods                               //

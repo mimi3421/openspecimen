@@ -188,7 +188,7 @@ angular.module('os.administrative.container',
         controller: 'ContainerSpecimensCtrl',
         parent: 'container-detail'
       })
-      .state('container-detail.events',{
+      .state('container-detail.events', {
         url: '/events',
         templateUrl: 'modules/administrative/container/events.html',
         controller: 'ContainerEventsCtrl',
@@ -197,6 +197,12 @@ angular.module('os.administrative.container',
             return container.getTransferEvents();
           }
         },
+        parent: 'container-detail'
+      })
+      .state('container-detail.maintenance', {
+        url: '/maintenance',
+        templateUrl: 'modules/administrative/container/maintenance.html',
+        controller: 'ContainerMaintenanceCtrl',
         parent: 'container-detail'
       });
   })

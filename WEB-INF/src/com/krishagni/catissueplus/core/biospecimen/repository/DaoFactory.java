@@ -2,13 +2,16 @@
 package com.krishagni.catissueplus.core.biospecimen.repository;
 
 import com.krishagni.catissueplus.core.administrative.repository.AutoFreezerProviderDao;
+import com.krishagni.catissueplus.core.administrative.repository.ContainerActivityLogDao;
 import com.krishagni.catissueplus.core.administrative.repository.ContainerStoreListDao;
+import com.krishagni.catissueplus.core.administrative.repository.ContainerTaskDao;
 import com.krishagni.catissueplus.core.administrative.repository.ContainerTypeDao;
 import com.krishagni.catissueplus.core.administrative.repository.DistributionOrderDao;
 import com.krishagni.catissueplus.core.administrative.repository.DistributionProtocolDao;
 import com.krishagni.catissueplus.core.administrative.repository.DpRequirementDao;
 import com.krishagni.catissueplus.core.administrative.repository.InstituteDao;
 import com.krishagni.catissueplus.core.administrative.repository.PermissibleValueDao;
+import com.krishagni.catissueplus.core.administrative.repository.ScheduledContainerActivityDao;
 import com.krishagni.catissueplus.core.administrative.repository.ScheduledJobDao;
 import com.krishagni.catissueplus.core.administrative.repository.ShipmentDao;
 import com.krishagni.catissueplus.core.administrative.repository.SiteDao;
@@ -62,6 +65,12 @@ public interface DaoFactory {
 	StorageContainerPositionDao getStorageContainerPositionDao();
 	
 	ContainerTypeDao getContainerTypeDao();
+
+	ContainerTaskDao getContainerTaskDao();
+
+	ScheduledContainerActivityDao getScheduledContainerActivityDao();
+
+	ContainerActivityLogDao getContainerActivityLogDao();
 
 	DistributionProtocolDao getDistributionProtocolDao();
 

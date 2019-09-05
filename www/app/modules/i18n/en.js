@@ -1516,6 +1516,37 @@
       "will_be_emailed": "Defragmentation report generation is taking more time. Link to download the report will be sent to you by email."
     },
 
+    "maintenance": {
+      "tasks": "Tasks",
+      "scheduled_activities": "Scheduled Activities",
+      "activities_log": "Activities Log",
+      "name": "Name",
+      "activity": "Activity",
+      "task": "Task",
+      "cycle_interval": "Cycle Interval",
+      "start_date": "Start Date",
+      "rem_interval": "Remind Before",
+      "assigned_users": "Assigned Users",
+      "performed_by": "Performed By",
+      "activity_date": "Activity Date",
+      "time_taken": "Time Taken",
+      "time_taken_mins": "Time Taken (mins)",
+      "minutes": "minutes",
+      "comments": "Comments",
+      "confirm_archive_sched_activity_title": "Archive Scheduled Activity",
+      "confirm_archive_sched_activity_q": "Are you sure you want to archive the scheduled activity: <b>{{name}}</b>?",
+      "create_sched_activity": "Schedule an Activity",
+      "update_sched_activity": "Update Activity Schedule",
+      "type": "Type",
+      "ad_hoc": "Ad hoc",
+      "scheduled": "Scheduled",
+      "activity": "Activity",
+      "log_activity": "Log an Activity",
+      "update_activity_log": "Update Activity Log",
+      "confirm_archive_activity_title": "Archive Activity",
+      "confirm_archive_activity_q": "Are you sure you want to archive the activity: <b>#{{id}} {{taskName}}</b>?"
+    },
+
     "tooltip": {
       "view_details": "Click to view Container details",
       "add": "Click to add new Container",
@@ -1530,7 +1561,8 @@
       "overview": "Overview",
       "locations": "Locations",
       "specimens": "Specimens",
-      "transfer_events": "Transfer Events"
+      "transfer_events": "Transfer Events",
+      "maintenance": "Maintenance"
     },
 
     "filter": {
@@ -1572,6 +1604,15 @@
     "filter": {
       "title": "Filters"
     }
+  },
+
+  "container_task": {
+    "list": "Container Tasks",
+    "name": "Name",
+    "description": "Description",
+    "create_task": "Create Task",
+    "confirm_archive_title": "Confirm Archive Task",
+    "confirm_archive_q": "Are you sure you want to archive the container maintenance task: <b>{{name}}</b>?"
   },
 
   "role": {

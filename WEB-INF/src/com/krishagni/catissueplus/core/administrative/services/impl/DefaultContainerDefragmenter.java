@@ -88,7 +88,7 @@ public class DefaultContainerDefragmenter implements ContainerDefragmenter {
 	private List<Long> getLeafContainers(Long containerId) {
 		StorageContainer container = daoFactory.getStorageContainerDao().getById(containerId);
 		if (container == null) {
-			throw OpenSpecimenException.userError(StorageContainerErrorCode.NOT_FOUND, containerId);
+			throw OpenSpecimenException.userError(StorageContainerErrorCode.NOT_FOUND, containerId, 1);
 		}
 
 		List<Long> result = new ArrayList<>();
@@ -283,7 +283,7 @@ public class DefaultContainerDefragmenter implements ContainerDefragmenter {
 	private StorageContainer getContainer(Long id) {
 		StorageContainer container = daoFactory.getStorageContainerDao().getById(id);
 		if (container == null) {
-			throw OpenSpecimenException.userError(StorageContainerErrorCode.NOT_FOUND, id);
+			throw OpenSpecimenException.userError(StorageContainerErrorCode.NOT_FOUND, id, 1);
 		}
 
 		return container;

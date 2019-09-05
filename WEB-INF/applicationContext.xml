@@ -606,6 +606,24 @@
     <property name="exportSvc" ref="exportSvc"/>
   </bean>
 
+  <bean id="containerMaintSvc" class="com.krishagni.catissueplus.core.administrative.services.impl.ContainerMaintenanceServiceImpl">
+    <property name="daoFactory" ref="biospecimenDaoFactory"/>
+    <property name="containerTaskFactory">
+      <bean class="com.krishagni.catissueplus.core.administrative.domain.factory.impl.ContainerTaskFactoryImpl"/>
+    </property>
+    <property name="schedContActivityFactory">
+      <bean class="com.krishagni.catissueplus.core.administrative.domain.factory.impl.ScheduledContainerActivityFactoryImpl">
+        <property name="daoFactory" ref="biospecimenDaoFactory"/>
+      </bean>
+    </property>
+    <property name="activityLogFactory">
+      <bean class="com.krishagni.catissueplus.core.administrative.domain.factory.impl.ContainerActivityLogFactoryImpl">
+        <property name="daoFactory" ref="biospecimenDaoFactory"/>
+      </bean>
+    </property>
+    <property name="exportSvc" ref="exportSvc"/>
+  </bean>
+
   <bean id="distributionLabelGenerator" class="com.krishagni.catissueplus.core.common.service.impl.LabelGeneratorImpl">
     <property name="tokenRegistrar">
       <bean class="com.krishagni.catissueplus.core.common.domain.DefaultLabelTmplTokenRegistrar">
@@ -963,6 +981,7 @@
     <property name="templateService" ref="templateService"/>
     <property name="schemaResources">
       <list>
+        <value>com/krishagni/catissueplus/core/administrative/schema/activity-log.xml</value>
         <value>com/krishagni/catissueplus/core/administrative/schema/institute.xml</value>
         <value>com/krishagni/catissueplus/core/administrative/schema/user.xml</value>
         <value>com/krishagni/catissueplus/core/administrative/schema/user-roles.xml</value>
