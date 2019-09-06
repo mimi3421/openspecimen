@@ -40,6 +40,8 @@
       where
         activity_id in (:activityIds) and
         activity_status = 'Active'
+      group by
+        activity_id
     </sql-query>
   </class>
 </hibernate-mapping>

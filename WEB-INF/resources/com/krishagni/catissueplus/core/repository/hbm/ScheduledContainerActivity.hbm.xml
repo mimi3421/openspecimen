@@ -39,7 +39,7 @@
 
     <property name="repeatCycle" column="REPEAT_CYCLE"/>
 
-    <set name="assignedUsers" table="OS_SCHED_CONT_ACTIVITY_USERS" cascade="none">
+    <set name="assignedUsers" table="OS_SCHED_CONT_ACT_USERS" cascade="none">
       <key column="ACTIVITY_ID"/>
       <many-to-many class="com.krishagni.catissueplus.core.administrative.domain.User" column="USER_ID"/>
     </set>

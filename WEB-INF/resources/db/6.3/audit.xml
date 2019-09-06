@@ -49,7 +49,7 @@
   </changeSet>
 
   <changeSet author="vpawar" id="Scheduled activity users">
-    <createTable tableName="OS_SCHED_CONT_ACTIVITY_USERS_AUD">
+    <createTable tableName="OS_SCHED_CONT_ACT_USERS_AUD">
       <column name="REV" type="${int.type}"/>
       <column name="REVTYPE" type="${tinyint.type}"/>
       <column name="ACTIVITY_ID" type="${int.type}"/>

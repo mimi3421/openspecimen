@@ -79,7 +79,7 @@
   </changeSet>
 
   <changeSet author="vpawar" id="Scheduled activity users">
-    <createTable tableName="OS_SCHED_CONT_ACTIVITY_USERS">
+    <createTable tableName="OS_SCHED_CONT_ACT_USERS">
       <column name="ACTIVITY_ID" type="${int.type}">
         <constraints nullable="false"/>
       </column>
@@ -91,13 +91,13 @@
 
   <changeSet author="vpawar" id="FK on scheduled container activity users activity">
     <addForeignKeyConstraint constraintName="FK_SCHED_CONT_ACT_USERS_ACT_ID"
-      baseTableName="OS_SCHED_CONT_ACTIVITY_USERS" baseColumnNames="ACTIVITY_ID"
+      baseTableName="OS_SCHED_CONT_ACT_USERS" baseColumnNames="ACTIVITY_ID"
       referencedTableName="OS_SCHED_CONT_ACTIVITIES" referencedColumnNames="IDENTIFIER"/>
   </changeSet>
 
   <changeSet author="vpawar" id="FK on scheduled container activity user">
     <addForeignKeyConstraint constraintName="FK_SCHED_CONT_ACT_USER_ID"
-      baseTableName="OS_SCHED_CONT_ACTIVITY_USERS" baseColumnNames="USER_ID"
+      baseTableName="OS_SCHED_CONT_ACT_USERS" baseColumnNames="USER_ID"
       referencedTableName="CATISSUE_USER" referencedColumnNames="IDENTIFIER"/>
   </changeSet>
 
