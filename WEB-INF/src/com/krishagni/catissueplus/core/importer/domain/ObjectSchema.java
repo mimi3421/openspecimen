@@ -145,7 +145,7 @@ public class ObjectSchema {
 		}
 
 		public String getCaption() {
-			return caption;
+			return StringUtils.trim(caption);
 		}
 
 		public void setCaption(String caption) {
@@ -249,7 +249,7 @@ public class ObjectSchema {
 		}
 
 		public String getCaption() {
-			return caption;
+			return StringUtils.trim(caption);
 		}
 
 		public void setCaption(String caption) {
