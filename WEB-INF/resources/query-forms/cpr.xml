@@ -115,6 +115,7 @@
         <udn>race</udn>
         <caption>#getMessage("participant_race")</caption>
         <multiple>true</multiple>
+        <parentKey>PARTICIPANT_ID</parentKey>
         <collectionTable>CATISSUE_RACE</collectionTable>
         <collectionKey>PARTICIPANT_ID</collectionKey>
         <column>RACE_ID</column>
@@ -127,6 +128,7 @@
         <udn>ethnicity</udn>
         <caption>#getMessage("participant_ethnicity")</caption>
         <multiple>true</multiple>
+        <parentKey>PARTICIPANT_ID</parentKey>
         <collectionTable>OS_PARTICIPANT_ETHNICITIES</collectionTable>
         <collectionKey>PARTICIPANT_ID</collectionKey>
         <column>ETHNICITY_ID</column>
