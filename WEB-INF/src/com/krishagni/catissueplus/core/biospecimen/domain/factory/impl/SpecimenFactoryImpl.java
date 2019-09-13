@@ -941,7 +941,7 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 		if (StringUtils.isNotBlank(collCont)) {
 			PermissibleValue contPv = getPv(CONTAINER, collCont, false);
 			if (contPv != null) {
-				event.setProcedure(contPv);
+				event.setContainer(contPv);
 			} else {
 				ose.addError(SpecimenErrorCode.INVALID_COLL_CONTAINER, collCont);
 			}

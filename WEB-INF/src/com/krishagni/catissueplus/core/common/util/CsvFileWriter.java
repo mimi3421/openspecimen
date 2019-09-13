@@ -43,11 +43,23 @@ public class CsvFileWriter implements CsvWriter {
 	
 	@Override
 	public void writeAll(List<String[]> allLines) {
-		csvWriter.writeAll(allLines);
+		if (allLines == null) {
+			return;
+		}
+
+		allLines.forEach(this::writeNext);
 	}
 	
 	@Override
 	public void writeNext(String[] nextLine) {
+		if (nextLine == null) {
+			return;
+		}
+
+		for (int i = 0; i < nextLine.length; ++i) {
+			nextLine[i] = StringUtils.trim(nextLine[i]);
+		}
+
 		csvWriter.writeNext(nextLine);
 	}
 	

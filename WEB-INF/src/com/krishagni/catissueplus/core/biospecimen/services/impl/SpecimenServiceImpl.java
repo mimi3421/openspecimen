@@ -236,6 +236,7 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 		try {
 			SpecimenDetail detail = req.getPayload();
 			Specimen specimen = saveOrUpdate(detail, null, null, null);
+			getLabelPrinter().print(getSpecimenPrintItems(Collections.singleton(specimen)));
 			return ResponseEvent.response(SpecimenDetail.from(specimen, false, false));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
