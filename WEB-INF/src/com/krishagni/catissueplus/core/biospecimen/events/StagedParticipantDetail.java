@@ -9,8 +9,10 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
 import com.krishagni.catissueplus.core.biospecimen.domain.StagedParticipant;
+import com.krishagni.catissueplus.core.common.ListenAttributeChanges;
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
+@ListenAttributeChanges
 public class StagedParticipantDetail extends ParticipantDetail {
 
 	private Date updatedTime;

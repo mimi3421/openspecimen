@@ -64,25 +64,56 @@ public class StagedParticipantServiceImpl implements StagedParticipantService {
 
 	private void updateParticipantIfExists(StagedParticipantDetail input) {
 		Participant existing = daoFactory.getParticipantDao().getByEmpi(input.getEmpi());
-
 		if (existing == null) {
 			return;
 		}
 
 		ParticipantDetail detail = ParticipantDetail.from(existing, false);
-		detail.setEmpi(input.getEmpi());
-		detail.setUid(input.getUid());
-		detail.setEthnicities(input.getEthnicities());
-		detail.setGender(input.getGender());
-		detail.setLastName(input.getLastName());
-		detail.setFirstName(input.getFirstName());
-		detail.setMiddleName(input.getMiddleName());
-		detail.setBirthDate(input.getBirthDate());
-		detail.setRaces(input.getRaces());
-		detail.setPmis(input.getPmis());
-		detail.setSource(input.getSource());
+		if (input.isAttrModified("newEmpi")) {
+			detail.setEmpi(input.getNewEmpi());
+		}
 
-		ResponseEvent<ParticipantDetail> resp = participantSvc.updateParticipant(new RequestEvent<>(detail));
+		if (input.isAttrModified("uid")) {
+			detail.setUid(input.getUid());
+		}
+
+		if (input.isAttrModified("ethnicities")) {
+			detail.setEthnicities(input.getEthnicities());
+		}
+
+		if (input.isAttrModified("gender")) {
+			detail.setGender(input.getGender());
+		}
+
+		if (input.isAttrModified("lastName")) {
+			detail.setLastName(input.getLastName());
+		}
+
+		if (input.isAttrModified("firstName")) {
+			detail.setFirstName(input.getFirstName());
+		}
+
+		if (input.isAttrModified("middleName")) {
+			detail.setMiddleName(input.getMiddleName());
+		}
+
+		if (input.isAttrModified("birthDate")) {
+			detail.setBirthDate(input.getBirthDate());
+		}
+
+		if (input.isAttrModified("races")) {
+			detail.setRaces(input.getRaces());
+		}
+
+		if (input.isAttrModified("pmis")) {
+			detail.setPmis(input.getPmis());
+		}
+
+		if (input.isAttrModified("source")) {
+			detail.setSource(input.getSource());
+		}
+
+		ResponseEvent<ParticipantDetail> resp = participantSvc.patchParticipant(new RequestEvent<>(detail));
 		if (resp.isSuccessful()) {
 			logger.info("Matching participant (empi: '" + detail.getEmpi() + "') found and updated!");
 		}
