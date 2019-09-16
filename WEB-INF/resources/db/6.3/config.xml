@@ -36,7 +36,7 @@
     </sql>
   </changeSet>
 
-  <changeSet author="vpawar" id="Allowed file types">
+  <!-- changeSet author="vpawar" id="Allowed file types">
     <sql>
       call add_cfg_prop(
         'common', 'allowed_file_types',
@@ -44,5 +44,5 @@
         'STRING', 'pdf,jpeg,jpg,png,txt,doc,docx,xls,xlsx,csv,json'
       );
     </sql>
-  </changeSet>
+  </changeSet -->
 </databaseChangeLog>
