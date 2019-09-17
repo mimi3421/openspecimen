@@ -99,20 +99,22 @@
            "optional": true
          },
          {
-   				"name": "cpr.participant.deathDate",
-   				"caption": "Death Date",
-   				"type": "date",
-   				"optional": true,
+           "name": "cpr.participant.deathDate",
+           "caption": "Death Date",
+           "type": "date",
+           "optional": true,
            "showIf": {
-   					"op": "AND",
-   					"rules": [{
-   						"field": "cpr.participant.vitalStatus",
-   						"op": "==",
-   						"value": "'Dead'"
-   					}]
-   			 	},
-          "showInOverviewIf": "useShowIf"
-   			 },
+             "op": "AND",
+             "rules": [
+               {
+                 "field": "cpr.participant.vitalStatus",
+                 "op": "==",
+                 "value": "'Dead'"
+               }
+             ]
+           },
+           "showInOverviewIf": "useShowIf"
+         },
          {
            "name": "cpr.participant.races",
            "caption": "Race",
@@ -245,30 +247,32 @@
            "defaultValue": "current_date",
            "optional": false
          },
-            {
-           "name" : "visit.site",
-           "caption" : "Site",
-           "type" : "dropdown",
-           "multiple" : false,
-           "optional" : false,
-           "listSource" : {
-             "apiUrl" : "sites",
-             "displayProp" : "name",
-             "selectProp" : "name",
-             "queryParams" : {
-               "dynamic" : {
-                 "operation" : "op"
+         {
+           "name": "visit.site",
+           "caption": "Site",
+           "type": "dropdown",
+           "multiple": false,
+           "optional": false,
+           "listSource": {
+             "apiUrl": "sites",
+             "displayProp": "name",
+             "selectProp": "name",
+             "queryParams": {
+               "dynamic": {
+                 "operation": "op"
                },
-               "search" : "name"
+             "search": "name"
              }
            },
-           "showIf" : {
-             "op" : "AND",
-             "rules" : [ {
-               "field" : "visit.status",
-               "op" : "!=",
-               "value" : "'Missed Collection'"
-             } ]
+           "showIf": {
+             "op": "AND",
+             "rules": [
+               {
+                 "field": "visit.status",
+                 "op": "!=",
+                 "value": "'Missed Collection'"
+               }
+             ]
            }
          },
          {
