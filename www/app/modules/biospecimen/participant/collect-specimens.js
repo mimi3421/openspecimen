@@ -364,7 +364,7 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
         if ($scope.showCollVisitDetails) {
           $scope.showCollVisitDetails = ($scope.specimens || []).some(
             function(specimen) {
-              return specimen.lineage == 'New'  && isPending(specimen);
+              return specimen.lineage == 'New'  && specimen.existingStatus == 'Pending';
             }
           );
         }
