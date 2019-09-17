@@ -57,7 +57,7 @@ public class CsvFileWriter implements CsvWriter {
 		}
 
 		for (int i = 0; i < nextLine.length; ++i) {
-			nextLine[i] = StringUtils.trim(nextLine[i]);
+			nextLine[i] = escapeUnsafeChars(StringUtils.trim(nextLine[i]));
 		}
 
 		csvWriter.writeNext(nextLine);
@@ -81,6 +81,16 @@ public class CsvFileWriter implements CsvWriter {
 		String lineEnding = System.getProperty("line.separator");
 		return StringUtils.isNotEmpty(lineEnding) ? lineEnding : DEFAULT_LINE_ENDING;
 	}
+
+	private String escapeUnsafeChars(String input) {
+		if (input != null && !input.isEmpty() && UNSAFE_CHARS.indexOf(input.charAt(0)) > -1) {
+			return "'" + input;
+		}
+
+		return input;
+	}
 	
 	private static final String DEFAULT_LINE_ENDING = "\n";
+
+	private static final String UNSAFE_CHARS = "=-+@";
 }

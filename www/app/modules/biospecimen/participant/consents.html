@@ -7,7 +7,7 @@
           <div class="pull-left" ng-switch on="!!consent.consentDocumentName"> 
             <span ng-switch-when="true">
               <span ng-switch on="userCtx.hasPhiAccess">
-                <a ng-switch-when="true" ng-href="{{consentFormUrl}}" target="_blank">
+                <a ng-switch-when="true" ng-href="{{consentFormUrl}}" target="_blank" rel="noopener">
                   <span>{{consent.consentDocumentName}}</span>
                 </a>
                 <span ng-switch-when="false">

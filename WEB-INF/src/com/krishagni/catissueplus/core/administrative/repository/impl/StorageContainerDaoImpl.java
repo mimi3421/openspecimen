@@ -625,11 +625,13 @@ public class StorageContainerDaoImpl extends AbstractDao<StorageContainer> imple
 		}
 
 		if (StringUtils.isNotBlank(crit.type())) {
-			query.add(Restrictions.eq("specimen.specimenType", crit.type()));
+			query.createAlias("specimen.specimenType", "typePv")
+				.add(Restrictions.eq("typePv.value", crit.type()));
 		}
 
 		if (StringUtils.isNotBlank(crit.anatomicSite())) {
-			query.add(Restrictions.eq("specimen.tissueSite", crit.anatomicSite()));
+			query.createAlias("specimen.tissueSite", "anatomicPv")
+				.add(Restrictions.eq("anatomicPv.value", crit.anatomicSite()));
 		}
 
 		String startAlias = "visit";

@@ -86,15 +86,11 @@ angular.module('os.biospecimen.extensions', ['os.biospecimen.models'])
             disableFields  : opts.disableFields || []
           };
 
-          SettingUtil.getSetting('common', 'de_form_html_markup').then(
-            function(setting) {
-              args.allowHtmlCaptions = setting.value;
-              ctrl.form = new edu.common.de.Form(args);
-              ctrl.form.render();
-              LocationChangeListener.preventChange();
-              addWatchForDomChanges(opts);
-            }
-          );
+          args.allowHtmlCaptions = ui.os.appProps.allowHtmlMarkup;
+          ctrl.form = new edu.common.de.Form(args);
+          ctrl.form.render();
+          LocationChangeListener.preventChange();
+          addWatchForDomChanges(opts);
 
           onceRendered = true;
         }, true);

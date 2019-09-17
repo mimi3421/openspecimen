@@ -17,12 +17,14 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import org.springframework.web.util.HtmlUtils;
 
 import com.krishagni.catissueplus.core.common.errors.CommonErrorCode;
 import com.krishagni.catissueplus.core.common.errors.ErrorCode;
 import com.krishagni.catissueplus.core.common.errors.ErrorType;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.errors.ParameterizedError;
+import com.krishagni.catissueplus.core.common.util.ConfigUtil;
 import com.krishagni.catissueplus.core.common.util.MessageUtil;
 
 @ControllerAdvice
@@ -112,6 +114,10 @@ public class RestErrorController extends ResponseEntityExceptionHandler {
 
 	private ErrorMessage getMessage(String code, Object[] params) {
 		String message = MessageUtil.getInstance().getMessage(code.toLowerCase(), params);
+		if (!ConfigUtil.getInstance().getBoolSetting("common", "de_form_html_markup", false)) {
+			message = HtmlUtils.htmlEscape(message);
+		}
+
 		return new ErrorMessage(code, message);
 	}
 	

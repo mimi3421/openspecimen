@@ -4,7 +4,7 @@
       <a ui-sref="home">
         <img src="images/os_logo.png"></img>
       </a>
-      <a class="deploy-logo" href="{{global.siteAssets.siteUrl}}" ng-if="global.siteAssets.siteLogo" target="_blank">
+      <a class="deploy-logo" href="{{global.siteAssets.siteUrl}}" ng-if="global.siteAssets.siteLogo" target="_blank" rel="noopener">
         <img src="{{global.siteAssets.siteLogo}}"></img>
       </a>
       <div class="deploy-env" ng-if="!!global.appProps.deploy_env">
@@ -49,12 +49,12 @@
         </a>
         <ul class="dropdown-menu dropdown-menu-right" role="menu">
           <li>
-            <a href="{{userCtx.helpUrl}}" target="_blank">
+            <a href="{{userCtx.helpUrl}}" target="_blank" rel="noopener">
               <span translate="common.online_help">Online Help</span>
             </a>
           </li>
           <li>
-            <a href="{{userCtx.forumUrl}}" target="_blank">
+            <a href="{{userCtx.forumUrl}}" target="_blank" rel="noopener">
               <span translate="common.qa_forums">Q & A Forums</span>
             </a>
           </li>

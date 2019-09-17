@@ -5,7 +5,7 @@
         <span class="fa fa-pencil"></span>
         <span translate="common.buttons.edit">Edit</span>
       </button>
-      <a class="btn default" href="{{octx.workflowUri}}" target="_blank" ng-if="!ctx.editAllowed">
+      <a class="btn default" href="{{octx.workflowUri}}" target="_blank" rel="noopener" ng-if="!ctx.editAllowed">
         <span class="fa fa-download"></span>
         <span translate="cp_groups.export_workflows">Export Workflows</span>
       </a>
@@ -16,7 +16,7 @@
         </button>
         <ul class="dropdown-menu">
           <li>
-            <a href="{{octx.workflowUri}}" target="_blank">
+            <a href="{{octx.workflowUri}}" target="_blank" rel="noopener">
               <span class="fa fa-download"></span>
               <span translate="common.buttons.export">Export</span>
             </a>

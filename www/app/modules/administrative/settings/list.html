@@ -70,7 +70,7 @@
                       <span ng-switch-default>{{setting.value | osNoValue}}</span>
                     </span>
                     <span ng-switch-when="FILE" ng-switch on="!!setting.value" ng-click="$event.stopPropagation();">
-                      <a ng-switch-when="true" href="{{setting.getFileDownloadUrl()}}" target="_blank">
+                      <a ng-switch-when="true" href="{{setting.getFileDownloadUrl()}}" target="_blank" rel="noopener">
                         <span>{{setting.value}}</span>
                       </a>
                       <span ng-switch-when="false" translate="common.not_specified">

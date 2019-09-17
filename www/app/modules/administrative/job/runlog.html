@@ -72,7 +72,7 @@
           </td>
           <td class="col" show-if-allowed="jobResource.runOpts"
             ng-switch on="run.status != 'IN_PROGRESS' && !!run.logFilePath">
-            <a ng-switch-when="true" href="{{ctx.job.getResultUrl(run.id)}}" target="_blank">
+            <a ng-switch-when="true" href="{{ctx.job.getResultUrl(run.id)}}" target="_blank" rel="noopener">
               <i class="fa fa-download"></i>
             </a>
             <span ng-switch-default>&nbsp;</span>

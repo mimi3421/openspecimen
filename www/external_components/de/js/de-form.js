@@ -1870,7 +1870,7 @@ edu.common.de.FileUploadField = function(id, field, args) {
 
       error: function(e, data) {
         if (e) {
-          alert(JSON.stringify(e.responseText));
+          alert(e.responseText);
         } else {
           alert("Unknown file upload error");
         }
