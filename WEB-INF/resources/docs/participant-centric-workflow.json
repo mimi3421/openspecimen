@@ -138,7 +138,7 @@
                "caption": "Site",
                "type": "dropdown",
                "multiple": false,
-               "optional": false,
+               "optional": true,
                "listSource": {
                  "apiUrl": "sites",
                  "displayProp": "name",
@@ -245,32 +245,30 @@
            "defaultValue": "current_date",
            "optional": false
          },
-         {
-           "name": "visit.site",
-           "caption": "Site",
-           "type": "dropdown",
-           "multiple": false,
-           "optional": false,
-           "listSource": {
-             "apiUrl": "sites",
-             "displayProp": "name",
-             "selectProp": "name",
-             "queryParams": {
-               "dynamic": {},
-               "static": {
-                 "listAll": true
-               }
+            {
+           "name" : "visit.site",
+           "caption" : "Site",
+           "type" : "dropdown",
+           "multiple" : false,
+           "optional" : false,
+           "listSource" : {
+             "apiUrl" : "sites",
+             "displayProp" : "name",
+             "selectProp" : "name",
+             "queryParams" : {
+               "dynamic" : {
+                 "operation" : "op"
+               },
+               "search" : "name"
              }
            },
-           "showIf": {
-             "op": "AND",
-             "rules": [
-               {
-                 "field": "visit.status",
-                 "op": "!=",
-                 "value": "'Missed Collection'"
-               }
-             ]
+           "showIf" : {
+             "op" : "AND",
+             "rules" : [ {
+               "field" : "visit.status",
+               "op" : "!=",
+               "value" : "'Missed Collection'"
+             } ]
            }
          },
          {
