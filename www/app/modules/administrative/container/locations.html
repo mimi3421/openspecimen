@@ -139,7 +139,7 @@
     <li class="item">
       <strong class="key key-sm" translate="specimens.cp"> Collection Protocol </strong>
       <span class="value value-md">
-        <a ui-sref="cp-list-view({cpId: lctx.entityInfo.specimen.cpId})" target="_blank">
+        <a ui-sref="cp-list-view({cpId: lctx.entityInfo.specimen.cpId})" target="_blank" rel="noopener">
           <span>{{lctx.entityInfo.specimen.cpShortTitle}}</span>
         </a>
       </span>
@@ -147,7 +147,7 @@
     <li class="item">
       <strong class="key key-sm" translate="specimens.label">Label</strong>
       <span class="value value-md">
-        <a ui-sref="specimen({specimenId: lctx.entityInfo.specimen.id})" target="_blank">
+        <a ui-sref="specimen({specimenId: lctx.entityInfo.specimen.id})" target="_blank" rel="noopener">
           <span>{{lctx.entityInfo.specimen.label}}</span>
         </a>
       </span>
@@ -161,7 +161,7 @@
     <li class="item" ng-if="!!lctx.entityInfo.specimen.parentLabel">
       <strong class="key key-sm" translate="specimens.parent_specimen">Parent Specimen</strong>
       <span class="value value-md">
-        <a ui-sref="specimen({specimenId: lctx.entityInfo.specimen.parentId})" target="_blank">
+        <a ui-sref="specimen({specimenId: lctx.entityInfo.specimen.parentId})" target="_blank" rel="noopener">
           <span>{{lctx.entityInfo.specimen.parentLabel}}</span>
         </a>
       </span>
@@ -170,7 +170,7 @@
       <strong class="key key-sm" translate="specimens.ppid">PPID</strong>
       <span class="value value-md">
         <a ui-sref="participant-detail.overview({
-          cpId: lctx.entityInfo.specimen.cpId, cprId: lctx.entityInfo.specimen.cprId})" target="_blank">
+          cpId: lctx.entityInfo.specimen.cpId, cprId: lctx.entityInfo.specimen.cprId})" target="_blank" rel="noopener">
           <span>{{lctx.entityInfo.specimen.ppid}}</span>
         </a>
       </span>

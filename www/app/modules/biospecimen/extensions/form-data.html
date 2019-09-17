@@ -43,7 +43,7 @@
   <span ng-switch on="!!field.value || field.value == 0">
     <span ng-switch-when="true" ng-switch on="field.type">
       <span ng-switch-when="fileUpload" ng-init="file=field.value">
-        <a href="{{filesUrl}}/{{file.fileId}}?contentType={{file.contentType}}&filename={{file.filename}}" target="_blank">
+        <a href="{{filesUrl}}/{{file.fileId}}?contentType={{file.contentType}}&filename={{file.filename}}" target="_blank" rel="noopener">
           {{file.filename}}
         </a>
       </span>

@@ -2744,11 +2744,13 @@
         "max_eapp_msg_retries": "Failed Messages Retry Limit",
         "max_eapp_msg_retries_desc": "Maximum number of retries to process failed external application messages.",
         "eapp_msg_retention_period": "Message Retention Period",
-        "eapp_msg_retention_period_desc": "Number of days to retain the external application messages in the database before deleting them",
+        "eapp_msg_retention_period_desc": "Number of days to retain the external application messages in the database before deleting them.",
         "search_delay": "Search Delay",
         "search_delay_desc": "Time in milliseconds to wait between users input before executing the search action.",
         "de_form_html_markup": "HTML Markup",
-        "de_form_html_markup_desc": "Enable to allow HTML decorated custom field labels"
+        "de_form_html_markup_desc": "Enable to allow HTML decorated custom field labels.",
+        "allowed_file_types": "Allowed File Types",
+        "allowed_file_types_desc": "Comma-separated list of file types that are allowed for upload by the end-users."
       },
 
       "email": {

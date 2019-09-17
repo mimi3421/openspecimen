@@ -14,7 +14,7 @@
         <span class="fa fa-trash"></span>
         <span translate="cp.menu_options.delete">Delete</span>
       </button>
-      <a href="{{downloadUri}}" class="btn default" target="_blank">
+      <a href="{{downloadUri}}" class="btn default" target="_blank" rel="noopener">
         <span class="fa fa-download"></span>
         <span translate="cp.menu_options.export">Export</span>
       </a>
@@ -35,7 +35,7 @@
         </button>
         <ul class="dropdown-menu">
           <li>
-            <a href="{{workflowUri}}" target="_blank">
+            <a href="{{workflowUri}}" target="_blank" rel="noopener">
               <span class="fa fa-download"></span>
               <span translate="cp.export_workflows">Export Workflows</span>
             </a>
@@ -140,12 +140,12 @@
             </span>
             <span ng-switch-default>
               <span ng-if="cp.sopDocumentUrl">
-                <a ng-href="{{cp.sopDocumentUrl}}" target="_blank">
+                <a ng-href="{{cp.sopDocumentUrl}}" target="_blank" rel="noopener">
                   <span>{{cp.sopDocumentUrl}}</span>
                 </a>
               </span>
               <span ng-if="cp.sopDocumentName">
-                <a ng-href="{{cp.getSopDocDownloadUrl()}}" target="_blank">
+                <a ng-href="{{cp.getSopDocDownloadUrl()}}" target="_blank" rel="noopener">
                   <span>{{cp.$$sopDocDispName}}</span>
                 </a>
               </span>

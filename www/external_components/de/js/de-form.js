@@ -1866,6 +1866,14 @@ edu.common.de.FileUploadField = function(id, field, args) {
           that.progressBar.removeClass("hidden");
           that.progressBar.children().css('width', pct + '%');
         }
+      },
+
+      error: function(e, data) {
+        if (e) {
+          alert(e.responseText);
+        } else {
+          alert("Unknown file upload error");
+        }
       }
     });
 

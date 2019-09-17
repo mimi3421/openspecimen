@@ -177,7 +177,7 @@
             <div os-file-upload ctrl="sopDocUploader.ctrl" ng-disabled="!!cp.sopDocumentUrl">
             </div>
             <div ng-if="!!cp.sopDocumentName && !sopDocUploader.ctrl.data">
-              <a ng-href="{{cp.getSopDocDownloadUrl()}}" target="_blank">
+              <a ng-href="{{cp.getSopDocDownloadUrl()}}" target="_blank" rel="noopener">
                 <span>{{cp.$$sopDocDispName}}</span>
               </a>
               <a ng-click="removeSopDocument()">
