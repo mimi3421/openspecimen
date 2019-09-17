@@ -124,16 +124,19 @@ public class AuthUtil {
 	}
 
 	public static void setTokenCookie(HttpServletRequest httpReq, HttpServletResponse httpResp, String authToken) {
-		Cookie cookie = new Cookie("osAuthToken", authToken);
-		cookie.setPath(getContextPath(httpReq));
-		cookie.setHttpOnly(true);
-		cookie.setSecure(httpReq.isSecure());
-
-		if (authToken == null) {
-			cookie.setMaxAge(0);
+		String cookieValue = "osAuthToken=" + (authToken != null ? authToken : "") + ";";
+		cookieValue += "Path=" + getContextPath(httpReq) + ";";
+		cookieValue += "HttpOnly;";
+		cookieValue += "SameSite=Strict;";
+		if (httpReq.isSecure()) {
+			cookieValue += "secure;";
 		}
 
-		httpResp.addCookie(cookie);
+		if (authToken == null) {
+			cookieValue += "Max-Age=0;";
+		}
+
+		httpResp.setHeader("Set-Cookie", cookieValue);
 	}
 
 	public static void clearTokenCookie(HttpServletRequest httpReq, HttpServletResponse httpResp) {
