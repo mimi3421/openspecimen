@@ -491,8 +491,8 @@ angular.module('os.biospecimen.specimen',
         templateUrl: 'modules/biospecimen/participant/specimen/bulk-add-event.html',
         controller: 'BulkAddEventCtrl',
         resolve: {
-          events: function(SpecimenEvent) {
-            return SpecimenEvent.getEvents();
+          events: function(CollectionProtocol) {
+            return new CollectionProtocol({id: -1}).getForms(['SpecimenEvent']);
           }
         },
         parent: 'signed-in'
