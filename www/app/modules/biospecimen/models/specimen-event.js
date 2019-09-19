@@ -1,5 +1,5 @@
 angular.module('os.biospecimen.models.specimenevent', ['os.common.models'])
-  .factory('SpecimenEvent', function(osModel, $http, Form) {
+  .factory('SpecimenEvent', function(osModel, $http, Form, CollectionProtocol) {
     var SpecimenEvent = osModel('specimen-events');
 
     var sysEvents = [
@@ -13,7 +13,7 @@ angular.module('os.biospecimen.models.specimenevent', ['os.common.models'])
     ];
     
     SpecimenEvent.getEvents = function() {
-      return Form.listForms('SpecimenEvent');
+      return new CollectionProtocol({id: -1}).getForms(['SpecimenEvent']);
     }
 
     SpecimenEvent.save = function(formId, data) {
