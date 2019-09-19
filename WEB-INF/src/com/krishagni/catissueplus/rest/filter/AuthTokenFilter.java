@@ -114,7 +114,7 @@ public class AuthTokenFilter extends GenericFilterBean {
 
 		User user = null;
 		String authToken = AuthUtil.getAuthTokenFromHeader(httpReq);
-		if (authToken == null && !requiresAuthTokenHeader(httpReq)) {
+		if (authToken == null) {
 			authToken = AuthUtil.getTokenFromCookie(httpReq);
 		}
 		
@@ -261,10 +261,6 @@ public class AuthTokenFilter extends GenericFilterBean {
 		}
 
 		return requiresSignIn;
-	}
-
-	private boolean requiresAuthTokenHeader(HttpServletRequest httpReq) {
-		return !"GET".equalsIgnoreCase(httpReq.getMethod()) && !httpReq.getRequestURI().contains("rest/ng/de-forms");
 	}
 
 	private boolean isRecordableApi(HttpServletRequest httpReq) {
