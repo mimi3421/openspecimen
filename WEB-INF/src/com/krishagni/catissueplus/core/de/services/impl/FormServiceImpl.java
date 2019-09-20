@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,6 +22,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.dao.DataAccessException;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.krishagni.catissueplus.core.administrative.domain.FormDataSavedEvent;
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.administrative.repository.FormListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
@@ -651,6 +653,11 @@ public class FormServiceImpl implements FormService, InitializingBean {
 	}
 
 	@Override
+	public List<FormData> getRecords(Container form, List<Long> recordIds) {
+		return formDataMgr.getFormData(form, recordIds);
+	}
+
+	@Override
 	public ResponseEvent<List<PermissibleValue>> getPvs(RequestEvent<GetFormFieldPvsOp> req) {
 		try {
 			GetFormFieldPvsOp input = req.getPayload();
@@ -887,7 +894,9 @@ public class FormServiceImpl implements FormService, InitializingBean {
 		
 		formData.validate();
 
-		OpenSpecimenEvent<?> event = null;
+		OpenSpecimenEvent<?> collOrRecvEvent = null;
+		Object object = null;
+
 		String entityType = formContext.getEntityType();
 		if (entityType.equals("Participant")) {
 			CollectionProtocolRegistration cpr = daoFactory.getCprDao().getById(objectId);
@@ -896,6 +905,7 @@ public class FormServiceImpl implements FormService, InitializingBean {
 			}
 
 			AccessCtrlMgr.getInstance().ensureUpdateCprRights(cpr);
+			object = cpr;
 		} else if (entityType.equals("CommonParticipant")) {
 			CollectionProtocolRegistration cpr = daoFactory.getCprDao().getById(objectId);
 			if (cpr == null) {
@@ -904,6 +914,7 @@ public class FormServiceImpl implements FormService, InitializingBean {
 
 			AccessCtrlMgr.getInstance().ensureUpdateCprRights(cpr);
 			objectId = cpr.getParticipant().getId();
+			object = cpr;
 		} else if (entityType.equals("SpecimenCollectionGroup")) {
 			Visit visit = daoFactory.getVisitsDao().getById(objectId);
 			if (visit == null) {
@@ -911,11 +922,13 @@ public class FormServiceImpl implements FormService, InitializingBean {
 			}
 
 			AccessCtrlMgr.getInstance().ensureCreateOrUpdateVisitRights(visit, form.hasPhiFields());
+			object = visit;
 		} else if (entityType.equals("Specimen") || entityType.equals("SpecimenEvent")) {
 			Specimen specimen = ensureSpecimenUpdateRights(objectId, form.hasPhiFields());
+			object = specimen;
 			if (isCollectionOrReceivedEvent(form)) {
 				specimen.setUpdated(true);
-				event = new SpecimenSavedEvent(specimen);
+				collOrRecvEvent = new SpecimenSavedEvent(specimen);
 			}
 		}
 
@@ -950,8 +963,10 @@ public class FormServiceImpl implements FormService, InitializingBean {
 		formDao.saveOrUpdateRecordEntry(recordEntry);
 		formData.setRecordId(recordId);
 
-		if (event != null) {
-			EventPublisher.getInstance().publish(event);
+		if (collOrRecvEvent != null) {
+			EventPublisher.getInstance().publish(collOrRecvEvent);
+		} else if (object != null) {
+			EventPublisher.getInstance().publish(new FormDataSavedEvent(entityType, object, formData));
 		}
 
 		return formData;
