@@ -14,4 +14,15 @@
       );
     </sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="Allowed upload file types - added xml and zip">
+    <sql>
+      update
+        os_cfg_settings
+      set
+        value = 'pdf,jpeg,jpg,png,txt,doc,docx,xls,xlsx,csv,json,xml,zip'
+      where
+        property_id in (select identifier from os_cfg_props where name = 'allowed_file_types')
+    </sql>
+  </changeSet>
 </databaseChangeLog>
