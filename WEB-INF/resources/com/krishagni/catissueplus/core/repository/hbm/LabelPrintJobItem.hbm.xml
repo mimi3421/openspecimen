@@ -4,10 +4,7 @@
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping auto-import="false">
-  <class
-    name="com.krishagni.catissueplus.core.common.domain.LabelPrintJobItem"
-    table="OS_LABEL_PRINT_JOB_ITEMS">
-	
+  <class name="com.krishagni.catissueplus.core.common.domain.LabelPrintJobItem" table="OS_LABEL_PRINT_JOB_ITEMS">
     <id name="id" column="IDENTIFIER">
       <generator class="native">
         <param name="sequence">OS_LBL_PRN_JOB_ITEMS_SEQ</param>
@@ -17,6 +14,8 @@
     <many-to-one name="job" column="JOB_ID"/>
  
     <property name="itemLabel" column="ITEM_LABEL"/>
+
+    <property name="itemId" column="ITEM_ID"/>
 
     <property name="copies" column="COPIES"/>
  

@@ -27,4 +27,9 @@ public class DefaultDistributionLabelPrinter extends AbstractLabelPrinter<Distri
 	protected String getItemLabel(DistributionOrderItem orderItem) {
 		return orderItem.getId().toString();
 	}
+
+	@Override
+	protected Long getItemId(DistributionOrderItem orderItem) {
+		return orderItem.getId();
+	}
 }

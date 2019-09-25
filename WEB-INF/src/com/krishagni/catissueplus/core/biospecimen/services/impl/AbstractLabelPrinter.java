@@ -106,6 +106,7 @@ public abstract class AbstractLabelPrinter<T> implements LabelPrinter<T>, Applic
 					item.setJob(job);
 					item.setPrinterName(rule.getPrinterName());
 					item.setItemLabel(getItemLabel(obj));
+					item.setItemId(getItemId(obj));
 					item.setCopies(printItem.getCopies());
 					item.setStatus(LabelPrintJobItem.Status.QUEUED);
 					item.setLabelType(rule.getLabelType());
@@ -158,6 +159,8 @@ public abstract class AbstractLabelPrinter<T> implements LabelPrinter<T>, Applic
 
 	protected abstract String getItemLabel(T obj);
 
+	protected abstract Long getItemId(T obj);
+
 	protected void loadRulesFromDb() {
 		try {
 			logger.info("Loading print rules from database for: " + getObjectType());
@@ -172,7 +175,7 @@ public abstract class AbstractLabelPrinter<T> implements LabelPrinter<T>, Applic
 	}
 
 	protected Map<String, Object> makeLabelData(LabelPrintJobItem item, LabelPrintRule rule, Map<String, String> dataItems) {
-		Map<String, Object> labelData = new HashMap<String, Object>();
+		Map<String, Object> labelData = new HashMap<>();
 		labelData.put("jobItem", item);
 		labelData.put("rule", rule);
 		labelData.put("dataItems", dataItems);

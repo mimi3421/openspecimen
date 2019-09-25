@@ -68,6 +68,11 @@ public class DefaultVisitLabelPrinter extends AbstractLabelPrinter<Visit> implem
 	}
 
 	@Override
+	protected Long getItemId(Visit visit) {
+		return visit.getId();
+	}
+
+	@Override
 	protected void loadRulesFromDb() {
 		reloadRules();
 	}
