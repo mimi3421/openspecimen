@@ -25,4 +25,14 @@
         property_id in (select identifier from os_cfg_props where name = 'allowed_file_types')
     </sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="Allowed API request origins">
+    <sql>
+      call add_cfg_prop(
+        'common', 'allowed_req_origins',
+        'allowed_req_origins', 'allowed_req_origins_desc',
+        'STRING', ''
+      );
+    </sql>
+  </changeSet>
 </databaseChangeLog>

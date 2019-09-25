@@ -2750,7 +2750,9 @@
         "de_form_html_markup": "HTML Markup",
         "de_form_html_markup_desc": "Enable to allow HTML decorated custom field labels.",
         "allowed_file_types": "Allowed File Types",
-        "allowed_file_types_desc": "Comma-separated list of file types that can be uploaded by the end-users."
+        "allowed_file_types_desc": "Comma-separated list of file types that can be uploaded by the end-users.",
+        "allowed_req_origins": "Allowed Request Origins",
+        "allowed_req_origins_desc": "Comma-separated list of allowed request origin servers."
       },
 
       "email": {

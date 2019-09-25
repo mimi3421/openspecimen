@@ -750,6 +750,7 @@
   <bean id="authTokenFilter" class="com.krishagni.catissueplus.rest.filter.AuthTokenFilter">
     <property name="authService" ref="userAuthService"/>
     <property name="auditService" ref="auditService"/>
+    <property name="cfgSvc" ref="cfgSvc"/>
     <property name="excludeUrls">
       <map>
         <entry key="POST">
