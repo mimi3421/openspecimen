@@ -27,4 +27,9 @@ public class DefaultContainerLabelPrinter extends AbstractLabelPrinter<StorageCo
 	protected String getItemLabel(StorageContainer container) {
 		return container.getId().toString();
 	}
+
+	@Override
+	protected Long getItemId(StorageContainer container) {
+		return container.getId();
+	}
 }

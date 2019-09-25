@@ -73,6 +73,11 @@ public class DefaultSpecimenLabelPrinter extends AbstractLabelPrinter<Specimen> 
 	}
 
 	@Override
+	protected Long getItemId(Specimen specimen) {
+		return specimen.getId();
+	}
+
+	@Override
 	@PlusTransactional
 	public void afterPropertiesSet()
 	throws Exception {

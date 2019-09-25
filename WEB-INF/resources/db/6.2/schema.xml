@@ -1215,4 +1215,10 @@
       <column name="TIME_ZONE" type="${text.type}(32)"/>
     </addColumn>
   </changeSet>
+
+  <changeSet author="vpawar" id="Print job item ID">
+    <addColumn tableName="OS_LABEL_PRINT_JOB_ITEMS">
+      <column name="ITEM_ID" type="${int.type}"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

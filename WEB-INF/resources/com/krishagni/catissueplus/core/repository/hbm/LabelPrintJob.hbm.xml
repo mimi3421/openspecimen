@@ -14,10 +14,7 @@
 
     <property name="itemType" column="ITEM_TYPE"/>
 
-    <many-to-one
-      name="submittedBy"
-      class="com.krishagni.catissueplus.core.administrative.domain.User"
-      column="SUBMITTED_BY"/>
+    <many-to-one name="submittedBy" column="SUBMITTED_BY"/>
  
     <property name="submissionDate" column="SUBMISSION_DATE" not-null="true"/>
 
@@ -25,5 +22,27 @@
       <key column="JOB_ID"/>
       <one-to-many class="com.krishagni.catissueplus.core.common.domain.LabelPrintJobItem"/>
     </set>
+
+    <sql-query name="getSpecimenPrintStats">
+      <return-scalar column="first_name"    type="string"/>
+      <return-scalar column="last_name"     type="string"/>
+      <return-scalar column="email_address" type="string"/>
+      <return-scalar column="short_title"   type="string"/>
+      <return-scalar column="prints"        type="integer"/>
+
+      select
+        u.first_name, u.last_name, u.email_address, cp.short_title, count(ji.identifier) as prints
+      from
+        os_label_print_job_items ji
+        inner join os_label_print_jobs j on j.identifier = ji.job_id
+        inner join catissue_specimen s on s.identifier = ji.item_id
+        inner join catissue_collection_protocol cp on cp.identifier = s.collection_protocol_id
+        inner join catissue_user u on u.identifier = j.submitted_by
+      where
+        j.item_type = 'specimen' and
+        j.submission_date &gt;= :startDate and j.submission_date &lt;= :endDate
+      group by
+        u.first_name, u.last_name, u.email_address, cp.short_title
+    </sql-query>
   </class>
 </hibernate-mapping>
