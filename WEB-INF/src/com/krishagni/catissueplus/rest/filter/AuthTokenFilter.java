@@ -128,7 +128,10 @@ public class AuthTokenFilter extends GenericFilterBean implements InitializingBe
 			return;
 		}
 
-		httpResp.setHeader("Access-Control-Allow-Origin", origin);
+		if (StringUtils.isNotBlank(origin)) {
+			httpResp.setHeader("Access-Control-Allow-Origin", origin);
+		}
+
 		httpResp.setHeader("Access-Control-Allow-Credentials", "true");
 		httpResp.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, PATCH, OPTIONS");
 		httpResp.setHeader("Access-Control-Allow-Headers", "Origin, Accept, Content-Type, X-OS-API-TOKEN, X-OS-API-CLIENT, X-OS-IMPERSONATE-USER, X-OS-CLIENT-TZ");
@@ -360,7 +363,7 @@ public class AuthTokenFilter extends GenericFilterBean implements InitializingBe
 			return true;
 		}
 
-		return getAllowedOrigins().contains(origin.trim()) || getAllowedOrigins().contains("*");
+		return getAllowedOrigins().isEmpty() || getAllowedOrigins().contains("*") || getAllowedOrigins().contains(origin.trim());
 	}
 
 	private Set<String> getAllowedOrigins() {
