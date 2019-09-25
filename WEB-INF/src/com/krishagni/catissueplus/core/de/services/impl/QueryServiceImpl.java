@@ -873,7 +873,7 @@ public class QueryServiceImpl implements QueryService {
 		StringBuilder templates = new StringBuilder();
 		try {
 			PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(getClass().getClassLoader());
-			Resource[] resources = resolver.getResources("classpath:/query-forms/" + dirName + "/*.xml");
+			Resource[] resources = resolver.getResources("classpath*:/query-forms/" + dirName + "/*.xml");
 
 			for (Resource resource : resources) {
 				String filename = "query-forms/" + dirName + "/" + resource.getFilename();
