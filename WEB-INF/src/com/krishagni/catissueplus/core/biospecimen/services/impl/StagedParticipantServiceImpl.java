@@ -31,6 +31,7 @@ import com.krishagni.catissueplus.core.common.errors.ErrorCode;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
+import com.krishagni.catissueplus.core.common.util.Utility;
 
 public class StagedParticipantServiceImpl implements StagedParticipantService {
 	private static final Log logger = LogFactory.getLog(StagedParticipantServiceImpl.class);
@@ -78,11 +79,11 @@ public class StagedParticipantServiceImpl implements StagedParticipantService {
 		}
 
 		if (input.isAttrModified("ethnicities")) {
-			detail.setEthnicities(input.getEthnicities());
+			detail.setEthnicities(getPvsText(PvAttributes.ETHNICITY, input.getEthnicities(), ParticipantErrorCode.INVALID_ETHNICITY));
 		}
 
 		if (input.isAttrModified("gender")) {
-			detail.setGender(input.getGender());
+			detail.setGender(getPvText(PvAttributes.GENDER, input.getGender(), ParticipantErrorCode.INVALID_GENDER));
 		}
 
 		if (input.isAttrModified("lastName")) {
@@ -101,8 +102,16 @@ public class StagedParticipantServiceImpl implements StagedParticipantService {
 			detail.setBirthDate(input.getBirthDate());
 		}
 
+		if (input.isAttrModified("deathDate")) {
+			detail.setDeathDate(input.getDeathDate());
+		}
+
+		if (input.isAttrModified("vitalStatus")) {
+			detail.setVitalStatus(getPvText(PvAttributes.VITAL_STATUS, input.getVitalStatus(), ParticipantErrorCode.INVALID_VITAL_STATUS));
+		}
+
 		if (input.isAttrModified("races")) {
-			detail.setRaces(input.getRaces());
+			detail.setRaces(getPvsText(PvAttributes.RACE, input.getRaces(), ParticipantErrorCode.INVALID_RACE));
 		}
 
 		if (input.isAttrModified("pmis")) {
@@ -115,7 +124,7 @@ public class StagedParticipantServiceImpl implements StagedParticipantService {
 
 		ResponseEvent<ParticipantDetail> resp = participantSvc.patchParticipant(new RequestEvent<>(detail));
 		if (resp.isSuccessful()) {
-			logger.info("Matching participant (empi: '" + detail.getEmpi() + "') found and updated!");
+			logger.info("Matching participant (eMPI: '" + detail.getEmpi() + "') found and updated!");
 		}
 	}
 
@@ -150,8 +159,10 @@ public class StagedParticipantServiceImpl implements StagedParticipantService {
 
 	private void setParticipantAtrrs(StagedParticipantDetail detail, StagedParticipant participant) {
 		participant.setFirstName(detail.getFirstName());
+		participant.setMiddleName(detail.getMiddleName());
 		participant.setLastName(detail.getLastName());
 		participant.setBirthDate(detail.getBirthDate());
+		participant.setDeathDate(detail.getDeathDate());
 		participant.setGender(getPv(PvAttributes.GENDER, detail.getGender(), ParticipantErrorCode.INVALID_GENDER));
 		participant.setVitalStatus(getPv(PvAttributes.VITAL_STATUS, detail.getVitalStatus(), ParticipantErrorCode.INVALID_VITAL_STATUS));
 		participant.setUpdatedTime(Calendar.getInstance().getTime());
@@ -208,6 +219,11 @@ public class StagedParticipantServiceImpl implements StagedParticipantService {
 		return pv;
 	}
 
+	public String getPvText(String attr, String value, ErrorCode invErrorCode) {
+		PermissibleValue pv = getPv(attr, value, invErrorCode);
+		return pv != null ? pv.getValue() : null;
+	}
+
 	public Set<PermissibleValue> getPvs(String attr, Collection<String> values, ErrorCode invErrorCode) {
 		if (CollectionUtils.isEmpty(values)) {
 			return new HashSet<>();
@@ -219,5 +235,10 @@ public class StagedParticipantServiceImpl implements StagedParticipantService {
 		}
 
 		return new HashSet<>(pvs);
+	}
+
+	public Set<String> getPvsText(String attr, Collection<String> values, ErrorCode invErrorCode) {
+		Set<PermissibleValue> pvs = getPvs(attr, values, invErrorCode);
+		return Utility.nullSafeStream(pvs).map(pv -> pv.getValue()).collect(Collectors.toSet());
 	}
 }
