@@ -178,7 +178,7 @@ public class ParticipantFactoryImpl implements ParticipantFactory {
 			participant.setBirthDate(birthDate);
 		}
 
-		if (!DEAD_STATUS.equals(participant.getVitalStatus())) {
+		if (participant.getVitalStatus() == null || !DEAD_STATUS.equals(participant.getVitalStatus().getValue())) {
 			participant.setDeathDate(null);
 		} else if (!partial || detail.isAttrModified("deathDate")) {
 			Date deathDate = detail.getDeathDate();
