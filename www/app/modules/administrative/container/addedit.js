@@ -200,7 +200,7 @@ angular.module('os.administrative.container.addedit', ['os.administrative.models
         return d.promise;
       }
 
-      return PvManager.loadPvsByParent('specimen-class', undefined, true).then(
+      return PvManager.loadPvsByParent('specimen-class', undefined, true, undefined, 5000).then(
         function(specimenTypes) {
           allSpecimenTypes = specimenTypes;
           Util.assign($scope.specimenTypes, specimenTypes);
