@@ -9,6 +9,8 @@ public class LabelPrintStat {
 
 	private String protocol;
 
+	private String site;
+
 	private int count;
 
 	public String getUserFirstName() {
@@ -41,6 +43,14 @@ public class LabelPrintStat {
 
 	public void setProtocol(String protocol) {
 		this.protocol = protocol;
+	}
+
+	public String getSite() {
+		return site;
+	}
+
+	public void setSite(String site) {
+		this.site = site;
 	}
 
 	public int getCount() {

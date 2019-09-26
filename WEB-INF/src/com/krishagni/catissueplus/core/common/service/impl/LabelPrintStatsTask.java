@@ -91,6 +91,7 @@ public class LabelPrintStatsTask implements ScheduledTask {
 			writer.writeNext(new String[0]);
 
 			writer.writeNext(new String[] {
+				msg("label_print_stat_site"),
 				msg("label_print_stat_cp"),
 				msg("label_print_stat_user_fname"),
 				msg("label_print_stat_user_lname"),
@@ -114,6 +115,7 @@ public class LabelPrintStatsTask implements ScheduledTask {
 
 	private String[] toArray(LabelPrintStat stat) {
 		return new String[] {
+			stat.getSite(),
 			stat.getProtocol(),
 			stat.getUserFirstName(),
 			stat.getUserLastName(),
