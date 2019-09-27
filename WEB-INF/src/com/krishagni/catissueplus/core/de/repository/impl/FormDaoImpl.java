@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
+import org.hibernate.FlushMode;
 import org.hibernate.Query;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Junction;
@@ -722,6 +723,7 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 
 	@Override
 	public Map<String, List<Long>> getEntityFormRecordIds(Collection<String> entityTypes, Long objectId, Collection<String> formNames) {
+		getCurrentSession().setHibernateFlushMode(FlushMode.ALWAYS);
 		List<Object[]> rows = getCurrentSession().getNamedQuery(GET_ENTITY_FORM_RECORD_IDS)
 			.setParameterList("formNames", formNames)
 			.setParameterList("entityTypes", entityTypes)
