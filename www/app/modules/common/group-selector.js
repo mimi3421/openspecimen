@@ -95,7 +95,8 @@ angular.module('openspecimen')
           item.selected = false;
 
           var modelItems = [];
-          if (scope.itemsMap[item.category].all != item) {
+          var all = scope.itemsMap[item.category].all;
+          if (!item.all || (all && all.text != item.text)) {
             modelItems = scope.selectedCategoryItems;        
             modelItems.splice(modelItems.indexOf(item.text), 1);
           } else {

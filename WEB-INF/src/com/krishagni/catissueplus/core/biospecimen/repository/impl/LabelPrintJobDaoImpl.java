@@ -35,6 +35,7 @@ public class LabelPrintJobDaoImpl extends AbstractDao<LabelPrintJob> implements 
 			stat.setUserLastName((String)row[++idx]);
 			stat.setUserEmailAddress((String)row[++idx]);
 			stat.setProtocol((String) row[++idx]);
+			stat.setSite((String) row[++idx]);
 			stat.setCount((Integer) row[++idx]);
 			stats.add(stat);
 		}
