@@ -495,7 +495,15 @@ angular.module('os.biospecimen.participant',
           },
 
           visitsTab: function(cp, CpConfigSvc) {
-            return CpConfigSvc.getWorkflowData(cp.id, 'visitsTab', {});
+            return CpConfigSvc.getWorkflowData(cp.id, 'visitsTab').then(
+              function(result) {
+                if (!!result) {
+                  return result;
+                }
+
+                return CpConfigSvc.getWorkflowData(-1, 'visitsTab', {});
+              }
+            );
           },
 
           participantSpmnsViewState: function(cp, cpr, pendingSpmnsDispInterval, visitsTab, ParticipantSpecimensViewState) {
