@@ -73,7 +73,7 @@
     <table class="os-table os-table-hover">
       <thead class="os-table-head">
         <tr class="row">
-          <th show-if-allowed="institute" class="col os-click-esc">
+          <th show-if-admin="institute" class="col os-click-esc">
             <div class="os-select-specimen-cb">
               <os-checkbox ng-change="ctx.checkList.toggleSelectAll()" ng-model="ctx.checkList.allSelected">
               </os-checkbox>
@@ -93,7 +93,7 @@
       <tbody class="os-table-body">
         <tr class="row" ng-repeat="containerType in containerTypes"
           os-row-click="showContainerTypeOverview(containerType)">
-          <td show-if-allowed="institute" class="col os-click-esc">
+          <td show-if-admin="institute" class="col os-click-esc">
             <div class="os-select-specimen-cb">
               <os-checkbox ng-change="ctx.checkList.toggleSelectItem($index)"
                 ng-model="ctx.checkList.items[$index].selected">
