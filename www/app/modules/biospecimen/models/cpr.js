@@ -5,7 +5,10 @@ angular.module('os.biospecimen.models.cpr',
     'os.biospecimen.models.visit',
     'os.biospecimen.models.form'
   ])
-  .factory('CollectionProtocolRegistration', function($filter, $http, osModel, Participant, Visit, Form, Util) {
+  .factory('CollectionProtocolRegistration', function(
+    $filter, $http, $parse, osModel,
+    Participant, Visit, Form, Util, ExtensionsUtil) {
+
     var CollectionProtocolRegistration = 
       osModel(
         'collection-protocol-registrations',
@@ -117,6 +120,22 @@ angular.module('os.biospecimen.models.cpr',
     CollectionProtocolRegistration.prototype.anonymize = function() {
       var url = CollectionProtocolRegistration.url() + this.$id() + "/anonymize";
       return $http.put(url).then(CollectionProtocolRegistration.modelRespTransform);
+    }
+
+    CollectionProtocolRegistration.prototype.getAllowedEvents = function(visitsTab) {
+      if (!visitsTab.anticipatedEvents) {
+        return null;
+      }
+
+      ExtensionsUtil.createExtensionFieldMap(this.participant);
+      for (var i = 0; i < visitsTab.anticipatedEvents.length; ++i) {
+        var spec = visitsTab.anticipatedEvents[i];
+        if ($parse(spec.rule)({cpr: this})) {
+          return spec.events;
+        }
+      }
+
+      return null;
     }
 
     return CollectionProtocolRegistration;

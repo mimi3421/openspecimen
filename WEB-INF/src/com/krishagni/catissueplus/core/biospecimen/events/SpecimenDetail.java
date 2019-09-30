@@ -534,6 +534,7 @@ public class SpecimenDetail extends SpecimenInfo {
 
 		specimen.setVisitId(visit.getId());
 		specimen.setVisitName(visit.getName());
+		specimen.setVisitStatus(visit.getStatus());
 		specimen.setSprNo(visit.getSurgicalPathologyNumber());
 		specimen.setVisitDate(visit.getVisitDate());
 		Utility.nullSafeStream(specimen.getChildren()).forEach(child -> setVisitDetails(visit, child));

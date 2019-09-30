@@ -486,16 +486,22 @@ angular.module('os.biospecimen.participant',
             );
           },
 
-          participantSpmnsViewState: function(cp, cpr, pendingSpmnsDispInterval, ParticipantSpecimensViewState) {
-            return new ParticipantSpecimensViewState(cp, cpr, +pendingSpmnsDispInterval.value);
-          },
-
           aliquotQtyReq: function(SettingUtil) {
             return SettingUtil.getSetting('biospecimen', 'mandatory_aliquot_qty').then(
               function(resp) {
                 return resp.value == 'true' || resp.value == true || resp.value == '1' || resp.value == 1;
               }
             );
+          },
+
+          visitsTab: function(cp, CpConfigSvc) {
+            return CpConfigSvc.getWorkflowData(cp.id, 'visitsTab', {});
+          },
+
+          participantSpmnsViewState: function(cp, cpr, pendingSpmnsDispInterval, visitsTab, ParticipantSpecimensViewState) {
+            var st = new ParticipantSpecimensViewState(cp, cpr, +pendingSpmnsDispInterval.value);
+            st.config = {visitsTab: visitsTab};
+            return st;
           }
         },
         controller: 'ParticipantRootCtrl',
@@ -563,8 +569,28 @@ angular.module('os.biospecimen.participant',
         url: '/detail',
         templateUrl: 'modules/biospecimen/participant/detail.html',
         resolve: {
-          visits: function($stateParams, cpViewCtx, Visit) {
-            return cpViewCtx.spmnReadAllowed ? Visit.listFor($stateParams.cprId, true) : null;
+          allowedEvents: function(visitsTab, cpr) {
+            return cpr.getAllowedEvents(visitsTab);
+          },
+
+          visits: function($stateParams, cpViewCtx, allowedEvents, Visit) {
+            if (!cpViewCtx.spmnReadAllowed) {
+              return null;
+            }
+
+            return Visit.listFor($stateParams.cprId, true).then(
+              function(visits) {
+                return visits.filter(
+                  function(v) {
+                    if (!!v.status && v.status != 'Pending') {
+                      return true;
+                    }
+
+                    return !allowedEvents || !v.eventCode || allowedEvents.indexOf(v.eventCode) != -1;
+                  }
+                );
+              }
+            );
           }
         },
         controller: 'ParticipantDetailCtrl',
@@ -596,9 +622,6 @@ angular.module('os.biospecimen.participant',
           },
           consents: function(hasDict, hasFieldsFn, cpr) {
             return (hasDict && hasFieldsFn(['consents'])) ? cpr.getConsents() : null;
-          },
-          visitsTab: function(cp, CpConfigSvc) {
-            return CpConfigSvc.getWorkflowData(cp.id, 'visitsTab', {});
           }
         },
         controller: 'ParticipantOverviewCtrl',
@@ -639,8 +662,20 @@ angular.module('os.biospecimen.participant',
         templateUrl: 'modules/biospecimen/participant/reg-specimens.html',
         controller: 'RegSpecimensCtrl',
         resolve: {
-          specimens: function(cpr, Specimen) {
-            return Specimen.listFor(cpr.id);
+          specimens: function(cpr, allowedEvents, Specimen) {
+            return Specimen.listFor(cpr.id).then(
+              function(specimens) {
+                return specimens.filter(
+                  function(spmn) {
+                    if (!!spmn.visitStatus && spmn.visitStatus != 'Pending') {
+                      return true;
+                    }
+
+                    return !allowedEvents || !spmn.eventCode || allowedEvents.indexOf(spmn.eventCode) != -1;
+                  }
+                );
+              }
+            );
           }
         },
         parent: 'participant-detail'

@@ -4,7 +4,7 @@ angular.module('os.biospecimen.participant.addedit', ['os.biospecimen.models', '
     $scope, $state, $stateParams, $translate, $modal, $q, $timeout,
     cp, cpr, extensionCtxt, hasDict, cpDict, twoStepReg, layout,
     onValueChangeCb, mrnAccessRestriction, addPatientOnLookupFail,
-    lookupFieldsCfg, lockedFields, cpEvents,
+    lookupFieldsCfg, lockedFields, cpEvents, visitsTab,
     CpConfigSvc, CollectionProtocolRegistration, Participant,
     Visit, CollectSpecimensSvc, Site, PvManager, ExtensionsUtil, Alerts) {
 
@@ -57,6 +57,20 @@ angular.module('os.biospecimen.participant.addedit', ['os.biospecimen.models', '
       $scope.cpr.participant.addPmi($scope.cpr.participant.newPmi());
       if (!hasDict) {
         loadPvs();
+      }
+
+      if (!cpr.id && visitsTab && visitsTab.anticipatedEvents) {
+        $scope.$watch('cpr',
+          function(newVal, oldVal) {
+            var allowedEvents = $scope.cpr.getAllowedEvents(visitsTab);
+            $scope.partCtx.cpEvents = cpEvents.filter(
+              function(e) {
+                return !allowedEvents || !e.code || allowedEvents.indexOf(e.code) != -1;
+              }
+            );
+          },
+          true
+        );
       }
     };
 

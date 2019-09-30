@@ -276,6 +276,7 @@ public class VisitDetail extends VisitSummary {
 		if (!visit.isUnplanned()) {
 			CollectionProtocolEvent cpe = visit.getCpEvent();
 			detail.setEventId(cpe.getId());
+			detail.setEventCode(cpe.getCode());
 			detail.setEventLabel(cpe.getEventLabel());
 			detail.setEventPoint(cpe.getEventPoint());
 			detail.setEventPointUnit(cpe.getEventPointUnit());
@@ -294,6 +295,7 @@ public class VisitDetail extends VisitSummary {
 	public static VisitDetail from(CollectionProtocolEvent event) {
 		VisitDetail detail = new VisitDetail();
 		detail.setEventId(event.getId());
+		detail.setEventCode(event.getCode());
 		detail.setEventLabel(event.getEventLabel());
 		detail.setEventPoint(event.getEventPoint());
 		detail.setEventPointUnit(event.getEventPointUnit());
