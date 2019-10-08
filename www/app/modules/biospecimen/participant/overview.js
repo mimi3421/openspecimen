@@ -10,6 +10,7 @@ angular.module('os.biospecimen.participant.overview', ['os.biospecimen.models'])
       $scope.anticipatedVisits = Visit.anticipatedVisits(visits);
       $scope.missedVisits      = Visit.missedVisits(visits);
 
+      ExtensionsUtil.createExtensionFieldMap($scope.cpr.participant);
       $scope.partCtx = {
         obj: {cpr: $scope.cpr, consents: createCodedResps(consents)},
         inObjs: ['cpr', 'consents', 'calcCpr'],
