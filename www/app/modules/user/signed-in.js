@@ -1,7 +1,7 @@
 angular.module('openspecimen')
   .controller('SignedInCtrl', function(
-     $scope, $rootScope, $state, $timeout, currentUser, userUiState,
-     AuthService, Alerts, AuthorizationService, SettingUtil) {
+     $scope, $rootScope, $state, $timeout, $sce, $modal, currentUser, userUiState, videoSettings,
+     AuthService, Alerts, AuthorizationService, SettingUtil, User) {
 
      function init() {
        $scope.alerts = Alerts.messages;
@@ -20,6 +20,8 @@ angular.module('openspecimen')
        setSetting('training', 'training_url', 'trainingUrl');
        setSetting('training', 'help_link',    'helpUrl');
        setSetting('training', 'forum_link',   'forumUrl');
+
+       showIntroVideo();
      }
 
      function setSetting(module, settingName, propName) {
@@ -37,6 +39,50 @@ angular.module('openspecimen')
      $scope.shipmentReadOpts = {resource: 'ShippingAndTracking', operations: ['Read']};
      $scope.scheduledJobReadOpts = {resource: 'ScheduledJob', operations: ['Read']};
      $scope.dpReadOpts = {resource: 'DistributionProtocol', operations: ['Read']};
+
+     function showIntroVideo() {
+       if (ui.os.global.impersonate || (ui.os.global.introVideoShown && ui.os.global.introVideoShown[currentUser.id])) {
+         return;
+       }
+
+       if (userUiState && userUiState.introVideoSeen) {
+         return;
+       }
+
+       if (videoSettings.welcome_video_source !== 'vimeo' &&
+         videoSettings.welcome_video_source !== 'youtube') {
+         return;
+       }
+
+       $modal.open({
+         templateUrl: 'modules/user/welcome-sign-in.html',
+         controller: function($scope, $modalInstance) {
+           $scope.videoSettings = videoSettings;
+           $scope.iframeUrl = $sce.trustAsResourceUrl(videoSettings.welcome_video_url);
+
+           $scope.gotIt = function() {
+             $modalInstance.close(true);
+           }
+
+           $scope.watchLater = function() {
+             $modalInstance.dismiss('dismiss');
+           }
+
+           ui.os.global.introVideoShown = ui.os.global.introVideoShown || {};
+           ui.os.global.introVideoShown[currentUser.id] = true;
+         },
+         backdrop: 'static',
+         keyboard: false
+       }).result.then(
+         function() {
+           User.saveUiState({introVideoSeen: true}).then(
+             function(savedState) {
+               angular.extend(loginCtx, {state: savedState});
+             }
+           );
+         }
+       );
+     }
 
      $scope.returnToAccount = function() {
        AuthService.impersonate(null);

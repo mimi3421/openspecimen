@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -527,9 +526,17 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 	@Override
 	@PlusTransactional
 	public ResponseEvent<UserUiState> saveUiState(RequestEvent<Map<String, Object>> req) {
-		UserUiState uiState = new UserUiState();
-		uiState.setUserId(AuthUtil.getCurrentUser().getId());
-		uiState.setState(req.getPayload());
+		UserUiState uiState = daoFactory.getUserDao().getState(AuthUtil.getCurrentUser().getId());
+		if (uiState == null) {
+			uiState = new UserUiState();
+			uiState.setUserId(AuthUtil.getCurrentUser().getId());
+		}
+
+		if (uiState.getState() == null) {
+			uiState.setState(new HashMap<>());
+		}
+
+		uiState.getState().putAll(req.getPayload());
 		daoFactory.getUserDao().saveUiState(uiState);
 		return ResponseEvent.response(uiState);
 	}

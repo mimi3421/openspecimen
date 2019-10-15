@@ -36,8 +36,7 @@ angular.module('openspecimen')
     }
 
     $scope.close = function() {
-      loginCtx.state.notesRead = ui.os.global.appProps.build_commit_revision;
-      User.saveUiState(loginCtx.state).then(
+      User.saveUiState({notesRead: ui.os.global.appProps.build_commit_revision}).then(
         function(savedState) {
           angular.extend(loginCtx, {state: savedState, showNewStuff: false});
           hidePopover();

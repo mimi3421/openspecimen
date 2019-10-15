@@ -1,4 +1,8 @@
 
+.modal .modal-dialog {
+  margin-top: 39px;
+}
+
 .os-modal-header {
   height: 44px;
   background-color: #edeff0;

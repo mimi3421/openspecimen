@@ -3,15 +3,7 @@
     <h3 translate="user.welcome_title">Welcome to OpenSpecimen</h3>
   </div>
   <div class="os-welcome-box">
-    <div>
-      <iframe ng-src="{{iframeUrl}}" ng-if="videoSettings.welcome_video_source == 'vimeo'"
-        width="500" height="281" frameborder="0"
-        webkitallowfullscreen mozallowfullscreen allowfullscreen>
-      </iframe>
-      <iframe ng-src="{{iframeUrl}}" ng-if="videoSettings.welcome_video_source == 'youtube'"
-        width="500" height="281" frameborder="0" allowfullscreen>
-      </iframe>
-    </div>
+    <div ng-include src="'modules/user/welcome-video-player.html'"></div>
     <div>
       <a ui-sref="sign-up" translate="user.proceed_sign_up">Proceed to Sign Up</a>
     </div>

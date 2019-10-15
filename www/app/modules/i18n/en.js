@@ -1337,7 +1337,9 @@
     },
     
     "proceed_sign_up": "Proceed to Sign Up",
-    "welcome_title": "OpenSpecimen Introduction in One Minute"
+    "welcome_title": "OpenSpecimen Introduction in One Minute",
+    "got_it": "Ok, Got It",
+    "watch_later": "Watch Later"
   },
 
   "forgot_password": {

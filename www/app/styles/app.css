@@ -149,7 +149,7 @@ body {
 .os-navbar-docked {
   position: fixed;
   top: 0px;
-  z-index: 3000;
+  z-index: 1000;
 }
 
 .os-navbar .search {

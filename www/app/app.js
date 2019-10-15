@@ -87,6 +87,9 @@ osApp.config(function(
           },
           authInit: function(currentUser, AuthorizationService) {
             return AuthorizationService.initializeUserRights(currentUser);
+          },
+          videoSettings : function (Setting) {
+            return Setting.getWelcomeVideoSetting();
           }
         },
         controller: 'SignedInCtrl'
