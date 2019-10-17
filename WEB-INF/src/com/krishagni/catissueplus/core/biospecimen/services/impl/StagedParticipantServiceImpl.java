@@ -187,7 +187,7 @@ public class StagedParticipantServiceImpl implements StagedParticipantService {
 
 		Set<String> ethnicities = detail.getEthnicities();
 		if (CollectionUtils.isNotEmpty(ethnicities)) {
-			participant.setRaces(getPvs(PvAttributes.ETHNICITY, ethnicities, ParticipantErrorCode.INVALID_ETHNICITY));
+			participant.setEthnicities(getPvs(PvAttributes.ETHNICITY, ethnicities, ParticipantErrorCode.INVALID_ETHNICITY));
 		}
 	}
 
