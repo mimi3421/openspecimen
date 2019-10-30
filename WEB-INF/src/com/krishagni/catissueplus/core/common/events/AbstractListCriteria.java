@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jackson.annotate.JsonProperty;
 import org.hibernate.criterion.MatchMode;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public abstract class AbstractListCriteria<T extends ListCriteria<T>> implements ListCriteria<T> {
 	private Long lastId;
