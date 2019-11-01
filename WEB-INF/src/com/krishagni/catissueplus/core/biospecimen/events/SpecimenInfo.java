@@ -13,6 +13,7 @@ import com.krishagni.catissueplus.core.administrative.events.StorageLocationSumm
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolEvent;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenChildrenEvent;
+import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenCollectionReceiveDetail;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenRequirement;
 import com.krishagni.catissueplus.core.common.AttributeModifiedSupport;
 import com.krishagni.catissueplus.core.common.ListenAttributeChanges;
@@ -90,6 +91,8 @@ public class SpecimenInfo extends AttributeModifiedSupport implements Comparable
 	private String storageType;
 	
 	private String collectionContainer;
+
+	private Date collectionDate;
 
 	private String storageSite;
 	
@@ -373,6 +376,14 @@ public class SpecimenInfo extends AttributeModifiedSupport implements Comparable
 		this.collectionContainer = collectionContainer;
 	}
 
+	public Date getCollectionDate() {
+		return collectionDate;
+	}
+
+	public void setCollectionDate(Date collectionDate) {
+		this.collectionDate = collectionDate;
+	}
+
 	public String getStorageSite() {
 		return storageSite;
 	}
@@ -512,8 +523,10 @@ public class SpecimenInfo extends AttributeModifiedSupport implements Comparable
 			.map(externalId -> NameValuePair.create(externalId.getName(), externalId.getValue()))
 			.collect(Collectors.toList()));
 
-		if (specimen.getCollRecvDetails() != null) {
-			result.setCollectionContainer(specimen.getCollRecvDetails().getCollContainer());
+		SpecimenCollectionReceiveDetail collRecvDetail = specimen.getCollRecvDetails();
+		if (collRecvDetail != null) {
+			result.setCollectionContainer(collRecvDetail.getCollContainer());
+			result.setCollectionDate(collRecvDetail.getCollTime());
 		} else if (specimen.isPrimary() && specimen.getSpecimenRequirement() != null) {
 			result.setCollectionContainer(PermissibleValue.getValue(specimen.getSpecimenRequirement().getCollectionContainer()));
 		}

@@ -26,6 +26,8 @@ public class SpecimenListCriteria extends AbstractListCriteria<SpecimenListCrite
 
 	private String storageLocationSite;
 
+	private Long cprId;
+
 	private String ppid;
 
 	private String anatomicSite;
@@ -136,6 +138,15 @@ public class SpecimenListCriteria extends AbstractListCriteria<SpecimenListCrite
 
 	public SpecimenListCriteria storageLocationSite(String storageLocationSite) {
 		this.storageLocationSite = storageLocationSite;
+		return self();
+	}
+
+	public Long cprId() {
+		return cprId;
+	}
+
+	public SpecimenListCriteria cprId(Long cprId) {
+		this.cprId = cprId;
 		return self();
 	}
 
