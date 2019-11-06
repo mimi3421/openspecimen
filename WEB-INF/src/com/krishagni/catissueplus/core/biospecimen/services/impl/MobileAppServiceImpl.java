@@ -416,7 +416,15 @@ public class MobileAppServiceImpl implements MobileAppService {
 			input.setVisitId(visitDetail.getId());
 		}
 
-		String[] labels = new String[1];
+		if (StringUtils.isBlank(input.getType())) {
+			if (StringUtils.isBlank(input.getSpecimenClass())) {
+				input.setType(FLUID_NS);
+			} else {
+				input.setType(input.getSpecimenClass() + " - " + NS);
+			}
+		}
+
+		String[] labels;
 		if (StringUtils.isNotBlank(input.getLabel())) {
 			labels = input.getLabel().split("[,\\t\\n]");
 		} else {
@@ -435,4 +443,8 @@ public class MobileAppServiceImpl implements MobileAppService {
 
 		return result;
 	}
+
+	private static final String FLUID_NS = "Fluid - Not Specified";
+
+	private static final String NS = "Not Specified";
 }
