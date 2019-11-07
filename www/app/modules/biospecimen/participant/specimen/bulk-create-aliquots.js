@@ -85,17 +85,34 @@ angular.module('os.biospecimen.specimen')
           },
           true
         );
-        return;
+      } else {
+        ctx.showCustomFields = false;
       }
 
-      ctx.showCustomFields = false;
       if (!!cp.containerSelectionStrategy) {
         ctx.step2Title = 'specimens.review_locations';
         ctx.autoPosAllocate = true;
+        ctx.manualPosSelection = false;
         $scope.$on('$destroy', vacateReservedPositions);
+
+        if (ctx.showCustomFields) {
+          //
+          // exclude the location field from the UI form
+          //
+          angular.forEach(groups,
+            function(group) {
+              group.fields.table = group.fields.table.filter(
+                function(f) {
+                  return f.name != 'specimen.storageLocation';
+                }
+              );
+            }
+          )
+        }
       } else {
         ctx.step2Title= 'specimens.assign_locations';
         ctx.autoPosAllocate = false;
+        ctx.manualPosSelection = true;
       }
     }
 
@@ -152,7 +169,8 @@ angular.module('os.biospecimen.specimen')
         children: [],
         createdOn: spec.createdOn,
         createdBy: spec.createdBy,
-        printLabel: spec.printLabel
+        printLabel: spec.printLabel,
+        '$$spec': spec.$$spec // this is stored to allow assigning locations back to individual aliquot
       });
     }
 
@@ -223,6 +241,85 @@ angular.module('os.biospecimen.specimen')
       );
     }
 
+    //
+    // used when custom fields are used
+    //
+    function reservePositions0() {
+      var attrsToDelete = ['parent', 'count', 'quantity'];
+
+      var criteria = [], specs = [];
+      var countError = 0;
+      angular.forEach(ctx.customFieldGroups,
+        function(group) {
+          angular.forEach(group.input,
+            function(spec) {
+              // spec.specimen.$$events = spec.events;
+              spec.specimen.$$spec = spec;
+              specs.push(spec.specimen);
+
+              var spmn = new Specimen(spec.specimen);
+              var parent = spmn.parent;
+
+              spmn.lineage = 'Aliquot';
+              spmn.quantity = spmn.initialQty = spmn.qtyPerAliquot;
+              spmn.parentId = parent.id;
+              angular.forEach(attrsToDelete, function(attr) { delete spmn[attr]; });
+
+              var count = +spmn.noOfAliquots;
+              if (!count) {
+                if (!!spmn.labels) {
+                  var labels = Util.splitStr(spmn.labels, /,|\t|\n/, false);
+                  count = labels.length;
+                } else if (!!spmn.barcodes) {
+                  var barcodes = Util.splitStr(spmn.barcodes, /,|\t|\n/, false);
+                  count = barcodes.length;
+                } else if (!!spmn.qtyPerAliquot && spmn.type == parent.type && !!parent.availableQty &&
+                  (parent.lineage == 'Derived' || !createDerived)) {
+                  count = Math.floor(parent.availableQty / spmn.qtyPerAliquot);
+                }
+              }
+
+              if (!count && !countError) {
+                Alerts.error('specimens.aliquots_count_req_auto_alloc');
+                countError = true;
+                return;
+              }
+
+              spec.specimen.count = count;
+              spec.specimen.quantity = spmn.initialQty;
+              var match = spmn.getMatchingRule(containerAllocRules);
+              criteria.push({
+                specimen: spmn,
+                minFreePositions: count,
+                ruleName: match.index != -1 ? match.rule.name : undefined,
+                ruleParams: match.index != -1 ? match.rule.params : undefined
+              });
+            }
+          );
+        }
+      );
+
+      if (countError) {
+        return false;
+      }
+
+      return Container.getReservedPositions({
+        cpId: cp.id,
+        reservationToCancel: reservationId,
+        criteria: criteria,
+      }).then(
+        function(locations) {
+          var location = locations.find(function(l) { return !!l && !!l.reservationId; });
+          if (location) {
+            reservationId = location.reservationId;
+          }
+
+          setAliquots(specs, locations);
+          return true;
+        }
+      );
+    }
+
     function setAliquots(specs, locations) {
       //
       // kill all watches before creating new one
@@ -240,6 +337,8 @@ angular.module('os.biospecimen.specimen')
 
         for (var j = 0; j < specs[i].count; ++j) {
           var aliquot = angular.copy(tmpl);
+          aliquot.$$spec = tmpl.$$spec;
+
           if (locations.length > 0) {
             aliquot.storageLocation = locations[locationIdx++];
           }
@@ -324,21 +423,37 @@ angular.module('os.biospecimen.specimen')
             }
           );
 
-          samples[samples.length - 1].aliquotsSpec.closeParent = closeParent;
+          var lastSample = samples[samples.length - 1];
+          lastSample.aliquotsSpec.closeParent = closeParent;
         }
       );
     }
 
     function submitSamples() {
       var parentSamples = {};
-
       var samples = [];
+
+      if (ctx.aliquots && ctx.aliquots.length > 0) {
+        angular.forEach(ctx.aliquots,
+          function(aliquot) {
+            if (!aliquot.$$spec) {
+              return;
+            }
+
+            if (!aliquot.$$spec.specimen.storageLocations) {
+              aliquot.$$spec.specimen.storageLocations = [];
+            }
+
+            aliquot.$$spec.specimen.storageLocations.push(aliquot.storageLocation);
+          }
+        );
+      }
+
       angular.forEach(ctx.customFieldGroups,
         function(group) {
           angular.forEach(group.input,
             function(spec) {
               var spmn = spec.specimen;
-
               var sample = {
                 specimen: {lineage: 'Aliquot', extensionDetail: spmn.extensionDetail},
                 aliquotsSpec: {
@@ -355,6 +470,7 @@ angular.module('os.biospecimen.specimen')
                   containerName: spmn.storageLocation && spmn.storageLocation.name,
                   positionX: spmn.storageLocation && spmn.storageLocation.positionX,
                   positionY: spmn.storageLocation && spmn.storageLocation.positionY,
+                  locations: spmn.storageLocations,
                   freezeThawCycles: spmn.freezeThawCycles,
                   incrParentFreezeThaw: spmn.incrParentFreezeThaw,
                   closeParent: spmn.closeParent,
@@ -400,6 +516,10 @@ angular.module('os.biospecimen.specimen')
     }
 
     $scope.validateSpecs = function() {
+      if (ctx.showCustomFields && ctx.autoPosAllocate) {
+        return reservePositions0();
+      }
+
       for (var i = 0; i < $scope.ctx.aliquotsSpec.length; ++i) {
         var spec = $scope.ctx.aliquotsSpec[i];
         if (!isValidCountQty(spec)) {
@@ -449,7 +569,7 @@ angular.module('os.biospecimen.specimen')
             }
           );
 
-          $scope.ctx.autoPosAllocate = false;
+          $scope.ctx.manualPosSelection = true;
         }
       );
     }
@@ -475,6 +595,7 @@ angular.module('os.biospecimen.specimen')
       reservationId = undefined;
       $scope.ctx.aliquots.length = 0;
       $scope.ctx.autoPosAllocate = !!cp.containerSelectionStrategy
+      $scope.ctx.manualPosSelection = !$scope.ctx.autoPosAllocate;
       return true;
     }
 

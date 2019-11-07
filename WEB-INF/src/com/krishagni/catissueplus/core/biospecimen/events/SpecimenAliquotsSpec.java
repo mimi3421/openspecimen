@@ -2,7 +2,9 @@ package com.krishagni.catissueplus.core.biospecimen.events;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
+import com.krishagni.catissueplus.core.administrative.events.StorageLocationSummary;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
 import com.krishagni.catissueplus.core.de.events.ExtensionDetail;
 
@@ -42,6 +44,8 @@ public class SpecimenAliquotsSpec {
 	private String positionY;
 
 	private int position;
+
+	private List<StorageLocationSummary> locations;
 
 	private Integer freezeThawCycles;
 
@@ -199,6 +203,14 @@ public class SpecimenAliquotsSpec {
 		this.position = position;
 	}
 
+	public List<StorageLocationSummary> getLocations() {
+		return locations;
+	}
+
+	public void setLocations(List<StorageLocationSummary> locations) {
+		this.locations = locations;
+	}
+
 	public Integer getFreezeThawCycles() {
 		return freezeThawCycles;
 	}
@@ -254,5 +266,4 @@ public class SpecimenAliquotsSpec {
 	public void setExtensionDetail(ExtensionDetail extensionDetail) {
 		this.extensionDetail = extensionDetail;
 	}
-	
 }

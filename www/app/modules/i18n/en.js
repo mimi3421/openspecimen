@@ -764,6 +764,7 @@
     "warn_large_no_aliquots": "The page is not designed for creation of such large number of aliquots. You might notice slowness in page rendering. In such a scenario, we recommend you to use bulk import option.",
     "warn_large_no_derivatives": "The UI is not designed for creation of such large number of derived specimens. You might notice slowness in page rendering. In such a scenario, we recommend you to use bulk import option.",
     "no_read_access": "You do not have rights to view specimens of the CP: {{cp.shortTitle}}",
+    "aliquots_count_req_auto_alloc": "Aliquots count is required for auto-allocation!",
 
     "hide_events": "Hide Events",
     "show_events": "Show Events",
