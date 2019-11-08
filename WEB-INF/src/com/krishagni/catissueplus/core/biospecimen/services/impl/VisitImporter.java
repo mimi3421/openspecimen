@@ -15,6 +15,7 @@ import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 import com.krishagni.catissueplus.core.common.util.Utility;
+import com.krishagni.catissueplus.core.de.services.impl.ExtensionsUtil;
 import com.krishagni.catissueplus.core.importer.events.ImportObjectDetail;
 import com.krishagni.catissueplus.core.importer.services.ObjectImporter;
 
@@ -32,13 +33,13 @@ public class VisitImporter implements ObjectImporter<VisitDetail, VisitDetail> {
 			ImportObjectDetail<VisitDetail> detail = req.getPayload();
 			VisitDetail visitDetail = detail.getObject();
 			visitDetail.setForceDelete(true);
+			ExtensionsUtil.initFileFields(detail.getUploadedFilesDir(), visitDetail.getExtensionDetail());
 
-			RequestEvent<VisitDetail> visitReq = new RequestEvent<>(visitDetail);
 			ResponseEvent<VisitDetail> resp;
 			if (detail.isCreate()) {
-				resp = visitSvc.addVisit(visitReq);
+				resp = visitSvc.addVisit(RequestEvent.wrap(visitDetail));
 			} else {
-				resp = visitSvc.patchVisit(visitReq);
+				resp = visitSvc.patchVisit(RequestEvent.wrap(visitDetail));
 			}
 
 			if (resp.isSuccessful()) {

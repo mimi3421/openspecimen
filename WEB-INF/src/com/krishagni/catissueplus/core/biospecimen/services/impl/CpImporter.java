@@ -4,6 +4,7 @@ import com.krishagni.catissueplus.core.biospecimen.events.CollectionProtocolDeta
 import com.krishagni.catissueplus.core.biospecimen.services.CollectionProtocolService;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
+import com.krishagni.catissueplus.core.de.services.impl.ExtensionsUtil;
 import com.krishagni.catissueplus.core.importer.events.ImportObjectDetail;
 import com.krishagni.catissueplus.core.importer.services.ObjectImporter;
 
@@ -18,16 +19,16 @@ public class CpImporter implements ObjectImporter<CollectionProtocolDetail, Coll
 	public ResponseEvent<CollectionProtocolDetail> importObject(RequestEvent<ImportObjectDetail<CollectionProtocolDetail>> req) {
 		try {
 			ImportObjectDetail<CollectionProtocolDetail> detail = req.getPayload();
-			RequestEvent<CollectionProtocolDetail> cpReq = new RequestEvent<CollectionProtocolDetail>(detail.getObject());
+			CollectionProtocolDetail cp = detail.getObject();
+			ExtensionsUtil.initFileFields(detail.getUploadedFilesDir(), cp.getExtensionDetail());
 			
 			if (detail.isCreate()) {
-				return cpSvc.createCollectionProtocol(cpReq);
+				return cpSvc.createCollectionProtocol(RequestEvent.wrap(cp));
 			} else {
-				return cpSvc.updateCollectionProtocol(cpReq);
+				return cpSvc.updateCollectionProtocol(RequestEvent.wrap(cp));
 			}
 		} catch (Exception e) {
 			return ResponseEvent.serverError(e);
 		}
 	}
-	
 }

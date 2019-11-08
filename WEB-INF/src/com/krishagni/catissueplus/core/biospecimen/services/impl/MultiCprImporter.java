@@ -7,9 +7,9 @@ import com.krishagni.catissueplus.core.biospecimen.domain.factory.CprErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.events.ParticipantDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.ParticipantRegistrationsList;
 import com.krishagni.catissueplus.core.biospecimen.services.CollectionProtocolRegistrationService;
-import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
+import com.krishagni.catissueplus.core.de.services.impl.ExtensionsUtil;
 import com.krishagni.catissueplus.core.importer.events.ImportObjectDetail;
 import com.krishagni.catissueplus.core.importer.services.ObjectImporter;
 
@@ -33,6 +33,8 @@ public class MultiCprImporter implements ObjectImporter<ParticipantRegistrations
 			if (participant == null) {
 				participant = new ParticipantDetail();
 				regsList.setParticipant(participant);
+			} else {
+				ExtensionsUtil.initFileFields(detail.getUploadedFilesDir(), participant.getExtensionDetail());
 			}
 
 			if (StringUtils.isBlank(participant.getSource())) {
@@ -44,9 +46,9 @@ public class MultiCprImporter implements ObjectImporter<ParticipantRegistrations
 					return ResponseEvent.userError(CprErrorCode.CP_REQUIRED);
 				}
 
-				return cprSvc.createRegistrations(new RequestEvent<>(regsList));
+				return cprSvc.createRegistrations(RequestEvent.wrap(regsList));
 			} else {
-				return cprSvc.updateRegistrations(new RequestEvent<>(regsList));
+				return cprSvc.updateRegistrations(RequestEvent.wrap(regsList));
 			}
 		} catch (Exception e) {
 			return ResponseEvent.serverError(e);
