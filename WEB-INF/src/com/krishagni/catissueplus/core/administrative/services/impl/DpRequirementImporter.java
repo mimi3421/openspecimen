@@ -4,6 +4,7 @@ import com.krishagni.catissueplus.core.administrative.events.DpRequirementDetail
 import com.krishagni.catissueplus.core.administrative.services.DistributionProtocolService;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
+import com.krishagni.catissueplus.core.de.services.impl.ExtensionsUtil;
 import com.krishagni.catissueplus.core.importer.events.ImportObjectDetail;
 import com.krishagni.catissueplus.core.importer.services.ObjectImporter;
 
@@ -18,16 +19,14 @@ public class DpRequirementImporter implements ObjectImporter<DpRequirementDetail
 	public ResponseEvent<DpRequirementDetail> importObject(RequestEvent<ImportObjectDetail<DpRequirementDetail>> req) {
 		try {
 			ImportObjectDetail<DpRequirementDetail> detail = req.getPayload();
-			RequestEvent<DpRequirementDetail> dpReq = new RequestEvent<>(detail.getObject());
+			DpRequirementDetail dpReq = detail.getObject();
+			ExtensionsUtil.initFileFields(detail.getUploadedFilesDir(), dpReq.getExtensionDetail());
 
-			ResponseEvent<DpRequirementDetail> resp;
 			if (detail.isCreate()) {
-				resp = dpSvc.createRequirement(dpReq);
+				return dpSvc.createRequirement(RequestEvent.wrap(dpReq));
 			} else {
-				resp = dpSvc.patchRequirement(dpReq);
+				return dpSvc.patchRequirement(RequestEvent.wrap(dpReq));
 			}
-
-			return resp;
 		} catch (Exception e) {
 			return ResponseEvent.serverError(e);
 		}

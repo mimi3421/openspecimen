@@ -8,6 +8,7 @@ import com.krishagni.catissueplus.core.biospecimen.events.ParticipantDetail;
 import com.krishagni.catissueplus.core.biospecimen.services.CollectionProtocolRegistrationService;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
+import com.krishagni.catissueplus.core.de.services.impl.ExtensionsUtil;
 import com.krishagni.catissueplus.core.importer.events.ImportObjectDetail;
 import com.krishagni.catissueplus.core.importer.services.ObjectImporter;
 
@@ -28,7 +29,9 @@ public class CprImporter implements ObjectImporter<CollectionProtocolRegistratio
 			cpr.setForceDelete(true);
 
 			ParticipantDetail participant = cpr.getParticipant();
-			if (participant == null) {
+			if (participant != null) {
+				ExtensionsUtil.initFileFields(detail.getUploadedFilesDir(), participant.getExtensionDetail());
+			} else {
 				participant = new ParticipantDetail();
 				cpr.setParticipant(participant);
 			}
@@ -38,9 +41,9 @@ public class CprImporter implements ObjectImporter<CollectionProtocolRegistratio
 			}
 
 			if (detail.isCreate()) {
-				return cprSvc.createRegistration(new RequestEvent<>(cpr));
+				return cprSvc.createRegistration(RequestEvent.wrap(cpr));
 			} else {
-				return cprSvc.updateRegistration(new RequestEvent<>(cpr));
+				return cprSvc.updateRegistration(RequestEvent.wrap(cpr));
 			}
 		} catch (Exception e) {
 			return ResponseEvent.serverError(e);

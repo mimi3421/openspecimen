@@ -1250,7 +1250,6 @@
             <property name="specimenResolver" ref="specimenResolver"/>
           </bean>
         </entry>
-
       </map>
     </property>
   </bean>

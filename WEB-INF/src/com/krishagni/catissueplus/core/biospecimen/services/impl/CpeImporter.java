@@ -18,16 +18,13 @@ public class CpeImporter implements ObjectImporter<CollectionProtocolEventDetail
 	public ResponseEvent<CollectionProtocolEventDetail> importObject(RequestEvent<ImportObjectDetail<CollectionProtocolEventDetail>> req) {
 		try {
 			ImportObjectDetail<CollectionProtocolEventDetail> detail = req.getPayload();
-			RequestEvent<CollectionProtocolEventDetail> cpeReq = new RequestEvent<CollectionProtocolEventDetail>(detail.getObject());
-			
 			if (detail.isCreate()) {
-				return cpSvc.addEvent(cpeReq);
+				return cpSvc.addEvent(RequestEvent.wrap(detail.getObject()));
 			} else {
-				return cpSvc.updateEvent(cpeReq);
+				return cpSvc.updateEvent(RequestEvent.wrap(detail.getObject()));
 			}
 		} catch (Exception e) {
 			return ResponseEvent.serverError(e);
 		}
 	}
-	
 }

@@ -29,6 +29,7 @@ import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
+import com.krishagni.catissueplus.core.de.services.impl.ExtensionsUtil;
 import com.krishagni.catissueplus.core.importer.events.ImportObjectDetail;
 import com.krishagni.catissueplus.core.importer.services.ObjectImporter;
 
@@ -70,6 +71,8 @@ public class MasterSpecimenImporter implements ObjectImporter<MasterSpecimenDeta
 			
 			createCpr(detail.getObject());
 			createVisit(detail.getObject());
+
+			ExtensionsUtil.initFileFields(detail.getUploadedFilesDir(), detail.getObject().getExtensionDetail());
 			createSpecimen(detail.getObject());
 			
 			return ResponseEvent.response(detail.getObject());
@@ -182,7 +185,7 @@ public class MasterSpecimenImporter implements ObjectImporter<MasterSpecimenDeta
 		setLocation(detail, specimenDetail);
 		setCollectionDetail(detail, specimenDetail);
 		setReceiveDetail(detail, specimenDetail);
-		
+
 		ResponseEvent<SpecimenDetail> resp = specimenSvc.createSpecimen(request(specimenDetail));
 		resp.throwErrorIfUnsuccessful();
 		

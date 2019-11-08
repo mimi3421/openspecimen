@@ -163,7 +163,7 @@ public class ExtensionsImporter implements ObjectImporter<Map<String, Object>, M
 		formDataDetail.setRecordId(formData.getRecordId());
 		formDataDetail.setFormData(formData);
 		formDataDetail.setPartial(true);
-		ResponseEvent<FormDataDetail> resp = formSvc.saveFormData(new RequestEvent<FormDataDetail>(formDataDetail));
+		ResponseEvent<FormDataDetail> resp = formSvc.saveFormData(new RequestEvent<>(formDataDetail));
 		resp.throwErrorIfUnsuccessful();
 		
 		return ResponseEvent.response(resp.getPayload().getFormData().getFieldNameValueMap(true));
@@ -188,7 +188,15 @@ public class ExtensionsImporter implements ObjectImporter<Map<String, Object>, M
 				}
 
 			} else if (ctrl instanceof FileUploadControl) {
-				String filename = (String)formValueMap.get(fieldName);
+				String filename = null;
+				Object value = formValueMap.get(fieldName);
+				if (value instanceof String) {
+					filename = (String) value;
+				} else if (value instanceof Map) {
+					Map<String, Object> fcv = (Map<String, Object>) value;
+					filename = (String) fcv.get("filename");
+				}
+
 				if (StringUtils.isNotBlank(filename)) {
 					Map<String, String> fileDetail = uploadFile(filesDir, filename);
 					formValueMap.put(fieldName, fileDetail);

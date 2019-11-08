@@ -13,6 +13,7 @@ import com.krishagni.catissueplus.core.common.errors.CommonErrorCode;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
+import com.krishagni.catissueplus.core.de.services.impl.ExtensionsUtil;
 import com.krishagni.catissueplus.core.importer.events.ImportObjectDetail;
 import com.krishagni.catissueplus.core.importer.services.ObjectImporter;
 
@@ -37,6 +38,7 @@ public class ParticipantImporter implements ObjectImporter<ParticipantDetail, Pa
 			ImportObjectDetail<ParticipantDetail> detail = req.getPayload();
 
 			ParticipantDetail participant = detail.getObject();
+			ExtensionsUtil.initFileFields(detail.getUploadedFilesDir(), participant.getExtensionDetail());
 			if (StringUtils.isBlank(participant.getSource())) {
 				participant.setSource(Participant.DEF_SOURCE);
 			}

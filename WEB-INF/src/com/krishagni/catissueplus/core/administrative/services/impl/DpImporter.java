@@ -4,6 +4,7 @@ import com.krishagni.catissueplus.core.administrative.events.DistributionProtoco
 import com.krishagni.catissueplus.core.administrative.services.DistributionProtocolService;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
+import com.krishagni.catissueplus.core.de.services.impl.ExtensionsUtil;
 import com.krishagni.catissueplus.core.importer.events.ImportObjectDetail;
 import com.krishagni.catissueplus.core.importer.services.ObjectImporter;
 
@@ -18,16 +19,14 @@ public class DpImporter implements ObjectImporter<DistributionProtocolDetail, Di
 	public ResponseEvent<DistributionProtocolDetail> importObject(RequestEvent<ImportObjectDetail<DistributionProtocolDetail>> req) {
 		try {
 			ImportObjectDetail<DistributionProtocolDetail> detail = req.getPayload();
-			RequestEvent<DistributionProtocolDetail> dpReq = new RequestEvent<>(detail.getObject());
+			DistributionProtocolDetail dp = detail.getObject();
+			ExtensionsUtil.initFileFields(detail.getUploadedFilesDir(), dp.getExtensionDetail());
 
-			ResponseEvent<DistributionProtocolDetail> resp;
 			if (detail.isCreate()) {
-				resp = dpSvc.createDistributionProtocol(dpReq);
+				return dpSvc.createDistributionProtocol(RequestEvent.wrap(dp));
 			} else {
-				resp = dpSvc.patchDistributionProtocol(dpReq);
+				return dpSvc.patchDistributionProtocol(RequestEvent.wrap(dp));
 			}
-
-			return resp;
 		} catch (Exception e) {
 			return ResponseEvent.serverError(e);
 		}

@@ -274,8 +274,14 @@ public class ObjectReader implements Closeable {
 		} else if (field.getType() != null && field.getType().equals("datetime")) {
 			return parseDateTime(value);
 		} else if (field.getType() != null && field.getType().equals("boolean")) {
-			return (value.equalsIgnoreCase(MessageUtil.getInstance().getBooleanMsg(true)) || value.equalsIgnoreCase("true"))  ? true :
-					(value.equalsIgnoreCase(MessageUtil.getInstance().getBooleanMsg(false)) || value.equalsIgnoreCase("false")) ? false : value;
+			return (value.equalsIgnoreCase(MessageUtil.getInstance().getBooleanMsg(true)) || value.equalsIgnoreCase("true")) ? true :
+				(value.equalsIgnoreCase(MessageUtil.getInstance().getBooleanMsg(false)) || value.equalsIgnoreCase("false")) ? false : value;
+		} else if (field.getType() != null && field.getType().equals("defile")) {
+			Map<String, Object> fileProps = new HashMap<>();
+			fileProps.put("filename", value);
+			fileProps.put("defile", true);
+			fileProps.put("contentType", Utility.getContentType(value));
+			return fileProps;
 		} else {
 			return value;
 		}

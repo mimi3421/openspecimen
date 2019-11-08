@@ -449,6 +449,7 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 				aliquotQty = NumUtil.divide(parentQty, count, precision);
 			}
 
+			List<StorageLocationSummary> locations = spec.getLocations();
 			List<SpecimenDetail> aliquots = new ArrayList<>();
 			for (int i = 0; i < count; ++i) {
 				SpecimenDetail aliquot = new SpecimenDetail();
@@ -483,16 +484,22 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 					aliquot.setContainerTypeName(spec.getContainerType());
 				}
 				
-				StorageLocationSummary location = new StorageLocationSummary();
-				location.setName(spec.getContainerName());
-				if (i == 0) {
-					if (spec.getPosition() != 0) {
-						location.setPosition(spec.getPosition());
-					} else if (spec.getPositionX() != null && spec.getPositionY() != null) {
-						location.setPositionX(spec.getPositionX());
-						location.setPositionY(spec.getPositionY());
+				StorageLocationSummary location = null;
+				if (StringUtils.isNotBlank(spec.getContainerName())) {
+					location = new StorageLocationSummary();
+					location.setName(spec.getContainerName());
+					if (i == 0) {
+						if (spec.getPosition() != 0) {
+							location.setPosition(spec.getPosition());
+						} else if (spec.getPositionX() != null && spec.getPositionY() != null) {
+							location.setPositionX(spec.getPositionX());
+							location.setPositionY(spec.getPositionY());
+						}
 					}
+				} else if (locations != null && i < locations.size()) {
+					location = locations.get(i);
 				}
+
 				aliquot.setStorageLocation(location);
 				aliquots.add(aliquot);
 			}

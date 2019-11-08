@@ -6,6 +6,7 @@ import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
+import com.krishagni.catissueplus.core.de.services.impl.ExtensionsUtil;
 import com.krishagni.catissueplus.core.importer.events.ImportObjectDetail;
 import com.krishagni.catissueplus.core.importer.services.ObjectImporter;
 
@@ -21,17 +22,14 @@ public class DistributionOrderImporter implements ObjectImporter<DistributionOrd
 	public ResponseEvent<DistributionOrderDetail> importObject(RequestEvent<ImportObjectDetail<DistributionOrderDetail>> req) {
 		try {
 			ImportObjectDetail<DistributionOrderDetail> detail = req.getPayload();
-			RequestEvent<DistributionOrderDetail> orderReq = new RequestEvent<>(detail.getObject());
+			DistributionOrderDetail order = detail.getObject();
+			ExtensionsUtil.initFileFields(detail.getUploadedFilesDir(), order.getExtensionDetail());
 
-			ResponseEvent<DistributionOrderDetail> resp = null;
 			if (detail.isCreate()) {
-				resp = orderSvc.createOrder(orderReq);
+				return orderSvc.createOrder(RequestEvent.wrap(order));
 			} else {
-				resp = orderSvc.updateOrder(orderReq);
+				return orderSvc.updateOrder(RequestEvent.wrap(order));
 			}
-
-			resp.throwErrorIfUnsuccessful();
-			return resp;
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {

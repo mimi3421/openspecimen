@@ -14,7 +14,7 @@
     </div>
   </div>
   
-  <div class="container" ng-switch on="ctx.showCustomFields">
+  <div class="container" ng-switch on="ctx.showCustomFields && !ctx.autoPosAllocate">
     <div class="os-alert-container show inline" ng-if="ctx.warnPerfIssue">
       <div class="alert alert-warning">
         <span translate="specimens.warn_large_no_aliquots">The UI has not been designed to handle creation of such large number of aliquots. You might notice slowness in page rendering. In such a scenario, we recommend you to use bulk import option.</span>
@@ -25,9 +25,14 @@
       <div ng-include src="'modules/biospecimen/participant/specimen/custom-aliquot-specs.html'"></div>
     </div>
     <div ng-switch-default>
-      <div os-wizard="aliqWizard" type="classic">
+      <div os-wizard="aliqWizard" type="classic" ng-switch on="ctx.showCustomFields">
         <os-wizard-step title="{{'specimens.aliquot_specs' | translate}}" on-finish="validateSpecs()">
-          <div ng-include src="'modules/biospecimen/participant/specimen/aliquot-specs.html'"></div>
+          <div ng-switch-when="true">
+            <div ng-include src="'modules/biospecimen/participant/specimen/custom-aliquot-specs.html'"></div>
+          </div>
+          <div ng-switch-default>
+            <div ng-include src="'modules/biospecimen/participant/specimen/aliquot-specs.html'"></div>
+          </div>
         </os-wizard-step>
         <os-wizard-step title="{{ctx.step2Title | translate}}" on-finish="showSpecs()">
           <div ng-include src="'modules/biospecimen/participant/specimen/review-assign-locs.html'"></div>
@@ -91,13 +96,23 @@
 
     <div class="os-divider"></div>
 
-    <div>
-      <button class="btn btn-primary" os-form-submit="createAliquots()">
-        <span translate="common.buttons.submit">Submit</span>
-      </button>
-      <button class="btn os-btn-text" ng-click="back()">
-        <span translate="common.buttons.cancel">Cancel</span>
-      </button>
+    <div class="form-group" ng-class="{'right-btns': ctx.autoPosAllocate}" ng-switch on="!ctx.autoPosAllocate">
+      <div class="col-xs-12" ng-switch-when="true">
+        <button class="btn btn-primary" os-form-submit="createAliquots()">
+          <span translate="common.buttons.submit">Submit</span>
+        </button>
+        <button class="btn os-btn-text" ng-click="back()">
+          <span translate="common.buttons.cancel">Cancel</span>
+        </button>
+      </div>
+      <div class="col-xs-12" ng-switch-when="false">
+        <button class="btn os-btn-text" ng-click="back()">
+          <span translate="common.buttons.cancel">Cancel</span>
+        </button>
+        <button class="btn btn-primary" os-form-submit="aliqWizard.next()">
+          <span translate="common.buttons.next">Next</span>
+        </button>
+      </div>
     </div>
   </form>
 </script>
@@ -234,12 +249,12 @@
               <span translate="specimens.location">
                 Location
               </span>
-              <span style="font-weight: normal" ng-switch on="ctx.autoPosAllocate">
+              <span style="font-weight: normal" ng-switch on="ctx.manualPosSelection">
                 <span>(</span>
-                <a ng-switch-when="true" ng-click="manuallySelectContainers()">
+                <a ng-switch-when="false" ng-click="manuallySelectContainers()">
                   <span translate="specimens.manual_selection">Manual Selection</span>
                 </a>
-                <a ng-switch-default ng-click="applyFirstLocationToAll()">
+                <a ng-switch-when="true" ng-click="applyFirstLocationToAll()">
                   <span translate="specimens.copy_first_to_all">Copy First To All</span>
                 </a>
                 <span>)</span>
@@ -272,11 +287,11 @@
             <td class="col">
               <span>{{aliquot.createdOn | date: global.dateFmt}}</span>
             </td>
-            <td class="col" style="overflow: visible;" ng-switch on="ctx.autoPosAllocate">
-              <span ng-switch-when="true">
+            <td class="col" style="overflow: visible;" ng-switch on="ctx.manualPosSelection">
+              <span ng-switch-when="false">
                 <os-disp-storage-position position="aliquot.storageLocation"></os-disp-storage-position>
               </span>
-              <span ng-switch-default>
+              <span ng-switch-when="true">
                 <os-storage-position os-md-input entity="aliquot" cp-id="aliquot.cpId" hide-placeholder>
                 </os-storage-position>
               </span>
