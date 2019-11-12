@@ -22,7 +22,8 @@ import com.krishagni.catissueplus.core.common.util.Utility;
 public abstract class LabelPrintRule {
 	public enum CmdFileFmt {
 		CSV("csv"),
-		KEY_VALUE("key-value");
+		KEY_VALUE("key-value"),
+		KEY_Q_VALUE("key-q-value");
 
 		private String fmt;
 

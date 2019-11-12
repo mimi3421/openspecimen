@@ -245,6 +245,39 @@ public class Utility {
 		}
 	}
 
+	public static String getQuotedString(String input) {
+		return getQuotedString(input, '"');
+	}
+
+	public static String getQuotedString(String input, char quoteChar) {
+		return getQuotedString(input, quoteChar, quoteChar);
+	}
+
+	public static String getQuotedString(String input, char quoteChar, char escapeChar) {
+		if (input == null || input.isEmpty()) {
+			return input;
+		}
+
+		StringBuilder result = new StringBuilder();
+		result.append(quoteChar);
+
+		if (input.indexOf(quoteChar) == -1 && input.indexOf(escapeChar) == -1) {
+			result.append(input);
+		} else {
+			for (int i = 0; i < input.length(); ++i) {
+				char nextChar = input.charAt(i);
+				if (escapeChar != 0 && (nextChar == quoteChar || nextChar == escapeChar)) {
+					result.append(escapeChar).append(nextChar);
+				} else {
+					result.append(nextChar);
+				}
+			}
+		}
+
+		result.append(quoteChar);
+		return result.toString();
+	}
+
 	public static long getTimezoneOffset() {
 		Calendar cal = Calendar.getInstance();
 		return -1 * cal.get(Calendar.ZONE_OFFSET);
