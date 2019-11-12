@@ -466,6 +466,18 @@ angular.module('os.biospecimen.specimen',
             return CpConfigSvc.getCommonCfg(cp.id || -1, 'derivedSpecimens');
           },
 
+          containerAllocRules: function(cp, CpConfigSvc) {
+            if (!cp.containerSelectionStrategy) {
+              return [];
+            }
+
+            return CpConfigSvc.getWorkflowData(cp.id, 'auto-allocation').then(
+              function(data) {
+                return (data && data.rules && data.rules.length > 0) ? data.rules : [];
+              }
+            );
+          },
+
           spmnHeaders: function(cp, CpConfigSvc) {
             if (!cp.id) {
               return {};

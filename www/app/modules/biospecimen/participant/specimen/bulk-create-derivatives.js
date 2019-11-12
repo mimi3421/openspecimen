@@ -1,10 +1,10 @@
 angular.module('os.biospecimen.specimen')
   .controller('BulkCreateDerivativesCtrl', function(
-    $scope, $injector, $translate, parentSpmns, cp, cpr,
-    cpDict, derivedFields, spmnHeaders, incrFreezeThawCycles,
-    Specimen, Alerts, Util, SpecimenUtil) {
+    $scope, $injector, $translate, $q, parentSpmns, cp, cpr,
+    cpDict, derivedFields, spmnHeaders, incrFreezeThawCycles, containerAllocRules,
+    Specimen, Alerts, Util, SpecimenUtil, Container) {
 
-    var ctx;
+    var ctx, reservationId;
 
     function init() {
       var createdOn = new Date().getTime();
@@ -34,6 +34,8 @@ angular.module('os.biospecimen.specimen')
       var inputLabels = $scope.inputLabels = (!!cp.id && (!cp.derivativeLabelFmt || cp.manualSpecLabelEnabled));
       ctx = $scope.ctx = {
         showCustomFields: true,
+        autoPosAllocate: false,
+        manualPosSelection: false,
         derivedSpmns: derivedSpmns,
         inputLabels: inputLabels,
         spmnHeaders: spmnHeaders,
@@ -64,6 +66,25 @@ angular.module('os.biospecimen.specimen')
           },
           true
         );
+
+        if (!!cp.containerSelectionStrategy) {
+          ctx.autoPosAllocate    = true;
+          ctx.manualPosSelection = false;
+          //
+          // exclude the location field from the UI form
+          //
+          angular.forEach(groups,
+            function(group) {
+              group.fields.table = group.fields.table.filter(
+                function(f) {
+                  return f.name != 'specimen.storageLocation';
+                }
+              );
+            }
+          )
+
+          $scope.$on('$destroy', vacateReservedPositions);
+        }
       }
     }
 
@@ -155,6 +176,28 @@ angular.module('os.biospecimen.specimen')
       }
     }
 
+    function setLocations(spmns, locations) {
+      var locationIdx = 0, derivatives = [];
+      for (var i = 0; i < spmns.length; ++i) {
+        var derivative = spmns[i];
+        if (locations.length > 0) {
+          derivative.storageLocation = locations[locationIdx++];
+        }
+
+        derivatives.push(derivative);
+      }
+
+      ctx.derivatives = derivatives;
+    }
+
+    function vacateReservedPositions() {
+      if (!!reservationId) {
+        return Container.cancelReservation(reservationId);
+      }
+
+      return null;
+    }
+
     $scope.copyFirstToAll = function() {
       var spmnToCopy = $scope.ctx.derivedSpmns[0];
       var attrsToCopy = ['specimenClass', 'type', 'initialQty', 'createdOn', 'printLabel', 'closeParent'];
@@ -171,6 +214,94 @@ angular.module('os.biospecimen.specimen')
 
     $scope.addAnother = function(group) {
       group.input.push(angular.copy(group.lastRow));
+    }
+
+    $scope.validateSpecs = function() {
+      var criteria = [], specs = [];
+      angular.forEach(ctx.customFieldGroups,
+        function(group) {
+          angular.forEach(group.input,
+            function(spec) {
+              specs.push(spec.specimen);
+
+              var spmn = new Specimen(spec.specimen);
+              var parent = spmn.parent;
+
+              spmn.lineage = 'Derived';
+              spmn.quantity = spmn.initialQty;
+
+              var match = spmn.getMatchingRule(containerAllocRules);
+              criteria.push({
+                specimen: spmn,
+                minFreePositions: 1,
+                ruleName: match.index != -1 ? match.rule.name : undefined,
+                ruleParams: match.index != -1 ? match.rule.params : undefined
+              });
+            }
+          );
+        }
+      );
+
+      for (var i = 0; i < specs.length; ++i) {
+        if (!isValidCreatedOn(specs[i])) {
+          return false;
+        }
+      }
+
+      return Container.getReservedPositions({
+        cpId: cp.id,
+        reservationToCancel: reservationId,
+        criteria: criteria,
+      }).then(
+        function(locations) {
+          var location = locations.find(function(l) { return !!l && !!l.reservationId; });
+          if (location) {
+            reservationId = location.reservationId;
+          }
+
+          setLocations(specs, locations);
+          return true;
+        }
+      );
+    }
+
+    $scope.showSpecs = function() {
+      vacateReservedPositions();
+      reservationId = undefined;
+      ctx.derivatives.length = 0;
+      ctx.autoPosAllocate = !!cp.containerSelectionStrategy
+      ctx.manualPosSelection = !ctx.autoPosAllocate;
+      return true;
+    }
+
+    $scope.manuallySelectContainers = function() {
+      $q.when(vacateReservedPositions()).then(
+        function() {
+          reservationId = undefined;
+          angular.forEach(ctx.derivatives,
+            function(derivative) {
+              derivative.storageLocation = {};
+            }
+          );
+
+          ctx.manualPosSelection = true;
+        }
+      );
+    }
+
+    $scope.applyFirstLocationToAll = function() {
+      var loc = undefined;
+      if (ctx.derivatives.length > 0 && !!ctx.derivatives[0].storageLocation) {
+        loc = ctx.derivatives[0].storageLocation;
+      }
+
+      angular.forEach(ctx.derivatives,
+        function(derivative, idx) {
+          if (idx != 0) {
+            derivative.storageLocation = {name: loc.name, mode: loc.mode};
+          }
+        }
+      );
     }
 
     $scope.createDerivatives = function() {
