@@ -750,6 +750,7 @@
     "ops": "Actions",
     "auto": "Auto",
     "aliquot_specs": "Aliquots Specifications",
+    "derivative_specs": "Derivative Specifications",
     "review_locations": "Review Locations",
     "assign_locations": "Choose Locations",
     "labels": "Labels",

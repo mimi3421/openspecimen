@@ -207,6 +207,10 @@ public abstract class AbstractLabelPrinter<T> implements LabelPrinter<T>, Applic
 				case KEY_VALUE:
 					content = getKeyValueFields(dataItems);
 					break;
+
+				case KEY_Q_VALUE:
+					content = getKeyValueFields(dataItems, true);
+					break;
 			}
 
 			writeToFile(jobItem, rule, content);
@@ -221,9 +225,16 @@ public abstract class AbstractLabelPrinter<T> implements LabelPrinter<T>, Applic
 	}
 
 	private String getKeyValueFields(Map<String, String> dataItems) {
+		return getKeyValueFields(dataItems, false);
+	}
+
+	private String getKeyValueFields(Map<String, String> dataItems, boolean quotedValues) {
 		StringBuilder content = new StringBuilder();
-		for (Map.Entry<String, String> dataItem : dataItems.entrySet()) {
-			content.append(String.format("%s=%s\n", dataItem.getKey(), dataItem.getValue()));
+
+		if (quotedValues) {
+			dataItems.forEach((key, value) -> content.append(String.format("%s=%s\n", key, Utility.getQuotedString(value))));
+		} else {
+			dataItems.forEach((key, value) -> content.append(String.format("%s=%s\n", key, value)));
 		}
 
 		if (!dataItems.isEmpty()) {
