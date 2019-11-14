@@ -202,6 +202,7 @@ public class CpReportGenerator {
 			op.setCpId(cp.getId());
 			op.setWideRowMode(WideRowMode.OFF.name());
 			op.setAql(aql);
+			op.setDisableAccessChecks(true);
 
 			String drivingForm = (String)input.get("drivingForm");
 			op.setDrivingForm(StringUtils.isBlank(drivingForm) ? "Participant" : drivingForm);

@@ -215,6 +215,8 @@ public class QueryServiceImpl implements QueryService {
 	@PlusTransactional
 	public ResponseEvent<SavedQueriesList> getSavedQueries(RequestEvent<ListSavedQueriesCriteria> req) {
 		try {
+			ensureReadRights();
+
 			ListSavedQueriesCriteria crit = req.getPayload();
 			if (crit.startAt() < 0 || crit.maxResults() <= 0) {
 				return ResponseEvent.userError(SavedQueryErrorCode.INVALID_PAGINATION_FILTER);
@@ -222,13 +224,15 @@ public class QueryServiceImpl implements QueryService {
 
 			crit.userId(AuthUtil.getCurrentUser().getId());
 			List<SavedQuerySummary> queries = daoFactory.getSavedQueryDao().getQueries(crit);
-			
+
 			Long count = null;
 			if (crit.countReq()) {
 				count = daoFactory.getSavedQueryDao().getQueriesCount(crit);
 			}
-			
+
 			return ResponseEvent.response(SavedQueriesList.create(queries, count));
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
 		} catch (Exception e) {
 			return ResponseEvent.serverError(e);
 		}
@@ -238,12 +242,16 @@ public class QueryServiceImpl implements QueryService {
 	@PlusTransactional
 	public ResponseEvent<SavedQueryDetail> getSavedQuery(RequestEvent<Long> req) {
 		try {
+			ensureReadRights();
+
 			SavedQuery savedQuery = daoFactory.getSavedQueryDao().getQuery(req.getPayload());
 			if (savedQuery == null) {
 				return ResponseEvent.userError(SavedQueryErrorCode.NOT_FOUND, req.getPayload());
 			}
 			
 			return ResponseEvent.response(SavedQueryDetail.fromSavedQuery(savedQuery));
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
 		} catch (Exception e) {
 			return ResponseEvent.serverError(e);
 		}
@@ -253,6 +261,8 @@ public class QueryServiceImpl implements QueryService {
 	@PlusTransactional
 	public ResponseEvent<SavedQueryDetail> saveQuery(RequestEvent<SavedQueryDetail> req) {
 		try {
+			ensureCreateRights();
+
 			SavedQueryDetail queryDetail = req.getPayload();
 			queryDetail.setId(null);
 
@@ -285,6 +295,8 @@ public class QueryServiceImpl implements QueryService {
 	@PlusTransactional
 	public ResponseEvent<SavedQueryDetail> updateQuery(RequestEvent<SavedQueryDetail> req) {
 		try {
+			ensureUpdateRights();
+
 			SavedQueryDetail queryDetail = req.getPayload();
 
 			Query.createQuery()
@@ -324,6 +336,8 @@ public class QueryServiceImpl implements QueryService {
 	@PlusTransactional
 	public ResponseEvent<Long> deleteQuery(RequestEvent<Long> req) {
 		try {
+			ensureDeleteRights();
+
 			Long queryId = req.getPayload();
 			SavedQuery query = daoFactory.getSavedQueryDao().getQuery(queryId);
 			if (query == null) {
@@ -346,6 +360,8 @@ public class QueryServiceImpl implements QueryService {
 			query.setDeletedOn(Calendar.getInstance().getTime());
 			daoFactory.getSavedQueryDao().saveOrUpdate(query);
 			return ResponseEvent.response(queryId);
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
 		} catch (Exception e) {
 			return ResponseEvent.serverError(e);
 		}
@@ -358,11 +374,14 @@ public class QueryServiceImpl implements QueryService {
 
 		boolean queryCntIncremented = false;
 		try {
+			ExecuteQueryEventOp opDetail = req.getPayload();
+			if (!opDetail.isDisableAccessChecks()) {
+				ensureReadRights();
+			}
+
 			queryCntIncremented = incConcurrentQueriesCnt();
 
-			ExecuteQueryEventOp opDetail = req.getPayload();
 			Query query = getQuery(opDetail);
-
 			QueryResponse resp = query.getData();
 			insertAuditLog(AuthUtil.getCurrentUser(), opDetail, resp);
 			
@@ -413,6 +432,8 @@ public class QueryServiceImpl implements QueryService {
 	@PlusTransactional
 	public ResponseEvent<QueryExecResult> executeSavedQuery(RequestEvent<ExecuteSavedQueryOp> req) {
 		try {
+			ensureReadRights();
+
 			ExecuteSavedQueryOp input = req.getPayload();
 			SavedQuery query = daoFactory.getSavedQueryDao().getQuery(input.getSavedQueryId());
 			if (query == null) {
@@ -458,6 +479,8 @@ public class QueryServiceImpl implements QueryService {
 	public ResponseEvent<QueryDataExportResult> exportQueryData(RequestEvent<ExecuteQueryEventOp> req) {
 		boolean queryCntIncremented = false;
 		try {
+			ensureReadRights();
+
 			queryCntIncremented = incConcurrentQueriesCnt();
 			return ResponseEvent.response(exportData(req.getPayload(), null, null));
 		} catch (QueryParserException | IllegalArgumentException qpe) {
@@ -478,9 +501,12 @@ public class QueryServiceImpl implements QueryService {
 	}
 	
 	@Override
+	@PlusTransactional
 	public ResponseEvent<File> getExportDataFile(RequestEvent<String> req) {
 		String fileId = req.getPayload();
 		try {
+			ensureReadRights();
+
 			String path = getExportDataDir() + File.separator + fileId;
 			File f = new File(path);
 			if (f.exists()) {
@@ -488,6 +514,8 @@ public class QueryServiceImpl implements QueryService {
 			} else {
 				return ResponseEvent.userError(SavedQueryErrorCode.EXPORT_DATA_FILE_NOT_FOUND);
 			}
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
 		} catch (Exception e) {
 			return ResponseEvent.serverError(e);
 		}
@@ -524,8 +552,7 @@ public class QueryServiceImpl implements QueryService {
 		} catch (Exception e) {
 			return ResponseEvent.serverError(e);			
 		}
-	}	
-	
+	}
 	
 	@Override
 	@PlusTransactional
@@ -623,6 +650,8 @@ public class QueryServiceImpl implements QueryService {
 	@PlusTransactional
 	public ResponseEvent<SavedQueriesList> getFolderQueries(RequestEvent<ListFolderQueriesCriteria> req) {
 		try {
+			ensureReadRights();
+
 			ListFolderQueriesCriteria crit = req.getPayload();
 			QueryFolder folder = daoFactory.getQueryFolderDao().getQueryFolder(crit.folderId());
 			if (folder == null) {
@@ -819,9 +848,10 @@ public class QueryServiceImpl implements QueryService {
 	@PlusTransactional
 	public ResponseEvent<String> getQueryDef(RequestEvent<Long> req) {
 		try {
+			ensureReadRights();
+
+			Long queryId = req.getPayload();
 			SavedQueryDao queryDao = daoFactory.getSavedQueryDao();
-			
-			Long queryId = req.getPayload();			
 			SavedQuery query = queryDao.getQuery(queryId);			
 			if (query == null) {
 				return ResponseEvent.userError(SavedQueryErrorCode.NOT_FOUND, queryId);
@@ -843,12 +873,14 @@ public class QueryServiceImpl implements QueryService {
 	@Override
 	@PlusTransactional
 	public QueryDataExportResult exportQueryData(final ExecuteQueryEventOp opDetail, final ExportProcessor processor) {
+		ensureReadRights();
 		return exportData(opDetail, processor, null);
 	}
 
 	@Override
 	@PlusTransactional
 	public QueryDataExportResult exportQueryData(final ExecuteQueryEventOp opDetail, BiConsumer<QueryResultData, OutputStream> qdConsumer) {
+		ensureReadRights();
 		return exportData(opDetail, null, qdConsumer);
 	}
 
@@ -856,6 +888,8 @@ public class QueryServiceImpl implements QueryService {
 	@PlusTransactional
 	public ResponseEvent<List<FacetDetail>> getFacetValues(RequestEvent<GetFacetValuesOp> req) {
 		try {
+			ensureReadRights();
+
 			GetFacetValuesOp op = req.getPayload();
 			List<FacetDetail> result = op.getFacets().stream()
 				.map(facet -> getFacetDetail(op.getCpId(), op.getCpGroupId(), facet, op.getRestriction(), op.getSearchTerm()))
@@ -1050,7 +1084,23 @@ public class QueryServiceImpl implements QueryService {
 		auditLog.setSql(resp.getSql());
 		daoFactory.getQueryAuditLogDao().saveOrUpdate(auditLog);
 	}
-	
+
+	private void ensureReadRights() {
+		AccessCtrlMgr.getInstance().ensureReadQueryRights();
+	}
+
+	private void ensureCreateRights() {
+		AccessCtrlMgr.getInstance().ensureCreateQueryRights();
+	}
+
+	private void ensureUpdateRights() {
+		AccessCtrlMgr.getInstance().ensureUpdateQueryRights();
+	}
+
+	private void ensureDeleteRights() {
+		AccessCtrlMgr.getInstance().ensureDeleteQueryRights();
+	}
+
 	private class QueryResultScreenerImpl implements QueryResultScreener {
 		private User user;
 		

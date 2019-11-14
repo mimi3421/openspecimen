@@ -208,6 +208,7 @@ angular.module('openspecimen')
         },
 
         {
+          showIf: {resource: 'Query', operations: ['Read']},
           sref: 'query-list',
           icon: 'fa fa-dashboard',
           title: 'menu.queries',

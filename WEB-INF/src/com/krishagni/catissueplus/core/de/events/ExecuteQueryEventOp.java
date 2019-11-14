@@ -27,6 +27,8 @@ public class ExecuteQueryEventOp  {
 
 	private boolean synchronous;
 
+	private boolean disableAccessChecks;
+
 	public Long getCpId() {
 		return cpId;
 	}
@@ -113,5 +115,13 @@ public class ExecuteQueryEventOp  {
 
 	public void setSynchronous(boolean synchronous) {
 		this.synchronous = synchronous;
+	}
+
+	public boolean isDisableAccessChecks() {
+		return disableAccessChecks;
+	}
+
+	public void setDisableAccessChecks(boolean disableAccessChecks) {
+		this.disableAccessChecks = disableAccessChecks;
 	}
 }

@@ -1465,6 +1465,45 @@ public class AccessCtrlMgr {
 
 	///////////////////////////////////////////////////////////////////////
 	//                                                                   //
+	// Query access control methods                                      //
+	//                                                                   //
+	///////////////////////////////////////////////////////////////////////
+	public void ensureReadQueryRights() {
+		ensureQueryRights(new Operation[] { Operation.READ });
+		ensureQueryEximRights();
+	}
+
+	public void ensureCreateQueryRights() {
+		ensureQueryRights(new Operation[] { Operation.CREATE });
+	}
+
+	public void ensureUpdateQueryRights() {
+		ensureQueryRights(new Operation[] { Operation.CREATE, Operation.UPDATE });
+	}
+
+	public void ensureDeleteQueryRights() {
+		ensureQueryRights(new Operation[] { Operation.DELETE });
+	}
+
+	private void ensureQueryEximRights() {
+		if (isExportOp()) {
+			ensureQueryRights(new Operation[] { Operation.EXIM });
+		}
+	}
+
+	private void ensureQueryRights(Operation[] op) {
+		if (AuthUtil.isAdmin()) {
+			return;
+		}
+
+		Set<SiteCpPair> siteCps = getSiteCps(Resource.QUERY, op);
+		if (CollectionUtils.isEmpty(siteCps)) {
+			throw OpenSpecimenException.userError(RbacErrorCode.ACCESS_DENIED);
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////
+	//                                                                   //
 	//	EXIM access control helper methods                        //
 	//                                                                   //
 	///////////////////////////////////////////////////////////////////////

@@ -149,7 +149,8 @@ public abstract class ImportForms implements InitializingBean {
 				Date importDate = (changeLog != null) ? (Date) changeLog[3] : null;
 				if (!isSysForm(formFile) && formId != null && importDate != null) {
 					//
-					// Non system form. Need to check whether the form got modified since last import
+					// Non system form. Check whether the form got modified since last import
+					// If yes, don't touch the form
 					//
 					Date updateDate = daoFactory.getFormDao().getUpdateTime(formId);
 					if (updateDate != null && updateDate.after(importDate)) {

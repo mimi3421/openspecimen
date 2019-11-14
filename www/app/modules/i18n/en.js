@@ -1649,7 +1649,8 @@
       "User": "Users",
       "ScheduledJob": "Jobs",
       "ShippingAndTracking": "Shipping and Tracking",
-      "DistributionProtocol": "Distribution Protocols"
+      "DistributionProtocol": "Distribution Protocols",
+      "Query": "Query"
     },
 
     "menu": {

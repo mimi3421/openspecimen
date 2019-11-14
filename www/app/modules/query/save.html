@@ -19,10 +19,10 @@
     <button class="btn os-btn-text" ng-click="cancel()">
       <span translate="common.buttons.cancel">Cancel</span>
     </button>
-    <button class="btn os-btn-secondary" ng-click="save(true)" ng-if="lctx.queryToSave.id">
+    <button show-if-allowed="lctx.createOpts" class="btn os-btn-secondary" ng-click="save(true)" ng-if="lctx.queryToSave.id">
       <span translate="queries.save_copy">Save a Copy</span>
     </button>
-    <button class="btn btn-primary" ng-click="save(false)">
+    <button show-if-allowed="lctx.updateOpts" class="btn btn-primary" ng-click="save(false)">
       <span translate="common.buttons.save">Save</span>
     </button>
   </div>

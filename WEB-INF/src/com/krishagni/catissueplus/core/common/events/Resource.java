@@ -25,7 +25,10 @@ public enum Resource {
 
 	SCHEDULED_JOB("ScheduledJob"),
 	
-	SHIPPING_N_TRACKING("ShippingAndTracking")
+	SHIPPING_N_TRACKING("ShippingAndTracking"),
+
+	QUERY("Query")
+
 	;
 
 	private final String name;

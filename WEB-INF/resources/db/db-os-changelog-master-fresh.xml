@@ -117,6 +117,7 @@
   <include file="db/6.2/migration.xml"/>
 
   <include file="db/6.3/schema.xml"/>
+  <include file="db/6.3/seed-data.xml"/>
   <include file="db/6.3/config.xml"/>
   <include file="db/6.3/audit.xml"/>
 

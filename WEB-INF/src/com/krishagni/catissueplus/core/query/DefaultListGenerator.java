@@ -357,6 +357,7 @@ public class DefaultListGenerator implements ListGenerator {
 		op.setRunType("Data");
 		op.setDrivingForm(StringUtils.isBlank(drivingForm) ? "Participant" : drivingForm);
 		op.setWideRowMode("OFF");
+		op.setDisableAccessChecks(true);
 
 		RequestEvent<ExecuteQueryEventOp> req = new RequestEvent<>(op);
 		ResponseEvent<QueryExecResult> resp = querySvc.executeQuery(req);

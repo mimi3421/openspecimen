@@ -51,12 +51,12 @@
         </button>
         <ul class="dropdown-menu">
           <li>
-            <a ng-click="editFilters()">
+            <a ng-show="permOpts.updateAllowed" ng-click="editFilters()">
               <span class="fa fa-pencil"></span>
               <span translate="common.buttons.edit">Edit Filters</span>
             </a>
           </li>
-          <li ng-if="queryCtx.isValid && queryCtx.filters.length > 0">
+          <li ng-show="(permOpts.createAllowed || permOpts.updateAllowed) && queryCtx.isValid && queryCtx.filters.length > 0">
             <a ng-click="saveQuery()">
               <span class="fa fa-save"></span>
               <span translate="common.buttons.save">Save</span>
@@ -75,7 +75,7 @@
             </a>
           </li>
           <li>
-            <a ng-click="downloadResults()">
+            <a ng-show="permOpts.eximAllowed" ng-click="downloadResults()">
               <span class="fa fa-download"></span>
               <span translate="common.buttons.export">Export</span>
             </a>

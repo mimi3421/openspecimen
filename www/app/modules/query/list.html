@@ -9,11 +9,11 @@
 
   <div class="os-page-commands">
     <div class="left">
-      <button class="default" ui-sref="query-addedit({queryId: undefined})">
+      <button class="default" show-if-allowed="permOpts.create" ui-sref="query-addedit({queryId: undefined})">
         <span class="fa fa-plus"></span>
         <span translate="common.buttons.create">Create</span>
       </button>
-      <button class="default" ng-click="importQuery()">
+      <button class="default" show-if-allowed="permOpts.create" ng-click="importQuery()">
         <span class="fa fa-upload"></span>
         <span translate="common.buttons.import">Import</span>
       </button>
@@ -109,7 +109,7 @@
               <span class="fa fa-ellipsis-v"></span>
             </button>
             <ul class="dropdown-menu dropdown-menu-right">
-              <li>
+              <li ng-show="permOpts.updateAllowed">
                 <a ui-sref="query-addedit({queryId: query.id})">
                   <span class="fa fa-pencil"></span>
                   <span translate="queries.edit"></span>
@@ -121,19 +121,13 @@
                   <span translate="queries.download_def"></span>
                 </a>
               </li>
-              <li show-if="jobCreateOpts">
+              <li ng-show="permOpts.createJobAllowed">
                 <a ui-sref="job-addedit({queryId: query.id})">
                   <span class="fa fa-clock-o"></span>
                   <span translate="queries.schedule"></span>
                 </a>
               </li>
-              <!--<li>
-                <a>
-                  <span class="fa fa-list"></span>
-                  <span translate="queries.view_query_run_log"></span>
-                </a>
-              </li>-->
-              <li ng-click="deleteQuery(query)">
+              <li ng-show="permOpts.deleteAllowed" ng-click="deleteQuery(query)">
                 <a>
                   <span class="fa fa-trash"></span>
                   <span translate="queries.delete"></span>
