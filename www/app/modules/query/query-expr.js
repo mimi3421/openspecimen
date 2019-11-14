@@ -49,9 +49,7 @@ angular.module('os.query.expr', ['os.query.models'])
       var node = $scope.queryLocal.exprNodes[index];
       if (node.value == 'and') {
         node.value = 'or';
-      } else if (node.value == 'or') {
-        node.value = 'intersect';
-      } else if (node.value == 'intersect') {
+      } else if (node.value == 'or' || node.value == 'intersect') { // intersect is for backward compatibility
         node.value = 'and';
       }
     };

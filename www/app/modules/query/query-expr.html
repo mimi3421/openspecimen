@@ -6,9 +6,6 @@
     <div class="btn btn-sm btn-default" ng-click="addOp('or')">
       <span translate="queries.expr_toolbar.or">OR</span>
     </div>
-    <div class="btn btn-sm btn-default" title="Intersection" ng-click="addOp('intersect')">
-      <span>&#8745;</span>
-    </div>
     <div class="btn btn-sm btn-default" ng-click="addOp('not')">
       <span translate="queries.expr_toolbar.not">NOT</span>
     </div>
@@ -17,8 +14,10 @@
     </div>
   </div>
 
-  <div class="btn btn-sm btn-default" ng-click="addParen()">
-    <span>(&nbsp;...&nbsp;)</span>
+  <div class="btn-group os-query-block-margin">
+    <div class="btn btn-sm btn-default" ng-click="addParen()">
+      <span>(&nbsp;...&nbsp;)</span>
+    </div>
   </div>
 
   <div id="os-query-expr" class="os-query-expr-nodes clearfix" 
