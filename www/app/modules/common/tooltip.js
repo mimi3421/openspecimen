@@ -44,6 +44,7 @@ angular.module('openspecimen')
           'data-title': tooltip,
           'trigger'   : tAttrs.trigger || 'hover focus',
           'placement' : tAttrs.placement || 'auto',
+          'container' : 'body',
           'html'      : (tAttrs.html == true || tAttrs.html == 'true')
         });
 

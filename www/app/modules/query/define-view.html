@@ -80,7 +80,7 @@
       </thead>
       <tbody class="os-table-body">
         <tr class="row" ng-repeat="field in selectedFields" ng-show="field.name.indexOf('$temporal') != 0">
-          <td class="col">
+          <td class="col" os-tooltip="{{field.form + ': ' + field.label}}" placement="bottom">
             <span>{{field.form}}: {{field.label}}</span>
           </td>
           <td class="col">
@@ -111,14 +111,17 @@
             ng-class="{'active': currField.name == selectedField.name}"
             ng-repeat="selectedField in selectedFields"
             ng-click="showCurrField(selectedField)"
-            tooltip="{{selectedField.form}}: {{selectedField.label}}" 
-            tooltip-placement="bottom" tooltip-append-to-body="true">
+            os-tooltip="{{!!selectedField.displayLabel ? selectedField.displayLabel : selectedField.form + ': ' + selectedField.label}}" placement="bottom">
             <span class="badge">
               {{(selectedField.aggFns | filter:{opted: true}).length}}
             </span>
             <span ng-switch on="!!selectedField.displayLabel">
-              <span ng-switch-when="true">{{selectedField.displayLabel}}</span>
-              <span ng-switch-default>{{selectedField.form}} {{selectedField.label}}</span>
+              <span ng-switch-when="true">
+                {{selectedField.displayLabel}}
+              </span>
+              <span ng-switch-default>
+                {{selectedField.form}} {{selectedField.label}}
+              </span>
             </span>
           </a>
         </div>
