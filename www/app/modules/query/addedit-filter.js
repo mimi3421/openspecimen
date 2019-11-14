@@ -174,6 +174,7 @@ angular.module('os.query.addeditfilter', ['os.query.models'])
             form.getFields().then(
               function() {
                 var fieldsAdvise = QueryUtil.getFieldsAdvise(form);
+                fieldsAdvise.push({label: fieldName, value: fieldName});
                 response($scope.temporalFilterOpts.methods.filter(fieldsAdvise, fieldName));
               }
             );
