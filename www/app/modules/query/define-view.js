@@ -573,7 +573,7 @@ angular.module('os.query.defineview', ['os.query.models'])
         }
 
         for (var j = 0; j < nodes.length; j++) {
-          if (filterId && nodes[j].form.id == filterId) {
+          if (filterId && nodes[j].type == 'temporal' && nodes[j].form.id == filterId) {
             var node = nodes.splice(j, 1)[0]; // removes node 
             nodes.splice(i, 0, node); // inserts node
             node.checked = true;
