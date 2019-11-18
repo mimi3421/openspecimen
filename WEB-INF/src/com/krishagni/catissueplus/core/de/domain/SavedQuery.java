@@ -305,15 +305,15 @@ public class SavedQuery {
 	}
 	
 	public String getAql() {
-		return AqlBuilder.getInstance().getQuery(selectList, filters, queryExpression, havingClause);
+		return AqlBuilder.getInstance().getQuery(selectList, filters, queryExpression, havingClause, reporting);
 	}
 	
 	public String getAql(Filter[] conjunctionFilters) {
-		return AqlBuilder.getInstance().getQuery(selectList, filters, conjunctionFilters, queryExpression, havingClause);
+		return AqlBuilder.getInstance().getQuery(selectList, filters, conjunctionFilters, queryExpression, havingClause, reporting);
 	}
 
 	public String getAql(String conjunction) {
-		return AqlBuilder.getInstance().getQuery(selectList, filters, conjunction, queryExpression, havingClause);
+		return AqlBuilder.getInstance().getQuery(selectList, filters, conjunction, queryExpression, havingClause, reporting);
 	}
 	
 	public void update(SavedQuery query) {

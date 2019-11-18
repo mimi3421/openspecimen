@@ -1,10 +1,14 @@
 package com.krishagni.catissueplus.core.de.domain;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,10 +43,18 @@ public class AqlBuilder {
 	}
 
 	public String getQuery(Object[] selectList, Filter[] filters, QueryExpressionNode[] queryExprNodes, String havingClause) {
-		return getQuery(selectList, filters, StringUtils.EMPTY, queryExprNodes, havingClause);
+		return getQuery(selectList, filters, queryExprNodes, havingClause, null);
+	}
+
+	public String getQuery(Object[] selectList, Filter[] filters, QueryExpressionNode[] queryExprNodes, String havingClause, ReportSpec rptSpec) {
+		return getQuery(selectList, filters, StringUtils.EMPTY, queryExprNodes, havingClause, rptSpec);
 	}
 
 	public String getQuery(Object[] selectList, Filter[] filters, Filter[] conjunctionFilters, QueryExpressionNode[] queryExprNodes, String havingClause) {
+		return getQuery(selectList, filters, conjunctionFilters, queryExprNodes, havingClause, null);
+	}
+
+	public String getQuery(Object[] selectList, Filter[] filters, Filter[] conjunctionFilters, QueryExpressionNode[] queryExprNodes, String havingClause, ReportSpec rptSpec) {
 		Context ctx = new Context();
 
 		StringBuilder conjunctionExpr = new StringBuilder();
@@ -56,14 +68,18 @@ public class AqlBuilder {
 			}
 		}
 
-		return getQuery(ctx, selectList, filters, conjunctionExpr.toString(), queryExprNodes, havingClause);
+		return getQuery(ctx, selectList, filters, conjunctionExpr.toString(), queryExprNodes, havingClause, rptSpec);
 	}
 
 	public String getQuery(Object[] selectList, Filter[] filters, String conjunction, QueryExpressionNode[] queryExprNodes, String havingClause) {
-		return getQuery(new Context(), selectList, filters, conjunction, queryExprNodes, havingClause);
+		return getQuery(new Context(), selectList, filters, conjunction, queryExprNodes, havingClause, null);
 	}
 
-	private String getQuery(Context ctx, Object[] selectList, Filter[] filters, String conjunction, QueryExpressionNode[] queryExprNodes, String havingClause) {
+	public String getQuery(Object[] selectList, Filter[] filters, String conjunction, QueryExpressionNode[] queryExprNodes, String havingClause, ReportSpec rptSpec) {
+		return getQuery(new Context(), selectList, filters, conjunction, queryExprNodes, havingClause, rptSpec);
+	}
+
+	private String getQuery(Context ctx, Object[] selectList, Filter[] filters, String conjunction, QueryExpressionNode[] queryExprNodes, String havingClause, ReportSpec rptSpec) {
 		Map<Integer, Filter> filterMap = new HashMap<>();
 		for (Filter filter : filters) {
 			filterMap.put(filter.getId(), filter);
@@ -87,6 +103,7 @@ public class AqlBuilder {
 			query += " having " + havingClause;
 		}
 
+		query += " " + buildReportExpr(selectList, rptSpec);
 		return query;
 	}
 
@@ -237,7 +254,7 @@ public class AqlBuilder {
 			}
 
 			ctx.addActiveQuery(filter.getSubQueryId());
-			String subAql = getQuery(ctx, new Object[] { field }, query.getFilters(), null, query.getQueryExpression(), query.getHavingClause());
+			String subAql = getQuery(ctx, new Object[] { field }, query.getFilters(), null, query.getQueryExpression(), query.getHavingClause(), null);
 			ctx.removeActiveQuery(filter.getSubQueryId());
 			return filterExpr.append("(").append(subAql).append(")").toString();
 		}
@@ -279,6 +296,169 @@ public class AqlBuilder {
 		}
 		
 		return filterExpr.append(value).toString();
+	}
+
+	private String buildReportExpr(Object[] selectList, ReportSpec rptSpec) {
+		if (rptSpec == null || StringUtils.isBlank(rptSpec.getType()) || rptSpec.getType().equals("none")) {
+			return StringUtils.EMPTY;
+		}
+
+		List<Map<String, String>> rptFields = getReportFields(selectList);
+		if (rptSpec.getType().equals("columnsummary")) {
+			return getColumnSummaryRptExpr(rptSpec, rptFields);
+		} else if (rptSpec.getType().equals("crosstab")) {
+			return getCrossTabRptExpr(rptSpec, rptFields);
+		} else {
+			return rptSpec.getType();
+		}
+	}
+
+	private String getColumnSummaryRptExpr(ReportSpec rpt, List<Map<String, String>> rptFields) {
+		Map<String, Object> params = rpt.getParams();
+		if (params == null || params.isEmpty()) {
+			return StringUtils.EMPTY;
+		}
+
+		StringBuilder result = new StringBuilder("columnsummary(");
+		boolean addComma = false;
+
+		Object sumParamsObj = params.get("sum");
+		if (sumParamsObj instanceof List && !((List) sumParamsObj).isEmpty()) {
+			List<Map<String, String>> sumFields = (List<Map<String, String>>) sumParamsObj;
+			result.append("\"sum\",\"").append(sumFields.size()).append("\",");
+			List<Integer> sumFieldIndices = getFieldIndices(rptFields, sumFields);
+			result.append(sumFieldIndices.stream().map(i -> "\"" + i + "\"").collect(Collectors.joining(",")));
+			addComma = true;
+		}
+
+		Object avgParamsObj = params.get("avg");
+		if (avgParamsObj instanceof List && !((List) avgParamsObj).isEmpty()) {
+			if (addComma) {
+				result.append(",");
+			}
+
+			List<Map<String, String>> avgFields = (List<Map<String, String>>) avgParamsObj;
+			result.append("\"avg\",\"").append(avgFields.size()).append("\",");
+			List<Integer> avgFieldIndices = getFieldIndices(rptFields, avgFields);
+			result.append(avgFieldIndices.stream().map(i -> "\"" + i + "\"").collect(Collectors.joining(",")));
+		}
+
+		return result.append(")").toString();
+	}
+
+	private String getCrossTabRptExpr(ReportSpec rpt, List<Map<String, String>> rptFields) {
+		Map<String, Object> params = rpt.getParams();
+		if (params == null || params.isEmpty()) {
+			return StringUtils.EMPTY;
+		}
+
+		List<Integer> rowIndices = null;
+		if (params.get("groupRowsBy") instanceof List) {
+			rowIndices = getFieldIndices(rptFields, (List<Map<String, String>>) params.get("groupRowsBy"));
+		}
+
+		if (rowIndices == null || rowIndices.isEmpty()) {
+			return StringUtils.EMPTY;
+		}
+
+		List<Integer> colIndices = null;
+		if (params.get("groupColBy") instanceof Map) {
+			colIndices = getFieldIndices(rptFields, Collections.singletonList((Map<String, String>) params.get("groupColBy")));
+		}
+
+		if (colIndices == null || colIndices.isEmpty()) {
+			return StringUtils.EMPTY;
+		}
+
+		List<Integer> summaryIndices = null;
+		if (params.get("summaryFields") instanceof List) {
+			summaryIndices = getFieldIndices(rptFields, (List<Map<String, String>>) params.get("summaryFields"));
+		}
+
+		if (summaryIndices == null || summaryIndices.isEmpty()) {
+			return StringUtils.EMPTY;
+		}
+
+		List<Integer> rollupExcl = null;
+		if (params.get("rollupExclFields") instanceof List) {
+			rollupExcl = getFieldIndices(rptFields, (List<Map<String, String>>) params.get("rollupExclFields"));
+		}
+
+		String includeSubTotals = "";
+		if (Boolean.TRUE.equals(params.get("includeSubTotals"))) {
+			includeSubTotals = ", true";
+		}
+
+		List<Integer> rue = rollupExcl;
+		summaryIndices = summaryIndices.stream()
+			.map(si -> rue != null && rue.indexOf(si) != -1 ? -si : si)
+			.collect(Collectors.toList());
+
+		return new StringBuilder("crosstab(")
+			.append("(").append(StringUtils.join(rowIndices, ",")).append("), ")
+			.append(StringUtils.join(colIndices, ",")).append(",")
+			.append("(").append(StringUtils.join(summaryIndices, ",")).append(")")
+			.append(includeSubTotals)
+			.append(")")
+			.toString();
+	}
+
+	private List<Map<String, String>> getReportFields(Object[] selectList) {
+		List<Map<String, String>> rptFields = new ArrayList<>();
+
+		for (int i = 0; i < selectList.length; ++i) {
+			Object selectFieldObj = selectList[i];
+			SelectField selectField = null;
+			if (selectFieldObj instanceof  String) {
+				selectField = new SelectField();
+				selectField.setName((String) selectFieldObj);
+			} else if (selectFieldObj instanceof Map) {
+				selectField = new ObjectMapper().convertValue(selectFieldObj, SelectField.class);
+			} else if (selectFieldObj instanceof SelectField) {
+				selectField = (SelectField) selectFieldObj;
+			}
+
+			List<SelectField.Function> aggFns = selectField.getAggFns();
+			if (aggFns == null || aggFns.isEmpty()) {
+				Map<String, String> rptField = new HashMap<>();
+				rptField.put("id", selectField.getName());
+				rptField.put("name", selectField.getName());
+				rptField.put("value", selectField.getName()); // TODO
+				rptFields.add(rptField);
+				continue;
+			}
+
+			for (int j = 0; j < aggFns.size(); ++j) {
+				Map<String, String> rptField = new HashMap<>();
+				rptField.put("id", selectField.getName() + '$' + aggFns.get(j).name);
+				rptField.put("name", selectField.getName());
+				rptField.put("value", aggFns.get(j).desc);
+				rptField.put("aggFn", aggFns.get(j).name);
+				rptFields.add(rptField);
+			}
+		}
+
+		return rptFields;
+	}
+
+	private List<Integer> getFieldIndices(List<Map<String, String>> fields, List<Map<String, String>> rptFields) {
+		List<Integer> result = new ArrayList<>();
+		if (rptFields == null || rptFields.isEmpty()) {
+			return result;
+		}
+
+		for (int i = 0; i < rptFields.size(); ++i) {
+			Map<String, String> rptField = rptFields.get(i);
+			for (int j = 0; j < fields.size(); ++j) {
+				Map<String, String> field = fields.get(j);
+				if (StringUtils.equals(field.get("id"), rptField.get("id"))) {
+					result.add(j + 1);
+					break;
+				}
+			}
+		}
+
+		return result;
 	}
 	
 	private void quoteStrings(DataType type, String[] values) {
