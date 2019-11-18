@@ -67,7 +67,7 @@
 
 <script type="text/ng-template" id="field-labels.html">
   <div class="os-query-field-labels">
-    <table class="os-table os-table-fixed bulk-edit os-border os-table-muted-hdr">
+    <table class="os-table bulk-edit os-border os-table-muted-hdr">
       <thead class="os-table-head">
         <tr class="row">
           <th class="col os-col-50">
@@ -80,7 +80,7 @@
       </thead>
       <tbody class="os-table-body">
         <tr class="row" ng-repeat="field in selectedFields" ng-show="field.name.indexOf('$temporal') != 0">
-          <td class="col" os-tooltip="{{field.form + ': ' + field.label}}" placement="bottom">
+          <td class="col">
             <span>{{field.form}}: {{field.label}}</span>
           </td>
           <td class="col">
@@ -107,11 +107,10 @@
     <div class="row">
       <div class="col-xs-6" style="height: 340px;">
         <div class="list-group">
-          <a class="list-group-item os-ellipsis" 
+          <a class="list-group-item"
             ng-class="{'active': currField.name == selectedField.name}"
             ng-repeat="selectedField in selectedFields"
-            ng-click="showCurrField(selectedField)"
-            os-tooltip="{{!!selectedField.displayLabel ? selectedField.displayLabel : selectedField.form + ': ' + selectedField.label}}" placement="bottom">
+            ng-click="showCurrField(selectedField)">
             <span class="badge">
               {{(selectedField.aggFns | filter:{opted: true}).length}}
             </span>
