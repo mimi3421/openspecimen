@@ -154,4 +154,11 @@
       baseTableName="OS_CONTAINER_ACTIVITY_LOGS" baseColumnNames="PERFORMED_BY"
       referencedTableName="CATISSUE_USER" referencedColumnNames="IDENTIFIER"/>
   </changeSet>
+
+  <changeSet author="vpawar" id="Index on form record object ID">
+    <createIndex tableName="CATISSUE_FORM_RECORD_ENTRY" indexName="OS_FORM_RE_OBJ_IDX">
+      <column name="OBJECT_ID"/>
+      <column name="ACTIVITY_STATUS"/>
+    </createIndex>
+  </changeSet>
 </databaseChangeLog>
