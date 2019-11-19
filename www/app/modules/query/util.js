@@ -334,7 +334,7 @@ angular.module('os.query.util', ['os.query.models', 'os.query.save'])
     };
 
     function getTemporalExprObj(temporalExpr) {
-      var re = /<=|>=|<|>|=|!=|\sbetween\s|\sany|\sexists/g
+      var re = /<=|>=|<|>|=|!=|\sbetween\s|\)any|\sany|\)exists|\sexists/g
       var matches = undefined;
       if ((matches = re.exec(temporalExpr))) {
         return {
