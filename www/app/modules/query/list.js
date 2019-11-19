@@ -169,5 +169,23 @@ angular.module('os.query.list', ['os.query.models'])
       );
     };
 
+    $scope.showFolderInfo = function(folder) {
+      $modal.open({
+        templateUrl: 'modules/query/folder-overview.html',
+        controller: function($scope, $modalInstance, folderInfo) {
+          $scope.folder = folderInfo;
+
+          $scope.done = function() {
+            $modalInstance.dismiss('cancel');
+          }
+        },
+        resolve: {
+          folderInfo: function() {
+            return QueryFolder.getById(folder.id, {includeQueries: false});
+          }
+        }
+      });
+    }
+
     init();
   });

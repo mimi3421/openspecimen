@@ -1,0 +1,24 @@
+<div>
+  <div class="os-modal-header">
+    <span>{{folder.name}}</span>
+  </div>
+
+  <div class="os-modal-body">
+    <ul class="os-key-values os-one-col">
+      <li class="item">
+        <strong class="key key-sm" translate="queries.created_by">Created By</strong>
+        <span class="value value-md">{{folder.owner | osUserDisplayName}}</span>
+      </li>
+      <li class="item">
+        <strong class="key key-sm" translate="queries.shared_with">Shared With</strong>
+        <span class="value value-md">{{folder.sharedWith | osUserDisplayName | osNoValue}}</span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="os-modal-footer">
+    <button class="btn btn-primary" ng-click="done()">
+      <span translate="common.buttons.ok">Done</span>
+    </button>
+  </div> 
+</div>

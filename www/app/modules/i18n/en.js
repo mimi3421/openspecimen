@@ -1782,6 +1782,7 @@
     "remove_query_from_folder": "Remove query from folder",
     "share_folder_with_all": "Share folder with all current and future users",
     "share_folder_with_users": "Share folder with following users",
+    "shared_with": "Shared with",
     "users": "Users",
     "delete_query": "Delete Query",
     "confirm_delete_query": "Are you sure you want to delete query '{{title}}'?",

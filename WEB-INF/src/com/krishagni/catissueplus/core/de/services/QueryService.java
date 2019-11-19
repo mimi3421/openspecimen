@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.function.BiConsumer;
 
+import com.krishagni.catissueplus.core.common.events.EntityQueryCriteria;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
@@ -60,7 +61,7 @@ public interface QueryService {
 
 	ResponseEvent<List<QueryFolderSummary>> getUserFolders(RequestEvent<?> req);
 
-	ResponseEvent<QueryFolderDetails> getFolder(RequestEvent<Long> req);
+	ResponseEvent<QueryFolderDetails> getFolder(RequestEvent<EntityQueryCriteria> req);
 
 	ResponseEvent<QueryFolderDetails> createFolder(RequestEvent<QueryFolderDetails> req);
 

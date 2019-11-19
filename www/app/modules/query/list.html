@@ -192,7 +192,7 @@
         <div class="row" ng-repeat="folder in folders.myFolders"> 
           <div class="col col-xs-12 clearfix folder" 
             ng-class="{'os-query-selected-folder': folders.selectedFolder.id == folder.id}">
-            <div class="pull-left" ng-click="selectFolder(folder)" title="{{folder.name}}">
+            <div class="pull-left" ng-click="selectFolder(folder)" os-tooltip="{{folder.name}}">
               {{folder.name}}
             </div>
 
@@ -228,8 +228,13 @@
         <div class="row" ng-repeat="folder in folders.sharedFolders">
           <div class="col col-xs-12 clearfix folder"
             ng-class="{'os-query-selected-folder': folders.selectedFolder == folder}">
-            <div class="pull-left" ng-click="selectFolder(folder)" title="{{folder.name}}">
+            <div class="pull-left" ng-click="selectFolder(folder)" os-tooltip="{{folder.name}}">
               {{folder.name}}
+            </div>
+            <div class="pull-right">
+              <button class="btn btn-xs btn-default" ng-click="showFolderInfo(folder)">
+                <span style="font-size: 14px;" class="fa fa-info-circle"></span>
+              </button>
             </div>
           </div>
         </div>

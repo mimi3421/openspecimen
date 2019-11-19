@@ -51,6 +51,7 @@ import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr.ParticipantRe
 import com.krishagni.catissueplus.core.common.access.SiteCpPair;
 import com.krishagni.catissueplus.core.common.domain.Notification;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
+import com.krishagni.catissueplus.core.common.events.EntityQueryCriteria;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
@@ -535,10 +536,10 @@ public class QueryServiceImpl implements QueryService {
 	
 	@Override
 	@PlusTransactional
-	public ResponseEvent<QueryFolderDetails> getFolder(RequestEvent<Long> req) {
+	public ResponseEvent<QueryFolderDetails> getFolder(RequestEvent<EntityQueryCriteria> req) {
 		try {
-			Long folderId = req.getPayload();
-			QueryFolder folder = daoFactory.getQueryFolderDao().getQueryFolder(folderId);
+			EntityQueryCriteria crit = req.getPayload();
+			QueryFolder folder = daoFactory.getQueryFolderDao().getQueryFolder(crit.getId());
 			if (folder == null) {
 				return ResponseEvent.userError(SavedQueryErrorCode.FOLDER_NOT_FOUND);
 			}
@@ -547,8 +548,9 @@ public class QueryServiceImpl implements QueryService {
 			if (!user.isAdmin() && !folder.canUserAccess(user.getId())) {
 				return ResponseEvent.userError(SavedQueryErrorCode.OP_NOT_ALLOWED);
 			}
-			
-			return ResponseEvent.response(QueryFolderDetails.from(folder));			
+
+			boolean includeQueries = Boolean.TRUE.equals(crit.paramBoolean("includeQueries"));
+			return ResponseEvent.response(QueryFolderDetails.from(folder, includeQueries));
 		} catch (Exception e) {
 			return ResponseEvent.serverError(e);			
 		}
