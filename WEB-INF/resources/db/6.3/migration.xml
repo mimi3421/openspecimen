@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+  http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+  <changeSet author="vpawar" id="Initialize collection event specimen IDs" dbms="mysql">
+    <sql>
+      update
+        catissue_specimen s
+        inner join catissue_form_record_entry re on re.object_id = s.identifier
+        inner join catissue_form_context fc on fc.identifier = re.form_ctxt_id
+        inner join dyextn_containers f on f.identifier = fc.container_id
+        inner join catissue_coll_event_param ce on ce.identifier = re.record_id
+      set
+        ce.specimen_id = s.identifier
+      where
+        f.name = 'SpecimenCollectionEvent' and
+        f.deleted_on is null and
+        fc.deleted_on is null and
+        s.activity_status != 'Disabled' and
+        re.activity_status = 'ACTIVE'
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Initialize collection event specimen IDs" dbms="oracle">
+    <sql>
+      merge into
+        catissue_coll_event_param ce
+      using (
+        select
+          re.record_id, s.identifier as specimen_id
+        from
+          catissue_specimen s
+          inner join catissue_form_record_entry re on re.object_id = s.identifier
+          inner join catissue_form_context fc on fc.identifier = re.form_ctxt_id
+          inner join dyextn_containers f on f.identifier = fc.container_id
+        where
+          f.name = 'SpecimenCollectionEvent' and
+          f.deleted_on is null and
+          fc.deleted_on is null and
+          s.activity_status != 'Disabled' and
+          re.activity_status = 'ACTIVE'
+      ) t on (t.record_id = ce.identifier)
+      when matched then
+        update set ce.specimen_id = t.specimen_id
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Initialize received event specimen IDs" dbms="mysql">
+    <sql>
+      update
+        catissue_specimen s
+        inner join catissue_form_record_entry re on re.object_id = s.identifier
+        inner join catissue_form_context fc on fc.identifier = re.form_ctxt_id
+        inner join dyextn_containers f on f.identifier = fc.container_id
+        inner join catissue_received_event_param rv on rv.identifier = re.record_id
+      set
+        rv.specimen_id = s.identifier
+      where
+        f.name = 'SpecimenReceivedEvent' and
+        f.deleted_on is null and
+        fc.deleted_on is null and
+        s.activity_status != 'Disabled' and
+        re.activity_status = 'ACTIVE'
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Initialize received event specimen IDs" dbms="oracle">
+    <sql>
+      merge into
+        catissue_received_event_param rv
+      using (
+        select
+          re.record_id, s.identifier as specimen_id
+        from
+          catissue_specimen s
+          inner join catissue_form_record_entry re on re.object_id = s.identifier
+          inner join catissue_form_context fc on fc.identifier = re.form_ctxt_id
+          inner join dyextn_containers f on f.identifier = fc.container_id
+        where
+          f.name = 'SpecimenReceivedEvent' and
+          f.deleted_on is null and
+          fc.deleted_on is null and
+          s.activity_status != 'Disabled' and
+          re.activity_status = 'ACTIVE'
+      ) t on (t.record_id = rv.identifier)
+      when matched then
+        update set rv.specimen_id = t.specimen_id
+    </sql>
+  </changeSet>
+</databaseChangeLog>

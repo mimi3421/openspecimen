@@ -161,4 +161,180 @@
       <column name="ACTIVITY_STATUS"/>
     </createIndex>
   </changeSet>
+
+  <changeSet author="vpawar" id="Drop specimen ID FK from the collection events table">
+    <preConditions onFail="MARK_RAN">
+      <foreignKeyConstraintExists foreignKeyTableName="CATISSUE_COLL_EVENT_PARAM" foreignKeyName="FK_SPEC_COLL_EVENT"/>
+    </preConditions>
+
+    <dropForeignKeyConstraint baseTableName="CATISSUE_COLL_EVENT_PARAM" constraintName="FK_SPEC_COLL_EVENT"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Drop specimen ID from collection events table">
+    <preConditions onFail="MARK_RAN">
+      <columnExists tableName="CATISSUE_COLL_EVENT_PARAM" columnName="SPECIMEN_ID"/>
+    </preConditions>
+
+    <dropColumn tableName="CATISSUE_COLL_EVENT_PARAM" columnName="SPECIMEN_ID"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Add collection event specimen ID">
+    <addColumn tableName="CATISSUE_COLL_EVENT_PARAM">
+      <column name="SPECIMEN_ID" type="${int.type}"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Add unique constraint on the collection event specimen ID">
+    <addUniqueConstraint constraintName="COLL_EVENT_SPMN_ID_UQ"
+      tableName="CATISSUE_COLL_EVENT_PARAM"
+      columnNames="SPECIMEN_ID"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Drop specimen ID FK from the received events table">
+    <preConditions onFail="MARK_RAN">
+      <foreignKeyConstraintExists foreignKeyTableName="CATISSUE_RECEIVED_EVENT_PARAM" foreignKeyName="FK_SPEC_REC_EVENT"/>
+    </preConditions>
+
+    <dropForeignKeyConstraint baseTableName="CATISSUE_RECEIVED_EVENT_PARAM" constraintName="FK_SPEC_REC_EVENT"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Drop specimen ID from received events table">
+    <preConditions onFail="MARK_RAN">
+      <columnExists tableName="CATISSUE_RECEIVED_EVENT_PARAM" columnName="SPECIMEN_ID"/>
+    </preConditions>
+
+    <dropColumn tableName="CATISSUE_RECEIVED_EVENT_PARAM" columnName="SPECIMEN_ID"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Add received event specimen ID">
+    <addColumn tableName="CATISSUE_RECEIVED_EVENT_PARAM">
+      <column name="SPECIMEN_ID" type="${int.type}"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Add unique constraint on the received event specimen ID">
+    <addUniqueConstraint constraintName="RECV_EVENT_SPMN_ID_UQ"
+      tableName="CATISSUE_RECEIVED_EVENT_PARAM"
+      columnNames="SPECIMEN_ID"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Trigger to update specimen ID in collection/received event" dbms="mysql" runOnChange="true">
+    <sql>
+      drop trigger if exists os_ins_coll_recv_evt_spmn_id;
+    </sql>
+
+    <sql endDelimiter="//">
+      create trigger os_ins_coll_recv_evt_spmn_id after insert on catissue_form_record_entry
+      for each row
+      begin
+        declare formName varchar(255);
+
+        select
+          f.name into formName
+        from
+          catissue_form_context fc
+          inner join dyextn_containers f on f.identifier = fc.container_id
+        where
+          fc.identifier = new.form_ctxt_id and
+          f.name in ('SpecimenCollectionEvent', 'SpecimenReceivedEvent');
+
+        if (formName = 'SpecimenCollectionEvent') then
+          update catissue_coll_event_param set specimen_id = new.object_id where identifier = new.record_id;
+        end if;
+
+        if (formName = 'SpecimenReceivedEvent') then
+          update catissue_received_event_param set specimen_id = new.object_id where identifier = new.record_id;
+        end if;
+      end;
+      //
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Trigger to remove specimen ID from collection/received event" dbms="mysql" runOnChange="true">
+    <sql>
+      drop trigger if exists os_upd_coll_recv_evt_spmn_id;
+    </sql>
+
+    <sql endDelimiter="//">
+      create trigger os_upd_coll_recv_evt_spmn_id after update on catissue_form_record_entry
+      for each row
+      begin
+        declare formName varchar(255);
+
+        if (new.activity_status = 'CLOSED' and new.activity_status != old.activity_status) then
+          select
+            f.name into formName
+          from
+            catissue_form_context fc
+            inner join dyextn_containers f on f.identifier = fc.container_id
+          where
+            fc.identifier = new.form_ctxt_id and
+            f.name in ('SpecimenCollectionEvent', 'SpecimenReceivedEvent');
+
+          if (formName ='SpecimenCollectionEvent') then
+            update catissue_coll_event_param set specimen_id = null where identifier = new.record_id;
+          end if;
+
+          if (formName = 'SpecimenReceivedEvent') then
+            update catissue_received_event_param set specimen_id = null where identifier = new.record_id;
+          end if;
+        end if;
+      end;
+      //
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Trigger to update specimen ID in collection/received event" dbms="oracle" runOnChange="true">
+    <sql splitStatements="false">
+      create or replace trigger os_ins_coll_recv_evt_spmn_id after insert on catissue_form_record_entry
+      for each row
+      declare
+        formName varchar2(255);
+      begin
+        select
+          f.name into formName
+        from
+          catissue_form_context fc
+          inner join dyextn_containers f on f.identifier = fc.container_id
+        where
+          fc.identifier = :new.form_ctxt_id;
+
+        if (formName = 'SpecimenCollectionEvent') then
+          update catissue_coll_event_param set specimen_id = :new.object_id where identifier = :new.record_id;
+        end if;
+
+        if (formName = 'SpecimenReceivedEvent') then
+          update catissue_received_event_param set specimen_id = :new.object_id where identifier = :new.record_id;
+        end if;
+      end;
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Trigger to remove specimen ID from collection/received event" dbms="oracle" runOnChange="true">
+    <sql splitStatements="false">
+      create or replace trigger os_upd_coll_recv_evt_spmn_id after update on catissue_form_record_entry
+      for each row
+      declare
+        formName varchar2(255);
+      begin
+        if (:new.activity_status = 'CLOSED' and :new.activity_status != :old.activity_status) then
+          select
+            f.name into formName
+          from
+            catissue_form_context fc
+            inner join dyextn_containers f on f.identifier = fc.container_id
+          where
+            fc.identifier = :new.form_ctxt_id;
+
+          if (formName ='SpecimenCollectionEvent') then
+            update catissue_coll_event_param set specimen_id = null where identifier = :new.record_id;
+          end if;
+
+          if (formName = 'SpecimenReceivedEvent') then
+            update catissue_received_event_param set specimen_id = null where identifier = :new.record_id;
+          end if;
+        end if;
+      end;
+    </sql>
+  </changeSet>
 </databaseChangeLog>
