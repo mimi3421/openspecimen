@@ -1864,7 +1864,7 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 		String fileId = null;
 		File rptFile = null;
 
-		Exception exception = null;
+		Throwable exception = null;
 		try {
 			AuthUtil.setCurrentUser(user);
 
@@ -1900,7 +1900,7 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 		}
 	}
 
-	private void sendDefragReport(User user, StorageContainer container, String fileId, Exception exception) {
+	private void sendDefragReport(User user, StorageContainer container, String fileId, Throwable exception) {
 		String error = null;
 		if (exception != null) {
 			Throwable rootCause = ExceptionUtils.getRootCause(exception);
