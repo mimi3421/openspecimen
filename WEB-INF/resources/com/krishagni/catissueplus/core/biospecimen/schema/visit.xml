@@ -32,7 +32,7 @@
     </field>     
 
     <field>
-      <type>date</type>
+      <type>datetime</type>
       <caption>#getMessage("visit_date")</caption>
       <attribute>visitDate</attribute>
     </field>  
