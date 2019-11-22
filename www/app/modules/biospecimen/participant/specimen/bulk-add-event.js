@@ -274,12 +274,23 @@ angular.module('os.biospecimen.specimen.bulkaddevent', ['os.biospecimen.models']
     $scope.onModeSelect = function() {
     }
 
-    $scope.saveEvent = function() {
+    $scope.saveEvent = function(addMore) {
       var records = getEventRecords();
       SpecimenEvent.save(ctx.formId, records).then(
         function(savedData) {
-          $scope.back();
           Alerts.success("specimens.bulk_events.events_saved");
+
+          if (addMore) {
+            ctx.showForm = false;
+            ctx.formDef = undefined;
+            ctx.mFormDef = undefined;
+            ctx.records = [];
+            ctx.opts.tableData = undefined;
+            ctx.opts.formDef = undefined;
+            $scope.eventWizard.previous()
+          } else {
+            $scope.back();
+          }
         }
       );
     }

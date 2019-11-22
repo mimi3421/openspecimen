@@ -191,9 +191,11 @@
       </div>
     </span>
 
-    <div class="form-group" ng-if="ctx.mode == 'SINGLE' && !!ctx.opts.formDef">
-      <div class="os-entity-extn-form-fields">
-        <div id="de-form" class="os-extn-form" os-de-form ctrl="ctx.formCtrl" opts="ctx.opts">
+    <div class="row" ng-if="ctx.mode == 'SINGLE' && !!ctx.opts.formDef">
+      <div class="col-xs-12">
+        <div class="os-entity-extn-form-fields">
+          <div id="de-form" class="os-extn-form" os-de-form ctrl="ctx.formCtrl" opts="ctx.opts">
+          </div>
         </div>
       </div>
     </div>
@@ -220,6 +222,9 @@
         </button>
         <button class="btn os-btn-secondary" ng-click="ctx.showForm = false; eventWizard.previous()">
           <span translate="common.buttons.previous">Previous</span>
+        </button>
+        <button class="btn btn-primary" os-form-submit="saveEvent(true)">
+          <span translate="specimens.bulk_events.save_n_more">Save and Add More</span>
         </button>
         <button class="btn btn-primary" os-form-submit="saveEvent()">
           <span translate="common.buttons.save">Save</span>

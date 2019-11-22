@@ -918,7 +918,8 @@
       "copy_first_to_all": "Copy First To All",
       "events_saved": "Events saved successfully",
       "no_events": "None of the selected specimens have <b>{{caption}}</b> records to edit. Automatically switching to <b>add</b> action.",
-      "no_events_for": "Following specimens will not be edited, as they do not have <b>{{caption}}</b> records to edit: <i>{{labels}}</i>."
+      "no_events_for": "Following specimens will not be edited, as they do not have <b>{{caption}}</b> records to edit: <i>{{labels}}</i>.",
+      "save_n_more": "Save and Add More"
     },
     "bulk_transfer": {
       "title": "Bulk Transfer Specimens",
