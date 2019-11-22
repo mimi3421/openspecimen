@@ -2,8 +2,6 @@
 package com.krishagni.catissueplus.core.biospecimen.domain.factory.impl;
 
 import static com.krishagni.catissueplus.core.common.PvAttributes.*;
-import static com.krishagni.catissueplus.core.common.service.PvValidator.areValid;
-import static com.krishagni.catissueplus.core.common.service.PvValidator.isValid;
 
 import java.math.BigDecimal;
 import java.util.Calendar;
@@ -991,7 +989,7 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 				ose.addError(SpecimenErrorCode.INVALID_RECV_QUALITY, recvQuality);
 			}
 		}
-		
+
 		specimen.setReceivedEvent(event);
 	}
 	

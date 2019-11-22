@@ -120,6 +120,22 @@ angular.module('os.biospecimen.specimen',
             return (spmnReq && (spmnReq.specimens || [])) || [];
           },
 
+          spmnCollFields: function(cp, CpConfigSvc) {
+            return CpConfigSvc.getWorkflowData(cp.id, 'specimenCollection').then(
+              function(data) {
+                if (data && !angular.equals(data, {})) {
+                  return data;
+                }
+
+                return CpConfigSvc.getWorkflowData(-1, 'specimenCollection').then(
+                  function(data) {
+                    return data || {};
+                  }
+                );
+              }
+            );
+          },
+
           createDerived: createDerived
         },
         controller: 'AddEditSpecimenCtrl',

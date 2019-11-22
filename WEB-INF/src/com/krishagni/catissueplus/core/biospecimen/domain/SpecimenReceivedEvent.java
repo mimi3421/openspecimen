@@ -10,6 +10,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
+import com.krishagni.catissueplus.core.biospecimen.services.impl.CpWorkflowTxnCache;
 import com.krishagni.catissueplus.core.common.PvAttributes;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
 
@@ -70,8 +71,18 @@ public class SpecimenReceivedEvent extends SpecimenEvent {
 	
 	public static SpecimenReceivedEvent createFromSr(Specimen specimen) {
 		SpecimenReceivedEvent event = new SpecimenReceivedEvent(specimen);
-		event.setQuality(event.daoFactory.getPermissibleValueDao().getPv(PvAttributes.RECV_QUALITY, Specimen.ACCEPTABLE));
-		
+
+		String defRecvQuality = null;
+		if (specimen.getCollectionProtocol() != null) {
+			defRecvQuality = CpWorkflowTxnCache.getInstance()
+				.getValue(specimen.getCpId(), "specimenCollection", "defReceiveQuality");
+		}
+
+		if (StringUtils.isBlank(defRecvQuality)) {
+			defRecvQuality = Specimen.ACCEPTABLE;
+		}
+
+		event.setQuality(event.daoFactory.getPermissibleValueDao().getPv(PvAttributes.RECV_QUALITY, defRecvQuality));
 		SpecimenRequirement sr = specimen.getSpecimenRequirement();
 		if (sr != null) {
 			event.setUser(sr.getReceiver());

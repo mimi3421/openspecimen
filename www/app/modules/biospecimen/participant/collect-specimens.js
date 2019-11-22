@@ -163,6 +163,7 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
         data.opts.hierarchical =  true;
       }
 
+      data.opts.defReceiveQuality = wfData.defReceiveQuality;
       $state.go('participant-detail.collect-specimens.' + state, params);
     }
 
@@ -294,6 +295,10 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
         return data.opts.showCollVisitDetails !== false;
       },
 
+      defReceiveQuality: function() {
+        return data.opts.defReceiveQuality;
+      },
+
       navigateTo: function(scope, visit, gotoVisit) {
         ParticipantSpecimensViewState.specimensUpdated(scope);
 
@@ -396,7 +401,8 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
           collector: undefined,
           collectionDate: new Date(),
           receiver: undefined,
-          receiveDate: new Date()
+          receiveDate: new Date(),
+          receiveQuality: CollectSpecimensSvc.defReceiveQuality()
         };
 
         loadPvs();
@@ -1005,8 +1011,15 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
 
           if ($scope.showCollVisitDetails) {
             var collDetail = $scope.collDetail;
-            angular.extend(collEvent, {user: collDetail.collector, time: collDetail.collectionDate});
-            angular.extend(recvEvent, {user: collDetail.receiver,  time: collDetail.receiveDate});
+            angular.extend(collEvent, {
+              user: collDetail.collector,
+              time: collDetail.collectionDate
+            });
+            angular.extend(recvEvent, {
+              user: collDetail.receiver,
+              time: collDetail.receiveDate,
+              receivedQuality: collDetail.receiveQuality
+            });
           }
         }
 

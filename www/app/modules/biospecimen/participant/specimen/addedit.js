@@ -3,7 +3,8 @@ angular.module('os.biospecimen.specimen.addedit', [])
   .controller('AddEditSpecimenCtrl', function(
     $scope, $state, $parse, cp, cpr, visit, specimen, extensionCtxt,
     aliquotQtyReq, barcodingEnabled, spmnBarcodesAutoGen, hasDict, sysDict,
-    cpDict, layout, onValueChangeCb, spmnReq, defSpmns, createDerived, imagingEnabled,
+    cpDict, layout, onValueChangeCb, spmnReq, defSpmns, spmnCollFields,
+    createDerived, imagingEnabled,
     Alerts, CpConfigSvc, PluginReg, Util, ParticipantSpecimensViewState,
     Specimen, CollectSpecimensSvc) {
 
@@ -20,7 +21,8 @@ angular.module('os.biospecimen.specimen.addedit', [])
         hasInfo: PluginReg.getTmpls('specimen-addedit', 'info').length > 0,
         createDerived: createDerived, imagingEnabled: imagingEnabled,
         allSpmnUpdate: $scope.specimenAllowedOps.allUpdate,
-        storeSpmn: $scope.specimenAllowedOps.store
+        storeSpmn: $scope.specimenAllowedOps.store,
+        spmnCollFields: spmnCollFields
       }
 
       CpConfigSvc.getCommonCfg(cp.id, 'addSpecimen').then(
@@ -342,7 +344,9 @@ angular.module('os.biospecimen.specimen.addedit', [])
 
           var re = inputSpmn.receivedEvent = inputSpmn.receivedEvent || {};
           re.user = (!re.user || !re.user.id) ? $rootScope.currentUser : re.user;
-          re.receivedQuality = re.receivedQuality || 'Acceptable';
+          re.receivedQuality = re.receivedQuality ||
+            (opts.spmnCollFields && opts.spmnCollFields.defReceiveQuality) ||
+            'Acceptable';
         }
 
         if (inputSpmn.lineage != 'New') {

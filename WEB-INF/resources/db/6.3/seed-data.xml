@@ -26,4 +26,22 @@
     <sql>call assign_to_role('Technician', 'Query', 'Read,Create,Update,Delete,Export Import');</sql>
     <sql>call assign_to_role('Tissue Banker', 'Query', 'Read,Create,Update,Delete,Export Import');</sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="Receive quality - To be Received" dbms="mysql">
+    <sql>
+      insert into catissue_permissible_value
+        (identifier, public_id, value, activity_status)
+      values
+        (default, 'receive_quality', 'To be Received', 'Active');
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Receive quality - To be Received" dbms="oracle">
+    <sql>
+      insert into catissue_permissible_value
+        (identifier, public_id, value, activity_status)
+      values
+        (catissue_permi_value_seq.nextval, 'receive_quality', 'To be Received', 'Active');
+    </sql>
+  </changeSet>
 </databaseChangeLog>
