@@ -19,7 +19,7 @@
               ng-class="{'asc': 'fa-long-arrow-up', 'desc': 'fa-long-arrow-down'}[column.direction]">
             </span>
           </th>
-          <th class="col" ng-repeat="column in ctx.data.appColumns track by $index">
+          <th class="col" ng-repeat="column in ctx.data.fixedColumns track by $index">
             <span>{{column.caption}}</span>
           </th>
           <th class="col" ng-if="!!actionButtonsTmpl">
@@ -47,8 +47,8 @@
               </span>
             </span>
           </td>
-          <td class="col" ng-repeat="col in row.appData track by $index">
-            <span ng-include="appDataTmpl"></span>
+          <td class="col" ng-repeat="col in row.fixedData track by $index">
+            <span ng-include="fixedDataTmpl"></span>
           </td>
           <td class="col" ng-if="!!actionButtonsTmpl">
             <span ng-include="actionButtonsTmpl"></span>

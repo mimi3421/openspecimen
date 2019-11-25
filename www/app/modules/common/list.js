@@ -17,7 +17,7 @@ angular.module('openspecimen')
 
         enableSelection: '@',
 
-        appDataTmpl: '@',
+        fixedDataTmpl: '@',
 
         actionButtonsTmpl: '@',
 

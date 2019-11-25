@@ -48,8 +48,8 @@ public class DefaultListService implements ListService {
 				(Column)params.get("orderBy")
 			);
 
-			if (cfg.getAppColumnGenerator() != null) {
-				list.setRows(cfg.getAppColumnGenerator().apply(list.getRows()));
+			if (cfg.getFixedColumnsGenerator() != null) {
+				list.setRows(cfg.getFixedColumnsGenerator().apply(list.getRows()));
 			}
 
 			return ResponseEvent.response(list);

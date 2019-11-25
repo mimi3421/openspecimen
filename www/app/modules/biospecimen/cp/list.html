@@ -29,7 +29,7 @@
   <div class="os-container-wrapper">
     <div>
       <os-list params="ctx.params" item-sref="cp-summary-view({cpId: row.hidden.cpId})"
-        app-data-tmpl="modules/biospecimen/cp/list-view-app-data.html"
+        fixed-data-tmpl="modules/biospecimen/cp/list-view-fixed-data.html"
         action-buttons-tmpl="modules/biospecimen/cp/list-view-row-action-buttons.html"
         enable-selection="true" show-item="showCpSummary(row)" init-ctrl="setListCtrl($list)">
       </os-list>
@@ -61,20 +61,20 @@
   </div>
 </script>
 
-<script type="text/ng-template" id="modules/biospecimen/cp/list-view-app-data.html">
+<script type="text/ng-template" id="modules/biospecimen/cp/list-view-fixed-data.html">
   <span ng-show="$index == 0">
-    <span ng-show="row.appData[$index] > -1">
+    <span ng-show="row.fixedData[$index] > -1">
       <a ui-sref="participant-list({cpId: row.hidden.cpId})" os-tooltip="{{'cp.view_participants' | translate}}">
-        {{row.appData[$index] | number: 0 | osNoValue}}</span>
+        {{row.fixedData[$index] | number: 0 | osNoValue}}</span>
       </a>
     </span>
-    <span ng-show="row.appData[$index] == -1">
+    <span ng-show="row.fixedData[$index] == -1">
       <span translate="common.na">NA</span>
     </span>
   </span>
   <span ng-show="$index == 1">
     <a ui-sref="cp-specimens({cpId: row.hidden.cpId})" os-tooltip="{{'cp.view_specimens' | translate}}">
-      {{row.appData[$index] | number: 0 | osNoValue}}</span>
+      {{row.fixedData[$index] | number: 0 | osNoValue}}</span>
     </a>
   </span>
 </script>

@@ -6,7 +6,7 @@ import java.util.List;
 public class ListDetail {
 	private List<Column> columns = new ArrayList<>();
 
-	private List<Column> appColumns;
+	private List<Column> fixedColumns;
 
 	private List<Row> rows = new ArrayList<>();
 
@@ -20,12 +20,12 @@ public class ListDetail {
 		this.columns = columns;
 	}
 
-	public List<Column> getAppColumns() {
-		return appColumns;
+	public List<Column> getFixedColumns() {
+		return fixedColumns;
 	}
 
-	public void setAppColumns(List<Column> appColumns) {
-		this.appColumns = appColumns;
+	public void setFixedColumns(List<Column> fixedColumns) {
+		this.fixedColumns = fixedColumns;
 	}
 
 	public List<Row> getRows() {

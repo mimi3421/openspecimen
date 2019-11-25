@@ -2063,19 +2063,19 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 		hiddenColumns.add(catalogId);
 		cfg.setHiddenColumns(hiddenColumns);
 
-		List<Column> appColumns = new ArrayList<>();
+		List<Column> fixedColumns = new ArrayList<>();
 		Column participantsCount = new Column();
 		participantsCount.setCaption("Participants");
 		participantsCount.setExpr("count(Participant.id)");
-		appColumns.add(participantsCount);
+		fixedColumns.add(participantsCount);
 
 		Column specimensCount = new Column();
 		specimensCount.setCaption("Specimens");
 		specimensCount.setExpr("count(Specimen.id)");
-		appColumns.add(specimensCount);
-		cfg.setAppColumns(appColumns);
+		fixedColumns.add(specimensCount);
+		cfg.setFixedColumns(fixedColumns);
 
-		cfg.setAppColumnGenerator(
+		cfg.setFixedColumnsGenerator(
 			(rows) -> {
 				if (rows == null || rows.isEmpty()) {
 					return rows;
@@ -2094,8 +2094,8 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 				for (Object[] dbRow : dbRows) {
 					int idx = -1;
 					Long cpId = ((Number) dbRow[++idx]).longValue();
-					Object[] appData = {dbRow[++idx], dbRow[++idx]};
-					cpRows.get(cpId).setAppData(appData);
+					Object[] fixedData = {dbRow[++idx], dbRow[++idx]};
+					cpRows.get(cpId).setFixedData(fixedData);
 				}
 
 				return rows;

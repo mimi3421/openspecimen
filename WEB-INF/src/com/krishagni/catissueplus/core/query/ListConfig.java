@@ -27,7 +27,7 @@ public class ListConfig {
 
 	private List<Column> hiddenColumns = new ArrayList<>();
 
-	private List<Column> appColumns;
+	private List<Column> fixedColumns;
 
 	private int startAt = 0;
 
@@ -38,7 +38,7 @@ public class ListConfig {
 	private Column primaryColumn;
 
 	@JsonIgnore
-	private Function<List<Row>, List<Row>> appColumnGenerator;
+	private Function<List<Row>, List<Row>> fixedColumnsGenerator;
 
 	public Long getCpId() {
 		return cpId;
@@ -120,12 +120,12 @@ public class ListConfig {
 		this.hiddenColumns = hiddenColumns;
 	}
 
-	public List<Column> getAppColumns() {
-		return appColumns;
+	public List<Column> getFixedColumns() {
+		return fixedColumns;
 	}
 
-	public void setAppColumns(List<Column> appColumns) {
-		this.appColumns = appColumns;
+	public void setFixedColumns(List<Column> fixedColumns) {
+		this.fixedColumns = fixedColumns;
 	}
 
 	public int getStartAt() {
@@ -160,11 +160,11 @@ public class ListConfig {
 		this.primaryColumn = primaryColumn;
 	}
 
-	public Function<List<Row>, List<Row>> getAppColumnGenerator() {
-		return appColumnGenerator;
+	public Function<List<Row>, List<Row>> getFixedColumnsGenerator() {
+		return fixedColumnsGenerator;
 	}
 
-	public void setAppColumnGenerator(Function<List<Row>, List<Row>> appColumnGenerator) {
-		this.appColumnGenerator = appColumnGenerator;
+	public void setFixedColumnsGenerator(Function<List<Row>, List<Row>> fixedColumnsGenerator) {
+		this.fixedColumnsGenerator = fixedColumnsGenerator;
 	}
 }
