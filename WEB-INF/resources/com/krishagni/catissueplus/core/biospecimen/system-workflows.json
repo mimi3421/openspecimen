@@ -1,5 +1,54 @@
 [
     {
+        "name": "cp-list-view",
+        "data": {
+            "columns": [
+                {
+                    "expr": "CollectionProtocol.shortTitle",
+                    "caption": "Title",
+                    "metainfo": {
+                        "showLink": "true"
+                    }
+                },
+                {
+                    "expr": "CollectionProtocol.principalInvestigator.investigatorName",
+                    "caption": "Principal Investigator"
+                },
+                {
+                    "expr": "CollectionProtocol.startDate",
+                    "caption": "Start Date"
+                }
+            ],
+            "criteria": "CollectionProtocol.id exists",
+            "orderBy": [
+                {
+                    "expr": "CollectionProtocol.shortTitle",
+                    "direction": "asc"
+                }
+            ],
+            "filters": [
+                {
+                    "expr": "CollectionProtocol.shortTitle",
+                    "caption": "Title",
+                    "searchType": "contains"
+                },
+                {
+                    "expr": "CollectionProtocol.Title",
+                    "caption": "Long Title",
+                    "searchType": "contains"
+                },
+                {
+                    "expr": "CollectionProtocol.principalInvestigator.investigatorName",
+                    "caption": "Principal Investigator"
+                },
+                {
+                    "expr": "CollectionProtocol.cpSites.siteName",
+                    "caption": "Repository"
+                }
+            ]
+        }
+    },
+    {
         "name": "participant-list-view",
         "data": {
             "columns": [

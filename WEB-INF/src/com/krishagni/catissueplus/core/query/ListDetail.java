@@ -6,6 +6,8 @@ import java.util.List;
 public class ListDetail {
 	private List<Column> columns = new ArrayList<>();
 
+	private List<Column> appColumns;
+
 	private List<Row> rows = new ArrayList<>();
 
 	private int size = -1;
@@ -16,6 +18,14 @@ public class ListDetail {
 
 	public void setColumns(List<Column> columns) {
 		this.columns = columns;
+	}
+
+	public List<Column> getAppColumns() {
+		return appColumns;
+	}
+
+	public void setAppColumns(List<Column> appColumns) {
+		this.appColumns = appColumns;
 	}
 
 	public List<Row> getRows() {

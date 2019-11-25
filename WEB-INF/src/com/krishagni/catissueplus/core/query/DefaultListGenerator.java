@@ -387,6 +387,7 @@ public class DefaultListGenerator implements ListGenerator {
 
 		ListDetail listDetail = new ListDetail();
 		listDetail.setColumns(cfg.getColumns());
+		listDetail.setAppColumns(cfg.getAppColumns());
 		listDetail.setRows(rows);
 		return listDetail;
 	}

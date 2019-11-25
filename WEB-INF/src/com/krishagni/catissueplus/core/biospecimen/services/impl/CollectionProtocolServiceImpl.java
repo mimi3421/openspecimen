@@ -27,6 +27,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -112,6 +113,7 @@ import com.krishagni.catissueplus.core.query.Column;
 import com.krishagni.catissueplus.core.query.ListConfig;
 import com.krishagni.catissueplus.core.query.ListDetail;
 import com.krishagni.catissueplus.core.query.ListService;
+import com.krishagni.catissueplus.core.query.Row;
 import com.krishagni.rbac.common.errors.RbacErrorCode;
 import com.krishagni.rbac.events.SubjectRoleOpNotif;
 import com.krishagni.rbac.service.RbacService;
@@ -133,6 +135,8 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 	private ListService listSvc;
 
 	private CpReportSettingsFactory rptSettingsFactory;
+
+	private SessionFactory sessionFactory;
 
 	public void setTaskExecutor(ThreadPoolTaskExecutor taskExecutor) {
 		this.taskExecutor = taskExecutor;
@@ -164,6 +168,10 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 
 	public void setRptSettingsFactory(CpReportSettingsFactory rptSettingsFactory) {
 		this.rptSettingsFactory = rptSettingsFactory;
+	}
+
+	public void setSessionFactory(SessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
 	}
 
 	@Override
@@ -1215,6 +1223,7 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
+		listSvc.registerListConfigurator("cp-list-view", this::getCpListConfig);
 		listSvc.registerListConfigurator("participant-list-view", this::getParticipantsListConfig);
 		listSvc.registerListConfigurator("specimen-list-view", this::getSpecimenListConfig);
 	}
@@ -2035,6 +2044,78 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 		return cfg;
 	}
 
+	private ListConfig getCpListConfig(Map<String, Object> listReq) {
+		ListConfig cfg = getListConfig(listReq, "cp-list-view", "CollectionProtocol");
+		if (cfg == null) {
+			return null;
+		}
+
+		List<Column> hiddenColumns = new ArrayList<>();
+		Column id = new Column();
+		id.setExpr("CollectionProtocol.id");
+		id.setCaption("cpId");
+		cfg.setPrimaryColumn(id);
+		hiddenColumns.add(id);
+
+		Column catalogId = new Column();
+		catalogId.setExpr("CollectionProtocol.catalogId");
+		catalogId.setCaption("catalogId");
+		hiddenColumns.add(catalogId);
+		cfg.setHiddenColumns(hiddenColumns);
+
+		List<Column> appColumns = new ArrayList<>();
+		Column participantsCount = new Column();
+		participantsCount.setCaption("Participants");
+		participantsCount.setExpr("count(Participant.id)");
+		appColumns.add(participantsCount);
+
+		Column specimensCount = new Column();
+		specimensCount.setCaption("Specimens");
+		specimensCount.setExpr("count(Specimen.id)");
+		appColumns.add(specimensCount);
+		cfg.setAppColumns(appColumns);
+
+		cfg.setAppColumnGenerator(
+			(rows) -> {
+				if (rows == null || rows.isEmpty()) {
+					return rows;
+				}
+
+				Map<Long, Row> cpRows = new HashMap<>();
+				for (Row row : rows) {
+					Long cpId = Long.parseLong((String) row.getHidden().get("cpId"));
+					cpRows.put(cpId, row);
+				}
+
+				List<Object[]> dbRows = sessionFactory.getCurrentSession()
+					.getNamedQuery(CollectionProtocol.class.getName() + ".getParticipantAndSpecimenCount")
+					.setParameterList("cpIds", cpRows.keySet())
+					.list();
+				for (Object[] dbRow : dbRows) {
+					int idx = -1;
+					Long cpId = ((Number) dbRow[++idx]).longValue();
+					Object[] appData = {dbRow[++idx], dbRow[++idx]};
+					cpRows.get(cpId).setAppData(appData);
+				}
+
+				return rows;
+			}
+		);
+
+		Set<SiteCpPair> cpSites = AccessCtrlMgr.getInstance().getReadableSiteCps();
+		if (cpSites == null) {
+			return cfg;
+		}
+
+		if (cpSites.isEmpty()) {
+			throw OpenSpecimenException.userError(RbacErrorCode.ACCESS_DENIED);
+		}
+
+		cfg.setRestriction(BiospecimenDaoHelper.getInstance().getSiteCpsCondAqlForCps(cpSites));
+		cfg.setDistinct(true);
+		return cfg;
+	}
+
 	private ListConfig getParticipantsListConfig(Map<String, Object> listReq) {
 		ListConfig cfg = getListConfig(listReq, "participant-list-view", "Participant");
 		if (cfg == null) {
@@ -2087,7 +2168,11 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 	private Workflow getWorkFlow(Long cpId, String name) {
 		Workflow workflow = null;
 
-		CpWorkflowConfig cfg = daoFactory.getCollectionProtocolDao().getCpWorkflows(cpId);
+		CpWorkflowConfig cfg = null;
+		if (cpId != null) {
+			cfg = daoFactory.getCollectionProtocolDao().getCpWorkflows(cpId);
+		}
+
 		if (cfg != null) {
 			workflow = cfg.getWorkflows().get(name);
 		}

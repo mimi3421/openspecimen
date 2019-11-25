@@ -2,6 +2,9 @@ package com.krishagni.catissueplus.core.query;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class ListConfig {
 	private Long cpId;
@@ -24,6 +27,8 @@ public class ListConfig {
 
 	private List<Column> hiddenColumns = new ArrayList<>();
 
+	private List<Column> appColumns;
+
 	private int startAt = 0;
 
 	private int maxResults = 100;
@@ -31,6 +36,9 @@ public class ListConfig {
 	private boolean includeCount = true;
 
 	private Column primaryColumn;
+
+	@JsonIgnore
+	private Function<List<Row>, List<Row>> appColumnGenerator;
 
 	public Long getCpId() {
 		return cpId;
@@ -112,6 +120,14 @@ public class ListConfig {
 		this.hiddenColumns = hiddenColumns;
 	}
 
+	public List<Column> getAppColumns() {
+		return appColumns;
+	}
+
+	public void setAppColumns(List<Column> appColumns) {
+		this.appColumns = appColumns;
+	}
+
 	public int getStartAt() {
 		return startAt;
 	}
@@ -142,5 +158,13 @@ public class ListConfig {
 
 	public void setPrimaryColumn(Column primaryColumn) {
 		this.primaryColumn = primaryColumn;
+	}
+
+	public Function<List<Row>, List<Row>> getAppColumnGenerator() {
+		return appColumnGenerator;
+	}
+
+	public void setAppColumnGenerator(Function<List<Row>, List<Row>> appColumnGenerator) {
+		this.appColumnGenerator = appColumnGenerator;
 	}
 }

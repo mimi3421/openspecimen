@@ -90,6 +90,28 @@ public class BiospecimenDaoHelper {
 		query.add(mainCond);
 	}
 
+	public String getSiteCpsCondAqlForCps(Collection<SiteCpPair> siteCps) {
+		if (siteCps == null || siteCps.isEmpty()) {
+			return StringUtils.EMPTY;
+		}
+
+		StringBuilder aql = new StringBuilder();
+		for (SiteCpPair siteCp : siteCps) {
+			String restriction = getAqlSiteIdRestriction("CollectionProtocol.cpSites.siteId", siteCp);
+			if (aql.length() > 0) {
+				aql.append(" or ");
+			}
+
+			aql.append(restriction);
+		}
+
+		if (aql.length() > 0) {
+			aql.insert(0, "(").append(")");
+		}
+
+		return aql.toString();
+	}
+
 	public String getSiteCpsCondAql(Collection<SiteCpPair> siteCps, boolean useMrnSites) {
 		if (CollectionUtils.isEmpty(siteCps)) {
 			return StringUtils.EMPTY;

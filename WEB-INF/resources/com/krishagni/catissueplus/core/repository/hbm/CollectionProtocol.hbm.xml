@@ -153,7 +153,8 @@
       <return-scalar column="specimenCnt" type="long"/>
 
       select 
-        cp.identifier as cpId, count(distinct cpr.identifier) as participantCnt, 
+        cp.identifier as cpId,
+        case when not cp.specimen_centric then count(distinct cpr.identifier) else -1 end as participantCnt,
         count(distinct sp.identifier) as specimenCnt 
       from 
         catissue_collection_protocol cp 

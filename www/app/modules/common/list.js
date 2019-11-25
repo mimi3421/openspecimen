@@ -17,8 +17,12 @@ angular.module('openspecimen')
 
         enableSelection: '@',
 
+        appDataTmpl: '@',
+
+        actionButtonsTmpl: '@',
+
         showItem: '&',
- 
+
         initCtrl: '&'
       },
 

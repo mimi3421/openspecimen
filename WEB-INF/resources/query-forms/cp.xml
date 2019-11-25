@@ -75,6 +75,14 @@
       </dropDown>
     </row>
     <row>
+      <numberField>
+        <name>catalogId</name>
+        <udn>catalogId</udn>
+        <caption>#getMessage("cp_catalog_id")</caption>
+        <column>CATALOG_ID</column>
+      </numberField>
+    </row>
+    <row>
       <subForm>
         <name>principalInvestigator</name>
         <udn>principalInvestigator</udn>
