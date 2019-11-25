@@ -1,7 +1,11 @@
 <div>
   <div class="os-modal-header">
-    <span ng-if="entityType == 'specimen'" translate="specimens.pos_selector">Specimen Position Selector</span>
-    <span ng-if="entityType == 'storage_container'" translate="container.pos_selector">Container Position Selector</span>
+    <span ng-if="listOpts.type == 'specimen'">
+      <span translate="specimens.pos_selector">Specimen Position Selector</span>
+    </span>
+    <span ng-if="listOpts.type == 'storage_container'">
+      <span translate="container.pos_selector">Container Position Selector</span>
+    </span>
     <div class="os-close" ng-click="cancel()">&times;</div>
   </div>
 
