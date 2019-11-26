@@ -1,8 +1,7 @@
 
 angular.module('os.biospecimen.cp.list', ['os.biospecimen.models'])
   .controller('CpListCtrl', function(
-    $scope, $state, cpList, CollectionProtocol, Util, DeleteUtil,
-    PvManager, CheckList, ListPagerOpts, AuthorizationService) {
+    $scope, $state, CollectionProtocol, DeleteUtil, AuthorizationService) {
 
     var ctx;
 

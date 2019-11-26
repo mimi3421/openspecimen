@@ -154,7 +154,7 @@
 
       select 
         cp.identifier as cpId,
-        case when not cp.specimen_centric then count(distinct cpr.identifier) else -1 end as participantCnt,
+        case cp.specimen_centric when 0 then count(distinct cpr.identifier) else -1 end as participantCnt,
         count(distinct sp.identifier) as specimenCnt 
       from 
         catissue_collection_protocol cp 
@@ -172,7 +172,7 @@
         cp.identifier in (:cpIds) and
         cp.activity_status != 'Disabled'
       group by 
-        cp.identifier
+        cp.identifier, cp.specimen_centric
     </sql-query>
 
     <query name="getAllCpIds">

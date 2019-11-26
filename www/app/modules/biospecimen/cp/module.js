@@ -83,25 +83,7 @@ angular.module('os.biospecimen.cp',
         url: '?filters', 
         templateUrl: 'modules/biospecimen/cp/list.html',
         controller: 'CpListCtrl',
-        parent: 'cps',
-        resolve: {
-          cpList: function($stateParams, CollectionProtocol, ListPagerOpts, Util) {
-            var filterOpts = Util.filterOpts({maxResults: ListPagerOpts.MAX_PAGE_RECS + 1}, $stateParams.filters);
-            return CollectionProtocol.list(filterOpts);
-          },
-          
-          view: function($rootScope, $state, cpList) {
-            if ($rootScope.stateChangeInfo.fromState.name == 'login' ||
-              $rootScope.stateChangeInfo.fromState.name == 'sc-catalog-dashboard' ||
-              $rootScope.stateChangeInfo.fromState.parent == 'sc-catalog-main')  {
-              if (cpList.length == 1) {
-                $state.go('cp-summary-view', {cpId: cpList[0].id});
-              } else if (cpList.length == 0) {
-                $state.go('home');
-              }
-            }
-          }
-        }
+        parent: 'cps'
       })
       .state('cp-addedit', {
         url: '/addedit/:cpId?mode',
