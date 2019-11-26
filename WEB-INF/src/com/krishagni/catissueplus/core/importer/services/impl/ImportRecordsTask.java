@@ -15,6 +15,7 @@ import java.util.TreeMap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,23 +88,24 @@ public class ImportRecordsTask implements ScheduledTask {
 			String filename = file.getName();
 			String[] tokens = filename.split("_");
 
-			if (tokens.length < 3 || tokens.length > 5) {
+			if (tokens.length < 3) {
 				logger.info(String.format("Filename '%s' is not in correct format", filename));
 				moveFileToUnprocessedDir(file);
 				continue;
 			}
 
-			String timestampStr = tokens.length == 5 ? tokens[4] : tokens[2];
-			Date timestamp = null;
+			String timestampStr = tokens[2];
+			if ("extensions".equals(tokens[0]) && tokens.length == 5) {
+				timestampStr = tokens[4];
+			}
+
 			try {
-				timestamp = sdf.parse(timestampStr);
+				Date timestamp = sdf.parse(timestampStr);
+				filesMap.put(timestamp, file);
 			} catch (ParseException e) {
 				logger.error("Appended timestamp in filename is not in correct format: " + timestampStr, e);
 				moveFileToUnprocessedDir(file);
-				continue;
 			}
-
-			filesMap.put(timestamp, file);
 		}
 
 		logger.info(String.format("Found %d files to import", filesMap.size()));
@@ -151,31 +153,41 @@ public class ImportRecordsTask implements ScheduledTask {
 		String filename = FilenameUtils.getBaseName(file.getName());
 		String[] tokens = filename.split("_");
 
-		int i = 0;
+		int i = -1;
 		ImportDetail detail = new ImportDetail();
 		detail.setInputFileId(fileId);
-		detail.setObjectType(tokens[i++]);
+		detail.setObjectType(tokens[++i]);
 
 		//
 		// For DE forms set entity type and form name
 		//
-		if (tokens.length == 5) {
-			Map<String, String> objParams = new HashMap<>();
-			objParams.put("entityType", tokens[i++]);
-			objParams.put("formName", tokens[i++]);
-			detail.setObjectParams(objParams);
+		int paramIdx = -1;
+		Map<String, String> objParams = new HashMap<>();
+		detail.setObjectParams(objParams);
+
+		if ("extensions".equals(detail.getObjectType()) && tokens.length == 5) {
+			objParams.put("entityType", tokens[++i]);
+			objParams.put("formName", tokens[++i]);
+			paramIdx = 5;
+		} else {
+			paramIdx = 3;
 		}
 
-		detail.setImportType(tokens[i++].toUpperCase());
+		detail.setImportType(tokens[++i].toUpperCase());
 
 		//
 		// Set csv type
 		//
 		ImportJob.CsvType csvType = ImportJob.CsvType.SINGLE_ROW_PER_OBJ;
-		if (tokens.length == 4 && tokens[3].trim().equalsIgnoreCase("m")) {
+		if (paramIdx != 5 && tokens.length >= 4 && tokens[3].trim().equalsIgnoreCase("m")) {
 			csvType = ImportJob.CsvType.MULTIPLE_ROWS_PER_OBJ;
+			paramIdx = 4;
 		}
 		detail.setCsvType(csvType.toString());
+
+		for (int j = paramIdx; (j + 1) < tokens.length; j += 2) {
+			objParams.put(tokens[j], tokens[j + 1]);
+		}
 
 		return detail;
 	}
