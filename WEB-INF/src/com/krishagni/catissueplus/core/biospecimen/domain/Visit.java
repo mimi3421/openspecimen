@@ -397,7 +397,7 @@ public class Visit extends BaseExtensionEntity {
 		setName(visit.getName());
 		setClinicalStatus(visit.getClinicalStatus());
 		setCpEvent(visit.getCpEvent());
-		setRegistration(visit.getRegistration());
+		updateRegistration(visit.getRegistration());
 		setSite(visit.getSite());
 		updateStatus(visit.getStatus());		
 		setComments(visit.getComments());
@@ -410,6 +410,7 @@ public class Visit extends BaseExtensionEntity {
 		setExtension(visit.getExtension());
 		CollectionUpdater.update(getClinicalDiagnoses(), visit.getClinicalDiagnoses());
 		setUpdated(true);
+
 	}
 
 	public void updateSprName(String sprName) {
@@ -699,6 +700,25 @@ public class Visit extends BaseExtensionEntity {
 
 			default:
 				return false;
+		}
+	}
+
+	private void updateRegistration(CollectionProtocolRegistration newCpr) {
+		CollectionProtocolRegistration existingCpr = getRegistration();
+		setRegistration(newCpr);
+
+		if (existingCpr.equals(newCpr)) {
+			return;
+		}
+
+		if (existingCpr.getCollectionProtocol().equals(newCpr.getCollectionProtocol())) {
+			return;
+		}
+
+		// CPs differ
+		for (Specimen spmn : getSpecimens()) {
+			spmn.setSpecimenRequirement(null);
+			spmn.setCollectionProtocol(newCpr.getCollectionProtocol());
 		}
 	}
 }

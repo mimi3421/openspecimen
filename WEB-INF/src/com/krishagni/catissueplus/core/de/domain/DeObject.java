@@ -110,6 +110,10 @@ public abstract class DeObject {
 		return form != null ? form.getCaption() : null;
 	}
 
+	public Long getFormContextId() {
+		return getFormContext();
+	}
+
 	public boolean saveOrUpdate() {
 		try {
 			Container form = getForm();

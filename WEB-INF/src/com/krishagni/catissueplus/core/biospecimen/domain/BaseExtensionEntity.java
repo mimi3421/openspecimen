@@ -32,7 +32,7 @@ public abstract class BaseExtensionEntity extends BaseEntity {
 	}
 	
 	public void addOrUpdateExtension() {
-		if (extension == null) {
+		if (extension == null || extension.getFormId() == null) {
 			return;			
 		}
 		
