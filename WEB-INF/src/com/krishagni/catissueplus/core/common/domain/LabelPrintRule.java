@@ -55,7 +55,9 @@ public abstract class LabelPrintRule {
 	private String labelDesign;
 
 	private List<LabelTmplToken> dataTokens = new ArrayList<>();
-	
+
+	private Map<LabelTmplToken, List<String>> dataTokenArgsMap = new HashMap<>();
+
 	private CmdFileFmt cmdFileFmt = CmdFileFmt.KEY_VALUE;
 
 	public String getLabelType() {
@@ -122,6 +124,14 @@ public abstract class LabelPrintRule {
 		this.dataTokens = dataTokens;
 	}
 
+	public Map<LabelTmplToken, List<String>> getDataTokenArgsMap() {
+		return dataTokenArgsMap;
+	}
+
+	public void setDataTokenArgsMap(Map<LabelTmplToken, List<String>> dataTokenArgsMap) {
+		this.dataTokenArgsMap = dataTokenArgsMap;
+	}
+
 	public CmdFileFmt getCmdFileFmt() {
 		return cmdFileFmt;
 	}
@@ -167,7 +177,17 @@ public abstract class LabelPrintRule {
 			}
 			
 			for (LabelTmplToken token : dataTokens) {
-				dataItems.put(getMessageStr(token.getName()), token.getReplacement(printItem.getObject()));
+				List<String> args = dataTokenArgsMap.get(token);
+
+				String name = token.getName();
+				if (name.equals("eval") && args.size() > 1) {
+					name = args.get(0).replaceAll("^\"|\"$", "");
+					args = args.subList(1, args.size());
+				} else {
+					name = getMessageStr(name);
+				}
+
+				dataItems.put(name, token.getReplacement(printItem.getObject(), args.toArray(new String[0])));
 			}
 
 			return dataItems;
@@ -184,7 +204,7 @@ public abstract class LabelPrintRule {
 			.append(", printer = ").append(getPrinterName());
 
 		String tokens = getDataTokens().stream()
-			.map(token -> token.getName())
+			.map(LabelTmplToken::getName)
 			.collect(Collectors.joining(";"));
 		result.append(", tokens = ").append(tokens);
 		return result.toString();
@@ -203,7 +223,7 @@ public abstract class LabelPrintRule {
 			rule.put("printerName", getPrinterName());
 			rule.put("cmdFilesDir", getCmdFilesDir());
 			rule.put("labelDesign", getLabelDesign());
-			rule.put("dataTokens", getTokenNames());
+			rule.put("dataTokens", getTokens());
 			rule.put("cmdFileFmt", getCmdFileFmt().fmt);
 			rule.putAll(getDefMap(ufn));
 			return rule;
@@ -222,8 +242,22 @@ public abstract class LabelPrintRule {
 		return MessageUtil.getInstance().getMessage("print_" + name, null);
 	}
 
-	private String getTokenNames() {
-		return dataTokens.stream().map(LabelTmplToken::getName).collect(Collectors.joining(","));
+	private String getTokens() {
+		StringBuilder tokenStr = new StringBuilder();
+		for (LabelTmplToken token : dataTokens) {
+			if (tokenStr.length() > 0) {
+				tokenStr.append(",");
+			}
+
+			tokenStr.append(token.getName());
+
+			List<String> args = dataTokenArgsMap.get(token);
+			if (args != null && !args.isEmpty()) {
+				tokenStr.append("(").append(String.join(",", args)).append(")");
+			}
+		}
+
+		return tokenStr.toString();
 	}
 
 	private String getIpAddressRange(IpAddressMatcher ipRange) {

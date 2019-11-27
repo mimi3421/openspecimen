@@ -549,6 +549,10 @@
         <bean class="com.krishagni.catissueplus.core.administrative.print.container.NamePrintToken"/>
         <bean class="com.krishagni.catissueplus.core.administrative.print.container.SiteCodePrintToken"/>
         <bean class="com.krishagni.catissueplus.core.administrative.print.container.TypePrintToken"/>
+        <bean class="com.krishagni.catissueplus.core.biospecimen.print.EvalExprPrintToken">
+          <property name="objectName" value="container"/>
+        </bean>
+
       </list>
     </property>
   </bean>
@@ -651,6 +655,10 @@
         <bean class="com.krishagni.catissueplus.core.administrative.print.order.DistributionLabelPrintToken"/>
         <bean class="com.krishagni.catissueplus.core.administrative.print.order.DpShortTitlePrintToken"/>
         <bean class="com.krishagni.catissueplus.core.administrative.print.order.PathStatusPrintToken"/>
+        <bean class="com.krishagni.catissueplus.core.biospecimen.print.EvalExprPrintToken">
+          <property name="objectName" value="orderItem"/>
+        </bean>
+
       </list>
     </property>
   </bean>
@@ -849,6 +857,9 @@
         <bean class="com.krishagni.catissueplus.core.biospecimen.print.SpecimenCollectionContainerPrintToken"/>
         <bean class="com.krishagni.catissueplus.core.biospecimen.print.VisitDatePrintToken"/>
         <bean class="com.krishagni.catissueplus.core.biospecimen.print.VisitNamePrintToken"/>
+        <bean class="com.krishagni.catissueplus.core.biospecimen.print.EvalExprPrintToken">
+          <property name="objectName" value="specimen"/>
+        </bean>
       </list>
     </property>
   </bean>
@@ -859,6 +870,9 @@
         <bean class="com.krishagni.catissueplus.core.biospecimen.print.VisitCpShortTitlePrintToken"/>
         <bean class="com.krishagni.catissueplus.core.biospecimen.print.VisitDatePrintToken"/>
         <bean class="com.krishagni.catissueplus.core.biospecimen.print.VisitNamePrintToken"/>
+        <bean class="com.krishagni.catissueplus.core.biospecimen.print.EvalExprPrintToken">
+          <property name="objectName" value="visit"/>
+        </bean>
       </list>
     </property>
   </bean>

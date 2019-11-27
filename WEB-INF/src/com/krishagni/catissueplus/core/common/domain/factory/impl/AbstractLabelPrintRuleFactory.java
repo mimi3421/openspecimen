@@ -3,10 +3,13 @@ package com.krishagni.catissueplus.core.common.domain.factory.impl;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -28,6 +31,8 @@ import com.krishagni.catissueplus.core.common.util.ConfigUtil;
 import com.krishagni.catissueplus.core.common.util.Utility;
 
 public abstract class AbstractLabelPrintRuleFactory implements LabelPrintRuleFactory {
+	private static final Pattern funArgs = Pattern.compile("^(.+?)\\((.+?)\\)$");
+
 	protected DaoFactory daoFactory;
 
 	protected LabelTmplTokenRegistrar printLabelTokensRegistrar;
@@ -123,14 +128,17 @@ public abstract class AbstractLabelPrintRuleFactory implements LabelPrintRuleFac
 
 		List<String> invalidTokenNames = new ArrayList<>();
 		List<LabelTmplToken> dataTokens = new ArrayList<>();
+		Map<LabelTmplToken, List<String>> tokenArgsMap = new HashMap<>();
 
-		List<String> tokenNames = Utility.csvToStringList(input.get("dataTokens"));
+		List<String> tokenNames = parseTokens(input.get("dataTokens"));
 		for (String key : tokenNames) {
-			LabelTmplToken token = printLabelTokensRegistrar.getToken(key);
+			Pair<String, List<String>> tokenArgs = parseFunctionToken(key);
+			LabelTmplToken token = printLabelTokensRegistrar.getToken(tokenArgs.first());
 			if (token == null) {
 				invalidTokenNames.add(key);
 			} else {
 				dataTokens.add(token);
+				tokenArgsMap.put(token, tokenArgs.second());
 			}
 		}
 
@@ -139,6 +147,7 @@ public abstract class AbstractLabelPrintRuleFactory implements LabelPrintRuleFac
 		}
 
 		rule.setDataTokens(dataTokens);
+		rule.setDataTokenArgsMap(tokenArgsMap);
 	}
 
 	private void setCmdFilesDir(Map<String, String> input, boolean failOnError, LabelPrintRule rule, OpenSpecimenException ose) {
@@ -239,5 +248,52 @@ public abstract class AbstractLabelPrintRuleFactory implements LabelPrintRuleFac
 		}
 
 		rule.setUsers(result);
+	}
+
+	private List<String> parseTokens(String input) {
+		return parseCsv(input);
+	}
+
+	private Pair<String, List<String>> parseFunctionToken(String tokenStr) {
+		Matcher matcher = funArgs.matcher(tokenStr);
+		if (matcher.find()) {
+			return Pair.make(matcher.group(1), parseCsv(matcher.group(2)));
+		} else {
+			return Pair.make(tokenStr, new ArrayList<>());
+		}
+	}
+
+	private List<String> parseCsv(String args) {
+		if (args == null || args.trim().isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		List<String> result = new ArrayList<>();
+		StringBuilder arg = new StringBuilder();
+		boolean insideQuote = false;
+		int parenCnt = 0;
+		for (int i = 0; i < args.trim().length(); ++i) {
+			char ch = args.charAt(i);
+			if (ch == ',' && parenCnt == 0 && !insideQuote) {
+				result.add(arg.toString().trim());
+				arg = new StringBuilder();
+			} else {
+				arg.append(ch);
+
+				if (!insideQuote && ch == '(') {
+					++parenCnt;
+				} else if (!insideQuote && ch == ')') {
+					--parenCnt;
+				} else if (parenCnt == 0 && ch == '"') {
+					insideQuote = !insideQuote;
+				}
+			}
+		}
+
+		if (!arg.toString().trim().isEmpty()) {
+			result.add(arg.toString().trim());
+		}
+
+		return result;
 	}
 }
