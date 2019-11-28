@@ -58,7 +58,7 @@
     <field>
       <attribute>time</attribute>
       <caption>#getMessage("return_date")</caption>
-      <type>date</type>
+      <type>datetime</type>
     </field>
 
     <field>

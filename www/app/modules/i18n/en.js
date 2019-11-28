@@ -2215,6 +2215,7 @@
     "site": "Site",
     "dp": "Distribution Protocol",
     "date": "Date",
+    "date_time": "Date and Time",
     "status": "Status",
     "dispose": "Dispose",
     "print_labels": "Print labels",
