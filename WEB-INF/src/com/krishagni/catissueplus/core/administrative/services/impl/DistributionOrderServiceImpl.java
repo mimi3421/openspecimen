@@ -761,9 +761,10 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 
 	private void ensureValidSpecimens(DistributionOrder order, List<SiteCpPair> siteCps, OpenSpecimenException ose) {
 		if (order.getSpecimenList() != null || order.isForAllReservedSpecimens()) {
-			int startAt = 0, maxSpmns = 100;
+			int maxSpmns = 100;
+			Long lastId = null;
 			Long orderId = order.getId();
-			Function<Integer, List<Specimen>> getSpecimens = getSpecimensFn(order, siteCps, maxSpmns);
+			Function<Long, List<Specimen>> getSpecimens = getSpecimensFn(order, siteCps, maxSpmns);
 
 			boolean endOfSpecimens = false;
 			while (!endOfSpecimens) {
@@ -772,8 +773,8 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 					getSpecimens = getSpecimensFn(order, siteCps, maxSpmns);
 				}
 
-				List<Specimen> specimens = getSpecimens.apply(startAt);
-				if (specimens.isEmpty() && startAt == 0) {
+				List<Specimen> specimens = getSpecimens.apply(lastId);
+				if (specimens.isEmpty() && lastId == null) {
 					if (order.getSpecimenList() != null) {
 						ose.addError(DistributionOrderErrorCode.NO_SPMNS_IN_LIST, order.getSpecimenList().getName());
 					} else {
@@ -783,8 +784,10 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 
 				ensureValidSpecimens(specimens, order.getDistributionProtocol(), siteCps, ose);
 
-				startAt += specimens.size();
 				endOfSpecimens = (specimens.size() < maxSpmns);
+				if (!specimens.isEmpty()) {
+					lastId = specimens.get(specimens.size() - 1).getId();
+				}
 
 				specimens.clear();
 				order = null;
@@ -796,15 +799,16 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 		}
 	}
 
-	private Function<Integer, List<Specimen>> getSpecimensFn(DistributionOrder order, List<SiteCpPair> siteCps, int maxSpmns) {
+	private Function<Long, List<Specimen>> getSpecimensFn(DistributionOrder order, List<SiteCpPair> siteCps, int maxSpmns) {
 		Long specimenListId = order.getSpecimenList() != null ? order.getSpecimenList().getId() : null;
 		Long reservedForDp  = specimenListId != null ? null : order.getDistributionProtocol().getId();
 
-		return (startAt) -> daoFactory.getSpecimenDao().getSpecimens(new SpecimenListCriteria()
+		return (lastId) -> daoFactory.getSpecimenDao().getSpecimens(new SpecimenListCriteria()
 			.specimenListId(specimenListId)
 			.reservedForDp(reservedForDp)
 			.siteCps(siteCps)
-			.startAt(startAt).maxResults(maxSpmns)
+			.lastId(lastId)
+			.startAt(0).maxResults(maxSpmns)
 			.limitItems(true)
 		);
 	}
@@ -1148,11 +1152,12 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 		}
 
 		boolean endOfSpecimens = false;
-		int starAt = 0, maxSpmns = 100;
-		Function<Integer, List<Specimen>> getSpecimens = getSpecimensFn(order, siteCps, maxSpmns);
+		int maxSpmns = 100;
+		Long lastId = null;
+		Function<Long, List<Specimen>> getSpecimens = getSpecimensFn(order, siteCps, maxSpmns);
 		List<Specimen> specimens;
 		while (!endOfSpecimens) {
-			specimens = getSpecimens.apply(starAt);
+			specimens = getSpecimens.apply(lastId);
 
 			List<DistributionOrderItem> orderItems = new ArrayList<>();
 			for (Specimen specimen : specimens) {
@@ -1161,8 +1166,10 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 
 			printDistributionLabels(orderItems);
 
-			starAt += specimens.size();
 			endOfSpecimens = (specimens.size() < maxSpmns);
+			if (!specimens.isEmpty()) {
+				lastId = specimens.get(specimens.size() - 1).getId();
+			}
 
 			specimens.clear();
 			SessionUtil.getInstance().clearSession();
