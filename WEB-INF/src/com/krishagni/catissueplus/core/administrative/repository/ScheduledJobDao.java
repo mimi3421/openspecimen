@@ -24,5 +24,7 @@ public interface ScheduledJobDao extends Dao<ScheduledJob> {
 
 	Map<Long, Date> getJobsLastRunTime(Collection<Long> jobIds);
 
+	Map<Long, Date> getJobsLastRunTime(Collection<Long> jobIds, boolean onlyFinished);
+
 	void saveOrUpdateJobRun(ScheduledJobRun job);
 }

@@ -93,7 +93,8 @@
       from
         os_scheduled_job_runs
       where
-        scheduled_job_id in (:jobIds)
+        scheduled_job_id in (:jobIds) and
+        status in (:statuses)
       group by
         scheduled_job_id
     </sql-query>

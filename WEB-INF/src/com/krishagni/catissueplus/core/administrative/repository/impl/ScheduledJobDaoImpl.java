@@ -1,5 +1,6 @@
 package com.krishagni.catissueplus.core.administrative.repository.impl;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -90,14 +91,13 @@ public class ScheduledJobDaoImpl extends AbstractDao<ScheduledJob> implements Sc
 	@Override
 	@SuppressWarnings("unchecked")
 	public Map<Long, Date> getJobsLastRunTime(Collection<Long> jobIds) {
-		if (jobIds == null || jobIds.isEmpty()) {
-			return Collections.emptyMap();
-		}
+		return getJobsLastRunTime(jobIds, false);
+	}
 
-		List<Object[]> rows = getCurrentSession().getNamedQuery(GET_JOBS_LAST_RUNTIME)
-			.setParameterList("jobIds", jobIds)
-			.list();
-		return rows.stream().collect(Collectors.toMap(row -> (Long) row[0], row -> (Date) row[1]));
+	@Override
+	@SuppressWarnings("unchecked")
+	public Map<Long, Date> getJobsLastRunTime(Collection<Long> jobIds, boolean onlyFinished) {
+		return getJobsLastRunTime(jobIds, onlyFinished ? FINISHED_STATUSES : ALL_STATUSES);
 	}
 
 	@Override
@@ -118,9 +118,25 @@ public class ScheduledJobDaoImpl extends AbstractDao<ScheduledJob> implements Sc
 		return query;
 	}
 
+	private Map<Long, Date> getJobsLastRunTime(Collection<Long> jobIds, List<String> statuses) {
+		if (jobIds == null || jobIds.isEmpty()) {
+			return Collections.emptyMap();
+		}
+
+		List<Object[]> rows = getCurrentSession().getNamedQuery(GET_JOBS_LAST_RUNTIME)
+			.setParameterList("jobIds", jobIds)
+			.setParameterList("statuses", statuses)
+			.list();
+		return rows.stream().collect(Collectors.toMap(row -> (Long) row[0], row -> (Date) row[1]));
+	}
+
 	private static final String FQN = ScheduledJob.class.getName();
 
 	private static final String GET_JOB_BY_NAME = FQN + ".getJobByName";
 
 	private static final String GET_JOBS_LAST_RUNTIME = FQN + ".getJobsLastRuntime";
+
+	private static final List<String> ALL_STATUSES = Arrays.asList("IN_PROGRESS", "SUCCEEDED", "FAILED");
+
+	private static final List<String> FINISHED_STATUSES = Arrays.asList("SUCCEEDED", "FAILED");
 }
