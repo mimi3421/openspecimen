@@ -104,8 +104,6 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 
 	private ExportService exportSvc;
 
-	private int precision = 6;
-
 	public void setDaoFactory(DaoFactory daoFactory) {
 		this.daoFactory = daoFactory;
 	}
@@ -446,7 +444,7 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 			if (count == null) {
 				count = parentQty.divide(aliquotQty, RoundingMode.FLOOR).intValue();
 			} else if (aliquotQty == null && parentQty != null) {
-				aliquotQty = NumUtil.divide(parentQty, count, precision);
+				aliquotQty = parentQty.divide(new BigDecimal(count), RoundingMode.FLOOR);
 			}
 
 			List<StorageLocationSummary> locations = spec.getLocations();
