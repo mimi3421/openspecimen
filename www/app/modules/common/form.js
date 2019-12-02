@@ -41,7 +41,7 @@ function osRequired(conditional, $timeout) {
           }
         }
 
-        if (conditional) {
+        if (!ctrl._noLabelForm && conditional) {
           attrs.$observe('required', function(val) { updatePlaceholder(element, val ? 'mandatory' : ''); });
         }
       }
