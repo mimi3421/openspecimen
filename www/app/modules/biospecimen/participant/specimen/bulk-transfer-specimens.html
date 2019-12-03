@@ -14,13 +14,13 @@
           <table class="os-table bulk-edit">
             <thead class="os-table-head">
               <tr class="row">
-                <th class="col os-col-15">
+                <th class="col os-col-10">
                   <span translate="specimens.label">Label</span>
                 </th>
-                <th class="col os-col-15">
+                <th class="col os-col-13">
                   <span translate="specimens.cp">Collection Protocol</span>
                 </th>
-                <th class="col os-col-15">
+                <th class="col os-col-10">
                   <span translate="specimens.type">Type</span>
                 </th>
                 <th class="col os-col-15">
@@ -33,12 +33,18 @@
                   </a>
                 </th>
                 <th class="col os-col-15">
+                  <span translate="specimens.bulk_transfer.time">Transfer Time</span>
+                  <a ng-click="copyFirstTimeToAll()" style="font-weight: normal">
+                    (<span translate="common.copy_first_to_all">Copy first to all</span>)
+                  </a>
+                </th>
+                <th class="col os-col-15">
                   <span translate="specimens.bulk_transfer.comments">Comments</span>
                   <a ng-click="copyFirstCommentsToAll()" style="font-weight: normal">
                     (<span ttranslate="common.copy_first_to_all">Copy first to all</span>)
                   </a>
                 </th>
-                <th class="col os-col-5">
+                <th class="col os-col-2">
                   <span>&nbsp;</span>
                 </th>
               </tr>
@@ -62,6 +68,16 @@
                 <td class="col">
                   <os-storage-position os-md-input entity="spmn" cp-id="spmn.cpId" hide-placeholder>
                   </os-storage-position>
+                </td>
+                <td class="col">
+                  <div class="os-date-time clearfix">
+                    <os-date-picker class="col-xs-9 os-no-left-padding" date="spmn.transferTime" md-type="true">
+                    </os-date-picker>
+                    <div class="col-xs-3 os-md-time os-no-padding">
+                      <timepicker class="os-md-input os-time-no-wheels" ng-model="spmn.transferTime" show-meridian="false">
+                      </timepicker>
+                    </div>
+                  </div>
                 </td>
                 <td class="col">
                   <input type="text" os-md-input ng-model="spmn.transferComments">

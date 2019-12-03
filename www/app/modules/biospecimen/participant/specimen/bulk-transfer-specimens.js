@@ -4,9 +4,11 @@ angular.module('os.biospecimen.specimen')
       var specimens = SpecimensHolder.getSpecimens() || [];
       SpecimensHolder.setSpecimens(null);
 
+      var transferTime = new Date().getTime();
       angular.forEach(specimens, function(spmn) {
         spmn.oldLocation = spmn.storageLocation;
         spmn.storageLocation = {};
+        spmn.transferTime = transferTime;
       });
 
       $scope.specimens = specimens;
@@ -24,6 +26,13 @@ angular.module('os.biospecimen.specimen')
       }
     }
 
+    $scope.copyFirstTimeToAll = function() {
+      var transferTime = $scope.specimens[0].transferTime;
+      for (var i = 1; i < $scope.specimens.length; ++i) {
+        $scope.specimens[i].transferTime = transferTime;
+      }
+    }
+
     $scope.copyFirstCommentsToAll = function() {
       var comments = $scope.specimens[0].transferComments;
       for (var i = 1; i < $scope.specimens.length; ++i) {
@@ -34,7 +43,12 @@ angular.module('os.biospecimen.specimen')
     $scope.transferSpecimens = function() {
       var specimens = $scope.specimens.map(
         function(spmn) {
-          return {id: spmn.id, storageLocation: spmn.storageLocation, transferComments: spmn.transferComments};
+          return {
+            id: spmn.id,
+            storageLocation: spmn.storageLocation,
+            transferComments: spmn.transferComments,
+            transferTime: spmn.transferTime
+          };
         }
       );
 

@@ -1,7 +1,7 @@
 angular.module('os.biospecimen.specimen')
   .directive('osSpecimenOps', function(
     $state, $rootScope, $modal, $q, Util, DistributionProtocol, DistributionOrder, Specimen, ExtensionsUtil,
-    SpecimensHolder, Alerts, CommentsUtil, DeleteUtil, SpecimenLabelPrinter, ParticipantSpecimensViewState,
+    SpecimensHolder, Alerts, DeleteUtil, SpecimenLabelPrinter, ParticipantSpecimensViewState,
     AuthorizationService) {
 
     function initOpts(scope, element, attrs) {
@@ -404,26 +404,37 @@ angular.module('os.biospecimen.specimen')
             return;
           }
 
-          var ctx = {
-            header: 'specimen_list.retrieve_specimens', headerParams: {},
-            placeholder: 'specimen_list.retrieve_reason',
-            button: 'specimen_list.retrieve_specimens'
-          };
-          CommentsUtil.getComments(ctx,
-            function(comments) {
-              var spmnsToUpdate = selectedSpmns.map(
-                function(spmn) {
-                  return {id: spmn.id, storageLocation: {}, transferComments: comments};
-                }
-              );
-              Specimen.bulkUpdate(spmnsToUpdate).then(
-                function(updatedSpmns) {
-                  ParticipantSpecimensViewState.specimensUpdated(scope, {inline: true});
-                  scope.initList();
-                }
-              );
+          var thatScope = scope;
+          $modal.open({
+            templateUrl: 'modules/biospecimen/participant/specimen/retrieve.html',
+            controller: function($scope, $modalInstance) {
+              var input = $scope.input = {transferTime: new Date().getTime()};
+
+              $scope.cancel = function() {
+                $modalInstance.dismiss('cancel');
+              }
+
+              $scope.retrieve = function() {
+                var spmnsToUpdate = selectedSpmns.map(
+                  function(spmn) {
+                    return {
+                      id: spmn.id,
+                      storageLocation: {},
+                      transferTime: input.transferTime,
+                      transferComments: input.transferComments
+                    };
+                  }
+                );
+                Specimen.bulkUpdate(spmnsToUpdate).then(
+                  function(updatedSpmns) {
+                    ParticipantSpecimensViewState.specimensUpdated(thatScope, {inline: true});
+                    thatScope.initList();
+                    $modalInstance.dismiss('cancel');
+                  }
+                );
+              }
             }
-          );
+          });
         }
       }
     };

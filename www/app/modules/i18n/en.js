@@ -925,6 +925,7 @@
       "title": "Bulk Transfer Specimens",
       "current_location": "Current Location",
       "new_location": "New Location",
+      "time": "Transfer Time",
       "comments": "Comments",
       "success": "Successfully updated locations of {{spmnsCount}} specimens"
     },
