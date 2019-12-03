@@ -23,8 +23,8 @@
                   <tr>
                     <td> Revisions By </td>
                     <td> :
-                      #if ( $user )
-                        $user
+                      #if ( $users )
+                        $users
                       #else
                         Not Specified
                       #end

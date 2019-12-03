@@ -223,8 +223,8 @@ public class AuditDaoImpl extends AbstractDao<UserApiCallLog> implements AuditDa
 			query.add(Restrictions.le("r.revtstmp", criteria.endDate()));
 		}
 
-		if (criteria.userId() != null) {
-			query.add(Restrictions.eq("u.id", criteria.userId()));
+		if (CollectionUtils.isNotEmpty(criteria.userIds())) {
+			query.add(Restrictions.in("u.id", criteria.userIds()));
 		}
 
 		if (criteria.lastId() != null) {
@@ -295,8 +295,8 @@ public class AuditDaoImpl extends AbstractDao<UserApiCallLog> implements AuditDa
 			.addScalar("last_name", StringType.INSTANCE)
 			.addScalar("email_address", StringType.INSTANCE);
 
-		if (criteria.userId() != null) {
-			query.setParameter("userId", criteria.userId());
+		if (CollectionUtils.isNotEmpty(criteria.userIds())) {
+			query.setParameterList("userIds", criteria.userIds());
 		}
 
 		if (criteria.startDate() != null) {
@@ -321,8 +321,8 @@ public class AuditDaoImpl extends AbstractDao<UserApiCallLog> implements AuditDa
 	private String buildBaseFormDataRevisionsQuery(RevisionsListCriteria criteria) {
 		List<String> whereClauses = new ArrayList<>();
 
-		if (criteria.userId() != null) {
-			whereClauses.add("e.user_id = :userId");
+		if (CollectionUtils.isNotEmpty(criteria.userIds())) {
+			whereClauses.add("e.user_id in (:userIds)");
 		}
 
 		if (criteria.startDate() != null) {

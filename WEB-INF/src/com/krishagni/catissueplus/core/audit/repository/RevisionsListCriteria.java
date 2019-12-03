@@ -1,5 +1,6 @@
 package com.krishagni.catissueplus.core.audit.repository;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -13,6 +14,8 @@ public class RevisionsListCriteria extends AbstractListCriteria<RevisionsListCri
 	private Date endDate;
 
 	private Long userId;
+
+	private List<Long> userIds;
 
 	private boolean includeModifiedProps;
 
@@ -43,13 +46,24 @@ public class RevisionsListCriteria extends AbstractListCriteria<RevisionsListCri
 		return self();
 	}
 
-	public Long userId() {
-		return userId;
-	}
-
 	@JsonProperty("userId")
 	public RevisionsListCriteria userId(Long userId) {
-		this.userId = userId;
+		if (userId != null) {
+			userIds(Collections.singletonList(userId));
+		} else {
+			userIds(null);
+		}
+
+		return self();
+	}
+
+	public List<Long> userIds() {
+		return userIds;
+	}
+
+	@JsonProperty("userIds")
+	public RevisionsListCriteria userIds(List<Long> userIds) {
+		this.userIds = userIds;
 		return self();
 	}
 
@@ -77,7 +91,7 @@ public class RevisionsListCriteria extends AbstractListCriteria<RevisionsListCri
 		return new StringBuilder().append(super.toString()).append(", ")
 			.append("start date = ").append(startDate()).append(", ")
 			.append("end date = ").append(endDate()).append(", ")
-			.append("user = ").append(userId()).append(", ")
+			.append("users = ").append(userIds()).append(", ")
 			.append("include modified props = ").append(includeModifiedProps())
 			.toString();
 	}

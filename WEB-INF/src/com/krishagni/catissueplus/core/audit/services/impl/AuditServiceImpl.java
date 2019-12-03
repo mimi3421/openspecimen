@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -20,12 +21,12 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.SessionFactory;
-import org.hibernate.envers.Audited;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
 import org.hibernate.event.spi.PreCollectionRecreateEvent;
@@ -138,12 +139,19 @@ public class AuditServiceImpl implements AuditService, InitializingBean {
 		}
 
 		RevisionsListCriteria criteria = req.getPayload();
+		List<User> users = null;
 
-		User user = null;
-		if (criteria.userId() != null) {
-			user = daoFactory.getUserDao().getById(criteria.userId());
-			if (user == null) {
-				return ResponseEvent.userError(UserErrorCode.NOT_FOUND, criteria.userId());
+		if (CollectionUtils.isNotEmpty(criteria.userIds())) {
+			users = daoFactory.getUserDao().getByIds(criteria.userIds());
+
+			if (users.size() != criteria.userIds().size()) {
+				Set<Long> foundIds = users.stream().map(User::getId).collect(Collectors.toSet());
+				String notFoundIds = criteria.userIds().stream()
+						.filter(id -> !foundIds.contains(id))
+						.map(String::valueOf)
+						.collect(Collectors.joining(", "));
+
+				return ResponseEvent.userError(UserErrorCode.ONE_OR_MORE_NOT_FOUND, notFoundIds);
 			}
 		}
 
@@ -180,12 +188,12 @@ public class AuditServiceImpl implements AuditService, InitializingBean {
 		criteria.startDate(startDate).endDate(endDate);
 
 		User currentUser     = AuthUtil.getCurrentUser();
-		User revisionsByUser = user;
+		List<User> revisionsByUsers = users;
 
 		logger.info("Invoking task executor to initiate export of revisions: " + criteria);
 
 		File revisionsFile = null;
-		Future<File> result = taskExecutor.submit(() -> exportRevisions(criteria, currentUser, revisionsByUser));
+		Future<File> result = taskExecutor.submit(() -> exportRevisions(criteria, currentUser, revisionsByUsers));
 		try {
 			logger.info("Waiting for the export revisions to finish ...");
 			revisionsFile = result.get(ONLINE_EXPORT_TIMEOUT_SECS, TimeUnit.SECONDS);
@@ -264,7 +272,7 @@ public class AuditServiceImpl implements AuditService, InitializingBean {
 	}
 
 	@PlusTransactional
-	private File exportRevisions(RevisionsListCriteria criteria, User exportedBy, User revisionsBy) {
+	private File exportRevisions(RevisionsListCriteria criteria, User exportedBy, List<User> revisionsBy) {
 		AuthUtil.setCurrentUser(exportedBy);
 
 		String baseDir = UUID.randomUUID().toString();
@@ -319,9 +327,9 @@ public class AuditServiceImpl implements AuditService, InitializingBean {
 
 		private Date exportedOn;
 
-		private User revisionsBy;
+		private List<User> revisionsBy;
 
-		public CoreObjectsRevisionExporter(RevisionsListCriteria criteria, User exportedBy, Date exportedOn, User revisionsBy) {
+		public CoreObjectsRevisionExporter(RevisionsListCriteria criteria, User exportedBy, Date exportedOn, List<User> revisionsBy) {
 			this.criteria = criteria;
 			this.exportedBy = exportedBy;
 			this.exportedOn = exportedOn;
@@ -464,9 +472,9 @@ public class AuditServiceImpl implements AuditService, InitializingBean {
 
 		private Date exportedOn;
 
-		private User revisionsBy;
+		private List<User> revisionsBy;
 
-		public FormsDataRevisionExporter(RevisionsListCriteria criteria, User exportedBy, Date exportedOn, User revisionsBy) {
+		public FormsDataRevisionExporter(RevisionsListCriteria criteria, User exportedBy, Date exportedOn, List<User> revisionsBy) {
 			this.criteria = criteria;
 			this.exportedBy = exportedBy;
 			this.exportedOn = exportedOn;
@@ -565,11 +573,12 @@ public class AuditServiceImpl implements AuditService, InitializingBean {
 		}
 	}
 
-	private void sendEmailNotif(RevisionsListCriteria criteria, User exportedBy, User revsBy, File revisionsFile) {
+	private void sendEmailNotif(RevisionsListCriteria criteria, User exportedBy, List<User> revsBy, File revisionsFile) {
 		Map<String, Object> emailProps = new HashMap<>();
 		emailProps.put("startDate", getDateTimeString(criteria.startDate()));
 		emailProps.put("endDate",   getDateTimeString(criteria.endDate()));
-		emailProps.put("user",      revsBy != null ? revsBy.formattedName() : null);
+		String userNames = Utility.nullSafeStream(revsBy).map(User::formattedName).collect(Collectors.joining(", "));
+		emailProps.put("users",     !userNames.isEmpty() ? userNames : null);
 		emailProps.put("fileId",    getFileId(revisionsFile));
 		emailProps.put("rcpt",      exportedBy.formattedName());
 
@@ -593,12 +602,15 @@ public class AuditServiceImpl implements AuditService, InitializingBean {
 		return dt != null ? Utility.getDateTimeString(dt) : null;
 	}
 
-	private void writeExportHeader(CsvWriter writer, RevisionsListCriteria criteria, User exportedBy, Date exportedOn, User revisionUser) {
+	private void writeExportHeader(CsvWriter writer, RevisionsListCriteria criteria, User exportedBy, Date exportedOn, List<User> revisionUsers) {
 		writeRow(writer, toMsg("audit_rev_exported_by"), exportedBy.formattedName());
 		writeRow(writer, toMsg("audit_rev_exported_on"), getDateTimeString(exportedOn));
 
-		if (revisionUser != null) {
-			writeRow(writer, toMsg("audit_rev_audited_user"), revisionUser.formattedName());
+		if (CollectionUtils.isNotEmpty(revisionUsers)) {
+			List<String> userNames = revisionUsers.stream().map(User::formattedName).collect(Collectors.toList());
+			userNames.add(0, toMsg("audit_rev_audited_users"));
+
+			writeRow(writer, userNames.toArray(new String[0]));
 		}
 
 		if (criteria.startDate() != null) {
