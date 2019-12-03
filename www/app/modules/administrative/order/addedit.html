@@ -238,10 +238,15 @@
               </th>
               <th class="col os-mw-140">
                 <span translate="orders.spec.quantity">Quantity</span>
+                <a ng-click="copyFirstQtyToAll()" style="font-weight: normal;">
+                  <span>(</span>
+                  <span translate="common.copy_first_to_all">Copy first to all</span>
+                  <span>)</span>
+                </a>
               </th>
               <th class="col os-mw-200" ng-if="ctx.allowHoldingLocations">
                 <span translate="orders.holding_location">Holding Location</span>
-                <a ng-click="applyFirstLocationToAll()" style="font-weight: normal;">
+                <a ng-click="copyFirstLocationToAll()" style="font-weight: normal;">
                   <span>(</span>
                   <span translate="common.copy_first_to_all">Copy first to all</span>
                   <span>)</span>
@@ -335,7 +340,7 @@
                 <div class="pull-left">
                   <os-checkbox ng-model="item.status"
                     ng-true-value="'DISTRIBUTED_AND_CLOSED'" ng-false-value="'DISTRIBUTED'" ng-change="setHeaderStatus()"
-                    ng-disabled="!!item.holdingLocation.name || item.quantity == specimen.availableQty">
+                    ng-disabled="!!item.holdingLocation.name">
                   </os-checkbox>
                 </div>
 
