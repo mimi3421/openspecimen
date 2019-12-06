@@ -1287,7 +1287,13 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
 
         CollectSpecimensSvc.cleanupSpecimens(specimens);
 
-        var opts = $scope.opts = {viewCtx: $scope, onValueChange: onValueChangeCb};
+        var opts = $scope.opts = {
+          viewCtx: $scope,
+          onValueChange: onValueChangeCb,
+          static: false,
+          allowBulkUpload: false,
+          hideFooterActions: true
+        };
         var groups = $scope.customFieldGroups = SpecimenUtil.sdeGroupSpecimens(
           cpDict, spmnCollFields.fieldGroups || [], specimens, {cpr: cpr, visit: visit}, opts);
 
@@ -1375,6 +1381,7 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
         var visitToSave = angular.copy(visit);
 
         var events = {};
+        var uids = [];
         angular.forEach($scope.customFieldGroups,
           function(group) {
             if (group.noMatch || group.visitFields) {
@@ -1383,6 +1390,8 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
 
             angular.forEach(group.input,
               function(sample) {
+                uids.push(sample.specimen.uid);
+
                 if (events[sample.specimen.uid]) {
                   angular.extend(events[sample.specimen.uid], sample.events);
                 } else {
@@ -1393,7 +1402,11 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
           }
         );
 
-        var samples = specimens.map(
+        var samples = specimens.filter(
+          function(spmn) {
+            return uids.indexOf(spmn.uid) > -1
+          }
+        ).map(
           function(spmn) {
             return {specimen: spmn, events: events[spmn.uid]};
           }
