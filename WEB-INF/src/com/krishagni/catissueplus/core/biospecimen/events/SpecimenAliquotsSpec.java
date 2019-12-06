@@ -13,6 +13,8 @@ public class SpecimenAliquotsSpec {
 	
 	private String parentLabel;
 
+	private String derivedReqCode;
+
 	private String cpShortTitle;
 	
 	private Integer noOfAliquots;
@@ -59,6 +61,8 @@ public class SpecimenAliquotsSpec {
 
 	private ExtensionDetail extensionDetail;
 
+	private boolean linkToReqs;
+
 	public Long getParentId() {
 		return parentId;
 	}
@@ -73,6 +77,14 @@ public class SpecimenAliquotsSpec {
 
 	public void setParentLabel(String parentLabel) {
 		this.parentLabel = parentLabel;
+	}
+
+	public String getDerivedReqCode() {
+		return derivedReqCode;
+	}
+
+	public void setDerivedReqCode(String derivedReqCode) {
+		this.derivedReqCode = derivedReqCode;
 	}
 
 	public String getCpShortTitle() {
@@ -265,5 +277,13 @@ public class SpecimenAliquotsSpec {
 
 	public void setExtensionDetail(ExtensionDetail extensionDetail) {
 		this.extensionDetail = extensionDetail;
+	}
+
+	public boolean isLinkToReqs() {
+		return linkToReqs;
+	}
+
+	public void setLinkToReqs(boolean linkToReqs) {
+		this.linkToReqs = linkToReqs;
 	}
 }

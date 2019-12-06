@@ -450,6 +450,7 @@ public class SpecimenDaoImpl extends AbstractDao<Specimen> implements SpecimenDa
 		addCpCond(query, crit);
 		addPpidCond(query, crit);
 		addCprIdCond(query, crit);
+		addAncestorId(query, crit);
 		addSpecimenListCond(query, crit);
 		addReservedForDpCond(query, crit);
 		addStorageLocationCond(query, crit);
@@ -543,6 +544,15 @@ public class SpecimenDaoImpl extends AbstractDao<Specimen> implements SpecimenDa
 		}
 
 		query.add(Restrictions.eq("cpr.id", crit.cprId()));
+	}
+
+	private void addAncestorId(Criteria query, SpecimenListCriteria crit) {
+		if (crit.ancestorId() == null) {
+			return;
+		}
+
+		String sql = String.format(GET_DESCENDENTS_SQL, crit.ancestorId());
+		query.add(Restrictions.sqlRestriction("{alias}.identifier in (" + sql + ")"));
 	}
 
 	private void addSpecimenListCond(Criteria query, SpecimenListCriteria crit) {
@@ -683,4 +693,7 @@ public class SpecimenDaoImpl extends AbstractDao<Specimen> implements SpecimenDa
 	private static final String GET_STORAGE_SITE = FQN + ".getStorageSite";
 
 	private static final String GET_ROOT_ID = FQN + ".getRootId";
+
+	private static final String GET_DESCENDENTS_SQL =
+		"select descendent_id from catissue_specimen_hierarchy where ancestor_id = %d and ancestor_id != descendent_id";
 }

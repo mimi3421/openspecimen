@@ -7,6 +7,8 @@ public class SpecimenQueryCriteria extends EntityQueryCriteria {
 
 	private String barcode;
 
+	private boolean includeChildren = true;
+
 	public SpecimenQueryCriteria(Long id) {
 		super(id);
 	}
@@ -30,5 +32,13 @@ public class SpecimenQueryCriteria extends EntityQueryCriteria {
 
 	public void setBarcode(String barcode) {
 		this.barcode = barcode;
+	}
+
+	public boolean isIncludeChildren() {
+		return includeChildren;
+	}
+
+	public void setIncludeChildren(boolean includeChildren) {
+		this.includeChildren = includeChildren;
 	}
 }

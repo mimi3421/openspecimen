@@ -33,6 +33,7 @@ import com.krishagni.catissueplus.core.biospecimen.ConfigParams;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
+import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenRequirement;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenSavedEvent;
 import com.krishagni.catissueplus.core.biospecimen.domain.Visit;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.CpErrorCode;
@@ -145,7 +146,7 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 			}
 
 			AccessCtrlMgr.SpecimenAccessRights rights = AccessCtrlMgr.getInstance().ensureReadSpecimenRights(specimen);
-			SpecimenDetail detail = SpecimenDetail.from(specimen, false, !rights.phiAccess, rights.onlyPrimarySpmns);
+			SpecimenDetail detail = SpecimenDetail.from(specimen, false, !rights.phiAccess, rights.onlyPrimarySpmns || !crit.isIncludeChildren());
 			setDistributionStatus(detail);
 			return ResponseEvent.response(detail);
 		} catch (OpenSpecimenException ose) {
@@ -447,6 +448,19 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 				aliquotQty = parentQty.divide(new BigDecimal(count), RoundingMode.FLOOR);
 			}
 
+			List<Long> reqIds = new ArrayList<>();
+			if (spec.isLinkToReqs() && parentSpmn.getSpecimenRequirement() != null) {
+				reqIds = parentSpmn.getSpecimenRequirement().getOrderedChildRequirements().stream()
+					.filter(SpecimenRequirement::isAliquot)
+					.map(SpecimenRequirement::getId).collect(Collectors.toList());
+
+				Set<Long> collectedReqs = parentSpmn.getChildCollection().stream()
+					.filter(c -> c.getSpecimenRequirement() != null && c.isAliquot())
+					.map(c -> c.getSpecimenRequirement().getId())
+					.collect(Collectors.toSet());
+				reqIds.removeAll(collectedReqs);
+			}
+
 			List<StorageLocationSummary> locations = spec.getLocations();
 			List<SpecimenDetail> aliquots = new ArrayList<>();
 			for (int i = 0; i < count; ++i) {
@@ -464,6 +478,11 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 				aliquot.setCloseParent(spec.closeParent());
 				aliquot.setPrintLabel(spec.printLabel());
 				aliquot.setExtensionDetail(spec.getExtensionDetail());
+
+				if (i < reqIds.size()) {
+					aliquot.setReqId(reqIds.get(i));
+				}
+
 				if (i < labels.size()) {
 					aliquot.setLabel(labels.get(i));
 				}

@@ -30,6 +30,8 @@ public class SpecimenListCriteria extends AbstractListCriteria<SpecimenListCrite
 
 	private String ppid;
 
+	private Long ancestorId;
+
 	private String anatomicSite;
 
 	private String type;
@@ -156,6 +158,15 @@ public class SpecimenListCriteria extends AbstractListCriteria<SpecimenListCrite
 
 	public SpecimenListCriteria ppid(String ppid) {
 		this.ppid = ppid;
+		return self();
+	}
+
+	public Long ancestorId() {
+		return ancestorId;
+	}
+
+	public SpecimenListCriteria ancestorId(Long ancestorId) {
+		this.ancestorId = ancestorId;
 		return self();
 	}
 

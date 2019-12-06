@@ -128,6 +128,32 @@ public class MobileAppController {
 		return ResponseEvent.unwrap(mobileAppSvc.getSpecimens(RequestEvent.wrap(crit)));
 	}
 
+	@RequestMapping(method = RequestMethod.GET, value = "/child-specimens")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public List<? extends SpecimenInfo> getSpecimens(
+		@RequestParam(value = "parentSpecimenId")
+		Long parentId,
+
+		@RequestParam(value = "label", required = false)
+		String label) {
+
+		SpecimenListCriteria crit = new SpecimenListCriteria()
+			.ancestorId(parentId)
+			.lineages(new String[] { "Aliquot"})
+			.startAt(0)
+			.maxResults(100)
+			.limitItems(true);
+
+		if (label != null) {
+			crit.labels(Collections.singletonList(label)).exactMatch(false);
+		}
+
+		MobileAppService mobileAppSvc = new MobileAppServiceImpl();
+		return ResponseEvent.unwrap(mobileAppSvc.getSpecimens(RequestEvent.wrap(crit)));
+	}
+
+
 
 	private void sendForm(HttpServletResponse httpResp, Container form, int maxPvListSize)
 	throws IOException {

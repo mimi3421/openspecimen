@@ -20,14 +20,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
+import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenRequirement;
 import com.krishagni.catissueplus.core.biospecimen.domain.Visit;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.CpErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.CprErrorCode;
+import com.krishagni.catissueplus.core.biospecimen.domain.factory.SpecimenErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.events.CollectionProtocolRegistrationDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.ParticipantDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.RegistrationQueryCriteria;
+import com.krishagni.catissueplus.core.biospecimen.events.SpecimenAliquotsSpec;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenInfo;
+import com.krishagni.catissueplus.core.biospecimen.events.SpecimenQueryCriteria;
 import com.krishagni.catissueplus.core.biospecimen.events.VisitDetail;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.biospecimen.repository.SpecimenListCriteria;
@@ -115,6 +119,12 @@ public class MobileAppServiceImpl implements MobileAppService {
 					spmn = saveOrUpdateSpecimen(spmn);
 					result = getFormData(formData.getContainer(), spmn).getFieldValueMap();
 					break;
+
+				case "createAliquots":
+					SpecimenAliquotsSpec spec = toAliquotSpec(appData, fields);
+					List<SpecimenDetail> aliquots = createAliquots(spec);
+					result = getFormData(formData.getContainer(), aliquots.get(0)).getFieldValueMap();
+					break;
 			}
 
 			return ResponseEvent.response(result);
@@ -138,6 +148,9 @@ public class MobileAppServiceImpl implements MobileAppService {
 			switch (action) {
 				case "getParticipant":
 					return ResponseEvent.response(getCpr(input));
+
+				case "getSpecimen":
+					return ResponseEvent.response(getSpecimen(input));
 
 				default:
 					return null;
@@ -192,6 +205,17 @@ public class MobileAppServiceImpl implements MobileAppService {
 		return spmn;
 	}
 
+	private SpecimenAliquotsSpec toAliquotSpec(Map<String, Object> appData, Map<String, Object> fields) {
+		SpecimenAliquotsSpec aliquotsSpec = toObject(fields, SpecimenAliquotsSpec.class);
+
+		Number parentId = (Number) appData.get("parentSpecimenId");
+		if (parentId != null) {
+			aliquotsSpec.setParentId(parentId.longValue());
+		}
+
+		return aliquotsSpec;
+	}
+
 	private <T> T toObject(Map<String, Object> fields, Class<T> klass) {
 		return new ObjectMapper()
 			.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
@@ -238,6 +262,27 @@ public class MobileAppServiceImpl implements MobileAppService {
 		CollectionProtocolRegistrationDetail cpr = ResponseEvent.unwrap(cprSvc.getRegistration(RequestEvent.wrap(crit)));
 		Container form = getForm(cpr.getCpId(), "registrationForm");
 		return getFormData(form, cpr).getFieldValueMap();
+	}
+
+	private Map<String, Object> getSpecimen(Map<String, String> input) {
+		String spmnIdStr = input.get("specimenId");
+		if (spmnIdStr == null || spmnIdStr.trim().isEmpty()) {
+			throw OpenSpecimenException.userError(CommonErrorCode.INVALID_INPUT, "Specimen ID is required");
+		}
+
+		Long specimenId = null;
+		try {
+			specimenId = Long.parseLong(spmnIdStr);
+		} catch (NumberFormatException nfe) {
+			throw OpenSpecimenException.userError(CommonErrorCode.INVALID_INPUT, "Specimen ID " + spmnIdStr + " is not valid!");
+		}
+
+		SpecimenQueryCriteria crit = new SpecimenQueryCriteria(specimenId);
+		crit.setIncludeChildren(false);
+		SpecimenDetail spmn = ResponseEvent.unwrap(spmnSvc.getSpecimen(RequestEvent.wrap(crit)));
+		String entityForm = spmn.getLineage().equals(Specimen.ALIQUOT) ? "aliquotForm": "specimenForm";
+		Container form = getForm(spmn.getCpId(), entityForm);
+		return getFormData(form, spmn).getFieldValueMap();
 	}
 
 	private Container getForm(Long cpId, String entityForm) {
@@ -303,7 +348,12 @@ public class MobileAppServiceImpl implements MobileAppService {
 				Object value = input;
 				String[] nameParts = name.split("_");
 				for (String part : nameParts) {
-					value = propertyUtils.getProperty(value, part);
+					try {
+						value = propertyUtils.getProperty(value, part);
+					} catch (NoSuchMethodException nsme) {
+						value = null;
+					}
+
 					if (value == null) {
 						break;
 					}
@@ -416,7 +466,7 @@ public class MobileAppServiceImpl implements MobileAppService {
 			input.setVisitId(visitDetail.getId());
 		}
 
-		if (StringUtils.isBlank(input.getType())) {
+		if (StringUtils.isBlank(input.getReqCode()) && StringUtils.isBlank(input.getType())) {
 			if (StringUtils.isBlank(input.getSpecimenClass())) {
 				input.setType(FLUID_NS);
 			} else {
@@ -424,24 +474,57 @@ public class MobileAppServiceImpl implements MobileAppService {
 			}
 		}
 
-		String[] labels;
-		if (StringUtils.isNotBlank(input.getLabel())) {
-			labels = input.getLabel().split("[,\\t\\n]");
-		} else {
-			labels = new String[] { "" };
+		return ResponseEvent.unwrap(spmnSvc.createSpecimen(RequestEvent.wrap(input)));
+	}
+
+	private List<SpecimenDetail> createAliquots(SpecimenAliquotsSpec spec) {
+		if (spec.getParentId() == null) {
+			throw OpenSpecimenException.userError(SpecimenErrorCode.PARENT_REQUIRED);
 		}
 
-		SpecimenDetail result = null;
-		for (String label : labels) {
-			if (label.trim().isEmpty()) {
-				continue;
-			}
-
-			input.setLabel(label);
-			result = ResponseEvent.unwrap(spmnSvc.createSpecimen(RequestEvent.wrap(input)));
+		Long parentId = spec.getParentId();
+		Specimen parentSpmn = daoFactory.getSpecimenDao().getById(parentId);
+		if (parentSpmn == null) {
+			throw OpenSpecimenException.userError(SpecimenErrorCode.NOT_FOUND, parentId);
 		}
 
-		return result;
+		String derivedReqCode = spec.getDerivedReqCode();
+		if (StringUtils.isNotBlank(derivedReqCode)) {
+			parentId = createDerivedSpecimenIfAbsent(parentSpmn, derivedReqCode);
+		}
+
+		spec.setParentId(parentId);
+		spec.setLinkToReqs(true);
+		return ResponseEvent.unwrap(spmnSvc.createAliquots(RequestEvent.wrap(spec)));
+	}
+
+	private Long createDerivedSpecimenIfAbsent(Specimen parentSpmn, String derivedReqCode) {
+		Specimen derivedSpmn = parentSpmn.getChildCollection().stream()
+			.filter(c -> c.isDerivative() && c.getSpecimenRequirement() != null && derivedReqCode.equals(c.getSpecimenRequirement().getCode()))
+			.findFirst()
+			.orElse(null);
+		if (derivedSpmn != null) {
+			return derivedSpmn.getId();
+		}
+
+		SpecimenRequirement sr = parentSpmn.getSpecimenRequirement();
+		if (sr == null) {
+			throw OpenSpecimenException.userError(CommonErrorCode.INVALID_INPUT, "Invalid derived req code");
+		}
+
+		SpecimenRequirement derivedReq = sr.getChildSpecimenRequirements().stream()
+			.filter(r -> r.isDerivative() && derivedReqCode.equals(r.getCode()))
+			.findFirst()
+			.orElse(null);
+		if (derivedReq == null) {
+			throw OpenSpecimenException.userError(CommonErrorCode.INVALID_INPUT, "Invalid derived req code");
+		}
+
+		SpecimenDetail derivedDetail = new SpecimenDetail();
+		derivedDetail.setReqId(derivedReq.getId());
+		derivedDetail.setParentId(parentSpmn.getId());
+		derivedDetail = ResponseEvent.unwrap(spmnSvc.createDerivative(RequestEvent.wrap(derivedDetail)));
+		return derivedDetail.getId();
 	}
 
 	private static final String FLUID_NS = "Fluid - Not Specified";
