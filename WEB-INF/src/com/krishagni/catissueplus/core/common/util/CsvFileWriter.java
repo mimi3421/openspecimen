@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -83,8 +84,20 @@ public class CsvFileWriter implements CsvWriter {
 	}
 
 	private String escapeUnsafeChars(String input) {
-		if (input != null && !input.isEmpty() && UNSAFE_CHARS.indexOf(input.charAt(0)) > -1) {
+		if (input == null || input.isEmpty()) {
+			return input;
+		}
+
+		if (UNSAFE_CHARS.indexOf(input.charAt(0)) > -1) {
 			return "'" + input;
+		}
+
+		if (NUMERIC_SIGNS.indexOf(input.charAt(0)) > -1) {
+			try {
+				new BigDecimal(input);
+			} catch (Exception e) {
+				return "'" + input;
+			}
 		}
 
 		return input;
@@ -92,5 +105,7 @@ public class CsvFileWriter implements CsvWriter {
 	
 	private static final String DEFAULT_LINE_ENDING = "\n";
 
-	private static final String UNSAFE_CHARS = "=-+@";
+	private static final String UNSAFE_CHARS = ";=@";
+
+	private static final String NUMERIC_SIGNS = "-+";
 }

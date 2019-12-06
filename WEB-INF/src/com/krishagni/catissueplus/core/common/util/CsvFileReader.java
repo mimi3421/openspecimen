@@ -120,15 +120,18 @@ public class CsvFileReader implements CsvReader {
 	public boolean next() {
 		try {
 			currentRow = csvReader.readNext();
+			if (currentRow == null || currentRow.length == 0) {
+				return false;
+			}
 
-			boolean hasNext = currentRow != null && currentRow.length > 0;
-			if (hasNext) {
-				for (int i = 0; i < currentRow.length; i++) {
-					currentRow[i] = StringUtils.trim(currentRow[i]);
+			for (int i = 0; i < currentRow.length; i++) {
+				String col = currentRow[i] = StringUtils.trim(currentRow[i]);
+				if (col != null && col.length() > 1 && col.charAt(0) == '\'' && UNSAFE_CHARS.indexOf(col.charAt(1)) > -1) {
+					currentRow[i] = col.substring(1);
 				}
 			}
 
-			return hasNext;
+			return true;
 		} catch (IOException e) {
 			throw new CsvException("Error reading line from CSV file", e);
 		}
@@ -173,4 +176,6 @@ public class CsvFileReader implements CsvReader {
 		Integer columnIdx = columnNameIdxMap.get(columnName.trim());
 		return columnIdx == null ? -1 : columnIdx;
 	}
+
+	private static final String UNSAFE_CHARS = ";=@+-";
 }
