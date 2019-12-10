@@ -45,11 +45,13 @@ import com.krishagni.catissueplus.core.common.errors.CommonErrorCode;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
+import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.catissueplus.core.de.domain.FormErrorCode;
 import com.krishagni.catissueplus.core.de.events.FormDataDetail;
 
 import edu.common.dynamicextensions.domain.nui.Container;
 import edu.common.dynamicextensions.domain.nui.Control;
+import edu.common.dynamicextensions.domain.nui.DatePicker;
 import edu.common.dynamicextensions.napi.ControlValue;
 import edu.common.dynamicextensions.napi.FormData;
 
@@ -74,8 +76,10 @@ public class MobileAppServiceImpl implements MobileAppService {
 		try {
 			Map<String, Object> input = req.getPayload();
 			Number cpId = (Number) input.get("cpId");
-			String entityForm = (String) input.get("entityForm");
-			return ResponseEvent.response(getForm(cpId.longValue(), entityForm));
+
+			String entity     = (String) input.get("entity");
+			String viewForm   = (String) input.get("viewForm");
+			return ResponseEvent.response(getForm(cpId.longValue(), entity, viewForm));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {
@@ -260,7 +264,7 @@ public class MobileAppServiceImpl implements MobileAppService {
 		RegistrationQueryCriteria crit = new RegistrationQueryCriteria();
 		crit.setCprId(cprId);
 		CollectionProtocolRegistrationDetail cpr = ResponseEvent.unwrap(cprSvc.getRegistration(RequestEvent.wrap(crit)));
-		Container form = getForm(cpr.getCpId(), "registrationForm");
+		Container form = getForm(cpr.getCpId(), "registration", "overview");
 		return getFormData(form, cpr).getFieldValueMap();
 	}
 
@@ -280,31 +284,33 @@ public class MobileAppServiceImpl implements MobileAppService {
 		SpecimenQueryCriteria crit = new SpecimenQueryCriteria(specimenId);
 		crit.setIncludeChildren(false);
 		SpecimenDetail spmn = ResponseEvent.unwrap(spmnSvc.getSpecimen(RequestEvent.wrap(crit)));
-		String entityForm = spmn.getLineage().equals(Specimen.ALIQUOT) ? "aliquotForm": "specimenForm";
-		Container form = getForm(spmn.getCpId(), entityForm);
+		String prefix = spmn.getLineage().equals(Specimen.ALIQUOT) ? "aliquot": "primary";
+		Container form = getForm(spmn.getCpId(), "specimen", prefix + "Overview");
 		return getFormData(form, spmn).getFieldValueMap();
 	}
 
-	private Container getForm(Long cpId, String entityForm) {
+	private Container getForm(Long cpId, String entity, String viewForm) {
 		CollectionProtocol cp = getCp(cpId);
 		AccessCtrlMgr.getInstance().ensureReadCpRights(cp);
 
-		Object formKey = CpWorkflowTxnCache.getInstance().getValue(cpId, "mobile-app", entityForm);
-		if (formKey == null) {
-			throw OpenSpecimenException.userError(CommonErrorCode.INVALID_INPUT, "CP has no " + entityForm + " configured!");
+		Map<String, Map<String, String>> forms = CpWorkflowTxnCache.getInstance().getValue(cpId, "mobile-app", "forms");
+		if (forms == null) {
+			throw OpenSpecimenException.userError(CommonErrorCode.INVALID_INPUT, "CP has no forms configured!");
 		}
 
-		Container form = null;
-		if (formKey instanceof Number) {
-			form = Container.getContainer(((Number) formKey).longValue());
-		} else if (formKey instanceof String) {
-			form = Container.getContainer(formKey.toString());
-		} else {
-			throw OpenSpecimenException.userError(CommonErrorCode.INVALID_INPUT, "Invalid form identifier: " + formKey.toString());
+		Map<String, String> entityViews = forms.get(entity);
+		if (entityViews == null) {
+			throw OpenSpecimenException.userError(CommonErrorCode.INVALID_INPUT, "CP has no " + entity + " views configured!");
 		}
 
+		String formName = entityViews.get(viewForm);
+		if (formName == null) {
+			throw OpenSpecimenException.userError(CommonErrorCode.INVALID_INPUT, "CP has no " + entity + "/" + viewForm + " form configured!");
+		}
+
+		Container form = Container.getContainer(formName);
 		if (form == null) {
-			throw OpenSpecimenException.userError(FormErrorCode.NOT_FOUND, formKey);
+			throw OpenSpecimenException.userError(FormErrorCode.NOT_FOUND, formName);
 		}
 
 		return form;
@@ -332,6 +338,7 @@ public class MobileAppServiceImpl implements MobileAppService {
 		appData.put("title", spmn.getLabel());
 		appData.put("cprId", spmn.getCprId());
 		appData.put("visitId", spmn.getVisitId());
+		appData.put("lineage", spmn.getLineage());
 		return getFormData(form, spmn, spmn.getId(), appData);
 	}
 
@@ -356,6 +363,19 @@ public class MobileAppServiceImpl implements MobileAppService {
 
 					if (value == null) {
 						break;
+					}
+				}
+
+				if (value instanceof String && ctrl instanceof DatePicker) {
+					DatePicker dp = (DatePicker) ctrl;
+					try {
+						if (dp.isDateTimeFmt()) {
+							value = Utility.parseDateTimeString((String) value).getTime();
+						} else {
+							value = Utility.parseDateString((String) value).getTime();
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
 					}
 				}
 

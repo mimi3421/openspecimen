@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.Period;
@@ -387,6 +388,20 @@ public class Utility {
 		return sdf.format(date);
 	}
 
+	public static Date parseDateString(String dateStr) {
+		try {
+			SimpleDateFormat sdf = new SimpleDateFormat(ConfigUtil.getInstance().getDateFmt());
+			TimeZone timeZone = AuthUtil.getUserTimeZone();
+			if (timeZone != null) {
+				sdf.setTimeZone(timeZone);
+			}
+
+			return sdf.parse(dateStr);
+		} catch (ParseException pe) {
+			throw OpenSpecimenException.serverError(pe);
+		}
+	}
+
 	public static String getDateTimeString(Date date) {
 		SimpleDateFormat sdf = new SimpleDateFormat(ConfigUtil.getInstance().getDateTimeFmt());
 		TimeZone timeZone = AuthUtil.getUserTimeZone();
@@ -395,6 +410,20 @@ public class Utility {
 		}
 
 		return sdf.format(date);
+	}
+
+	public static Date parseDateTimeString(String dateTimeStr) {
+		try {
+			SimpleDateFormat sdf = new SimpleDateFormat(ConfigUtil.getInstance().getDateTimeFmt());
+			TimeZone timeZone = AuthUtil.getUserTimeZone();
+			if (timeZone != null) {
+				sdf.setTimeZone(timeZone);
+			}
+
+			return sdf.parse(dateTimeStr);
+		} catch (ParseException pe) {
+			throw OpenSpecimenException.serverError(pe);
+		}
 	}
 
 	public static String format(Date date, String format) {

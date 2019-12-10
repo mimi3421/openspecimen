@@ -42,8 +42,11 @@ public class MobileAppController {
 		@RequestParam(value = "cpId")
 		Long cpId,
 
-		@RequestParam(value = "entityForm")
-		String entityForm,
+		@RequestParam(value = "entity")
+		String entity,
+
+		@RequestParam(value = "viewForm")
+		String viewForm,
 
 		@RequestParam(value = "maxPvs", required = false, defaultValue = "0")
 		int maxPvListSize,
@@ -55,7 +58,8 @@ public class MobileAppController {
 
 		Map<String, Object> params = new HashMap<>();
 		params.put("cpId", cpId);
-		params.put("entityForm", entityForm);
+		params.put("entity", entity);
+		params.put("viewForm", viewForm);
 
 		ResponseEvent<Container> resp = mobileAppSvc.getForm(RequestEvent.wrap(params));
 		Container form = ResponseEvent.unwrap(resp);
