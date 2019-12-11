@@ -13,4 +13,9 @@ angular.module('os.biospecimen.cp.import', ['os.biospecimen.models'])
         }
       );
     }
+
+    $scope.cancel = function(event) {
+      event.preventDefault();
+      $scope.back();
+    }
   });
