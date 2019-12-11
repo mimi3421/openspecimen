@@ -397,10 +397,12 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 				if (!user.isValidOldPassword(detail.getOldPassword())) {
 					return ResponseEvent.userError(UserErrorCode.INVALID_OLD_PASSWD);
 				}
-
 			} else if (!currentUser.isAdmin()) {
-				return ResponseEvent.userError(UserErrorCode.PERMISSION_DENIED);
+				if (!currentUser.isInstituteAdmin() || !currentUser.getInstitute().equals(user.getInstitute())) {
+					return ResponseEvent.userError(UserErrorCode.PERMISSION_DENIED);
+				}
 			}
+
 			user.changePassword(detail.getNewPassword());
 			daoFactory.getUserDao().saveOrUpdate(user);
 			sendPasswdChangedEmail(user);

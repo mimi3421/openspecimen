@@ -28,8 +28,9 @@
         </button>
         <button class="default" ui-sref="user-password({userId: user.id})"
           ng-if="user.type != 'CONTACT' && user.domainName == global.defaultDomain &&
-                 currentUser.id != user.id && currentUser.admin &&
-                 user.activityStatus == 'Active' || user.activityStatus == 'Expired'">
+                 currentUser.id != user.id &&
+                 (currentUser.admin || currentUser.instituteAdmin) &&
+                 (user.activityStatus == 'Active' || user.activityStatus == 'Expired')">
           <span class="fa fa-key"></span>
           <span translate="common.buttons.reset_password">Reset Password</span>
         </button>
