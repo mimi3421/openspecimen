@@ -1037,18 +1037,23 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 		taskManager.scheduleWithFixedDelay(
 			new Runnable() {
 				@Override
-				@PlusTransactional
 				public void run() {
 					try {
-						Calendar cal = Calendar.getInstance();
-						cal.add(Calendar.MINUTE, -5);
-
-						int count = daoFactory.getStorageContainerDao().deleteReservedPositionsOlderThan(cal.getTime());
-						if (count > 0) {
-							logger.info(String.format("Cleaned up %d stale container slot reservations", count));
-						}
+						logger.debug("Woken up to clean the stale reserved container slots...");
+						run0();
 					} catch (Throwable e) {
-						logger.error("Error deleting older reserved container slots", e);
+						logger.error("Error deleting stale reserved container slots", e);
+					}
+				}
+
+				@PlusTransactional
+				private void run0() {
+					Calendar cal = Calendar.getInstance();
+					cal.add(Calendar.MINUTE, -5);
+
+					int count = daoFactory.getStorageContainerDao().deleteReservedPositionsOlderThan(cal.getTime());
+					if (count > 0) {
+						logger.info(String.format("Cleaned up %d stale container slot reservations", count));
 					}
 				}
 			}, 5
