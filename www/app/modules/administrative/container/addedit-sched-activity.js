@@ -41,7 +41,7 @@ angular.module('os.administrative.container')
     }
 
     $scope.cancel = function() {
-      $modalInstance.close('dismiss');
+      $modalInstance.dismiss('cancel');
     }
 
     init();
