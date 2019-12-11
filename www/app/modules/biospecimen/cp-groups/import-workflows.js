@@ -27,6 +27,11 @@ angular.module('os.biospecimen.cpgroups')
         );
       }
 
+      $scope.cancel = function(event) {
+        event.preventDefault();
+        $scope.back();
+      }
+
       init();
     }
   );
