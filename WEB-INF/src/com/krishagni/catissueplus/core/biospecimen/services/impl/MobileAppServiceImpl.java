@@ -1,11 +1,15 @@
 package com.krishagni.catissueplus.core.biospecimen.services.impl;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.beanutils.BeanUtilsBean2;
@@ -19,6 +23,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
+import com.krishagni.catissueplus.core.biospecimen.domain.CpWorkflowConfig;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenRequirement;
 import com.krishagni.catissueplus.core.biospecimen.domain.Visit;
@@ -33,6 +38,7 @@ import com.krishagni.catissueplus.core.biospecimen.events.SpecimenDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenInfo;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenQueryCriteria;
 import com.krishagni.catissueplus.core.biospecimen.events.VisitDetail;
+import com.krishagni.catissueplus.core.biospecimen.events.WorkflowDetail;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.biospecimen.repository.SpecimenListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.services.CollectionProtocolRegistrationService;
@@ -69,6 +75,45 @@ public class MobileAppServiceImpl implements MobileAppService {
 
 	@Autowired
 	private SpecimenService spmnSvc;
+
+	@Override
+	@PlusTransactional
+	public ResponseEvent<Map<String, Object>> getCpDetail(RequestEvent<String> req) {
+		try {
+			String shortTitle = req.getPayload();
+			CollectionProtocol cp = daoFactory.getCollectionProtocolDao().getCpByShortTitle(shortTitle);
+			if (cp == null) {
+				return ResponseEvent.userError(CpErrorCode.NOT_FOUND, shortTitle);
+			}
+
+			AccessCtrlMgr.getInstance().ensureReadCpRights(cp);
+
+			CpWorkflowConfig.Workflow workflow = CpWorkflowTxnCache.getInstance()
+				.getWorkflow(cp.getId(), "mobile-app");
+			Map<String, Object> data = new HashMap<>();
+			if (workflow != null && workflow.getData() != null) {
+				data = workflow.getData();
+			}
+
+			Map<String, Object> result = new HashMap<>();
+			result.put("id", cp.getId());
+			result.put("shortTitle", cp.getShortTitle());
+			result.put("pi", cp.getPrincipalInvestigator().formattedName());
+			result.put("workflow", data);
+
+			Map<String, Object> forms = (Map<String, Object>) data.get("forms");
+			Set<String> formNames = new HashSet<>();
+			formNames.addAll(getFormNames(forms, "registration"));
+			formNames.addAll(getFormNames(forms, "specimen"));
+			result.put("forms", getFormDefs(formNames));
+
+			return ResponseEvent.response(result);
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
+		} catch (Exception e) {
+			return ResponseEvent.serverError(e);
+		}
+	}
 
 	@Override
 	@PlusTransactional
@@ -388,6 +433,34 @@ public class MobileAppServiceImpl implements MobileAppService {
 		}
 	}
 
+	private Set<String> getFormNames(Map<String, Object> forms, String entity) {
+		if (forms == null) {
+			return Collections.emptySet();
+		}
+
+		Map<String, String> entityForms = (Map<String, String>)forms.get(entity);
+		if (entityForms == null) {
+			return Collections.emptySet();
+		}
+
+		return new HashSet<>(entityForms.values());
+	}
+
+	private List<Map<String, Object>> getFormDefs(Collection<String> names) {
+		List<Map<String, Object>> formDefs = new ArrayList<>();
+		for (String name : names) {
+			Container form = Container.getContainer(name);
+			if (form == null) {
+				// TODO
+				continue;
+			}
+
+			formDefs.add(form.getProps());
+		}
+
+		return formDefs;
+	}
+
 	private CollectionProtocolRegistrationDetail saveOrUpdateCpr(CollectionProtocolRegistrationDetail input) {
 		if (input.getRegistrationDate() == null) {
 			input.setRegistrationDate(Calendar.getInstance().getTime());
@@ -546,6 +619,8 @@ public class MobileAppServiceImpl implements MobileAppService {
 		derivedDetail = ResponseEvent.unwrap(spmnSvc.createDerivative(RequestEvent.wrap(derivedDetail)));
 		return derivedDetail.getId();
 	}
+
+
 
 	private static final String FLUID_NS = "Fluid - Not Specified";
 

@@ -12,6 +12,8 @@ import com.krishagni.catissueplus.core.de.events.FormDataDetail;
 import edu.common.dynamicextensions.domain.nui.Container;
 
 public interface MobileAppService {
+	ResponseEvent<Map<String, Object>> getCpDetail(RequestEvent<String> req);
+
 	ResponseEvent<Container> getForm(RequestEvent<Map<String, Object>> req);
 
 	ResponseEvent<Map<String, Object>> saveFormData(RequestEvent<FormDataDetail> req);

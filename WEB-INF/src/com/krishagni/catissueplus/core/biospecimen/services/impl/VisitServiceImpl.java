@@ -273,7 +273,7 @@ public class VisitServiceImpl implements VisitService, ObjectAccessor, Initializ
 			// 
 			// Step 3: Collect specimens
 			//
-			RequestEvent<List<SpecimenDetail>> collectSpecimensReq = new RequestEvent<List<SpecimenDetail>>(specimens);
+			RequestEvent<List<SpecimenDetail>> collectSpecimensReq = new RequestEvent<>(specimens);
 			ResponseEvent<List<SpecimenDetail>> collectSpecimensResp = specimenSvc.collectSpecimens(collectSpecimensReq);
 			collectSpecimensResp.throwErrorIfUnsuccessful();
 			

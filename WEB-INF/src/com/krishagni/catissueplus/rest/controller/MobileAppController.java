@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenInfo;
 import com.krishagni.catissueplus.core.biospecimen.repository.SpecimenListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.services.MobileAppService;
@@ -34,6 +35,17 @@ import edu.common.dynamicextensions.nutility.ContainerSerializer;
 @Controller
 @RequestMapping("/mobile-app")
 public class MobileAppController {
+
+	private MobileAppService mobileAppSvc = new MobileAppServiceImpl();
+
+	@RequestMapping(method = RequestMethod.GET, value = "/collection-protocol")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public Map<String, Object> getCollectionProtocol(
+		@RequestParam(value = "shortTitle")
+		String shortTitle) {
+		return ResponseEvent.unwrap(mobileAppSvc.getCpDetail(RequestEvent.wrap(shortTitle)));
+	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/form")
 	@ResponseStatus(HttpStatus.OK)
@@ -53,8 +65,6 @@ public class MobileAppController {
 
 		HttpServletResponse httpResp)
 		throws IOException {
-
-		MobileAppService mobileAppSvc = new MobileAppServiceImpl();
 
 		Map<String, Object> params = new HashMap<>();
 		params.put("cpId", cpId);
@@ -83,8 +93,6 @@ public class MobileAppController {
 		detail.setFormId(form.getId());
 		detail.setFormData(formData);
 		detail.setRecordId(formData.getRecordId());
-
-		MobileAppService mobileAppSvc = new MobileAppServiceImpl();
 		return ResponseEvent.unwrap(mobileAppSvc.saveFormData(RequestEvent.wrap(detail)));
 	}
 
@@ -99,8 +107,6 @@ public class MobileAppController {
 		Map<String, String> input) {
 
 		input.put("action", action);
-
-		MobileAppService mobileAppSvc = new MobileAppServiceImpl();
 		return ResponseEvent.unwrap(mobileAppSvc.getFormData(RequestEvent.wrap(input)));
 	}
 
@@ -128,7 +134,6 @@ public class MobileAppController {
 			crit.labels(Collections.singletonList(label)).exactMatch(false);
 		}
 
-		MobileAppService mobileAppSvc = new MobileAppServiceImpl();
 		return ResponseEvent.unwrap(mobileAppSvc.getSpecimens(RequestEvent.wrap(crit)));
 	}
 
@@ -153,7 +158,6 @@ public class MobileAppController {
 			crit.labels(Collections.singletonList(label)).exactMatch(false);
 		}
 
-		MobileAppService mobileAppSvc = new MobileAppServiceImpl();
 		return ResponseEvent.unwrap(mobileAppSvc.getSpecimens(RequestEvent.wrap(crit)));
 	}
 
