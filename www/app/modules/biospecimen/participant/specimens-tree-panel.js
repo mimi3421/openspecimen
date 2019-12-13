@@ -87,7 +87,7 @@ angular.module('os.biospecimen.participant')
     }
 
     function prepareSpecimens(state, cpId, specimens) {
-      return CpConfigSvc.getWorkflowData(cpId, 'specimenTree', {}).then(
+      return CpConfigSvc.getSpecimenTreeCfg(cpId).then(
         function(treeCfg) {
           var opts = {hideDerivatives: treeCfg.hideDerivatives};
           state.specimens = Specimen.flatten(specimens, undefined, undefined, undefined, opts);
@@ -177,7 +177,7 @@ angular.module('os.biospecimen.participant')
 
     State.prototype.getDescTmpl = function() {
       var that = this;
-      return CpConfigSvc.getWorkflowData(this.cpr.cpId, 'specimenTree', {}).then(
+      return CpConfigSvc.getSpecimenTreeCfg(this.cpr.cpId).then(
         function(data) {
           var tmpl = data.summaryDescTmpl || '';
           if (!!tmpl) {

@@ -517,7 +517,7 @@ angular.module('os.biospecimen.participant.specimen-tree',
 
       link: function(scope, element, attrs) {
         var cpDictQ  = CpConfigSvc.getDictionary(scope.cp.id, []);
-        var treeCfgQ = CpConfigSvc.getWorkflowData(scope.cp.id, 'specimenTree', {});
+        var treeCfgQ = CpConfigSvc.getSpecimenTreeCfg(scope.cp.id);
         $q.all([cpDictQ, treeCfgQ]).then(
           function(resps) {
             linker(scope, element, attrs, resps[0] || [], resps[1]);

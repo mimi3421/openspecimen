@@ -287,6 +287,23 @@ angular.module('openspecimen')
         );
       },
 
+      getSpecimenTreeCfg: function(cpId) {
+        return getWorkflowData(-1, 'specimenTree', {}).then(
+          function(sysTreeCfg) {
+            var result = angular.extend({}, sysTreeCfg);
+            if (cpId == -1) {
+              return result;
+            }
+
+            return getWorkflowData(cpId, 'specimenTree', {}).then(
+              function(cpTreeCfg) {
+                return angular.extend(result, cpTreeCfg);
+              }
+            );
+          }
+        );
+      },
+
       saveWorkflow: saveWorkflow,
 
       getCommonCfg: getCommonCfg,
