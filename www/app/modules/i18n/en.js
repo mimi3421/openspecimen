@@ -1684,7 +1684,7 @@
     "select_cps": "Select One or More Collection Protocols",
     "select_level": "Select Level",
     "attach_form": "Attach Form",
-    "attached": "Form Successfully Attached",
+    "attached": "Form successfully attached!",
     "record_count": "Record Count",
     "record_stats": "Following table shows {{caption}} form record counts",
     "deleting_form": "Deleting {{caption}} form confirmation",
@@ -1692,7 +1692,7 @@
     "confirm_delete_with_data": "You will lose data if you delete the {{caption}} form. Do you want to continue?",
     "form_deleted": "{{caption}} form deleted successfully",
     "confirm_delete_association": "Are you sure you want to delete this form association (<b>{{level.caption}}{{!collectionProtocol.id ? '' : '/' + collectionProtocol.shortTitle}})</b>? Please note that you will no longer be able to access data for this form association.",
-    "association_deleted": "Successfully deleted form at {{level.caption}} level from {{!collectionProtocol.id ? 'All Protocols' : collectionProtocol.shortTitle}}",
+    "association_deleted": "Successfully deleted the form association at <b>{{level.caption}}{{!collectionProtocol.id ? '' : '/' + collectionProtocol.shortTitle}}</b>",
     "delete_forms":  "You will lose data if you delete the selected forms. Do you want to continue?",
     "forms_deleted": "Forms deleted successfully",
 
