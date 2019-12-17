@@ -743,7 +743,26 @@ public class FormServiceImpl implements FormService, InitializingBean {
 			throw OpenSpecimenException.userError(FormErrorCode.REC_NOT_FOUND);
 		}
 
-		formDataMgr.anonymize(null, form, recordId);
+		formDataMgr.anonymize(
+			new UserContext() {
+				@Override
+				public Long getUserId() {
+					return AuthUtil.getCurrentUser().getId();
+				}
+
+				@Override
+				public String getUserName() {
+					return AuthUtil.getCurrentUser().getLoginName();
+				}
+
+				@Override
+				public String getIpAddress() {
+					return AuthUtil.getRemoteAddr();
+				}
+			},
+			form,
+			recordId
+		);
 
 		recEntry.setUpdatedBy(AuthUtil.getCurrentUser().getId());
 		recEntry.setUpdatedTime(Calendar.getInstance().getTime());
