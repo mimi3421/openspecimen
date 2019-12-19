@@ -37,7 +37,7 @@ public class CsvFileWriter implements CsvWriter {
 		return createCsvFileWriter(writer, Utility.getFieldSeparator(), CSVWriter.DEFAULT_QUOTE_CHARACTER);
 	}
 	
-	public static CsvFileWriter createCsvFileWriter(Writer writer, char separator, char quotechar){
+	public static CsvFileWriter createCsvFileWriter(Writer writer, char separator, char quotechar) {
 		CSVWriter csvWriter = new CSVWriter(writer, separator, quotechar, getLineEnding());
 		return new CsvFileWriter(csvWriter);
 	}

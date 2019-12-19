@@ -1,6 +1,9 @@
 package com.krishagni.catissueplus.core.biospecimen.services.impl;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -10,17 +13,25 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.beanutils.BeanUtilsBean2;
 import org.apache.commons.beanutils.PropertyUtilsBean;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
 import com.krishagni.catissueplus.core.biospecimen.domain.CpWorkflowConfig;
@@ -38,31 +49,40 @@ import com.krishagni.catissueplus.core.biospecimen.events.SpecimenDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenInfo;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenQueryCriteria;
 import com.krishagni.catissueplus.core.biospecimen.events.VisitDetail;
-import com.krishagni.catissueplus.core.biospecimen.events.WorkflowDetail;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.biospecimen.repository.SpecimenListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.services.CollectionProtocolRegistrationService;
 import com.krishagni.catissueplus.core.biospecimen.services.MobileAppService;
 import com.krishagni.catissueplus.core.biospecimen.services.SpecimenService;
 import com.krishagni.catissueplus.core.biospecimen.services.VisitService;
+import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
 import com.krishagni.catissueplus.core.common.errors.CommonErrorCode;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
+import com.krishagni.catissueplus.core.common.util.AuthUtil;
+import com.krishagni.catissueplus.core.common.util.CsvException;
+import com.krishagni.catissueplus.core.common.util.CsvFileWriter;
+import com.krishagni.catissueplus.core.common.util.CsvWriter;
 import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.catissueplus.core.de.domain.FormErrorCode;
 import com.krishagni.catissueplus.core.de.events.FormDataDetail;
+import com.krishagni.catissueplus.core.de.services.impl.ExtensionSchemaBuilder;
+import com.krishagni.catissueplus.core.importer.domain.ObjectSchema;
+import com.krishagni.catissueplus.core.importer.services.ObjectReader;
 
 import edu.common.dynamicextensions.domain.nui.Container;
 import edu.common.dynamicextensions.domain.nui.Control;
 import edu.common.dynamicextensions.domain.nui.DatePicker;
 import edu.common.dynamicextensions.napi.ControlValue;
 import edu.common.dynamicextensions.napi.FormData;
+import edu.common.dynamicextensions.util.ZipUtility;
 
 @Configurable
 public class MobileAppServiceImpl implements MobileAppService {
+	private static final Log logger = LogFactory.getLog(MobileAppServiceImpl.class);
 
 	@Autowired
 	private DaoFactory daoFactory;
@@ -75,6 +95,12 @@ public class MobileAppServiceImpl implements MobileAppService {
 
 	@Autowired
 	private SpecimenService spmnSvc;
+
+	@Autowired
+	private ThreadPoolTaskExecutor executor;
+
+	@Autowired
+	private SessionFactory sessionFactory;
 
 	@Override
 	@PlusTransactional
@@ -217,6 +243,47 @@ public class MobileAppServiceImpl implements MobileAppService {
 		return spmnSvc.getSpecimens(req);
 	}
 
+	@Override
+	@PlusTransactional
+	public ResponseEvent<Map<String, Object>> uploadData(RequestEvent<Map<String, Object>> req) {
+		try {
+			Map<String, Object> input = req.getPayload();
+			Long cpId = (Long) input.get("cpId");
+			if (cpId == null) {
+				throw OpenSpecimenException.userError(CpErrorCode.REQUIRED);
+			}
+
+			CollectionProtocol cp = daoFactory.getCollectionProtocolDao().getById(cpId);
+			if (cp == null) {
+				throw OpenSpecimenException.userError(CpErrorCode.NOT_FOUND, cpId);
+			}
+
+			File inputFile = (File) input.get("file");
+			File inflatedDir = new File(inputFile.getParentFile(), "inflated-" + inputFile.getName());
+			ZipUtility.extractZipToDestination(inputFile.getAbsolutePath(), inflatedDir.getAbsolutePath());
+
+			User currentUser = AuthUtil.getCurrentUser();
+			executor.submit(
+				() -> {
+					try {
+						AuthUtil.setCurrentUser(currentUser);
+						importData(cp, inflatedDir);
+					} catch (Throwable t) {
+						t.printStackTrace();
+					} finally {
+						AuthUtil.clearCurrentUser();
+					}
+				}
+			);
+
+			return ResponseEvent.response(Collections.singletonMap("fileId", inputFile.getName()));
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
+		} catch (Exception e) {
+			return ResponseEvent.serverError(e);
+		}
+	}
+
 	private CollectionProtocol getCp(Long cpId) {
 		if (cpId == null) {
 			throw OpenSpecimenException.userError(CpErrorCode.REQUIRED);
@@ -251,15 +318,26 @@ public class MobileAppServiceImpl implements MobileAppService {
 			spmn.setCprId(cprId.longValue());
 		}
 
+		String ppid = (String) appData.get("ppid");
+		if (ppid != null) {
+			spmn.setPpid(ppid);
+		}
+
 		return spmn;
 	}
 
 	private SpecimenAliquotsSpec toAliquotSpec(Map<String, Object> appData, Map<String, Object> fields) {
 		SpecimenAliquotsSpec aliquotsSpec = toObject(fields, SpecimenAliquotsSpec.class);
+		aliquotsSpec.setCpShortTitle((String) appData.get("cpShortTitle"));
 
 		Number parentId = (Number) appData.get("parentSpecimenId");
 		if (parentId != null) {
 			aliquotsSpec.setParentId(parentId.longValue());
+		}
+
+		String parentLabel = (String) appData.get("parentLabel");
+		if (parentLabel != null) {
+			aliquotsSpec.setParentLabel(parentLabel);
 		}
 
 		return aliquotsSpec;
@@ -502,9 +580,20 @@ public class MobileAppServiceImpl implements MobileAppService {
 			return ResponseEvent.unwrap(spmnSvc.updateSpecimen(RequestEvent.wrap(input)));
 		}
 
-		CollectionProtocolRegistration cpr = daoFactory.getCprDao().getById(input.getCprId());
-		if (cpr == null) {
-			throw OpenSpecimenException.userError(CprErrorCode.NOT_FOUND, input.getCprId());
+		CollectionProtocolRegistration cpr = null;
+		Object key = null;
+		if (input.getCprId() != null) {
+			cpr = daoFactory.getCprDao().getById(input.getCprId());
+			key = input.getCprId();
+		} else if (input.getCpId() != null && StringUtils.isNotBlank(input.getPpid())) {
+			cpr = daoFactory.getCprDao().getCprByPpid(input.getCpId(), input.getPpid());
+			key = input.getPpid();
+		}
+
+		if (key == null) {
+			throw OpenSpecimenException.userError(CprErrorCode.PPID_REQUIRED);
+		} else if (cpr == null) {
+			throw OpenSpecimenException.userError(CprErrorCode.NOT_FOUND, key);
 		}
 
 		Date collectionDate =  null;
@@ -571,16 +660,23 @@ public class MobileAppServiceImpl implements MobileAppService {
 	}
 
 	private List<SpecimenDetail> createAliquots(SpecimenAliquotsSpec spec) {
-		if (spec.getParentId() == null) {
+		Object key = null;
+		Specimen parentSpmn = null;
+		if (spec.getParentId() != null) {
+			parentSpmn = daoFactory.getSpecimenDao().getById(spec.getParentId());
+			key = spec.getParentId();
+		} else if (StringUtils.isNotBlank(spec.getCpShortTitle()) && StringUtils.isNotBlank(spec.getParentLabel())) {
+			parentSpmn = daoFactory.getSpecimenDao().getByLabelAndCp(spec.getCpShortTitle(), spec.getParentLabel());
+			key = spec.getParentLabel();
+		}
+
+		if (key == null) {
 			throw OpenSpecimenException.userError(SpecimenErrorCode.PARENT_REQUIRED);
+		} else if (parentSpmn == null) {
+			throw OpenSpecimenException.userError(SpecimenErrorCode.NOT_FOUND, key);
 		}
 
-		Long parentId = spec.getParentId();
-		Specimen parentSpmn = daoFactory.getSpecimenDao().getById(parentId);
-		if (parentSpmn == null) {
-			throw OpenSpecimenException.userError(SpecimenErrorCode.NOT_FOUND, parentId);
-		}
-
+		Long parentId = parentSpmn.getId();
 		String derivedReqCode = spec.getDerivedReqCode();
 		if (StringUtils.isNotBlank(derivedReqCode)) {
 			parentId = createDerivedSpecimenIfAbsent(parentSpmn, derivedReqCode);
@@ -620,9 +716,226 @@ public class MobileAppServiceImpl implements MobileAppService {
 		return derivedDetail.getId();
 	}
 
+	//
+	// import routines
+	//
+	@PlusTransactional
+	private void importData(CollectionProtocol cp, File inputDir) {
+		importParticipants(cp, inputDir);
+		importPrimarySpecimens(cp, inputDir);
+		importAliquots(cp, inputDir);
+	}
 
+	private void importParticipants(CollectionProtocol cp, File inputDir) {
+		ObjectSchema schema = getSchema(cp.getId(), "registration", "dataEntry", "registerParticipant");
+		File participantsCsv = new File(inputDir, "participants.csv");
+
+		importRecords(schema, participantsCsv, (record) -> {
+			CollectionProtocolRegistrationDetail input = toCpr(record);
+			input.setCpId(cp.getId());
+			importParticipant(input);
+			return null;
+		});
+	}
+
+	private void importParticipant(CollectionProtocolRegistrationDetail input) {
+		CollectionProtocolRegistration cpr = daoFactory.getCprDao().getCprByPpid(input.getCpId(), input.getPpid());
+		if (cpr != null) {
+			input.setId(cpr.getId());
+		}
+
+		saveOrUpdateCpr(input);
+	}
+
+	private void importPrimarySpecimens(CollectionProtocol cp, File inputDir) {
+		ObjectSchema schema = getSchema(cp.getId(), "specimen", "primaryDataEntry", "addSpecimen");
+		File specimensCsv = new File(inputDir, "primary-specimens.csv");
+
+		importRecords(schema, specimensCsv, (record) -> {
+			Map<String, Object> appData = new HashMap<>();
+			appData.put("cpId", cp.getId());
+			appData.put("cpShortTitle", cp.getShortTitle());
+			appData.put("ppid", record.get("ppid"));
+
+			SpecimenDetail spmn = toSpecimen(appData, record);
+			spmn.setCpId(cp.getId());
+			saveOrUpdateSpecimen(spmn);
+			return null;
+		});
+	}
+
+	private void importAliquots(CollectionProtocol cp, File inputDir) {
+		ObjectSchema schema = getSchema(cp.getId(), "specimen", "aliquotDataEntry", "createAliquots");
+		File aliquotsCsv = new File(inputDir, "aliquots.csv");
+
+		importRecords(schema, aliquotsCsv, (record) -> {
+			Map<String, Object> appData = new HashMap<>();
+			appData.put("cpId", cp.getId());
+			appData.put("cpShortTitle", cp.getShortTitle());
+			appData.put("ppid", record.get("ppid"));
+			appData.put("parentLabel", record.get("parentLabel"));
+
+			SpecimenAliquotsSpec spec = toAliquotSpec(appData, record);
+			spec.setCpShortTitle(cp.getShortTitle());
+			createAliquots(spec);
+			return null;
+		});
+	}
+
+	private Pair<Integer, Integer> importRecords(ObjectSchema schema, File inputFile, Function<Map<String, Object>, String> importer) {
+		String inputFilePath = inputFile.getAbsolutePath();
+		String outputFilePath = inputFilePath.substring(0, inputFilePath.lastIndexOf(".")) + "-output.csv";
+
+		ObjectReader reader = new ObjectReader(inputFilePath, schema, DATE_FMT, DATE_TIME_FMT, FIELD_SEPARATOR);
+		reader.setTimeZone("UTC");
+
+		int totalRecords = 0, failedRecords = 0;
+		CsvWriter writer = null;
+		try {
+			writer = getWriter(outputFilePath);
+			List<String> headerRow = reader.getCsvColumnNames();
+			headerRow.addAll(Arrays.asList("OS_IMPORT_STATUS", "OS_ERROR_MESSAGE"));
+			writer.writeNext(headerRow.toArray(new String[0]));
+
+			while (true) {
+				Map<String, Object> record = (Map<String, Object>) reader.next();
+				if (record == null) {
+					break;
+				}
+
+				record.putAll((Map<String, Object>) record.remove("formValueMap"));
+				++totalRecords;
+
+				String errMsg = null;
+				try {
+					importer.apply(groupFields(record));
+				} catch (Throwable t) {
+					errMsg = t.getMessage();
+					if (StringUtils.isBlank(errMsg)) {
+						errMsg = "Internal Server Error";
+					}
+				} finally {
+					clearSession();
+				}
+
+				List<String> row = reader.getCsvRow();
+				if (errMsg != null) {
+					row.addAll(Arrays.asList("FAIL", errMsg));
+					++failedRecords;
+				} else {
+					row.addAll(Arrays.asList("SUCCESS", ""));
+				}
+
+				writer.writeNext(row.toArray(new String[0]));
+				if (totalRecords % 25 == 0) {
+					writer.flush();
+				}
+			}
+		} catch (Throwable t) {
+			String[] errorLine = null;
+			if (t instanceof CsvException) {
+				errorLine = ((CsvException) t).getErroneousLine();
+			}
+
+			if (errorLine == null) {
+				errorLine = new String[] { t.getMessage() };
+			}
+
+			if (writer != null) {
+				writer.writeNext(errorLine);
+				writer.writeNext(new String[] { ExceptionUtils.getFullStackTrace(t) });
+			}
+		} finally {
+			IOUtils.closeQuietly(reader);
+			IOUtils.closeQuietly(writer);
+		}
+
+		return Pair.make(totalRecords, failedRecords);
+	}
+
+	private ObjectSchema getSchema(Long cpId, String entity, String viewForm, String action) {
+		List<ObjectSchema.Field> fields = new ArrayList<>();
+		switch (action) {
+			case "registerParticipant":
+				fields.add(getField("cpShortTitle", "Collection Protocol"));
+				break;
+
+			case "addSpecimen":
+				fields.add(getField("cpShortTitle", "Collection Protocol"));
+				fields.add(getField("ppid", "PPID"));
+				break;
+
+			case "createAliquots":
+				fields.add(getField("cpShortTitle", "Collection Protocol"));
+				fields.add(getField("ppid", "PPID"));
+				fields.add(getField("parentLabel", "Parent Label"));
+				break;
+		}
+
+		ObjectSchema.Record record = new ObjectSchema.Record();
+		record.setFields(fields);
+
+		Container form = getForm(cpId, entity, viewForm);
+		FormSchemaBuilder builder = new FormSchemaBuilder();
+		ObjectSchema.Record formValueMap = builder.getFormRecord(form);
+		formValueMap.setAttribute("formValueMap");
+		record.setSubRecords(Collections.singletonList(formValueMap));
+
+		ObjectSchema objectSchema = new ObjectSchema();
+		objectSchema.setRecord(record);
+		return objectSchema;
+	}
+
+	private ObjectSchema.Field getField(String attr, String caption) {
+		ObjectSchema.Field field = new ObjectSchema.Field();
+		field.setAttribute(attr);
+		field.setCaption(caption);
+		return field;
+	}
+
+	private static class FormSchemaBuilder extends ExtensionSchemaBuilder {
+		protected ObjectSchema.Record getFormRecord(Container form) {
+			return getFormRecord(form, true);
+		}
+	}
+
+	private void clearSession() {
+		try {
+			sessionFactory.getCurrentSession().flush();
+		} catch (Exception e) {
+			//
+			// Oops, we encountered error. This happens when we've received database errors
+			// like data truncation error, unique constraint etc ... We can't do much except
+			// log and move forward
+			//
+			logger.info("Error flushing the database session", e);
+		} finally {
+			try {
+				sessionFactory.getCurrentSession().clear();
+			} catch (Exception e) {
+				//
+				// Something severely wrong...
+				//
+				logger.error("Error cleaning the database session", e);
+			}
+		}
+	}
+
+	private CsvWriter getWriter(String outputFilePath) {
+		try {
+			return CsvFileWriter.createCsvFileWriter(new FileWriter(outputFilePath), ',', '"');
+		} catch (Exception e) {
+			throw OpenSpecimenException.serverError(e);
+		}
+	}
 
 	private static final String FLUID_NS = "Fluid - Not Specified";
 
 	private static final String NS = "Not Specified";
+
+	private static final String DATE_FMT = "yyyy-MM-dd";
+
+	private static final String DATE_TIME_FMT = "yyyy-MM-dd'T'HH:mm'Z'";
+
+	private static final String FIELD_SEPARATOR = ",";
 }

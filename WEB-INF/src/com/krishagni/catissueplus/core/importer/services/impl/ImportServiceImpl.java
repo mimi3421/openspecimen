@@ -734,14 +734,14 @@ public class ImportServiceImpl implements ImportService, ApplicationListener<Con
 					if (object == null) {
 						break;
 					}
-	
+
 					errMsg = importObject(importer, object, job.getParams());
 				} catch (OpenSpecimenException ose) {
 					errMsg = ose.getMessage();
 				}
-				
+
 				++totalRecords;
-				
+
 				List<String> row = objReader.getCsvRow();
 				if (StringUtils.isNotBlank(errMsg)) {
 					row.add("FAIL");
@@ -751,7 +751,7 @@ public class ImportServiceImpl implements ImportService, ApplicationListener<Con
 					row.add("SUCCESS");
 					row.add("");
 				}
-				
+
 				csvWriter.writeNext(row.toArray(new String[0]));
 				if (totalRecords % 25 == 0) {
 					saveJob(totalRecords, failedRecords, Status.IN_PROGRESS);

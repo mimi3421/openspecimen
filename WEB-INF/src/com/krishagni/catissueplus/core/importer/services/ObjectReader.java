@@ -34,6 +34,8 @@ public class ObjectReader implements Closeable {
 	private static final Log logger = LogFactory.getLog(ObjectReader.class);
 
 	private static final String SET_TO_BLANK = "##set_to_blank##";
+
+	private static final String ISO_FMT = "yyyy-MM-dd'T'HH:mm:SS'Z'";
 	
 	private CsvReader csvReader;
 	
@@ -375,10 +377,14 @@ public class ObjectReader implements Closeable {
 	private Long parseDateTime(String value)
 	throws ParseException {
 		try {
+			if (value.endsWith("Z")) {
+				return parseDate(value, ISO_FMT);
+			}
+
 			return parseDate(value, dateFmt + " " + timeFmt);
 		} catch (ParseException e) {
 			return parseDate(value, dateFmt);
-		}		
+		}
 	}
 
 	private Long parseDate(String value, boolean dateOnly)
