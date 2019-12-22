@@ -37,7 +37,7 @@ public class MobileUploadJobDaoImpl extends AbstractDao<MobileUploadJob> impleme
 		if (crit.userId() != null) {
 			if (crit.instituteId() == null) {
 				// avoid re-creating user alias
-				query.createAlias("job.createdBy", "user")
+				query.createAlias("job.createdBy", "user");
 			}
 
 			query.add(Restrictions.eq("user.id", crit.userId()));
