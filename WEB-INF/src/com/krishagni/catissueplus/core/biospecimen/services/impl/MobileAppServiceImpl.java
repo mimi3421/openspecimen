@@ -2,6 +2,7 @@ package com.krishagni.catissueplus.core.biospecimen.services.impl;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.beanutils.BeanUtilsBean2;
 import org.apache.commons.beanutils.PropertyUtilsBean;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,13 +27,18 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
 import com.krishagni.catissueplus.core.biospecimen.domain.CpWorkflowConfig;
@@ -55,23 +62,28 @@ import com.krishagni.catissueplus.core.biospecimen.services.CollectionProtocolRe
 import com.krishagni.catissueplus.core.biospecimen.services.MobileAppService;
 import com.krishagni.catissueplus.core.biospecimen.services.SpecimenService;
 import com.krishagni.catissueplus.core.biospecimen.services.VisitService;
-import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
+import com.krishagni.catissueplus.core.common.domain.MobileUploadJob;
 import com.krishagni.catissueplus.core.common.errors.CommonErrorCode;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
+import com.krishagni.catissueplus.core.common.events.MobileUploadJobDetail;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
+import com.krishagni.catissueplus.core.common.repository.MobileUploadJobsListCriteria;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.catissueplus.core.common.util.CsvException;
 import com.krishagni.catissueplus.core.common.util.CsvFileWriter;
 import com.krishagni.catissueplus.core.common.util.CsvWriter;
+import com.krishagni.catissueplus.core.common.util.EmailUtil;
+import com.krishagni.catissueplus.core.common.util.MessageUtil;
 import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.catissueplus.core.de.domain.FormErrorCode;
 import com.krishagni.catissueplus.core.de.events.FormDataDetail;
 import com.krishagni.catissueplus.core.de.services.impl.ExtensionSchemaBuilder;
 import com.krishagni.catissueplus.core.importer.domain.ObjectSchema;
 import com.krishagni.catissueplus.core.importer.services.ObjectReader;
+import com.krishagni.rbac.common.errors.RbacErrorCode;
 
 import edu.common.dynamicextensions.domain.nui.Container;
 import edu.common.dynamicextensions.domain.nui.Control;
@@ -81,7 +93,7 @@ import edu.common.dynamicextensions.napi.FormData;
 import edu.common.dynamicextensions.util.ZipUtility;
 
 @Configurable
-public class MobileAppServiceImpl implements MobileAppService {
+public class MobileAppServiceImpl implements MobileAppService, InitializingBean {
 	private static final Log logger = LogFactory.getLog(MobileAppServiceImpl.class);
 
 	@Autowired
@@ -101,6 +113,11 @@ public class MobileAppServiceImpl implements MobileAppService {
 
 	@Autowired
 	private SessionFactory sessionFactory;
+
+	@Autowired
+	private PlatformTransactionManager txnMgr;
+
+	private TransactionTemplate newTxnTmpl;
 
 	@Override
 	@PlusTransactional
@@ -245,6 +262,54 @@ public class MobileAppServiceImpl implements MobileAppService {
 
 	@Override
 	@PlusTransactional
+	public ResponseEvent<List<MobileUploadJobDetail>> getUploadJobs(RequestEvent<MobileUploadJobsListCriteria> req) {
+		try {
+			MobileUploadJobsListCriteria crit = req.getPayload();
+			if (!AuthUtil.isAdmin()) {
+				if (AuthUtil.isInstituteAdmin()) {
+					crit.instituteId(AuthUtil.getCurrentUserInstitute().getId());
+				} else {
+					crit.userId(AuthUtil.getCurrentUser().getId());
+				}
+			}
+
+			List<MobileUploadJob> jobs = daoFactory.getMobileUploadJobDao().getJobs(crit);
+			return ResponseEvent.response(MobileUploadJobDetail.from(jobs));
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
+		} catch (Exception e) {
+			return ResponseEvent.serverError(e);
+		}
+	}
+
+	@Override
+	@PlusTransactional
+	public ResponseEvent<MobileUploadJobDetail> getUploadJob(RequestEvent<Long> req) {
+		try {
+			MobileUploadJob job = getJob(req.getPayload());
+			return ResponseEvent.response(MobileUploadJobDetail.from(job));
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
+		} catch (Exception e) {
+			return ResponseEvent.serverError(e);
+		}
+	}
+
+	@Override
+	@PlusTransactional
+	public ResponseEvent<File> getUploadJobReport(RequestEvent<Long> req) {
+		try {
+			MobileUploadJob job = getJob(req.getPayload());
+			return ResponseEvent.response(new File(job.getWorkingDir(), "output.zip"));
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
+		} catch (Exception e) {
+			return ResponseEvent.serverError(e);
+		}
+	}
+
+	@Override
+	@PlusTransactional
 	public ResponseEvent<Map<String, Object>> uploadData(RequestEvent<Map<String, Object>> req) {
 		try {
 			Map<String, Object> input = req.getPayload();
@@ -258,16 +323,25 @@ public class MobileAppServiceImpl implements MobileAppService {
 				throw OpenSpecimenException.userError(CpErrorCode.NOT_FOUND, cpId);
 			}
 
-			File inputFile = (File) input.get("file");
-			File inflatedDir = new File(inputFile.getParentFile(), "inflated-" + inputFile.getName());
-			ZipUtility.extractZipToDestination(inputFile.getAbsolutePath(), inflatedDir.getAbsolutePath());
-
-			User currentUser = AuthUtil.getCurrentUser();
+			MobileUploadJob job = createJob(cp);
+			inflateInputZip(job, (File) input.get("file"));
 			executor.submit(
 				() -> {
 					try {
-						AuthUtil.setCurrentUser(currentUser);
-						importData(cp, inflatedDir);
+						AuthUtil.setCurrentUser(job.getCreatedBy());
+						newTxnTmpl.execute(
+							new TransactionCallback<Void>() {
+								@Override
+								public Void doInTransaction(TransactionStatus txnStatus) {
+									importData(job);
+									if (job.getStatus() != MobileUploadJob.Status.COMPLETED) {
+										txnStatus.setRollbackOnly();
+									}
+
+									return null;
+								}
+							}
+						);
 					} catch (Throwable t) {
 						t.printStackTrace();
 					} finally {
@@ -276,12 +350,18 @@ public class MobileAppServiceImpl implements MobileAppService {
 				}
 			);
 
-			return ResponseEvent.response(Collections.singletonMap("fileId", inputFile.getName()));
+			return ResponseEvent.response(Collections.singletonMap("jobId", job.getId()));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {
 			return ResponseEvent.serverError(e);
 		}
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		this.newTxnTmpl = new TransactionTemplate(txnMgr);
+		this.newTxnTmpl.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
 	}
 
 	private CollectionProtocol getCp(Long cpId) {
@@ -719,23 +799,111 @@ public class MobileAppServiceImpl implements MobileAppService {
 	//
 	// import routines
 	//
-	@PlusTransactional
-	private void importData(CollectionProtocol cp, File inputDir) {
-		importParticipants(cp, inputDir);
-		importPrimarySpecimens(cp, inputDir);
-		importAliquots(cp, inputDir);
+
+	private MobileUploadJob getJob(Long jobId) {
+		MobileUploadJob job = daoFactory.getMobileUploadJobDao().getById(jobId);
+		if (job == null) {
+			throw  OpenSpecimenException.userError(CommonErrorCode.INVALID_INPUT, "Invalid job ID: " + jobId);
+		}
+
+		if (AuthUtil.isAdmin()) {
+			return job;
+		}
+
+		if (AuthUtil.isInstituteAdmin()) {
+			if (!AuthUtil.getCurrentUserInstitute().equals(job.getCreatedBy().getInstitute())) {
+				throw  OpenSpecimenException.userError(RbacErrorCode.ACCESS_DENIED);
+			}
+		} else {
+			if (!AuthUtil.getCurrentUser().equals(job.getCreatedBy())) {
+				throw  OpenSpecimenException.userError(RbacErrorCode.ACCESS_DENIED);
+			}
+		}
+
+		return job;
 	}
 
-	private void importParticipants(CollectionProtocol cp, File inputDir) {
-		ObjectSchema schema = getSchema(cp.getId(), "registration", "dataEntry", "registerParticipant");
-		File participantsCsv = new File(inputDir, "participants.csv");
+	private MobileUploadJob createJob(CollectionProtocol cp) {
+		MobileUploadJob job = new MobileUploadJob();
+		job.setCp(cp);
+		job.setCreatedBy(AuthUtil.getCurrentUser());
+		job.setStatus(MobileUploadJob.Status.QUEUED);
+		job.setCreationTime(Calendar.getInstance().getTime());
+		job.setTotalRecords(0L);
+		job.setFailedRecords(0L);
+		daoFactory.getMobileUploadJobDao().saveOrUpdate(job, true);
 
-		importRecords(schema, participantsCsv, (record) -> {
-			CollectionProtocolRegistrationDetail input = toCpr(record);
-			input.setCpId(cp.getId());
-			importParticipant(input);
-			return null;
+		job.getInputDir().mkdirs();
+		job.getOutputDir().mkdirs();
+		return job;
+	}
+
+	private void saveJob(MobileUploadJob job) {
+		if (job.getStatus() != MobileUploadJob.Status.IN_PROGRESS) {
+			job.setEndTime(Calendar.getInstance().getTime());
+		}
+
+		newTxnTmpl.execute(new TransactionCallback<Void>() {
+			@Override
+			public Void doInTransaction(TransactionStatus status) {
+				daoFactory.getMobileUploadJobDao().saveOrUpdate(job);
+				return null;
+			}
 		});
+	}
+
+	private void saveJob(MobileUploadJob job, long totalRecords, long failedRecords) {
+		job.setTotalRecords(totalRecords);
+		job.setFailedRecords(failedRecords);
+		saveJob(job);
+	}
+
+	private void inflateInputZip(MobileUploadJob job, File inputFile)
+	throws IOException {
+		FileUtils.moveToDirectory(inputFile, job.getWorkingDir(), true);
+
+		inputFile = new File(job.getWorkingDir(), inputFile.getName());
+		ZipUtility.extractZipToDestination(inputFile.getAbsolutePath(), job.getInputDir().getAbsolutePath());
+		inputFile.renameTo(new File(inputFile.getParentFile(), "input.zip"));
+	}
+
+	private void importData(MobileUploadJob job) {
+		job.setStatus(MobileUploadJob.Status.IN_PROGRESS);
+		saveJob(job);
+
+		try {
+			importParticipants(job);
+			importPrimarySpecimens(job);
+			importAliquots(job);
+		} catch (Exception e) {
+			job.setStatus(MobileUploadJob.Status.FAILED);
+			logger.error("Error importing the mobile offline data", e);
+		} finally {
+			if (job.getStatus() == MobileUploadJob.Status.IN_PROGRESS) {
+				if (job.getFailedRecords() > 0) {
+					job.setStatus(MobileUploadJob.Status.FAILED);
+				} else {
+					job.setStatus(MobileUploadJob.Status.COMPLETED);
+				}
+			}
+
+			saveJob(job);
+			sendJobStatusNotification(job);
+			tidyFiles(job);
+		}
+	}
+
+	private void importParticipants(MobileUploadJob job) {
+		importRecords(
+			job,
+			new SchemaParams("registration", "dataEntry", "registerParticipants", "participants.csv"),
+			(record) -> {
+				CollectionProtocolRegistrationDetail input = toCpr(record);
+				input.setCpId(job.getCp().getId());
+				importParticipant(input);
+				return null;
+			}
+		);
 	}
 
 	private void importParticipant(CollectionProtocolRegistrationDetail input) {
@@ -747,49 +915,55 @@ public class MobileAppServiceImpl implements MobileAppService {
 		saveOrUpdateCpr(input);
 	}
 
-	private void importPrimarySpecimens(CollectionProtocol cp, File inputDir) {
-		ObjectSchema schema = getSchema(cp.getId(), "specimen", "primaryDataEntry", "addSpecimen");
-		File specimensCsv = new File(inputDir, "primary-specimens.csv");
+	private void importPrimarySpecimens(MobileUploadJob job) {
+		importRecords(
+			job,
+			new SchemaParams("specimen", "primaryDataEntry", "addSpecimen", "primary-specimens.csv"),
+			(record) -> {
+				Map<String, Object> appData = new HashMap<>();
+				appData.put("cpId", job.getCp().getId());
+				appData.put("cpShortTitle", job.getCp().getShortTitle());
+				appData.put("ppid", record.get("ppid"));
 
-		importRecords(schema, specimensCsv, (record) -> {
-			Map<String, Object> appData = new HashMap<>();
-			appData.put("cpId", cp.getId());
-			appData.put("cpShortTitle", cp.getShortTitle());
-			appData.put("ppid", record.get("ppid"));
-
-			SpecimenDetail spmn = toSpecimen(appData, record);
-			spmn.setCpId(cp.getId());
-			saveOrUpdateSpecimen(spmn);
-			return null;
-		});
+				SpecimenDetail spmn = toSpecimen(appData, record);
+				spmn.setCpId(job.getCp().getId());
+				saveOrUpdateSpecimen(spmn);
+				return null;
+			}
+		);
 	}
 
-	private void importAliquots(CollectionProtocol cp, File inputDir) {
-		ObjectSchema schema = getSchema(cp.getId(), "specimen", "aliquotDataEntry", "createAliquots");
-		File aliquotsCsv = new File(inputDir, "aliquots.csv");
+	private void importAliquots(MobileUploadJob job) {
+		importRecords(
+			job,
+			new SchemaParams("specimen", "aliquotDataEntry", "createAliquots", "aliquots.csv"),
+			(record) -> {
+				Map<String, Object> appData = new HashMap<>();
+				appData.put("cpId", job.getCp().getId());
+				appData.put("cpShortTitle", job.getCp().getShortTitle());
+				appData.put("ppid", record.get("ppid"));
+				appData.put("parentLabel", record.get("parentLabel"));
 
-		importRecords(schema, aliquotsCsv, (record) -> {
-			Map<String, Object> appData = new HashMap<>();
-			appData.put("cpId", cp.getId());
-			appData.put("cpShortTitle", cp.getShortTitle());
-			appData.put("ppid", record.get("ppid"));
-			appData.put("parentLabel", record.get("parentLabel"));
-
-			SpecimenAliquotsSpec spec = toAliquotSpec(appData, record);
-			spec.setCpShortTitle(cp.getShortTitle());
-			createAliquots(spec);
-			return null;
-		});
+				SpecimenAliquotsSpec spec = toAliquotSpec(appData, record);
+				spec.setCpShortTitle(job.getCp().getShortTitle());
+				createAliquots(spec);
+				return null;
+			}
+		);
 	}
 
-	private Pair<Integer, Integer> importRecords(ObjectSchema schema, File inputFile, Function<Map<String, Object>, String> importer) {
+	private void importRecords(MobileUploadJob job, SchemaParams params, Function<Map<String, Object>, String> importer) {
+		ObjectSchema schema = getSchema(job.getCp(), params);
+		File inputFile = new File(job.getInputDir(), params.inputFilename);
+
 		String inputFilePath = inputFile.getAbsolutePath();
-		String outputFilePath = inputFilePath.substring(0, inputFilePath.lastIndexOf(".")) + "-output.csv";
+		String outputFilePath = new File(job.getOutputDir(), params.inputFilename).getAbsolutePath();
 
 		ObjectReader reader = new ObjectReader(inputFilePath, schema, DATE_FMT, DATE_TIME_FMT, FIELD_SEPARATOR);
 		reader.setTimeZone("UTC");
 
-		int totalRecords = 0, failedRecords = 0;
+		MobileUploadJob.Status status = job.getStatus();
+		long totalRecords = job.getTotalRecords(), failedRecords = job.getFailedRecords();
 		CsvWriter writer = null;
 		try {
 			writer = getWriter(outputFilePath);
@@ -829,6 +1003,7 @@ public class MobileAppServiceImpl implements MobileAppService {
 				writer.writeNext(row.toArray(new String[0]));
 				if (totalRecords % 25 == 0) {
 					writer.flush();
+					saveJob(job, totalRecords, failedRecords);
 				}
 			}
 		} catch (Throwable t) {
@@ -845,17 +1020,19 @@ public class MobileAppServiceImpl implements MobileAppService {
 				writer.writeNext(errorLine);
 				writer.writeNext(new String[] { ExceptionUtils.getFullStackTrace(t) });
 			}
+
+			job.setStatus(MobileUploadJob.Status.FAILED);
 		} finally {
 			IOUtils.closeQuietly(reader);
 			IOUtils.closeQuietly(writer);
-		}
 
-		return Pair.make(totalRecords, failedRecords);
+			saveJob(job, totalRecords, failedRecords);
+		}
 	}
 
-	private ObjectSchema getSchema(Long cpId, String entity, String viewForm, String action) {
+	private ObjectSchema getSchema(CollectionProtocol cp, SchemaParams params) {
 		List<ObjectSchema.Field> fields = new ArrayList<>();
-		switch (action) {
+		switch (params.action) {
 			case "registerParticipant":
 				fields.add(getField("cpShortTitle", "Collection Protocol"));
 				break;
@@ -875,7 +1052,7 @@ public class MobileAppServiceImpl implements MobileAppService {
 		ObjectSchema.Record record = new ObjectSchema.Record();
 		record.setFields(fields);
 
-		Container form = getForm(cpId, entity, viewForm);
+		Container form = getForm(cp.getId(), params.entity, params.viewForm);
 		FormSchemaBuilder builder = new FormSchemaBuilder();
 		ObjectSchema.Record formValueMap = builder.getFormRecord(form);
 		formValueMap.setAttribute("formValueMap");
@@ -891,12 +1068,6 @@ public class MobileAppServiceImpl implements MobileAppService {
 		field.setAttribute(attr);
 		field.setCaption(caption);
 		return field;
-	}
-
-	private static class FormSchemaBuilder extends ExtensionSchemaBuilder {
-		protected ObjectSchema.Record getFormRecord(Container form) {
-			return getFormRecord(form, true);
-		}
 	}
 
 	private void clearSession() {
@@ -929,6 +1100,65 @@ public class MobileAppServiceImpl implements MobileAppService {
 		}
 	}
 
+	private void sendJobStatusNotification(MobileUploadJob job) {
+		try {
+			String [] subjParams = new String[] {
+				job.getId().toString(),
+				job.getCp().getShortTitle()
+			};
+
+			String statusKey = "bulk_import_statuses_" + job.getStatus();
+			Map<String, Object> props = new HashMap<>();
+			props.put("job", job);
+			props.put("cp", job.getCp());
+			props.put("status", MessageUtil.getInstance().getMessage(statusKey));
+			props.put("$subject", subjParams);
+			props.put("ccAdmin", true);
+
+			String[] rcpts = {job.getCreatedBy().getEmailAddress()};
+			EmailUtil.getInstance().sendEmail(JOB_STATUS_EMAIL_TMPL, rcpts, null, props);
+		} catch (Throwable t) {
+			logger.error("Failed to send import job status e-mail notification", t);
+		}
+	}
+
+	private void tidyFiles(MobileUploadJob job) {
+		try {
+			FileUtils.deleteDirectory(job.getInputDir());
+			ZipUtility.zipFolder(
+				job.getOutputDir().getAbsolutePath(),
+				new File(job.getWorkingDir(), "output.zip").getAbsolutePath()
+			);
+			FileUtils.deleteDirectory(job.getOutputDir());
+		} catch (Exception e) {
+			logger.error("Error tidying the files", e);
+		}
+	}
+
+	private static class FormSchemaBuilder extends ExtensionSchemaBuilder {
+		protected ObjectSchema.Record getFormRecord(Container form) {
+			return getFormRecord(form, true);
+		}
+	}
+
+	private static class SchemaParams {
+		public String entity;
+
+		public String viewForm;
+
+		public String action;
+
+		public String inputFilename;
+
+
+		public SchemaParams(String entity, String viewForm, String action, String inputFilename) {
+			this.entity = entity;
+			this.viewForm = viewForm;
+			this.action = action;
+			this.inputFilename = inputFilename;
+		}
+	}
+
 	private static final String FLUID_NS = "Fluid - Not Specified";
 
 	private static final String NS = "Not Specified";
@@ -938,4 +1168,6 @@ public class MobileAppServiceImpl implements MobileAppService {
 	private static final String DATE_TIME_FMT = "yyyy-MM-dd'T'HH:mm'Z'";
 
 	private static final String FIELD_SEPARATOR = ",";
+
+	private static final String JOB_STATUS_EMAIL_TMPL = "mobile_upload_status_notif";
 }

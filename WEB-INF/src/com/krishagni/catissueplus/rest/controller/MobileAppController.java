@@ -29,9 +29,12 @@ import com.krishagni.catissueplus.core.biospecimen.events.SpecimenInfo;
 import com.krishagni.catissueplus.core.biospecimen.repository.SpecimenListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.services.MobileAppService;
 import com.krishagni.catissueplus.core.biospecimen.services.impl.MobileAppServiceImpl;
+import com.krishagni.catissueplus.core.common.events.MobileUploadJobDetail;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
+import com.krishagni.catissueplus.core.common.repository.MobileUploadJobsListCriteria;
 import com.krishagni.catissueplus.core.common.util.ConfigUtil;
+import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.catissueplus.core.de.events.FormDataDetail;
 
 import edu.common.dynamicextensions.domain.nui.Container;
@@ -169,8 +172,27 @@ public class MobileAppController {
 		return ResponseEvent.unwrap(mobileAppSvc.getSpecimens(RequestEvent.wrap(crit)));
 	}
 
+	@RequestMapping(method = RequestMethod.GET, value = "/{cpId}/upload-jobs")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public List<MobileUploadJobDetail> getJobs(
+		@PathVariable("cpId")
+		Long cpId,
 
-	@RequestMapping(method = RequestMethod.POST, value = "/{cpId}/upload-data")
+		@RequestParam(value = "startAt", defaultValue = "0", required = false)
+		int startAt,
+
+		@RequestParam(value = "maxResults", defaultValue = "100", required = false)
+		int maxResults) {
+
+		MobileUploadJobsListCriteria crit = new MobileUploadJobsListCriteria()
+			.cpId(cpId)
+			.startAt(startAt)
+			.maxResults(maxResults);
+		return ResponseEvent.unwrap(mobileAppSvc.getUploadJobs(RequestEvent.wrap(crit)));
+	}
+
+	@RequestMapping(method = RequestMethod.POST, value = "/{cpId}/upload-jobs")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
 	public Map<String, Object> uploadData(
@@ -181,12 +203,13 @@ public class MobileAppController {
 	throws IOException {
 		OutputStream out = null;
 		try {
-			File mobileAppData = new File(ConfigUtil.getInstance().getDataDir(), "mobile-app");
-			if (!mobileAppData.exists()) {
-				mobileAppData.mkdirs();
+			File mobileAppDir = new File(ConfigUtil.getInstance().getDataDir(), "mobile-app");
+			File uploadDir = new File(mobileAppDir, "uploads");
+			if (!uploadDir.exists()) {
+				uploadDir.mkdirs();
 			}
 
-			File uploadedFile = new File(mobileAppData, UUID.randomUUID().toString());
+			File uploadedFile = new File(uploadDir, UUID.randomUUID().toString() + ".zip");
 			out = new FileOutputStream(uploadedFile);
 			IoUtil.copy(file.getInputStream(), out);
 
@@ -197,6 +220,25 @@ public class MobileAppController {
 		} finally {
 			IOUtils.closeQuietly(out);
 		}
+	}
+
+	@RequestMapping(method = RequestMethod.GET, value = "/upload-jobs/{jobId}")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public MobileUploadJobDetail getJob(@PathVariable("jobId") Long jobId) {
+		return ResponseEvent.unwrap(mobileAppSvc.getUploadJob(RequestEvent.wrap(jobId)));
+	}
+
+	@RequestMapping(method = RequestMethod.GET, value = "/upload-jobs/{jobId}/report")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public void getJob(HttpServletResponse httpResp, @PathVariable("jobId") Long jobId) {
+		File reportFile = ResponseEvent.unwrap(mobileAppSvc.getUploadJobReport(RequestEvent.wrap(jobId)));
+		Utility.sendToClient(
+			httpResp,
+			"UploadJob_" + jobId + ".zip",
+			"application/octet-stream",
+			reportFile);
 	}
 
 	private void sendForm(HttpServletResponse httpResp, Container form, int maxPvListSize)

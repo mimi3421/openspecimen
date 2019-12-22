@@ -337,4 +337,47 @@
       end;
     </sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="Mobile upload jobs">
+    <createTable tableName="OS_MOBILE_UPLOAD_JOBS">
+      <column name="IDENTIFIER" type="${int.type}" autoIncrement="${autoIncrement}">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="CP_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="STATUS" type="${text.type}(16)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="TOTAL_RECORDS" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="FAILED_RECORDS" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CREATED_BY" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CREATION_TIME" type="${timestamp.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="END_TIME" type="${nullable.ts.type}"/>
+    </createTable>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Mobile upload job ID sequence generator" dbms="oracle">
+    <createSequence sequenceName="OS_MOBILE_UPLOAD_JOBS_SEQ" startValue="1" incrementBy="1" ordered="true"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Foreign key on mobile upload CP">
+    <addForeignKeyConstraint constraintName="FK_MOBILE_UPLOADS_CP_ID"
+      baseTableName="OS_MOBILE_UPLOAD_JOBS" baseColumnNames="CP_ID"
+      referencedTableName="CATISSUE_COLLECTION_PROTOCOL" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Foreign key on mobile upload user">
+    <addForeignKeyConstraint constraintName="FK_MOBILE_UPLOADS_CREATOR_ID"
+      baseTableName="OS_MOBILE_UPLOAD_JOBS" baseColumnNames="CREATED_BY"
+      referencedTableName="CATISSUE_USER" referencedColumnNames="IDENTIFIER"/>
+  </changeSet>
 </databaseChangeLog>
