@@ -7,6 +7,7 @@ angular.module('os.biospecimen',
     'os.biospecimen.cpgroups',
     'os.biospecimen.specimenlist',
     'os.biospecimen.common',
-    'os.biospecimen.consentstatement'
+    'os.biospecimen.consentstatement',
+    'os.biospecimen.mobile'
   ]
 );

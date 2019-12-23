@@ -124,6 +124,27 @@ angular.module('os.biospecimen.participant',
                 return setting.value == 'true';
               }
             );
+          },
+
+          mobileDataEntryEnabled: function(cp, CpConfigSvc) {
+            return CpConfigSvc.getWorkflowData(cp.id, 'mobile-app', {}).then(
+              function(wf) {
+                if (!wf.forms) {
+                  return false;
+                }
+
+                var forms = wf.forms;
+                if (forms.registration && !!forms.registration.dataEntry) {
+                  return true;
+                }
+
+                if (forms.specimen && (!!forms.specimen.primaryDataEntry || !!forms.specimen.aliquotDataEntry)) {
+                  return true;
+                }
+
+                return false;
+              }
+            );
           }
         },
         parent: 'signed-in',

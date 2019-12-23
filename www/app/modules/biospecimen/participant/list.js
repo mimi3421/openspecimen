@@ -1,6 +1,6 @@
 
 angular.module('os.biospecimen.participant.list', ['os.biospecimen.models'])
-  .controller('ParticipantListCtrl', function($scope, $state, cp, twoStepReg, PluginReg) {
+  .controller('ParticipantListCtrl', function($scope, $state, cp, twoStepReg, mobileDataEntryEnabled, PluginReg) {
 
     var ctrl = this;
 
@@ -19,7 +19,8 @@ angular.module('os.biospecimen.participant.list', ['os.biospecimen.models'])
         ctrl: ctrl,
         headerButtonsTmpl: 'modules/biospecimen/participant/register-button.html',
         headerActionsTmpl: 'modules/biospecimen/participant/list-pager.html',
-        showPrimaryBtnDd: !!cp.bulkPartRegEnabled || (PluginReg.getTmpls('participant-list', 'primary-button').length > 0)
+        showPrimaryBtnDd: !!cp.bulkPartRegEnabled || (PluginReg.getTmpls('participant-list', 'primary-button').length > 0),
+        mobileDataEntryEnabled: mobileDataEntryEnabled
       });
     }
 

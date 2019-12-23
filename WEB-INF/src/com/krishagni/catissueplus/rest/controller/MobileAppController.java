@@ -172,11 +172,11 @@ public class MobileAppController {
 		return ResponseEvent.unwrap(mobileAppSvc.getSpecimens(RequestEvent.wrap(crit)));
 	}
 
-	@RequestMapping(method = RequestMethod.GET, value = "/{cpId}/upload-jobs")
+	@RequestMapping(method = RequestMethod.GET, value = "/upload-jobs")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
 	public List<MobileUploadJobDetail> getJobs(
-		@PathVariable("cpId")
+		@RequestParam(value = "cpId")
 		Long cpId,
 
 		@RequestParam(value = "startAt", defaultValue = "0", required = false)
@@ -192,11 +192,11 @@ public class MobileAppController {
 		return ResponseEvent.unwrap(mobileAppSvc.getUploadJobs(RequestEvent.wrap(crit)));
 	}
 
-	@RequestMapping(method = RequestMethod.POST, value = "/{cpId}/upload-jobs")
+	@RequestMapping(method = RequestMethod.POST, value = "/upload-jobs")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
 	public Map<String, Object> uploadData(
-		@PathVariable("cpId")
+		@RequestParam(value = "cpId")
 		Long cpId,
 
 		@PathVariable("file") MultipartFile file)

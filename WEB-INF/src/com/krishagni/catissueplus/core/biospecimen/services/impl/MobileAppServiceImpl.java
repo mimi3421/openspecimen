@@ -90,6 +90,7 @@ import edu.common.dynamicextensions.domain.nui.Control;
 import edu.common.dynamicextensions.domain.nui.DatePicker;
 import edu.common.dynamicextensions.napi.ControlValue;
 import edu.common.dynamicextensions.napi.FormData;
+import edu.common.dynamicextensions.nutility.IoUtil;
 import edu.common.dynamicextensions.util.ZipUtility;
 
 @Configurable
@@ -955,6 +956,9 @@ public class MobileAppServiceImpl implements MobileAppService, InitializingBean 
 	private void importRecords(MobileUploadJob job, SchemaParams params, Function<Map<String, Object>, String> importer) {
 		ObjectSchema schema = getSchema(job.getCp(), params);
 		File inputFile = new File(job.getInputDir(), params.inputFilename);
+		if (!inputFile.exists()) {
+			return;
+		}
 
 		String inputFilePath = inputFile.getAbsolutePath();
 		String outputFilePath = new File(job.getOutputDir(), params.inputFilename).getAbsolutePath();
@@ -1125,10 +1129,10 @@ public class MobileAppServiceImpl implements MobileAppService, InitializingBean 
 	private void tidyFiles(MobileUploadJob job) {
 		try {
 			FileUtils.deleteDirectory(job.getInputDir());
-			ZipUtility.zipFolder(
+			IoUtil.zipFiles(
 				job.getOutputDir().getAbsolutePath(),
-				new File(job.getWorkingDir(), "output.zip").getAbsolutePath()
-			);
+				new File(job.getWorkingDir(), "output.zip").getAbsolutePath(),
+				Collections.emptyList());
 			FileUtils.deleteDirectory(job.getOutputDir());
 		} catch (Exception e) {
 			logger.error("Error tidying the files", e);
