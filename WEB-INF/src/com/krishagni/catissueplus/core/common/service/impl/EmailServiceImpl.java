@@ -23,6 +23,7 @@ import javax.mail.Address;
 import javax.mail.BodyPart;
 import javax.mail.Header;
 import javax.mail.Message;
+import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
@@ -176,52 +177,16 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 				return false;
 			}
 
-			if (props == null) {
-				props = Collections.emptyMap();
-			}
-
-
-			MimeMessage mimeMessage;
-			Map<String, String> replyToHeaders = (Map<String, String>) props.get("$replyToHeaders");
-			if (replyToHeaders != null && !replyToHeaders.isEmpty()) {
-				MimeMessage parent = mailSender.createMimeMessage();
-				for (Map.Entry<String, String> header : replyToHeaders.entrySet()) {
-					parent.setHeader(header.getKey(), header.getValue());
-				}
-
-				mimeMessage = (MimeMessage) parent.reply(false, true);
-			} else {
-				mimeMessage = mailSender.createMimeMessage();
-			}
-
-			MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8"); // true = multipart
-			message.setSubject(mail.getSubject());
-
 			String[] toRcpts = filterEmailIds("To", mail.getToAddress());
 			if (toRcpts.length == 0) {
 				return false;
 			}
 
-			message.setTo(toRcpts);
-			
-			if (mail.getBccAddress() != null) {
-				message.setBcc(filterEmailIds("Bcc", mail.getBccAddress()));
-			}
-			
-			if (mail.getCcAddress() != null) {
-				message.setCc(filterEmailIds("Cc", mail.getCcAddress()));
-			}
-			
-			message.setText(mail.getBody(), true); // true = isHtml
-			message.setFrom(getAccountId());
-			
-			if (mail.getAttachments() != null) {
-				for (File attachment: mail.getAttachments()) {
-					FileSystemResource file = new FileSystemResource(attachment);
-					message.addAttachment(file.getFilename(), file);
-				}
-			}
+			mail.setToAddress(toRcpts);
+			mail.setBccAddress(filterEmailIds("Bcc", mail.getBccAddress()));
+			mail.setCcAddress(filterEmailIds("Cc", mail.getCcAddress()));
 
+			MimeMessage mimeMessage = createMessage(mail, props);
 			logger.info("Invoking task executor to send e-mail asynchronously: " + mimeMessage.getSubject());
 			taskExecutor.submit(new SendMailTask(mimeMessage));
 			return true;
@@ -295,6 +260,50 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 
 		subjectPrefix += " " + StringUtils.substring(deployEnv, 0, 10);
 		return "[" + subjectPrefix.trim() + "]: ";
+	}
+
+	private MimeMessage createMessage(Email mail, Map<String, Object> props)
+	throws MessagingException  {
+		if (props == null) {
+			props = Collections.emptyMap();
+		}
+
+		MimeMessage mimeMessage;
+		Map<String, String> replyToHeaders = (Map<String, String>) props.get("$replyToHeaders");
+		if (replyToHeaders != null && !replyToHeaders.isEmpty()) {
+			MimeMessage parent = mailSender.createMimeMessage();
+			for (Map.Entry<String, String> header : replyToHeaders.entrySet()) {
+				parent.setHeader(header.getKey(), header.getValue());
+			}
+
+			mimeMessage = (MimeMessage) parent.reply(false, true);
+		} else {
+			mimeMessage = mailSender.createMimeMessage();
+		}
+
+		MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8"); // true = multipart
+		message.setSubject(mail.getSubject());
+
+		message.setTo(mail.getToAddress());
+		if (mail.getBccAddress() != null) {
+			message.setBcc(mail.getBccAddress());
+		}
+
+		if (mail.getCcAddress() != null) {
+			message.setCc(mail.getCcAddress());
+		}
+
+		message.setText(mail.getBody(), true); // true = isHtml
+		message.setFrom(getAccountId());
+
+		if (mail.getAttachments() != null) {
+			for (File attachment: mail.getAttachments()) {
+				FileSystemResource file = new FileSystemResource(attachment);
+				message.addAttachment(file.getFilename(), file);
+			}
+		}
+
+		return mimeMessage;
 	}
 
 	private class SendMailTask implements Runnable {
