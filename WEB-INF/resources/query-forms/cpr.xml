@@ -376,6 +376,14 @@
       </subForm>
     </row>
     <row>
+      <textField>
+        <name>consentDocumentName</name>
+        <udn>consentDocumentName</udn>
+        <caption>#getMessage("participant_consent_doc_name")</caption>
+        <column>CONSENT_DOCUMENT_NAME</column>
+      </textField>
+    </row>
+    <row>
       <datePicker>
         <name>consentSignDate</name>
         <udn>consentSignDate</udn>
