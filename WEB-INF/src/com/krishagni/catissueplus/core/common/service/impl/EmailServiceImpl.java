@@ -192,8 +192,8 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 
 			MimeMessage mimeMessage = createMessage(mail, props);
 			SendMailTask sendTask = new SendMailTask(mimeMessage);
-			boolean result = false;
-			if ((Boolean) props.getOrDefault("$synchronous", false)) {
+			boolean result = true;
+			if (!(Boolean) props.getOrDefault("$synchronous", false)) {
 				logger.info("Invoking task executor to send the e-mail asynchronously: " + mimeMessage.getSubject());
 				taskExecutor.submit(sendTask);
 				result = true;
