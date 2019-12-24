@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Map;
 
 import com.krishagni.catissueplus.core.common.domain.Email;
+import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 
 public interface EmailService {
 	boolean sendEmail(String emailTmplKey, String[] to, Map<String, Object> props);
@@ -17,4 +18,6 @@ public interface EmailService {
 	boolean sendEmail(Email mail);
 
 	void registerProcessor(EmailProcessor processor);
+
+	void sendTestEmail();
 }

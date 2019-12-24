@@ -44,14 +44,18 @@ import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.common.OpenSpecimenAppCtxProvider;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.domain.Email;
+import com.krishagni.catissueplus.core.common.domain.factory.EmailErrorCode;
+import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.service.ConfigChangeListener;
 import com.krishagni.catissueplus.core.common.service.ConfigurationService;
 import com.krishagni.catissueplus.core.common.service.EmailProcessor;
 import com.krishagni.catissueplus.core.common.service.EmailService;
 import com.krishagni.catissueplus.core.common.service.TemplateService;
+import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.catissueplus.core.common.util.ConfigUtil;
 import com.krishagni.catissueplus.core.common.util.MessageUtil;
 import com.krishagni.catissueplus.core.common.util.Utility;
+import com.krishagni.rbac.common.errors.RbacErrorCode;
 
 public class EmailServiceImpl implements EmailService, ConfigChangeListener, InitializingBean {
 	private static final Log logger = LogFactory.getLog(EmailServiceImpl.class);
@@ -187,11 +191,25 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 			mail.setCcAddress(filterEmailIds("Cc", mail.getCcAddress()));
 
 			MimeMessage mimeMessage = createMessage(mail, props);
-			logger.info("Invoking task executor to send e-mail asynchronously: " + mimeMessage.getSubject());
-			taskExecutor.submit(new SendMailTask(mimeMessage));
-			return true;
+			SendMailTask sendTask = new SendMailTask(mimeMessage);
+			boolean result = false;
+			if ((Boolean) props.getOrDefault("$synchronous", false)) {
+				logger.info("Invoking task executor to send the e-mail asynchronously: " + mimeMessage.getSubject());
+				taskExecutor.submit(sendTask);
+				result = true;
+			} else {
+				logger.warn("Sending e-mail synchronously: " + mimeMessage.getSubject());
+				sendTask.run();
+				if (StringUtils.isNotBlank(sendTask.getError())) {
+					props.put("$error", sendTask.getError());
+					result = false;
+				}
+			}
+
+			return result;
 		} catch (Exception e) {
 			logger.error("Error sending e-mail", e);
+			props.put("$error", e.getMessage());
 			return false;
 		}
 	}
@@ -208,14 +226,42 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 		}
 	}
 
+	@Override
+	public void sendTestEmail() {
+		if (!AuthUtil.isAdmin()) {
+			throw OpenSpecimenException.userError(RbacErrorCode.ADMIN_RIGHTS_REQUIRED);
+		}
+
+		if (!isEmailNotifEnabled()) {
+			throw OpenSpecimenException.userError(EmailErrorCode.NOTIFS_ARE_DISABLED);
+		}
+
+		if (StringUtils.isEmpty(getAdminEmailId())) {
+			throw OpenSpecimenException.userError(EmailErrorCode.ADMIN_EMAIL_REQ);
+		}
+
+		String[] adminEmailId = new String[] {getAdminEmailId()};
+		Map<String, Object> props = new HashMap<>();
+		props.put("$synchronous", true);
+		boolean status = sendEmail("test_email", null, adminEmailId, null, null, props);
+		if (!status) {
+			throw OpenSpecimenException.userError(EmailErrorCode.UNABLE_TO_SEND, props.get("$error"));
+		}
+	}
+
 	private boolean sendEmail(String tmplKey, String tmplContent, String[] to, String[] bcc, File[] attachments, Map<String, Object> props) {
 		if (!isEmailNotifEnabled()) {
 			return false;
 		}
 
 		boolean emailEnabled = cfgSvc.getBoolSetting("notifications", "email_" + tmplKey, true);
+
 		if (!emailEnabled) {
 			return false;
+		}
+
+		if (props == null) {
+			props = new HashMap<>();
 		}
 
 		String adminEmailId = getAdminEmailId();
@@ -249,7 +295,7 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 
 		return sendEmail(email, props);
 	}
-	
+
 	private String getSubject(String subjKey, Object[] subjParams) {
 		return getSubjectPrefix() + MessageUtil.getInstance().getMessage(subjKey.toLowerCase() + "_subj", subjParams);
 	}
@@ -309,6 +355,8 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 	private class SendMailTask implements Runnable {
 		private MimeMessage mimeMessage;
 		
+		private String error;
+
 		public SendMailTask(MimeMessage mimeMessage) {
 			this.mimeMessage = mimeMessage;
 		}
@@ -319,9 +367,14 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 				logger.info("Sending email '" + mimeMessage.getSubject() + "' to " + rcpts);
 				mailSender.send(mimeMessage);
 				logger.info("Email '" + mimeMessage.getSubject() + "' sent to " + rcpts);
-			} catch(Exception e) {
+			} catch (Exception e) {
 				logger.error("Error sending e-mail ", e);
+				this.error = e.getMessage();
 			}
+		}
+
+		public String getError() {
+			return this.error;
 		}
 
 		private String toString(Address[] addresses) {
