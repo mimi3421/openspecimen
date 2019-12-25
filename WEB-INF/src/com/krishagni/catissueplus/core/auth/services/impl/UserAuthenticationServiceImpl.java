@@ -172,6 +172,7 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
 			loginAuditLog.setLogoutTime(Calendar.getInstance().getTime());
 			
 			daoFactory.getAuthDao().deleteAuthToken(token);
+			daoFactory.getAuthDao().deleteCredentials(token.getToken());
 			return ResponseEvent.response("Success");
 		} catch (Exception e) {	
 			return ResponseEvent.serverError(e);
@@ -190,6 +191,7 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.MINUTE, -AuthConfig.getInstance().getTokenInactiveIntervalInMinutes());
 		daoFactory.getAuthDao().deleteInactiveAuthTokens(cal.getTime());
+		daoFactory.getAuthDao().deleteDanglingCredentials();
 	}
 	
 	public String generateToken(User user, LoginDetail loginDetail) {

@@ -41,7 +41,10 @@ import org.springframework.security.saml.SAMLAuthenticationProvider;
 import org.springframework.security.saml.SAMLConstants;
 import org.springframework.security.saml.SAMLDiscovery;
 import org.springframework.security.saml.SAMLEntryPoint;
+import org.springframework.security.saml.SAMLLogoutFilter;
+import org.springframework.security.saml.SAMLLogoutProcessingFilter;
 import org.springframework.security.saml.SAMLProcessingFilter;
+import org.springframework.security.saml.context.SAMLContextProvider;
 import org.springframework.security.saml.context.SAMLContextProviderImpl;
 import org.springframework.security.saml.context.SAMLContextProviderLB;
 import org.springframework.security.saml.key.JKSKeyManager;
@@ -64,6 +67,7 @@ import org.springframework.security.saml.trust.httpclient.TLSProtocolConfigurer;
 import org.springframework.security.saml.userdetails.SAMLUserDetailsService;
 import org.springframework.security.saml.util.VelocityFactory;
 import org.springframework.security.saml.websso.ArtifactResolutionProfileImpl;
+import org.springframework.security.saml.websso.SingleLogoutProfileImpl;
 import org.springframework.security.saml.websso.WebSSOProfile;
 import org.springframework.security.saml.websso.WebSSOProfileConsumer;
 import org.springframework.security.saml.websso.WebSSOProfileConsumerHoKImpl;
@@ -73,6 +77,9 @@ import org.springframework.security.saml.websso.WebSSOProfileImpl;
 import org.springframework.security.saml.websso.WebSSOProfileOptions;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
 
 import com.krishagni.catissueplus.core.common.util.ConfigUtil;
 import com.krishagni.catissueplus.rest.filter.SamlFilter;
@@ -84,6 +91,10 @@ public class SamlBootstrap {
 	private static final String SSO_URL = "/saml/SSO/**";
 
 	private static final String METADATA_URL = "/saml/metadata/**";
+
+	private static final String LOGOUT_URL = "/saml/logout/**";
+
+	private static final String SINGLE_LOGOUT_URL = "/saml/SingleLogout/**";
 
 	private static final String DEFAULT_TARGET_URL = "/#/home";
 
@@ -145,12 +156,15 @@ public class SamlBootstrap {
 		MetadataDisplayFilter metadataDisplayFilter = getMetadataDisplayFilter(contextProvider, metadata, keyManager);
 		MetadataGenerator metadataGenerator = getMetadataGenerator(keyManager, samlEntryPoint, samlWebSSOProcessingFilter);
 		MetadataGeneratorFilter metadataGenFilter = getMetadataGenFilter(metadataGenerator, metadata, metadataDisplayFilter);
+		SAMLLogoutFilter logoutFilter = getLogoutFilter(contextProvider, processor, metadata);
+		SAMLLogoutProcessingFilter logoutProcFilter = getLogoutProcFilter(contextProvider, processor, metadata);
 
 		Map<String, Filter> filters = new HashMap<>();
 		filters.put(LOGIN_URL, samlEntryPoint);
 		filters.put(SSO_URL, samlWebSSOProcessingFilter);
 		filters.put(METADATA_URL, metadataDisplayFilter);
-
+		filters.put(LOGOUT_URL, logoutFilter);
+		filters.put(SINGLE_LOGOUT_URL, logoutProcFilter);
 		samlFilter.setFilterChain(metadataGenFilter, filters);
 	}
 	
@@ -457,6 +471,49 @@ public class SamlBootstrap {
 		provider.setParserPool(parserPool);
 
 		return new ExtendedMetadataDelegate(provider, getExtendedMetadata());
+	}
+
+	private SAMLLogoutFilter getLogoutFilter(SAMLContextProvider ctxtProvider, SAMLProcessorImpl processor, CachingMetadataManager metadata) {
+		SimpleUrlLogoutSuccessHandler successHandler = new SimpleUrlLogoutSuccessHandler();
+		successHandler.setDefaultTargetUrl("/");
+		successHandler.setAlwaysUseDefaultTargetUrl(true);
+
+		SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
+		logoutHandler.setInvalidateHttpSession(true);
+		logoutHandler.setClearAuthentication(true);
+
+		LogoutHandler[] handlers = new LogoutHandler[] { logoutHandler };
+		SAMLLogoutFilter filter = new SAMLLogoutFilter(successHandler, handlers, handlers);
+		filter.setContextProvider(ctxtProvider);
+
+		SingleLogoutProfileImpl profile = new SingleLogoutProfileImpl();
+		profile.setProcessor(processor);
+		profile.setMetadata(metadata);
+		filter.setProfile(profile);
+		filter.setSamlLogger(getSamlLogger());
+		return filter;
+	}
+
+	private SAMLLogoutProcessingFilter getLogoutProcFilter(SAMLContextProvider ctxtProvider, SAMLProcessorImpl processor, CachingMetadataManager metadata) {
+		SimpleUrlLogoutSuccessHandler successHandler = new SimpleUrlLogoutSuccessHandler();
+		successHandler.setDefaultTargetUrl("/");
+		successHandler.setAlwaysUseDefaultTargetUrl(true);
+
+		SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
+		logoutHandler.setInvalidateHttpSession(true);
+		logoutHandler.setClearAuthentication(true);
+
+		SingleLogoutProfileImpl profile = new SingleLogoutProfileImpl();
+		profile.setProcessor(processor);
+		profile.setMetadata(metadata);
+
+		SAMLLogoutProcessingFilter filter = new SAMLLogoutProcessingFilter(successHandler, logoutHandler);
+		filter.setLogoutProfile(profile);
+		filter.setSamlLogger(getSamlLogger());
+		filter.setSAMLProcessor(processor);
+		filter.setContextProvider(ctxtProvider);
+		filter.setSamlLogger(getSamlLogger());
+		return filter;
 	}
 
 	private ExtendedMetadata getExtendedMetadata() {

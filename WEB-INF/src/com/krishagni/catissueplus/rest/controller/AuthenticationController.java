@@ -70,15 +70,10 @@ public class AuthenticationController {
 	@ResponseBody
 	public Map<String, String> delete(HttpServletResponse httpResp) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		RequestEvent<String> req = new RequestEvent<>((String)auth.getCredentials());
-		ResponseEvent<String> resp = userAuthService.removeToken(req);
-
-		if (resp.isSuccessful()) {
-			AuthUtil.clearTokenCookie(httpReq, httpResp);
-			resp.throwErrorIfUnsuccessful();
-		}
-
-		return Collections.singletonMap("Status", resp.getPayload());
+		String token = (String) auth.getCredentials();
+		String status = ResponseEvent.unwrap(userAuthService.removeToken(RequestEvent.wrap(token)));
+		AuthUtil.clearTokenCookie(httpReq, httpResp);
+		return Collections.singletonMap("Status", status);
 	}
 
 	@RequestMapping(method=RequestMethod.POST, value="/refresh-cookie")

@@ -7,6 +7,7 @@ import com.krishagni.catissueplus.core.auth.domain.AuthDomain;
 import com.krishagni.catissueplus.core.auth.domain.AuthProvider;
 import com.krishagni.catissueplus.core.auth.domain.AuthToken;
 import com.krishagni.catissueplus.core.auth.domain.LoginAuditLog;
+import com.krishagni.catissueplus.core.auth.domain.AuthCredential;
 import com.krishagni.catissueplus.core.auth.repository.AuthDao;
 import com.krishagni.catissueplus.core.common.repository.AbstractDao;
 
@@ -103,9 +104,8 @@ public class AuthDaoImpl extends AbstractDao<AuthDomain> implements AuthDao {
 	
 	@Override
 	public void deleteInactiveAuthTokens(Date latestAccessTime) {
-		sessionFactory.getCurrentSession()
-			.getNamedQuery(DELETE_INACTIVE_AUTH_TOKENS)
-			.setTimestamp("latestCallTime", latestAccessTime)
+		getCurrentSession().getNamedQuery(DELETE_INACTIVE_AUTH_TOKENS)
+			.setParameter("latestCallTime", latestAccessTime)
 			.executeUpdate();
 	}
 	
@@ -120,7 +120,31 @@ public class AuthDaoImpl extends AbstractDao<AuthDomain> implements AuthDao {
 	public void saveLoginAuditLog(LoginAuditLog log) {
 		sessionFactory.getCurrentSession().saveOrUpdate(log);
 	}
-	
+
+	@Override
+	public void saveCredentials(AuthCredential credential) {
+		getCurrentSession().saveOrUpdate(credential);
+	}
+
+	@Override
+	public AuthCredential getCredentials(String token) {
+		return (AuthCredential) getCurrentSession().getNamedQuery(GET_CREDENTIAL)
+			.setParameter("token", token)
+			.uniqueResult();
+	}
+
+	@Override
+	public void deleteCredentials(String token) {
+		getCurrentSession().getNamedQuery(DELETE_CREDENTIAL)
+			.setParameter("token", token)
+			.executeUpdate();
+	}
+
+	@Override
+	public void deleteDanglingCredentials() {
+		getCurrentSession().getNamedQuery(DELETE_DANGLING_CREDS).executeUpdate();
+	}
+
 	private static final String FQN = AuthDomain.class.getName();
 	
 	private static final String GET_AUTH_DOMAINS = FQN + ".getAuthDomains";
@@ -138,5 +162,10 @@ public class AuthDaoImpl extends AbstractDao<AuthDomain> implements AuthDao {
 	private static final String GET_LOGIN_AUDIT_LOGS_BY_USER_ID = LoginAuditLog.class.getName() + ".getLogsByUserId";
 	
 	private static final String DELETE_AUTH_TOKENS_BY_USER_ID = AuthToken.class.getName() + ".deleteAuthTokensByUserId";
-	
+
+	private static final String GET_CREDENTIAL = AuthCredential.class.getName() + ".getByToken";
+
+	private static final String DELETE_CREDENTIAL = AuthCredential.class.getName() + ".deleteByToken";
+
+	private static final String DELETE_DANGLING_CREDS = AuthCredential.class.getName() + ".deleteDanglingCredentials";
 }

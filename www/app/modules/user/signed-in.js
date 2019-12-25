@@ -20,6 +20,7 @@ angular.module('openspecimen')
        setSetting('training', 'training_url', 'trainingUrl');
        setSetting('training', 'help_link',    'helpUrl');
        setSetting('training', 'forum_link',   'forumUrl');
+       setSetting('auth',     'saml_enable',  'samlEnabled');
 
        showIntroVideo();
      }

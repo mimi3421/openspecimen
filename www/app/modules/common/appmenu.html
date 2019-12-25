@@ -28,7 +28,14 @@
             </a>
           </li>
           <li class="divider"></li>
-          <li><a ui-sref="login({logout:true})"  translate="user.logout">Log Out</a></li>
+          <li ng-switch on="userCtx.samlEnabled">
+            <a ng-switch-when="true" href="saml/logout">
+              <span translate="user.logout">Logout</span>
+            </a>
+            <a ng-switch-when="false" ui-sref="logout({logout: true})">
+              <span translate="user.logout">Logout</span>
+            </a>
+          </li>
         </ul>
       </li>
       <li class="dropdown" dropdown is-open="ctx.notifsOpen" ng-controller="NotifAlertCtrl"

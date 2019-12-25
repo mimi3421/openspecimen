@@ -8,6 +8,7 @@ import com.krishagni.catissueplus.core.auth.domain.AuthDomain;
 import com.krishagni.catissueplus.core.auth.domain.AuthProvider;
 import com.krishagni.catissueplus.core.auth.domain.AuthToken;
 import com.krishagni.catissueplus.core.auth.domain.LoginAuditLog;
+import com.krishagni.catissueplus.core.auth.domain.AuthCredential;
 import com.krishagni.catissueplus.core.common.repository.Dao;
 
 public interface AuthDao extends Dao<AuthDomain> {
@@ -35,4 +36,12 @@ public interface AuthDao extends Dao<AuthDomain> {
 	void saveLoginAuditLog(LoginAuditLog log);
 	
 	int deleteAuthTokensByUser(List<Long> userIds);
+
+	void saveCredentials(AuthCredential credential);
+
+	AuthCredential getCredentials(String token);
+
+	void deleteCredentials(String token);
+
+	void deleteDanglingCredentials();
 }

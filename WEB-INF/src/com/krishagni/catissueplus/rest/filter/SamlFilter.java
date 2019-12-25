@@ -4,19 +4,23 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
@@ -24,6 +28,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
+import com.krishagni.catissueplus.core.auth.domain.AuthCredential;
 import com.krishagni.catissueplus.core.auth.domain.AuthDomain;
 import com.krishagni.catissueplus.core.auth.domain.AuthToken;
 import com.krishagni.catissueplus.core.auth.events.TokenDetail;
@@ -54,7 +59,7 @@ public class SamlFilter extends FilterChainProxy {
 	}
 
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) 
-	throws IOException, ServletException {
+	throws IOException {
 		String appUrl = ConfigUtil.getInstance().getAppUrl();
 		HttpServletRequest httpReq = (HttpServletRequest) request;
 		HttpServletResponse httpResp = (HttpServletResponse) response;
@@ -62,7 +67,14 @@ public class SamlFilter extends FilterChainProxy {
 		try {
 			boolean samlEnabled = enableSaml();
 			boolean metadataReq = isMetadataReq(httpReq);
-			if (samlEnabled && (metadataReq || !isAuthenticated(httpReq))) {
+			boolean logoutReq = isLogoutReq(httpReq);
+			if (samlEnabled && (metadataReq || logoutReq || !isAuthenticated(httpReq))) {
+				String token = AuthUtil.getTokenFromCookie(httpReq);
+				if (logoutReq) {
+					setupAuthContext(token);
+					cleanupCredentials(token);
+				}
+
 				if (!metadataReq) {
 					AuthUtil.clearTokenCookie(httpReq, httpResp);
 				}
@@ -119,6 +131,66 @@ public class SamlFilter extends FilterChainProxy {
 		return samlEnabled;
 	}
 
+	@PlusTransactional
+	private void setupAuthContext(String token) {
+		if (StringUtils.isBlank(token)) {
+			return;
+		}
+
+		AuthCredential credential = daoFactory.getAuthDao().getCredentials(AuthUtil.decodeToken(token));
+		if (credential == null) {
+			return;
+		}
+
+		SecurityContextHolder.getContext().setAuthentication(new Authentication() {
+			private static final long serialVersionUID = -6025550670210593212L;
+
+			@Override
+			public Collection<? extends GrantedAuthority> getAuthorities() {
+				return null;
+			}
+
+			@Override
+			public Object getCredentials() {
+				return credential.getCredential();
+			}
+
+			@Override
+			public Object getDetails() {
+				return null;
+			}
+
+			@Override
+			public Object getPrincipal() {
+				return null;
+			}
+
+			@Override
+			public boolean isAuthenticated() {
+				return false;
+			}
+
+			@Override
+			public void setAuthenticated(boolean b) throws IllegalArgumentException {
+
+			}
+
+			@Override
+			public String getName() {
+				return null;
+			}
+		});
+	}
+
+	@PlusTransactional
+	private void cleanupCredentials(String token) {
+		if (StringUtils.isBlank(token)) {
+			return;
+		}
+
+		ResponseEvent.unwrap(authService.removeToken(RequestEvent.wrap(token)));
+	}
+
 	private boolean isAuthenticated(HttpServletRequest httpReq) {
 		String authToken = AuthUtil.getTokenFromCookie(httpReq);
 		if (authToken == null) {
@@ -136,5 +208,9 @@ public class SamlFilter extends FilterChainProxy {
 
 	private boolean isMetadataReq(HttpServletRequest httpReq) {
 		return httpReq != null && httpReq.getRequestURI().endsWith("/saml/metadata");
+	}
+
+	private boolean isLogoutReq(HttpServletRequest httpReq) {
+		return httpReq != null && httpReq.getRequestURI().endsWith("/saml/logout");
 	}
 }

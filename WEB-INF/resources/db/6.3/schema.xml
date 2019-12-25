@@ -380,4 +380,12 @@
       baseTableName="OS_MOBILE_UPLOAD_JOBS" baseColumnNames="CREATED_BY"
       referencedTableName="CATISSUE_USER" referencedColumnNames="IDENTIFIER"/>
   </changeSet>
+
+  <changeSet author="vpawar" id="Auth credentials">
+    <createTable tableName="OS_AUTH_CREDENTIALS">
+      <column name="TOKEN" type="${text.type}(64)"/>
+
+      <column name="CREDENTIALS" type="${blob.type}"/>
+    </createTable>
+  </changeSet>
 </databaseChangeLog>
