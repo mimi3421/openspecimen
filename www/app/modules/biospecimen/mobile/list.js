@@ -1,5 +1,5 @@
 
-angular.module('os.common.import.list', ['os.common.import.importjob'])
+angular.module('os.biospecimen.mobile')
   .controller('MobileUploadJobsListCtrl', function($scope, cp, MobileUploadJob) {
 
     var ctx;
