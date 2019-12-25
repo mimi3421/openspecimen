@@ -17,6 +17,7 @@ angular.module('os.query.defineview', ['os.query.models'])
 
       $scope.dctx = {havingClause: queryCtx.havingClause};
       $scope.outputColumnExprs = queryCtx.outputColumnExprs;
+      $scope.caseSensitive = (queryCtx.caseSensitive == undefined || queryCtx.caseSensitive == null || queryCtx.caseSensitive);
       $scope.wideRowMode = angular.copy(queryCtx.wideRowMode); 
       $scope.reporting = angular.copy(queryCtx.reporting);
       $scope.pivotTable = (queryCtx.reporting.type == 'crosstab');
@@ -89,13 +90,13 @@ angular.module('os.query.defineview', ['os.query.models'])
 
       sanitizeSelectedFields($scope.selectedFields);
       $modalInstance.close(angular.extend(queryCtx, {
-         outputColumnExprs: $scope.outputColumnExprs,
-         wideRowMode: $scope.wideRowMode, 
-         selectedFields: $scope.selectedFields, 
-         reporting: $scope.reporting,
-         havingClause: $scope.dctx.havingClause
-        })
-      );
+        outputColumnExprs: $scope.outputColumnExprs,
+        caseSensitive: $scope.caseSensitive,
+        wideRowMode: $scope.wideRowMode,
+        selectedFields: $scope.selectedFields,
+        reporting: $scope.reporting,
+        havingClause: $scope.dctx.havingClause
+      }));
     }
 
     $scope.cancel = function() {
@@ -109,6 +110,10 @@ angular.module('os.query.defineview', ['os.query.models'])
 
     $scope.setOutputColumnExprs = function(checked) {
       $scope.outputColumnExprs = checked;
+    }
+
+    $scope.setCaseSensitive = function(checked) {
+      $scope.caseSensitive = checked;
     }
 
     $scope.showCurrField = function(field) {

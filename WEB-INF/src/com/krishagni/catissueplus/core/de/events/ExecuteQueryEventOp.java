@@ -25,6 +25,8 @@ public class ExecuteQueryEventOp  {
 
 	private boolean outputColumnExprs;
 
+	private boolean caseSensitive = true;
+
 	private boolean synchronous;
 
 	private boolean disableAccessChecks;
@@ -107,6 +109,14 @@ public class ExecuteQueryEventOp  {
 
 	public void setOutputColumnExprs(boolean outputColumnExprs) {
 		this.outputColumnExprs = outputColumnExprs;
+	}
+
+	public boolean isCaseSensitive() {
+		return caseSensitive;
+	}
+
+	public void setCaseSensitive(boolean caseSensitive) {
+		this.caseSensitive = caseSensitive;
 	}
 
 	public boolean isSynchronous() {

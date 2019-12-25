@@ -55,6 +55,8 @@ public class SavedQuery {
 
 	private boolean outputColumnExprs;
 
+	private boolean caseSensitive = true;
+
 	private Date deletedOn;
 
 	public Long getId() {
@@ -240,6 +242,14 @@ public class SavedQuery {
 		this.outputColumnExprs = outputColumnExprs;
 	}
 
+	public boolean isCaseSensitive() {
+		return caseSensitive;
+	}
+
+	public void setCaseSensitive(boolean caseSensitive) {
+		this.caseSensitive = caseSensitive;
+	}
+
 	public Date getDeletedOn() {
 		return deletedOn;
 	}
@@ -270,6 +280,7 @@ public class SavedQuery {
 		query.reporting = reporting;
 		query.wideRowMode = wideRowMode;
 		query.outputColumnExprs = outputColumnExprs;
+		query.caseSensitive = caseSensitive;
 		
 		try {
 			return getWriteMapper().writeValueAsString(query);
@@ -302,6 +313,7 @@ public class SavedQuery {
 		this.reporting = query.reporting;
 		this.wideRowMode = query.wideRowMode;
 		this.outputColumnExprs = query.outputColumnExprs;
+		this.caseSensitive = query.caseSensitive;
 	}
 	
 	public String getAql() {
@@ -331,6 +343,7 @@ public class SavedQuery {
 		setReporting(query.getReporting());
 		setWideRowMode(query.getWideRowMode());
 		setOutputColumnExprs(query.isOutputColumnExprs());
+		setCaseSensitive(query.isCaseSensitive());
 	}
 	
 	@Override

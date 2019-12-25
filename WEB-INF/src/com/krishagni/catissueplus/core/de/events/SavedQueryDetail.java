@@ -27,6 +27,8 @@ public class SavedQueryDetail extends SavedQuerySummary {
 
 	private boolean outputColumnExprs;
 
+	private boolean caseSensitive;
+
 	private Long[] dependentQueries;
 
 	public Long getCpId() {
@@ -109,6 +111,14 @@ public class SavedQueryDetail extends SavedQuerySummary {
 		this.outputColumnExprs = outputColumnExprs;
 	}
 
+	public boolean isCaseSensitive() {
+		return caseSensitive;
+	}
+
+	public void setCaseSensitive(boolean caseSensitive) {
+		this.caseSensitive = caseSensitive;
+	}
+
 	public Long[] getDependentQueries() {
 		return dependentQueries;
 	}
@@ -135,6 +145,7 @@ public class SavedQueryDetail extends SavedQuerySummary {
 		detail.setReporting(savedQuery.getReporting());
 		detail.setWideRowMode(savedQuery.getWideRowMode());
 		detail.setOutputColumnExprs(savedQuery.isOutputColumnExprs());
+		detail.setCaseSensitive(savedQuery.isCaseSensitive());
 		detail.setDependentQueries(savedQuery.getDependentQueries().toArray(new Long[0]));
 		return detail;
 	}	

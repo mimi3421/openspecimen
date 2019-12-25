@@ -75,7 +75,8 @@ angular.module('os.query.models.savedquery', ['os.common.models'])
         havingClause: qc.havingClause,
         reporting: qc.reporting,
         wideRowMode: qc.wideRowMode,
-        outputColumnExprs: qc.outputColumnExprs
+        outputColumnExprs: qc.outputColumnExprs,
+        caseSensitive: qc.caseSensitive
       })
     }
 

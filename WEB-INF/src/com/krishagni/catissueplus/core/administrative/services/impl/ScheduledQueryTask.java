@@ -51,6 +51,7 @@ public class ScheduledQueryTask implements ScheduledTask {
 		op.setWideRowMode(query.getWideRowMode());
 		op.setSavedQueryId(query.getId());
 		op.setOutputColumnExprs(query.isOutputColumnExprs());
+		op.setCaseSensitive(query.isCaseSensitive());
 		op.setSynchronous(true);
 
 		QueryService.ExportProcessor processor = new DefaultQueryExportProcessor(query.getCpId(), query.getCpGroupId()) {

@@ -274,7 +274,7 @@ public class QueryServiceImpl implements QueryService {
 
 			Query.createQuery()
 				.wideRowMode(mode)
-				.ic(true)
+				.ic(!queryDetail.isCaseSensitive())
 				.dateFormat(ConfigUtil.getInstance().getDeDateFmt())
 				.timeFormat(ConfigUtil.getInstance().getTimeFmt())
 				.compile(cprForm, getAql(queryDetail));
@@ -302,7 +302,7 @@ public class QueryServiceImpl implements QueryService {
 
 			Query.createQuery()
 				.wideRowMode(WideRowMode.DEEP)
-				.ic(true)
+				.ic(!queryDetail.isCaseSensitive())
 				.dateFormat(ConfigUtil.getInstance().getDeDateFmt())
 				.timeFormat(ConfigUtil.getInstance().getTimeFmt())
 				.compile(cprForm, getAql(queryDetail));
@@ -466,6 +466,7 @@ public class QueryServiceImpl implements QueryService {
 			op.setRunType(input.getRunType());
 			op.setWideRowMode(input.getWideRowMode());
 			op.setSavedQueryId(query.getId());
+			op.setCaseSensitive(query.isCaseSensitive());
 			op.setAql(query.getAql() + " limit " + input.getStartAt() + ", " + input.getMaxResults());
 			return executeQuery(new RequestEvent<>(op));
 		} catch (OpenSpecimenException ose) {
@@ -946,6 +947,7 @@ public class QueryServiceImpl implements QueryService {
 		savedQuery.setReporting(detail.getReporting());
 		savedQuery.setWideRowMode(detail.getWideRowMode());
 		savedQuery.setOutputColumnExprs(detail.isOutputColumnExprs());
+		savedQuery.setCaseSensitive(detail.isCaseSensitive());
 		return savedQuery;
 	}
 
@@ -969,7 +971,7 @@ public class QueryServiceImpl implements QueryService {
 		TimeZone tz = AuthUtil.getUserTimeZone();
 		Query query = Query.createQuery()
 			.wideRowMode(WideRowMode.valueOf(op.getWideRowMode()))
-			.ic(true)
+			.ic(!op.isCaseSensitive())
 			.outputIsoDateTime(op.isOutputIsoDateTime())
 			.outputExpression(op.isOutputColumnExprs())
 			.dateFormat(ConfigUtil.getInstance().getDeDateFmt())

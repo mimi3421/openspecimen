@@ -181,6 +181,7 @@ angular.module('os.query.globaldata', ['os.query.models', 'os.biospecimen.models
         drivingForm: 'Participant',
         wideRowMode: savedQuery.wideRowMode || 'DEEP',
         outputColumnExprs: savedQuery.outputColumnExprs,
+        caseSensitive: savedQuery.caseSensitive,
         dependentQueries: savedQuery.dependentQueries || []
       };
 

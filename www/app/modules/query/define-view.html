@@ -16,18 +16,21 @@
             <label class="checkbox-inline">
               <input type="checkbox" ng-model="wideRows" ng-click="setWideRowsMode(wideRows)"
                 ng-checked="wideRowMode == 'DEEP'" style="position: initial;">
-              <span translate="queries.enable_wide_rows">
-                Enable Wide Rows
-              </span>
+              <span translate="queries.enable_wide_rows"> Enable Wide Rows </span>
             </label>
           </div>
           <div class="form-group">
             <label class="checkbox-inline">
               <input type="checkbox" ng-model="outputColumnExprs" ng-click="setOutputColumnExprs(outputColumnExprs)"
                 style="position: initial;">
-              <span translate="queries.display_field_exprs">
-                Display Field Expressions
-              </span>
+              <span translate="queries.display_field_exprs"> Display Field Expressions </span>
+            </label>
+          </div>
+          <div class="form-group">
+            <label class="checkbox-inline">
+              <input type="checkbox" ng-model="caseSensitive" ng-click="setCaseSensitive(caseSensitive)"
+                style="position: initial;">
+              <span translate="queries.case_sensitive"> Case Sensitive </span>
             </label>
           </div>
         </div>

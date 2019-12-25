@@ -162,7 +162,7 @@ angular.module('os.query.results', ['os.query.models'])
 
       var aql = getAql(true, true);
       var outputIsoFmt = (qc.reporting.type != 'crosstab');
-      var opts = {outputColumnExprs: qc.outputColumnExprs};
+      var opts = {outputColumnExprs: qc.outputColumnExprs, caseSensitive: qc.caseSensitive};
       QueryExecutor.getRecords(qc.id, qc.selectedCp, aql, qc.wideRowMode || 'DEEP', outputIsoFmt, opts).then(
         function(result) {
           currResults = result;
@@ -364,7 +364,7 @@ angular.module('os.query.results', ['os.query.models'])
       var counters = $scope.resultsCtx.counters;
       counters.waiting = true;
       counters.error = false;
-      QueryExecutor.getCount(qc.id, qc.selectedCp, aql).then(
+      QueryExecutor.getCount(qc.id, qc.selectedCp, aql, qc.caseSensitive).then(
         function(result) {
           counters.waiting = false;
           angular.extend(counters, result);
@@ -660,7 +660,7 @@ angular.module('os.query.results', ['os.query.models'])
 
       var alert = Alerts.info('queries.export_initiated', {}, false);  
       var aql = getAql(false);
-      var opts = {outputColumnExprs: qc.outputColumnExprs};
+      var opts = {outputColumnExprs: qc.outputColumnExprs, caseSensitive: qc.caseSensitive};
       QueryExecutor.exportQueryResultsData(qc.id, qc.selectedCp, aql, qc.wideRowMode || 'DEEP', opts).then(
         function(result) {
           Alerts.remove(alert);

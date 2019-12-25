@@ -1853,6 +1853,7 @@
     "enable_wide_rows": "Enable Wide Rows",
     "no_fields_selected": "No fields selected. Please select at least one field",
     "display_field_exprs": "Display Field Names",
+    "case_sensitive": "Case Sensitive Search",
 
     "selected_fields": "Selected Fields",
     "agg_fns": "Aggregate Functions",

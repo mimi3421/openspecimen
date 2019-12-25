@@ -4,7 +4,7 @@ angular.module('os.query.executor', [])
     var queryUrl = ApiUrls.getBaseUrl() + 'query';
 
     return {
-      getCount: function(queryId, cp, aql) {
+      getCount: function(queryId, cp, aql, caseSensitive) {
         if (typeof cp == 'number') {
           cp = {id: cp};
         }
@@ -14,6 +14,7 @@ angular.module('os.query.executor', [])
           cpId: !cp.$$cpGroup ? cp.id : undefined,
           cpGroupId: cp.$$cpGroup ? cp.id : undefined,
           drivingForm: 'Participant',
+          caseSensitive: (caseSensitive == undefined || caseSensitive == null || caseSensitive),
           runType: 'Count',
           aql: aql
         };
@@ -49,7 +50,8 @@ angular.module('os.query.executor', [])
           aql: aql, 
           wideRowMode: wideRowMode || "OFF",
           outputIsoDateTime: (outputIsoFmt || false),
-          outputColumnExprs: opts.outputColumnExprs || false
+          outputColumnExprs: opts.outputColumnExprs || false,
+          caseSensitive: (opts.caseSensitive == undefined || opts.caseSensitive == null || opts.caseSensitive)
         };
         return $http.post(queryUrl, req).then(
           function(resp) {
@@ -74,7 +76,8 @@ angular.module('os.query.executor', [])
           aql: aql,
           indexOf: 'Specimen.label',
           wideRowMode: wideRowMode || "OFF",
-          outputColumnExprs: opts.outputColumnExprs || false
+          outputColumnExprs: opts.outputColumnExprs || false,
+          caseSensitive: (opts.caseSensitive == undefined || opts.caseSensitive == null || opts.caseSensitive)
         };
 
         return $http.post(queryUrl + '/export', req).then(
