@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -396,7 +397,7 @@ public class Visit extends BaseExtensionEntity {
 		
 		setName(visit.getName());
 		setClinicalStatus(visit.getClinicalStatus());
-		setCpEvent(visit.getCpEvent());
+		updateEvent(visit.getCpEvent());
 		updateRegistration(visit.getRegistration());
 		setSite(visit.getSite());
 		updateStatus(visit.getStatus());		
@@ -700,6 +701,20 @@ public class Visit extends BaseExtensionEntity {
 
 			default:
 				return false;
+		}
+	}
+
+	private void updateEvent(CollectionProtocolEvent newEvent) {
+		CollectionProtocolEvent existingEvent = getCpEvent();
+		setCpEvent(newEvent);
+
+		if (Objects.equals(existingEvent, newEvent)) {
+			return;
+		}
+
+		// events differ. nullify the specimen requirements
+		for (Specimen spmn : getSpecimens()) {
+			spmn.setSpecimenRequirement(null);
 		}
 	}
 
