@@ -32,7 +32,8 @@
         cpr.protocol_participant_id as ppid, p.vital_status_id as vital_status_id,
         p.death_date as death_date, p.empi_id as empi_id, cpr.barcode as barcode,
         cpr.consent_sign_date as consent_sign_date, cpr.consent_witness as consent_witness,
-        cpr.consent_comments as consent_comments, cpr.consent_document_name as consent_document_name,
+        cpr.consent_comments as consent_comments,
+        substr(cpr.consent_document_name, instr(cpr.consent_document_name, '_') + 1) as consent_document_name,
         cpr.external_subject_id as external_subject_id,
         cpr.site_id as site_id,  cpr.creation_time as creation_time, cpr.creator as creator,
         case
