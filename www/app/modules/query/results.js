@@ -626,6 +626,7 @@ angular.module('os.query.results', ['os.query.models'])
     }
 
     $scope.defineView = function() {
+      var prevCaseSensitive = $scope.queryCtx.caseSensitive;
       var mi = $modal.open({
         templateUrl: 'modules/query/define-view.html',
         controller: 'DefineViewCtrl',
@@ -641,7 +642,7 @@ angular.module('os.query.results', ['os.query.models'])
         function(queryCtx) {
           $scope.queryCtx = queryCtx;
           QueryUtil.disableCpSelection(queryCtx);
-          loadRecords(false, false);
+          loadRecords(false, (prevCaseSensitive != queryCtx.caseSensitive));
         }
       );
     }
