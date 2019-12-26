@@ -2,7 +2,9 @@
   <ul class="os-key-values bg-col"
     ng-class="{'os-one-col': showColumn == 1, 'os-two-cols': showColumn == 2, 'vertical': verticalLayout}">
     <li class="item" ng-repeat="field in data.fields | filter: {type: '!subForm'}" ng-show="!field.$$osSlHide">
-      <strong class="key key-sm strong">{{field.caption}}</strong>
+      <strong class="key key-sm strong">
+        <span os-unsafe-html="field.caption"></span>
+      </strong>
       <span class="value value-md">
         <span ng-include src="'modules/biospecimen/extensions/field-value.html'"></span>
       </span>
@@ -16,14 +18,14 @@
       <span ng-if="sfCollapse" class="fa fa-chevron-circle-right"></span>
     </button>
     <h3 class="os-sub-section-title">
-      <span>{{sf.caption}}</span>
+      <span os-unsafe-html="sf.caption"></span>
     </h3>
     <div collapse="sfCollapse">
       <table class="os-table os-table-muted-hdr os-border">
         <thead class="os-table-head">
           <tr class="row">
             <th class="col" ng-repeat="field in sf.value[0].fields">
-              <span>{{field.caption}}</span>
+              <span os-unsafe-html="field.caption"></span>
             </th>
           </tr>
         </thead>
