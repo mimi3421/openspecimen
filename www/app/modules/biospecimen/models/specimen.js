@@ -43,6 +43,10 @@ angular.module('os.biospecimen.models.specimen', ['os.common.models', 'os.biospe
     Specimen.listByLabels = function(labels) {
       return Specimen.query({label: labels});
     };
+
+    Specimen.search = function(criteria) {
+      return $http.post(Specimen.url() + 'search', criteria).then(Specimen.modelArrayRespTransform);
+    };
     
     Specimen.flatten = function(specimens, parent, depth, pooledSpecimen, opts) {
       var result = [];

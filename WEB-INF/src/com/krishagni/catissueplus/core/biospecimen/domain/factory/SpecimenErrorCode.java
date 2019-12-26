@@ -132,7 +132,9 @@ public enum SpecimenErrorCode implements ErrorCode {
 
 	EXT_ID_DUP_NAME,
 
-	VISIT_CHG_NOT_ALLOWED;
+	VISIT_CHG_NOT_ALLOWED,
+
+	LABELS_SRCH_LIMIT_MAXED;
 
 	public String code() {
 		return "SPECIMEN_" + this.name();
