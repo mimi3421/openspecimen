@@ -1210,7 +1210,7 @@ public class Specimen extends BaseExtensionEntity {
 		//
 		// close specimen if explicitly closed or no quantity available
 		//
-		if (NumUtil.isZero(getAvailableQuantity()) || item.isDistributedAndClosed()) {
+		if (item.isDistributedAndClosed()) {
 			String dpShortTitle = item.getOrder().getDistributionProtocol().getShortTitle();
 			close(item.getOrder().getDistributor(), item.getOrder().getExecutionDate(), "Distributed to " + dpShortTitle);
 		}
