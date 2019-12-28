@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol;
 import com.krishagni.catissueplus.core.administrative.domain.DpDistributionSite;
 import com.krishagni.catissueplus.core.common.ListenAttributeChanges;
@@ -127,6 +128,7 @@ public class DistributionProtocolDetail extends DistributionProtocolSummary {
 		return result;
 	}
 
+	@JsonProperty("distributingSitesMapList")
 	public void setDistributingSitesMapList(List<Map<String, Object>> input) {
 		Map<String, List<String>> distributingSites = new HashMap<>();
 
