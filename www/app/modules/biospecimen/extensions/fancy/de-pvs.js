@@ -8,6 +8,26 @@ openspecimen.ui.fancy.Pvs = edu.common.de.LookupSvc.extend({
     return apiUrls.getBaseUrl() + 'permissible-values/v/';
   },
 
+  getCacheKey: function(queryTerm, searchFilters, field) {
+    var resultKey = '_default';
+    if (!queryTerm) {
+      if (searchFilters) {
+        var keys = Object.keys(searchFilters).sort();
+        if (keys.length > 0) {
+          resultKey = '';
+        }
+
+        for (var i = 0; i < keys.length; ++i) {
+          resultKey += keys[i] + "__" + searchFilters[keys[i]] + '__';
+        }
+      }
+
+      resultKey += '_' + field.attribute + '_' + field.leafValue;
+    }
+
+    return resultKey;
+  },
+
   searchRequest: function(searchTerm, searchFilters, field) {
     var filters = {searchString: searchTerm};
     if (field.attribute) {

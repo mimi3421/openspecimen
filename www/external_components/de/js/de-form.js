@@ -2345,9 +2345,7 @@ edu.common.de.LookupSvc = function(params) {
 
   var defaultValue;
 
-  this.getEntities = function(queryTerm, searchFilters, field) {
-    var deferred = $.Deferred();
-
+  this.defaultCacheKey = function(queryTerm, searchFilters, field) {
     var resultKey = '_default';
     if (!queryTerm) {
       if (searchFilters) {
@@ -2360,11 +2358,24 @@ edu.common.de.LookupSvc = function(params) {
           resultKey += keys[i] + "__" + searchFilters[keys[i]] + '__';
         }
       }
+    }
 
-      if (defaultList[resultKey]) {
-        deferred.resolve(defaultList[resultKey]);
-        return deferred.promise();
-      }
+    return resultKey;
+  }
+
+  this.getEntities = function(queryTerm, searchFilters, field) {
+    var deferred = $.Deferred();
+
+    var resultKey = '';
+    if (typeof this.getCacheKey == 'function') {
+      resultKey = this.getCacheKey(queryTerm, searchFilters, field);
+    } else {
+      resultKey = this.defaultCacheKey(queryTerm, searchFilters, field);
+    }
+
+    if (!queryTerm && defaultList[resultKey]) {
+      deferred.resolve(defaultList[resultKey]);
+      return deferred.promise();
     }
 
     var baseUrl = this.getApiUrl();
@@ -2424,9 +2435,15 @@ edu.common.de.LookupSvc = function(params) {
       }
     }
 
+    var xhr = entitiesMap[id + '_xhr'];
+    if (!xhr) {
+      var baseUrl = this.getApiUrl();
+      xhr = $.ajax({type: 'GET', url: baseUrl + id, headers: this.getHeaders()})
+      entitiesMap[id + '_xhr'] = xhr;
+    }
+
     var that = this;
-    var baseUrl = this.getApiUrl();
-    $.ajax({type: 'GET', url: baseUrl + id, headers: this.getHeaders()})
+    xhr
       .done(function(data) {
         var result = that.formatResult(data);
         entitiesMap[id] = result;
