@@ -20,6 +20,11 @@
   </div>
 
   <div class="container">
+    <div class="os-alert-container inline show" ng-if="!job.$$editAllowed">
+      <div class="alert alert-warning">
+        <span translate="jobs.update_not_allowed"></span>
+      </div>
+    </div>
     <form name="jobForm" class="form-horizontal" os-form-validator="jobForm" novalidate>
       <div class="form-group">
         <label class="col-xs-3 control-label">
@@ -52,6 +57,16 @@
             <span translate="jobs.query">Query</span>
           </label>
           <div os-field-error field="jobForm.jobType"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="col-xs-3 control-label">
+          <span translate="jobs.shared_with">Share job with following users</span>
+        </label>
+
+        <div class="col-xs-6">
+          <os-users ng-model="job.sharedWith" placeholder="{{'jobs.shared_with' | translate}}" multiple></os-users>
         </div>
       </div>
 
@@ -277,7 +292,7 @@
 
       <div class="form-group">
         <div class="col-xs-offset-3 col-xs-6">
-          <button show-if-allowed="jobResource.updateOpts" class="btn btn-primary"
+          <button ng-disabled="!job.$$editAllowed" show-if-allowed="jobResource.updateOpts" class="btn btn-primary"
             os-form-submit="saveOrUpdateJob()" ng-switch on="!!job.id">
             <span ng-switch-when="false" translate="common.buttons.create">Create</span>
             <span ng-switch-when="true" translate="common.buttons.update">Update</span>

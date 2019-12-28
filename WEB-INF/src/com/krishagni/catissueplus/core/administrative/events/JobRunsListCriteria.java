@@ -15,6 +15,13 @@ public class JobRunsListCriteria extends AbstractListCriteria<JobRunsListCriteri
 
 	private ScheduledJobRun.Status status;
 
+	private Long userId;
+
+	@Override
+	public JobRunsListCriteria self() {
+		return this;
+	}
+
 	@JsonProperty("jobId")
 	public Long jobId() {
 		return jobId;
@@ -54,9 +61,13 @@ public class JobRunsListCriteria extends AbstractListCriteria<JobRunsListCriteri
 		this.status = status;
 		return self();
 	}
-	
-	@Override
-	public JobRunsListCriteria self() {
-		return this;
+
+	public Long userId() {
+		return userId;
+	}
+
+	public JobRunsListCriteria userId(Long userId) {
+		this.userId = userId;
+		return self();
 	}
 }

@@ -80,13 +80,13 @@
                 <span class="fa fa-ellipsis-h"></span>
               </button>
               <ul class="dropdown-menu dropdown-menu-right">
-                <li show-if-allowed="jobResource.updateOpts">
+                <li ng-show="job.$$editAllowed" show-if-allowed="jobResource.updateOpts">
                   <a ui-sref="job-addedit({jobId: job.id})">
                     <i class="fa fa-pencil"></i>
                     <span translate="jobs.edit_job"></span>
                   </a>
                 </li>
-                <li show-if-allowed="jobResource.deleteOpts">
+                <li ng-show="job.$$editAllowed" show-if-allowed="jobResource.deleteOpts">
                   <a ng-click="deleteJob(job)">
                     <i class="fa fa-trash"></i>
                     <span translate="jobs.delete_job"></span>

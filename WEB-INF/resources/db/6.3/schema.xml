@@ -388,4 +388,30 @@
       <column name="CREDENTIALS" type="${blob.type}"/>
     </createTable>
   </changeSet>
+
+  <changeSet author="vpawar" id="Scheduled job shared users">
+    <createTable tableName="OS_SCHEDULED_JOB_SHARED_USERS">
+      <column name="SCHEDULED_JOB_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+
+      <column name="USER_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Add FK scheduled job shared users - job ID">
+    <addForeignKeyConstraint
+      constraintName="FK_OS_SCHEDULED_JOB_SU_JOB"
+      baseTableName="OS_SCHEDULED_JOB_SHARED_USERS" baseColumnNames="SCHEDULED_JOB_ID"
+      referencedTableName="OS_SCHEDULED_JOBS" referencedColumnNames="IDENTIFIER" />
+  </changeSet>
+
+  <changeSet author="vpawar" id="Add FK scheduled job shared users - user ID">
+    <addForeignKeyConstraint
+      constraintName="FK_OS_SCHEDULED_JOB_SU_USR"
+      baseTableName="OS_SCHEDULED_JOB_SHARED_USERS" baseColumnNames="USER_ID"
+      referencedTableName="CATISSUE_USER" referencedColumnNames="IDENTIFIER" />
+  </changeSet>
 </databaseChangeLog>

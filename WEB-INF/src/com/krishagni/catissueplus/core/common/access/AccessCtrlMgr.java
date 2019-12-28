@@ -18,10 +18,12 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 import com.krishagni.catissueplus.core.administrative.domain.DistributionOrder;
 import com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol;
+import com.krishagni.catissueplus.core.administrative.domain.ScheduledJob;
 import com.krishagni.catissueplus.core.administrative.domain.Shipment;
 import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainer;
 import com.krishagni.catissueplus.core.administrative.domain.User;
+import com.krishagni.catissueplus.core.administrative.domain.factory.ScheduledJobErrorCode;
 import com.krishagni.catissueplus.core.administrative.domain.factory.SiteErrorCode;
 import com.krishagni.catissueplus.core.administrative.repository.SiteListCriteria;
 import com.krishagni.catissueplus.core.administrative.repository.UserListCriteria;
@@ -1349,9 +1351,15 @@ public class AccessCtrlMgr {
 		ensureScheduledJobRights(ops);
 	}
 
-	public void ensureRunJobRights() {
+	public void ensureReadScheduledJobRights(ScheduledJob job) {
+		ensureReadScheduledJobRights();
+		ensureUserAccessibleJob(job);
+	}
+
+	public void ensureRunJobRights(ScheduledJob job) {
 		Operation[] ops = {Operation.READ};
 		ensureScheduledJobRights(ops);
+		ensureUserAccessibleJob(job);
 	}
 
 	public void ensureCreateScheduledJobRights() {
@@ -1359,14 +1367,16 @@ public class AccessCtrlMgr {
 		ensureScheduledJobRights(ops);
 	}
 
-	public void ensureUpdateScheduledJobRights() {
+	public void ensureUpdateScheduledJobRights(ScheduledJob job) {
 		Operation[] ops = {Operation.UPDATE};
 		ensureScheduledJobRights(ops);
+		ensureUserAccessibleJob(job, false);
 	}
 
-	public void ensureDeleteScheduledJobRights() {
+	public void ensureDeleteScheduledJobRights(ScheduledJob job) {
 		Operation[] ops = {Operation.DELETE};
 		ensureScheduledJobRights(ops);
+		ensureUserAccessibleJob(job, false);
 	}
 
 	public void ensureScheduledJobRights(Operation[] ops) {
@@ -1375,13 +1385,32 @@ public class AccessCtrlMgr {
 		}
 	}
 	
+	private void ensureUserAccessibleJob(ScheduledJob job) {
+		ensureUserAccessibleJob(job, true);
+	}
+
+	private void ensureUserAccessibleJob(ScheduledJob job, boolean allowedShared) {
+		User currUser = AuthUtil.getCurrentUser();
+		if (currUser.isAdmin() || job.getCreatedBy().equals(currUser)) {
+			return;
+		}
+
+		if (!allowedShared || !job.getSharedWith().contains(currUser)) {
+			throw OpenSpecimenException.userError(ScheduledJobErrorCode.OP_NOT_ALLOWED);
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////
+	// Site based access checks
+	///////////////////////////////////////////////////////////////////////
+
 	public Boolean isAccessRestrictedBasedOnMrn() {
 		return ConfigUtil.getInstance().getBoolSetting(
-				ConfigParams.MODULE,
-				ConfigParams.MRN_RESTRICTION_ENABLED, 
-				false);
+			ConfigParams.MODULE,
+			ConfigParams.MRN_RESTRICTION_ENABLED,
+			false);
 	}
-	
+
 	///////////////////////////////////////////////////////////////////////
 	//                                                                   //
 	//        Shipping and Tracking access control helper methods        //

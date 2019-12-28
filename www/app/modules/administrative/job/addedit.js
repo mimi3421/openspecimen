@@ -5,6 +5,7 @@ angular.module('os.administrative.job.addedit', ['os.administrative.models'])
     var defSavedQueries = undefined;
 
     function init() {
+      job.$$editAllowed = !job.id || currentUser.admin || currentUser.id == job.createdBy.id;
       job.startDate = job.startDate || new Date();
       job.rtArgsProvided = job.rtArgsProvided || false;
 

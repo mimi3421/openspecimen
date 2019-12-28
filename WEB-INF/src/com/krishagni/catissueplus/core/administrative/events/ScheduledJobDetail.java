@@ -52,6 +52,8 @@ public class ScheduledJobDetail {
 	private UserSummary runAs;
 	
 	private List<UserSummary> recipients = new ArrayList<>();
+
+	private List<UserSummary> sharedWith = new ArrayList<>();
 	
 	private Boolean isActiveJob;
 
@@ -229,6 +231,14 @@ public class ScheduledJobDetail {
 		this.recipients = recipients;
 	}
 
+	public List<UserSummary> getSharedWith() {
+		return sharedWith;
+	}
+
+	public void setSharedWith(List<UserSummary> sharedWith) {
+		this.sharedWith = sharedWith;
+	}
+
 	public Boolean getIsActiveJob() {
 		return isActiveJob;
 	}
@@ -276,6 +286,7 @@ public class ScheduledJobDetail {
 		detail.setTaskImplFqn(job.getTaskImplfqn());
 		detail.setSavedQuery(SavedQuerySummary.fromSavedQuery(job.getSavedQuery()));
 		detail.setRecipients(UserSummary.from(job.getRecipients()));
+		detail.setSharedWith(UserSummary.from(job.getSharedWith()));
 		if (job.getRunAs() != null) {
 			detail.setRunAs(UserSummary.from(job.getRunAs()));
 		}

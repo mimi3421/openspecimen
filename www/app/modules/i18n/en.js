@@ -2455,6 +2455,8 @@
     "query": "Query",
     "notify_users": "Notify Users",
     "run_as_user": "Run as User",
+    "shared_with": "Shared with following users",
+    "update_not_allowed": "You do not have rights to edit the job details!",
 
     "repeat_schedule": "Repeat Interval",
     "repeat_schedules": {

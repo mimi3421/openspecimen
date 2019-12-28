@@ -1,17 +1,23 @@
 package com.krishagni.catissueplus.core.administrative.services.impl;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 
 import com.krishagni.catissueplus.core.administrative.domain.ScheduledJob;
 import com.krishagni.catissueplus.core.administrative.domain.ScheduledJobRun;
+import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.administrative.domain.factory.ScheduledJobErrorCode;
 import com.krishagni.catissueplus.core.administrative.domain.factory.ScheduledJobFactory;
 import com.krishagni.catissueplus.core.administrative.events.JobExportDetail;
@@ -28,6 +34,7 @@ import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
+import com.krishagni.catissueplus.core.common.util.EmailUtil;
 
 public class ScheduledJobServiceImpl implements ScheduledJobService, ApplicationListener<ContextRefreshedEvent> {
 	private DaoFactory daoFactory;
@@ -53,12 +60,16 @@ public class ScheduledJobServiceImpl implements ScheduledJobService, Application
 	public ResponseEvent<List<ScheduledJobDetail>> getScheduledJobs(RequestEvent<ScheduledJobListCriteria> req) {
 		try {
 			AccessCtrlMgr.getInstance().ensureReadScheduledJobRights();
-			List<ScheduledJob> jobs = daoFactory.getScheduledJobDao().getScheduledJobs(req.getPayload());
+			ScheduledJobListCriteria crit = req.getPayload();
+			if (!AuthUtil.isAdmin()) {
+				crit.userId(AuthUtil.getCurrentUser().getId());
+			}
 
+			List<ScheduledJob> jobs = daoFactory.getScheduledJobDao().getScheduledJobs(crit);
 			Map<Long, ScheduledJob> jobsMap = jobs.stream().collect(Collectors.toMap(ScheduledJob::getId, job -> job));
+
 			Map<Long, Date> jobsLastRuntime = daoFactory.getScheduledJobDao().getJobsLastRunTime(jobsMap.keySet());
 			jobsLastRuntime.forEach((jobId, lastRuntime) -> jobsMap.get(jobId).setLastRunOn(lastRuntime));
-
 			return ResponseEvent.response(ScheduledJobDetail.from(jobs));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
@@ -72,7 +83,12 @@ public class ScheduledJobServiceImpl implements ScheduledJobService, Application
 	public ResponseEvent<Long> getScheduledJobsCount(RequestEvent<ScheduledJobListCriteria> req) {
 		try {
 			AccessCtrlMgr.getInstance().ensureReadScheduledJobRights();
-			return ResponseEvent.response(daoFactory.getScheduledJobDao().getScheduledJobsCount(req.getPayload()));
+			ScheduledJobListCriteria crit = req.getPayload();
+			if (!AuthUtil.isAdmin()) {
+				crit.userId(AuthUtil.getCurrentUser().getId());
+			}
+
+			return ResponseEvent.response(daoFactory.getScheduledJobDao().getScheduledJobsCount(crit));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {
@@ -84,8 +100,12 @@ public class ScheduledJobServiceImpl implements ScheduledJobService, Application
 	@PlusTransactional
 	public ResponseEvent<ScheduledJobDetail> getScheduledJob(RequestEvent<Long> req) {
 		try {
-			AccessCtrlMgr.getInstance().ensureReadScheduledJobRights();			
 			ScheduledJob job = daoFactory.getScheduledJobDao().getById(req.getPayload());
+			if (job == null) {
+				return ResponseEvent.userError(ScheduledJobErrorCode.NOT_FOUND);
+			}
+
+			AccessCtrlMgr.getInstance().ensureReadScheduledJobRights(job);
 			return ResponseEvent.response(ScheduledJobDetail.from(job));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
@@ -107,6 +127,7 @@ public class ScheduledJobServiceImpl implements ScheduledJobService, Application
 			
 			daoFactory.getScheduledJobDao().saveOrUpdate(job);
 			taskMgr.schedule(job);
+			sendSharedJobNotification(job, job.getSharedWith());
 			return ResponseEvent.response(ScheduledJobDetail.from(job));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
@@ -119,28 +140,34 @@ public class ScheduledJobServiceImpl implements ScheduledJobService, Application
 	@PlusTransactional
 	public ResponseEvent<ScheduledJobDetail> updateScheduledJob(RequestEvent<ScheduledJobDetail> req) {
 		try {
-			AccessCtrlMgr.getInstance().ensureUpdateScheduledJobRights();
-			
 			Long jobId = req.getPayload().getId();
 			ScheduledJob existing = daoFactory.getScheduledJobDao().getById(jobId);
 			if (existing == null) {
 				return ResponseEvent.userError(ScheduledJobErrorCode.NOT_FOUND);
 			}
 
+			AccessCtrlMgr.getInstance().ensureUpdateScheduledJobRights(existing);
+
 			ScheduledJobDetail input = req.getPayload();
 			if (input.getStartDate() == null) {
 				input.setStartDate(existing.getStartDate());
 			}
 
-			ScheduledJob job = jobFactory.createScheduledJob(req.getPayload());
+			ScheduledJob job = jobFactory.createScheduledJob(input);
 			if (!existing.getName().equals(job.getName())) {
 				ensureUniqueJobName(job);
 			}
 
+			Set<User> existingSharedUsers = new HashSet<>(existing.getSharedWith());
 			existing.update(job);
 			daoFactory.getScheduledJobDao().saveOrUpdate(existing);			
 			taskMgr.schedule(existing);
-			
+
+			List<User> newSharedUsers = job.getSharedWith().stream()
+				.filter(su -> !existingSharedUsers.contains(su))
+				.collect(Collectors.toList());
+			sendSharedJobNotification(job, newSharedUsers);
+
 			return ResponseEvent.response(ScheduledJobDetail.from(existing));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
@@ -153,13 +180,12 @@ public class ScheduledJobServiceImpl implements ScheduledJobService, Application
 	@PlusTransactional
 	public ResponseEvent<ScheduledJobDetail> deleteScheduledJob(RequestEvent<Long> req) {
 		try {
-			AccessCtrlMgr.getInstance().ensureDeleteScheduledJobRights();
-			
 			ScheduledJob job = daoFactory.getScheduledJobDao().getById(req.getPayload());
 			if (job == null) {
 				return ResponseEvent.userError(ScheduledJobErrorCode.NOT_FOUND);
 			}
 
+			AccessCtrlMgr.getInstance().ensureDeleteScheduledJobRights(job);
 			taskMgr.cancel(job);
 			job.delete();
 			daoFactory.getScheduledJobDao().saveOrUpdate(job);
@@ -174,15 +200,14 @@ public class ScheduledJobServiceImpl implements ScheduledJobService, Application
 	@Override
 	@PlusTransactional
 	public ResponseEvent<ScheduledJobDetail> executeJob(RequestEvent<ScheduledJobRunDetail> req) {
-		try {			
-			AccessCtrlMgr.getInstance().ensureRunJobRights();
-			
+		try {
 			ScheduledJobRunDetail detail = req.getPayload();
 			ScheduledJob job = daoFactory.getScheduledJobDao().getById(detail.getJobId());
 			if (job == null) {
 				return ResponseEvent.userError(ScheduledJobErrorCode.NOT_FOUND);
 			}
-			
+
+			AccessCtrlMgr.getInstance().ensureRunJobRights(job);
 			taskMgr.run(job, detail.getRtArgs());
 			return ResponseEvent.response(ScheduledJobDetail.from(job));
 		} catch (OpenSpecimenException ose) {
@@ -204,7 +229,12 @@ public class ScheduledJobServiceImpl implements ScheduledJobService, Application
 	public ResponseEvent<List<ScheduledJobRunDetail>> getJobRuns(RequestEvent<JobRunsListCriteria> req) {
 		try {
 			AccessCtrlMgr.getInstance().ensureReadScheduledJobRights();
-			List<ScheduledJobRun> result = daoFactory.getScheduledJobDao().getJobRuns(req.getPayload());
+			JobRunsListCriteria crit = req.getPayload();
+			if (!AuthUtil.isAdmin()) {
+				crit.userId(AuthUtil.getCurrentUser().getId());
+			}
+
+			List<ScheduledJobRun> result = daoFactory.getScheduledJobDao().getJobRuns(crit);
 			return ResponseEvent.response(ScheduledJobRunDetail.from(result));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
@@ -217,13 +247,16 @@ public class ScheduledJobServiceImpl implements ScheduledJobService, Application
 	@PlusTransactional
 	public ResponseEvent<ScheduledJobRunDetail> getJobRun(RequestEvent<Long> req) {
 		try {
-			AccessCtrlMgr.getInstance().ensureReadScheduledJobRights();
-			
-			ScheduledJobRun jobRun = daoFactory.getScheduledJobDao().getJobRun(req.getPayload());			
+			ScheduledJobRun jobRun = daoFactory.getScheduledJobDao().getJobRun(req.getPayload());
 			if (jobRun == null) {
 				return ResponseEvent.userError(ScheduledJobErrorCode.JOB_RUN_NOT_FOUND);
 			}
-			
+
+			AccessCtrlMgr.getInstance().ensureReadScheduledJobRights(jobRun.getScheduledJob());
+			if (!AuthUtil.isAdmin() && !jobRun.getRunBy().equals(AuthUtil.getCurrentUser())) {
+				return ResponseEvent.userError(ScheduledJobErrorCode.OP_NOT_ALLOWED);
+			}
+
 			return ResponseEvent.response(ScheduledJobRunDetail.from(jobRun));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
@@ -236,13 +269,16 @@ public class ScheduledJobServiceImpl implements ScheduledJobService, Application
 	@PlusTransactional
 	public ResponseEvent<JobExportDetail> getJobResultFile(RequestEvent<Long> req) {
 		try {
-			AccessCtrlMgr.getInstance().ensureRunJobRights();
-
 			ScheduledJobRun jobRun = daoFactory.getScheduledJobDao().getJobRun(req.getPayload());
 			if (jobRun == null) {
 				return ResponseEvent.userError(ScheduledJobErrorCode.JOB_RUN_NOT_FOUND);
 			}
-			
+
+			AccessCtrlMgr.getInstance().ensureRunJobRights(jobRun.getScheduledJob());
+			if (!AuthUtil.isAdmin() && !jobRun.getRunBy().equals(AuthUtil.getCurrentUser())) {
+				return ResponseEvent.userError(ScheduledJobErrorCode.OP_NOT_ALLOWED);
+			}
+
 			String path = jobRun.getLogFilePath();
 			if (StringUtils.isBlank(path)) {
 				return ResponseEvent.userError(ScheduledJobErrorCode.RESULT_DATA_FILE_NOT_AVAILABLE);
@@ -284,6 +320,25 @@ public class ScheduledJobServiceImpl implements ScheduledJobService, Application
 	private void ensureUniqueJobName(ScheduledJob job) {
 		if (daoFactory.getScheduledJobDao().getJobByName(job.getName()) != null) {
 			throw OpenSpecimenException.userError(ScheduledJobErrorCode.DUP_JOB_NAME);
+		}
+	}
+
+	private void sendSharedJobNotification(ScheduledJob job, Collection<User> users) {
+		if (CollectionUtils.isEmpty(users)) {
+			return;
+		}
+
+		Map<String, Object> props = new HashMap<>();
+		props.put("job", job);
+		props.put("jobId", job.getId());
+		props.put("$subject", new String[] { job.getName() });
+		props.put("sharedBy", AuthUtil.getCurrentUser());
+
+		for (User user : users) {
+			props.put("rcpt", user);
+
+			String[] to = new String[] { user.getEmailAddress() };
+			EmailUtil.getInstance().sendEmail("scheduled_job_shared", to, null, props);
 		}
 	}
 }

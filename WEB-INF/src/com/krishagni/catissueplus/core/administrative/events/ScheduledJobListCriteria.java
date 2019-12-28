@@ -7,6 +7,13 @@ public class ScheduledJobListCriteria extends AbstractListCriteria<ScheduledJobL
 
 	private ScheduledJob.Type type;
 
+	private Long userId;
+
+	@Override
+	public ScheduledJobListCriteria self() {
+		return this;
+	}
+
 	public ScheduledJob.Type type() {
 		return type;
 	}
@@ -16,8 +23,12 @@ public class ScheduledJobListCriteria extends AbstractListCriteria<ScheduledJobL
 		return self();
 	}
 
-	@Override
-	public ScheduledJobListCriteria self() {
-		return this;
+	public Long userId() {
+		return userId;
+	}
+
+	public ScheduledJobListCriteria userId(Long userId) {
+		this.userId = userId;
+		return self();
 	}
 }

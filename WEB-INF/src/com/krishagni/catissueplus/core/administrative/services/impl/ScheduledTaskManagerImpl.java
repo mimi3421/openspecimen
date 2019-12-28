@@ -161,7 +161,7 @@ public class ScheduledTaskManagerImpl implements ScheduledTaskManager, Scheduled
 			return;
 		}
 
-		if (job.getRunAs() != null) {
+		if (user != null && user.isSysUser() && job.getRunAs() != null) {
 			job.getRunAs().getAuthorities();
 			user = job.getRunAs();
 
