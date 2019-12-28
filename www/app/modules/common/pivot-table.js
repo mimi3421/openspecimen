@@ -66,6 +66,7 @@ var PivotTable = (function($) {
       var tr = $("<tr/>");
       for (var i = 0; i < opts.colHeaders.length; ++i) {
         var colDiv = $("<div/>").prop("class", "ellipsis")
+          .prop("title", opts.colHeaders[i])
           .append(opts.colHeaders[i]);
         tr.append($("<th/>").append(colDiv)); 
       }
@@ -103,6 +104,7 @@ var PivotTable = (function($) {
         .prop("class", "col-key")
         .prop("colspan", opts.numValueCols > 1 ? numGrpCols - 1 : numGrpCols)
         .prop("rowspan", opts.numRollupCols)
+        .prop("title", "Grand Total")
         .append("Grand Total");
 
       var startIdx = opts.numValueCols > 1 ? numGrpCols - 1 : numGrpCols;
@@ -148,17 +150,17 @@ var PivotTable = (function($) {
         for (var j = 0; j < numGrpCols; ++j) {
           var th = $("<th/>").prop("class", "col-key");
           if ((columnIdx != lastColIdx || lastColVal != type.value) && j == columnIdx) { 
-            th.prop("rowspan", opts.numRollupCols).append(type.value);
+            th.prop("rowspan", opts.numRollupCols).prop("title", type.value).append(type.value);
             tr.append(th);
           } else if (i % opts.numRollupCols == 0) {
-            th.prop("rowspan", opts.numRollupCols).append("All");
+            th.prop("rowspan", opts.numRollupCols).prop("title", "All").append("All");
             tr.append(th);
           }
         }
 
         for (var j = numGrpCols; j < subTotal.length; ++j) {
           if (addColKey && j == numGrpCols) {
-            tr.append($("<th/>").addClass("col-key").append(subTotal[j]));
+            tr.append($("<th/>").addClass("col-key").prop("title", subTotal[j]).append(subTotal[j]));
           } else {
             tr.append($("<td/>").append(subTotal[j]));
           }
@@ -184,7 +186,7 @@ var PivotTable = (function($) {
           continue;
         }
 
-        var th = $("<th/>").prop("class", "col-key").append(key);
+        var th = $("<th/>").prop("class", "col-key").prop("title", key).append(key);
         if (records[key].rowspan) {
           th.prop("rowspan", records[key].rowspan);
         }
@@ -210,7 +212,7 @@ var PivotTable = (function($) {
     };
 
     var makeTableResizable = function(table) {
-      table.find("thead th").resizable({
+      /*table.find("thead th").resizable({
         handles: "e", 
  
         start: function(event, ui) {
@@ -228,7 +230,7 @@ var PivotTable = (function($) {
  
           $(this).css("height", "auto");
         }
-      });
+      }); */
     };
 
     var appendEls = function(parentEl, els) {

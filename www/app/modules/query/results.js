@@ -473,17 +473,21 @@ angular.module('os.query.results', ['os.query.models'])
           if (result.columnUrls[idx]) {
             var link, linkTxt;
             if (result.columnUrls[idx] == 'true') {
-              link = '{{row.getProperty(col.field)}}';
+              link = '{{row.entity[col.field]}}';
               linkTxt = 'Click here';
             } else {
               link = '{{cellUrl(row, col,' + idx + ')}}'
-              linkTxt = '{{row.getProperty(col.field)}}';
+              linkTxt = '{{row.entity[col.field]}}';
             }
 
-            cellTemplate = '<div class="ngCellText" ng-class="col.colIndex()">' +
+            cellTemplate = '<div class="ngCellText" ng-class="col.colIndex()" title="' + linkTxt + '">' +
                            '  <a href="' + link + '" target="_blank">' +
                                 linkTxt +
                            '  </a>' +
+                           '</div>';
+          } else {
+            cellTemplate = '<div class="ngCellText" ng-class="col.colIndex()" title="{{row.entity[col.field]}}">' +
+                           '  <span>{{row.entity[col.field]}}</span>' +
                            '</div>';
           }
 
