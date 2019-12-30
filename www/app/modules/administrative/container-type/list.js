@@ -1,19 +1,31 @@
 angular.module('os.administrative.containertype.list', ['os.administrative.models'])
   .controller('ContainerTypeListCtrl', function($scope, $state, CheckList, ContainerType, Util, DeleteUtil, ListPagerOpts) {
 
-    var pagerOpts;
+    var pagerOpts, ctx;
 
     function init() {
       pagerOpts = $scope.pagerOpts = new ListPagerOpts({listSizeGetter: getContainerTypesCount});
       $scope.containerTypeFilterOpts = {maxResults: pagerOpts.recordsPerPage + 1};
-      $scope.ctx = {exportDetail: {objectType: 'storageContainerType'}};
+      ctx = $scope.ctx = {
+        exportDetail: {objectType: 'storageContainerType'},
+        emptyState: {
+          loading: true,
+          empty: true,
+          loadingMessage: 'container_type.loading_list',
+          emptyMessage: 'container_type.empty_list'
+        }
+      };
+
       loadContainerTypes($scope.containerTypeFilterOpts);
       Util.filter($scope, 'containerTypeFilterOpts', loadContainerTypes);
     }
 
     function loadContainerTypes(filterOpts) {
+      ctx.emptyState.loading = true;
       ContainerType.query(filterOpts).then(
         function(containerTypes) {
+          ctx.emptyState.loading = false;
+          ctx.emptyState.empty = (containerTypes.length <= 0);
           pagerOpts.refreshOpts(containerTypes);
 
           $scope.containerTypes = containerTypes;

@@ -29,7 +29,13 @@
       </div>
     </div>
     <div class="os-table-body">
-      <div class="row" ng-repeat="order in orders">
+      <div class="row" ng-if="ctx.emptyState.loading || ctx.emptyState.empty">
+        <div class="col os-col-100">
+          <os-empty-list state="ctx.emptyState"></os-empty-list>
+        </div>
+      </div>
+
+      <div class="row" ng-repeat="order in ctx.orders">
         <div class="col os-col-25">
           <a ui-sref="order-detail.overview({orderId: order.id})">
             {{order.name}}

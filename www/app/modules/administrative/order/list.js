@@ -10,6 +10,13 @@ angular.module('os.administrative.order.list', ['os.administrative.models'])
     function init() {
       $scope.orders = [];
       $scope.dps = [];
+      $scope.emptyState = {
+        empty: true,
+        loading: true,
+        emptyMessage: 'orders.empty_list',
+        loadingMessage: 'orders.loading_list'
+      };
+
       pagerOpts = $scope.pagerOpts = new ListPagerOpts({listSizeGetter: getOrdersCount, recordsPerPage: 50});
       $scope.filterOpts = Util.filterOpts({maxResults: pagerOpts.recordsPerPage + 1});
 
@@ -18,8 +25,11 @@ angular.module('os.administrative.order.list', ['os.administrative.models'])
     }
 
     function loadOrders(filterOpts) {
+      $scope.emptyState.loading = true;
       DistributionOrder.list(filterOpts).then(
         function(orders) {
+          $scope.emptyState.loading = false;
+          $scope.emptyState.empty = (orders.length <= 0);
           $scope.orders = orders;
           pagerOpts.refreshOpts(orders);
         }

@@ -1,6 +1,7 @@
 <div>
   <os-list params="ctx.params" item-sref="participant-detail.overview({cprId: row.hidden.cprId})"
-    enable-selection="false" show-item="showParticipant(row)" init-ctrl="setListCtrl($list)">
+    enable-selection="false" show-item="showParticipant(row)" init-ctrl="setListCtrl($list)"
+    empty-state="ctx.emptyState">
   </os-list>
 </div>
 

@@ -50,6 +50,12 @@
         </tr>
       </thead>
       <tbody class="os-table-body">
+        <tr class="row" ng-if="ctx.emptyState.empty || ctx.emptyState.loading">
+          <td class="col" colspan="100%">
+            <os-empty-list state="ctx.emptyState"></os-empty-list>
+          </td>
+        </tr>
+
         <tr class="row" ng-repeat="run in ctx.runs">
           <td class="col">
             <span>#{{run.id}}</span>

@@ -4,7 +4,15 @@ angular.module('os.administrative.containertask')
     var pagerOpts, ctx;
 
     function init() {
-      ctx = $scope.ctx = {allowEdits: currentUser.admin || currentUser.instituteAdmin};
+      ctx = $scope.ctx = {
+        allowEdits: currentUser.admin || currentUser.instituteAdmin,
+        emptyState: {
+          empty: true,
+          loading: true,
+          loadingMessage: 'container_task.loading_list',
+          emptyMessage: 'container_task.empty_list'
+        }
+      };
 
       pagerOpts = ctx.pagerOpts = new ListPagerOpts({listSizeGetter: getTasksCount});
       ctx.filterOpts = {maxResults: pagerOpts.recordsPerPage + 1};
@@ -13,8 +21,11 @@ angular.module('os.administrative.containertask')
     }
 
     function loadTasks(filterOpts) {
+      ctx.emptyState.loading = true;
       ContainerTask.query(filterOpts).then(
         function(tasks) {
+          ctx.emptyState.loading = false;
+          ctx.emptyState.empty = tasks.length <= 0;
           pagerOpts.refreshOpts(tasks);
           ctx.tasks = tasks;
         }

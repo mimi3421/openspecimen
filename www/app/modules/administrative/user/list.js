@@ -5,13 +5,19 @@ angular.module('os.administrative.user.list', ['os.administrative.models'])
     osRightDrawerSvc, User, ItemsHolder, PvManager,
     Util, DeleteUtil, CheckList, Alerts, ListPagerOpts) {
 
-    var pagerOpts, filterOpts;
+    var pagerOpts, filterOpts, ctx;
     var pvInit = false;
 
     function init() {
       pagerOpts = $scope.pagerOpts = new ListPagerOpts({listSizeGetter: getUsersCount});
-      $scope.ctx = {
-        exportDetail: {objectType: 'user'}
+      ctx = $scope.ctx = {
+        exportDetail: {objectType: 'user'},
+        emptyState: {
+          empty: true,
+          loading: true,
+          emptyMessage: 'user.empty_list',
+          loadingMessage: 'user.loading_list'
+        }
       };
 
       initPvsAndFilterOpts();
@@ -74,6 +80,7 @@ angular.module('os.administrative.user.list', ['os.administrative.models'])
         filterOpts.institute = currentUser.instituteName;
       }
 
+      ctx.emptyState.loading = true;
       User.query(filterOpts).then(function(result) {
         if (!$scope.users && result.length > 12) {
           //
@@ -83,6 +90,8 @@ angular.module('os.administrative.user.list', ['os.administrative.models'])
         }
 
         $scope.users = result;
+        ctx.emptyState.loading = false;
+        ctx.emptyState.empty = result.length <= 0;
         pagerOpts.refreshOpts(result);
         $scope.ctx.checkList = new CheckList($scope.users);
       });

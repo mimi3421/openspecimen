@@ -44,6 +44,11 @@
           </tr>
         </thead>
         <tbody class="os-table-body">
+          <tr class="row" ng-if="ctx.emptyState.loading || ctx.emptyState.empty">
+            <td class="col" colspan="100%">
+              <os-empty-list state="ctx.emptyState"></os-empty-list>
+            </td>
+          </tr>
           <tr class="row" ng-repeat="dpr in ctx.dprs">
             <td class="col">
               <span>{{dpr.specimenType | osNoValue}}</span>

@@ -3,7 +3,7 @@ angular.module('os.administrative.container')
     $scope, $state, $stateParams, container, currentUser, Util, CollectionProtocol,
     Container, SpecimensHolder, Alerts, CheckList, ListPagerOpts) {
 
-    var filterOpts, pagerOpts;
+    var filterOpts, pagerOpts, lctx;
 
     function init() {
       $scope.ctx.showTree = !$stateParams.filters;
@@ -12,13 +12,19 @@ angular.module('os.administrative.container')
       pagerOpts = new ListPagerOpts({listSizeGetter: getSpecimensCount});
       filterOpts = Util.filterOpts({maxResults: pagerOpts.recordsPerPage + 1});
 
-      $scope.lctx = {
+      lctx = $scope.lctx = {
         specimens: [],
         cps: [],
         containers: [],
         filterOpts: filterOpts,
         checkList: new CheckList([]),
-        pagerOpts: pagerOpts
+        pagerOpts: pagerOpts,
+        emptyState: {
+          empty: true,
+          loading: true,
+          loadingMessage: 'specimens.loading_list',
+          emptyMessage: 'specimens.empty_list'
+        }
       };
 
       loadSpecimens($scope.lctx.filterOpts);
@@ -26,17 +32,21 @@ angular.module('os.administrative.container')
     }
 
     function loadSpecimens(filterOpts) {
+      lctx.emptyState.loading = true;
       container.getSpecimens(filterOpts).then(
         function(specimens) {
+          lctx.emptyState.loading = false;
+          lctx.emptyState.empty = specimens.length <= 0;
+
           angular.forEach(specimens,
             function(spmn) {
               spmn.$$cpCentric = spmn.ppid && spmn.ppid.indexOf('$$cp_reg_') == 0;
             }
           );
 
-          $scope.lctx.pagerOpts.refreshOpts(specimens);
-          $scope.lctx.specimens = specimens;
-          $scope.lctx.checkList = new CheckList(specimens);
+          lctx.pagerOpts.refreshOpts(specimens);
+          lctx.specimens = specimens;
+          lctx.checkList = new CheckList(specimens);
         }
       );
     }

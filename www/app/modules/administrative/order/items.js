@@ -10,6 +10,10 @@ angular.module('os.administrative.order')
           listName: 'order-specimens-list-view',
           objectId: order.id,
           hideEmptyColumns: true
+        },
+        emptyState: {
+          loadingMessage: 'specimens.loading_list',
+          emptyMessage: 'specimens.empty_list'
         }
       };
       showOrHideRetrieve();

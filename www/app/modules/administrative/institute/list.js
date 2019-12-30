@@ -1,22 +1,33 @@
 angular.module('os.administrative.institute.list', ['os.administrative.models'])
   .controller('InstituteListCtrl', function($scope, $state, Institute, Util, DeleteUtil, ListPagerOpts, CheckList) {
 
-    var pagerOpts, filterOpts;
+    var pagerOpts, filterOpts, ctx;
 
     function init() {
       pagerOpts = $scope.pagerOpts = new ListPagerOpts({listSizeGetter: getInstitutesCount});
       filterOpts = $scope.instituteFilterOpts =
         Util.filterOpts({includeStats: true, maxResults: pagerOpts.recordsPerPage + 1});
-      $scope.ctx = {
-        exportDetail: {objectType: 'institute'}
+
+      ctx = $scope.ctx = {
+        exportDetail: {objectType: 'institute'},
+        emptyState: {
+          empty: true,
+          loading: true,
+          emptyMessage: 'institute.empty_list',
+          loadingMessage: 'institute.loading_list'
+        }
       };
+
       loadInstitutes($scope.instituteFilterOpts);
       Util.filter($scope, 'instituteFilterOpts', loadInstitutes);
     }
 
     function loadInstitutes(filterOpts) {
+      ctx.emptyState.loading = true;
       Institute.query(filterOpts).then(
         function(instituteList) {
+          ctx.emptyState.loading = false;
+          ctx.emptyState.empty = instituteList.length <= 0;
           pagerOpts.refreshOpts(instituteList);
           $scope.instituteList = instituteList;
           $scope.ctx.checkList = new CheckList(instituteList);

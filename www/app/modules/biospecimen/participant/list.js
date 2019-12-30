@@ -10,6 +10,10 @@ angular.module('os.biospecimen.participant.list', ['os.biospecimen.models'])
         params: {
           listName: 'participant-list-view',
           objectId: cp.id
+        },
+        emptyState: {
+          loadingMessage: 'participant.loading_list',
+          emptyMessage: 'participant.empty_list'
         }
       };
 

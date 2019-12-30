@@ -1,11 +1,17 @@
 angular.module('os.administrative.dp.requirement.list', ['os.administrative.models'])
   .controller('DprListCtrl', function($scope, requirements, PluginReg, DeleteUtil) {
   
+    var ctx;
     function init() {
-      $scope.ctx = {
+      ctx = $scope.ctx = {
         dprs: requirements,
         hdrTmpls: PluginReg.getTmpls('dp-req-detail', 'fields-header', ''),
-        cellTmpls: PluginReg.getTmpls('dp-req-detail', 'fields-overview', '')
+        cellTmpls: PluginReg.getTmpls('dp-req-detail', 'fields-overview', ''),
+
+        emptyState: {
+          empty: requirements.length <= 0,
+          emptyMessage: 'dp.empty_reqs_list'
+        }
       }
     }
   
@@ -17,7 +23,8 @@ angular.module('os.administrative.dp.requirement.list', ['os.administrative.mode
           dpr.$remove().then(
             function() {
               var index = $scope.ctx.dprs.indexOf(dpr);
-              $scope.ctx.dprs.splice(index, 1);
+              ctx.dprs.splice(index, 1);
+              ctx.emptyState.empty = ctx.dprs.length <= 0;
               $scope.input.targets.splice(index, 1);
             }
           );

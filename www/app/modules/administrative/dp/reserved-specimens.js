@@ -9,6 +9,10 @@ angular.module('os.administrative.dp')
           listName: 'reserved-specimens-list-view',
           objectId: distributionProtocol.id
         },
+        emptyState: {
+          loadingMessage: 'specimens.loading_list',
+          emptyMessage: 'specimens.empty_list'
+        },
         orderCreateOpts: {resource: 'Order', operations: ['Create']}
       };
     }

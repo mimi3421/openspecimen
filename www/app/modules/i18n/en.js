@@ -88,6 +88,8 @@
     "value": "Value",
     "total_rows": "Total Rows",
     "items_selected_info": "{{count}} {{count > 1 ? 'records' : 'record'}} selected",
+    "loading_list": "Loading records, please wait for a moment...",
+    "empty_list": "No records to show!",
 
     "interval_units": {
       "DAYS": "Days",
@@ -249,6 +251,9 @@
     "cps_deleted": "Collection protocols deleted successfully",
     "cps_delete_pending": "Collection protocols deletion taking longer time than anticipated. You'll receive emails when it gets completed",
     "delete_consent_tier": "{{entityType}} {{entityName}} of {{entity.cpShortTitle}} will be deleted forever. Are you sure you want to proceed?",
+
+    "loading_list": "Loading collection protocols, please wait for a moment...",
+    "empty_list": "No collection protocols to show!",
 
     "consents_waived": "Consent waived?",
     "consents_waived_updated": "Participant consent {{waived ? 'waived' : 'enabled'}} successfully.",
@@ -424,6 +429,9 @@
     "create_group": "Create Group",
     "no_cp_specified": "Group has no collection protocols. Add at least one collection protocol to the group.",
 
+    "empty_list": "No collection protocol groups to show!",
+    "loading_list": "Loading collection protocol groups, please wait for a moment...",
+
     "participant": "Participant",
     "visit": "Visit",
     "specimen": "Specimen",
@@ -500,6 +508,9 @@
     "other_cps": "Other Registered Protocols",
     "ppids": "Participant Protocol IDs",
     "ppids_csv": "Comma separated list of participant protocol IDs",
+
+    "loading_list": "Loading participants, please wait for a moment...",
+    "empty_list": "No participants to show!",
 
     "bulk_registration": "Bulk Participant Registration",
     "num_of_participants": "Number of Participants",
@@ -767,6 +778,9 @@
     "no_read_access": "You do not have rights to view specimens of the CP: {{cp.shortTitle}}",
     "aliquots_count_req_auto_alloc": "Aliquots count is required for auto-allocation!",
 
+    "loading_list": "Loading specimens, please wait for a moment...",
+    "empty_list": "No specimens to show!",
+
     "hide_events": "Hide Events",
     "show_events": "Show Events",
     "recent_events": "Recent Events",
@@ -1024,6 +1038,8 @@
     "users_count": "Users",
     "delete_institutes":  "Are you sure you want to delete selected institutes?",
     "institutes_deleted": "Institutes deleted successfully",
+    "loading_list": "Loading institutes, please wait for a moment...",
+    "empty_list": "No institutes to show!",
 
     "bulk_import": "Import Institutes",
     "bulk_import_jobs": "Import Institutes Job List",
@@ -1065,6 +1081,8 @@
     "all_sites": "All current and future sites",
     "delete_sites":  "Are you sure you want to delete selected sites?",
     "sites_deleted": "Sites deleted successfully",
+    "empty_list": "No sites to show!",
+    "loading_list": "Loading sites, please wait for a moment...",
 
     "bulk_import": "Import Sites",
     "bulk_import_jobs": "Import Sites Job List",
@@ -1138,6 +1156,9 @@
     "cancel_reservation": "Cancel Reservation",
     "dist_inst_pre_selected": "Distributing institute {{institute}} already selected in row {{rowNo}}",
     "label_fmt": "Label Format",
+    "empty_list": "No distribution protocols to show!",
+    "loading_list": "Loading distribution protocols, please wait for a moment...",
+    "empty_reqs_list": "No distribution requirements to show!",
 
     "bulk_import": "Import Distribution Protocols",
     "req_bulk_import": "Import Requirements",
@@ -1249,6 +1270,8 @@
     "users_reactivated": "{{count}} {{count == 1 ? 'user' : 'users'}} reactivated",
     "expired": "User account password has expired. Reset the password.",
     "time_zone": "Time Zone",
+    "empty_list": "No users to show!",
+    "loading_list": "Loading users, please wait for a moment...",
 
     "confirm_institute_update_title": "Update Institute?",
     "confirm_institute_update_q": "Changing the institute will remove all the site specific roles assigned to the {{count > 1 ? 'users' : 'user'}}. Are you sure you want to proceed?",
@@ -1413,6 +1436,8 @@
     "no_container_selected": "Please select a container",
     "cannot_hold_specimen": "Selected container cannot hold specimen for which the position is selected",
     "stores_specimens": "Store Specimens?",
+    "empty_list": "No containers to show!",
+    "loading_list": "Loading containers, please wait for a moment...",
     "confirm_delete": "{{entityType}} {{entityName}} and its child containers will be deleted forever. Are you sure you want to proceed?",
     "assign_positions": "Assign Positions",
     "vacate_positions": "Vacate existing specimens",
@@ -1496,6 +1521,7 @@
     "event_to_location": "To Location",
     "event_user": "User",
     "event_time": "Time",
+    "no_transfer_events": "No transfer events to show!",
 
     "alloc_strategies": {
       "least_empty": "Least Empty Container",
@@ -1550,7 +1576,12 @@
       "log_activity": "Log an Activity",
       "update_activity_log": "Update Activity Log",
       "confirm_archive_activity_title": "Archive Activity",
-      "confirm_archive_activity_q": "Are you sure you want to archive the activity: <b>#{{id}} {{taskName}}</b>?"
+      "confirm_archive_activity_q": "Are you sure you want to archive the activity: <b>#{{id}} {{taskName}}</b>?",
+
+      "empty_sched_activities_list": "No scheduled activities to show!",
+      "loading_sched_activities_list": "Loading scheduled activities, please wait for a moment...",
+      "empty_activities_log": "No activities to show!",
+      "loading_activities_log": "Loading activities log, please wait for a moment..."
     },
 
     "tooltip": {
@@ -1595,6 +1626,9 @@
     "delete_types":  "Are you sure you want to delete selected container types?",
     "types_deleted": "Container types deleted",
 
+    "loading_list": "Loading container types, please wait for a moment...",
+    "empty_list": "No container types to show!",
+
     "tooltip": {
       "add": "Click to add new Container Type",
       "edit": "Click to edit Container Type",
@@ -1618,7 +1652,9 @@
     "description": "Description",
     "create_task": "Create Task",
     "confirm_archive_title": "Confirm Archive Task",
-    "confirm_archive_q": "Are you sure you want to archive the container maintenance task: <b>{{name}}</b>?"
+    "confirm_archive_q": "Are you sure you want to archive the container maintenance task: <b>{{name}}</b>?",
+    "loading_list": "Loading container tasks, please wait for a moment...",
+    "empty_list": "No container tasks to show!"
   },
 
   "role": {
@@ -1695,6 +1731,8 @@
     "association_deleted": "Successfully deleted the form association at <b>{{level.caption}}{{!collectionProtocol.id ? '' : '/' + collectionProtocol.shortTitle}}</b>",
     "delete_forms":  "You will lose data if you delete the selected forms. Do you want to continue?",
     "forms_deleted": "Forms deleted successfully",
+    "loading_list": "Loading forms, please wait for a moment...",
+    "empty_list": "No forms to show!",
 
     "tooltip": {
       "add": "Click to add new Form",
@@ -2204,7 +2242,9 @@
     "enter_specimen_label": "Enter specimen labels or barcodes separated by a comma, tab or newline",
     "report_gen_initiated": "Generating cart specimens report...",
     "downloading_report": "Downloading cart specimens report...",
-    "report_will_be_emailed": "Generating cart specimens report is taking more time than anticipated. Link to download report will be sent to you by email"
+    "report_will_be_emailed": "Generating cart specimens report is taking more time than anticipated. Link to download report will be sent to you by email",
+    "loading_list": "Loading carts, please wait for a moment...",
+    "empty_list": "No carts to show!"
   },
 
   "orders": {
@@ -2242,6 +2282,9 @@
     "loading_items": "Loading order items. Please wait for a moment...",
     "more_time": "Saving distribution order is taking more time than anticipated. An email notification will be sent to you on successful distribution of specimens",
     "holding_loc_draft_not_allowed": "Cannot save draft, as one or more specimens are assigned holding locations.",
+
+    "loading_list": "Loading orders, please wait for a moment...",
+    "empty_list": "No orders to show!",
 
     "report_gen_initiated": "Generating distribution order report...",
     "downloading_report": "Downloading distribution order report...",
@@ -2364,6 +2407,8 @@
     "multi_site_specimens": "Can't ship specimens from multiple storage sites",
     "loading_specimens": "Loading shipment specimens. Please wait for a moment...",
     "loading_containers": "Loading shipment containers. Please wait for a moment...",
+    "loading_list": "Loading shipments, please wait for a moment...",
+    "empty_list": "No shipments to show!",
 
     "filters": "Filters",
     "report_gen_initiated": "Generating shipment report...",
@@ -2444,6 +2489,8 @@
     "schedule": "Schedule",
     "created_by": "Created By",
     "last_run_on": "Last Run On",
+    "loading_list": "Loading jobs, please wait for a moment...",
+    "empty_list": "No jobs to show!",
 
     "confirm_delete_title": "Confirm Delete",
     "confirm_delete": "Are you sure you want to delete the job '{{name}}'?",
@@ -2537,8 +2584,9 @@
 
     "run_logs": "Run Logs",
     "seconds": "seconds",
+    "empty_runs_list": "No job run logs to show!",
+    "loading_runs_list": "Loading job run logs, please wait for a moment...",
 
-    "no_runs": "No run logs to show",
     "run_by": "Run By",
     "started_at": "Started At",
     "time_taken": "Time Taken",
@@ -2583,6 +2631,9 @@
     "create_stmt": "Create Consent",
     "code": "Code",
     "statement": "Statement",
+
+    "empty_list": "No consents to show!",
+    "loading_list": "Loading consent statements, please wait for a moment...",
 
     "tooltip": {
       "add": "Click to add new Consent",

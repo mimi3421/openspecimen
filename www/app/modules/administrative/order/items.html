@@ -28,7 +28,8 @@
       <div class="os-container-wrapper">
         <div>
           <os-list params="ctx.params" item-sref="specimen({specimenId: row.hidden.specimenId})"
-            enable-selection="{{orctx.printDistLabels}}" show-item="showSpecimen(row)" init-ctrl="setListCtrl($list)">
+            enable-selection="{{orctx.printDistLabels}}" show-item="showSpecimen(row)" init-ctrl="setListCtrl($list)"
+            empty-state="ctx.emptyState">
           </os-list>
         </div>
       </div>

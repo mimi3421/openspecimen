@@ -14,7 +14,11 @@ angular.module('os.biospecimen.specimenlist')
           objectId: list.id
         },
         breadcrumbs: $stateParams.breadcrumbs,
-        reqBasedDistOrShip: false
+        reqBasedDistOrShip: false,
+        emptyState: {
+          loadingMessage: 'specimens.loading_list',
+          emptyMessage: 'specimens.empty_list'
+        }
       }
 
       if ($injector.has('spmnReqCfgUtil')) {

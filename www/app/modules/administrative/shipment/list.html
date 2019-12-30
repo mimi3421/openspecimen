@@ -105,6 +105,12 @@
         </tr>
       </thead>
       <tbody class="os-table-body">
+        <tr class="row" ng-if="emptyState.empty || emptyState.loading">
+          <td class="col" colspan="100%">
+            <os-empty-list state="emptyState"></os-empty-list>
+          </td>
+        </tr>
+
         <tr class="row" ng-repeat="shipment in shipments" os-row-click="showShipmentOverview(shipment)">
           <td class="col" ng-switch on="shipment.type == 'SPECIMEN'">
             <span ng-switch-when="true" class="fa fa-flask"></span>

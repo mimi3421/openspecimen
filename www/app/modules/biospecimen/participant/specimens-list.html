@@ -1,6 +1,7 @@
 <div>
   <os-list params="ctx.params" item-sref="specimen({specimenId: row.hidden.specimenId})"
-    enable-selection="true" show-item="showSpecimen(row)" init-ctrl="setListCtrl($list)">
+    enable-selection="true" show-item="showSpecimen(row)" init-ctrl="setListCtrl($list)"
+    empty-state="ctx.emptyState">
   </os-list>
 </div>
 

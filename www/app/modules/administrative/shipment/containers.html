@@ -1,11 +1,7 @@
 <div>
   <div class="clearfix">
     <div class="col-xs-12">
-      <div ng-if="ctx.loading">
-        <span translate="shipments.loading_containers">Loading containers. Please wait for a moment ...</span>
-      </div>
-
-      <table class="os-table" ng-if="!ctx.loading">
+      <table class="os-table">
         <thead class="os-table-head">
           <tr class="row">
             <th class="col">
@@ -26,6 +22,12 @@
           </tr>
         </thead>
         <tbody class="os-table-body">
+          <tr class="row" ng-if="ctx.emptyState.empty || ctx.emptyState.loading">
+            <td class="col" colspan="100%">
+              <os-empty-list state="ctx.emptyState"></os-empty-list>
+            </td>
+          </tr>
+
           <tr class="row" ng-repeat="item in ctx.shipmentContainers" ng-init="container = item.container">
             <td class="col">
               <a ui-sref="container-detail.overview({containerId: container.id})">

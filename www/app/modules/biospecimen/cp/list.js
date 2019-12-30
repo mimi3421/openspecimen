@@ -14,6 +14,11 @@ angular.module('os.biospecimen.cp.list', ['os.biospecimen.models'])
         params: {
           listName: 'cp-list-view',
           objectId: -1
+        },
+
+        emptyState: {
+          loadingMessage: 'cp.loading_list',
+          emptyMessage: 'cp.empty_list'
         }
       };
     }

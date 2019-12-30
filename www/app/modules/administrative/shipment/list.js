@@ -8,6 +8,12 @@ angular.module('os.administrative.shipment.list', ['os.administrative.models'])
     function init() {
       pagerOpts = $scope.pagerOpts = new ListPagerOpts({listSizeGetter: getShipmentsCount, recordsPerPage: 50});
       $scope.filterOpts = Util.filterOpts({maxResults: pagerOpts.recordsPerPage + 1, includeStats: true});
+      $scope.emptyState = {
+        empty: true,
+        loading: true,
+        emptyMessage: 'shipments.empty_list',
+        loadingMessage: 'shipments.loading_list'
+      };
 
       loadShipments($scope.filterOpts);
       loadStatuses();
@@ -15,8 +21,11 @@ angular.module('os.administrative.shipment.list', ['os.administrative.models'])
     }
 
     function loadShipments(filterOpts) {
+      $scope.emptyState.loading = true;
       Shipment.query(filterOpts).then(
         function(result) {
+          $scope.emptyState.loading = false;
+          $scope.emptyState.empty = result.length <= 0;
           $scope.shipments = result;
           pagerOpts.refreshOpts(result);
         }

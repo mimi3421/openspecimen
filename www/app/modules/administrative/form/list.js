@@ -16,7 +16,15 @@ angular.module('os.administrative.form.list', ['os.administrative.models'])
       });
 
       $scope.formsList = [];
-      ctx = $scope.ctx = {excludeAttrs: ['excludeSysForms']};
+      ctx = $scope.ctx = {
+        excludeAttrs: ['excludeSysForms'],
+        emptyState: {
+          empty: true,
+          loading: true,
+          emptyMessage: 'form.empty_list',
+          loadingMessage: 'form.loading_list'
+        }
+      };
 
       loadForms($scope.formFilterOpts);
       loadPvs();
@@ -24,7 +32,10 @@ angular.module('os.administrative.form.list', ['os.administrative.models'])
     }
 
     function loadForms(filterOpts) {
+      ctx.emptyState.loading = true;
       Form.query(filterOpts).then(function(result) {
+        ctx.emptyState.loading = false;
+        ctx.emptyState.empty = result.length <= 0;
         pagerOpts.refreshOpts(result);
         $scope.formsList = result;
         $scope.ctx.checkList = new CheckList(result);

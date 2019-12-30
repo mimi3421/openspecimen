@@ -50,6 +50,12 @@
         </tr>
       </thead>
       <tbody class="os-table-body">
+        <tr class="row" ng-if="ctx.emptyState.empty || ctx.emptyState.loading">
+          <td class="col" colspan="100%">
+            <os-empty-list state="ctx.emptyState"></os-empty-list>
+          </td>
+        </tr>
+
         <tr class="row" ng-repeat="institute in instituteList" os-row-click="showInstituteOverview(institute)">
           <td show-if-admin class="col os-click-esc">
             <div class="os-select-specimen-cb">

@@ -36,6 +36,11 @@
           </tr>
         </thead>
         <tbody class="os-table-body">
+          <tr class="row" ng-if="mctx.schedActivitiesState.loading || mctx.schedActivitiesState.empty">
+            <td class="col" colspan="100%">
+              <os-empty-list state="mctx.schedActivitiesState"></os-empty-list>
+            </td>
+          </tr>
           <tr class="row" ng-repeat="activity in mctx.schedActivities">
             <td class="col">
               <span>{{activity.name}}</span>

@@ -55,6 +55,12 @@
         </tr>
       </thead>
       <tbody class="os-table-body os-border">
+        <tr class="row" ng-if="lctx.emptyState.loading || lctx.emptyState.empty">
+          <td class="col" colspan="100%">
+            <os-empty-list state="lctx.emptyState"></os-empty-list>
+          </td>
+        </tr>
+
         <tr class="row" ng-repeat="spmn in lctx.specimens">
           <td class="col">
             <os-checkbox ng-change="lctx.checkList.toggleSelectItem($index)"

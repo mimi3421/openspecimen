@@ -23,7 +23,9 @@ angular.module('openspecimen')
 
         showItem: '&',
 
-        initCtrl: '&'
+        initCtrl: '&',
+
+        emptyState: '='
       },
 
       controller: function($scope) {
@@ -34,6 +36,10 @@ angular.module('openspecimen')
         function init() {
           pagerOpts = ctrl.pagerOpts = new ListPagerOpts({listSizeGetter: getListSize});
           listParams = ctrl.listParams = {maxResults: pagerOpts.recordsPerPage + 1};
+
+          var emptyState = $scope.emptyState || {};
+          emptyState.loading = emptyState.empty = true;
+          ctx = {emptyState: emptyState};
 
           $http.get(getUrl() + 'config', {params: $scope.params}).then(
             function(resp) {
@@ -48,7 +54,8 @@ angular.module('openspecimen')
                 filters: Util.filterOpts({}),
                 data: {},
                 listSize: -1,
-                pagerOpts: pagerOpts
+                pagerOpts: pagerOpts,
+                emptyState: emptyState
               };
 
               ctrl.haveFilters = ctx.filtersCfg && ctx.filtersCfg.length > 0;
@@ -90,6 +97,7 @@ angular.module('openspecimen')
             params.orderDirection = ctx.sortBy.direction;
           }
 
+          ctx.emptyState.loading = ctx.emptyState.empty = true;
           $http.post(getUrl() + 'data', getFilters(), {params: params}).then(
             function(resp) {
               ctx.data = resp.data;
@@ -120,6 +128,8 @@ angular.module('openspecimen')
                 }
               }
 
+              ctx.emptyState.loading = false;
+              ctx.emptyState.empty = (!ctx.data || !ctx.data.rows || ctx.data.rows.length <= 0);
               ctrl.onDataLoad(ctx.data);
             }
           );

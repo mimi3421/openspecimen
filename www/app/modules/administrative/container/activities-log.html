@@ -37,6 +37,11 @@
           </tr>
         </thead>
         <tbody class="os-table-body">
+          <tr class="row" ng-if="mctx.activityLogsState.loading || mctx.activityLogsState.empty">
+            <td class="col" colspan="100%">
+              <os-empty-list state="mctx.activityLogsState"></os-empty-list>
+            </td>
+          </tr>
           <tr class="row" ng-repeat="log in mctx.activityLogs">
             <td class="col">
               <span ng-show="!log.scheduledActivityName">{{log.taskName}}</span>

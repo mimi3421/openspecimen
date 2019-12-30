@@ -10,7 +10,21 @@ angular.module('os.administrative.container')
       var permOpts = {resource: 'StorageContainer', operations: ['Update'], sites: [container.siteName]};
       lctx = $scope.mctx = {
         schedActivities: [],
+        schedActivitiesState: {
+          empty: true,
+          loading: true,
+          emptyMessage: 'container.maintenance.empty_sched_activities_list',
+          loadingMessage: 'container.maintenance.loading_sched_activities_list'
+        },
+
         activityLogs: undefined,
+        activityLogsState: {
+          empty: true,
+          loading: true,
+          emptyMessage: 'container.maintenance.empty_activities_log',
+          loadingMessage: 'container.maintenance.loading_activities_log'
+        },
+
         allowEdits: AuthorizationService.isAllowed(permOpts),
         exportDetail: { objectType: 'containerActivityLog', params: {containerId: container.id} }
       }
@@ -19,8 +33,11 @@ angular.module('os.administrative.container')
     }
 
     function loadScheduledActivities() {
+      lctx.schedActivitiesState.loading = true;
       ScheduledContainerActivity.query({containerId: container.id, maxResults: 1000}).then(
         function(schedActivities) {
+          lctx.schedActivitiesState.loading = false;
+          lctx.schedActivitiesState.empty = schedActivities.length <= 0;
           lctx.schedActivities = schedActivities;
           angular.forEach(schedActivities, addUiProps);
         }
@@ -28,8 +45,11 @@ angular.module('os.administrative.container')
     }
 
     function loadActivityLogs() {
+      lctx.activityLogsState.loading = true;
       ContainerActivityLog.query({containerId: container.id}).then(
         function(activityLogs) {
+          lctx.activityLogsState.loading = false;
+          lctx.activityLogsState.empty = activityLogs.length <= 0;
           lctx.activityLogs = activityLogs;
         }
       ); 
@@ -73,6 +93,7 @@ angular.module('os.administrative.container')
             lctx.schedActivities[idx] = savedActivity;
           } else {
             lctx.schedActivities.push(savedActivity);
+            lctx.schedActivitiesState.empty = lctx.schedActivities.length <= 0;
           }
         }
       );
@@ -93,6 +114,7 @@ angular.module('os.administrative.container')
             function() {
               var idx = lctx.schedActivities.indexOf(activity);
               lctx.schedActivities.splice(idx, 1);
+              lctx.schedActivitiesState.empty = lctx.schedActivities.length <= 0;
             }
           );
         }
@@ -129,6 +151,7 @@ angular.module('os.administrative.container')
             lctx.activityLogs[idx] = savedActivity;
           } else {
             lctx.activityLogs.unshift(savedActivity);
+            lctx.activityLogsState.empty = lctx.activityLogs <= 0;
           }
         }
       );
@@ -149,6 +172,7 @@ angular.module('os.administrative.container')
             function() {
               var idx = lctx.activityLogs.indexOf(activity);
               lctx.activityLogs.splice(idx, 1);
+              lctx.activityLogsState.empty = lctx.activityLogs <= 0;
             }
           );
         }

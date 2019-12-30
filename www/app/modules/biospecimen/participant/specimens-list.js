@@ -21,6 +21,10 @@ angular.module('os.biospecimen.participant')
           listName: 'specimen-list-view',
           objectId: cp.id
         },
+        emptyState: {
+          loadingMessage: 'specimens.loading_list',
+          emptyMessage: 'specimens.empty_list'
+        },
         resourceOpts: ctrl.resourceOpts
       };
 

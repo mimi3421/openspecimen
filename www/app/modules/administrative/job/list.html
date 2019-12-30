@@ -52,6 +52,12 @@
         </tr>
       </thead>
       <tbody class="os-table-body">
+        <tr class="row" ng-if="emptyState.empty || emptyState.loading">
+          <td class="col" colspan="100%">
+            <os-empty-list state="emptyState"></os-empty-list>
+          </td>
+        </tr>
+
         <tr class="row" ng-repeat="job in jobs" os-row-click="showJobEdit(job)">
           <td class="col">
             <a class="os-click-esc" ui-sref="job-addedit({jobId: job.id})">

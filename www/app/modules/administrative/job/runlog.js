@@ -13,7 +13,14 @@ angular.module('os.administrative.job.runlog', ['os.administrative.models'])
           {name: 'IN_PROGRESS', caption: ''},
           {name: 'SUCCEEDED', caption: ''},
           {name: 'FAILED', caption: ''}
-        ]
+        ],
+
+        emptyState: {
+          empty: true,
+          loading: true,
+          emptyMessage: 'jobs.empty_runs_list',
+          loadingMessage: 'jobs.loading_runs_list'
+        }
       };
 
       $translate('jobs.statuses.SUCCEEDED').then(
@@ -31,8 +38,11 @@ angular.module('os.administrative.job.runlog', ['os.administrative.models'])
     }
 
     function loadRuns() {
+      ctx.emptyState.loading = true;
       job.getRuns(ctx.filters).then(
         function(runs) {
+          ctx.emptyState.loading = false;
+          ctx.emptyState.empty = runs.length <= 0;
           ctx.runs = runs;
         }
       );

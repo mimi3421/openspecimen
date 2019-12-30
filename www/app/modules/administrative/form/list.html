@@ -61,7 +61,13 @@
         </tr>
       </thead>
       <tbody class="os-table-body">
-        <tr class="row" ng-repeat="form in formsList | filter:searchFormName" os-row-click="openForm(form)">
+        <tr class="row" ng-if="ctx.emptyState.empty || ctx.emptyState.loading">
+          <td class="col" colspan="100%">
+            <os-empty-list state="ctx.emptyState"></os-empty-list>
+          </td>
+        </tr>
+
+        <tr class="row" ng-repeat="form in formsList" os-row-click="openForm(form)">
           <td class="col os-click-esc">
             <div class="os-select-specimen-cb">
               <os-checkbox ng-change="ctx.checkList.toggleSelectItem($index)"

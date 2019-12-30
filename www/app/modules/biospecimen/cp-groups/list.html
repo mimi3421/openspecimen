@@ -36,6 +36,12 @@
         </tr>
       </thead>
       <tbody class="os-table-body">
+        <tr class="row" ng-if="ctx.emptyState.empty || ctx.emptyState.loading">
+          <td class="col" colspan="100%">
+            <os-empty-list state="ctx.emptyState"></os-empty-list>
+          </td>
+        </tr>
+
         <tr class="row" ng-repeat="group in ctx.groupsList" os-row-click="showGroupSummary(group)">
           <td class="col os-desc-column">
             <a class="os-click-esc" ui-sref="cp-group-detail.overview({groupId: group.id})">

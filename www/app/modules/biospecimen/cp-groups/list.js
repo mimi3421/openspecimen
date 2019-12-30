@@ -9,12 +9,20 @@ angular.module('os.biospecimen.cpgroups')
 
       ctx.pagerOpts    = new ListPagerOpts({listSizeGetter: getGroupsCount});
       ctx.filterOpts   = Util.filterOpts({includeStats: true, maxResults: ctx.pagerOpts.recordsPerPage + 1});
+      ctx.emptyState   = {
+        empty: true,
+        loading: true,
+        emptyMessage: 'cp_groups.empty_list',
+        loadingMessage: 'cp_groups.loading_list'
+      }
 
       loadGroupsList(ctx.filterOpts);
       Util.filter($scope, 'ctx.filterOpts', loadGroupsList);
     }
 
     function setList(list) {
+      ctx.emptyState.loading = false;
+      ctx.emptyState.empty = list.length <= 0;
       ctx.pagerOpts.refreshOpts(list);
       ctx.groupsList = list;
     }
@@ -24,6 +32,7 @@ angular.module('os.biospecimen.cpgroups')
     }
 
     function loadGroupsList(filterOpts) {
+      ctx.emptyState.loading = true;
       CollectionProtocolGroup.query(filterOpts).then(
         function(groupsList) {
           setList(groupsList);

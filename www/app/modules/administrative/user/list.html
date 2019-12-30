@@ -65,6 +65,12 @@
         </tr>
       </thead>
       <tbody class="os-table-body">
+        <tr class="row" ng-if="ctx.emptyState.empty || ctx.emptyState.loading">
+          <td class="col" colspan="100%">
+            <os-empty-list state="ctx.emptyState"></os-empty-list>
+          </td>
+        </tr>
+
         <tr class="row" ng-repeat="user in users" os-row-click="showUserOverview(user)">
           <td class="col os-click-esc" show-if-allowed="userResource.updateOpts">
             <div class="os-select-specimen-cb">
