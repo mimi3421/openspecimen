@@ -123,6 +123,13 @@
             </div>
           </div>
 
+          <div class="os-alert-container inline" ng-if="!resultsCtx.waitingForRecords &&
+              (!resultsCtx.rows || resultsCtx.rows.length == 0) && !resultsCtx.error">
+            <div class="alert alert-info">
+              <span translate="queries.no_data">No records match the search criteria...</span>
+            </div>
+          </div>
+
           <div ng-if="!resultsCtx.waitingForRecords && resultsCtx.error">
             <span translate="queries.error"></span>
           </div>
