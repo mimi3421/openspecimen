@@ -16,6 +16,7 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
+import org.hibernate.sql.JoinType;
 
 import com.krishagni.catissueplus.core.administrative.domain.ScheduledJob;
 import com.krishagni.catissueplus.core.administrative.domain.ScheduledJobRun;
@@ -117,7 +118,7 @@ public class ScheduledJobDaoImpl extends AbstractDao<ScheduledJob> implements Sc
 		}
 
 		if (crit.userId() != null) {
-			subQuery.createAlias("job.sharedWith", "su")
+			subQuery.createAlias("job.sharedWith", "su", JoinType.LEFT_OUTER_JOIN)
 				.createAlias("job.createdBy", "createdBy")
 				.add(
 					Restrictions.or(
@@ -160,7 +161,7 @@ public class ScheduledJobDaoImpl extends AbstractDao<ScheduledJob> implements Sc
 				subQuery.createAlias("run.scheduledJob", "job");
 			}
 
-			subQuery.createAlias("job.sharedWith", "su")
+			subQuery.createAlias("job.sharedWith", "su", JoinType.LEFT_OUTER_JOIN)
 				.createAlias("job.createdBy", "createdBy")
 				.add(
 					Restrictions.or(
