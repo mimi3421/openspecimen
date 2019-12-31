@@ -7,10 +7,12 @@
     <table class="os-table os-table-hover">
       <thead class="os-table-head">
         <tr class="row">
-          <th class="col" ng-if="enableSelection == 'true' || enableSelection == true">
-            <div class="os-select-specimen-cb">
+          <th class="col" ng-if="enableSelection == 'true' || enableSelection == true ||
+            starItems == 'true' || starItems == true">
+            <div class="os-select-specimen-cb" ng-show="enableSelection == 'true' || enableSelection == true">
               <os-checkbox ng-change="checkList.toggleSelectAll()" ng-model="checkList.allSelected"></os-checkbox>
             </div>
+            <span ng-show="starItems == 'true' || starItems == true">&nbsp;</span>
           </th>
           <th class="col os-pointer-cursor" ng-repeat="column in ctx.data.columns" ng-show="!column.hide"
             ng-click="sortBy(column)">
@@ -36,11 +38,17 @@
       </tbody>
       <tbody class="os-table-body" ng-if="ctx.data.rows.length > 0">
         <tr class="row" ng-repeat="row in ctx.data.rows track by $index" os-row-click="showItem({row: row})">
-          <td class="col os-click-esc" ng-if="enableSelection == 'true' || enableSelection == true">
-            <div class="os-select-specimen-cb">
+          <td class="col os-click-esc" ng-if="enableSelection == 'true' || enableSelection == true ||
+            starItems == 'true' || starItems == true">
+            <div class="os-select-specimen-cb" ng-if="enableSelection == 'true' || enableSelection == true">
               <os-checkbox ng-change="checkList.toggleSelectItem($index)" ng-model="checkList.items[$index].selected">
               </os-checkbox>
             </div>
+            <span ng-if="starItems == 'true' || starItems == true">
+              <span class="os-starred-item fa" ng-class="{true: 'fa-star starred', false: 'fa-star-o'}[row.$$starred]"
+                ng-click="toggleItemStar({row: row})">
+              </span>
+            </span>
           </td>
           <td class="col text-wrap" ng-repeat="col in row.data track by $index" ng-show="!ctx.data.columns[$index].hide">
             <span ng-switch on="ctx.data.columns[$index].metainfo.showLink == 'true'">

@@ -62,6 +62,7 @@ import com.krishagni.catissueplus.core.biospecimen.repository.VisitsDao;
 import com.krishagni.catissueplus.core.common.repository.AbstractDao;
 import com.krishagni.catissueplus.core.common.repository.ConfigSettingDao;
 import com.krishagni.catissueplus.core.common.repository.ExternalAppIdDao;
+import com.krishagni.catissueplus.core.common.repository.StarredItemDao;
 import com.krishagni.catissueplus.core.common.repository.MessageLogDao;
 import com.krishagni.catissueplus.core.common.repository.MobileUploadJobDao;
 import com.krishagni.catissueplus.core.common.repository.PrintRuleConfigDao;
@@ -72,6 +73,7 @@ import com.krishagni.catissueplus.core.common.repository.UpgradeLogDao;
 import com.krishagni.catissueplus.core.common.repository.UserNotificationDao;
 import com.krishagni.catissueplus.core.common.repository.impl.ConfigSettingDaoImpl;
 import com.krishagni.catissueplus.core.common.repository.impl.ExternalAppIdDaoImpl;
+import com.krishagni.catissueplus.core.common.repository.impl.StarredItemDaoImpl;
 import com.krishagni.catissueplus.core.common.repository.impl.MessageLogDaoImpl;
 import com.krishagni.catissueplus.core.common.repository.impl.MobileUploadJobDaoImpl;
 import com.krishagni.catissueplus.core.common.repository.impl.PrintRuleConfigDaoImpl;
@@ -408,6 +410,13 @@ public class DaoFactoryImpl implements DaoFactory {
 	@Override
 	public MobileUploadJobDao getMobileUploadJobDao() {
 		MobileUploadJobDaoImpl dao = new MobileUploadJobDaoImpl();
+		setSessionFactory(dao);
+		return dao;
+	}
+
+	@Override
+	public StarredItemDao getStarredItemDao() {
+		StarredItemDaoImpl dao = new StarredItemDaoImpl();
 		setSessionFactory(dao);
 		return dao;
 	}

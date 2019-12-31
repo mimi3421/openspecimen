@@ -32,7 +32,8 @@
         fixed-data-tmpl="modules/biospecimen/cp/list-view-fixed-data.html"
         action-buttons-tmpl="modules/biospecimen/cp/list-view-row-action-buttons.html"
         enable-selection="true" show-item="showCpSummary(row)" init-ctrl="setListCtrl($list)"
-        empty-state="ctx.emptyState">
+        empty-state="ctx.emptyState" star-items="true" starred-expr="!!row.hidden.starred"
+        toggle-item-star="toggleStarredCp(row)">
       </os-list>
     </div>
   </div>

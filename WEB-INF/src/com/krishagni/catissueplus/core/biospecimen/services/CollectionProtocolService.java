@@ -182,6 +182,11 @@ public interface CollectionProtocolService {
 
 	public ResponseEvent<Collection<Object>> getListExprValues(RequestEvent<Map<String, Object>> req);
 
+	//
+	// Labelling
+	//
+	boolean toggleStarredCp(Long cpId, boolean starred);
+
 	interface DataSource {
 		public Object getMetric(CollectionProtocol cp, Map<String, Object> input);
 

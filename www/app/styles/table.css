@@ -119,3 +119,14 @@
   word-wrap: break-word;
   max-width: 200px;
 }
+
+.os-table .os-table-body .os-starred-item {
+  padding-left: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  color: #999;
+}
+
+.os-table .os-table-body .os-starred-item.starred {
+  color: #f0ad4e;
+}

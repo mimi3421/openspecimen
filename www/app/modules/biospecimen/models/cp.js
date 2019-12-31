@@ -210,5 +210,21 @@ angular.module('os.biospecimen.models.cp', ['os.common.models'])
       );;
     }
 
+    CollectionProtocol.prototype.star = function() {
+      return $http.post(CollectionProtocol.url() + this.$id() + '/labels', {}).then(
+        function(resp) {
+          return resp.data;
+        }
+      );
+    }
+
+    CollectionProtocol.prototype.unstar = function() {
+      return $http.delete(CollectionProtocol.url() + this.$id() + '/labels').then(
+        function(resp) {
+          return resp.data;
+        }
+      );
+    }
+
     return CollectionProtocol;
   });

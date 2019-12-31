@@ -781,6 +781,20 @@ public class CollectionProtocolsController {
 		return Collections.singletonMap("size", resp.getPayload());
 	}
 
+	@RequestMapping(method = RequestMethod.POST, value = "/{id}/labels")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public Map<String, Boolean> addLabel(@PathVariable("id") Long cpId) {
+		return Collections.singletonMap("status", cpSvc.toggleStarredCp(cpId, true));
+	}
+
+	@RequestMapping(method = RequestMethod.DELETE, value = "/{id}/labels")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public Map<String, Boolean> removeLabel(@PathVariable("id") Long cpId) {
+		return Collections.singletonMap("status", cpSvc.toggleStarredCp(cpId, false));
+	}
+
 	private ConsentTierDetail performConsentTierOp(OP op, Long cpId, ConsentTierDetail consentTier) {
 		ConsentTierOp req = new ConsentTierOp();		
 		req.setConsentTier(consentTier);

@@ -102,6 +102,7 @@ import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 import com.krishagni.catissueplus.core.common.service.ObjectAccessor;
+import com.krishagni.catissueplus.core.common.service.StarredItemService;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.catissueplus.core.common.util.ConfigUtil;
 import com.krishagni.catissueplus.core.common.util.EmailUtil;
@@ -138,6 +139,8 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 
 	private SessionFactory sessionFactory;
 
+	private StarredItemService starredItemSvc;
+
 	public void setTaskExecutor(ThreadPoolTaskExecutor taskExecutor) {
 		this.taskExecutor = taskExecutor;
 	}
@@ -172,6 +175,10 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
+	}
+
+	public void setStarredItemSvc(StarredItemService starredItemSvc) {
+		this.starredItemSvc = starredItemSvc;
 	}
 
 	@Override
@@ -1196,6 +1203,32 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 	}
 
 	@Override
+	@PlusTransactional
+	public boolean toggleStarredCp(Long cpId, boolean starred) {
+		try {
+			CollectionProtocol cp = daoFactory.getCollectionProtocolDao().getById(cpId);
+			if (cp == null) {
+				throw OpenSpecimenException.userError(CpErrorCode.NOT_FOUND, cpId);
+			}
+
+			AccessCtrlMgr.getInstance().ensureReadCpRights(cp);
+			if (starred) {
+				starredItemSvc.save(getObjectName(), cp.getId());
+			} else {
+				starredItemSvc.delete(getObjectName(), cp.getId());
+			}
+
+			return true;
+		} catch (Exception e) {
+			if (e instanceof OpenSpecimenException) {
+				throw e;
+			}
+
+			throw OpenSpecimenException.serverError(e);
+		}
+	}
+
+	@Override
 	public String getObjectName() {
 		return CollectionProtocol.getEntityName();
 	}
@@ -2090,15 +2123,32 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 				List<Object[]> dbRows = sessionFactory.getCurrentSession()
 					.getNamedQuery(CollectionProtocol.class.getName() + ".getParticipantAndSpecimenCount")
 					.setParameterList("cpIds", cpRows.keySet())
+					.setParameter("userId", AuthUtil.getCurrentUser().getId())
 					.list();
+
 				for (Object[] dbRow : dbRows) {
 					int idx = -1;
 					Long cpId = ((Number) dbRow[++idx]).longValue();
-					Object[] fixedData = {dbRow[++idx], dbRow[++idx]};
-					cpRows.get(cpId).setFixedData(fixedData);
+					Row cpRow = cpRows.get(cpId);
+					cpRow.setFixedData(new Object[] {dbRow[++idx], dbRow[++idx]});
+					cpRow.getHidden().put("starred", dbRow[++idx]);
 				}
 
-				return rows;
+				return rows.stream().sorted(
+					(row1, row2) -> {
+						Long s1 = (Long) row1.getHidden().get("starred");
+						Long s2 = (Long) row2.getHidden().get("starred");
+						if (s1 != null && s2 != null) {
+							return Long.compare(s1, s2);
+						} else if (s1 != null) {
+							return -1;
+						} else if (s2 != null) {
+							return 1;
+						} else {
+							return 0;
+						}
+					}
+				).collect(Collectors.toList());
 			}
 		);
 
@@ -2111,8 +2161,12 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 			throw OpenSpecimenException.userError(RbacErrorCode.ACCESS_DENIED);
 		}
 
-		cfg.setRestriction(BiospecimenDaoHelper.getInstance().getSiteCpsCondAqlForCps(cpSites));
-		cfg.setDistinct(true);
+		String cpSitesRestriction = BiospecimenDaoHelper.getInstance().getSiteCpsCondAqlForCps(cpSites);
+		if (StringUtils.isNotBlank(cpSitesRestriction)) {
+			cfg.setRestriction(cpSitesRestriction);
+			cfg.setDistinct(true);
+		}
+
 		return cfg;
 	}
 
@@ -2250,7 +2304,4 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 	private static final int OP_CP_CREATED = 0;
 
 	private static final int OP_CP_DELETED = 2;
-
-	private static final String INSTITUTE_SITES_SQL =
-			"select identifier from catissue_site where institute_id in (%s) and activity_status != 'Disabled'";
 }

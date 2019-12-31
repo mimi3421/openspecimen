@@ -50,5 +50,22 @@ angular.module('os.biospecimen.cp.list', ['os.biospecimen.models'])
       ctx.showSearch = listCtrl.haveFilters;
     }
 
+    $scope.toggleStarredCp = function(cp) {
+      var q;
+      if (cp.$$starred) {
+        q = new CollectionProtocol({id: +cp.hidden.cpId}).unstar();
+      } else {
+        q = new CollectionProtocol({id: +cp.hidden.cpId}).star();
+      }
+
+      q.then(
+        function(result) {
+          if (result.status == true) {
+            cp.$$starred = !cp.$$starred;
+          }
+        }
+      );
+    }
+
     init();
   });

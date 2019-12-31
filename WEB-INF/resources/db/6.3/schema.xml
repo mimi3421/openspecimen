@@ -414,4 +414,31 @@
       baseTableName="OS_SCHEDULED_JOB_SHARED_USERS" baseColumnNames="USER_ID"
       referencedTableName="CATISSUE_USER" referencedColumnNames="IDENTIFIER" />
   </changeSet>
+
+  <changeSet author="vpawar" id="Starred items">
+    <createTable tableName="OS_STARRED_ITEMS">
+      <column name="IDENTIFIER" type="${int.type}" autoIncrement="${autoIncrement}">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="USER_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="ITEM_TYPE" type="${text.type}(32)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="ITEM_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Starred items identifier generator" dbms="oracle">
+    <createSequence sequenceName="OS_STARRED_ITEMS_SEQ" startValue="1" incrementBy="1" ordered="true"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Starred item unique key">
+    <addUniqueConstraint
+      constraintName="OS_STARRED_ITEM_UQ"
+      tableName="OS_STARRED_ITEMS" columnNames="USER_ID, ITEM_TYPE, ITEM_ID"/>
+  </changeSet>
 </databaseChangeLog>

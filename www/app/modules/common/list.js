@@ -1,5 +1,5 @@
 angular.module('openspecimen')
-  .directive('osList', function($http, $timeout, osRightDrawerSvc, ApiUrls, CheckList, ListPagerOpts, Util) {
+  .directive('osList', function($http, $timeout, $parse, osRightDrawerSvc, ApiUrls, CheckList, ListPagerOpts, Util) {
 
     function getUrl() {
       return ApiUrls.getBaseUrl() + 'lists/';
@@ -25,7 +25,13 @@ angular.module('openspecimen')
 
         initCtrl: '&',
 
-        emptyState: '='
+        emptyState: '=',
+
+        starredExpr: '@',
+
+        starItems: '@',
+
+        toggleItemStar: '&'
       },
 
       controller: function($scope) {
@@ -109,6 +115,8 @@ angular.module('openspecimen')
                 hideEmptyColumns(ctx.data);
               }
 
+              showStarredItems($scope.starredExpr, ctx.data);
+
               pagerOpts.refreshOpts(resp.data.rows);
               if (ctx.data.rows.length > 12 && ctrl.haveFilters) {
                 osRightDrawerSvc.open();
@@ -179,6 +187,19 @@ angular.module('openspecimen')
                   return row.data[idx] == 'Not Specified' || (!row.data[idx] && row.data[idx] != 0);
                 }
               );
+            }
+          );
+        }
+
+        function showStarredItems(starredExpr, data) {
+          if (!starredExpr) {
+            return;
+          }
+
+          var pe = $parse(starredExpr);
+          angular.forEach(data.rows,
+            function(row) {
+              row.$$starred = pe({row: row});
             }
           );
         }
