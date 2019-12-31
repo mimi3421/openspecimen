@@ -14,7 +14,7 @@
     <div class="search">
       <div ng-include src="'modules/common/search/search.html'"></div>
     </div>
-    <ul class="menu">
+    <ul class="menu" ng-class="{'os-hide-nav-buttons': global.hideNavButtons}">
       <li class="dropdown" dropdown os-tooltip="{{'common.tooltip.user_profile' | translate}}">
         <a class="dropdown-toggle">
           <span class="fa fa-user"></span>
@@ -50,7 +50,7 @@
           </li>
         </ul>
       </li>
-      <li class="dropdown" dropdown os-tooltip="{{'common.tooltip.online_help' | translate}}">
+      <li class="dropdown info" dropdown os-tooltip="{{'common.tooltip.online_help' | translate}}">
         <a class="dropdown-toggle">
           <span class="fa fa-question-circle"></span>
         </a>

@@ -12,7 +12,7 @@
       </div>
     </div>
 
-    <ul class="menu" ui-view="nav-buttons"></ul>
+    <ul class="menu" ng-class="{'os-hide-nav-buttons': global.hideNavButtons}" ui-view="nav-buttons"></ul>
   </div>
 
   <div os-content="os-navbar">
