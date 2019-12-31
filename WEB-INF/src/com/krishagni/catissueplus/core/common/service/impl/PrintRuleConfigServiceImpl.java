@@ -102,7 +102,7 @@ public class PrintRuleConfigServiceImpl implements PrintRuleConfigService {
 
 			PrintRuleConfig rule = printRuleConfigFactory.createPrintRuleConfig(detail);
 			existing.update(rule);
-			EventPublisher.getInstance().publish(PrintRuleEvent.DELETED, existing);
+			EventPublisher.getInstance().publish(PrintRuleEvent.UPDATED, existing);
 			return ResponseEvent.response(PrintRuleConfigDetail.from(existing));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);

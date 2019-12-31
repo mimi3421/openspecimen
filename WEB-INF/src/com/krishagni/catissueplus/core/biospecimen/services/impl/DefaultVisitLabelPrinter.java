@@ -3,37 +3,28 @@ package com.krishagni.catissueplus.core.biospecimen.services.impl;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.MessageSource;
+import org.springframework.context.ApplicationListener;
 import org.springframework.security.web.util.matcher.IpAddressMatcher;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.biospecimen.ConfigParams;
 import com.krishagni.catissueplus.core.biospecimen.domain.Visit;
 import com.krishagni.catissueplus.core.biospecimen.events.FileDetail;
-import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
-import com.krishagni.catissueplus.core.common.domain.LabelPrintJob;
-import com.krishagni.catissueplus.core.common.domain.LabelPrintJobItem;
-import com.krishagni.catissueplus.core.common.domain.LabelPrintJobItem.Status;
+import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.domain.LabelPrintRule;
 import com.krishagni.catissueplus.core.common.domain.LabelTmplToken;
-import com.krishagni.catissueplus.core.common.domain.LabelTmplTokenRegistrar;
-import com.krishagni.catissueplus.core.common.domain.PrintItem;
-import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
+import com.krishagni.catissueplus.core.common.events.OpenSpecimenEvent;
 import com.krishagni.catissueplus.core.common.service.ConfigChangeListener;
 import com.krishagni.catissueplus.core.common.service.ConfigurationService;
-import com.krishagni.catissueplus.core.common.util.AuthUtil;
 
-public class DefaultVisitLabelPrinter extends AbstractLabelPrinter<Visit> implements InitializingBean, ConfigChangeListener {
+public class DefaultVisitLabelPrinter extends AbstractLabelPrinter<Visit> implements InitializingBean, ConfigChangeListener, ApplicationListener<OpenSpecimenEvent> {
 	private static final Log logger = LogFactory.getLog(DefaultVisitLabelPrinter.class);
 	
 	private ConfigurationService cfgSvc;
@@ -169,8 +160,13 @@ public class DefaultVisitLabelPrinter extends AbstractLabelPrinter<Visit> implem
 			if (badTokens) {
 				return null;
 			}
-			
-			rule.setDataTokens(tokens);
+
+			List<Pair<LabelTmplToken, List<String>>> dataTokens = new ArrayList<>();
+			for (LabelTmplToken token : tokens) {
+				dataTokens.add(Pair.make(token, new ArrayList<>()));
+			}
+
+			rule.setDataTokens(dataTokens);
 			rule.setLabelDesign(ruleLineFields[idx++]);
 			rule.setPrinterName(ruleLineFields[idx++]);
 			rule.setCmdFilesDir(ruleLineFields[idx++]);

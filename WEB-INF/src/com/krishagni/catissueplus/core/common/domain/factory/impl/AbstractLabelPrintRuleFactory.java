@@ -3,7 +3,6 @@ package com.krishagni.catissueplus.core.common.domain.factory.impl;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -127,8 +126,7 @@ public abstract class AbstractLabelPrintRuleFactory implements LabelPrintRuleFac
 		}
 
 		List<String> invalidTokenNames = new ArrayList<>();
-		List<LabelTmplToken> dataTokens = new ArrayList<>();
-		Map<LabelTmplToken, List<String>> tokenArgsMap = new HashMap<>();
+		List<Pair<LabelTmplToken, List<String>>> dataTokens = new ArrayList<>();
 
 		List<String> tokenNames = parseTokens(input.get("dataTokens"));
 		for (String key : tokenNames) {
@@ -137,8 +135,7 @@ public abstract class AbstractLabelPrintRuleFactory implements LabelPrintRuleFac
 			if (token == null) {
 				invalidTokenNames.add(key);
 			} else {
-				dataTokens.add(token);
-				tokenArgsMap.put(token, tokenArgs.second());
+				dataTokens.add(Pair.make(token, tokenArgs.second()));
 			}
 		}
 
@@ -147,7 +144,6 @@ public abstract class AbstractLabelPrintRuleFactory implements LabelPrintRuleFac
 		}
 
 		rule.setDataTokens(dataTokens);
-		rule.setDataTokenArgsMap(tokenArgsMap);
 	}
 
 	private void setCmdFilesDir(Map<String, String> input, boolean failOnError, LabelPrintRule rule, OpenSpecimenException ose) {

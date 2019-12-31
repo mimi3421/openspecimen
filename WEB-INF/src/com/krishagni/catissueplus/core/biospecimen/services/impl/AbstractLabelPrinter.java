@@ -15,7 +15,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.context.ApplicationListener;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.krishagni.catissueplus.core.administrative.domain.User;
@@ -37,7 +36,7 @@ import com.krishagni.catissueplus.core.common.service.LabelPrinter;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.catissueplus.core.common.util.Utility;
 
-public abstract class AbstractLabelPrinter<T> implements LabelPrinter<T>, ApplicationListener<OpenSpecimenEvent> {
+public abstract class AbstractLabelPrinter<T> implements LabelPrinter<T> {
 	//
 	// format: <entity_type>_<yyyyMMddHHmm>_<unique_os_run_num>_<copy>.txt
 	// E.g. specimen_201604040807_1_1.txt, specimen_201604040807_1_2.txt, visit_201604040807_1_1.txt etc
@@ -138,7 +137,6 @@ public abstract class AbstractLabelPrinter<T> implements LabelPrinter<T>, Applic
 		}
 	}
 
-	@Override
 	public void onApplicationEvent(OpenSpecimenEvent event) {
 		EventCode code = event.getEventCode();
 		if (code != PrintRuleEvent.CREATED && code != PrintRuleEvent.UPDATED && code != PrintRuleEvent.DELETED) {

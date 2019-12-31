@@ -15,6 +15,7 @@ import org.springframework.security.web.util.matcher.IpAddressMatcher;
 import org.springframework.util.ReflectionUtils;
 
 import com.krishagni.catissueplus.core.administrative.domain.User;
+import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.util.MessageUtil;
 import com.krishagni.catissueplus.core.common.util.Utility;
@@ -54,9 +55,7 @@ public abstract class LabelPrintRule {
 
 	private String labelDesign;
 
-	private List<LabelTmplToken> dataTokens = new ArrayList<>();
-
-	private Map<LabelTmplToken, List<String>> dataTokenArgsMap = new HashMap<>();
+	private List<Pair<LabelTmplToken, List<String>>> dataTokens = new ArrayList<>();
 
 	private CmdFileFmt cmdFileFmt = CmdFileFmt.KEY_VALUE;
 
@@ -116,20 +115,12 @@ public abstract class LabelPrintRule {
 		this.labelDesign = labelDesign;
 	}
 
-	public List<LabelTmplToken> getDataTokens() {
+	public List<Pair<LabelTmplToken, List<String>>> getDataTokens() {
 		return dataTokens;
 	}
 
-	public void setDataTokens(List<LabelTmplToken> dataTokens) {
+	public void setDataTokens(List<Pair<LabelTmplToken, List<String>>> dataTokens) {
 		this.dataTokens = dataTokens;
-	}
-
-	public Map<LabelTmplToken, List<String>> getDataTokenArgsMap() {
-		return dataTokenArgsMap;
-	}
-
-	public void setDataTokenArgsMap(Map<LabelTmplToken, List<String>> dataTokenArgsMap) {
-		this.dataTokenArgsMap = dataTokenArgsMap;
 	}
 
 	public CmdFileFmt getCmdFileFmt() {
@@ -176,8 +167,9 @@ public abstract class LabelPrintRule {
 				dataItems.put(getMessageStr("PRINTER"), printerName);
 			}
 			
-			for (LabelTmplToken token : dataTokens) {
-				List<String> args = dataTokenArgsMap.get(token);
+			for (Pair<LabelTmplToken, List<String>> tokenArgs : dataTokens) {
+				LabelTmplToken token = tokenArgs.first();
+				List<String> args = tokenArgs.second();
 
 				String name = token.getName();
 				if (name.equals("eval") && args.size() > 1) {
@@ -204,6 +196,7 @@ public abstract class LabelPrintRule {
 			.append(", printer = ").append(getPrinterName());
 
 		String tokens = getDataTokens().stream()
+			.map(Pair::first)
 			.map(LabelTmplToken::getName)
 			.collect(Collectors.joining(";"));
 		result.append(", tokens = ").append(tokens);
@@ -244,14 +237,15 @@ public abstract class LabelPrintRule {
 
 	private String getTokens() {
 		StringBuilder tokenStr = new StringBuilder();
-		for (LabelTmplToken token : dataTokens) {
+		for (Pair<LabelTmplToken, List<String>> tokenArgs : dataTokens) {
 			if (tokenStr.length() > 0) {
 				tokenStr.append(",");
 			}
 
-			tokenStr.append(token.getName());
+			LabelTmplToken token = tokenArgs.first();
+			List<String> args = tokenArgs.second();
 
-			List<String> args = dataTokenArgsMap.get(token);
+			tokenStr.append(token.getName());
 			if (args != null && !args.isEmpty()) {
 				tokenStr.append("(").append(String.join(",", args)).append(")");
 			}

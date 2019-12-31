@@ -23,6 +23,7 @@ import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenLabelPrintRule;
 import com.krishagni.catissueplus.core.biospecimen.events.FileDetail;
+import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.domain.LabelPrintRule;
 import com.krishagni.catissueplus.core.common.domain.LabelTmplToken;
@@ -168,7 +169,12 @@ public class DefaultSpecimenLabelPrinter extends AbstractLabelPrinter<Specimen> 
 			tokens.add(token);
 		}
 
-		rule.setDataTokens(tokens);
+		List<Pair<LabelTmplToken, List<String>>> dataTokens = new ArrayList<>();
+		for (LabelTmplToken token : tokens) {
+			dataTokens.add(Pair.make(token, new ArrayList<>()));
+		}
+
+		rule.setDataTokens(dataTokens);
 		rule.setLabelDesign(ruleLineFields[idx++]);
 		rule.setPrinterName(ruleLineFields[idx++]);
 		rule.setCmdFilesDir(ruleLineFields[idx++]);
