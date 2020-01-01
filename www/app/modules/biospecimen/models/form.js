@@ -170,13 +170,18 @@ angular.module('os.biospecimen.models.form', ['os.common.models'])
       } else {
         $http.get(Form.url() + this.$id() + '/fields', {params: params}).then(
           function(resp) {
-            that.fields = resp.data;
+            that.fields = resp.data.filter(
+              function(field) {
+                return field.name.indexOf('__') != 0;
+              }
+            );
+
             that.staticFields = flattenStaticFields("", that.fields);
             that.extnForms = getExtnForms("", that.fields);
             that.extnFields = flattenExtnFields(that.extnForms);
 
             d.resolve(that.fields);
-            return resp.data;
+            return that.fields;
           }
         );
       }

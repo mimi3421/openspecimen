@@ -7,8 +7,9 @@
     <table class="os-table os-table-hover">
       <thead class="os-table-head">
         <tr class="row">
-          <th class="col" ng-if="enableSelection == 'true' || enableSelection == true ||
-            starItems == 'true' || starItems == true">
+          <th class="col" ng-class="{'os-col-5': (enableSelection == 'true' || enableSelection == true) &&
+            (starItems == 'true' || starItems == true)}"
+            ng-if="enableSelection == 'true' || enableSelection == true || starItems == 'true' || starItems == true">
             <div class="os-select-specimen-cb" ng-show="enableSelection == 'true' || enableSelection == true">
               <os-checkbox ng-change="checkList.toggleSelectAll()" ng-model="checkList.allSelected"></os-checkbox>
             </div>

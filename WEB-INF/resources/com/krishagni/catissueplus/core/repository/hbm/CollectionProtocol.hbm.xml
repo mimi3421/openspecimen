@@ -151,13 +151,11 @@
       <return-scalar column="cpId" type="long"/>
       <return-scalar column="participantCnt" type="long"/>
       <return-scalar column="specimenCnt" type="long"/>
-      <return-scalar column="starred" type="long"/>
 
       select 
         cp.identifier as cpId,
         case cp.specimen_centric when 0 then count(distinct cpr.identifier) else -1 end as participantCnt,
-        count(distinct sp.identifier) as specimenCnt,
-        max(si.user_id) as starred
+        count(distinct sp.identifier) as specimenCnt
       from 
         catissue_collection_protocol cp 
         left join catissue_coll_prot_reg cpr 
@@ -170,10 +168,6 @@
           on sp.specimen_collection_group_id = scg.identifier and 
              sp.collection_status = 'Collected' and 
              sp.activity_status != 'Disabled'
-        left join os_starred_items si
-          on si.item_type = 'collection_protocol' and
-             si.item_id = cp.identifier and
-             si.user_id = :userId
       where
         cp.identifier in (:cpIds) and
         cp.activity_status != 'Disabled'

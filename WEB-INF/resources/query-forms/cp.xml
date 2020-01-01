@@ -206,6 +206,27 @@
         </row>
       </subForm>
     </row>
+
+    <row>
+      <subForm>
+        <name>__userLabels</name>
+        <udn>__userLabels</udn>
+        <caption>User Labels</caption>
+        <table>OS_STARRED_CPS_VIEW</table>
+        <parentKey>IDENTIFIER</parentKey>
+        <foreignKey>CP_ID</foreignKey>
+
+        <row>
+          <numberField>
+            <name>userId</name>
+            <udn>userId</udn>
+            <caption>User ID</caption>
+            <column>USER_ID</column>
+          </numberField>
+        </row>
+      </subForm>
+    </row>
+
     <row>
       <subForm>
         <name>customFields</name>

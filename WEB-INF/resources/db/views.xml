@@ -235,4 +235,15 @@
         inner join catissue_permissible_value pv on pv.identifier = cd.clinical_diagnosis_id
     </createView>
   </changeSet>
+
+  <changeSet author="vpawar" id="Starred CPs view" runOnChange="true">
+    <createView viewName="OS_STARRED_CPS_VIEW" replaceIfExists="true">
+      select
+        si.item_id as cp_id, si.user_id as user_id
+      from
+        os_starred_items si
+      where
+        si.item_type = 'collection_protocol'
+    </createView>
+  </changeSet>
 </databaseChangeLog>

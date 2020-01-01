@@ -2094,6 +2094,12 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 		catalogId.setExpr("CollectionProtocol.catalogId");
 		catalogId.setCaption("catalogId");
 		hiddenColumns.add(catalogId);
+
+		Column starred = new Column();
+		starred.setExpr("CollectionProtocol.__userLabels.userId");
+		starred.setCaption("starred");
+		starred.setDirection("desc");
+		hiddenColumns.add(starred);
 		cfg.setHiddenColumns(hiddenColumns);
 
 		List<Column> fixedColumns = new ArrayList<>();
@@ -2123,34 +2129,26 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 				List<Object[]> dbRows = sessionFactory.getCurrentSession()
 					.getNamedQuery(CollectionProtocol.class.getName() + ".getParticipantAndSpecimenCount")
 					.setParameterList("cpIds", cpRows.keySet())
-					.setParameter("userId", AuthUtil.getCurrentUser().getId())
 					.list();
 
 				for (Object[] dbRow : dbRows) {
 					int idx = -1;
 					Long cpId = ((Number) dbRow[++idx]).longValue();
-					Row cpRow = cpRows.get(cpId);
-					cpRow.setFixedData(new Object[] {dbRow[++idx], dbRow[++idx]});
-					cpRow.getHidden().put("starred", dbRow[++idx]);
+					cpRows.get(cpId).setFixedData(new Object[] {dbRow[++idx], dbRow[++idx]});
 				}
 
-				return rows.stream().sorted(
-					(row1, row2) -> {
-						Long s1 = (Long) row1.getHidden().get("starred");
-						Long s2 = (Long) row2.getHidden().get("starred");
-						if (s1 != null && s2 != null) {
-							return Long.compare(s1, s2);
-						} else if (s1 != null) {
-							return -1;
-						} else if (s2 != null) {
-							return 1;
-						} else {
-							return 0;
-						}
-					}
-				).collect(Collectors.toList());
+				return rows;
 			}
 		);
+
+		List<Column> orderBy = cfg.getOrderBy();
+		if (orderBy == null) {
+			orderBy = new ArrayList<>();
+			cfg.setOrderBy(orderBy);
+		}
+		orderBy.add(0, starred);
+
+		cfg.setRestriction(String.format(USR_LABELS_RESTRICTION, AuthUtil.getCurrentUser().getId()));
 
 		Set<SiteCpPair> cpSites = AccessCtrlMgr.getInstance().getReadableSiteCps();
 		if (cpSites == null) {
@@ -2163,7 +2161,7 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 
 		String cpSitesRestriction = BiospecimenDaoHelper.getInstance().getSiteCpsCondAqlForCps(cpSites);
 		if (StringUtils.isNotBlank(cpSitesRestriction)) {
-			cfg.setRestriction(cpSitesRestriction);
+			cfg.setRestriction(String.format(AND_COND, cfg.getRestriction(), cpSitesRestriction));
 			cfg.setDistinct(true);
 		}
 
@@ -2304,4 +2302,9 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 	private static final int OP_CP_CREATED = 0;
 
 	private static final int OP_CP_DELETED = 2;
+
+	private static final String USR_LABELS_RESTRICTION =
+		"(CollectionProtocol.__userLabels.userId not exists or CollectionProtocol.__userLabels.userId = %d)";
+
+	private static final String AND_COND = "(%s) and (%s)";
 }
