@@ -146,7 +146,7 @@ body {
   background: inherit;
 }
 
-.os-navbar ul.menu.os-hide-nav-buttons li:not(.info) {
+.os-navbar ul.menu.os-hide-nav-buttons > li:not(.info) {
   display: none;
 }
 
