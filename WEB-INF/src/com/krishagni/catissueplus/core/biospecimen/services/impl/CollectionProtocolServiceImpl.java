@@ -110,6 +110,7 @@ import com.krishagni.catissueplus.core.common.util.MessageUtil;
 import com.krishagni.catissueplus.core.common.util.NotifUtil;
 import com.krishagni.catissueplus.core.common.util.Status;
 import com.krishagni.catissueplus.core.common.util.Utility;
+import com.krishagni.catissueplus.core.init.AppProperties;
 import com.krishagni.catissueplus.core.query.Column;
 import com.krishagni.catissueplus.core.query.ListConfig;
 import com.krishagni.catissueplus.core.query.ListDetail;
@@ -2098,7 +2099,7 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 		Column starred = new Column();
 		starred.setExpr("CollectionProtocol.__userLabels.userId");
 		starred.setCaption("starred");
-		starred.setDirection("desc");
+		starred.setDirection(isOracle() ? "asc" : "desc");
 		hiddenColumns.add(starred);
 		cfg.setHiddenColumns(hiddenColumns);
 
@@ -2277,6 +2278,13 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 		}
 
 		return stmt;
+	}
+
+	private boolean isOracle() {
+		String dbType = AppProperties.getInstance().getProperties()
+			.getProperty("database.type", "mysql")
+			.toLowerCase();
+		return dbType.equalsIgnoreCase("oracle");
 	}
 
 	private static final String PPID_MSG                     = "cp_ppid";
