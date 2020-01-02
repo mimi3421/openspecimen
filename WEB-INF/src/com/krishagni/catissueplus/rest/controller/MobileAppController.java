@@ -49,6 +49,13 @@ public class MobileAppController {
 
 	private MobileAppService mobileAppSvc = new MobileAppServiceImpl();
 
+	@RequestMapping(method = RequestMethod.GET, value="/ping")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public Map<String, String> ping(@RequestParam("msg") String msg) {
+		return Collections.singletonMap("pong", msg);
+	}
+
 	@RequestMapping(method = RequestMethod.GET, value = "/collection-protocol")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
