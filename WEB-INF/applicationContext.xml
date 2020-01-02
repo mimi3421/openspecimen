@@ -385,6 +385,7 @@
         <bean class="com.krishagni.catissueplus.core.biospecimen.label.specimen.ParentSpecimenGreekLetterSequence"/>
         <bean class="com.krishagni.catissueplus.core.biospecimen.label.specimen.PrimarySpecimenLabelToken"/>
         <bean class="com.krishagni.catissueplus.core.biospecimen.label.specimen.SpecimenTypeAbbrUniqueIdLabelToken"/>
+        <bean class="com.krishagni.catissueplus.core.biospecimen.label.specimen.VisitSpecPathStatusLabelToken"/>
         <bean class="com.krishagni.catissueplus.core.common.EvalExprLabelToken">
           <property name="objectName" value="specimen"/>
         </bean>
