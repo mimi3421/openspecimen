@@ -82,6 +82,7 @@ public class OldPasswordNotification implements ScheduledTask {
 		emailProps.put("token", getPasswordUpdateToken(user));
 		emailProps.put("user", user);
 		emailProps.put("ccAdmin", false);
+		emailProps.put("ignoreDnd", true);
 		String[] rcpts = {user.getEmailAddress()};
 		EmailUtil.getInstance().sendEmail(OLD_PASSWORD_NOTIF, rcpts, null, emailProps);
 

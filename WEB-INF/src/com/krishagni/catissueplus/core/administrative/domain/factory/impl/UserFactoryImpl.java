@@ -53,6 +53,7 @@ public class UserFactoryImpl implements UserFactory {
 		setAddress(detail, user, ose);
 		setAuthDomain(detail, user, ose);
 		setManageForms(detail, user, ose);
+		setDnd(detail, user, ose);
 		setTimeZone(detail, user, ose);
 		user.setCreationDate(Calendar.getInstance().getTime());
 		ose.checkAndThrow();
@@ -77,6 +78,7 @@ public class UserFactoryImpl implements UserFactory {
 		setAddress(detail, existing, user, ose);
 		setAuthDomain(detail, existing, user, ose);
 		setManageForms(detail, existing, user, ose);
+		setDnd(detail, existing, user, ose);
 		setTimeZone(detail, existing, user, ose);
 		ose.checkAndThrow();
 		return user;		
@@ -338,6 +340,18 @@ public class UserFactoryImpl implements UserFactory {
 		} else {
 			user.setManageForms(existing.getManageForms());
 		}
+	}
+
+	private void setDnd(UserDetail detail, User existing, User user, OpenSpecimenException ose) {
+		if (detail.isAttrModified("dnd")) {
+			setDnd(detail, user, ose);
+		} else {
+			user.setDnd(existing.getDnd());
+		}
+	}
+
+	private void setDnd(UserDetail detail, User user, OpenSpecimenException ose) {
+		user.setDnd(detail.getDnd());
 	}
 
 	private void setTimeZone(UserDetail detail, User user, OpenSpecimenException ose) {

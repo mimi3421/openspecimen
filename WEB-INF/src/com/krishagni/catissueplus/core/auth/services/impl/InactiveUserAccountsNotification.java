@@ -49,6 +49,7 @@ public class InactiveUserAccountsNotification implements ScheduledTask {
 	private void sendAccountLockedNotif(User user) {
 		Map<String, Object> props = new HashMap<>();
 		props.put("user", user);
+		props.put("ignoreDnd", true);
 		String[] rcpts = {user.getEmailAddress()};
 		emailSvc.sendEmail(ACCOUNT_LOCKED_NOTIF, rcpts, props);
 	}

@@ -30,6 +30,7 @@ import com.krishagni.catissueplus.core.administrative.domain.UserUiState;
 import com.krishagni.catissueplus.core.administrative.repository.UserDao;
 import com.krishagni.catissueplus.core.administrative.repository.UserListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
+import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.repository.AbstractDao;
 import com.krishagni.catissueplus.core.common.util.Status;
@@ -224,11 +225,17 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public Map<String, String> getEmailIdUserTypes(Collection<String> emailIds) {
-		List<Object[]> rows = getCurrentSession().getNamedQuery(GET_EMAIL_ID_TYPES)
+	public Map<String, Pair<String, Boolean>> getEmailIdUserTypesAndDnds(Collection<String> emailIds) {
+		List<Object[]> rows = getCurrentSession().getNamedQuery(GET_EMAIL_ID_TYPES_AND_DNDS)
 			.setParameterList("emailIds", emailIds)
 			.list();
-		return rows.stream().collect(Collectors.toMap(row -> (String)row[0], row -> ((User.Type)row[1]).name()));
+
+		return rows.stream().collect(
+			Collectors.toMap(
+				row -> (String) row[0],
+				row -> Pair.make(((User.Type) row[1]).name(), (Boolean) row[2])
+			)
+		);
 	}
 
 	@Override
@@ -520,7 +527,7 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 	
 	private static final String UPDATE_STATUS = FQN + ".updateStatus";
 
-	private static final String GET_EMAIL_ID_TYPES = FQN + ".getEmailIdTypes";
+	private static final String GET_EMAIL_ID_TYPES_AND_DNDS = FQN + ".getEmailIdTypesAndDnds";
 
 	private static final String GET_STATE = UserUiState.class.getName() + ".getState";
 }

@@ -10,6 +10,7 @@ import com.krishagni.catissueplus.core.administrative.domain.ForgotPasswordToken
 import com.krishagni.catissueplus.core.administrative.domain.Password;
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.administrative.domain.UserUiState;
+import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.repository.Dao;
 
@@ -58,6 +59,6 @@ public interface UserDao extends Dao<User> {
 
 	UserUiState getState(Long userId);
 
-	// [{emailId, type}, {'abc@localhost', 'SUPER'}]
-	Map<String, String> getEmailIdUserTypes(Collection<String> emailIds);
+	// [{emailId, Pair<Type, DND>}, {'abc@localhost', Pair<'SUPER', true>}]
+	Map<String, Pair<String, Boolean>> getEmailIdUserTypesAndDnds(Collection<String> emailIds);
 }

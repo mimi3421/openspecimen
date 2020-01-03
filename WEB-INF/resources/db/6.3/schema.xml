@@ -441,4 +441,13 @@
       constraintName="OS_STARRED_ITEM_UQ"
       tableName="OS_STARRED_ITEMS" columnNames="USER_ID, ITEM_TYPE, ITEM_ID"/>
   </changeSet>
+
+  <changeSet author="single" id="Add DND option for email notification to user">
+    <addColumn tableName="CATISSUE_USER">
+      <column name="DND" type="${boolean.type}" defaultValueBoolean="0">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
 </databaseChangeLog>

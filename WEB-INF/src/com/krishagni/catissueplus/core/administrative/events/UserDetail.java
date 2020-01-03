@@ -43,6 +43,8 @@ public class UserDetail extends AttributeModifiedSupport {
 
 	private boolean manageForms;
 
+	private boolean dnd;
+
 	private String address;
 
 	private String timeZone;
@@ -147,6 +149,14 @@ public class UserDetail extends AttributeModifiedSupport {
 		this.manageForms = manageForms;
 	}
 
+	public Boolean getDnd() {
+		return dnd;
+	}
+
+	public void setDnd(Boolean dnd) {
+		this.dnd = dnd;
+	}
+
 	public String getAddress() {
 		return address;
 	}
@@ -197,6 +207,7 @@ public class UserDetail extends AttributeModifiedSupport {
 		detail.setType(user.getType() != null ? user.getType().name() : null);
 		detail.setPhoneNumber(user.getPhoneNumber());
 		detail.setManageForms(user.getManageForms());
+		detail.setDnd(user.getDnd());
 		detail.setTimeZone(user.getTimeZone());
 		detail.setAddress(user.getAddress());
 		detail.setCreationDate(user.getCreationDate());

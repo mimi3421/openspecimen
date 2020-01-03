@@ -64,5 +64,11 @@
       <caption>#getMessage("user_activity_status")</caption>
       <attribute>activityStatus</attribute>
     </field>
+
+    <field>
+      <type>boolean</type>
+      <caption>#getMessage("user_dnd")</caption>
+      <attribute>dnd</attribute>
+    </field>
   </record>
 </object-schema>

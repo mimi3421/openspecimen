@@ -273,6 +273,7 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
 		emailProps.put("failedLoginAttempts", failedLoginAttempts);
 		emailProps.put("$subject", subjParams);
 		emailProps.put("ccAdmin", false);
+		emailProps.put("ignoreDnd", true);
 
 		List<User> rcpts = daoFactory.getUserDao().getSuperAndInstituteAdmins(lockedUser.getInstitute().getName());
 		if (!rcpts.contains(lockedUser)) {

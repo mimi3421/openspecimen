@@ -80,4 +80,11 @@
       <column name="activityStatus_MOD" type="${boolean.type}"/>
     </createTable>
   </changeSet>
+
+  <changeSet author="single" id="User DND activity log">
+    <addColumn tableName="CATISSUE_USER_AUD">
+      <column name="DND" type="${boolean.type}"/>
+      <column name="dnd_MOD" type="${boolean.type}"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

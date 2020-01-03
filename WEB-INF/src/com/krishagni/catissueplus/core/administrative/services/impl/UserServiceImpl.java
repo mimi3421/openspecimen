@@ -759,7 +759,8 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 		Map<String, Object> props = new HashMap<String, Object>();
 		props.put("user", user);
 		props.put("token", token);
-		
+		props.put("ignoreDnd", true);
+
 		emailService.sendEmail(FORGOT_PASSWORD_EMAIL_TMPL, new String[]{user.getEmailAddress()}, props);
 	}
 	
@@ -775,7 +776,8 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 		props.put("user", user);
 		props.put("token", token);
 		props.put("ccAdmin", false);
-		
+		props.put("ignoreDnd", true);
+
 		EmailUtil.getInstance().sendEmail(USER_CREATED_EMAIL_TMPL, new String[]{user.getEmailAddress()}, null, props);
 	}
 
@@ -1008,6 +1010,7 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 		props.put("user", AuthUtil.getCurrentUser());
 		props.put("$subject", new String[] { detail.getSubject() });
 		props.put("annDetail", detail);
+		props.put("ignoreDnd", true);
 		emailService.sendEmail(ANNOUNCEMENT_EMAIL_TMPL, adminEmailAddr, rcpts, null, props);
 	}
 
