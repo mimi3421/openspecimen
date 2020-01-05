@@ -969,7 +969,7 @@
             <name>customFields</name>
             <udn>customFields</udn>
             <caption>#getMessage("specimen_order_extensions")</caption>
-            <table>OS_ORDERS_CUSTOM_FIELDS_VIEW</table>
+            <table>OS_ORDER_CUST_FIELDS</table>
             <foreignKey>ORDER_ID</foreignKey>
             <parentKey>ORDER_ID</parentKey>
             <customFieldsInfo>false:OrderExtension:-1</customFieldsInfo>
@@ -1207,7 +1207,7 @@
         <name>extensions</name>
         <udn>extensions</udn>
         <caption>#getMessage("specimen_extensions")</caption>
-        <table>SPECIMEN_EXTN_RECORDS_VIEW</table>
+        <table>OS_SPMN_EXTN_RECS</table>
         <foreignKey>SPECIMEN_ID</foreignKey>
         <parentKey>IDENTIFIER</parentKey>
         <pathLink>true</pathLink>
@@ -1243,8 +1243,8 @@
         <name>customFields</name>
         <udn>customFields</udn>
         <caption>#getMessage("specimen_field_extensions")</caption>
-        <table>OS_SPEC_CUST_FIELD_EXTNS_VIEW</table>
-        <foreignKey>SPEC_ID</foreignKey>
+        <table>OS_SPMN_CUST_FIELDS</table>
+        <foreignKey>SPECIMEN_ID</foreignKey>
         <parentKey>IDENTIFIER</parentKey>
         <pathLink>true</pathLink>
         <extnFkCol>RECORD_ID</extnFkCol>

@@ -90,4 +90,146 @@
         update set rv.specimen_id = t.specimen_id
     </sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="CP custom fields rec IDs">
+    <sql>
+      insert into
+        os_cp_cust_fields (cp_id, form_id, record_id)
+      select
+        re.object_id as cp_id, fc.container_id as form_id, re.record_id as record_id
+      from
+        catissue_form_record_entry re
+        inner join catissue_form_context fc on fc.identifier = re.form_ctxt_id
+      where
+        fc.entity_type = 'CollectionProtocolExtension' and
+        fc.deleted_on is null and
+        re.activity_status = 'ACTIVE'
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Participant extension form rec IDs">
+    <sql>
+      insert into
+        os_cpr_extn_recs (cpr_id, form_id, record_id)
+      select
+        re.object_id as cpr_id, fc.container_id as form_id, re.record_id as record_id
+      from
+        catissue_form_record_entry re
+        inner join catissue_form_context fc on fc.identifier = re.form_ctxt_id
+      where
+        fc.entity_type = 'Participant' and
+        fc.deleted_on is null and
+        re.activity_status = 'ACTIVE'
+    </sql>
+
+    <sql>
+      insert into
+        os_participant_extn_recs (participant_id, form_id, record_id)
+      select
+        re.object_id as participant_id, fc.container_id as form_id, re.record_id as record_id
+      from
+        catissue_form_record_entry re
+        inner join catissue_form_context fc on fc.identifier = re.form_ctxt_id
+      where
+        fc.entity_type = 'CommonParticipant' and
+        fc.deleted_on is null and
+        re.activity_status = 'ACTIVE'
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Participant custom fields rec IDs">
+    <sql>
+      insert into
+        os_participant_cust_fields (participant_id, form_id, record_id)
+      select
+        re.object_id as participant_id, fc.container_id as form_id, re.record_id as record_id
+      from
+        catissue_form_record_entry re
+        inner join catissue_form_context fc on fc.identifier = re.form_ctxt_id
+      where
+        fc.entity_type = 'ParticipantExtension' and
+        fc.deleted_on is null and
+        re.activity_status = 'ACTIVE'
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Visit extension rec IDs">
+    <sql>
+      insert into
+        os_visit_extn_recs (visit_id, form_id, record_id)
+      select
+        re.object_id as visit_id, fc.container_id as form_id, re.record_id as record_id
+      from
+        catissue_form_record_entry re
+        inner join catissue_form_context fc on fc.identifier = re.form_ctxt_id
+      where
+        fc.entity_type = 'SpecimenCollectionGroup' and
+        fc.deleted_on is null and
+        re.activity_status = 'ACTIVE'
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Visit custom fields rec IDs">
+    <sql>
+      insert into
+        os_visit_cust_fields (visit_id, form_id, record_id)
+      select
+        re.object_id as visit_id, fc.container_id as form_id, re.record_id as record_id
+      from
+        catissue_form_record_entry re
+        inner join catissue_form_context fc on fc.identifier = re.form_ctxt_id
+      where
+        fc.entity_type = 'VisitExtension' and
+        fc.deleted_on is null and
+        re.activity_status = 'ACTIVE'
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Specimen extension rec IDs">
+    <sql>
+      insert into
+        os_spmn_extn_recs (specimen_id, form_id, record_id)
+      select
+        re.object_id as specimen_id, fc.container_id as form_id, re.record_id as record_id
+      from
+        catissue_form_record_entry re
+        inner join catissue_form_context fc on fc.identifier = re.form_ctxt_id
+      where
+        fc.entity_type in ('Specimen', 'SpecimenEvent') and
+        fc.deleted_on is null and
+        re.activity_status = 'ACTIVE'
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Specimen custom fields rec IDs">
+    <sql>
+      insert into
+        os_spmn_cust_fields (specimen_id, form_id, record_id)
+      select
+        re.object_id as specimen_id, fc.container_id as form_id, re.record_id as record_id
+      from
+        catissue_form_record_entry re
+        inner join catissue_form_context fc on fc.identifier = re.form_ctxt_id
+      where
+        fc.entity_type = 'SpecimenExtension' and
+        fc.deleted_on is null and
+        re.activity_status = 'ACTIVE'
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Order custom fields rec IDs">
+    <sql>
+      insert into
+        os_order_cust_fields (order_id, form_id, record_id)
+      select
+        re.object_id as order_id, fc.container_id as form_id, re.record_id as record_id
+      from
+        catissue_form_record_entry re
+        inner join catissue_form_context fc on fc.identifier = re.form_ctxt_id
+      where
+        fc.entity_type = 'OrderExtension' and
+        fc.deleted_on is null and
+        re.activity_status = 'ACTIVE'
+    </sql>
+  </changeSet>
 </databaseChangeLog>

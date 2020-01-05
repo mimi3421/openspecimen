@@ -246,4 +246,21 @@
         si.item_type = 'collection_protocol'
     </createView>
   </changeSet>
+
+  <changeSet author="vpawar" id="Participant form rec IDs view">
+    <createView viewName="OS_CPR_EXTN_RECS_VIEW" replaceIfExists="true">
+      select
+        cpr_id, form_id, record_id
+      from
+        os_cpr_extn_recs
+
+      union all
+
+      select
+        cpr.identifier, p.form_id, p.record_id
+      from
+        catissue_coll_prot_reg cpr
+        inner join os_participant_extn_recs p on p.participant_id = cpr.participant_id
+    </createView>
+  </changeSet>
 </databaseChangeLog>

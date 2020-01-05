@@ -413,8 +413,8 @@
         <name>customFields</name>
         <udn>customFields</udn>
         <caption>#getMessage("participant_field_extensions")</caption>
-        <table>OS_PART_CUST_FIELD_EXTNS_VIEW</table>
-        <foreignKey>PID</foreignKey>
+        <table>OS_PARTICIPANT_CUST_FIELDS</table>
+        <foreignKey>PARTICIPANT_ID</foreignKey>
         <parentKey>PARTICIPANT_ID</parentKey>
         <pathLink>true</pathLink>
         <extnFkCol>RECORD_ID</extnFkCol>
@@ -425,7 +425,7 @@
         <name>extensions</name>
         <udn>extensions</udn>
         <caption>#getMessage("participant_extensions")</caption>
-        <table>CPR_EXTENSION_RECORDS_VIEW</table>
+        <table>OS_CPR_EXTN_RECS</table>
         <foreignKey>CPR_ID</foreignKey>
         <parentKey>CPR_ID</parentKey>
         <pathLink>true</pathLink>
