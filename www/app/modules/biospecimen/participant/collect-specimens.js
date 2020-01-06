@@ -412,7 +412,7 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
       };
 
       function isPending(spmn) {
-        return spmn.status == 'Pending';
+        return !spmn.status || spmn.status == 'Pending';
       }
 
       function isCollectedOrPending(spmn) {
