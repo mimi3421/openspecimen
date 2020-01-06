@@ -23,6 +23,11 @@
     </record>
     
     <field>
+      <caption>#getMessage("cp_identifier")</caption>
+      <attribute>id</attribute>
+    </field>
+
+    <field>
       <caption>#getMessage("cp_title")</caption>
       <attribute>title</attribute>
     </field>
@@ -158,5 +163,9 @@
       <caption>#getMessage("cp_activity_status")</caption>
       <attribute>activityStatus</attribute>
     </field>
+
+   <record type="customFields" entityType="CollectionProtocolExtension">
+     <attribute>extensionDetail</attribute>
+   </record>
   </record>
 </object-schema>
