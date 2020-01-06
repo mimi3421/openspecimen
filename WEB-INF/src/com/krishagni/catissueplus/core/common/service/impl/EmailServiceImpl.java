@@ -430,7 +430,7 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 	}
 
 	private boolean filterEmailId(String emailId, Map<String, Pair<String, Boolean>> settings, Boolean ignoreDnd) {
-		Pair<String, Boolean> setting = settings.getOrDefault(emailId, new Pair<>());
+		Pair<String, Boolean> setting = settings.getOrDefault(emailId, Pair.make(StringUtils.EMPTY, false));
 
 		if ("CONTACT".equals(setting.first()) || (!ignoreDnd && setting.second())) {
 			return false;
