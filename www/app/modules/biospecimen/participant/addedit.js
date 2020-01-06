@@ -54,7 +54,10 @@ angular.module('os.biospecimen.participant.addedit', ['os.biospecimen.models', '
       $scope.extnOpts = ExtensionsUtil.getExtnOpts(
         $scope.cpr.participant, extensionCtxt, $scope.disableFieldOpts.customFields);
 
-      $scope.cpr.participant.addPmi($scope.cpr.participant.newPmi());
+      if (!$scope.cpr.id || !$scope.cpr.participant.pmis || $scope.cpr.participant.pmis.length == 0) {
+        $scope.cpr.participant.addPmi($scope.cpr.participant.newPmi());
+      }
+
       if (!hasDict) {
         loadPvs();
       }

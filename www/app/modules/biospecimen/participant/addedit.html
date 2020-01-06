@@ -457,7 +457,7 @@
       </div>
 
       <div os-unique-items>
-        <div class="form-group clearfix" ng-repeat="pmi in cpr.participant.pmis">
+        <div class="form-group clearfix" ng-repeat="pmi in cpr.participant.pmis track by $index">
           <ng-form name="pmiForm" os-form-validator="pmiForm" parent-validator="pformValidator">
             <fieldset record-name="cpr.participant.pmis">
               <div class="col-xs-3 col-xs-offset-3" ng-switch on="!!partCtx.mrnAccessRestriction">
@@ -490,6 +490,14 @@
               </div>
             <fieldset>
           </ng-form>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="col-xs-offset-3 col-xs-9">
+          <button class="btn os-btn-text os-no-left-padding" ng-click="cpr.participant.addPmi(cpr.participant.newPmi())">
+            <span translate="common.buttons.add_another">Add Another</span>
+          </button>
         </div>
       </div>
     </div>
