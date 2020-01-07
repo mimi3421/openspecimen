@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,6 +28,9 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.SessionFactory;
+import org.hibernate.type.LongType;
+import org.hibernate.type.StringType;
+import org.hibernate.type.TimestampType;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -39,6 +43,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.krishagni.catissueplus.core.administrative.repository.FormListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
 import com.krishagni.catissueplus.core.biospecimen.domain.CpWorkflowConfig;
@@ -70,6 +75,7 @@ import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.MobileUploadJobDetail;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
+import com.krishagni.catissueplus.core.common.events.UserSummary;
 import com.krishagni.catissueplus.core.common.repository.MobileUploadJobsListCriteria;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.catissueplus.core.common.util.CsvException;
@@ -80,6 +86,10 @@ import com.krishagni.catissueplus.core.common.util.MessageUtil;
 import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.catissueplus.core.de.domain.FormErrorCode;
 import com.krishagni.catissueplus.core.de.events.FormDataDetail;
+import com.krishagni.catissueplus.core.de.events.FormRecordSummary;
+import com.krishagni.catissueplus.core.de.events.FormSummary;
+import com.krishagni.catissueplus.core.de.repository.FormDao;
+import com.krishagni.catissueplus.core.de.services.FormService;
 import com.krishagni.catissueplus.core.de.services.impl.ExtensionSchemaBuilder;
 import com.krishagni.catissueplus.core.importer.domain.ObjectSchema;
 import com.krishagni.catissueplus.core.importer.services.ObjectReader;
@@ -92,6 +102,7 @@ import edu.common.dynamicextensions.napi.ControlValue;
 import edu.common.dynamicextensions.napi.FormData;
 import edu.common.dynamicextensions.nutility.IoUtil;
 import edu.common.dynamicextensions.util.ZipUtility;
+import krishagni.catissueplus.beans.FormContextBean;
 
 @Configurable
 public class MobileAppServiceImpl implements MobileAppService, InitializingBean {
@@ -108,6 +119,12 @@ public class MobileAppServiceImpl implements MobileAppService, InitializingBean 
 
 	@Autowired
 	private SpecimenService spmnSvc;
+
+	@Autowired
+	private FormService formSvc;
+
+	@Autowired
+	private FormDao formDao;
 
 	@Autowired
 	private ThreadPoolTaskExecutor executor;
@@ -178,6 +195,50 @@ public class MobileAppServiceImpl implements MobileAppService, InitializingBean 
 
 	@Override
 	@PlusTransactional
+	public ResponseEvent<List<FormSummary>> getForms(RequestEvent<Map<String, Object>> req) {
+		try {
+			Map<String, Object> input = req.getPayload();
+			Number cpId = (Number) input.get("cpId");
+			if (cpId == null) {
+				return ResponseEvent.userError(CpErrorCode.REQUIRED);
+			}
+
+			String entity = (String) input.get("entity");
+			Map<String, Object> annotations = CpWorkflowTxnCache.getInstance().getValue(cpId.longValue(), "mobile-app", "additionalForms");
+			if (annotations == null) {
+				return ResponseEvent.response(Collections.emptyList());
+			}
+
+			List<String> names = (List<String>) annotations.get(entity);
+			if (names == null || names.isEmpty()) {
+				return ResponseEvent.response(Collections.emptyList());
+			}
+
+			FormListCriteria crit = new FormListCriteria().names(names).cpIds(Arrays.asList(-1L, cpId.longValue()));
+			switch (entity) {
+				case "registration":
+					crit.entityTypes(Arrays.asList("CommonParticipant", "Participant"));
+					break;
+
+				case "visit":
+					crit.entityTypes(Collections.singletonList("SpecimenCollectionGroup"));
+					break;
+
+				case "specimen":
+					crit.entityTypes(Collections.singletonList("Specimen"));
+					break;
+			}
+
+			return ResponseEvent.response(formDao.getEntityForms(crit));
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
+		} catch (Exception e) {
+			return ResponseEvent.serverError(e);
+		}
+	}
+
+	@Override
+	@PlusTransactional
 	public ResponseEvent<Map<String, Object>> saveFormData(RequestEvent<FormDataDetail> req) {
 		try {
 			FormDataDetail input = req.getPayload();
@@ -218,6 +279,10 @@ public class MobileAppServiceImpl implements MobileAppService, InitializingBean 
 					List<SpecimenDetail> aliquots = createAliquots(spec);
 					result = getFormData(formData.getContainer(), aliquots.get(0)).getFieldValueMap();
 					break;
+
+				case "saveFormData":
+					result = saveFormData(cpId.longValue(), formData).getFieldValueMap();
+					break;
 			}
 
 			return ResponseEvent.response(result);
@@ -248,6 +313,47 @@ public class MobileAppServiceImpl implements MobileAppService, InitializingBean 
 				default:
 					return null;
 			}
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
+		} catch (Exception e) {
+			return ResponseEvent.serverError(e);
+		}
+	}
+
+	@PlusTransactional
+	@Override
+	public ResponseEvent<List<FormRecordSummary>> getFormRecords(RequestEvent<Map<String, Object>> req) {
+		try {
+			Map<String, Object> input = req.getPayload();
+
+			Number objectId = (Number) input.get("objectId");
+			String entity = (String) input.get("entity");
+			if (!"registration".equals(entity)) {
+				return ResponseEvent.response(Collections.emptyList());
+			}
+
+			CollectionProtocolRegistration cpr = daoFactory.getCprDao().getById(objectId.longValue());
+			if (cpr == null) {
+				return ResponseEvent.userError(CprErrorCode.NOT_FOUND);
+			}
+
+			AccessCtrlMgr.getInstance().ensureReadCprRights(cpr);
+
+			Long cpId = cpr.getCollectionProtocol().getId();
+			Map<String, Object> annotations = CpWorkflowTxnCache.getInstance().getValue(cpId, "mobile-app", "additionalForms");
+			if (annotations == null) {
+				return ResponseEvent.response(Collections.emptyList());
+			}
+
+			List<String> names = (List<String>) annotations.get(entity);
+			if (names == null || names.isEmpty()) {
+				return ResponseEvent.response(Collections.emptyList());
+			}
+
+			List<FormRecordSummary> records = getFormRecords("Participant", cpr.getId(), names);
+			records.addAll(getFormRecords("CommonParticipant", cpr.getParticipant().getId(), names));
+			records.sort(Comparator.comparing(FormRecordSummary::getUpdateTime).reversed());
+			return ResponseEvent.response(records);
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {
@@ -797,6 +903,64 @@ public class MobileAppServiceImpl implements MobileAppService, InitializingBean 
 		return derivedDetail.getId();
 	}
 
+	private FormData saveFormData(Long cpId, FormData formData) {
+		FormDataDetail detail = new FormDataDetail();
+		detail.setFormId(formData.getContainer().getId());
+		detail.setFormData(formData);
+		detail.setRecordId(formData.getRecordId());
+
+		Container form = formData.getContainer();
+		Map<String, Object> appData = formData.getAppData();
+		String entityType = (String) appData.get("entityType");
+
+		FormContextBean fc = formDao.getFormContext(form.getId(), cpId, entityType);
+		if (fc == null) {
+			throw new IllegalArgumentException("Form " + form.getCaption() + " is not associated to the CP " + cpId + " at " + entityType);
+		}
+
+		appData.put("formCtxtId", fc.getIdentifier());
+		detail = ResponseEvent.unwrap(formSvc.saveFormData(RequestEvent.wrap(detail)));
+		return detail.getFormData();
+	}
+
+	private List<FormRecordSummary> getFormRecords(String entityType, Long objectId, List<String> formNames) {
+		List<Object[]> rows = sessionFactory.getCurrentSession().createSQLQuery(GET_RECORDS_SQL)
+			.addScalar("record_id", LongType.INSTANCE)
+			.addScalar("user_id", LongType.INSTANCE)
+			.addScalar("first_name", StringType.INSTANCE)
+			.addScalar("last_name", StringType.INSTANCE)
+			.addScalar("update_time", TimestampType.INSTANCE)
+			.addScalar("form_ctxt_id", LongType.INSTANCE)
+			.addScalar("entity_type", StringType.INSTANCE)
+			.addScalar("form_id", LongType.INSTANCE)
+			.addScalar("caption", StringType.INSTANCE)
+			.setParameter("entityType", entityType)
+			.setParameter("objectId", objectId)
+			.setParameterList("formNames", formNames)
+			.list();
+
+		List<FormRecordSummary> records = new ArrayList<>();
+		for (Object[] row : rows) {
+			int idx = -1;
+			FormRecordSummary record = new FormRecordSummary();
+			record.setRecordId((Long) row[++idx]);
+
+			UserSummary user = new UserSummary();
+			user.setId((Long) row[++idx]);
+			user.setFirstName((String) row[++idx]);
+			user.setLastName((String) row[++idx]);
+			record.setUser(user);
+			record.setUpdateTime((Date) row[++idx]);
+			record.setFcId((Long) row[++idx]);
+			record.setEntityType((String) row[++idx]);
+			record.setFormId((Long) row[++idx]);
+			record.setFormCaption((String) row[++idx]);
+			records.add(record);
+		}
+
+		return records;
+	}
+
 	//
 	// import routines
 	//
@@ -1174,4 +1338,24 @@ public class MobileAppServiceImpl implements MobileAppService, InitializingBean 
 	private static final String FIELD_SEPARATOR = ",";
 
 	private static final String JOB_STATUS_EMAIL_TMPL = "mobile_upload_status_notif";
+
+	private static final String GET_RECORDS_SQL =
+		"select" +
+		"  re.record_id, user.identifier as user_id, user.first_name, user.last_name, " +
+		"  re.update_time, fc.identifier as form_ctxt_id, fc.entity_type, " +
+		"  f.identifier as form_id, f.caption " +
+		"from " +
+		"  catissue_form_record_entry re " +
+		"  inner join catissue_form_context fc on fc.identifier = re.form_ctxt_id " +
+		"  inner join dyextn_containers f on f.identifier = fc.container_id " +
+		"  inner join catissue_user user on user.identifier = re.updated_by " +
+		"where " +
+		"  re.activity_status = 'ACTIVE' and " +
+		"  fc.deleted_on is null and " +
+		"  f.deleted_on is null and " +
+		"  re.object_id = :objectId and " +
+		"  fc.entity_type = :entityType and " +
+		"  f.name in (:formNames) " +
+		"order by " +
+		"  re.update_time desc";
 }

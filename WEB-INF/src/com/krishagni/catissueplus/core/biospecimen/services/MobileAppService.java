@@ -11,6 +11,8 @@ import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 import com.krishagni.catissueplus.core.common.repository.MobileUploadJobsListCriteria;
 import com.krishagni.catissueplus.core.de.events.FormDataDetail;
+import com.krishagni.catissueplus.core.de.events.FormRecordSummary;
+import com.krishagni.catissueplus.core.de.events.FormSummary;
 
 import edu.common.dynamicextensions.domain.nui.Container;
 
@@ -19,9 +21,13 @@ public interface MobileAppService {
 
 	ResponseEvent<Container> getForm(RequestEvent<Map<String, Object>> req);
 
+	ResponseEvent<List<FormSummary>> getForms(RequestEvent<Map<String, Object>> req);
+
 	ResponseEvent<Map<String, Object>> saveFormData(RequestEvent<FormDataDetail> req);
 
 	ResponseEvent<Map<String, Object>> getFormData(RequestEvent<Map<String, String>> req);
+
+	ResponseEvent<List<FormRecordSummary>> getFormRecords(RequestEvent<Map<String, Object>> req);
 
 	ResponseEvent<List<? extends SpecimenInfo>> getSpecimens(RequestEvent<SpecimenListCriteria> req);
 

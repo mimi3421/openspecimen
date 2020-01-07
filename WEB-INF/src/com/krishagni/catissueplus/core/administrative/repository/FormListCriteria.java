@@ -7,6 +7,8 @@ import com.krishagni.catissueplus.core.common.access.SiteCpPair;
 import com.krishagni.catissueplus.core.common.events.AbstractListCriteria;
 
 public class FormListCriteria extends AbstractListCriteria<FormListCriteria> {
+	private List<String> names;
+
 	private List<String> entityTypes;
 
 	private Long userId;
@@ -16,10 +18,19 @@ public class FormListCriteria extends AbstractListCriteria<FormListCriteria> {
 	private Boolean excludeSysForm;
 
 	private Set<SiteCpPair> siteCps;
-	
+
 	@Override
 	public FormListCriteria self() {
 		return this;
+	}
+
+	public List<String> names() {
+		return names;
+	}
+
+	public FormListCriteria names(List<String> names) {
+		this.names = names;
+		return self();
 	}
 
 	public List<String> entityTypes() {

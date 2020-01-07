@@ -36,6 +36,8 @@ import com.krishagni.catissueplus.core.common.repository.MobileUploadJobsListCri
 import com.krishagni.catissueplus.core.common.util.ConfigUtil;
 import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.catissueplus.core.de.events.FormDataDetail;
+import com.krishagni.catissueplus.core.de.events.FormRecordSummary;
+import com.krishagni.catissueplus.core.de.events.FormSummary;
 
 import edu.common.dynamicextensions.domain.nui.Container;
 import edu.common.dynamicextensions.napi.FormData;
@@ -94,6 +96,22 @@ public class MobileAppController {
 		sendForm(httpResp, form, maxPvListSize);
 	}
 
+	@RequestMapping(method = RequestMethod.GET, value = "/additional-forms")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public List<FormSummary> getForms(
+		@RequestParam(value = "cpId")
+		Long cpId,
+
+		@RequestParam(value = "entity")
+		String entity) {
+
+		Map<String, Object> params = new HashMap<>();
+		params.put("cpId", cpId);
+		params.put("entity", entity);
+		return ResponseEvent.unwrap(mobileAppSvc.getForms(RequestEvent.wrap(params)));
+	}
+
 	@RequestMapping(method = RequestMethod.POST, value = "/form-data")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
@@ -126,6 +144,22 @@ public class MobileAppController {
 
 		input.put("action", action);
 		return ResponseEvent.unwrap(mobileAppSvc.getFormData(RequestEvent.wrap(input)));
+	}
+
+	@RequestMapping(method = RequestMethod.GET, value = "/form-records")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public List<FormRecordSummary> getRecords(
+		@RequestParam(value = "entity")
+		String entity,
+
+		@RequestParam(value = "objectId")
+		Long objectId) {
+
+		Map<String, Object> input = new HashMap<>();
+		input.put("entity", entity);
+		input.put("objectId", objectId);
+		return ResponseEvent.unwrap(mobileAppSvc.getFormRecords(RequestEvent.wrap(input)));
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/specimens")

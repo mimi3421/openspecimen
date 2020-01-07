@@ -27,6 +27,8 @@ public interface FormDao extends Dao<FormContextBean> {
 
 	public List<Form> getFormsByIds(Collection<Long> formIds);
 
+	List<Form> getFormsByName(Collection<String> formNames);
+
 	List<Form> getForms(FormListCriteria crit);
 
 	Long getFormsCount(FormListCriteria crit);

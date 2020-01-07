@@ -90,6 +90,15 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 
 	@SuppressWarnings("unchecked")
 	@Override
+	public List<Form> getFormsByName(Collection<String> formNames) {
+		return getCurrentSession().createCriteria(Form.class)
+			.add(Restrictions.in("name", formNames))
+			.add(Restrictions.isNull("deletedOn"))
+			.list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
 	public List<Form> getForms(FormListCriteria crit) {
 		return (List<Form>) getCurrentSession().createCriteria(Form.class, "form")
 			.add(Subqueries.propertyIn("form.id", getListFormIdsQuery(crit)))
@@ -844,6 +853,10 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 
 		if (CollectionUtils.isNotEmpty(crit.cpIds())) {
 			query.add(Restrictions.in("fc.cpId", crit.cpIds()));
+		}
+
+		if (CollectionUtils.isNotEmpty(crit.names())) {
+			query.add(Restrictions.in("form.name", crit.names()));
 		}
 
 		if (CollectionUtils.isEmpty(crit.entityTypes())) {

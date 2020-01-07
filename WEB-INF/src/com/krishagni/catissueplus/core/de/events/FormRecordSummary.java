@@ -24,6 +24,12 @@ public class FormRecordSummary {
 	
 	private List<FieldValue> fieldValues = new ArrayList<>();
 
+	private String entityType;
+
+	private Long formId;
+
+	private String formCaption;
+
 	public Long getId() {
 		return id;
 	}
@@ -79,7 +85,31 @@ public class FormRecordSummary {
 	public void setFieldValues(List<FieldValue> fieldValues) {
 		this.fieldValues = fieldValues;
 	}
-	
+
+	public String getEntityType() {
+		return entityType;
+	}
+
+	public void setEntityType(String entityType) {
+		this.entityType = entityType;
+	}
+
+	public Long getFormId() {
+		return formId;
+	}
+
+	public void setFormId(Long formId) {
+		this.formId = formId;
+	}
+
+	public String getFormCaption() {
+		return formCaption;
+	}
+
+	public void setFormCaption(String formCaption) {
+		this.formCaption = formCaption;
+	}
+
 	public void addFieldValue(ControlValue cv) {
 		fieldValues.add(FieldValue.from(cv));
 	}
