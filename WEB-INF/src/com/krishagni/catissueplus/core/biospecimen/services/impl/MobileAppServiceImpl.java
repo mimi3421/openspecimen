@@ -149,8 +149,7 @@ public class MobileAppServiceImpl implements MobileAppService, InitializingBean 
 
 			AccessCtrlMgr.getInstance().ensureReadCpRights(cp);
 
-			CpWorkflowConfig.Workflow workflow = CpWorkflowTxnCache.getInstance()
-				.getWorkflow(cp.getId(), "mobile-app");
+			CpWorkflowConfig.Workflow workflow = CpWorkflowTxnCache.getInstance().getWorkflow(cp.getId(), "mobile-app");
 			Map<String, Object> data = new HashMap<>();
 			if (workflow != null && workflow.getData() != null) {
 				data = workflow.getData();
@@ -162,12 +161,16 @@ public class MobileAppServiceImpl implements MobileAppService, InitializingBean 
 			result.put("pi", cp.getPrincipalInvestigator().formattedName());
 			result.put("workflow", data);
 
-			Map<String, Object> forms = (Map<String, Object>) data.get("forms");
 			Set<String> formNames = new HashSet<>();
+
+			Map<String, Object> forms = (Map<String, Object>) data.get("forms");
 			formNames.addAll(getFormNames(forms, "registration"));
 			formNames.addAll(getFormNames(forms, "specimen"));
-			result.put("forms", getFormDefs(formNames));
 
+			Map<String, Object> addlForms = (Map<String, Object>) data.get("additionalForms");
+			formNames.addAll(getAdditionalFormNames(addlForms, "registration"));
+
+			result.put("forms", getFormDefs(formNames));
 			return ResponseEvent.response(result);
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
@@ -711,6 +714,19 @@ public class MobileAppServiceImpl implements MobileAppService, InitializingBean 
 		return new HashSet<>(entityForms.values());
 	}
 
+	private Set<String> getAdditionalFormNames(Map<String, Object> addlForms, String entity) {
+		if (addlForms == null) {
+			return Collections.emptySet();
+		}
+
+		List<String> formNames = (List<String>) addlForms.get(entity);
+		if (formNames == null) {
+			return Collections.emptySet();
+		}
+
+		return new HashSet<>(formNames);
+	}
+
 	private List<Map<String, Object>> getFormDefs(Collection<String> names) {
 		List<Map<String, Object>> formDefs = new ArrayList<>();
 		for (String name : names) {
@@ -911,14 +927,27 @@ public class MobileAppServiceImpl implements MobileAppService, InitializingBean 
 
 		Container form = formData.getContainer();
 		Map<String, Object> appData = formData.getAppData();
-		String entityType = (String) appData.get("entityType");
 
-		FormContextBean fc = formDao.getFormContext(form.getId(), cpId, entityType);
-		if (fc == null) {
-			throw new IllegalArgumentException("Form " + form.getCaption() + " is not associated to the CP " + cpId + " at " + entityType);
+		if (!appData.containsKey("formCtxtId")) {
+			String entityType = (String) appData.get("entityType");
+
+			List<String> entities = null;
+			if ("registration".equals(entityType)) {
+				entities = Arrays.asList("CommonParticipant", "Participant");
+			}
+
+			if (entities != null) {
+				FormContextBean fc = formDao.getFormContext(form.getId(), cpId, entities);
+				if (fc == null) {
+					throw new IllegalArgumentException(
+						"Form " + form.getCaption() + " is not associated to the CP " + cpId + " at " + entityType
+					);
+				}
+
+				appData.put("formCtxtId", fc.getIdentifier());
+			}
 		}
 
-		appData.put("formCtxtId", fc.getIdentifier());
 		detail = ResponseEvent.unwrap(formSvc.saveFormData(RequestEvent.wrap(detail)));
 		return detail.getFormData();
 	}

@@ -125,14 +125,18 @@
         fctxt.container_id = :formId
     </sql-query>
 
-    <query name="getFormContext"> <!-- TODO -->
+    <query name="getFormContext">
+      select
+        f
       from
         FormContextBean as f
       where
         f.containerId = :formId and
         (f.cpId = :cpId or f.cpId = -1) and
-        f.entityType = :entityType and
+        f.entityType in (:entityTypes) and
         f.deletedOn is null
+      order by
+        f.identifier
     </query>
     
     <query name="getSysFormContexts">

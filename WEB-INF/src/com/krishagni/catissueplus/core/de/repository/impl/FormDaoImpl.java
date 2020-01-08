@@ -366,13 +366,17 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 	@SuppressWarnings("unchecked")
 	@Override
 	public FormContextBean getFormContext(Long formId, Long cpId, String entity) {
-		Query query = sessionFactory.getCurrentSession().getNamedQuery(GET_FORM_CTXT);		
-		query.setLong("formId", formId);
-		query.setLong("cpId", cpId);		
-		query.setString("entityType", entity);
-		
-		List<FormContextBean> objs = query.list();
-		return objs != null && !objs.isEmpty() ? objs.iterator().next() : null;
+		return getFormContext(formId, cpId, Collections.singletonList(entity));
+	}
+
+	@Override
+	public FormContextBean getFormContext(Long formId, Long cpId, List<String> entities) {
+		List<FormContextBean> fcs = getCurrentSession().getNamedQuery(GET_FORM_CTXT)
+			.setParameter("formId", formId)
+			.setParameter("cpId", cpId)
+			.setParameterList("entityTypes", entities)
+			.list();
+		return fcs != null && !fcs.isEmpty() ? fcs.iterator().next() : null;
 	}
 
 	@Override

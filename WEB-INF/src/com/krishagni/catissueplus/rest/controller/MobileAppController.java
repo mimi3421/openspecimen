@@ -61,9 +61,7 @@ public class MobileAppController {
 	@RequestMapping(method = RequestMethod.GET, value = "/collection-protocol")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
-	public Map<String, Object> getCollectionProtocol(
-		@RequestParam(value = "shortTitle")
-		String shortTitle) {
+	public Map<String, Object> getCollectionProtocol(@RequestParam(value = "shortTitle") String shortTitle) {
 		return ResponseEvent.unwrap(mobileAppSvc.getCpDetail(RequestEvent.wrap(shortTitle)));
 	}
 
