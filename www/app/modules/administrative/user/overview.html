@@ -95,12 +95,14 @@
           <span class="value value-md">{{user.timeZone | osNoValue}}</span>
         </li>
 
-        <li show-if-admin class="item">
+        <li class="item">
           <strong class="key key-sm" translate="user.manage_forms">Manage Forms?</strong>
-          <span class="value value-md" ng-switch on="user.manageForms">
-            <span ng-switch-when="true" translate="common.yes">Yes</span>
-            <span ng-switch-when="false" translate="common.no">No</span>
-          </span>
+          <span class="value value-md">{{user.manageForms | osBoolValue: 'common.yes': 'common.no': 'common.not_specified'}}</span>
+        </li>
+
+        <li class="item">
+          <strong class="key key-sm" translate="user.disable_notifs">Disable Email Notifications?</strong>
+          <span class="value value-md">{{user.manageForms | osBoolValue: 'common.yes': 'common.no': 'common.not_specified'}}</span>
         </li>
       </ul>
 

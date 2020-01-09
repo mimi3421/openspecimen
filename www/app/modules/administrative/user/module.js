@@ -42,7 +42,7 @@ angular.module('os.administrative.user',
               return User.getById($stateParams.userId);
             }
 
-            return new User();
+            return new User({dnd: false});
           },
           users: function() {
             return [];

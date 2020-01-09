@@ -1272,6 +1272,7 @@
     "time_zone": "Time Zone",
     "empty_list": "No users to show!",
     "loading_list": "Loading users, please wait for a moment...",
+    "disable_notifs": "Disable Notifications?",
 
     "confirm_institute_update_title": "Update Institute?",
     "confirm_institute_update_q": "Changing the institute will remove all the site specific roles assigned to the {{count > 1 ? 'users' : 'user'}}. Are you sure you want to proceed?",
