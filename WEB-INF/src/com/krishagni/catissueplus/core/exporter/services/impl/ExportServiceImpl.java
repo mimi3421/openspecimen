@@ -32,6 +32,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
@@ -130,7 +131,12 @@ public class ExportServiceImpl implements ExportService {
 
 		Future<Integer> result;
 		if (detail.isSynchronous()) {
-			result = CompletableFuture.completedFuture(task.call());
+			User currentUser = AuthUtil.getCurrentUser();
+			try {
+				result = CompletableFuture.completedFuture(task.call());
+			} finally {
+				AuthUtil.setCurrentUser(currentUser);
+			}
 		} else {
 			result = taskExecutor.submit(task);
 		}
