@@ -254,8 +254,11 @@ public class MobileAppServiceImpl implements MobileAppService, InitializingBean 
 			String action = (String) appData.get("action");
 			Number cpId = (Number) appData.get("cpId");
 
-			Map<String, Object> fields = groupFields(formData.getFieldNameValueMap(true));
+			Map<String, Object> fields = formData.getFieldNameValueMap(true);
 			fields.put("cpId", cpId.longValue());
+			if (!"saveFormData".equals(action)) {
+				fields = groupFields(fields);
+			}
 
 			Map<String, Object> result = null;
 			switch (action) {
@@ -1098,6 +1101,8 @@ public class MobileAppServiceImpl implements MobileAppService, InitializingBean 
 				return null;
 			}
 		);
+
+		importParticipantFormRecords(job);
 	}
 
 	private void importParticipant(CollectionProtocolRegistrationDetail input) {
@@ -1107,6 +1112,59 @@ public class MobileAppServiceImpl implements MobileAppService, InitializingBean 
 		}
 
 		saveOrUpdateCpr(input);
+	}
+
+	private void importParticipantFormRecords(MobileUploadJob job) {
+		for (File file : job.getInputDir().listFiles()) {
+			if (!file.getName().startsWith("registration_")) {
+				continue;
+			}
+
+			//
+			// string the entity and .csv from filename to get the form name.
+			// <entity>_<form_name>.csv
+			//
+			String formName = file.getName().substring("registration_".length());
+			formName = formName.substring(0, formName.indexOf("."));
+
+			importParticipantFormRecords(job, formName, file.getName());
+		}
+	}
+
+	private void importParticipantFormRecords(MobileUploadJob job, String formName, String filename) {
+		Container form = Container.getContainer(formName);
+		if (form == null) {
+			logger.error("No form by name: " + formName);
+			return;
+		}
+
+		CollectionProtocol cp = job.getCp();
+		FormContextBean fc = formDao.getFormContext(form.getId(), cp.getId(), Arrays.asList("CommonParticipant", "Participant"));
+		importRecords(
+			job,
+			new SchemaParams("registration", form, "saveFormData", filename),
+			(record) -> {
+				String ppid = (String) record.get("ppid");
+				String cpShortTitle = (String) record.get("cpShortTitle");
+				CollectionProtocolRegistration cpr = daoFactory.getCprDao().getCprByCpShortTitleAndPpid(cpShortTitle, ppid);
+				if (cpr == null) {
+					throw OpenSpecimenException.userError(CprErrorCode.NOT_FOUND);
+				}
+
+				if (fc == null) {
+					throw OpenSpecimenException.userError(FormErrorCode.NO_ASSOCIATION, cp.getShortTitle(), form.getCaption());
+				}
+
+				Map<String, Object> appData = new HashMap<>();
+				appData.put("formCtxtId", fc.getIdentifier());
+				appData.put("objectId", cpr.getId());
+				record.put("appData", appData);
+
+				FormData formData = FormData.getFormData(form, record, true, null);
+				saveFormData(cp.getId(), formData);
+				return null;
+			}
+		);
 	}
 
 	private void importPrimarySpecimens(MobileUploadJob job) {
@@ -1179,7 +1237,11 @@ public class MobileAppServiceImpl implements MobileAppService, InitializingBean 
 
 				String errMsg = null;
 				try {
-					importer.apply(groupFields(record));
+					if (!"saveFormData".equals(params.action)) {
+						record = groupFields(record);
+					}
+
+					importer.apply(record);
 				} catch (Throwable t) {
 					errMsg = t.getMessage();
 					if (StringUtils.isBlank(errMsg)) {
@@ -1244,12 +1306,27 @@ public class MobileAppServiceImpl implements MobileAppService, InitializingBean 
 				fields.add(getField("ppid", "PPID"));
 				fields.add(getField("parentLabel", "Parent Label"));
 				break;
+
+			case "saveFormData":
+				if (params.entity.equals("registration")) {
+					fields.add(getField("cpShortTitle", "Collection Protocol"));
+					fields.add(getField("ppid", "PPID"));
+				}
+				break;
 		}
 
 		ObjectSchema.Record record = new ObjectSchema.Record();
 		record.setFields(fields);
 
-		Container form = getForm(cp.getId(), params.entity, params.viewForm);
+		Container form = params.form;
+		if (form == null) {
+			if (params.action.equals("saveFormData")) {
+				form = Container.getContainer(params.viewForm);
+			} else {
+				form = getForm(cp.getId(), params.entity, params.viewForm);
+			}
+		}
+
 		FormSchemaBuilder builder = new FormSchemaBuilder();
 		ObjectSchema.Record formValueMap = builder.getFormRecord(form);
 		formValueMap.setAttribute("formValueMap");
@@ -1347,10 +1424,18 @@ public class MobileAppServiceImpl implements MobileAppService, InitializingBean 
 
 		public String inputFilename;
 
+		public Container form;
 
 		public SchemaParams(String entity, String viewForm, String action, String inputFilename) {
 			this.entity = entity;
 			this.viewForm = viewForm;
+			this.action = action;
+			this.inputFilename = inputFilename;
+		}
+
+		public SchemaParams(String entity, Container form, String action, String inputFilename) {
+			this.entity = entity;
+			this.form = form;
 			this.action = action;
 			this.inputFilename = inputFilename;
 		}
