@@ -44,6 +44,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import com.krishagni.catissueplus.core.administrative.domain.ScheduledJob;
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.administrative.repository.UserDao;
+import com.krishagni.catissueplus.core.biospecimen.domain.factory.CpGroupErrorCode;
 import com.krishagni.catissueplus.core.common.OpenSpecimenAppCtxProvider;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
@@ -1005,6 +1006,15 @@ public class QueryServiceImpl implements QueryService {
 			Set<Long> cpIds = AccessCtrlMgr.getInstance().getReadAccessGroupCpIds(groupId);
 			if (CollectionUtils.isEmpty(cpIds)) {
 				throw OpenSpecimenException.userError(RbacErrorCode.ACCESS_DENIED);
+			}
+
+			if (cpId != null && cpId != -1) {
+				if (cpIds.contains(cpId)) {
+					cpIds = Collections.singleton(cpId);
+				} else {
+					AccessCtrlMgr.getInstance().ensureReadCpRights(cpId);
+					throw OpenSpecimenException.userError(CpGroupErrorCode.CP_NOT_IN_GRP, cpId, groupId);
+				}
 			}
 
 			return cpForm + ".id in (" + Utility.join(cpIds, Objects::toString, ",") + ")";

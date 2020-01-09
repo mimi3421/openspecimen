@@ -15,7 +15,9 @@ public enum CpGroupErrorCode implements ErrorCode {
 
 	CP_IN_OTH_GRPS,
 
-	DUP_FORM;
+	DUP_FORM,
+
+	CP_NOT_IN_GRP;
 
 	@Override
 	public String code() {
