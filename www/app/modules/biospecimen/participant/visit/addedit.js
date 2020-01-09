@@ -40,6 +40,7 @@ angular.module('os.biospecimen.visit.addedit', [])
       } else if ($stateParams.newVisit == 'true') {
         angular.extend(currVisit, {id: undefined, name: undefined, status: 'Complete', visitDate: new Date()});
         $scope.visit = currVisit;
+        ctx.pendingToStart = true;
       }
 
       $scope.deFormCtrl = {};
@@ -84,7 +85,7 @@ angular.module('os.biospecimen.visit.addedit', [])
           angular.extend($scope.visit, angular.extend({clinicalStatus: null, cohort: null}, result));
           if (gotoSpmnCollection) {
             var state = $state.get('visit-detail.overview');
-            CollectSpecimensSvc.collectVisit({state: state, params: {cprId: cpr.id}}, cp, cpr.id, visit);
+            CollectSpecimensSvc.collectVisit({state: state, params: {cprId: cpr.id}}, cp, cpr.id, $scope.visit);
           } else {
             $state.go('visit-detail.overview', {visitId: result.id, eventId: result.eventId});
           }
