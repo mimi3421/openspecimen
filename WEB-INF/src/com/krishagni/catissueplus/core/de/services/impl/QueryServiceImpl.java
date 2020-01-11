@@ -978,6 +978,7 @@ public class QueryServiceImpl implements QueryService {
 			.dateFormat(ConfigUtil.getInstance().getDeDateFmt())
 			.timeFormat(ConfigUtil.getInstance().getTimeFmt())
 			.timeZone(tz != null ? tz.getID() : null);
+		addAutoJoinParams(query);
 		query.compile(rootForm, op.getAql());
 
 		String aql = op.getAql();
@@ -991,6 +992,14 @@ public class QueryServiceImpl implements QueryService {
 
 		query.compile(rootForm, aql, getRestriction(user, op.getCpId(), op.getCpGroupId()));
 		return query;
+	}
+
+	private Query addAutoJoinParams(Query query) {
+		if (AuthUtil.getCurrentUser() == null) {
+			return query;
+		}
+
+		return query.autoJoinParams(Collections.singletonMap("user", AuthUtil.getCurrentUser().getId().toString()));
 	}
 
 	private QueryResultScreener getResultScreener(Query query) {
@@ -1350,6 +1359,7 @@ public class QueryServiceImpl implements QueryService {
 			.timeFormat(ConfigUtil.getInstance().getTimeFmt())
 			.timeZone(tz != null ? tz.getID() : null)
 			.wideRowMode(WideRowMode.OFF);
+		addAutoJoinParams(query);
 		query.compile(rootForm, aql, getRestriction(AuthUtil.getCurrentUser(), cpId, cpGroupId));
 
 		QueryResponse queryResp = query.getData();
