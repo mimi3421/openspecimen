@@ -1384,7 +1384,19 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
         var uids = [];
         angular.forEach($scope.customFieldGroups,
           function(group) {
-            if (group.noMatch || group.visitFields) {
+            if (group.visitFields) {
+              return;
+            }
+
+            if (group.noMatch) {
+              angular.forEach(group.input,
+                function(sample) {
+                  if (sample.specimen) {
+                    uids.push(sample.specimen.uid);
+                  }
+                }
+              );
+
               return;
             }
 
