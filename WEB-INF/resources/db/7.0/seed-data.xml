@@ -100,4 +100,12 @@
   <changeSet author="vpawar" id="Drop the proc to assign consent privileges">
     <dropProcedure procedureName="assign_consent_privileges"/>
   </changeSet>
+
+  <changeSet author="vpawar" id="Default consent collector role">
+    <sql>call create_role('Consent Collector', 'User who works at the collection centres to register patients and collect consents from them.');</sql>
+    <sql>call assign_to_role('Consent Collector', 'CollectionProtocol', 'Read');</sql>
+    <sql>call assign_to_role('Consent Collector', 'ParticipantPhi', 'Read,Create,Update,Delete,Export Import');</sql>
+    <sql>call assign_to_role('Consent Collector', 'Consent', 'Read,Create,Update,Delete,Export Import');</sql>
+  </changeSet>
+
 </databaseChangeLog>

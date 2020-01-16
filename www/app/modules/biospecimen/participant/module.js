@@ -109,6 +109,11 @@ angular.module('os.biospecimen.participant',
               cp: cp.shortTitle
             });
 
+            var queryReadAllowed = AuthorizationService.isAllowed({
+              resources: ['Query'],
+              operations: ['Read']
+            });
+
             return {
               participantImportAllowed: participantEximAllowed,
               visitSpecimenImportAllowed: visitSpmnEximAllowed,
@@ -117,7 +122,8 @@ angular.module('os.biospecimen.participant',
               spmnReadAllowed: spmnReadAllowed,
               allSpmnEximAllowed: allSpmnEximAllowed,
               consentsReadAllowed: consentsReadAllowed,
-              consentsEximAllowed: consentsEximAllowed
+              consentsEximAllowed: consentsEximAllowed,
+              queryReadAllowed: queryReadAllowed
             }
           },
 

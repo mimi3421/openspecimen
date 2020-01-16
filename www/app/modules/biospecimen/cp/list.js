@@ -1,7 +1,7 @@
 
 angular.module('os.biospecimen.cp.list', ['os.biospecimen.models'])
   .controller('CpListCtrl', function(
-    $scope, $state, CollectionProtocol, DeleteUtil, AuthorizationService) {
+    $scope, $state, cpsCtx, CollectionProtocol, DeleteUtil, AuthorizationService) {
 
     var ctx;
 
@@ -48,6 +48,7 @@ angular.module('os.biospecimen.cp.list', ['os.biospecimen.models'])
     $scope.setListCtrl = function(listCtrl) {
       ctx.listCtrl = listCtrl;
       ctx.showSearch = listCtrl.haveFilters;
+      listCtrl.viewCtx = cpsCtx;
     }
 
     $scope.toggleStarredCp = function(cp) {

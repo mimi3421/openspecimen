@@ -71,6 +71,11 @@ angular.module('os.biospecimen.cp',
               operations: ['Export Import']
             });
 
+            var queryReadAllowed = AuthorizationService.isAllowed({
+              resources: ['Query'],
+              operations: ['Read']
+            });
+
             return {
               cpCreateAllowed: cpCreateAllowed,
               cpUpdateAllowed: cpCreateAllowed || cpUpdateAllowed,
@@ -79,7 +84,8 @@ angular.module('os.biospecimen.cp',
               participantExportAllowed: participantEximAllowed,
               visitSpecimenExportAllowed: visitSpmnEximAllowed,
               allSpmnEximAllowed: allSpmnEximAllowed,
-              consentsEximAllowed: consentsEximAllowed
+              consentsEximAllowed: consentsEximAllowed,
+              queryReadAllowed: queryReadAllowed
             }
           }
         },

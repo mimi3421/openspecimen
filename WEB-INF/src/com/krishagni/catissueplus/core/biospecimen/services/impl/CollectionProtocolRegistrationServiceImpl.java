@@ -1158,7 +1158,6 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 			}
 		}
 
-		boolean checkPermission = true;
 		for (CollectionProtocolEvent cpe : cpes) {
 			if (cpe.isClosed()) {
 				continue;
@@ -1187,8 +1186,7 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 			cal.add(Calendar.DATE, interval);
 			visitDetail.setVisitDate(cal.getTime());
 
-			cpr.addVisit(visitSvc.addVisit(visitDetail, checkPermission));
-			checkPermission = false;
+			cpr.addVisit(visitSvc.addVisit(visitDetail, false));
 		}
 	}
 

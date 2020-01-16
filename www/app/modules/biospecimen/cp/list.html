@@ -89,7 +89,7 @@
     </button>
     <button class="btn btn-xs btn-default" os-tooltip="{{'cp.view_catalog' | translate}}"
       ui-sref="ssc-catalog-dashboard({catalogId: row.hidden.catalogId, cpId: row.hidden.cpId})"
-      ng-show="!!row.hidden.catalogId">
+      ng-show="!!row.hidden.catalogId && $list.viewCtx.queryReadAllowed">
       <span class="fa fa-table"></span>
     </button>
 
