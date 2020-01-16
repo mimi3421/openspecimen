@@ -674,6 +674,64 @@ public class AccessCtrlMgr {
 
 	//////////////////////////////////////////////////////////////////////////////////////
 	//                                                                                  //
+	//          Participant consent access control helper methods                       //
+	//                                                                                  //
+	//////////////////////////////////////////////////////////////////////////////////////
+
+	public boolean ensureReadConsentRights(CollectionProtocolRegistration cpr) {
+		ensureConsentRights(cpr, Collections.singletonList(Operation.READ));
+		ensureConsentEximRights(cpr);
+		return true;
+	}
+
+	public boolean ensureUpdateConsentRights(CollectionProtocolRegistration cpr) {
+		ensureConsentRights(cpr, Arrays.asList(Operation.CREATE, Operation.UPDATE));
+		ensureConsentEximRights(cpr);
+		return true;
+	}
+
+	private boolean ensureConsentRights(CollectionProtocolRegistration cpr, List<Operation> ops) {
+		if (AuthUtil.isAdmin()) {
+			return true;
+		}
+
+		Long cpId = cpr.getCollectionProtocol().getId();
+		String resource = Resource.CONSENT.getName();
+		Long userId = AuthUtil.getCurrentUser().getId();
+		String[] opNames = ops.stream().map(Operation::getName).toArray(String[]::new);
+
+		List<SubjectAccess> accessList = daoFactory.getSubjectDao().getAccessList(userId, cpId, resource, opNames);
+		Set<Site> cpSites = cpr.getCollectionProtocol().getRepositories();
+		boolean allowed = isAccessAllowedOnAnySite(accessList, cpSites);
+		if (!allowed) {
+			throw OpenSpecimenException.userError(RbacErrorCode.ACCESS_DENIED);
+		}
+
+		if (!isAccessRestrictedBasedOnMrn()) {
+			return true;
+		}
+
+		Set<Site> mrnSites = cpr.getParticipant().getMrnSites();
+		if (mrnSites.isEmpty()) {
+			return true;
+		}
+
+		allowed = isAccessAllowedOnAnySite(accessList, mrnSites);
+		if (!allowed) {
+			throw OpenSpecimenException.userError(RbacErrorCode.ACCESS_DENIED);
+		}
+
+		return true;
+	}
+
+	private void ensureConsentEximRights(CollectionProtocolRegistration cpr) {
+		if (isImportOp() || isExportOp()) {
+			ensureConsentRights(cpr, Collections.singletonList(Operation.EXIM));
+		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////
+	//                                                                                  //
 	//          Visit and Specimen object access control helper methods                 //
 	//                                                                                  //
 	//////////////////////////////////////////////////////////////////////////////////////

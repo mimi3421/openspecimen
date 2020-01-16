@@ -8,6 +8,8 @@ public enum Resource {
 	PARTICIPANT("ParticipantPhi"),
 	
 	PARTICIPANT_DEID("ParticipantDeid"),
+
+	CONSENT("Consent"),
 	
 	VISIT_N_SPECIMEN("VisitAndSpecimen"),
 

@@ -19,17 +19,24 @@ angular.module('os.biospecimen.participant')
       return $translate.instant(key);
     }
 
-    function getParticipantTypes(entityForms, cpId) {
+    function getParticipantTypes(entityForms, cpId, addConsent) {
       var group = $translate.instant('participant.title');
       var input = {'var': 'ppids', varName: 'participant.ppids', varDesc: 'participant.ppids_csv'};
 
-      var exportTypes = [
-        { group: group, type: 'cpr', title: msg('participant.list'), '$$input': input },
-        { group: group, type: 'consent', title: msg('participant.consents'), '$$input': input }
-      ];
+      var exportTypes = [ { group: group, type: 'cpr', title: msg('participant.list'), '$$input': input } ];
+      if (addConsent) {
+        exportTypes = exportTypes.concat(getConsentTypes(cpId, input));
+      }
+
       addForms(exportTypes, group, 'CommonParticipant', input, entityForms['CommonParticipant']);
       return addForms(exportTypes, group, 'Participant', input, entityForms['Participant']);
-    } 
+    }
+
+    function getConsentTypes(cpId, input) {
+      var group = $translate.instant('participant.title');
+      input = input || {'var': 'ppids', varName: 'participant.ppids', varDesc: 'participant.ppids_csv'};
+      return [{ group: group, type: 'consent', title: msg('participant.consents'), '$$input': input }];
+    }
 
     function getVisitTypes(entityForms) {
       var group = $translate.instant('visits.title');
@@ -74,7 +81,9 @@ angular.module('os.biospecimen.participant')
 
       var exportTypes = [];
       if (!cp.specimenCentric && allowedEntityTypes.indexOf('Participant') >= 0) {
-        exportTypes = exportTypes.concat(getParticipantTypes(entityForms, cp.id));
+        exportTypes = exportTypes.concat(getParticipantTypes(entityForms, cp.id, allowedEntityTypes.indexOf('Consent') >= 0));
+      } else if (!cp.specimenCentric && allowedEntityTypes.indexOf('Consent') >= 0) {
+        exportTypes = exportTypes.concat(getConsentTypes(cp.id));
       }
 
       if (!cp.specimenCentric && allowedEntityTypes.indexOf('SpecimenCollectionGroup') >= 0) {

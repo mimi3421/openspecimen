@@ -66,6 +66,11 @@ angular.module('os.biospecimen.cp',
               operations: ['Export Import']
             });
 
+            var consentsEximAllowed = AuthorizationService.isAllowed({
+              resources: ['Consent'],
+              operations: ['Export Import']
+            });
+
             return {
               cpCreateAllowed: cpCreateAllowed,
               cpUpdateAllowed: cpCreateAllowed || cpUpdateAllowed,
@@ -73,7 +78,8 @@ angular.module('os.biospecimen.cp',
               visitSpecimenImportAllowed: visitSpmnEximAllowed,
               participantExportAllowed: participantEximAllowed,
               visitSpecimenExportAllowed: visitSpmnEximAllowed,
-              allSpmnEximAllowed: allSpmnEximAllowed
+              allSpmnEximAllowed: allSpmnEximAllowed,
+              consentsEximAllowed: consentsEximAllowed
             }
           }
         },
@@ -121,6 +127,10 @@ angular.module('os.biospecimen.cp',
             var entityTypes = [];
             if (cpsCtx.participantImportAllowed) {
               entityTypes = entityTypes.concat(['CommonParticipant', 'Participant']);
+            }
+
+            if (cpsCtx.consentsEximAllowed) {
+              entityTypes.push('Consent');
             }
 
             if (cpsCtx.visitSpecimenImportAllowed) {
@@ -182,6 +192,10 @@ angular.module('os.biospecimen.cp',
             if (cpsCtx.participantExportAllowed) {
               entityTypes.push('CommonParticipant');
               entityTypes.push('Participant');
+            }
+
+            if (cpsCtx.consentsEximAllowed) {
+              entityTypes.push('Consent');
             }
 
             if (cpsCtx.visitSpecimenExportAllowed) {

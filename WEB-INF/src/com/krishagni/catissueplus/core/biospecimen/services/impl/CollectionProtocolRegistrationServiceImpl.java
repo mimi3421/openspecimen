@@ -318,11 +318,8 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 				return ResponseEvent.userError(CprErrorCode.NOT_FOUND);
 			}
 			
-			boolean hasPhiAccess = AccessCtrlMgr.getInstance().ensureReadCprRights(existing);
-			if (!hasPhiAccess) {
-				return ResponseEvent.userError(RbacErrorCode.ACCESS_DENIED);
-			}
-			
+			AccessCtrlMgr.getInstance().ensureReadConsentRights(existing);
+
 			String fileName = existing.getSignedConsentDocumentName();
 			if (StringUtils.isBlank(fileName)) {
 				return ResponseEvent.userError(CprErrorCode.CONSENT_FORM_NOT_FOUND);
@@ -357,7 +354,7 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 
 			CollectionProtocolRegistration existing = getCpr(cprId, null, cpShortTitle, ppid);
 			raiseErrorIfSpecimenCentric(existing);
-			AccessCtrlMgr.getInstance().ensureUpdateCprRights(existing);
+			AccessCtrlMgr.getInstance().ensureUpdateConsentRights(existing);
 			
 			if (existing.getCollectionProtocol().isConsentsWaived()) {
 				return ResponseEvent.userError(CpErrorCode.CONSENTS_WAIVED, existing.getCollectionProtocol().getShortTitle());
@@ -398,7 +395,7 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 			}
 
 			raiseErrorIfSpecimenCentric(cpr);
-			AccessCtrlMgr.getInstance().ensureUpdateCprRights(cpr);
+			AccessCtrlMgr.getInstance().ensureUpdateConsentRights(cpr);
 
 			String fileName = cpr.getSignedConsentDocumentName();
 			if (StringUtils.isBlank(fileName)) {
@@ -429,8 +426,8 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 		try {
 			RegistrationQueryCriteria crit = req.getPayload();
 			CollectionProtocolRegistration cpr = getCpr(crit.getCprId(), crit.getCpId(), crit.getPpid());
-			boolean hasPhiAccess = AccessCtrlMgr.getInstance().ensureReadCprRights(cpr);
-			return ResponseEvent.response(ConsentDetail.fromCpr(cpr, !hasPhiAccess));
+			AccessCtrlMgr.getInstance().ensureReadConsentRights(cpr);
+			return ResponseEvent.response(ConsentDetail.fromCpr(cpr));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {
@@ -447,11 +444,12 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 			CollectionProtocolRegistration existing = getCpr(consentDetail.getCprId(),
 				consentDetail.getCpId(), consentDetail.getCpShortTitle(), consentDetail.getPpid());
 			raiseErrorIfSpecimenCentric(existing);
-			boolean hasPhiAccess = AccessCtrlMgr.getInstance().ensureUpdateCprRights(existing);
+
+			AccessCtrlMgr.getInstance().ensureUpdateConsentRights(existing);
 			
 			ConsentResponses consentResponses = consentResponsesFactory.createConsentResponses(existing, consentDetail);
 			existing.updateConsents(consentResponses);
-			return ResponseEvent.response(ConsentDetail.fromCpr(existing, !hasPhiAccess));
+			return ResponseEvent.response(ConsentDetail.fromCpr(existing));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {
@@ -1313,6 +1311,21 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 
 	private Function<ExportJob, List<? extends Object>> getConsentsGenerator() {
 		return new AbstractCprsGenerator() {
+			//
+			// -1: error, 0: full access, 1: access without PHI
+			//
+			int canRead(CollectionProtocolRegistration cpr) {
+				try {
+					return AccessCtrlMgr.getInstance().ensureReadConsentRights(cpr) ? 0 : 1;
+				} catch (OpenSpecimenException ose) {
+					if (!ose.containsError(RbacErrorCode.ACCESS_DENIED)) {
+						logger.error("Error checking participant record access", ose);
+					}
+
+					return -1;
+				}
+			}
+
 			@Override
 			public List<? extends Object> apply(ExportJob job) {
 				List<ConsentDetail> records = new ArrayList<>();

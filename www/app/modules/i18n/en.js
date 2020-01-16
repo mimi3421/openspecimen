@@ -1689,7 +1689,8 @@
       "ScheduledJob": "Jobs",
       "ShippingAndTracking": "Shipping and Tracking",
       "DistributionProtocol": "Distribution Protocols",
-      "Query": "Query"
+      "Query": "Query",
+      "Consent": "Consents"
     },
 
     "menu": {
