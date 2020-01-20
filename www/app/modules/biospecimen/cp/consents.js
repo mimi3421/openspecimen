@@ -1,6 +1,6 @@
 
 angular.module('os.biospecimen.cp.consents', ['os.biospecimen.models'])
-  .controller('CpConsentsCtrl', function($scope, $state, $q, cp, consentTiers, DeleteUtil, Alerts,
+  .controller('CpConsentsCtrl', function($scope, $state, $q, cp, hasEc, consentTiers, DeleteUtil, Alerts,
     AuthorizationService, ConsentStatement) {
 
     var defStmts;
@@ -8,12 +8,15 @@ angular.module('os.biospecimen.cp.consents', ['os.biospecimen.models'])
     function init() {
       $scope.cp = cp;
       $scope.consentCtx = {
+        hasEc: hasEc,
         allowEdit: AuthorizationService.isAllowed($scope.cpResource.updateOpts),
         tiers: initConsentTiers(consentTiers),
         stmts: []
       };
 
-      loadConsentStmts();
+      if (!hasEc) {
+        loadConsentStmts();
+      }
     }
 
     function initConsentTiers(consentTiers) {

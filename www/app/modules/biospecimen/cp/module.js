@@ -251,8 +251,12 @@ angular.module('os.biospecimen.cp',
         templateUrl: 'modules/biospecimen/cp/consents.html',
         parent: 'cp-detail',
         resolve: {
-          consentTiers: function(cp) {
-            return cp.getConsentTiers();
+          hasEc: function($injector) {
+            return $injector.get('ecDocument') != null;
+          },
+
+          consentTiers: function(cp, hasEc) {
+            return hasEc ? null : cp.getConsentTiers();
           }
         },
         controller: 'CpConsentsCtrl'

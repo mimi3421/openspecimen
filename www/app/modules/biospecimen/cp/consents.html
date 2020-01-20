@@ -1,44 +1,54 @@
-<div class="clearfix">
-  <div class="col-xs-8">
-    <div ng-switch="consentCtx.allowEdit">
-      <div ng-switch-when="true">
-        <ul class="os-key-values os-one-col" os-inline-editors on-save="editCp">
-          <li class="item" ng-hide="!!consentCtx.tiers && consentCtx.tiers.length > 0">
-            <strong class="key key-sm" translate="cp.consents_waived">Consents Waived</strong>
-            <div class="value value-md">
-              <div class="btn-group btn-group-xs">
-                <button type="button" class="btn btn-default" ng-model="cp.consentsWaived"
-                  btn-checkbox btn-checkbox-true="true" btn-checkbox-false="false"
-                  ng-change="updateConsentsWaived()" translate="common.yes">
-                  Yes
-                </button>
-                <button type="button" class="btn btn-default" ng-model="cp.consentsWaived"
-                  btn-checkbox btn-checkbox-true="false" btn-checkbox-false="true"
-                  ng-change="updateConsentsWaived()" translate="common.no">
-                  No
-                </button>
+<div>
+  <div class="clearfix">
+    <div class="col-xs-8">
+      <div ng-switch="consentCtx.allowEdit">
+        <div ng-switch-when="true">
+          <ul class="os-key-values os-one-col">
+            <li class="item" ng-hide="(!!consentCtx.tiers && consentCtx.tiers.length > 0) || consentCtx.hasDocs">
+              <strong class="key key-sm" translate="cp.consents_waived">Consents Waived</strong>
+              <div class="value value-md">
+                <div class="btn-group btn-group-xs">
+                  <button class="btn btn-default" ng-model="cp.consentsWaived"
+                    btn-checkbox btn-checkbox-true="true" btn-checkbox-false="false"
+                    ng-change="updateConsentsWaived()">
+                    <span translate="common.yes">Yes</span>
+                  </button>
+                  <button class="btn btn-default" ng-model="cp.consentsWaived"
+                    btn-checkbox btn-checkbox-true="false" btn-checkbox-false="true"
+                    ng-change="updateConsentsWaived()">
+                    <span translate="common.no">No</span>
+                  </button>
+                </div>
               </div>
-            </div>
-          </li>
-        </ul>
+            </li>
+          </ul>
+        </div>
+
+        <div ng-switch-default>
+          <div ng-if="cp.consentsWaived">
+            <span translate="cp.consents_are_waived">Consents are waived</span>
+          </div>
+
+          <div ng-if="!cp.consentsWaived && consents.tiers.length == 0">
+            <span translate="cp.no_consents">No consents to show</span>
+          </div>
+        </div>
       </div>
 
-      <div ng-switch-default>
-        <div ng-if="cp.consentsWaived">
-          <span translate="cp.consents_are_waived">Consents are waived</span>
-        </div>
-
-        <div ng-if="!cp.consentsWaived && consents.tiers.length == 0">
-          <span translate="cp.no_consents">No consents to show</span>
-        </div>
+      <div ng-if="!consentCtx.hasEc">
+        <os-editable-item-list
+          items="consentCtx.tiers" item-pvs="consentCtx.stmts" text-attr="displayValue"
+          list-changed="listChanged" allow-edit="consentCtx.allowEdit" refresh="loadConsentStmts" 
+          add-caption="{{'cp.add_consent_tier' | translate}}" list-title="{{'cp.consent_tiers' | translate}}"
+          ng-if="!cp.consentsWaived && (consentCtx.allowEdit || consentCtx.tiers.length > 0)">
+        </os-editable-item-list>
       </div>
     </div>
+  </div>
 
-    <os-editable-item-list
-      items="consentCtx.tiers" item-pvs="consentCtx.stmts" text-attr="displayValue"
-      list-changed="listChanged" allow-edit="consentCtx.allowEdit" refresh="loadConsentStmts" 
-      add-caption="{{'cp.add_consent_tier' | translate}}" list-title="{{'cp.consent_tiers' | translate}}"
-      ng-if="!cp.consentsWaived && (consentCtx.allowEdit || consentCtx.tiers.length > 0)">
-    </os-editable-item-list>
+  <div class="clearfix">
+    <div class="col-xs-12">
+      <os-plugin-hooks view-name="'cp-consents'" sec-name="'body'"></os-plugin-hooks>
+    </div>
   </div>
 </div>
