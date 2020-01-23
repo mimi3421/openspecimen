@@ -252,7 +252,7 @@ angular.module('os.biospecimen.cp',
         parent: 'cp-detail',
         resolve: {
           hasEc: function($injector) {
-            return $injector.get('ecDocument') != null;
+            return $injector.has('ecDocument');
           },
 
           consentTiers: function(cp, hasEc) {

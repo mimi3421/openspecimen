@@ -690,6 +690,10 @@ angular.module('os.biospecimen.participant',
         url: '/consents',
         templateUrl: 'modules/biospecimen/participant/consents.html',
         resolve: {
+          hasEc: function($injector) {
+            return $injector.has('ecDocument');
+          },
+
           consent: function(cpr, cpViewCtx) {
             return cpViewCtx.consentsReadAllowed ? cpr.getConsents() : null;
           }
