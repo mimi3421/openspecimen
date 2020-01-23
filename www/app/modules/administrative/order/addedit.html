@@ -21,7 +21,7 @@
         <div ng-include src="'orders/addedit-detail.html'"></div>
       </os-wizard-step>
 
-      <os-wizard-step title="{{'orders.specimens' | translate}}" on-finish="areItemQuantitiesValid(doWizard)">
+      <os-wizard-step title="{{'orders.specimens_with_count' | translate: input}}" on-finish="areItemQuantitiesValid(doWizard)">
         <div ng-include src="'orders/addedit-order-specimens.html'"></div>
       </os-wizard-step>
 

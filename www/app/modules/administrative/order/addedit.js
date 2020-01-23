@@ -42,7 +42,8 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
         allItemStatus: false,
         noQtySpmnsPresent: false,
         spmnsFromExternalList: (!!order.specimenList && !!order.specimenList.id) || order.allReservedSpmns,
-        limit: maxSpmnsLimit
+        limit: maxSpmnsLimit,
+        order: order
       };
 
       if (!$scope.input.spmnsFromExternalList) {
@@ -493,21 +494,22 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
       var countFn, spmnsFn;
       if (order.specimenList && order.specimenList.id) {
         countFn = function() { return order.specimenList.getSpecimensCount({available: true}) };
-        spmnsFn = function() { return order.specimenList.getSpecimens({available: true}) };
+        spmnsFn = function(maxResults) { return order.specimenList.getSpecimens({available: true, maxResults: maxResults}) };
       } else if (order.allReservedSpmns) {
         countFn = function() { return order.distributionProtocol.getReservedSpecimensCount() };
-        spmnsFn = function() { return order.distributionProtocol.getReservedSpecimens() };
+        spmnsFn = function(maxResults) { return order.distributionProtocol.getReservedSpecimens({maxResults: maxResults}) };
       }
 
       if (countFn && spmnsFn) {
         countFn().then(
           function(spmnsCount) {
+            $scope.input.spmnsCount = spmnsCount;
             if (spmnsCount > maxSpmnsLimit) {
               $scope.input.moreSpmnsThanLimit = true;
               return;
             }
 
-            spmnsFn().then(
+            spmnsFn(spmnsCount + 1).then(
               function(spmns) {
                 order.orderItems = getOrderItems(spmns);
                 loadCustomFields(order.orderItems);

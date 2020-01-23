@@ -475,7 +475,7 @@ public class SamlBootstrap {
 
 	private SAMLLogoutFilter getLogoutFilter(SAMLContextProvider ctxtProvider, SAMLProcessorImpl processor, CachingMetadataManager metadata) {
 		SimpleUrlLogoutSuccessHandler successHandler = new SimpleUrlLogoutSuccessHandler();
-		successHandler.setDefaultTargetUrl("/");
+		successHandler.setDefaultTargetUrl(ConfigUtil.getInstance().getAppUrl());
 		successHandler.setAlwaysUseDefaultTargetUrl(true);
 
 		SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
@@ -496,7 +496,7 @@ public class SamlBootstrap {
 
 	private SAMLLogoutProcessingFilter getLogoutProcFilter(SAMLContextProvider ctxtProvider, SAMLProcessorImpl processor, CachingMetadataManager metadata) {
 		SimpleUrlLogoutSuccessHandler successHandler = new SimpleUrlLogoutSuccessHandler();
-		successHandler.setDefaultTargetUrl("/");
+		successHandler.setDefaultTargetUrl(ConfigUtil.getInstance().getAppUrl());
 		successHandler.setAlwaysUseDefaultTargetUrl(true);
 
 		SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
