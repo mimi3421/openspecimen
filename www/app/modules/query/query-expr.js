@@ -1,12 +1,20 @@
 
 angular.module('os.query.expr', ['os.query.models'])
-  .controller('QueryExprCtrl', function($scope, QueryUtil) {
+  .controller('QueryExprCtrl', function($scope, $timeout, QueryUtil) {
     $scope.exprSortOpts = {
       placeholder: 'os-query-expr-node-placeholder',
       stop: function(event, ui) {
         var ql = $scope.queryLocal;
-        ql.isValid = QueryUtil.isValidQueryExpr($scope.queryLocal.exprNodes);
-        $scope.$apply($scope.ql);
+        var exprNodes = ql.exprNodes;
+        ql.exprNodes = [];
+
+        $timeout(
+          function() {
+            ql.exprNodes = exprNodes;
+            ql.isValid = QueryUtil.isValidQueryExpr(ql.exprNodes);
+          },
+          10
+        );
       }
     };
 
