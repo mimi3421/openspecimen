@@ -26,6 +26,8 @@ public class ExtensionDetail implements Serializable {
 	private List<AttrDetail> attrs = new ArrayList<>();
 
 	private Map<String, Object> attrsMap;
+
+	private boolean useUdn;
 	
 	public Long getId() {
 		return id;
@@ -90,7 +92,15 @@ public class ExtensionDetail implements Serializable {
 
 		return attrsMap;
 	}
-	
+
+	public boolean isUseUdn() {
+		return useUdn;
+	}
+
+	public void setUseUdn(boolean useUdn) {
+		this.useUdn = useUdn;
+	}
+
 	public static ExtensionDetail from(DeObject extension) {
 		return from(extension, true);
 	}

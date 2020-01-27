@@ -347,7 +347,7 @@ public abstract class DeObject {
 			valueMap.put(attrDetail.getName(), attrDetail.getValue());
 		}
 
-		FormData formData = FormData.getFormData(extension.getForm(), valueMap);
+		FormData formData = FormData.getFormData(extension.getForm(), valueMap, detail.isUseUdn(), null);
 		List<Attr> attrs = extension.getAttrs(formData);
 		for (Attr attr : attrs) {
 			existingAttrs.remove(attr.getName());

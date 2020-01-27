@@ -1512,6 +1512,25 @@ form .form-group:empty {
   display: inline!important;
 }
 
+.os-select-container.disabled {
+  position: relative;
+}
+
+.os-select-container.disabled:before {
+  content: '';
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  width: 100%;
+  z-index: 100;
+  background: transparent;
+  cursor: 'not-allowed';
+}
+
+.os-select-container.disabled .ui-select-toggle {
+  background: #eee;
+}
+
 .os-user-impersonate-warn {
   position: absolute;
   top: 40px;
