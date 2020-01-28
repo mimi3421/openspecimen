@@ -469,6 +469,7 @@ angular.module('os.query.results', ['os.query.models'])
           var columnLabel = removeSeparator(columnLabel);
           var width = getColumnWidth(columnLabel);
 
+          var isDateColumn = (result.columnTypes[idx] == 'DATE');
           var cellTemplate = null;
           if (result.columnUrls[idx]) {
             var link, linkTxt;
@@ -485,13 +486,16 @@ angular.module('os.query.results', ['os.query.models'])
                                 linkTxt +
                            '  </a>' +
                            '</div>';
+          } else if (isDateColumn) {
+            cellTemplate = '<div class="ngCellText" ng-class="col.colIndex()" title="{{row.entity[col.field]}}">' +
+                           '  <span>{{row.entity[col.field] | osQueryDate}}</span>' +
+                           '</div>';
           } else {
             cellTemplate = '<div class="ngCellText" ng-class="col.colIndex()" title="{{row.entity[col.field]}}">' +
                            '  <span>{{row.entity[col.field]}}</span>' +
                            '</div>';
           }
 
-          var isDateColumn = (result.columnTypes[idx] == 'DATE');
           colDefs.push({
             field:        "col" + idx,
             instance:     columnInstance(columnLabel).instance,
@@ -502,7 +506,7 @@ angular.module('os.query.results', ['os.query.models'])
             showSummary:  showColSummary,
             summary:      summaryRow[idx],
             sortFn:       getSortFn(result.columnTypes[idx]),
-            cellFilter:   isDateColumn ? "osQueryDate" : undefined
+            cellFilter:   isDateColumn ? "osQueryDate" : undefined /* unused */
           });
         }
       );
