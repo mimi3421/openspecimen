@@ -46,6 +46,10 @@
       <a ng-href="{{url}}" ng-if="!!attr.value" ng-init="url=attr.$$fileDownloadUrl">{{attr.value.filename}}</a>
       <span ng-if="!attr.value" translate="common.not_specified">Not Specified</span>
     </span>
+    <span ng-switch-when="signature">
+      <img src="{{imgUrl}}" ng-if="!!attr.value" ng-init="imgUrl=attr.$$imageUrl">
+      <span ng-if="!attr.value" translate="common.not_specified">Not Specified</span>
+    </span>
     <span ng-switch-default>
       <span ng-switch on="!!attr.displayValue">
         <span ng-switch-when="true">{{attr.displayValue | osNoValue}}</span>

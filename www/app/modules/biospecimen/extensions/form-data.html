@@ -49,6 +49,9 @@
           {{file.filename}}
         </a>
       </span>
+      <span ng-switch-when="signature">
+        <img src="{{filesUrl}}/{{field.value}}">
+      </span>
       <span ng-switch-when="datePicker">
         {{field.value | date: $root.global.dateTimeFmt}}
       </span>

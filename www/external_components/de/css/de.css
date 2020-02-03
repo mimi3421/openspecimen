@@ -288,6 +288,73 @@ select.form-control.de-input-error + .chosen-container-multi .chosen-choices {
   border-radius: 4px;
 }
 
+.de-signature canvas {
+  position: relative;
+  max-height: 100%;
+  max-width: 100%;
+  width: 400px;
+  height: 100px;
+  margin: 0px;
+  padding: 0px;
+  border: 1px solid rgb(196, 202, 172);
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.de-signature img {
+  height: 100px;
+  width: 400px;
+  display: none;
+}
+
+.de-signature .actions {
+  display: block;
+}
+
+.de-signature .actions button {
+  border-radius: 4px;
+}
+
+.de-signature .actions button.edit {
+  display: inline-block;
+}
+
+.de-signature .actions button.reset {
+  display: none;
+}
+
+.de-signature .actions button:last-child {
+  margin-left: 8px;
+}
+
+.de-signature.view-mode canvas {
+  display: none;
+}
+
+.de-signature.view-mode img {
+  display: inline-block;
+}
+
+.de-signature.view-mode .actions button.edit {
+  display: none;
+}
+
+.de-signature.view-mode .actions button.reset {
+  display: inline-block;
+}
+
+.de-signature.disabled canvas {
+  display: none;
+}
+
+.de-signature.disabled img {
+  display: inline-block;
+}
+
+.de-signature.disabled .actions {
+  display: none;
+}
+
 .alert.de-form-err-msg {
   margin: 5px 0px 0px 0px;
   padding: 7px 15px;

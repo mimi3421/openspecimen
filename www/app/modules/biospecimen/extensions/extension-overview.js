@@ -19,6 +19,9 @@ angular.module("os.biospecimen.extensions")
              if (attr.type == 'fileUpload') {
                attr.$$fileDownloadUrl = ExtensionsUtil.getFileDownloadUrl(
                  formId, recordId, prefix + attr.name, attr.value && attr.value.fileId);
+             } else if (attr.type == 'signature') {
+               attr.$$imageUrl = ExtensionsUtil.getFileDownloadUrl(
+                 formId, recordId, prefix + attr.name, attr.value);
              }
            }
          }

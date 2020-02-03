@@ -36,6 +36,7 @@ import com.krishagni.catissueplus.core.importer.services.ObjectImporter;
 import edu.common.dynamicextensions.domain.nui.Container;
 import edu.common.dynamicextensions.domain.nui.Control;
 import edu.common.dynamicextensions.domain.nui.FileUploadControl;
+import edu.common.dynamicextensions.domain.nui.SignatureControl;
 import edu.common.dynamicextensions.domain.nui.SubFormControl;
 import edu.common.dynamicextensions.napi.FormData;
 import edu.common.dynamicextensions.nutility.FileUploadMgr;
@@ -187,7 +188,7 @@ public class ExtensionsImporter implements ObjectImporter<Map<String, Object>, M
 					}
 				}
 
-			} else if (ctrl instanceof FileUploadControl) {
+			} else if (ctrl instanceof FileUploadControl || ctrl instanceof SignatureControl) {
 				String filename = null;
 				Object value = formValueMap.get(fieldName);
 				if (value instanceof String) {
@@ -198,19 +199,34 @@ public class ExtensionsImporter implements ObjectImporter<Map<String, Object>, M
 				}
 
 				if (StringUtils.isNotBlank(filename)) {
-					Map<String, String> fileDetail = uploadFile(filesDir, filename);
-					formValueMap.put(fieldName, fileDetail);
+					if (ctrl instanceof SignatureControl) {
+						String extn = null;
+						int lastDotIdx = filename.lastIndexOf(".");
+						if (lastDotIdx != -1) {
+							extn = filename.substring(lastDotIdx + 1);
+						}
+
+						Map<String, String> fileDetail = uploadFile(filesDir, filename, extn);
+						formValueMap.put(fieldName, fileDetail.get("fileId"));
+					} else {
+						Map<String, String> fileDetail = uploadFile(filesDir, filename);
+						formValueMap.put(fieldName, fileDetail);
+					}
 				}
 			}
 		}
 	}
 
 	private Map<String, String> uploadFile(String filesDir, String filename) {
+		return uploadFile(filesDir, filename, null);
+	}
+
+	private Map<String, String> uploadFile(String filesDir, String filename, String extn) {
 		FileInputStream fin = null;
 		try {
 			File fileToUpload = new File(filesDir + File.separator + filename);
 			fin = new FileInputStream(fileToUpload);
-			String fileId = FileUploadMgr.getInstance().saveFile(fin);
+			String fileId = FileUploadMgr.getInstance().saveFile(fin, extn);
 
 			Map<String, String> fileDetail = new HashMap<>();
 			fileDetail.put("filename", filename);

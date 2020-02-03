@@ -303,7 +303,8 @@ public class ExportServiceImpl implements ExportService {
 					updateFieldCount(namePrefix + field.getAttribute(), count);
 				} else {
 					String value = getString(object, field);
-					if (("file".equals(field.getType()) || "defile".equals(field.getType())) && StringUtils.isNotBlank(value)) {
+					if (StringUtils.isNotBlank(value) &&
+						("file".equals(field.getType()) || "defile".equals(field.getType()) || "signature".equals(field.getType()))) {
 						value = ++filesCount + "_" + value;
 						writeFileData(object, field, value);
 					}
@@ -361,6 +362,9 @@ public class ExportServiceImpl implements ExportService {
 				} else if (field.getType().equals("defile")) {
 					Map<String, String> fcv = (Map<String, String>) getObject(object, field.getAttribute());
 					String fileId = fcv.get("fileId");
+					srcFile = new File(DeConfiguration.getInstance().fileUploadDir(), fileId);
+				} else if (field.getType().equals("signature")) {
+					String fileId = (String) getObject(object, field.getAttribute());
 					srcFile = new File(DeConfiguration.getInstance().fileUploadDir(), fileId);
 				}
 

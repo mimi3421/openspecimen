@@ -1,6 +1,6 @@
 
 angular.module('openspecimen')
-  .directive('osFileUpload', function($timeout, $q, $http, Alerts) {
+  .directive('osFileUpload', function($timeout, $q, $http, $cookieStore, Alerts) {
     return {
       restrict: 'A',
       replace: true,
@@ -76,6 +76,10 @@ angular.module('openspecimen')
             beforeSend: function(xhr) {
               if ($http.defaults.headers.common['X-OS-API-TOKEN']) {
                 xhr.setRequestHeader('X-OS-API-TOKEN', $http.defaults.headers.common['X-OS-API-TOKEN']);
+              }
+
+              if (ui.os.global.impersonate) {
+                xhr.setRequestHeader('X-OS-IMPERSONATE-USER', $cookieStore.get('osImpersonateUser'));
               }
             },
             add: function (e, data) {

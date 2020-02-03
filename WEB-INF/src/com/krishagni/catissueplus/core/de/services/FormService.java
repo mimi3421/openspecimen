@@ -65,6 +65,8 @@ public interface FormService {
 
 	public ResponseEvent<FileDetail> uploadFile(RequestEvent<MultipartFile> req);
 
+	ResponseEvent<FileDetail> uploadImage(RequestEvent<String> req);
+
 	public ResponseEvent<Long> deleteRecord(RequestEvent<FormRecordCriteria> req);
 
 	public ResponseEvent<Long> addRecordEntry(RequestEvent<AddRecordEntryOp> req);

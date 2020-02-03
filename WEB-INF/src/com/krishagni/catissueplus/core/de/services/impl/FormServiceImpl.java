@@ -1,10 +1,11 @@
 package com.krishagni.catissueplus.core.de.services.impl;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -490,6 +491,43 @@ public class FormServiceImpl implements FormService, InitializingBean {
 		} catch (Exception e) {
 			return ResponseEvent.serverError(e);
 		}		
+	}
+
+	@Override
+	public ResponseEvent<FileDetail> uploadImage(RequestEvent<String> req) {
+		String dataUrl = req.getPayload();
+		if (StringUtils.isBlank(dataUrl)) {
+			return ResponseEvent.response(null);
+		}
+
+		String[] parts = dataUrl.split(",", 2);
+		if (parts.length == 1) {
+			throw OpenSpecimenException.userError(CommonErrorCode.INVALID_INPUT, "Invalid image data URL");
+		}
+
+		String header = parts[0];
+		String base64Img = parts[1];
+
+		String[] headerParts = header.split("[:/;]");
+		if (headerParts.length < 4) {
+			throw OpenSpecimenException.userError(CommonErrorCode.INVALID_INPUT, "Invalid image data URL");
+		}
+
+		String type = headerParts[2];
+		byte[] imgBinary = Base64.getDecoder().decode(base64Img);
+		ByteArrayInputStream bin = new ByteArrayInputStream(imgBinary);
+
+		try {
+			String fileId = FileUploadMgr.getInstance().saveFile(bin, type);
+
+			FileDetail result = new FileDetail();
+			result.setFileId(fileId);
+			result.setContentType("image/" + type);
+			result.setSize(imgBinary.length);
+			return ResponseEvent.response(result);
+		} catch (Exception e) {
+			return ResponseEvent.serverError(e);
+		}
 	}
 	
 	@Override

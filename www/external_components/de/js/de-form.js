@@ -692,6 +692,8 @@ edu.common.de.FieldFactory = {
       fieldObj = new edu.common.de.FileUploadField(id, field, args);
     } else if (field.type == 'label' || field.type == 'heading') {
       fieldObj = new edu.common.de.Note(id, field, args);
+    } else if (field.type == 'signature') {
+      fieldObj = new edu.common.de.Signature(id, field, args);
     } else {
       var params = {id: id, field: field, args: args};
       fieldObj = edu.common.de.FieldManager.getInstance().getField(field.type, params);
@@ -2482,3 +2484,239 @@ edu.common.de.LookupSvc = function(params) {
 };
 
 edu.common.de.LookupSvc.extend = edu.common.de.Extend;
+
+edu.common.de.SignatureWidget = function(canvas) {
+  var ctxt = canvas.getContext("2d");
+
+  ctxt.fillStyle = "#fff";
+  ctxt.strokeStyle = "#444";
+  ctxt.lineWidth = 1.5;
+  ctxt.lineCap = "round";
+  ctxt.fillRect(0, 0, canvas.width, canvas.height);
+
+  function getPosition(canvas, e) {
+    var pos = {x: undefined, y: undefined};
+    var bounds = canvas.getBoundingClientRect();
+
+    if (e.changedTouches && e.changedTouches[0]) {
+      //
+      // xOffset and yOffset gives the (x, y) coordinates
+      // on the screen from where the canvas starts
+      //
+      var yOffset = canvas.offsetTop  || 0;
+      var xOffset = canvas.offsetLeft || 0;
+
+      pos.x = e.changedTouches[0].pageX - xOffset;
+      pos.y = e.changedTouches[0].pageY - yOffset;
+    } else if (e.layerX || 0 == e.layerX) {
+      pos.x = e.layerX;
+      pos.y = e.layerY;
+    } else if (e.offsetX || 0 == e.offsetX) {
+      pos.x = e.offsetXtop
+      pos.y = e.offsetY;
+    }
+
+    pos.x /= bounds.width;
+    pos.x *= canvas.width;
+
+    pos.y /= bounds.height;
+    pos.y *= canvas.height;
+
+    return pos;
+  }
+
+  function onMouseDown(evt) {
+    lastPos = getPosition(canvas, evt);
+    ctxt.beginPath();
+    ctxt.moveTo(lastPos.x, lastPos.y);
+
+    canvas.addEventListener('mousemove', onMouseMove, false);
+    canvas.addEventListener('mouseup', onMouseUp, false);
+  }
+
+  function onMouseMove(evt) {
+    if (!lastPos) {
+      return;
+    }
+
+    var pos = getPosition(canvas, evt);
+    var mid = {x: (lastPos.x + pos.x) / 2, y: (lastPos.y + pos.y) / 2};
+
+    ctxt.quadraticCurveTo(lastPos.x, lastPos.y, mid.x, mid.y);
+    ctxt.stroke();
+    ctxt.beginPath();
+    ctxt.moveTo(mid.x, mid.y);
+    lastPos = pos;
+  }
+
+  function onMouseUp(evt) {
+    ctxt.stroke();
+    lastPos = undefined;
+
+    canvas.removeEventListener('mousemove', onMouseMove, false);
+    canvas.removeEventListener('mouseup', onMouseUp, false);
+  }
+
+  canvas.addEventListener('mousedown', onMouseDown, false);
+
+  this.clear = function() {
+    ctxt.clearRect(0, 0, canvas.width, canvas.height);
+    ctxt.fillRect(0, 0, canvas.width, canvas.height);
+  }
+
+  this.getData = function() {
+    var data = ctxt.getImageData(0, 0, canvas.width, canvas.height).data;
+    var allWhite = true;
+    for (var i = 0; i < data.length; ++i) {
+      if (data[i] < 255) {
+        allWhite = false;
+        break;
+      }
+    }
+
+    return allWhite ? null : canvas.toDataURL("image/jpeg");
+  }
+
+  this.setData = function(dataUrl) {
+    this.clear();
+
+    var img = new Image();
+    img.onload = function() {
+      ctxt.drawImage(img, 0, 0);
+    }
+
+    img.src = dataUrl;
+  }
+}
+
+edu.common.de.Signature = function(id, field, args) {
+  this.canvasEl = null;
+
+  this.widget = null;
+
+  this.inputEl = null;
+
+  this.clearBtn = null;
+
+  this.validator;
+
+  this.value = null;
+
+  this.render = function() {
+    this.canvasEl = $('<canvas/>').prop({title: field.toolTip});
+
+    this.imageEl = $('<img/>');
+
+    this.removeBtn = $('<button/>')
+      .append($('<span/>').append('remove'))
+      .addClass('reset');
+
+    this.saveBtn = $('<button/>')
+      .append($('<span/>').append('save'))
+      .addClass('edit');
+
+    this.clearBtn = $('<button/>')
+      .append($('<span/>').append('clear'))
+      .addClass('edit');
+
+    var buttons = $('<div/>').addClass('actions')
+      .append(this.removeBtn)
+      .append(this.saveBtn)
+      .append(this.clearBtn);
+
+    this.inputEl = $('<div/>').addClass('de-signature').append(this.canvasEl).append(this.imageEl).append(buttons);
+    this.validator = new edu.common.de.FieldValidator(field.validationRules, this);
+    return this.inputEl;
+  };
+
+  this.postRender = function() {
+    if (!this.recId && !this.value && field.defaultValue) {
+      this.value = field.defaultValue;
+    }
+
+    this.widget = new edu.common.de.SignatureWidget(this.canvasEl[0]);
+    this.setValue(this.recId, this.value);
+
+    var that = this;
+    this.clearBtn.on('click', function() {
+      that.widget.clear(); 
+      that.setValue(that.recId, that.widget.getData());
+    });
+
+    this.removeBtn.on('click', function() {
+      that.widget.clear();
+      that.setValue(that.recId, null);
+    });
+
+    this.saveBtn.on('click', function() {
+      var dataUrl = that.widget.getData();
+      if (dataUrl) {
+        $.ajax({
+          type: 'POST',
+          url: args.fileUploadUrl + '/images',
+          headers: args.customHdrs,
+          contentType: 'application/json',
+          dataType: 'json',
+          data: JSON.stringify({dataUrl: dataUrl})
+        }).done(function(data) {
+          that.setValue(that.recId, data.fileId);
+        }).fail(function(data) {
+          if (args.onSaveError) {
+            args.onSaveError(data);
+          }
+        });
+      } else {
+        that.setValue(that.recId, null);
+      }
+    });
+  };
+
+  this.getName = function() {
+    return field.name;
+  };
+
+  this.getCaption = function() {
+    return field.caption;
+  };
+  
+  this.getTooltip = function() {
+    return field.toolTip ? field.toolTip : field.caption;
+  };
+	  
+  this.getValue = function() {
+    return {name: field.name, value: this.value};
+  };
+
+  this.getDisplayValue = function() {
+    return {name: field.name, value: this.widget.getData()};
+  }
+
+  this.setValue = function(recId, value) {
+    this.recId = recId;
+    this.value = value;
+
+    if (this.value) {
+      var url = "#";
+      if (typeof args.fileDownloadUrl == "function") {
+        url = args.fileDownloadUrl(args.id, this.recId, field.fqn, this.value);
+      } else {
+        url = args.fileDownloadUrl;
+      }
+
+      this.imageEl.attr('src', url);
+      this.inputEl.addClass("view-mode");
+    } else {
+      this.inputEl.removeClass("view-mode");
+    }
+  };
+
+  this.skipLogicFieldValue = edu.common.de.DefSkipLogicFieldValue;
+
+  this.validate = function() {
+    return this.validator.validate();
+  };
+
+  this.getPrintEl = function() {
+    return edu.common.de.Utility.getPrintEl(this);
+  };
+};
