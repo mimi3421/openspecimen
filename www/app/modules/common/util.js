@@ -229,8 +229,8 @@ angular.module('openspecimen')
               filename += '.csv';
             }
 
-            downloadFile(ApiUrls.getBaseUrl() + 'query/export?' +
-              'fileId=' + result.dataFile +
+            downloadFile(ApiUrls.getBaseUrl() + 'query/export' +
+              '?fileId=' + result.dataFile +
               '&filename=' + encodeURIComponent(filename)
             );
           } else if (result.dataFile) {
