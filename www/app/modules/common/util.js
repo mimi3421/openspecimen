@@ -229,7 +229,10 @@ angular.module('openspecimen')
               filename += '.csv';
             }
 
-            downloadFile(ApiUrls.getBaseUrl() + 'query/export?fileId=' + result.dataFile + '&filename=' + filename);
+            downloadFile(ApiUrls.getBaseUrl() + 'query/export?' +
+              'fileId=' + result.dataFile +
+              '&filename=' + encodeURIComponent(filename)
+            );
           } else if (result.dataFile) {
             Alerts.info(msgClass + '.report_will_be_emailed');
           }
