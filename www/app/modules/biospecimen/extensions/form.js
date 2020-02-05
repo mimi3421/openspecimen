@@ -141,6 +141,8 @@ angular.module('os.biospecimen.extensions', ['os.biospecimen.models'])
               angular.element(this).addClass("col-xs-offset-3 col-xs-8");
             }
           );
+
+          element.find('.de-sf-content').closest('.col-xs-6').removeClass('col-xs-6').addClass('col-xs-9');
         }
       }
     }
