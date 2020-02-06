@@ -2859,7 +2859,9 @@
         "allowed_file_types": "Allowed File Types",
         "allowed_file_types_desc": "Comma-separated list of file types that can be uploaded by the end-users.",
         "allowed_req_origins": "Allowed Request Origins",
-        "allowed_req_origins_desc": "Comma-separated list of allowed request origin servers."
+        "allowed_req_origins_desc": "Comma-separated list of allowed request origin servers.",
+        "hosting_institute": "Hosting Institute",
+        "hosting_institute_desc": "Name of the institute hosting OpenSpecimen and the biobank services"
       },
 
       "email": {
