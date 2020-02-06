@@ -195,6 +195,10 @@ public class Utility {
 		return stringListToCsv(elements.toArray(new String[0]), quotechar, fieldSeparator);
 	}
 
+	public static String stringListToCsv(Collection<String> elements, boolean quotechar, char fieldSeparator, String lineEnding) {
+		return stringListToCsv(elements.toArray(new String[0]), quotechar, fieldSeparator, lineEnding);
+	}
+
 	public static String stringListToCsv(String[] elements) {
 		return stringListToCsv(elements, true);
 	}
@@ -204,13 +208,17 @@ public class Utility {
 	}
 
 	public static String stringListToCsv(String[] elements, boolean quotechar, char fieldSeparator) {
+		return stringListToCsv(elements, quotechar, fieldSeparator, null);
+	}
+
+	public static String stringListToCsv(String[] elements, boolean quotechar, char fieldSeparator, String lineEnding) {
 		StringWriter writer = new StringWriter();
 		CsvWriter csvWriter = null;
 		try {
 			if (quotechar) {
-				csvWriter = CsvFileWriter.createCsvFileWriter(writer, fieldSeparator, CSVWriter.DEFAULT_QUOTE_CHARACTER);
+				csvWriter = CsvFileWriter.createCsvFileWriter(writer, fieldSeparator, CSVWriter.DEFAULT_QUOTE_CHARACTER, lineEnding);
 			} else {
-				csvWriter = CsvFileWriter.createCsvFileWriter(writer, fieldSeparator, CSVWriter.NO_QUOTE_CHARACTER);
+				csvWriter = CsvFileWriter.createCsvFileWriter(writer, fieldSeparator, CSVWriter.NO_QUOTE_CHARACTER, lineEnding);
 			}
 			csvWriter.writeNext(elements);
 			csvWriter.flush();

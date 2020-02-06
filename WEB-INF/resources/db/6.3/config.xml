@@ -36,13 +36,44 @@
     </sql>
   </changeSet>
 
-  <!-- changeSet author="vpawar" id="Allowed file types">
+  <changeSet author="vpawar" id="Hosting institute name">
     <sql>
       call add_cfg_prop(
-        'common', 'allowed_file_types',
-        'allowed_file_types', 'allowed_file_types_desc',
-        'STRING', 'pdf,jpeg,jpg,png,txt,doc,docx,xls,xlsx,csv,json'
+        'common', 'hosting_institute',
+        'hosting_institute', 'hosting_institute_desc',
+        'STRING', ''
       );
     </sql>
-  </changeSet -->
+  </changeSet>
+
+  <changeSet author="vpawar" id="Scheduled job to send coordinators report to the CP PI" dbms="mysql">
+    <sql>
+      select identifier into @userId from catissue_user where login_name = '$system';
+
+      insert into os_scheduled_jobs
+        (identifier, name, created_by, start_date, activity_status, repeat_schedule, type, scheduled_minute,
+         task_impl_fqn, rt_args_provided)
+      values
+        (default, 'Collection protocol coordinators report', @userId, now(), 'Active', 'ONDEMAND', 'INTERNAL', 0,
+         'com.krishagni.catissueplus.core.biospecimen.services.impl.CpCoordinatorsReportTask', 0)
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Scheduled job to send coordinators report to the CP PI" dbms="oracle">
+    <sql endDelimiter="//">
+      declare
+        userId number;
+      begin
+        select identifier into userId from catissue_user where login_name like '$system';
+
+        insert into os_scheduled_jobs
+          (identifier, name, created_by, start_date, activity_status, scheduled_minute,
+           repeat_schedule, type, task_impl_fqn, rt_args_provided)
+        values
+          (OS_SCHEDULED_JOBS_SEQ.nextval, 'Collection protocol coordinators report', userId, SYSDATE, 'Active', 0,
+           'ONDEMAND', 'INTERNAL', 'com.krishagni.catissueplus.core.biospecimen.services.impl.CpCoordinatorsReportTask', 0);
+      end;
+      //
+    </sql>
+  </changeSet>
 </databaseChangeLog>

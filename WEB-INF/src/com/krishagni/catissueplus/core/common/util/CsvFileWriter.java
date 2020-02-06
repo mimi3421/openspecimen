@@ -38,7 +38,15 @@ public class CsvFileWriter implements CsvWriter {
 	}
 	
 	public static CsvFileWriter createCsvFileWriter(Writer writer, char separator, char quotechar) {
-		CSVWriter csvWriter = new CSVWriter(writer, separator, quotechar, getLineEnding());
+		return createCsvFileWriter(writer, separator, quotechar, null);
+	}
+
+	public static CsvFileWriter createCsvFileWriter(Writer writer, char separator, char quotechar, String lineEnding) {
+		if (StringUtils.isBlank(lineEnding)) {
+			lineEnding = getLineEnding();
+		}
+
+		CSVWriter csvWriter = new CSVWriter(writer, separator, quotechar, lineEnding);
 		return new CsvFileWriter(csvWriter);
 	}
 	

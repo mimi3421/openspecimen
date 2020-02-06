@@ -21,6 +21,10 @@ import com.krishagni.catissueplus.core.common.util.MessageUtil;
 import com.krishagni.catissueplus.core.common.util.Utility;
 
 public abstract class LabelPrintRule {
+	private static final String DEF_LINE_ENDING = "LF";
+
+	private static final String DEF_FILE_EXTN = "txt";
+
 	public enum CmdFileFmt {
 		CSV("csv"),
 		KEY_VALUE("key-value"),
@@ -59,6 +63,10 @@ public abstract class LabelPrintRule {
 
 	private CmdFileFmt cmdFileFmt = CmdFileFmt.KEY_VALUE;
 
+	private String lineEnding;
+
+	private String fileExtn;
+
 	public String getLabelType() {
 		return labelType;
 	}
@@ -74,7 +82,6 @@ public abstract class LabelPrintRule {
 	public void setIpAddressMatcher(IpAddressMatcher ipAddressMatcher) {
 		this.ipAddressMatcher = ipAddressMatcher;
 	}
-
 
 	public void setUserLogin(User user) {
 		users = new ArrayList<>();
@@ -138,6 +145,22 @@ public abstract class LabelPrintRule {
 		}
 	}
 
+	public String getLineEnding() {
+		return StringUtils.isNotBlank(lineEnding) ? lineEnding : DEF_LINE_ENDING;
+	}
+
+	public void setLineEnding(String lineEnding) {
+		this.lineEnding = lineEnding;
+	}
+
+	public String getFileExtn() {
+		return StringUtils.isNotBlank(fileExtn) ? fileExtn : DEF_FILE_EXTN;
+	}
+
+	public void setFileExtn(String fileExtn) {
+		this.fileExtn = fileExtn;
+	}
+
 	public boolean isApplicableFor(User user, String ipAddr) {
 		if (CollectionUtils.isNotEmpty(users) && !users.stream().anyMatch(u -> u.equals(user))) {
 			return false;
@@ -193,7 +216,9 @@ public abstract class LabelPrintRule {
 		result.append("label design = ").append(getLabelDesign())
 			.append(", label type = ").append(getLabelType())
 			.append(", user = ").append(getUsersList(true))
-			.append(", printer = ").append(getPrinterName());
+			.append(", printer = ").append(getPrinterName())
+			.append(", line ending = ").append(getLineEnding())
+			.append(", file extension = ").append(getFileExtn());
 
 		String tokens = getDataTokens().stream()
 			.map(Pair::first)
@@ -218,6 +243,8 @@ public abstract class LabelPrintRule {
 			rule.put("labelDesign", getLabelDesign());
 			rule.put("dataTokens", getTokens());
 			rule.put("cmdFileFmt", getCmdFileFmt().fmt);
+			rule.put("lineEnding", getLineEnding());
+			rule.put("fileExtn", getFileExtn());
 			rule.putAll(getDefMap(ufn));
 			return rule;
 		} catch (Exception e) {
