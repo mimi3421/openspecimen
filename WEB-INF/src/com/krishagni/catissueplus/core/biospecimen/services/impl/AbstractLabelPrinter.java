@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
@@ -43,7 +44,7 @@ public abstract class AbstractLabelPrinter<T> implements LabelPrinter<T> {
 	//
 	private static final Log logger = LogFactory.getLog(AbstractLabelPrinter.class);
 
-	private static final String LABEL_FILENAME_FMT = "%s_%s_%d_%d.txt";
+	private static final String LABEL_FILENAME_FMT = "%s_%s_%d_%d.%s";
 
 	private static final String TSTAMP_FMT = "yyyyMMddHHmm";
 
@@ -199,15 +200,15 @@ public abstract class AbstractLabelPrinter<T> implements LabelPrinter<T> {
 			String content = null;
 			switch (rule.getCmdFileFmt()) {
 				case CSV:
-					content = getCommaSeparatedValueFields(dataItems);
+					content = getCommaSeparatedValueFields(dataItems, rule.getLineEnding());
 					break;
 
 				case KEY_VALUE:
-					content = getKeyValueFields(dataItems);
+					content = getKeyValueFields(dataItems, false, rule.getLineEnding());
 					break;
 
 				case KEY_Q_VALUE:
-					content = getKeyValueFields(dataItems, true);
+					content = getKeyValueFields(dataItems, true, rule.getLineEnding());
 					break;
 			}
 
@@ -218,28 +219,25 @@ public abstract class AbstractLabelPrinter<T> implements LabelPrinter<T> {
 		}
 	}
 
-	private String getCommaSeparatedValueFields(Map<String, String> dataItems) {
-		return Utility.stringListToCsv(dataItems.values());
+	private String getCommaSeparatedValueFields(Map<String, String> dataItems, String lineEnding) {
+		return Utility.stringListToCsv(dataItems.values(), true, ',', getLineEnding(lineEnding));
 	}
 
-	private String getKeyValueFields(Map<String, String> dataItems) {
-		return getKeyValueFields(dataItems, false);
-	}
-
-	private String getKeyValueFields(Map<String, String> dataItems, boolean quotedValues) {
+	private String getKeyValueFields(Map<String, String> dataItems, boolean quotedValues, String lineEnding) {
+		String fmt = "%s=%s" + getLineEnding(lineEnding);
 		StringBuilder content = new StringBuilder();
 
-		if (quotedValues) {
-			dataItems.forEach((key, value) -> content.append(String.format("%s=%s\n", key, Utility.getQuotedString(value))));
-		} else {
-			dataItems.forEach((key, value) -> content.append(String.format("%s=%s\n", key, value)));
-		}
-
-		if (!dataItems.isEmpty()) {
+		Function<String, String> transformFn = quotedValues ? Utility::getQuotedString : (v) -> v;
+		dataItems.forEach((key, value) -> content.append(String.format(fmt, key, transformFn.apply(value))));
+		if (!dataItems.isEmpty() && "LF".equals(lineEnding)) {
 			content.deleteCharAt(content.length() - 1);
 		}
 
 		return content.toString();
+	}
+
+	private String getLineEnding(String lineEnding) {
+		return "CRLF".equals(lineEnding) ? "\r\n" : "\n";
 	}
 
 	private void writeToFile(LabelPrintJobItem item, LabelPrintRule rule, String content)
@@ -248,7 +246,7 @@ public abstract class AbstractLabelPrinter<T> implements LabelPrinter<T> {
 		int labelCount = uniqueNum.incrementAndGet();
 
 		for (int i = 0; i < item.getCopies(); ++i) {
-			String filename = String.format(LABEL_FILENAME_FMT, item.getJob().getItemType(), tstamp, labelCount, (i + 1));
+			String filename = String.format(LABEL_FILENAME_FMT, item.getJob().getItemType(), tstamp, labelCount, (i + 1), rule.getFileExtn());
 			FileUtils.write(new File(rule.getCmdFilesDir(), filename), content);
 		}
 	}

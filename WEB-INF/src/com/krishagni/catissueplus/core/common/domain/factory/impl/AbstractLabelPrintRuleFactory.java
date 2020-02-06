@@ -59,6 +59,8 @@ public abstract class AbstractLabelPrintRuleFactory implements LabelPrintRuleFac
 		setDataTokens(ruleDef, failOnError, rule, ose);
 		setCmdFilesDir(ruleDef, failOnError, rule, ose);
 		setCmdFileFmt(ruleDef, failOnError, rule, ose);
+		setFileLineEnding(ruleDef, failOnError, rule, ose);
+		setFileExtn(ruleDef, failOnError, rule, ose);
 		setPrinterName(ruleDef, failOnError, rule, ose);
 		setIpAddressMatcher(ruleDef, failOnError, rule, ose);
 		setUsers(ruleDef, failOnError, rule, ose);
@@ -186,6 +188,24 @@ public abstract class AbstractLabelPrintRuleFactory implements LabelPrintRuleFac
 		}
 
 		rule.setCmdFileFmt(cmdFileFmt);
+	}
+
+	private void setFileLineEnding(Map<String, String> input, boolean failOnError, LabelPrintRule rule, OpenSpecimenException ose) {
+		String lineEnding = input.get("lineEnding");
+		if (StringUtils.isBlank(lineEnding)) {
+			return;
+		}
+
+		rule.setLineEnding(lineEnding);
+	}
+
+	private void setFileExtn(Map<String, String> input, boolean failOnError, LabelPrintRule rule, OpenSpecimenException ose) {
+		String fileExtn = input.get("fileExtn");
+		if (StringUtils.isBlank(fileExtn)) {
+			return;
+		}
+
+		rule.setFileExtn(fileExtn);
 	}
 
 	private void setPrinterName(Map<String, String> input, boolean failOnError, LabelPrintRule rule, OpenSpecimenException ose) {
