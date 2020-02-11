@@ -1053,19 +1053,10 @@ public class FormServiceImpl implements FormService, InitializingBean {
 	}
 	
 	private List<FormFieldSummary> getFormFields(Container container) {
-		Set<String> hiddenFields = new HashSet<>();
-		if (container.getHiddenFields() != null) {
-			hiddenFields.addAll(container.getHiddenFields());
-		}
-
-		return getFormFields(container, hiddenFields, "");
-	}
-
-	private List<FormFieldSummary> getFormFields(Container container, Set<String> hiddenFields, String prefix) {
         List<FormFieldSummary> fields = new ArrayList<>();
 
         for (Control control : container.getControls()) {
-        	if (hiddenFields.contains(prefix + control.getUserDefinedName())) {
+        	if (control.isHidden()) {
         		continue;
         	}
 
@@ -1079,7 +1070,7 @@ public class FormServiceImpl implements FormService, InitializingBean {
 
             	if (!sfCtrl.isPathLink()) {
                 	field.setType("SUBFORM");
-                	field.setSubFields(getFormFields(sfCtrl.getSubContainer(), hiddenFields, prefix + sfCtrl.getUserDefinedName() + "."));
+                	field.setSubFields(getFormFields(sfCtrl.getSubContainer()));
                 	fields.add(field);
             	} else if (sfCtrl.getName().equals("customFields") && StringUtils.isNotBlank(sfCtrl.getCustomFieldsInfo())) {
             		String[] info = sfCtrl.getCustomFieldsInfo().split(":");  // cpBased:entityType:entityId => false:OrderExtension:-1
