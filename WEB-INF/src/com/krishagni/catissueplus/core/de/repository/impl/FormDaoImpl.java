@@ -490,7 +490,7 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 		Map<Long, FormCtxtSummary> formsMap = new LinkedHashMap<>();
 		
 		for (Object[] row : rows) {
-			Long cpId = (Long)row[3];
+			Long cpId = (Long)row[4];
 			Long formId = (Long)row[1];
 
 			FormCtxtSummary form = formsMap.get(formId);
@@ -501,20 +501,21 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 			form = new FormCtxtSummary();
 			form.setFormCtxtId((Long)row[0]);
 			form.setFormId(formId);
-			form.setFormCaption((String)row[2]);
-			form.setEntityType((String)row[4]);
-			form.setCreationTime((Date)row[5]);
-			form.setModificationTime((Date)row[6]);
+			form.setFormName((String)row[2]);
+			form.setFormCaption((String)row[3]);
+			form.setEntityType((String)row[5]);
+			form.setCreationTime((Date)row[6]);
+			form.setModificationTime((Date)row[7]);
 			
 			UserSummary user = new UserSummary();
-			user.setId((Long)row[7]);
-			user.setFirstName((String)row[8]);
-			user.setLastName((String)row[9]);
+			user.setId((Long)row[8]);
+			user.setFirstName((String)row[9]);
+			user.setLastName((String)row[10]);
 			form.setCreatedBy(user);
 			
-			form.setMultiRecord((Boolean)row[10]);
-			form.setSysForm((Boolean)row[11]);
-			form.setNoOfRecords((Integer)row[12]);
+			form.setMultiRecord((Boolean)row[11]);
+			form.setSysForm((Boolean)row[12]);
+			form.setNoOfRecords((Integer)row[13]);
 			formsMap.put(formId, form);
 		}
 		

@@ -172,9 +172,18 @@ angular.module('os.biospecimen.visit', [
               }
             );
           },
-          forms: function(visit, orderSpec, ExtensionsUtil) {
+          fdeRules: function(cp, CpConfigSvc) {
+            return CpConfigSvc.getWorkflowData(cp.id, 'formDataEntryRules', {}).then(
+              function(wf) {
+                return wf['visit'] || [];
+              }
+            );
+          },
+          forms: function(cp, cpr, visit, currentUser, orderSpec, fdeRules, ExtensionsUtil) {
             return visit.getForms().then(
               function(forms) {
+                var ctxt = {cp: cp, cpr: cpr, visit: visit, user: currentUser};
+                forms = ExtensionsUtil.getMatchingForms(forms, fdeRules, ctxt);
                 return ExtensionsUtil.sortForms(forms, orderSpec);
               } 
             ) 

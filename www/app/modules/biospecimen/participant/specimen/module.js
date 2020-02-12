@@ -180,12 +180,21 @@ angular.module('os.biospecimen.specimen',
               } 
             );
           },
-          forms: function(specimen, orderSpec, ExtensionsUtil) {
+          fdeRules: function(cp, CpConfigSvc) {
+            return CpConfigSvc.getWorkflowData(cp.id, 'formDataEntryRules', {}).then(
+              function(wf) {
+                return wf['specimen'] || [];
+              }
+            );
+          },
+          forms: function(cp, cpr, visit, specimen, currentUser, orderSpec, fdeRules, ExtensionsUtil) {
             return specimen.getForms().then(
               function(forms) {
+                var ctxt = {cp: cp, cpr: cpr, visit: visit, specimen: specimen, user: currentUser};
+                forms = ExtensionsUtil.getMatchingForms(forms, fdeRules, ctxt);
                 return ExtensionsUtil.sortForms(forms, orderSpec);
-              } 
-            ) 
+              }
+            )
           },
           records: function(specimen) {
             return specimen.getRecords();
@@ -240,14 +249,15 @@ angular.module('os.biospecimen.specimen',
       .state('specimen-detail.events', {
         url: '/events',
         templateUrl: 'modules/biospecimen/participant/specimen/events.html',
-        controller: function($scope, specimen, ExtensionsUtil) {
+        controller: function($scope, cp, cpr, visit, specimen, fdeRules, currentUser, ExtensionsUtil) {
           $scope.entityType = 'SpecimenEvent';
           $scope.extnState = 'specimen-detail.events';
           $scope.events = specimen.getEvents();
           $scope.eventForms = [];
           specimen.getForms({entityType: 'SpecimenEvent'}).then(
             function(eventForms) {
-              $scope.eventForms = eventForms;
+              var ctxt = {cp: cp, cpr: cpr, visit: visit, specimen: specimen, user: currentUser};
+              $scope.eventForms = ExtensionsUtil.getMatchingForms(eventForms, fdeRules, ctxt);
             }
           );
 
@@ -258,6 +268,15 @@ angular.module('os.biospecimen.specimen',
               function() {
                 var idx = $scope.events.indexOf(event);
                 $scope.events.splice(idx, 1);
+              }
+            );
+          }
+        },
+        resolve: {
+          fdeRules: function(cp, CpConfigSvc) {
+            return CpConfigSvc.getWorkflowData(cp.id, 'formDataEntryRules', {}).then(
+              function(wf) {
+                return wf['specimenEvent'] || [];
               }
             );
           }

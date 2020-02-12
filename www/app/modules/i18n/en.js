@@ -1751,7 +1751,7 @@
   },
 
   "extensions": {
-    "no_extensions": "No forms to show",
+    "no_extensions": "No forms to show!",
     "list": "Forms",
     "sys_form": "System Form",
     "sys_form_help": "System form records cannot be added or edited or deleted!",

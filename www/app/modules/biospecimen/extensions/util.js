@@ -1,6 +1,6 @@
 
 angular.module('os.biospecimen.extensions.util', [])
-  .factory('ExtensionsUtil', function($modal, Form, Alerts, ApiUrls) {
+  .factory('ExtensionsUtil', function($modal, $parse, Form, Alerts, ApiUrls) {
     var filesUrl = ApiUrls.getBaseUrl() + 'form-files';
 
     function getFileDownloadUrl(formId, recordId, ctrlName, fileId) {
@@ -108,6 +108,30 @@ angular.module('os.biospecimen.extensions.util', [])
       };
     }
 
+    function getMatchingForms(forms, rules, ctxt) {
+      var matchingRule = null;
+      for (var i = 0; i < rules.length; ++i) {
+        if (!rules[i].when) {
+          continue;
+        }
+
+        try {
+          if ($parse(rules[i].when)(ctxt)) {
+            matchingRule = rules[i];
+            break;
+          }
+        } catch (err) {
+          alert('Invalid rule expression: ' + (i + 1) + ': ' + err);
+        }
+      }
+
+      if (matchingRule && matchingRule.forms) {
+        forms = forms.filter(function(f) { return matchingRule.forms.indexOf(f.formName) > -1; });
+      }
+
+      return forms;
+    }
+
     function sortForms(inputForms, orderSpec) {
       if (!orderSpec || orderSpec.length == 0) {
         return inputForms;
@@ -194,6 +218,8 @@ angular.module('os.biospecimen.extensions.util', [])
       createExtensionFieldMap: createExtensionFieldMap,
 
       getExtnOpts: getExtnOpts,
+
+      getMatchingForms: getMatchingForms,
 
       sortForms: sortForms,
 

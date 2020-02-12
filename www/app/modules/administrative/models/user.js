@@ -47,7 +47,13 @@ angular.module('os.administrative.models.user', ['os.common.models'])
     }
 
     User.prototype.getRoles = function() {
-      return this.roleModel.query();
+      var that = this;
+      return this.roleModel.query().then(
+        function(roles) {
+          that.roles = roles;
+          return roles;
+        }
+      );;
     }
 
     User.prototype.newRole = function(role) {
@@ -57,6 +63,35 @@ angular.module('os.administrative.models.user', ['os.common.models'])
     User.prototype.updateStatus = function(status) {
       return $http.put(User.url() + this.$id() + '/activity-status', {activityStatus: status})
         .then(User.modelRespTransform);
+    }
+
+    // opts => {cpId: <cpId>, sites: [site]}
+    User.prototype.hasRole = function(role, opts) {
+      if (!this.roles || this.roles.length == 0) {
+        return false;
+      }
+
+      var matchingRoles = [];
+      for (var i = 0; i < this.roles.length; ++i) {
+        var userRole = this.roles[i];
+        if (userRole.role.name != role) {
+          continue;
+        }
+
+        if (!userRole.collectionProtocol && !userRole.site) {
+          return true;
+        } else if (!opts || (!opts.cpId && !(opts.sites && opts.sites.length > 0))) {
+          return true;
+        } else if (opts.cpId && userRole.collectionProtocol && opts.cpId != userRole.collectionProtocol.id) {
+          continue;
+        } else if (opts.sites && opts.sites.length > 0 && userRole.site && opts.sites.indexOf(userRole.site.name) == -1) {
+          continue;
+        }
+
+        return true;
+      }
+
+      return false;
     }
 
     User.sendPasswordResetLink = function(user) {

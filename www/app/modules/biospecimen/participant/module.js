@@ -823,12 +823,21 @@ angular.module('os.biospecimen.participant',
               }
             );
           },
-          forms: function(cpr, orderSpec, ExtensionsUtil) {
+          fdeRules: function(cp, CpConfigSvc) {
+            return CpConfigSvc.getWorkflowData(cp.id, 'formDataEntryRules', {}).then(
+              function(wf) {
+                return wf['participant'] || [];
+              }
+            );
+          },
+          forms: function(cp, cpr, orderSpec, fdeRules, currentUser, ExtensionsUtil) {
             return cpr.getForms().then(
               function(forms) {
+                var ctxt = {cp: cp, cpr: cpr, user: currentUser};
+                forms = ExtensionsUtil.getMatchingForms(forms, fdeRules, ctxt);
                 return ExtensionsUtil.sortForms(forms, orderSpec);
               }
-            )
+            );
           },
           records: function(cpr) {
             return cpr.getRecords();

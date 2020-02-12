@@ -21,6 +21,8 @@ angular.module('openspecimen')
 
         return User.getCurrentUserRoles().then(
           function(userRoles) {
+            currentUser.roles = userRoles;
+
             userRights = [];
             angular.forEach(userRoles, function(userRole) {
               var site = userRole.site ? userRole.site.name : null;
