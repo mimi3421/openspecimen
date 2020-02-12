@@ -76,4 +76,14 @@
       //
     </sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="Single logout configuration setting">
+    <sql>
+      call add_cfg_prop(
+        'auth', 'single_logout',
+        'single_logout', 'single_logout_desc',
+        'BOOLEAN', 'false'
+      );
+    </sql>
+  </changeSet>
 </databaseChangeLog>

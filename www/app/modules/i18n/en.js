@@ -2674,6 +2674,8 @@
         "verify_token_ip_address_desc": "Check whether requests are made from the same IP address to which the login token was issued.",
         "saml_enable": "SAML Authentication",
         "saml_enable_desc": "Enable single sign on using SAML based identity provider.",
+        "single_logout": "Single Logout",
+        "single_logout_desc": "Enable single logout using SAML based identity provider.",
         "password_expiry_days": "Password Age",
         "password_expiry_days_desc": "Number of days before passwords expire.",
         "passwords_to_examine": "Password History",

@@ -28,7 +28,7 @@
             </a>
           </li>
           <li class="divider"></li>
-          <li ng-switch on="userCtx.samlEnabled">
+          <li ng-switch on="userCtx.samlEnabled && userCtx.sloEnabled">
             <a ng-switch-when="true" href="saml/logout">
               <span translate="user.logout">Logout</span>
             </a>
