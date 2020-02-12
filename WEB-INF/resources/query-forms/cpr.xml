@@ -425,7 +425,7 @@
         <name>extensions</name>
         <udn>extensions</udn>
         <caption>#getMessage("participant_extensions")</caption>
-        <table>OS_CPR_EXTN_RECS</table>
+        <table>OS_CPR_EXTN_RECS_VIEW</table>
         <foreignKey>CPR_ID</foreignKey>
         <parentKey>CPR_ID</parentKey>
         <pathLink>true</pathLink>
