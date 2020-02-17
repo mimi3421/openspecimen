@@ -24,6 +24,7 @@ import com.krishagni.catissueplus.core.biospecimen.ConfigParams;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.domain.Visit;
+import com.krishagni.catissueplus.core.biospecimen.domain.VisitPreSaveEvent;
 import com.krishagni.catissueplus.core.biospecimen.domain.VisitSavedEvent;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.CpErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.CpeErrorCode;
@@ -575,6 +576,7 @@ public class VisitServiceImpl implements VisitService, ObjectAccessor, Initializ
 
 	private Visit saveOrUpdateVisit(Visit visit, Visit existing) {
 		raiseErrorIfSpecimenCentric(visit);
+		EventPublisher.getInstance().publish(new VisitPreSaveEvent(existing, visit));
 
 		String prevVisitStatus = existing != null ? existing.getStatus() : null;
 		OpenSpecimenException ose = new OpenSpecimenException(ErrorType.USER_ERROR);
