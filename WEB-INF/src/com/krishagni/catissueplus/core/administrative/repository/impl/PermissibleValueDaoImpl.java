@@ -25,6 +25,11 @@ import com.krishagni.catissueplus.core.common.util.Status;
 public class PermissibleValueDaoImpl extends AbstractDao<PermissibleValue> implements PermissibleValueDao {
 
 	@Override
+	public Class<PermissibleValue> getType() {
+		return PermissibleValue.class;
+	}
+
+	@Override
 	public PermissibleValue getById(Long id) {
 		return getCurrentSession().get(PermissibleValue.class, id);
 	}
