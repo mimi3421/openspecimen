@@ -33,6 +33,4 @@ public interface CollectionProtocolRegistrationDao extends Dao<CollectionProtoco
 	Map<String, Object> getCprIds(String key, Object value);
 
 	Map<String, Integer> getParticipantsBySite(Long cpId, Collection<Long> siteIds);
-
-
 }
