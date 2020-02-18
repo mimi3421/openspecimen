@@ -161,7 +161,7 @@
                   <span>{{visit.pendingPrimarySpmns}}</span>
                 </td>
                 <td class="col col-xs-2">
-                  <div class="os-more-option-btns">
+                  <div class="os-more-option-btns" ng-show="cpr.hasConsented">
                     <span dropdown show-if-allowed="specimenResource.updateOpts">
                       <button class="btn btn-xs btn-default dropdown-toggle">
                         <span translate="specimens.buttons.collect">Collect</span>

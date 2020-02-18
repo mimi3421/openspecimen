@@ -561,6 +561,20 @@ angular.module('os.biospecimen.participant',
             var st = new ParticipantSpecimensViewState(cp, cpr, +pendingSpmnsDispInterval.value);
             st.config = {visitsTab: visitsTab};
             return st;
+          },
+
+          hasConsented: function($injector, cpr) {
+            if (!$injector.has('ecValidation') || cpr.id <= 0 || !cpr.id) {
+              cpr.hasConsented = true;
+              return true;
+            }
+
+            return $injector.get('ecValidation').getParticipantStatus(cpr.id).then(
+              function(result) {
+                cpr.hasConsented = (result.status == true);
+                return cpr.hasConsented;
+              }
+            );
           }
         },
         controller: 'ParticipantRootCtrl',
@@ -595,8 +609,19 @@ angular.module('os.biospecimen.participant',
             var participant = cpr.participant || {};
             return CpConfigSvc.getLockedParticipantFields(participant.source || 'OpenSpecimen');
           },
-          cpEvents: function(cp, cpr, CollectionProtocolEvent) {
-            if (!!cpr.id) {
+          hasConsentRules: function($injector, cp) {
+            if (!$injector.has('ecValidation')) {
+              return false;
+            }
+
+            return $injector.get('ecValidation').getRules(cp.id).then(
+              function(cpRules) {
+                return cpRules && cpRules.rules && cpRules.rules.length > 0;
+              }
+            );
+          },
+          cpEvents: function(cp, cpr, hasConsentRules, CollectionProtocolEvent) {
+            if (!!cpr.id || hasConsentRules) {
               return null;
             }
 

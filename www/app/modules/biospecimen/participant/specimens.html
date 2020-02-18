@@ -4,7 +4,7 @@
   <div class="panel-heading">
     <span translate="{{title}}">Specimens</span>
     <div class="os-action-btns" ng-if="visit.status != 'Missed Collection' && visit.status != 'Not Collected'">
-      <button ng-if="selection.anyPending && (!allowedOps || allowedOps.update)"
+      <button ng-if="cpr.hasConsented && selection.anyPending && (!allowedOps || allowedOps.update)"
         class="btn btn-primary" ng-click="collectSpecimens()">
         <span class="fa fa-plus"></span>
         <span translate="specimens.buttons.collect"> Collect </span>

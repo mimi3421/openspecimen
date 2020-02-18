@@ -1,7 +1,7 @@
 <div>
   <div class="os-page-commands">
     <div class="left">
-      <span ng-if="visitCtx.showEdit">
+      <span ng-if="visitCtx.showEdit && (!!visit.id || cpr.hasConsented)">
         <button show-if-allowed="specimenResource.updateOpts" class="default"
           ng-switch on="!!visit.id" ui-sref="visit-addedit">
           <span ng-switch-when="true">
