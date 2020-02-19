@@ -108,4 +108,29 @@
     <sql>call assign_to_role('Consent Collector', 'Consent', 'Read,Create,Update,Delete,Export Import');</sql>
   </changeSet>
 
+  <changeSet author="vpawar" id="Reinit MRN search keywords -- delete old incorrect keywords" dbms="oracle">
+    <sql>
+      delete from
+        os_search_entity_keywords
+      where
+        entity = 'collection_protocol_registration' and name = 'medicalRecordNumber'
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Reinit MRN search keywords -- add correct keywords" dbms="oracle">
+    <sql>
+      insert into
+        os_search_entity_keywords(identifier, entity, entity_id, name, value, status)
+      select
+        os_search_entity_keywords_seq.nextval, 'collection_protocol_registration', r.identifier, 'medicalRecordNumber', lower(pmi.medical_record_number), 1
+      from
+        catissue_part_medical_id pmi
+        inner join catissue_participant p on p.identifier = pmi.participant_id
+        inner join catissue_coll_prot_reg r on r.participant_id = p.identifier
+      where
+        p.activity_status != 'Disabled' and
+        r.activity_status != 'Disabled' and
+        pmi.medical_record_number is not null;
+    </sql>
+  </changeSet>
 </databaseChangeLog>
