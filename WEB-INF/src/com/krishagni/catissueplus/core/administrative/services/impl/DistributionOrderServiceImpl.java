@@ -1297,7 +1297,7 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 			}
 		}
 
-		Object[] subjectParams = { order.getName(), newStatus.equals(Status.EXECUTED) ? 1 : 2 };
+		Object[] subjectParams = {order.getId(), order.getName(), newStatus.equals(Status.EXECUTED) ? 1 : 2};
 		if (!Boolean.TRUE.equals(order.getDistributionProtocol().getDisableEmailNotifs())) {
 			//
 			// Send email notification

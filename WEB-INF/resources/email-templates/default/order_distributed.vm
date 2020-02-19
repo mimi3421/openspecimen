@@ -27,6 +27,10 @@
               <td>
                 <table>
                   <tr>
+                    <td> Order Number </td>
+                    <td> : $order.id </td>
+                  </tr>
+                  <tr>
                     <td> Order Name </td>
                     <td> : $order.name </td>
                   </tr>
