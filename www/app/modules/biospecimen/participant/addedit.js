@@ -1,7 +1,7 @@
 
 angular.module('os.biospecimen.participant.addedit', ['os.biospecimen.models', 'os.administrative.models'])
   .controller('ParticipantAddEditCtrl', function(
-    $scope, $state, $stateParams, $translate, $modal, $q, $timeout,
+    $scope, $state, $stateParams, $translate, $modal, $q, $timeout, $injector,
     cp, cpr, extensionCtxt, hasDict, cpDict, twoStepReg, layout,
     onValueChangeCb, mrnAccessRestriction, addPatientOnLookupFail,
     lookupFieldsCfg, lockedFields, cpEvents, visitsTab,
@@ -21,6 +21,7 @@ angular.module('os.biospecimen.participant.addedit', ['os.biospecimen.models', '
       $scope.partCtx = {
         cpSites: cp.cpSites.map(function(cpSite) { return cpSite.siteName; }),
         cpEvents: cpEvents,
+        documentsCount: 0,
         fieldOpts: {
           viewCtx: $scope,
           lockedFields: lockedFields,
@@ -75,7 +76,21 @@ angular.module('os.biospecimen.participant.addedit', ['os.biospecimen.models', '
           true
         );
       }
+
+      loadDocuments();
     };
+
+    function loadDocuments() {
+      if (!$injector.has('ecDocument') || !!cpr.id) {
+        return;
+      }
+
+      return $injector.get('ecDocument').getCount({cpId: cp.id}).then(
+        function(resp) {
+          $scope.partCtx.documentsCount = resp.count;
+        }
+      );
+    }
 
     function onMatchSelect(match) {
       $scope.partCtx.selectedMatch = match;
@@ -148,7 +163,7 @@ angular.module('os.biospecimen.participant.addedit', ['os.biospecimen.models', '
       $scope.vitalStatuses = PvManager.getPvs('vital-status');
     };
 
-    function registerParticipant(event) {
+    function registerParticipant(event, gotoConsents) {
       var formCtrl = $scope.deFormCtrl.ctrl;
       if (formCtrl && !formCtrl.validate()) {
         return;
@@ -182,6 +197,8 @@ angular.module('os.biospecimen.participant.addedit', ['os.biospecimen.models', '
               } else {
                 gotoSpmnCollection(savedCpr, event);
               }
+            } else if (gotoConsents) {
+              $state.go('participant-detail.consents', {cprId: savedCpr.id});
             } else {
               $state.go('participant-detail.overview', {cprId: savedCpr.id});
             }
@@ -272,7 +289,7 @@ angular.module('os.biospecimen.participant.addedit', ['os.biospecimen.models', '
       );
     }
 
-    function handleParticipantMatches(matches, event) {
+    function handleParticipantMatches(matches, event, gotoConsents) {
       $scope.partCtx.matches = matches;
       $scope.partCtx.matchAutoSelected = false;
       $scope.partCtx.allowIgnoreMatches = matches.every(
@@ -302,7 +319,7 @@ angular.module('os.biospecimen.participant.addedit', ['os.biospecimen.models', '
           Alerts.error('participant.no_matching_participant');
         } else {
           if (!lookupFieldsCfg.configured) {
-            registerParticipant(event);
+            registerParticipant(event, gotoConsents);
           } else {
             $scope.partCtx.step = 'registerParticipant';
           }
@@ -469,24 +486,24 @@ angular.module('os.biospecimen.participant.addedit', ['os.biospecimen.models', '
       }
     };
 
-    $scope.register = function(event) {
+    $scope.register = function(event, gotoConsents) {
       if ($scope.partCtx.edit) {
         cacheInputParticipant();
         $scope.cpr.participant.getMatchingParticipants().then(
           function(matches) {
-            handleParticipantMatches(matches, event)
+            handleParticipantMatches(matches, event, gotoConsents)
           }
         );
       } else {
-        registerParticipant(event);
+        registerParticipant(event, gotoConsents);
       }
     };
 
-    $scope.lookup = function(event) {
+    $scope.lookup = function(event, gotoConsents) {
       cacheInputParticipant();
       $scope.cpr.participant.getMatchingParticipants().then(
         function(matches) {
-          handleParticipantMatches(matches, event)
+          handleParticipantMatches(matches, event, gotoConsents)
         }
       );
     }

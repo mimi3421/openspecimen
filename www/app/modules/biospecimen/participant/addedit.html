@@ -67,6 +67,12 @@
           <span ng-switch-when="true" translate="participant.buttons.lookup">Lookup</span>
           <span ng-switch-default translate="participant.buttons.register">Register</span>
         </button>
+        <span show-if-allowed="consentUpdateOpts">
+          <button class="btn btn-primary" os-form-submit="lookup(null, true)"
+            ng-if="!partCtx.twoStep && partCtx.documentsCount > 0">
+            <span translate="participant.buttons.register_n_consent">Register & Consent</span>
+          </button>
+        </span>
         <span show-if-allowed="specimenUpdateOpts">
           <button class="btn btn-primary" os-form-submit="lookup(partCtx.cpEvents[0])"
             ng-if="!partCtx.twoStep && partCtx.cpEvents.length == 1">
@@ -281,6 +287,12 @@
               <span ng-switch-when="true" translate="participant.buttons.update_registration"> Update </span>
               <span ng-switch-default translate="participant.buttons.register"> Register </span>
             </button>
+            <span show-if-allowed="consentUpdateOpts">
+              <button class="btn btn-primary" os-form-submit="register(null, true)"
+                ng-if="!cpr.id && partCtx.documentsCount > 0">
+                <span translate="participant.buttons.register_n_consent">Register & Consent</span>
+              </button>
+            </span>
             <span show-if-allowed="specimenUpdateOpts">
               <button class="btn btn-primary" os-form-submit="register(partCtx.cpEvents[0])"
                 ng-if="!cpr.id && partCtx.cpEvents.length == 1">

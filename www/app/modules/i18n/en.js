@@ -551,6 +551,7 @@
     "buttons": {
       "register": "Add Participant",
       "register_n_collect": "Proceed to Collection",
+      "register_n_consent": "Proceed to Consents",
       "lookup_add_part": "Lookup and Add Participant",
       "update_registration": "Update",
       "register_selected_participant": "Register Selected Participant",
