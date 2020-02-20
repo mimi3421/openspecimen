@@ -430,7 +430,7 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 			}
 			
 			User user = token.getUser();
-			if (!user.getLoginName().equals(detail.getLoginName())) {
+			if (!user.getLoginName().equalsIgnoreCase(detail.getLoginName())) {
 				return ResponseEvent.userError(UserErrorCode.NOT_FOUND);
 			}
 			
