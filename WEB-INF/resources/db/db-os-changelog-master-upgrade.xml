@@ -123,6 +123,7 @@
   <include file="db/6.3/audit.xml"/>
   <include file="db/6.3/migration.xml"/>
 
+  <include file="db/7.0/schema.xml"/>
   <include file="db/7.0/seed-data.xml"/>
 
   <!-- Views are created always at the last -->
