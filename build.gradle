@@ -80,7 +80,9 @@ dependencies {
 
   compile fileTree(dir: 'lib', include: ['DynamicExtensions.jar', 'not-yet-commons-ssl-0.3.17.jar'])
   
-  compile group: 'javax', name: 'javaee-api', version: '8.0'
+  // compile group: 'javax', name: 'javaee-api', version: '8.0'
+  compile group: 'javax.persistence', name: 'javax.persistence-api', version: '2.2'
+  compile group: 'javax.servlet', name: 'javax.servlet-api', version: '4.0.1'
   compile group: 'org.antlr', name: 'antlr4', version:'4.5.1'
   compile group: 'aopalliance', name: 'aopalliance', version:'1.0'
   compile group: 'asm', name: 'asm', version:'3.3.1'
@@ -129,6 +131,7 @@ dependencies {
   compile group: 'log4j', name: 'log4j', version:'1.2.16'
   compile group: 'log4j', name: 'apache-log4j-extras', version: '1.2.17'
   compile group: 'quartz', name: 'quartz', version:'1.5.2'
+
   compile group: 'org.springframework', name: 'spring-aop', version:springVersion
   compile group: 'org.springframework', name: 'spring-beans', version:springVersion
   compile group: 'org.springframework', name: 'spring-context', version:springVersion
@@ -142,6 +145,7 @@ dependencies {
   compile group: 'org.springframework', name: 'spring-webmvc', version:springVersion
   compile group: 'org.springframework', name: 'spring-orm', version:springVersion
   compile group: 'org.springframework', name: 'spring-messaging', version:springVersion
+  compile group: 'org.springframework', name: 'spring-jms', version:springVersion
   compile group: 'org.springframework.integration', name: 'spring-integration-core', version:springVersion
   compile group: 'org.springframework.integration', name: 'spring-integration-mail', version:springVersion
   compile group: 'org.springframework.ldap', name: 'spring-ldap-core', version:'2.3.2.RELEASE'
