@@ -36,7 +36,7 @@
                 </table>
               </td>
             </tr>
-            #if ( $url )
+            #if ( $url != "")
             <tr>
               <td style="border-collapse:collapse;padding: 10px 0px;">
                 <table cellspacing="0" cellpadding="0" border="0" style="border-collapse:collapse;color:#333">
