@@ -296,6 +296,7 @@ public class CollectionProtocolRegistration extends BaseEntity {
 		
 		setBarcode(Utility.getDisabledValue(getBarcode(), 255));
 		setPpid(Utility.getDisabledValue(getPpid(), 255));
+		setExternalSubjectId(Utility.getDisabledValue(getExternalSubjectId(), 255));
 		setActivityStatus(Status.ACTIVITY_STATUS_DISABLED.getStatus());
 		FormUtil.getInstance().deleteRecords(getCollectionProtocol().getId(), Collections.singletonList("Participant"), getId());
 		FormUtil.getInstance().deleteRecords(getCollectionProtocol().getId(), Collections.singletonList("ParticipantExtension"), getParticipant().getId());
