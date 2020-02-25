@@ -10,7 +10,7 @@
       update 
         catissue_coll_prot_reg 
       set 
-        external_subject_id = concat(external_subject_id, concat("_deleted_", identifier)) 
+        external_subject_id = concat(external_subject_id, concat('_deleted_', identifier)) 
       where 
         external_subject_id is not null and 
         activity_status = 'Disabled';
