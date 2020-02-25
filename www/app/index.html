@@ -72,6 +72,8 @@
     <!-- Add your site or application content here -->
     <div style="height:100%;" ui-view></div>
 
+    <iframe src="{{logoutUrl}}" style="height: 0; width: 0; display:none;" ng-if="logout"></iframe>
+
     <!-- build:js(.) scripts/vendor.js -->
     <!-- bower:js -->
     <script src="bower_components/jquery/dist/jquery.js"></script>
@@ -409,6 +411,7 @@
     <script src="modules/biospecimen/extensions/fancy/de-storage-containers.js"></script>
     <script src="modules/biospecimen/extensions/fancy/de-sites.js"></script>
     <script src="modules/biospecimen/extensions/fancy/de-pvs.js"></script>
+    <script src="modules/biospecimen/extensions/patient-data-entry.js"></script>
 
     <!-- CP module -->
     <script src="modules/biospecimen/cp/module.js"></script>

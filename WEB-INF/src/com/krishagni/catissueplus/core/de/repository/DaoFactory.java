@@ -8,4 +8,6 @@ public interface DaoFactory {
 	QueryFolderDao getQueryFolderDao();
 	
 	QueryAuditLogDao getQueryAuditLogDao();
+
+	FormDataEntryTokenDao getFormDataEntryTokenDao();
 }

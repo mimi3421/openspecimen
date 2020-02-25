@@ -51,13 +51,13 @@ public class AuthTokenFilter extends GenericFilterBean implements InitializingBe
 
 	private static final String BASIC_AUTH = "Basic ";
 	
-	private static final String DEFAULT_AUTH_DOMAIN = "openspecimen";
-
 	private Set<String> allowedOrigins;
 	
 	private UserAuthenticationService authService;
 	
 	private Map<String, List<String>> excludeUrls = new HashMap<>();
+
+	private Map<String, List<String>> pdeUrls = new HashMap<>();
 	
 	private AuditService auditService;
 
@@ -76,10 +76,15 @@ public class AuthTokenFilter extends GenericFilterBean implements InitializingBe
 	}
 
 	public void addExcludeUrl(String method, String resourceUrl) {
-		List<String> urls = excludeUrls.computeIfAbsent(method, (key) -> new ArrayList<>());
-		if (urls.indexOf(resourceUrl) == -1) {
-			urls.add(resourceUrl);
-		}
+		addUrl(excludeUrls, method, resourceUrl);
+	}
+
+	public void setPdeUrls(Map<String, List<String>> pdeUrls) {
+		this.pdeUrls = pdeUrls;
+	}
+
+	public void addPdeUrl(String method, String resourceUrl) {
+		addUrl(pdeUrls, method, resourceUrl);
 	}
 
 	public void setAuditService(AuditService auditService) {
@@ -134,7 +139,7 @@ public class AuthTokenFilter extends GenericFilterBean implements InitializingBe
 
 		httpResp.setHeader("Access-Control-Allow-Credentials", "true");
 		httpResp.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, PATCH, OPTIONS");
-		httpResp.setHeader("Access-Control-Allow-Headers", "Origin, Accept, Content-Type, X-OS-API-TOKEN, X-OS-API-CLIENT, X-OS-IMPERSONATE-USER, X-OS-CLIENT-TZ");
+		httpResp.setHeader("Access-Control-Allow-Headers", "Origin, Accept, Content-Type, X-OS-API-TOKEN, X-OS-API-CLIENT, X-OS-IMPERSONATE-USER, X-OS-CLIENT-TZ, X-OS-FDE-TOKEN");
 		httpResp.setHeader("Access-Control-Expose-Headers", "Content-Disposition, Content-Length, Content-Type");
 
 		httpResp.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
@@ -163,11 +168,18 @@ public class AuthTokenFilter extends GenericFilterBean implements InitializingBe
 				user = atResp.getPayload().getUser();
 				loginAuditLog = atResp.getPayload().getLoginAuditLog();
 			}
-		} else if(httpReq.getHeader(HttpHeaders.AUTHORIZATION) != null) {
+		} else if (httpReq.getHeader(HttpHeaders.AUTHORIZATION) != null) {
 			AuthToken token = doBasicAuthentication(httpReq, httpResp);
 			if (token != null) {
 				user = token.getUser();
 				loginAuditLog = token.getLoginAuditLog();
+			}
+		}
+
+		if (user == null && isPdeUrl(httpReq)) {
+			String fdeToken = AuthUtil.getFdeTokenFromHeader(httpReq);
+			if (StringUtils.isNotBlank(fdeToken) && authService.isValidFdeToken(fdeToken)) {
+				user = getSystemUser();
 			}
 		}
 		
@@ -194,7 +206,7 @@ public class AuthTokenFilter extends GenericFilterBean implements InitializingBe
 		}
 
 		User impersonatedUser = null;
-		if (user.isAdmin()) {
+		if (user.isAdmin() && !user.isSysUser()) {
 			String impUserStr = AuthUtil.getImpersonateUser(httpReq);
 			if (StringUtils.isNotBlank(impUserStr)) {
 				impersonatedUser = getUser(impUserStr);
@@ -243,7 +255,7 @@ public class AuthTokenFilter extends GenericFilterBean implements InitializingBe
 		detail.setLoginName(parts[0]);
 		detail.setPassword(parts[1]);
 		detail.setIpAddress(httpReq.getRemoteAddr());
-		detail.setDomainName(DEFAULT_AUTH_DOMAIN);
+		detail.setDomainName(User.DEFAULT_AUTH_DOMAIN);
 		detail.setDoNotGenerateToken(true);
 
 		RequestEvent<LoginDetail> req = new RequestEvent<LoginDetail>(detail);
@@ -278,23 +290,38 @@ public class AuthTokenFilter extends GenericFilterBean implements InitializingBe
 		}
 	}
 
+	private void addUrl(Map<String, List<String>> urlsMap, String method, String resourceUrl) {
+		List<String> urls = urlsMap.computeIfAbsent(method, (key) -> new ArrayList<>());
+		if (urls.indexOf(resourceUrl) == -1) {
+			urls.add(resourceUrl);
+		}
+	}
+
 	private boolean requiresSignIn(ServletRequest req) {
+		return !matchesUrl(req, excludeUrls);
+	}
+
+	private boolean isPdeUrl(ServletRequest req) {
+		return matchesUrl(req, pdeUrls);
+	}
+
+	private boolean matchesUrl(ServletRequest req, Map<String, List<String>> inputUrls) {
 		HttpServletRequest httpReq = (HttpServletRequest)req;
 
-		List<String> urls = excludeUrls.get(httpReq.getMethod());
+		List<String> urls = inputUrls.get(httpReq.getMethod());
 		if (urls == null) {
 			urls = Collections.emptyList();
 		}
 
-		boolean requiresSignIn = true;
+		boolean result = false;
 		for (String url : urls) {
 			if (matches(httpReq, url)) {
-				requiresSignIn = false;
+				result = true;
 				break;
 			}
 		}
 
-		return requiresSignIn;
+		return result;
 	}
 
 	private boolean isRecordableApi(HttpServletRequest httpReq) {
@@ -381,5 +408,9 @@ public class AuthTokenFilter extends GenericFilterBean implements InitializingBe
 		}
 
 		return Stream.of(setting.split(",")).map(String::trim).collect(Collectors.toSet());
+	}
+
+	private User getSystemUser() {
+		return authService.getUser(User.DEFAULT_AUTH_DOMAIN, User.SYS_USER);
 	}
 }

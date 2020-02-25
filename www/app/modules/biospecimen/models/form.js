@@ -205,6 +205,22 @@ angular.module('os.biospecimen.models.form', ['os.common.models'])
       return undefined;
     }
 
+    Form.createDataEntryToken = function(formCtxtId, objectId) {
+      return $http.post(Form.url() + 'data-entry-tokens', {formCtxtId: formCtxtId, objectId: objectId}).then(
+        function(resp) {
+          return resp.data;
+        }
+      );
+    }
+
+    Form.getDataEntryToken = function(token) {
+      return $http.get(Form.url() + 'data-entry-tokens/' + token).then(
+        function(resp) {
+          return resp.data;
+        }
+      );
+    }
+
     function createRecordsList(formsRecords) {
       var recordsList = [];
       angular.forEach(formsRecords, function(formRecs) {

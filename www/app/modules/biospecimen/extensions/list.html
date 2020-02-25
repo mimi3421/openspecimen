@@ -79,6 +79,11 @@
           <span class="fa fa-plus"></span>
           <span translate="common.buttons.add_another"></span>
         </button>
+        <button class="btn btn-default" ng-click="switchToPatientMode(selectedForm)"
+          ng-if="selectedForm.multiRecord && ['Participant', 'CommonParticipant'].indexOf(selectedForm.entityType) != -1">
+          <span class="fa fa-plus"></span>
+          <span translate="common.buttons.patient_mode">Patient Mode</span>
+        </button>
       </span>
       <span ng-switch-when="false" class="btn os-status-info" style="margin-bottom: 0px;"
         os-tooltip="{{'extensions.sys_form_help' | translate}}">
@@ -103,6 +108,12 @@
           <span class="fa fa-plus"></span>
           <span ng-if="selectedForm.records.length >= 1" translate="common.buttons.add_another"></span>
           <span ng-if="selectedForm.records.length == 0" translate="common.buttons.add"></span>
+        </button>
+
+        <button class="btn btn-default" ng-click="switchToPatientMode(selectedForm)"
+          ng-if="selectedForm.entityType == 'Participant' || selectedForm.entityType == 'CommonParticipant'">
+          <span class="fa fa-plus"></span>
+          <span translate="common.buttons.patient_mode">Patient Mode</span>
         </button>
       </span>
       <span ng-switch-when="false" class="btn os-status-info" style="margin-bottom: 0px;"

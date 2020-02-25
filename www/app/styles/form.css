@@ -58,11 +58,13 @@
 
 
 .os-extn-form.de-form-submitting,
+ng-form.os-form-submitting,
 form.os-form-submitting {
   position: relative;
 }
 
 .os-extn-form.de-form-submitting:before,
+ng-form.os-form-submitting:before,
 form.os-form-submitting:before {
   position: absolute;
   width: 100%;
@@ -74,6 +76,7 @@ form.os-form-submitting:before {
 }
 
 .os-extn-form.de-form-submitting:after,
+ng-form.os-form-submitting:after,
 form.os-form-submitting:after {
   position: fixed;
   top: 40px;
@@ -84,4 +87,36 @@ form.os-form-submitting:after {
   padding: 5px 12px;
   background: #ffc;
   border: 1px solid #ddd;
+}
+
+/* Patient data entry */
+.os-pde-container {
+  position: absolute;
+  top: 40px;
+  bottom: 0px;
+  width: 100%;
+  background: #fff;
+  z-index: 5;
+}
+
+.os-pde-home {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+}
+
+.os-pde-home:after {
+  content: ' ';
+  display: block;
+  clear: both;
+}
+
+.os-pde-home .os-page-header {
+  top: 0px;
+  height: 56px;
+}
+
+.os-pde-home .os-page-header+.container {
+  top: 57px;
 }

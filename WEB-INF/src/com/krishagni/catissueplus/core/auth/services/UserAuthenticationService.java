@@ -20,4 +20,6 @@ public interface UserAuthenticationService {
 	ResponseEvent<String> removeToken(RequestEvent<String> req);
 
 	User getUser(String domainName, String loginName);
+
+	boolean isValidFdeToken(String token);
 }

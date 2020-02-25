@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-mapping PUBLIC
+  "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping auto-import="false">
+  <class name="com.krishagni.catissueplus.core.de.domain.FormDataEntryToken" table="OS_FORM_DATA_ENTRY_TOKENS">
+    <id name="id" column="IDENTIFIER">
+      <generator class="native">
+        <param name="sequence">OS_FORM_DATA_ENTRY_TOKENS_SEQ</param>
+      </generator>
+    </id>
+
+    <many-to-one name="formCtxt" column="FORM_CTXT_ID" fetch="join"/>
+
+    <property name="objectId" column="OBJECT_ID"/>
+
+    <property name="token" column="TOKEN"/>
+
+    <many-to-one name="createdBy" column="CREATED_BY"/>
+
+    <property name="creationTime" column="CREATION_TIME"/>
+
+    <property name="completionTime" column="COMPLETION_TIME"/>
+
+    <property name="expiryTime" column="EXPIRY_TIME"/>
+
+    <property name="status" column="STATUS" not-null="true">
+      <type name="org.hibernate.type.EnumType">
+        <param name="enumClass">com.krishagni.catissueplus.core.de.domain.FormDataEntryToken$Status</param>
+        <param name="type">12</param>
+      </type>
+    </property>
+
+    <query name="getByToken">
+      select
+        fdet
+      from
+        com.krishagni.catissueplus.core.de.domain.FormDataEntryToken fdet
+      where
+        fdet.token = :token
+    </query>
+
+    <query name="deleteExpiredTokens">
+      <![CDATA[
+        delete from
+          com.krishagni.catissueplus.core.de.domain.FormDataEntryToken fdeToken
+        where
+          fdeToken.status = 'PENDING' and
+          fdeToken.expiryTime < :expireTime
+      ]]>
+    </query>
+  </class>
+</hibernate-mapping>

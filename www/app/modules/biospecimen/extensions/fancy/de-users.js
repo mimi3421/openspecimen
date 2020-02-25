@@ -22,6 +22,10 @@ openspecimen.ui.fancy.Users = edu.common.de.LookupSvc.extend({
   },
 
   formatResult: function(data) {
+    if (!data) {
+      return {text: ''};
+    }
+
     return {id: data.id, text: data.firstName + ' ' + data.lastName};
   },
 
@@ -34,7 +38,10 @@ openspecimen.ui.fancy.Users = edu.common.de.LookupSvc.extend({
 
   getHeaders: function() {
     var $http = angular.element(document).injector().get('$http');
-    return {'X-OS-API-TOKEN': $http.defaults.headers.common['X-OS-API-TOKEN']};
+    return {
+      'X-OS-API-TOKEN': $http.defaults.headers.common['X-OS-API-TOKEN'],
+      'X-OS-FDE-TOKEN': $http.defaults.headers.common['X-OS-FDE-TOKEN']
+    };
   }
 });
 

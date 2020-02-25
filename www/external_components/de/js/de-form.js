@@ -2659,7 +2659,7 @@ edu.common.de.Signature = function(id, field, args) {
           dataType: 'json',
           data: JSON.stringify({dataUrl: dataUrl})
         }).done(function(data) {
-          that.setValue(that.recId, data.fileId);
+          that.setValue(that.recId, data.fileId, dataUrl);
         }).fail(function(data) {
           if (args.onSaveError) {
             args.onSaveError(data);
@@ -2691,13 +2691,15 @@ edu.common.de.Signature = function(id, field, args) {
     return {name: field.name, value: this.widget.getData()};
   }
 
-  this.setValue = function(recId, value) {
+  this.setValue = function(recId, value, dataUrl) {
     this.recId = recId;
     this.value = value;
 
     if (this.value) {
       var url = "#";
-      if (typeof args.fileDownloadUrl == "function") {
+      if (dataUrl) {
+        url = dataUrl;
+      } else if (typeof args.fileDownloadUrl == "function") {
         url = args.fileDownloadUrl(args.id, this.recId, field.fqn, this.value);
       } else {
         url = args.fileDownloadUrl;

@@ -1,6 +1,6 @@
 
 angular.module('os.biospecimen.extensions.list', ['os.biospecimen.models', 'os.biospecimen.extensions.util'])
-  .controller('FormsListCtrl', function($scope, $state, $stateParams, forms, ExtensionsUtil) {
+  .controller('FormsListCtrl', function($scope, $state, $stateParams, forms, Form, ExtensionsUtil, AuthService, Util) {
     function init() {
       $scope.forms   = forms;
       $scope.fctx = {
@@ -114,6 +114,21 @@ angular.module('os.biospecimen.extensions.list', ['os.biospecimen.models', 'os.b
           }
         }
       ); 
+    }
+
+    $scope.switchToPatientMode = function(form) {
+      Util.showConfirm({
+        title: 'extensions.switch_to_patient_mode_q',
+        confirmMsg: 'extensions.confirm_switch_to_patient_mode',
+        ok: function() {
+          Form.createDataEntryToken(form.formCtxtId, $scope.object.id).then(
+            function(token) {
+              AuthService.logout();
+              $state.go('patient-data-entry', {token: token.token});
+            }
+          );
+        }
+      });
     }
 
     init();

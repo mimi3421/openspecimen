@@ -23,7 +23,7 @@
   <bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
     <property name="jndiName" value="${datasource.jndi}"/>
   </bean>
-  
+
   <bean id="de-liquibase" class="liquibase.integration.spring.SpringLiquibase">
     <property name="dataSource" ref="dataSource"/>
     <property name="changeLog" value="classpath:db.changelog-master.xml" />
@@ -332,6 +332,7 @@
 
   <bean id="userAuthService" class="com.krishagni.catissueplus.core.auth.services.impl.UserAuthenticationServiceImpl">
     <property name="daoFactory" ref="biospecimenDaoFactory"/>
+    <property name="deDaoFactory" ref="deDaoFactory"/>
     <property name="auditService" ref="auditService"/>
   </bean>
 
@@ -449,7 +450,9 @@
     <property name="formDao" ref="formDao"/>
     <property name="formDataMgr" ref="formDataMgr"/>
     <property name="daoFactory" ref="biospecimenDaoFactory"/>
+    <property name="deDaoFactory" ref="deDaoFactory"/>
     <property name="exportSvc" ref="exportSvc"/>
+    <property name="taskManager" ref="scheduledTaskMgr"/>
     <property name="ctxtProcs">
       <map>
         <entry key="ParticipantExtension">
@@ -806,6 +809,29 @@
             <value>/config-settings/deployment-site-assets</value>
             <value>/config-settings/deployment-site-logo</value>
             <value>/auth-domains/</value>
+            <value>/forms/data-entry-tokens/**</value>
+          </list>
+        </entry>
+      </map>
+    </property>
+    <property name="pdeUrls">
+      <map>
+        <entry key="POST">
+          <list>
+            <value>/forms/**/data</value>
+            <value>/form-files</value>
+            <value>/form-files/images</value>
+          </list>
+        </entry>
+        <entry key="GET">
+          <list>
+            <value>/forms/**/definition</value>
+            <value>/forms/**/permissible-values</value>
+            <value>/form-files/**</value>
+            <value>/permissible-values/v</value>
+            <value>/sites</value>
+            <value>/storage-containers</value>
+            <value>/users</value>
           </list>
         </entry>
       </map>

@@ -7,14 +7,17 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -31,8 +34,10 @@ import com.krishagni.catissueplus.core.common.events.BulkDeleteEntityOp;
 import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
+import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.catissueplus.core.de.events.FormContextDetail;
 import com.krishagni.catissueplus.core.de.events.FormDataDetail;
+import com.krishagni.catissueplus.core.de.events.FormDataEntryTokenDetail;
 import com.krishagni.catissueplus.core.de.events.FormFieldSummary;
 import com.krishagni.catissueplus.core.de.events.FormRecordCriteria;
 import com.krishagni.catissueplus.core.de.events.FormRecordsList;
@@ -43,6 +48,7 @@ import com.krishagni.catissueplus.core.de.events.ListFormFields;
 import com.krishagni.catissueplus.core.de.events.RemoveFormContextOp;
 import com.krishagni.catissueplus.core.de.events.RemoveFormContextOp.RemoveType;
 import com.krishagni.catissueplus.core.de.services.FormService;
+
 import edu.common.dynamicextensions.domain.nui.Container;
 import edu.common.dynamicextensions.domain.nui.PermissibleValue;
 import edu.common.dynamicextensions.napi.FormData;
@@ -258,9 +264,21 @@ public class FormsController {
 	public Map<String, Object> saveFormData(
 		@PathVariable("id")
 		Long formId,
-			
+
 		@RequestBody
-		Map<String, Object> valueMap) {
+		Map<String, Object> valueMap,
+
+		HttpServletRequest httpReq) {
+
+		String token = AuthUtil.getFdeTokenFromHeader(httpReq);
+		if (StringUtils.isNotBlank(token) && AuthUtil.getCurrentUser().isSysUser()) {
+			Map<String, Object> appData = (Map<String, Object>) valueMap.computeIfAbsent(
+				"appData",
+				(k) -> new HashMap<String, Object>()
+			);
+			appData.put("fdeToken", token);
+		}
+
 		return saveOrUpdateFormData(formId, valueMap);
 	}
 	
@@ -471,6 +489,20 @@ public class FormsController {
 		ResponseEvent<List<PermissibleValue>> resp = formSvc.getPvs(getRequest(op));
 		resp.throwErrorIfUnsuccessful();
 		return resp.getPayload();
+	}
+
+	@RequestMapping(method = RequestMethod.POST, value="/data-entry-tokens")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public FormDataEntryTokenDetail createDataEntryToken(@RequestBody FormDataEntryTokenDetail input) {
+		return ResponseEvent.unwrap(formSvc.createDataEntryToken(RequestEvent.wrap(input)));
+	}
+
+	@RequestMapping(method = RequestMethod.GET, value = "/data-entry-tokens/{token:.+}")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public FormDataEntryTokenDetail getDataEntryToken(@PathVariable("token") String token) {
+		return ResponseEvent.unwrap(formSvc.getDataEntryToken(RequestEvent.wrap(token)));
 	}
 
 	private Map<String, Object> saveOrUpdateFormData(Long formId, Map<String, Object> valueMap) {		

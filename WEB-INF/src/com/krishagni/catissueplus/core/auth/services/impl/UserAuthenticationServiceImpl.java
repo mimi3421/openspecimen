@@ -40,18 +40,25 @@ import com.krishagni.catissueplus.core.common.util.EmailUtil;
 import com.krishagni.catissueplus.core.common.util.MessageUtil;
 import com.krishagni.catissueplus.core.common.util.NotifUtil;
 import com.krishagni.catissueplus.core.common.util.Status;
+import com.krishagni.catissueplus.core.de.domain.FormDataEntryToken;
 
 public class UserAuthenticationServiceImpl implements UserAuthenticationService {
 	private static final String ACCOUNT_LOCKED_NOTIF_TMPL = "account_locked_notification";
 
 	private DaoFactory daoFactory;
+
+	private com.krishagni.catissueplus.core.de.repository.DaoFactory deDaoFactory;
 	
 	private AuditService auditService;
 
 	public void setDaoFactory(DaoFactory daoFactory) {
 		this.daoFactory = daoFactory;
 	}
-	
+
+	public void setDeDaoFactory(com.krishagni.catissueplus.core.de.repository.DaoFactory deDaoFactory) {
+		this.deDaoFactory = deDaoFactory;
+	}
+
 	public void setAuditService(AuditService auditService) {
 		this.auditService = auditService;
 	}
@@ -183,6 +190,13 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
 	@PlusTransactional
 	public User getUser(String domainName, String loginName) {
 		return daoFactory.getUserDao().getUser(loginName, domainName);
+	}
+
+	@Override
+	@PlusTransactional
+	public boolean isValidFdeToken(String token) {
+		FormDataEntryToken fdeToken = deDaoFactory.getFormDataEntryTokenDao().getByToken(token);
+		return fdeToken != null && fdeToken.isValid();
 	}
 
 	@Scheduled(cron="0 0 12 ? * *")

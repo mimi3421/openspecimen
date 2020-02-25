@@ -8,4 +8,36 @@
   <changeSet author="single" id="Modify length of key_value column in key_seq_generator table">
     <modifyDataType tableName="KEY_SEQ_GENERATOR" columnName="KEY_VALUE" newDataType="${text.type}(255)"/>
   </changeSet>
+
+  <changeSet author="vpawar" id="Form data entry tokens">
+    <createTable tableName="OS_FORM_DATA_ENTRY_TOKENS">
+      <column name="IDENTIFIER" type="${int.type}" autoIncrement="${autoIncrement}">
+        <constraints primaryKey="true" nullable="false" />
+      </column>
+      <column name="FORM_CTXT_ID" type="${int.type}">
+        <constraints nullable="false" foreignKeyName="FK_FDE_TOKENS_FORM_CTXT_ID"
+          referencedTableName="CATISSUE_FORM_CONTEXT" referencedColumnNames="IDENTIFIER" />
+      </column>
+      <column name="OBJECT_ID" type="${int.type}">
+        <constraints nullable="false" />
+      </column>
+      <column name="TOKEN" type="${text.type}(255)">
+        <constraints nullable="false" unique="true" uniqueConstraintName="OS_FDE_TOKEN_UQ"/>
+      </column>
+      <column name="CREATED_BY" type="${int.type}">
+        <constraints nullable="false" foreignKeyName="FK_FDE_TK_CREATOR"
+          referencedTableName="CATISSUE_USER" referencedColumnNames="IDENTIFIER"/>
+      </column>
+      <column name="CREATION_TIME" type="${nullable.ts.type}"/>
+      <column name="EXPIRY_TIME" type="${nullable.ts.type}"/>
+      <column name="COMPLETION_TIME" type="${nullable.ts.type}"/>
+      <column name="STATUS" type="${text.type}(32)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Form data entry token ID generator" dbms="oracle">
+    <createSequence sequenceName="OS_FORM_DATA_ENTRY_TOKENS_SEQ" startValue="1" incrementBy="1" ordered="true"/>
+  </changeSet>
 </databaseChangeLog>

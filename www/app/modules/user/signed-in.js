@@ -6,6 +6,7 @@ angular.module('openspecimen')
      function init() {
        $scope.alerts = Alerts.messages;
        $rootScope.currentUser = currentUser;
+       $rootScope.logout = false;
        var ctx = $scope.userCtx = {
          hasPhiAccess: AuthorizationService.hasPhiAccess(),
          state: userUiState,

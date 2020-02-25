@@ -4,6 +4,7 @@ import org.hibernate.SessionFactory;
 
 import com.krishagni.catissueplus.core.de.repository.DaoFactory;
 import com.krishagni.catissueplus.core.de.repository.FormDao;
+import com.krishagni.catissueplus.core.de.repository.FormDataEntryTokenDao;
 import com.krishagni.catissueplus.core.de.repository.QueryAuditLogDao;
 import com.krishagni.catissueplus.core.de.repository.QueryFolderDao;
 import com.krishagni.catissueplus.core.de.repository.SavedQueryDao;
@@ -45,5 +46,12 @@ public class DaoFactoryImpl implements DaoFactory {
 		QueryAuditLogDaoImpl auditLogDao = new QueryAuditLogDaoImpl();
 		auditLogDao.setSessionFactory(sessionFactory);
 		return auditLogDao;
+	}
+
+	@Override
+	public FormDataEntryTokenDao getFormDataEntryTokenDao() {
+		FormDataEntryTokenDaoImpl tokenDao = new FormDataEntryTokenDaoImpl();
+		tokenDao.setSessionFactory(sessionFactory);
+		return tokenDao;
 	}
 }

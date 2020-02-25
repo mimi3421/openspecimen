@@ -41,7 +41,15 @@ public enum FormErrorCode implements ErrorCode {
 
 	MULTIPLE_CTXS_NOT_ALLOWED,
 	
-	NOT_SELECT_CONTROL;
+	NOT_SELECT_CONTROL,
+
+	INVALID_FORM_CTXT,
+
+	CTXT_ID_REQ,
+
+	OBJ_ID_REQ,
+
+	INVALID_TOKEN;
 
 	@Override
 	public String code() {

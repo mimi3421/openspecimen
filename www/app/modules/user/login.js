@@ -1,6 +1,6 @@
 
 angular.module('openspecimen')
-  .factory('AuthService', function($cookieStore, $http, $rootScope, $window, ApiUtil, ApiUrls) {
+  .factory('AuthService', function($cookieStore, $http, $rootScope, $window, $q, ApiUtil, ApiUrls, SettingUtil) {
     var url = function() {
       return ApiUrls.getUrl('sessions');
     };
@@ -29,12 +29,34 @@ angular.module('openspecimen')
       },
 
       logout: function() {
-        var q = $http.delete(url());
-        this.removeToken();
-        $rootScope.loggedIn = false;
-        delete $rootScope.reqState;
-        delete $rootScope.currentUser;
-        return q.then(ApiUtil.processResp);
+        var samlEnabled = SettingUtil.getSetting('auth', 'saml_enable');
+        var sloEnabled  = SettingUtil.getSetting('auth', 'single_logout');
+        var that = this;
+
+        return $q.all([samlEnabled, sloEnabled]).then(
+          function(resp) {
+            var q;
+            if (resp[0].value && resp[1].value) {
+              $rootScope.logoutUrl = ApiUrls.getServerUrl() + 'saml/logout';
+              $rootScope.logout = true;
+              q = $q.defer();
+              q.resolve({data: {}});
+              q = q.promise;
+            } else {
+              q = $http.delete(url());
+            }
+
+            that.removeToken();
+            $rootScope.loggedIn = false;
+            delete $rootScope.reqState;
+            delete $rootScope.currentUser;
+            if ($window.localStorage['osReqState']) {
+              delete $window.localStorage['osReqState'];
+            }
+
+            return q.then(ApiUtil.processResp);
+          }
+        );
       },
 
       saveToken: function(token) {
@@ -122,6 +144,11 @@ angular.module('openspecimen')
 
     function gotoIdp() {
       $scope.showSignIn = false;
+
+      if ($rootScope.reqState) {
+        $window.localStorage['osReqState'] = JSON.stringify(angular.extend({time: new Date().getTime}, $rootScope.reqState));
+      }
+
       $window.location.replace('saml/login');
     }
 
