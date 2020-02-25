@@ -193,7 +193,12 @@ public class CollectionProtocolRegistrationFactoryImpl implements CollectionProt
 			ose.addError(CpErrorCode.NOT_FOUND);
 			return;
 		}
-		
+
+		if (Status.ACTIVITY_STATUS_CLOSED.getStatus().equals(protocol.getActivityStatus())) {
+			ose.addError(CprErrorCode.CP_CLOSED);
+			return;
+		}
+
 		if (!Status.ACTIVITY_STATUS_ACTIVE.getStatus().equals(protocol.getActivityStatus())) {
 			ose.addError(CpErrorCode.NOT_FOUND);
 			return;

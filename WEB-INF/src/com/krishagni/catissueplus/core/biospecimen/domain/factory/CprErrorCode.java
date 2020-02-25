@@ -43,7 +43,9 @@ public enum CprErrorCode implements ErrorCode {
 
 	NOT_CP_SITE,
 
-	MUL_REGS_FOR_PMIS;
+	MUL_REGS_FOR_PMIS,
+
+	CP_CLOSED;
 
 	@Override
 	public String code() {
