@@ -41,8 +41,10 @@ public enum CprErrorCode implements ErrorCode {
 
 	COLLECTION_SITE_REQUIRED,
 
-	NOT_CP_SITE;
-	
+	NOT_CP_SITE,
+
+	MUL_REGS_FOR_PMIS;
+
 	@Override
 	public String code() {
 		return "CPR_" + this.name();

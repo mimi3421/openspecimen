@@ -99,7 +99,7 @@
         cpr.collectionProtocol.shortTitle = :shortTitle and
         p.empi = :empi
     </query>
-    
+
     <query name="getCprByCpIdAndPid">
       select
         cpr

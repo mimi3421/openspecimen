@@ -7,6 +7,7 @@ import java.util.Map;
 
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
 import com.krishagni.catissueplus.core.biospecimen.events.CprSummary;
+import com.krishagni.catissueplus.core.biospecimen.events.PmiDetail;
 import com.krishagni.catissueplus.core.common.repository.Dao;
 
 public interface CollectionProtocolRegistrationDao extends Dao<CollectionProtocolRegistration> {	
@@ -25,6 +26,8 @@ public interface CollectionProtocolRegistrationDao extends Dao<CollectionProtoco
 	CollectionProtocolRegistration getCprByCpShortTitleAndPpid(String cpShortTitle, String ppid);
 
 	CollectionProtocolRegistration getCprByCpShortTitleAndEmpi(String cpShortTitle, String empi);
+
+	List<CollectionProtocolRegistration> getCprsByCpShortTitleAndPmis(String cpShortTitle, List<PmiDetail> pmis);
 
 	CollectionProtocolRegistration getCprByBarcode(String barcode);
 

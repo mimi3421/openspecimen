@@ -33,6 +33,7 @@ import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
 import com.krishagni.catissueplus.core.biospecimen.events.CprSummary;
 import com.krishagni.catissueplus.core.biospecimen.events.ParticipantSummary;
+import com.krishagni.catissueplus.core.biospecimen.events.PmiDetail;
 import com.krishagni.catissueplus.core.biospecimen.repository.CollectionProtocolRegistrationDao;
 import com.krishagni.catissueplus.core.biospecimen.repository.CprListCriteria;
 import com.krishagni.catissueplus.core.common.access.SiteCpPair;
@@ -169,6 +170,48 @@ public class CollectionProtocolRegistrationDaoImpl extends AbstractDao<Collectio
 				.setString("empi", empi)
 				.list();
 		return CollectionUtils.isEmpty(result) ? null : result.iterator().next();
+	}
+
+	@Override
+	public List<CollectionProtocolRegistration> getCprsByCpShortTitleAndPmis(String cpShortTitle, List<PmiDetail> pmis) {
+		Criteria query = getByCpShortTitleAndPmisQuery(cpShortTitle, pmis);
+		if (query == null) {
+			return Collections.emptyList();
+		}
+
+		return query.list();
+	}
+
+	private Criteria getByCpShortTitleAndPmisQuery(String cpShortTitle, List<PmiDetail> pmis) {
+		Criteria query = sessionFactory.getCurrentSession().createCriteria(CollectionProtocolRegistration.class)
+			.createAlias("participant", "p")
+			.createAlias("collectionProtocol", "cp")
+			.createAlias("p.pmis", "pmi")
+			.createAlias("pmi.site", "site");
+
+		Disjunction disjunction = Restrictions.disjunction();
+
+		boolean added = false;
+
+		for (PmiDetail pmi : pmis) {
+			if (StringUtils.isBlank(pmi.getSiteName()) || StringUtils.isBlank(pmi.getMrn())) {
+				continue;
+			}
+
+			disjunction.add(Restrictions.and(
+				Restrictions.ilike("pmi.medicalRecordNumber", pmi.getMrn()),
+				Restrictions.ilike("site.name", pmi.getSiteName())));
+
+			added = true;
+		}
+
+		if (!added) {
+			return null;
+		}
+
+		return query.add(Restrictions.and(
+			Restrictions.ilike("cp.shortTitle", cpShortTitle), 
+			disjunction));
 	}
 
 	@Override
@@ -536,7 +579,7 @@ public class CollectionProtocolRegistrationDaoImpl extends AbstractDao<Collectio
 	private static final String GET_BY_CP_SHORT_TITLE_AND_PPID = FQN + ".getCprByCpShortTitleAndPpid";
 
 	private static final String GET_BY_CP_SHORT_TITLE_AND_EMPI = FQN + ".getCprByCpShortTitleAndEmpi";
-	
+
 	private static final String GET_BY_CP_ID_AND_PID = FQN + ".getCprByCpIdAndPid";
 
 	private static final String GET_BY_CP_ID = FQN + ".getCprsByCpId";
