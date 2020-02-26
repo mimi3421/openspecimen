@@ -36,7 +36,7 @@ angular.module('openspecimen')
         return $q.all([samlEnabled, sloEnabled]).then(
           function(resp) {
             var q;
-            if (resp[0].value && resp[1].value) {
+            if (resp[0].value == 'true' && resp[1].value == 'true') {
               $rootScope.logoutUrl = ApiUrls.getServerUrl() + 'saml/logout';
               $rootScope.logout = true;
               q = $q.defer();
