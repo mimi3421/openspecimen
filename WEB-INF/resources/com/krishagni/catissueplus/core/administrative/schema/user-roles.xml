@@ -7,7 +7,7 @@
     
     <field>
       <caption>#getMessage("user_roles_identifier")</caption>
-      <attribute>id</attribute>
+      <attribute>subjectId</attribute>
     </field>
     
     <field>

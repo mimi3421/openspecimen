@@ -7,6 +7,8 @@ import java.util.List;
 import com.krishagni.rbac.domain.SubjectRole;
 
 public class SubjectRolesList {	
+	private final static String ALL_CURRENT_AND_FUTURE = "All Current and Future";
+
 	private Long subjectId;
 	
 	private String emailAddress;
@@ -47,15 +49,19 @@ public class SubjectRolesList {
 			Role roleDetail = new Role();
 			roleDetail.setId(subjectRole.getId());
 			roleDetail.setRoleName(subjectRole.getRole().getName());
-						
+
 			if (subjectRole.getCollectionProtocol() != null) {
 				roleDetail.setCpShortTitle(subjectRole.getCollectionProtocol().getShortTitle());
+			} else {
+				roleDetail.setCpShortTitle(ALL_CURRENT_AND_FUTURE);
 			}
-			
+
 			if (subjectRole.getSite() != null) {
 				roleDetail.setSiteName(subjectRole.getSite().getName());
+			} else {
+				roleDetail.setSiteName(ALL_CURRENT_AND_FUTURE);
 			}
-			
+
 			rolesList.add(roleDetail);
 		}
 		

@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -66,6 +67,7 @@ import com.krishagni.catissueplus.core.exporter.domain.ExportJob;
 import com.krishagni.catissueplus.core.exporter.services.ExportService;
 import com.krishagni.rbac.events.SubjectRoleDetail;
 import com.krishagni.rbac.events.SubjectRoleOpNotif;
+import com.krishagni.rbac.events.SubjectRolesList;
 import com.krishagni.rbac.service.RbacService;
 
 public class UserServiceImpl implements UserService, ObjectAccessor, InitializingBean, UserDetailsService, SAMLUserDetailsService {
@@ -603,6 +605,7 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		exportSvc.registerObjectsGenerator("user", this::getUsersGenerator);
+		exportSvc.registerObjectsGenerator("userRoles", this::getUserRolesGenerator);
 	}
 
 	private void validateTypes(Collection<String> types) {
@@ -1066,6 +1069,14 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 	}
 
 	private Function<ExportJob, List<? extends Object>> getUsersGenerator() {
+		return getUserRolesGeneratorFunction(false);
+	}
+
+	private Function<ExportJob, List<? extends Object>> getUserRolesGenerator() {
+		return getUserRolesGeneratorFunction(true);
+	}
+
+	private Function<ExportJob, List<? extends Object>> getUserRolesGeneratorFunction(boolean getRoles) {
 		return new Function<ExportJob, List<? extends Object>>() {
 			private boolean endOfUsers;
 
@@ -1088,7 +1099,13 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 					endOfUsers = true;
 				}
 
-				return UserDetail.from(users);
+				return getRoles == true ? getSubjectRolesListFromUsers(users) : UserDetail.from(users);
+			}
+
+			private List<SubjectRolesList> getSubjectRolesListFromUsers(List<User> users) {
+				return users.stream()
+					.map(user -> SubjectRolesList.from(user.getId(), user.getEmailAddress(), user.getRoles()))
+					.collect(Collectors.toList());
 			}
 
 			private void initParams() {
