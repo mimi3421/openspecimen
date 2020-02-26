@@ -391,3 +391,39 @@ select.form-control.de-input-error + .chosen-container-multi .chosen-choices {
 .alert-danger.de-form-err-msg:after {
   border-color: transparent transparent #ebccd1;
 }
+
+.de-form .modal-footer.first-page .previous {
+  display: none;
+}
+
+.de-form .modal-footer.last-page .next {
+  display: none;
+}
+
+.de-form .modal-footer .save,
+.de-form .modal-footer .save-next {
+  display: none;
+}
+
+.de-form .modal-footer.last-page .save,
+.de-form .modal-footer.last-page .save-next {
+  display: inline-block;
+}
+
+.de-form .modal-footer .previous {
+  color: #ffffff;
+  background: #888;
+  border-color: #666;
+}
+
+.de-form .modal-footer .previous:hover,
+.de-form .modal-footer .previous:focus,
+.de-form .modal-footer .previous:active {
+  color: #ffffff;
+  background: #777;
+  border-color: #555;
+}
+
+.de-form .panel-title .pb {
+  float: right;
+}
