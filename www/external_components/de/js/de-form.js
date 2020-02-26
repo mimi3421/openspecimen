@@ -601,7 +601,7 @@ edu.common.de.Form = function(args) {
     btns.append(save);
 
     if (this.pages.length > 1) {
-      var next = $('<button/>').attr({"type": "button"}).addClass('btn btn-primary next').append('Next');
+      var next = $('<button/>').addClass('btn btn-primary next').append('Next');
       next.on('click', function() { that.next(); });
       btns.append(next);
       btns.addClass('first-page');
