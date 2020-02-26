@@ -120,3 +120,9 @@ form.os-form-submitting:after {
 .os-pde-home .os-page-header+.container {
   top: 57px;
 }
+
+.os-pde-container .os-extn-form .modal-footer .btn-default,
+.os-pde-container .os-extn-form .modal-footer .btn-warning,
+.os-pde-container .os-extn-form .modal-footer .btn-info {
+  display: none;
+}
