@@ -1,3 +1,7 @@
+#if (!$appUrl)
+  #set ($appUrl = "https://www.openspecimen.org/")
+#end
+
 <table cellspacing="0" cellpadding="0" border="0" width="100%" style="border-collapse:collapse;border-spacing:0;border-collapse:separate">
   <tbody>
     <tr>
@@ -12,7 +16,7 @@
     <tr>
       <td style="font-size: 12px;font-family: arial,sans-serif;color: #777777;border:none; text-align: center;">
        <p style="margin:10px 0 0 0"> 
-         <a href="http://www.openspecimen.org/">OpenSpecimen</a> | $adminEmailAddress | $adminPhone 
+         <a href=$appUrl>OpenSpecimen</a> | $adminEmailAddress | $adminPhone 
        </p>
       </td>
     </tr>
