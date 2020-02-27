@@ -106,19 +106,20 @@ public class ParticipantDaoImpl extends AbstractDao<Participant> implements Part
 		Criteria query = sessionFactory.getCurrentSession().createCriteria(Participant.class)
 				.createAlias("pmis", "pmi")
 				.createAlias("pmi.site", "site");
-		
-		Disjunction junction = Restrictions.disjunction();
-		
+
 		boolean added = false;
+		Disjunction junction = Restrictions.disjunction();
 		for (PmiDetail pmi : pmis) {
 			if (StringUtils.isBlank(pmi.getSiteName()) || StringUtils.isBlank(pmi.getMrn())) {
 				continue;
 			}
 			
 			junction.add(
-					Restrictions.and(
-							Restrictions.ilike("pmi.medicalRecordNumber", pmi.getMrn()),
-							Restrictions.ilike("site.name", pmi.getSiteName())));
+				Restrictions.and(
+					Restrictions.eq("site.name", pmi.getSiteName()),
+					Restrictions.eq("pmi.medicalRecordNumber", pmi.getMrn())
+				)
+			);
 			
 			added = true;
 		}
@@ -127,8 +128,7 @@ public class ParticipantDaoImpl extends AbstractDao<Participant> implements Part
 			return null;
 		}
 		
-		return query.add(junction);						
-		
+		return query.add(junction);
 	}
 
 	private static final String FQN = Participant.class.getName();

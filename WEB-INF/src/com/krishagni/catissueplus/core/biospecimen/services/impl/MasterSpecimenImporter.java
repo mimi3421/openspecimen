@@ -2,6 +2,7 @@ package com.krishagni.catissueplus.core.biospecimen.services.impl;
 
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.BeanUtils;
@@ -105,7 +106,7 @@ public class MasterSpecimenImporter implements ObjectImporter<MasterSpecimenDeta
 			cpr = daoFactory.getCprDao().getCprByCpShortTitleAndPpid(detail.getCpShortTitle(), detail.getPpid());
 		} else if (StringUtils.isNotBlank(detail.getEmpi())) {
 			cpr = daoFactory.getCprDao().getCprByCpShortTitleAndEmpi(detail.getCpShortTitle(), detail.getEmpi());
-		} else if (detail.getPmis() != null && !(detail.getPmis().isEmpty())) {
+		} else if (CollectionUtils.isNotEmpty(detail.getPmis())) {
 			cpr = getCprByPmis(detail.getCpShortTitle(), detail.getPmis());
 		}
 
@@ -120,7 +121,6 @@ public class MasterSpecimenImporter implements ObjectImporter<MasterSpecimenDeta
 			}
 
 			detail.setPpid(cpr.getPpid());
-
 			return;
 		}
 
@@ -140,7 +140,6 @@ public class MasterSpecimenImporter implements ObjectImporter<MasterSpecimenDeta
 
 	private CollectionProtocolRegistration getCprByPmis(String cpShortTitle, List<PmiDetail> pmis) {
 		List<CollectionProtocolRegistration> cprs = daoFactory.getCprDao().getCprsByCpShortTitleAndPmis(cpShortTitle, pmis);
-
 		if (cprs.size() > 1) {
 			throw OpenSpecimenException.userError(CprErrorCode.MUL_REGS_FOR_PMIS);
 		}

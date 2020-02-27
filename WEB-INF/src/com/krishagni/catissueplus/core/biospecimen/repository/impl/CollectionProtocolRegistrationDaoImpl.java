@@ -183,24 +183,25 @@ public class CollectionProtocolRegistrationDaoImpl extends AbstractDao<Collectio
 	}
 
 	private Criteria getByCpShortTitleAndPmisQuery(String cpShortTitle, List<PmiDetail> pmis) {
-		Criteria query = sessionFactory.getCurrentSession().createCriteria(CollectionProtocolRegistration.class)
-			.createAlias("participant", "p")
-			.createAlias("collectionProtocol", "cp")
+		Criteria query = getCurrentSession().createCriteria(CollectionProtocolRegistration.class, "cpr")
+			.createAlias("cpr.participant", "p")
+			.createAlias("cpr.collectionProtocol", "cp")
 			.createAlias("p.pmis", "pmi")
 			.createAlias("pmi.site", "site");
 
-		Disjunction disjunction = Restrictions.disjunction();
-
 		boolean added = false;
-
+		Disjunction disjunction = Restrictions.disjunction();
 		for (PmiDetail pmi : pmis) {
 			if (StringUtils.isBlank(pmi.getSiteName()) || StringUtils.isBlank(pmi.getMrn())) {
 				continue;
 			}
 
-			disjunction.add(Restrictions.and(
-				Restrictions.ilike("pmi.medicalRecordNumber", pmi.getMrn()),
-				Restrictions.ilike("site.name", pmi.getSiteName())));
+			disjunction.add(
+				Restrictions.and(
+					Restrictions.eq("site.name", pmi.getSiteName()),
+					Restrictions.eq("pmi.medicalRecordNumber", pmi.getMrn())
+				)
+			);
 
 			added = true;
 		}
@@ -209,9 +210,7 @@ public class CollectionProtocolRegistrationDaoImpl extends AbstractDao<Collectio
 			return null;
 		}
 
-		return query.add(Restrictions.and(
-			Restrictions.ilike("cp.shortTitle", cpShortTitle), 
-			disjunction));
+		return query.add(disjunction).add(Restrictions.eq("cp.shortTitle", cpShortTitle));
 	}
 
 	@Override
