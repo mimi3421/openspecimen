@@ -6,7 +6,7 @@ angular.module('os.biospecimen.specimen.overview', ['os.biospecimen.models'])
 
     function init() {
       if (hasDict) {
-        ExtensionsUtil.createExtensionFieldMap(specimen);
+        ExtensionsUtil.createExtensionFieldMap(specimen, hasDict);
       }
 
       $scope.spmnCtx = {
