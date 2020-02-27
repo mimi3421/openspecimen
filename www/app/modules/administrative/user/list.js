@@ -2,7 +2,7 @@
 angular.module('os.administrative.user.list', ['os.administrative.models'])
   .controller('UserListCtrl', function(
     $scope, $state, $modal, $translate, currentUser,
-    osRightDrawerSvc, User, ItemsHolder, PvManager,
+    osRightDrawerSvc, osExportSvc, User, ItemsHolder, PvManager,
     Util, DeleteUtil, CheckList, Alerts, ListPagerOpts) {
 
     var pagerOpts, filterOpts, ctx;
@@ -126,7 +126,13 @@ angular.module('os.administrative.user.list', ['os.administrative.models'])
     function getUserIds(users) {
       return users.map(function(user) { return user.id; });
     }
-    
+
+    function exportRecords(type) {
+      var userIds = getUserIds($scope.ctx.checkList.getSelectedItems());
+      var exportDetail = {objectType: type, recordIds: userIds};
+      osExportSvc.exportRecords(exportDetail);
+    }
+
     $scope.showUserOverview = function(user) {
       $state.go('user-detail.overview', {userId:user.id});
     };
@@ -198,6 +204,14 @@ angular.module('os.administrative.user.list', ['os.administrative.models'])
 
     $scope.pageSizeChanged = function() {
       filterOpts.maxResults = pagerOpts.recordsPerPage + 1;
+    }
+
+    $scope.exportUsers = function() {
+      exportRecords('user');
+    }
+
+    $scope.exportUserRoles = function() {
+      exportRecords('userRoles');
     }
 
     init();

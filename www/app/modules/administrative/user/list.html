@@ -144,7 +144,26 @@
       </ul>
     </div>
 
-    <os-export show-if-allowed="userResource.importOpts" class="default" detail="ctx.exportDetail"></os-export>
+    <div show-if-allowed="userResource.importOpts" dropdown class="os-inline-btn">
+      <button class="default dropdown-toggle">
+        <span translate="common.buttons.export">Export</span>
+        <span class="fa fa-caret-down"></span>
+      </button>
+      <ul class="dropdown-menu">
+        <li>
+          <a ng-click="exportUsers()">
+            <span class="fa fa-user"></span>
+            <span translate="user.list">Users</span>
+          </a>
+        </li>
+        <li>
+          <a ng-click="exportUserRoles()">
+            <span class="fa fa-lock"></span>
+            <span translate="user.user_roles">User Roles</span>
+          </a>
+        </li>
+      </ul>
+    </div>
 
     <os-plugin-hooks view-name="'user-list'" sec-name="'page-header'"></os-plugin-hooks>
 
@@ -208,6 +227,25 @@
       <span translate="user.approve_users">Approve</span>
     </button>
 
-    <os-export show-if-admin="institute" class="default" detail="ctx.exportDetail" check-list="ctx.checkList"></os-export>
+    <div show-if-allowed="userResource.importOpts" dropdown class="os-inline-btn">
+      <button class="default dropdown-toggle">
+        <span translate="common.buttons.export">Export</span>
+        <span class="fa fa-caret-down"></span>
+      </button>
+      <ul class="dropdown-menu">
+        <li>
+          <a ng-click="exportUsers()">
+            <span class="fa fa-user"></span>
+            <span translate="user.list">Users</span>
+          </a>
+        </li>
+        <li>
+          <a ng-click="exportUserRoles()">
+            <span class="fa fa-lock"></span>
+            <span translate="user.user_roles">User Roles</span>
+          </a>
+        </li>
+      </ul>
+    </div>
   </div>
 </script>
