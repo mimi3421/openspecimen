@@ -170,41 +170,34 @@ public class CollectionProtocolRegistrationFactoryImpl implements CollectionProt
 
 	private void setCollectionProtocol(
 			CollectionProtocolRegistrationDetail detail,
-			CollectionProtocolRegistration cpr, 			 
+			CollectionProtocolRegistration cpr,
 			OpenSpecimenException ose) {
 				
 		Long cpId = detail.getCpId();
 		String title = detail.getCpTitle();
 		String shortTitle = detail.getCpShortTitle();
 		
-		CollectionProtocol protocol = null;
+		CollectionProtocol cp = null;
 		if (cpId != null) {
-			protocol = daoFactory.getCollectionProtocolDao().getById(detail.getCpId());
+			cp = daoFactory.getCollectionProtocolDao().getById(detail.getCpId());
 		} else if (StringUtils.isNotBlank(title)) {
-			protocol = daoFactory.getCollectionProtocolDao().getCollectionProtocol(title);
+			cp = daoFactory.getCollectionProtocolDao().getCollectionProtocol(title);
 		} else if (StringUtils.isNotBlank(shortTitle)) {
-			protocol = daoFactory.getCollectionProtocolDao().getCpByShortTitle(shortTitle);
+			cp = daoFactory.getCollectionProtocolDao().getCpByShortTitle(shortTitle);
 		} else {
 			ose.addError(CprErrorCode.CP_REQUIRED);
 			return;
 		} 
 		
-		if (protocol == null) {
+		if (cp == null) {
 			ose.addError(CpErrorCode.NOT_FOUND);
-			return;
-		}
-
-		if (Status.ACTIVITY_STATUS_CLOSED.getStatus().equals(protocol.getActivityStatus())) {
+		} else if (Status.isClosedStatus(cp.getActivityStatus())) {
 			ose.addError(CprErrorCode.CP_CLOSED);
-			return;
+		} else if (!Status.isActiveStatus(cp.getActivityStatus())) {
+			ose.addError(CpErrorCode.NOT_FOUND);
 		}
 
-		if (!Status.ACTIVITY_STATUS_ACTIVE.getStatus().equals(protocol.getActivityStatus())) {
-			ose.addError(CpErrorCode.NOT_FOUND);
-			return;
-		}
-		
-		cpr.setCollectionProtocol(protocol);
+		cpr.setCollectionProtocol(cp);
 	}
 
 	private void setCollectionProtocol(

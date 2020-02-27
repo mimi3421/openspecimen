@@ -52,6 +52,10 @@ public final class Status {
 		return getStatus().equals(status);
 	}
 
+	public static boolean isActiveStatus(String status) {
+		return ACTIVITY_STATUS_ACTIVE.equals(status);
+	}
+
 	public static boolean isClosedStatus(String status) {
 		return ACTIVITY_STATUS_CLOSED.equals(status);
 	}
