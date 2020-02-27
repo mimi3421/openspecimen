@@ -604,7 +604,7 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		exportSvc.registerObjectsGenerator("user", this::getUsersGenerator);
+		exportSvc.registerObjectsGenerator("user",      this::getUsersGenerator);
 		exportSvc.registerObjectsGenerator("userRoles", this::getUserRolesGenerator);
 	}
 
@@ -1068,16 +1068,16 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 		return detail;
 	}
 
-	private Function<ExportJob, List<? extends Object>> getUsersGenerator() {
-		return getUserRolesGeneratorFunction(false);
+	private Function<ExportJob, List<?>> getUsersGenerator() {
+		return getUsersGenerator(UserDetail::from);
 	}
 
-	private Function<ExportJob, List<? extends Object>> getUserRolesGenerator() {
-		return getUserRolesGeneratorFunction(true);
+	private Function<ExportJob, List<?>> getUserRolesGenerator() {
+		return getUsersGenerator(this::getRolesList);
 	}
 
-	private Function<ExportJob, List<? extends Object>> getUserRolesGeneratorFunction(boolean getRoles) {
-		return new Function<ExportJob, List<? extends Object>>() {
+	private Function<ExportJob, List<?>> getUsersGenerator(Function<List<User>, List<?>> transformer) {
+		return new Function<ExportJob, List<?>>() {
 			private boolean endOfUsers;
 
 			private int startAt;
@@ -1099,13 +1099,7 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 					endOfUsers = true;
 				}
 
-				return getRoles == true ? getSubjectRolesListFromUsers(users) : UserDetail.from(users);
-			}
-
-			private List<SubjectRolesList> getSubjectRolesListFromUsers(List<User> users) {
-				return users.stream()
-					.map(user -> SubjectRolesList.from(user.getId(), user.getEmailAddress(), user.getRoles()))
-					.collect(Collectors.toList());
+				return transformer.apply(users);
 			}
 
 			private void initParams() {
@@ -1117,5 +1111,11 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 				paramsInited = true;
 			}
 		};
+	}
+
+	private List<SubjectRolesList> getRolesList(List<User> users) {
+		return users.stream()
+			.map(user -> SubjectRolesList.from(user.getId(), user.getEmailAddress(), user.getRoles()))
+			.collect(Collectors.toList());
 	}
 }
