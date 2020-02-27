@@ -11,6 +11,9 @@
       <h3>
         <span>{{cp.shortTitle}}</span>
         <span ng-if="codingEnabled && !!cp.code">({{cp.code}})</span>
+        <span class="btn os-status-closed" ng-if="cp.activityStatus == 'Closed'">
+          <span translate="common.closed">Closed</span>
+        </span>
       </h3>
     </div>
   </div>

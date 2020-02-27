@@ -10,6 +10,18 @@
         <span class="fa fa-copy"></span>
         <span translate="cp.menu_options.clone">Clone</span>
       </button>
+      <span ng-show="cp.activityStatus != 'Closed'">
+        <button show-if-allowed="cpResource.updateOpts" class="default" ng-click="closeCp()">
+          <span class="fa fa-ban"></span>
+          <span translate="cp.menu_options.close">Close</span>
+        </button>
+      </span>
+      <span ng-show="cp.activityStatus == 'Closed'">
+        <button show-if-allowed="cpResource.updateOpts" class="default" ng-click="reopenCp()">
+          <span class="fa fa-check"></span>
+          <span translate="common.buttons.reopen">Reopen</span>
+        </button>
+      </span>
       <button show-if-allowed="cpResource.deleteOpts" class="default" ng-click="deleteCp()">
         <span class="fa fa-trash"></span>
         <span translate="cp.menu_options.delete">Delete</span>

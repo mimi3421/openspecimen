@@ -1,5 +1,5 @@
 <div ng-if="!cp.specimenCentric && listViewCtx.showPrimaryBtnDd" show-if-allowed="partRegOpts"
-  dropdown class="os-inline-btn">
+  dropdown class="os-inline-btn" os-show-if-menu-items-present>
   <button class="default dropdown-toggle" title="{{'participant.tooltip.register' | translate}}"
     ui-sref="participant-addedit({cprId: -1, cpId: cp.id})">
     <span class="fa fa-plus"></span>
@@ -7,25 +7,25 @@
   </button>
 
   <ul class="dropdown-menu">
-    <li>
+    <li ng-if="cp.activityStatus != 'Closed'">
       <a ui-sref="participant-addedit({cprId: -1, cpId: cp.id})">
         <span class="fa fa-user"></span>
         <span translate="participant.buttons.single">Single</span>
       </a>
     </li>
-    <li ng-if="!!cp.bulkPartRegEnabled">
+    <li ng-if="cp.activityStatus != 'Closed' && !!cp.bulkPartRegEnabled">
       <a ui-sref="participant-bulkreg">
         <span class="fa fa-users"></span>
         <span translate="participant.buttons.multiple">Multiple</span>
       </a>
     </li>
-    <li class="divider"></li>
+    <li ng-if="cp.activityStatus != 'Closed'" class="divider"></li>
     <os-plugin-hooks view-name="'participant-list'" sec-name="'primary-button'"></os-plugin-hooks>
   </ul>
 </div>
 
-<button ng-if="!cp.specimenCentric && !listViewCtx.showPrimaryBtnDd" show-if-allowed="partRegOpts"
-  class="default" title="{{'participant.tooltip.register' | translate}}"
+<button ng-if="cp.activityStatus != 'Closed' && !cp.specimenCentric && !listViewCtx.showPrimaryBtnDd"
+  show-if-allowed="partRegOpts" class="default" title="{{'participant.tooltip.register' | translate}}"
   ui-sref="participant-addedit({cprId: -1, cpId: cp.id})">
   <span class="fa fa-plus"></span>
   <span translate="participant.buttons.register">Register</span>

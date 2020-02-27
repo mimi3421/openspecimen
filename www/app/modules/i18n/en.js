@@ -140,6 +140,7 @@
       "search": "Search",
       "clear_filters": "Clear Filters",
       "close": "Close",
+      "reopen": "Reopen",
       "upload": "Upload",
       "reset_password": "Reset Password",
       "add_new": "Add New",
@@ -251,6 +252,12 @@
     "delete_cps":  "Are you sure you want to delete selected collection protocols?",
     "cps_deleted": "Collection protocols deleted successfully",
     "cps_delete_pending": "Collection protocols deletion taking longer time than anticipated. You'll receive emails when it gets completed",
+
+    "close_cp_q": "Close Collection Protocol?",
+    "confirm_close_cp_msg": "New participants cannot be registered to the closed collection protocols. Are you sure you want to proceed with closing the collection protocol?",
+    "closed": "Collection Protocol closed",
+    "reopened": "Collection Protocol reopened",
+
     "delete_consent_tier": "{{entityType}} {{entityName}} of {{entity.cpShortTitle}} will be deleted forever. Are you sure you want to proceed?",
 
     "loading_list": "Loading collection protocols, please wait for a moment...",
@@ -303,6 +310,7 @@
 
     "menu_options": {
       "clone": "Clone",
+      "close": "Close",
       "delete": "Delete",
       "export": "Export"
     },
