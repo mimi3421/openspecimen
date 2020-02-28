@@ -94,7 +94,7 @@ angular.module('os.biospecimen.participant')
           openSpecimenTree(state.specimens, state.openedNodesMap, treeCfg);
           angular.forEach(state.specimens,
             function(spmn) {
-              ExtensionsUtil.createExtensionFieldMap(spmn);
+              ExtensionsUtil.createExtensionFieldMap(spmn, true);
             }
           );
 
