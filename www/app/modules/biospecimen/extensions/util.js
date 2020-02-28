@@ -71,7 +71,7 @@ angular.module('os.biospecimen.extensions.util', [])
           attr.value = attr.displayValue;
         }
 
-        extensionDetail.attrsMap[attr.name] = attr.type != 'subForm' ? attr.value : getSubformFieldMap(attr);
+        extensionDetail.attrsMap[attr.name] = attr.type != 'subForm' ? attr.value : getSubformFieldMap(attr, sdeMode);
         if (attr.type != 'subForm') {
           extensionDetail.attrsMap['$$' + attr.name + '_displayValue'] = attr.displayValue;
         }
