@@ -51,7 +51,7 @@ angular.module('os.biospecimen.extensions.util', [])
       );
     };
     
-    function createExtensionFieldMap(entity) {
+    function createExtensionFieldMap(entity, sdeMode) {
       var extensionDetail = entity.extensionDetail;
       if (!extensionDetail) {
         return;
@@ -67,21 +67,34 @@ angular.module('os.biospecimen.extensions.util', [])
           } else if (!!attr.value || attr.value === 0) {
             attr.value = new Date(attr.value);
           }
+        } else if (sdeMode && attr.type == 'pvField') {
+          attr.value = attr.displayValue;
         }
 
-        extensionDetail.attrsMap[attr.name] = attr.type != 'subForm' ? attr.value : getSubformFieldMap(attr);
+        extensionDetail.attrsMap[attr.name] = attr.type != 'subForm' ? attr.value : getSubformFieldMap(attr, sdeMode);
         if (attr.type != 'subForm') {
           extensionDetail.attrsMap['$$' + attr.name + '_displayValue'] = attr.displayValue;
         }
       });
     }
 
-    function getSubformFieldMap(sf) {
+    function getSubformFieldMap(sf, sdeMode) {
       var attrsMap = [];
       angular.forEach(sf.value, function(attrs, idx) {
-        attrsMap[idx] = {};
+        var map = attrsMap[idx] = {};
         angular.forEach(attrs, function(attr) {
-          attrsMap[idx][attr.name] = attr.value;
+          if (attr.type == 'datePicker') {
+            if (!isNaN(attr.value) && !isNaN(parseInt(attr.value))) {
+              attr.value = parseInt(attr.value);
+            } else if (!!attr.value || attr.value === 0) {
+              attr.value = new Date(attr.value);
+            }
+          } else if (sdeMode && attr.type == 'pvField') {
+            attr.value = attr.displayValue;
+          }
+
+          map[attr.name] = attr.value;
+          map['$$' + attr.name + '_displayValue'] = attr.displayValue;
         });
       })
 
@@ -93,7 +106,7 @@ angular.module('os.biospecimen.extensions.util', [])
         return undefined;
       }
 
-      createExtensionFieldMap(entity);
+      createExtensionFieldMap(entity, extnCtxt.sdeMode);
 
       return {
         formId: extnCtxt.formId,

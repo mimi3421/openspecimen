@@ -1,7 +1,7 @@
 
 angular.module('os.biospecimen.visit.detail', ['os.biospecimen.models'])
   .controller('VisitDetailCtrl', function(
-    $scope, $state, cp, cpr, visit, specimens, storeSpr,
+    $scope, $state, cp, cpr, visit, specimens, storeSpr, hasDict,
     CpConfigSvc, Specimen, VisitNamePrinter, DeleteUtil,
     SpecimenLabelPrinter, ExtensionsUtil, Util) {
 
@@ -12,7 +12,7 @@ angular.module('os.biospecimen.visit.detail', ['os.biospecimen.models'])
       $scope.allowPrintVisit = false;
 
       $scope.sprUploadAllowed = storeSpr && visit.status == 'Complete';
-      ExtensionsUtil.createExtensionFieldMap(visit);
+      ExtensionsUtil.createExtensionFieldMap(visit, hasDict);
 
       CpConfigSvc.getCommonCfg(cp.id, 'printVisitsEnabled').then(
         function(value) {

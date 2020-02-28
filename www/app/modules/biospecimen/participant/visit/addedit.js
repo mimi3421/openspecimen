@@ -44,6 +44,7 @@ angular.module('os.biospecimen.visit.addedit', [])
       }
 
       $scope.deFormCtrl = {};
+      extensionCtxt.sdeMode = hasDict;
       $scope.extnOpts = ExtensionsUtil.getExtnOpts(currVisit, extensionCtxt);
 
       if (!hasDict) {

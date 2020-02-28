@@ -51,6 +51,8 @@ angular.module('os.biospecimen.participant.addedit', ['os.biospecimen.models', '
 
       $scope.op         = !!$scope.cpr.id ? 'Update' : 'Create';
       $scope.deFormCtrl = {};
+
+      extensionCtxt.sdeMode = hasDict;
       $scope.extnOpts = ExtensionsUtil.getExtnOpts(
         $scope.cpr.participant, extensionCtxt, $scope.disableFieldOpts.customFields);
 
