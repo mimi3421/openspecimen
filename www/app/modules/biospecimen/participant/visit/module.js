@@ -111,8 +111,8 @@ angular.module('os.biospecimen.visit', [
             }
           );
         },
-        controller: function($scope, cpr, hasFieldsFn, showVisitActivity, spmnReqs, osRightDrawerSvc, ExtensionsUtil) {
-          ExtensionsUtil.createExtensionFieldMap($scope.visit);
+        controller: function($scope, cpr, hasFieldsFn, showVisitActivity, spmnReqs, hasDict, osRightDrawerSvc, ExtensionsUtil) {
+          ExtensionsUtil.createExtensionFieldMap($scope.visit, hasDict);
           $scope.visitCtx = {
             obj: {cpr: cpr, visit: $scope.visit},
             spmnReqs: spmnReqs,

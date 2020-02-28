@@ -238,7 +238,7 @@ angular.module('os.biospecimen.participant.specimen-tree',
 
       angular.forEach(scope.specimens,
         function(spmn) {
-          ExtensionsUtil.createExtensionFieldMap(spmn);
+          ExtensionsUtil.createExtensionFieldMap(spmn, true);
         }
       );
 

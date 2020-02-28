@@ -43,7 +43,7 @@ angular.module('os.biospecimen.participant.overview', ['os.biospecimen.models'])
       if (!!field) {
         angular.forEach(inputVisits,
           function(iv) {
-            ExtensionsUtil.createExtensionFieldMap(iv);
+            ExtensionsUtil.createExtensionFieldMap(iv, hasDict);
           }
         );
       }
@@ -87,7 +87,7 @@ angular.module('os.biospecimen.participant.overview', ['os.biospecimen.models'])
             function(savedCpr) {
               $scope.cpr.participant = null;
               angular.extend($scope.cpr, savedCpr);
-              ExtensionsUtil.createExtensionFieldMap($scope.cpr.participant);
+              ExtensionsUtil.createExtensionFieldMap($scope.cpr.participant, hasDict);
               Alerts.success("participant.anonymized_successfully");
             }
           )

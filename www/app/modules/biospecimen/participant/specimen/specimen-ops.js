@@ -272,7 +272,7 @@ angular.module('os.biospecimen.specimen')
           var specimenIds = selectedSpmns.map(function(spmn) {return spmn.id});
           Specimen.getByIds(specimenIds, true).then(
             function(spmns) {
-              angular.forEach(spmns, ExtensionsUtil.createExtensionFieldMap);
+              angular.forEach(spmns, function(spmn) { ExtensionsUtil.createExtensionFieldMap(spmn, true); });
               SpecimensHolder.setSpecimens(spmns);
               navTo(scope, state, params);
             }

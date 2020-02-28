@@ -1281,7 +1281,7 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
             }
 
             spmn.externalIds = spmn.externalIds || [];
-            ExtensionsUtil.createExtensionFieldMap(spmn);
+            ExtensionsUtil.createExtensionFieldMap(spmn, true);
           }
         );
 
@@ -1316,7 +1316,7 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
           var showVisitFields = CollectSpecimensSvc.showCollVisitDetails();
           if (visitFieldsGrp && showVisitFields) {
             groups.unshift(visitFieldsGrp);
-            ExtensionsUtil.createExtensionFieldMap(visit)
+            ExtensionsUtil.createExtensionFieldMap(visit, true)
           }
         }
 
