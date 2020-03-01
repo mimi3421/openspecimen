@@ -1,8 +1,8 @@
 angular.module('os.biospecimen.specimen')
   .controller('BulkCreateDerivativesCtrl', function(
-    $scope, $injector, $translate, $q, parentSpmns, cp, cpr,
+    $scope, $state, $injector, $translate, $q, parentSpmns, cp, cpr,
     cpDict, derivedFields, spmnHeaders, incrFreezeThawCycles, containerAllocRules,
-    Specimen, Alerts, Util, SpecimenUtil, Container) {
+    Specimen, Alerts, Util, SpecimenUtil, Container, ExtensionsUtil, SpecimensHolder) {
 
     var ctx, reservationId;
 
@@ -159,7 +159,21 @@ angular.module('os.biospecimen.specimen')
       $injector.get('sdeSample').saveSamples(samples).then(
         function(resp) {
           Alerts.success('specimens.derivatives_created');
-          $scope.back();
+
+          var createAliquotsOf = [];
+          for (var i = 0; i < samples.length; ++i) {
+            if (samples[i].specimen.createAliquots) {
+              ExtensionsUtil.createExtensionFieldMap(resp.samples[i], true);
+              createAliquotsOf.push(resp.samples[i]);
+            }
+          }
+
+          if (createAliquotsOf.length > 0) {
+            SpecimensHolder.setSpecimens(createAliquotsOf);
+            $state.go('specimen-bulk-create-aliquots', {}, {location: 'replace'});
+          } else {
+            $scope.back();
+          }
         }
       );
     }
@@ -334,7 +348,7 @@ angular.module('os.biospecimen.specimen')
       }
 
       Specimen.save(result).then(
-        function() {
+        function(resp) {
           Alerts.success('specimens.derivatives_created');
           $scope.back();
         }

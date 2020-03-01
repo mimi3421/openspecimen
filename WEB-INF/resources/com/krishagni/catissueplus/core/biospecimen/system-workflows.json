@@ -588,6 +588,13 @@
                             "copyValueFn": "function(firstRowVal, currentVal) { if ((!!currentVal && !!currentVal.reservationId) && (!!firstRowVal && !!firstRowVal.reservationId)) { return currentVal;} else if (firstRowVal) { return { id: '', name: firstRowVal.name, mode: firstRowVal.mode, positionX: '', positionY: '', position: '', reservationId: '' };} else { return {}; }}"
                         },
                         {
+                            "name": "specimen.createAliquots",
+                            "caption": "Create Aliquots?",
+                            "icon": "fa fa-share-alt",
+                            "type": "toggle-checkbox",
+                            "width": "30px"
+                        },
+                        {
                             "name": "specimen.printLabel",
                             "caption": "Print",
                             "icon": "fa fa-print",
