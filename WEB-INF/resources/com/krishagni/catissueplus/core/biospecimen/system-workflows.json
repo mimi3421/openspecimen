@@ -44,6 +44,10 @@
                 {
                     "expr": "CollectionProtocol.cpSites.siteName",
                     "caption": "Repository"
+                },
+                {
+                    "expr": "CollectionProtocol.activityStatus",
+                    "caption": "Status"
                 }
             ]
         }

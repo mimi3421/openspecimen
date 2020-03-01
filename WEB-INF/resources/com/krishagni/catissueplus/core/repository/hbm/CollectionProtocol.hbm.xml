@@ -227,8 +227,7 @@
       from 
         com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol
       where
-        shortTitle in (:shortTitles) and 
-        activityStatus = 'Active'
+        shortTitle in (:shortTitles)
     </query>
     
     <query name="getCpsByShortTitleAndSite">
