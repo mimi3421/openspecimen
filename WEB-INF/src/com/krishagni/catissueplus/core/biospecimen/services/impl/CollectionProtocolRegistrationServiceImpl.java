@@ -62,6 +62,7 @@ import com.krishagni.catissueplus.core.biospecimen.events.RegistrationQueryCrite
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.VisitDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.VisitSpecimensQueryCriteria;
+import com.krishagni.catissueplus.core.biospecimen.events.VisitSummary;
 import com.krishagni.catissueplus.core.biospecimen.repository.CprListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.biospecimen.repository.VisitsListCriteria;
@@ -497,7 +498,8 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 			List<VisitDetail> result = new ArrayList<>(visitsMap.values());
 			result.addAll(anticipatedVisitsMap.values());
 			VisitDetail.setAnticipatedVisitDates(cpr.getRegistrationDate(), result);
-			Collections.sort(result);
+
+			result.sort(crit.sortByDates() ? VisitSummary::compareDates : VisitSummary::compareTo);
 			return ResponseEvent.response(result);
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);

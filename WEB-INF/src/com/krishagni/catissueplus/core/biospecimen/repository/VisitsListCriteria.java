@@ -20,6 +20,8 @@ public class VisitsListCriteria extends AbstractListCriteria<VisitsListCriteria>
 
 	private boolean useMrnSites;
 
+	private boolean sortByDates;
+
 	@Override
 	public VisitsListCriteria self() {
 		return this;
@@ -86,6 +88,15 @@ public class VisitsListCriteria extends AbstractListCriteria<VisitsListCriteria>
 
 	public VisitsListCriteria useMrnSites(boolean useMrnSites) {
 		this.useMrnSites = useMrnSites;
+		return self();
+	}
+
+	public boolean sortByDates() {
+		return sortByDates;
+	}
+
+	public VisitsListCriteria sortByDates(boolean sortByDates) {
+		this.sortByDates = sortByDates;
 		return self();
 	}
 }

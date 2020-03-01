@@ -260,9 +260,15 @@ public class VisitSummary extends AttributeModifiedSupport implements Comparable
 			return result;
 		}
 
-		Date thisVisitDate = visitDate != null ? visitDate : anticipatedVisitDate;
-		Date otherVisitDate = other.visitDate != null ? other.visitDate : other.anticipatedVisitDate;
-		return ObjectUtils.compare(thisVisitDate, otherVisitDate, true);
+		return compareDates(other);
+	}
+
+	public int compareDates(VisitSummary other) {
+		return ObjectUtils.compare(
+			getVisitDate() != null ? getVisitDate() : getAnticipatedVisitDate(),
+			other.getVisitDate() != null ? other.getVisitDate() : other.getAnticipatedVisitDate(),
+			true
+		);
 	}
 
 	private void addInterval(Calendar cal, Integer interval, IntervalUnit intervalUnit) {

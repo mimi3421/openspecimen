@@ -545,14 +545,13 @@ angular.module('os.biospecimen.participant',
             );
           },
 
-          visitsTab: function(cp, CpConfigSvc) {
-            return CpConfigSvc.getWorkflowData(cp.id, 'visitsTab').then(
-              function(result) {
-                if (!!result) {
-                  return result;
-                }
-
-                return CpConfigSvc.getWorkflowData(-1, 'visitsTab', {});
+          visitsTab: function(cp, $q, CpConfigSvc) {
+            var allCfgQ = CpConfigSvc.getWorkflowData(-1,    'visitsTab', {});
+            var cpCfgQ  = CpConfigSvc.getWorkflowData(cp.id, 'visitsTab', {});
+            return $q.all([allCfgQ, cpCfgQ]).then(
+              function(tabs) {
+                var allCfg = angular.copy(tabs[0]);
+                return angular.extend(allCfg, tabs[1]);
               }
             );
           },
@@ -657,12 +656,12 @@ angular.module('os.biospecimen.participant',
             return cpr.getAllowedEvents(visitsTab);
           },
 
-          visits: function($stateParams, cpViewCtx, allowedEvents, Visit) {
+          visits: function($stateParams, cpViewCtx, allowedEvents, visitsTab, Visit) {
             if (!cpViewCtx.spmnReadAllowed) {
               return null;
             }
 
-            return Visit.listFor($stateParams.cprId, true).then(
+            return Visit.listFor($stateParams.cprId, true, visitsTab.sortByDates).then(
               function(visits) {
                 return visits.filter(
                   function(v) {

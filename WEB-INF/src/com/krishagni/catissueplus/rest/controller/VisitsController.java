@@ -69,15 +69,19 @@ public class VisitsController {
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
 	public List<VisitDetail> getVisits(
-		@RequestParam(value = "cprId", required = true)
+		@RequestParam(value = "cprId")
 		Long cprId,
 
 		@RequestParam(value = "includeStats", required = false, defaultValue = "false") 
-		boolean includeStats) {
+		boolean includeStats,
+
+		@RequestParam(value = "sortByDates", required = false, defaultValue = "false")
+		boolean sortByDates) {
 		
 		VisitsListCriteria crit = new VisitsListCriteria()
 			.cprId(cprId)
-			.includeStat(includeStats);
+			.includeStat(includeStats)
+			.sortByDates(sortByDates);
 
 		ResponseEvent<List<VisitDetail>> resp = cprSvc.getVisits(request(crit));
 		resp.throwErrorIfUnsuccessful();

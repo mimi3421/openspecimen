@@ -37,8 +37,8 @@ angular.module('os.biospecimen.models.visit', ['os.common.models', 'os.biospecim
       return result.getTime();
     }
 
-    Visit.listFor = function(cprId, includeStats) {
-      return Visit.query({cprId: cprId, includeStats: !!includeStats}).then(enrich);
+    Visit.listFor = function(cprId, includeStats, sortByDates) {
+      return Visit.query({cprId: cprId, includeStats: !!includeStats, sortByDates: !!sortByDates}).then(enrich);
     };
 
     Visit.getAnticipatedVisit = function(eventId, regDate) {
