@@ -19,6 +19,8 @@ import edu.common.dynamicextensions.domain.nui.Container;
 public interface MobileAppService {
 	ResponseEvent<Map<String, Object>> getCpDetail(RequestEvent<String> req);
 
+	ResponseEvent<Map<String, Object>> getWorkflow(RequestEvent<Long> req);
+
 	ResponseEvent<Container> getForm(RequestEvent<Map<String, Object>> req);
 
 	ResponseEvent<List<FormSummary>> getForms(RequestEvent<Map<String, Object>> req);
