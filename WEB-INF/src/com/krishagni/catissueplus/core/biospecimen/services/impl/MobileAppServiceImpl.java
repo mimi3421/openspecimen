@@ -166,6 +166,7 @@ public class MobileAppServiceImpl implements MobileAppService, InitializingBean 
 
 			Map<String, Object> forms = (Map<String, Object>) data.get("forms");
 			formNames.addAll(getFormNames(forms, "registration"));
+			formNames.addAll(getFormNames(forms, "visit"));
 			formNames.addAll(getFormNames(forms, "specimen"));
 
 			Map<String, Object> addlForms = (Map<String, Object>) data.get("additionalForms");
@@ -1118,6 +1119,7 @@ public class MobileAppServiceImpl implements MobileAppService, InitializingBean 
 
 		try {
 			importParticipants(job);
+			importVisits(job);
 			importPrimarySpecimens(job);
 			importAliquots(job);
 		} catch (Exception e) {
@@ -1215,6 +1217,31 @@ public class MobileAppServiceImpl implements MobileAppService, InitializingBean 
 		);
 	}
 
+	private void importVisits(MobileUploadJob job) {
+		importRecords(
+			job,
+			new SchemaParams("visit", "dataEntry", "addVisit", "visits.csv"),
+			(record) -> {
+				Map<String, Object> appData = new HashMap<>();
+				appData.put("cpId", job.getCp().getId());
+				appData.put("cpShortTitle", job.getCp().getShortTitle());
+				appData.put("ppid", record.get("ppid"));
+
+				VisitDetail visit = toVisit(appData, record);
+				visit.setCpId(job.getCp().getId());
+
+				VisitDetail savedVisit = saveOrUpdateVisit(visit);
+
+				String uid = (String) record.get("uid");
+				if (StringUtils.isNotBlank(uid)) {
+					job.putInCache("visit:" + uid, savedVisit.getId());
+				}
+
+				return null;
+			}
+		);
+	}
+
 	private void importPrimarySpecimens(MobileUploadJob job) {
 		importRecords(
 			job,
@@ -1227,6 +1254,15 @@ public class MobileAppServiceImpl implements MobileAppService, InitializingBean 
 
 				SpecimenDetail spmn = toSpecimen(appData, record);
 				spmn.setCpId(job.getCp().getId());
+
+				String visitUid = (String) record.get("visitUid");
+				if (StringUtils.isNotBlank(visitUid)) {
+					Long visitId = (Long) job.getFromCache("visit:" + visitUid);
+					if (visitId != null) {
+						spmn.setVisitId(visitId);
+					}
+				}
+
 				saveOrUpdateSpecimen(spmn);
 				return null;
 			}
@@ -1265,7 +1301,6 @@ public class MobileAppServiceImpl implements MobileAppService, InitializingBean 
 		ObjectReader reader = new ObjectReader(inputFilePath, schema, DATE_FMT, DATE_TIME_FMT, FIELD_SEPARATOR);
 		reader.setTimeZone("UTC");
 
-		MobileUploadJob.Status status = job.getStatus();
 		long totalRecords = job.getTotalRecords(), failedRecords = job.getFailedRecords();
 		CsvWriter writer = null;
 		try {
@@ -1344,9 +1379,16 @@ public class MobileAppServiceImpl implements MobileAppService, InitializingBean 
 				fields.add(getField("cpShortTitle", "Collection Protocol"));
 				break;
 
+			case "addVisit":
+				fields.add(getField("cpShortTitle", "Collection Protocol"));
+				fields.add(getField("ppid", "PPID"));
+				fields.add(getField("uid", "UID"));
+				break;
+
 			case "addSpecimen":
 				fields.add(getField("cpShortTitle", "Collection Protocol"));
 				fields.add(getField("ppid", "PPID"));
+				fields.add(getField("visitUid", "Visit UID"));
 				break;
 
 			case "createAliquots":
