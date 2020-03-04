@@ -2,6 +2,8 @@ package com.krishagni.catissueplus.core.common.domain;
 
 import java.io.File;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.biospecimen.domain.BaseEntity;
@@ -30,6 +32,8 @@ public class MobileUploadJob extends BaseEntity {
 	private Date creationTime;
 
 	private Date endTime;
+
+	private transient Map<String, Object> cache = new HashMap<>();
 
 	public CollectionProtocol getCp() {
 		return cp;
@@ -106,5 +110,13 @@ public class MobileUploadJob extends BaseEntity {
 
 	public File getOutputDir() {
 		return new File(getWorkingDir(), "output");
+	}
+
+	public void putInCache(String key, Object object) {
+		cache.put(key, object);
+	}
+
+	public Object getFromCache(String key) {
+		return cache.get(key);
 	}
 }

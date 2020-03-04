@@ -72,6 +72,7 @@ import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
 import com.krishagni.catissueplus.core.common.domain.MobileUploadJob;
 import com.krishagni.catissueplus.core.common.errors.CommonErrorCode;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
+import com.krishagni.catissueplus.core.common.events.EntityQueryCriteria;
 import com.krishagni.catissueplus.core.common.events.MobileUploadJobDetail;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
@@ -165,6 +166,7 @@ public class MobileAppServiceImpl implements MobileAppService, InitializingBean 
 
 			Map<String, Object> forms = (Map<String, Object>) data.get("forms");
 			formNames.addAll(getFormNames(forms, "registration"));
+			formNames.addAll(getFormNames(forms, "visit"));
 			formNames.addAll(getFormNames(forms, "specimen"));
 
 			Map<String, Object> addlForms = (Map<String, Object>) data.get("additionalForms");
@@ -172,6 +174,27 @@ public class MobileAppServiceImpl implements MobileAppService, InitializingBean 
 
 			result.put("forms", getFormDefs(formNames));
 			return ResponseEvent.response(result);
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
+		} catch (Exception e) {
+			return ResponseEvent.serverError(e);
+		}
+	}
+
+	@Override
+	@PlusTransactional
+	public ResponseEvent<Map<String, Object>> getWorkflow(RequestEvent<Long> req) {
+		try {
+			Long cpId = req.getPayload();
+			AccessCtrlMgr.getInstance().ensureReadCpRights(cpId);
+
+			CpWorkflowConfig.Workflow workflow = CpWorkflowTxnCache.getInstance().getWorkflow(cpId, "mobile-app");
+			Map<String, Object> data = new HashMap<>();
+			if (workflow != null && workflow.getData() != null) {
+				data = workflow.getData();
+			}
+
+			return ResponseEvent.response(data);
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {
@@ -312,6 +335,9 @@ public class MobileAppServiceImpl implements MobileAppService, InitializingBean 
 			switch (action) {
 				case "getParticipant":
 					return ResponseEvent.response(getCpr(input));
+
+				case "getVisit":
+					return ResponseEvent.response(getVisit(input));
 
 				case "getSpecimen":
 					return ResponseEvent.response(getSpecimen(input));
@@ -501,6 +527,11 @@ public class MobileAppServiceImpl implements MobileAppService, InitializingBean 
 			visit.setCprId(cprId.longValue());
 		}
 
+		String ppid = (String) appData.get("ppid");
+		if (ppid != null) {
+			visit.setPpid(ppid);
+		}
+
 		return visit;
 	}
 
@@ -584,6 +615,24 @@ public class MobileAppServiceImpl implements MobileAppService, InitializingBean 
 		return getFormData(form, cpr).getFieldValueMap();
 	}
 
+	private Map<String, Object> getVisit(Map<String, String> input) {
+		String visitIdStr = input.get("visitId");
+		if (visitIdStr == null || visitIdStr.trim().isEmpty()) {
+			throw OpenSpecimenException.userError(CommonErrorCode.INVALID_INPUT, "Visit ID is required");
+		}
+
+		Long visitId = null;
+		try {
+			visitId = Long.parseLong(visitIdStr);
+		} catch (NumberFormatException nfe) {
+			throw OpenSpecimenException.userError(CommonErrorCode.INVALID_INPUT, "Visit ID " + visitIdStr + " is not valid!");
+		}
+
+		VisitDetail visit = ResponseEvent.unwrap(visitSvc.getVisit(RequestEvent.wrap(new EntityQueryCriteria(visitId))));
+		Container form = getForm(visit.getCpId(), "visit", "overview");
+		return getFormData(form, visit).getFieldValueMap();
+	}
+
 	private Map<String, Object> getSpecimen(Map<String, String> input) {
 		String spmnIdStr = input.get("specimenId");
 		if (spmnIdStr == null || spmnIdStr.trim().isEmpty()) {
@@ -643,7 +692,7 @@ public class MobileAppServiceImpl implements MobileAppService, InitializingBean 
 	private FormData getFormData(Container form, VisitDetail visit) {
 		Map<String, Object> appData = new HashMap<>();
 		appData.put("cpId", visit.getCpId());
-		appData.put("title", visit.getEventLabel());
+		appData.put("title", visit.getDescription());
 		appData.put("cprId", visit.getCprId());
 		return getFormData(form, visit, visit.getId(), appData);
 	}
@@ -1070,6 +1119,7 @@ public class MobileAppServiceImpl implements MobileAppService, InitializingBean 
 
 		try {
 			importParticipants(job);
+			importVisits(job);
 			importPrimarySpecimens(job);
 			importAliquots(job);
 		} catch (Exception e) {
@@ -1167,6 +1217,31 @@ public class MobileAppServiceImpl implements MobileAppService, InitializingBean 
 		);
 	}
 
+	private void importVisits(MobileUploadJob job) {
+		importRecords(
+			job,
+			new SchemaParams("visit", "dataEntry", "addVisit", "visits.csv"),
+			(record) -> {
+				Map<String, Object> appData = new HashMap<>();
+				appData.put("cpId", job.getCp().getId());
+				appData.put("cpShortTitle", job.getCp().getShortTitle());
+				appData.put("ppid", record.get("ppid"));
+
+				VisitDetail visit = toVisit(appData, record);
+				visit.setCpId(job.getCp().getId());
+
+				VisitDetail savedVisit = saveOrUpdateVisit(visit);
+
+				String uid = (String) record.get("uid");
+				if (StringUtils.isNotBlank(uid)) {
+					job.putInCache("visit:" + uid, savedVisit.getId());
+				}
+
+				return null;
+			}
+		);
+	}
+
 	private void importPrimarySpecimens(MobileUploadJob job) {
 		importRecords(
 			job,
@@ -1179,6 +1254,15 @@ public class MobileAppServiceImpl implements MobileAppService, InitializingBean 
 
 				SpecimenDetail spmn = toSpecimen(appData, record);
 				spmn.setCpId(job.getCp().getId());
+
+				String visitUid = (String) record.get("visitUid");
+				if (StringUtils.isNotBlank(visitUid)) {
+					Long visitId = (Long) job.getFromCache("visit:" + visitUid);
+					if (visitId != null) {
+						spmn.setVisitId(visitId);
+					}
+				}
+
 				saveOrUpdateSpecimen(spmn);
 				return null;
 			}
@@ -1217,7 +1301,6 @@ public class MobileAppServiceImpl implements MobileAppService, InitializingBean 
 		ObjectReader reader = new ObjectReader(inputFilePath, schema, DATE_FMT, DATE_TIME_FMT, FIELD_SEPARATOR);
 		reader.setTimeZone("UTC");
 
-		MobileUploadJob.Status status = job.getStatus();
 		long totalRecords = job.getTotalRecords(), failedRecords = job.getFailedRecords();
 		CsvWriter writer = null;
 		try {
@@ -1296,9 +1379,16 @@ public class MobileAppServiceImpl implements MobileAppService, InitializingBean 
 				fields.add(getField("cpShortTitle", "Collection Protocol"));
 				break;
 
+			case "addVisit":
+				fields.add(getField("cpShortTitle", "Collection Protocol"));
+				fields.add(getField("ppid", "PPID"));
+				fields.add(getField("uid", "UID"));
+				break;
+
 			case "addSpecimen":
 				fields.add(getField("cpShortTitle", "Collection Protocol"));
 				fields.add(getField("ppid", "PPID"));
+				fields.add(getField("visitUid", "Visit UID"));
 				break;
 
 			case "createAliquots":

@@ -450,6 +450,7 @@ public class SpecimenDaoImpl extends AbstractDao<Specimen> implements SpecimenDa
 		addCpCond(query, crit);
 		addPpidCond(query, crit);
 		addCprIdCond(query, crit);
+		addVisitIdCond(query, crit);
 		addAncestorId(query, crit);
 		addSpecimenListCond(query, crit);
 		addReservedForDpCond(query, crit);
@@ -544,6 +545,20 @@ public class SpecimenDaoImpl extends AbstractDao<Specimen> implements SpecimenDa
 		}
 
 		query.add(Restrictions.eq("cpr.id", crit.cprId()));
+	}
+
+	private void addVisitIdCond(Criteria query, SpecimenListCriteria crit) {
+		if (crit.visitId() == null) {
+			return;
+		}
+
+		if (CollectionUtils.isEmpty(crit.siteCps()) && crit.cpId() == null && StringUtils.isBlank(crit.ppid()) && crit.cprId() == null) {
+			if (!query.getAlias().equals("visit")) {
+				query.createAlias("specimen.visit", "visit");
+			}
+		}
+
+		query.add(Restrictions.eq("visit.id", crit.visitId()));
 	}
 
 	private void addAncestorId(Criteria query, SpecimenListCriteria crit) {

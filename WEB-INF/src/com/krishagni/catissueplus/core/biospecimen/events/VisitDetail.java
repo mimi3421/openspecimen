@@ -232,6 +232,25 @@ public class VisitDetail extends VisitSummary {
 		this.sprFile = sprFile;
 	}
 
+	public String getDescription() {
+		if (StringUtils.isBlank(getEventLabel())) {
+			return "Unplanned Visit / " + getName();
+		}
+
+		String result = "";
+		if (getEventPoint() != null) {
+			result += (getEventPoint() < 0 ? "-" : "") + "T" + Math.abs(getEventPoint());
+			result += getEventPointUnit().name().charAt(0);
+		}
+
+		result += getEventLabel();
+		if (StringUtils.isNotBlank(getEventCode())) {
+			result += " (" + getEventCode() + ")";
+		}
+
+		return result;
+	}
+
 	public static VisitDetail from(Visit visit) {
 		return from(visit, true, true);
 	}

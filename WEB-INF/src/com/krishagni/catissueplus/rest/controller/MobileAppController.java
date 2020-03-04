@@ -65,6 +65,13 @@ public class MobileAppController {
 		return ResponseEvent.unwrap(mobileAppSvc.getCpDetail(RequestEvent.wrap(shortTitle)));
 	}
 
+	@RequestMapping(method = RequestMethod.GET, value = "/workflow")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public Map<String, Object> getWorkflow(@RequestParam(value = "cpId") Long cpId) {
+		return ResponseEvent.unwrap(mobileAppSvc.getWorkflow(RequestEvent.wrap(cpId)));
+	}
+
 	@RequestMapping(method = RequestMethod.GET, value = "/form")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
@@ -170,11 +177,14 @@ public class MobileAppController {
 		@RequestParam(value = "cprId")
 		Long cprId,
 
+		@RequestParam(value = "visitId", required = false)
+		Long visitId,
+
 		@RequestParam(value = "label", required = false)
 		String label) {
 
 		SpecimenListCriteria crit = new SpecimenListCriteria()
-			.cpId(cpId).cprId(cprId)
+			.cpId(cpId).cprId(cprId).visitId(visitId)
 			.lineages(new String[] { "New"})
 			.startAt(0)
 			.maxResults(100)

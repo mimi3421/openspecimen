@@ -32,6 +32,8 @@ public class SpecimenListCriteria extends AbstractListCriteria<SpecimenListCrite
 
 	private String ppid;
 
+	private Long visitId;
+
 	private Long ancestorId;
 
 	private String anatomicSite;
@@ -176,6 +178,16 @@ public class SpecimenListCriteria extends AbstractListCriteria<SpecimenListCrite
 	@JsonProperty("ppid")
 	public SpecimenListCriteria ppid(String ppid) {
 		this.ppid = ppid;
+		return self();
+	}
+
+	public Long visitId() {
+		return visitId;
+	}
+
+	@JsonProperty("visitId")
+	public SpecimenListCriteria visitId(Long visitId) {
+		this.visitId = visitId;
 		return self();
 	}
 
