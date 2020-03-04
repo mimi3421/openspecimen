@@ -33,6 +33,11 @@ public class ParticipantAnonymizer implements Anonymizer<CollectionProtocolRegis
 
 	@Override
 	public void anonymize(CollectionProtocolRegistration cpr) {
+		//
+		// Set the CP ID to use for anonymization of the CPR custom fields
+		//
+		cpr.getParticipant().setCpId(cpr.getCollectionProtocol().getId());
+
 		anonymize(cpr.getParticipant());
 		cpr.getVisits().forEach(this::anonymize);
 

@@ -106,10 +106,6 @@ public class CollectionProtocolRegistration extends BaseEntity {
 	}
 
 	public Participant getParticipant() {
-		if (getCollectionProtocol() != null) {
-			participant.setCpId(getCollectionProtocol().getId());
-		}
-
 		return participant;
 	}
 
