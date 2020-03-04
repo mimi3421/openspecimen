@@ -125,6 +125,7 @@ public class CollectionProtocolRegistrationsController {
 			
 			@RequestBody 
 			CollectionProtocolRegistrationDetail cprDetail) {
+
 		cprDetail.setId(cprId);
 		ResponseEvent<CollectionProtocolRegistrationDetail> resp = cprSvc.updateRegistration(getRequest(cprDetail));
 		resp.throwErrorIfUnsuccessful();
