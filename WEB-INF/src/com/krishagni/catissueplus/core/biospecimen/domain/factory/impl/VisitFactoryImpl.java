@@ -31,6 +31,7 @@ import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.common.errors.ActivityStatusErrorCode;
 import com.krishagni.catissueplus.core.common.errors.ErrorType;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
+import com.krishagni.catissueplus.core.common.util.ConfigUtil;
 import com.krishagni.catissueplus.core.common.util.Status;
 import com.krishagni.catissueplus.core.de.domain.DeObject;
 
@@ -38,22 +39,10 @@ public class VisitFactoryImpl implements VisitFactory {
 
 	private DaoFactory daoFactory;
 	
-	private String defaultNameTmpl;
-	
-	private String unplannedNameTmpl;
-
 	public void setDaoFactory(DaoFactory daoFactory) {
 		this.daoFactory = daoFactory;
 	}
 	
-	public void setDefaultNameTmpl(String defNameTmpl) {
-		this.defaultNameTmpl = defNameTmpl;
-	}
-
-	public void setUnplannedNameTmpl(String unplannedNameTmpl) {
-		this.unplannedNameTmpl = unplannedNameTmpl;
-	}
-
 	@Override
 	public Visit createVisit(VisitDetail visitDetail) {
 		Visit visit = new Visit();
@@ -79,7 +68,7 @@ public class VisitFactoryImpl implements VisitFactory {
 		setCohort(visitDetail, visit, ose);
 		visit.setComments(visitDetail.getComments());
 		visit.setSurgicalPathologyNumber(visitDetail.getSurgicalPathologyNumber());
-		visit.setDefNameTmpl(visit.isUnplanned() ? unplannedNameTmpl : defaultNameTmpl);
+		visit.setDefNameTmpl(visit.isUnplanned() ? getUnplannedNameTmpl() : getDefaultNameTmpl());
 		setVisitExtension(visitDetail, visit, ose);
 		
 		ose.checkAndThrow();
@@ -116,7 +105,7 @@ public class VisitFactoryImpl implements VisitFactory {
 		setMissedVisitReason(detail, existing, visit, ose);
 		setMissedBy(detail, existing, visit, ose);
 		setCohort(detail, existing, visit, ose);
-		visit.setDefNameTmpl(visit.isUnplanned() ? unplannedNameTmpl : defaultNameTmpl);
+		visit.setDefNameTmpl(visit.isUnplanned() ? getUnplannedNameTmpl() : getDefaultNameTmpl());
 		setVisitExtension(detail, existing, visit, ose);
 
 		ose.checkAndThrow();
@@ -473,7 +462,27 @@ public class VisitFactoryImpl implements VisitFactory {
 			visit.setCohort(existing.getCohort());
 		}
 	}
-	
+
+	private String getDefaultNameTmpl() {
+		String defVisitFmt = ConfigUtil.getInstance().getStrSetting("biospecimen", "def_visit_name_fmt", null);
+
+		if (StringUtils.isEmpty(defVisitFmt)) {
+			throw new OpenSpecimenException(ErrorType.USER_ERROR, VisitErrorCode.DEF_LABEL_FMT_NOT_SPECIFIED);
+		}
+
+		return defVisitFmt;
+	}
+
+	private String getUnplannedNameTmpl() {
+		String defVisitFmt = ConfigUtil.getInstance().getStrSetting("biospecimen", "def_unplan_visit_name_fmt", null);
+
+		if (StringUtils.isEmpty(defVisitFmt)) {
+			throw new OpenSpecimenException(ErrorType.USER_ERROR, VisitErrorCode.DEF_LABEL_FMT_NOT_SPECIFIED);
+		}
+
+		return defVisitFmt;
+	}
+
 	private void setVisitExtension(VisitDetail visitDetail, Visit visit, OpenSpecimenException ose) {
 		DeObject extension = DeObject.createExtension(visitDetail.getExtensionDetail(), visit);
 		visit.setExtension(extension);

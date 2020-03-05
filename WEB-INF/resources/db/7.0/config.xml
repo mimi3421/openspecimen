@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+  http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+  <changeSet author="single" id="Default planned visit-name format configuration settings module">
+    <sql>
+      call add_cfg_prop(
+        'biospecimen', 'def_visit_name_fmt',
+        'def_visit_name_fmt', 'def_visit_name_fmt_desc',
+        'STRING', '%PPI%_%EVENT_LABEL%_%SYS_UID%'
+      );
+    </sql>
+  </changeSet>
+
+  <changeSet author="single" id="Default unplanned visit-name format configuration settings module">
+    <sql>
+      call add_cfg_prop(
+        'biospecimen', 'def_unplan_visit_name_fmt',
+        'def_unplan_visit_name_fmt', 'def_unplan_visit_name_fmt_desc',
+        'STRING', '%PPI%_%SYS_UID%'
+      );
+    </sql>
+  </changeSet>
+</databaseChangeLog>
