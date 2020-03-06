@@ -159,7 +159,8 @@
       "copy_to_clipboard": "Copy to Clipboard",
       "show_activity": "Show Activity",
       "hide_activity": "Hide Activity",
-      "patient_mode": "Patient Mode"
+      "patient_mode": "Patient Mode",
+      "refresh": "Refresh"
     }
   },
 

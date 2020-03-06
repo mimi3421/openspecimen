@@ -50,7 +50,7 @@ angular.module('os.administrative.containertype',
               breadcrumbs: [{state: 'container-type-list', title: 'container_type.list'}],
               objectType: 'storageContainerType',
               title: 'container_type.bulk_import',
-              onSuccess: {state: 'container-type-list'}
+              onSuccess: {state: 'container-type-import-jobs'}
             };
           }
         },

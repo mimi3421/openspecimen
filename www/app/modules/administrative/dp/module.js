@@ -57,7 +57,7 @@ angular.module('os.administrative.dp',
               breadcrumbs: [{state: 'dp-list', title: 'dp.list'}],
               objectType: 'distributionProtocol',
               title: 'dp.bulk_import',
-              onSuccess: {state: 'dp-list'}
+              onSuccess: {state: 'dp-import-jobs'}
             };
           }
         },
@@ -73,7 +73,7 @@ angular.module('os.administrative.dp',
               breadcrumbs: [{state: 'dp-list', title: 'dp.list'}],
               objectType: 'dpRequirement',
               title: 'dp.req_bulk_import',
-              onSuccess: {state: 'dp-list'}
+              onSuccess: {state: 'dp-import-jobs'}
             };
           }
         },

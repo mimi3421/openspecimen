@@ -79,7 +79,7 @@ angular.module('os.administrative.shipment',
               objectType: ($stateParams.type || 'shipment'),
               csvType: 'MULTIPLE_ROWS_PER_OBJ',
               title: 'shipments.bulk_import',
-              onSuccess: {state: 'shipment-list'}
+              onSuccess: {state: 'shipment-import-jobs'}
             };
           }
         },

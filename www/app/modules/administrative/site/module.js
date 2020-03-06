@@ -42,7 +42,7 @@ angular.module('os.administrative.site',
               breadcrumbs: [{state: 'site-list', title: 'site.list'}],
               objectType: 'site',
               title: 'site.bulk_import',
-              onSuccess: {state: 'site-list'}
+              onSuccess: {state: 'site-import-jobs'}
             };
           }
         },

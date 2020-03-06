@@ -12,6 +12,15 @@
     </div>
   </div>
 
+  <div class="os-page-commands">
+    <div class="left">
+      <button class="default" ng-click="refresh()">
+        <span class="fa fa-refresh"></span>
+        <span translate="common.buttons.refresh">Refresh</span>
+      </button>
+    </div>
+  </div>
+
   <div class="container" ng-switch on="importJobs.length > 0">
     <span ng-switch-when="false" translate="bulk_imports.no_jobs">
       No jobs to show

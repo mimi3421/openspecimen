@@ -39,7 +39,7 @@ angular.module('os.administrative.institute',
               breadcrumbs: [{state: 'institute-list', title: 'institute.list'}],
               objectType: 'institute',
               title: 'institute.bulk_import',
-              onSuccess: {state: 'institute-list'}
+              onSuccess: {state: 'institute-import-jobs'}
             };
           }
         },

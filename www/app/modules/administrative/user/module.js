@@ -85,7 +85,7 @@ angular.module('os.administrative.user',
               breadcrumbs: [{state: 'user-list', title: 'user.list'}],
               objectType: objectType,
               title: title,
-              onSuccess: {state: 'user-list'}
+              onSuccess: {state: 'user-import-jobs'}
             };
           }
         },

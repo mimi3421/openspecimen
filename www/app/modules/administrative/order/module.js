@@ -146,7 +146,7 @@ angular.module('os.administrative.order',
               objectType: 'distributionOrder',
               csvType: 'MULTIPLE_ROWS_PER_OBJ',
               title: 'orders.bulk_import',
-              onSuccess: {state: 'order-list'},
+              onSuccess: {state: 'order-import-jobs'},
               entityLabel: 'orders.dp',
               entitiesFn: function(searchTerm) {
                 var filterOpts = {activityStatus: 'Active', query: searchTerm, excludeExpiredDps: true};
@@ -174,7 +174,7 @@ angular.module('os.administrative.order',
               showImportType: false,
               importType: 'CREATE',
               title: 'orders.bulk_import',
-              onSuccess: {state: 'order-list'}
+              onSuccess: {state: 'order-import-jobs'}
             };
           }
         },

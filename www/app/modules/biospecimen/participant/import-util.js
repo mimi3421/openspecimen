@@ -120,10 +120,10 @@ angular.module('os.biospecimen.participant')
       var breadcrumbs, onSuccess;
       if (cp.id == -1) {
         breadcrumbs = [{state: 'cp-list', title: "cp.list"}];
-        onSuccess = {state: 'cp-list'};
+        onSuccess = {state: 'import-multi-cp-jobs'};
       } else {
         breadcrumbs = [{state: 'cp-list-view', title: cp.shortTitle, params: '{cpId:' + cp.id + '}'}];
-        onSuccess = {state: 'cp-list-view', params: {cpId: cp.id}};
+        onSuccess = {state: 'import-cp-jobs', params: {cpId: cp.id}};
       }
 
       var entityForms = {};

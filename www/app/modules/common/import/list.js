@@ -63,5 +63,10 @@ angular.module('os.common.import.list', ['os.common.import.importjob'])
       });
     }
 
+    $scope.refresh = function() {
+      $scope.pagingOpts.currPage = 1;
+      loadJobs($scope.pagingOpts);
+    }
+
     init();
   });
