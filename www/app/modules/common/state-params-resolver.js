@@ -15,7 +15,7 @@ angular.module('openspecimen')
     $stateProvider.state('object-state-params-resolver', {
       url: '/object-state-params-resolver?:stateName&:objectName&:key&:value',
       controller: function($state, $stateParams, params) {
-        $state.go($stateParams.stateName, params, {location: 'replace'});
+        $state.go($stateParams.stateName || params.stateName, params, {location: 'replace'});
       },
       resolve: {
         params: function($stateParams, ObjectStateParamsResolver) {

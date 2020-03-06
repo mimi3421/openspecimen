@@ -25,6 +25,18 @@
 
     <many-to-one name="formCtxt" column="FORM_CTXT_ID" not-found="ignore" update="false" insert="false"/>
 
+    <query name="getRecordEntryById">
+      select
+        re
+      from
+        krishagni.catissueplus.beans.FormRecordEntryBean re
+        join re.formCtxt fc
+      where
+        re.recordId = :recordId and
+        fc.deletedOn is null and
+        re.activityStatusStr = 'ACTIVE'
+    </query>
+
     <query name="getRecordEntry">
       select
         re

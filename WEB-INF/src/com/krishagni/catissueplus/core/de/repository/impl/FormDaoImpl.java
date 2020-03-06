@@ -454,6 +454,14 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 
 	@SuppressWarnings("unchecked")
 	@Override
+	public FormRecordEntryBean getRecordEntry(Long recordId) {
+		return (FormRecordEntryBean) getCurrentSession().getNamedQuery(GET_RE_BY_ID)
+			.setParameter("recordId", recordId)
+			.uniqueResult();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
 	public FormRecordEntryBean getRecordEntry(Long formCtxtId, Long objectId, Long recordId) {
 		return (FormRecordEntryBean) getCurrentSession().getNamedQuery(GET_RECORD_ENTRY)
 			.setParameter("formCtxtId", formCtxtId)
@@ -1096,6 +1104,8 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 	private static final String GET_FORM_UPDATE_TIME = FQN + ".getUpdateTime";
 
 	private static final String RE_FQN = FormRecordEntryBean.class.getName();
+
+	private static final String GET_RE_BY_ID = RE_FQN + ".getRecordEntryById";
 	
 	private static final String GET_RECORD_ENTRY = RE_FQN + ".getRecordEntry";
 	

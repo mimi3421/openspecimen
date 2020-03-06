@@ -1389,6 +1389,10 @@
         <bean class="com.krishagni.catissueplus.core.administrative.services.impl.SpecimenRequestAccessor">
           <property name="daoFactory" ref="biospecimenDaoFactory"/>
         </bean>
+        <bean class="com.krishagni.catissueplus.core.de.services.impl.FormRecordAccessor">
+          <property name="daoFactory" ref="biospecimenDaoFactory"/>
+          <property name="deDaoFactory" ref="deDaoFactory"/>
+        </bean>
       </list>
     </property>
   </bean>

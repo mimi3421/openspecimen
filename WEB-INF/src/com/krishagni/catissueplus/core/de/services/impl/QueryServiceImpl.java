@@ -138,6 +138,8 @@ public class QueryServiceImpl implements QueryService {
 	
 	private static final int ONLINE_EXPORT_TIMEOUT_SECS = 30;
 
+	private static final String FORM_RECORD_URL = "#/object-state-params-resolver?objectName=formRecord&key=recordId&value={{$value}}";
+
 	private static ExecutorService exportThreadPool = Executors.newFixedThreadPool(EXPORT_THREAD_POOL_SIZE);
 
 	private DaoFactory daoFactory;
@@ -395,16 +397,16 @@ public class QueryServiceImpl implements QueryService {
 				indices = queryResult.getColumnIndices(opDetail.getIndexOf());
 			}
 
-			return ResponseEvent.response(
-				new QueryExecResult()
-					.setColumnMetadata(queryResult.getColumnMetadata())
-					.setColumnLabels(queryResult.getColumnLabels())
-					.setColumnTypes(queryResult.getColumnTypes())
-					.setColumnUrls(queryResult.getColumnUrls())
-					.setRows(queryResult.getStringifiedRows())
-					.setDbRowsCount(queryResult.getDbRowsCount())
-					.setColumnIndices(indices)
-			);
+			QueryExecResult formattedResult = new QueryExecResult()
+				.setColumnMetadata(queryResult.getColumnMetadata())
+				.setColumnLabels(queryResult.getColumnLabels())
+				.setColumnTypes(queryResult.getColumnTypes())
+				.setColumnUrls(queryResult.getColumnUrls())
+				.setRows(queryResult.getStringifiedRows())
+				.setDbRowsCount(queryResult.getDbRowsCount())
+				.setColumnIndices(indices);
+
+			return ResponseEvent.response(addRecordIdUrls(queryResult, formattedResult));
 		} catch (QueryParserException | IllegalArgumentException qpe) {
 			return ResponseEvent.userError(SavedQueryErrorCode.MALFORMED, qpe.getMessage());
 		} catch (QueryException qe) {
@@ -1008,6 +1010,20 @@ public class QueryServiceImpl implements QueryService {
 		}
 
 		return null;
+	}
+
+	private QueryExecResult addRecordIdUrls(QueryResultData queryResult, QueryExecResult formattedResult) {
+		int idx = 0;
+		for (ResultColumn rc : queryResult.getResultColumns()) {
+			String columnExpr = rc.getExpression().getAql();
+			if (columnExpr != null && !columnExpr.contains("customFields") && columnExpr.endsWith("_?primary_key?_")) {
+				formattedResult.getColumnUrls()[idx] = FORM_RECORD_URL;
+			}
+
+			++idx;
+		}
+
+		return formattedResult;
 	}
 
 	private String getRestriction(User user, Long cpId, Long groupId) {
