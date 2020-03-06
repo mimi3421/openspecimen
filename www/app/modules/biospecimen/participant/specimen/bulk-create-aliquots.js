@@ -470,6 +470,7 @@ angular.module('os.biospecimen.specimen')
                   containerName: spmn.storageLocation && spmn.storageLocation.name,
                   positionX: spmn.storageLocation && spmn.storageLocation.positionX,
                   positionY: spmn.storageLocation && spmn.storageLocation.positionY,
+                  position:  spmn.storageLocation && spmn.storageLocation.position,
                   locations: spmn.storageLocations,
                   freezeThawCycles: spmn.freezeThawCycles,
                   incrParentFreezeThaw: spmn.incrParentFreezeThaw,
