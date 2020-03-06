@@ -406,6 +406,16 @@ angular.module('os.administrative.container.addedit', ['os.administrative.models
       Container.createContainers($scope.ctx.containers).then(
         function(result) {
           Alerts.success('container.multiple_containers_created', {count: result.length});
+
+          var parentId = undefined;
+          if (result.length > 0) {
+            parentId = result[0].storageLocation && result[0].storageLocation.id;
+            if (result.every(function(s) { return s.storageLocation && s.storageLocation.id == parentId; })) {
+              $state.go('container-detail.locations', {containerId: parentId});
+              return;
+            }
+          }
+
           $state.go('container-list');
         }
       );
