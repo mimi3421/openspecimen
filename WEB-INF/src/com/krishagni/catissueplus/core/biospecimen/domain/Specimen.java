@@ -1248,13 +1248,12 @@ public class Specimen extends BaseExtensionEntity {
 			for (Specimen childSpecimen : getChildCollection()) {
 				childSpecimen.updateCreatedOn(createdOn);
 			}
-
-			return;
 		}
 
-		if (createdOn.after(Calendar.getInstance().getTime())) {
-			throw OpenSpecimenException.userError(SpecimenErrorCode.CREATED_ON_GT_CURRENT);
-		}
+		// OPSMN-4871: No checks on created on date.
+		// if (createdOn.after(Calendar.getInstance().getTime())) {
+		//	throw OpenSpecimenException.userError(SpecimenErrorCode.CREATED_ON_GT_CURRENT);
+		// }
 
 		// The below code is commented for now, so that there will not be any issue for the legacy data.
 		// In legacy data created on was simple date field, but its been changed to timestamp in v20.
@@ -1354,10 +1353,6 @@ public class Specimen extends BaseExtensionEntity {
 
 		if (specimen.isAliquot()) {
 			specimen.decAliquotedQtyFromParent();
-		}
-
-		if (getCreatedOn() != null && specimen.getCreatedOn() != null && specimen.getCreatedOn().before(getCreatedOn())) {
-			throw OpenSpecimenException.userError(SpecimenErrorCode.CHILD_CREATED_ON_LT_PARENT);
 		}
 
 		specimen.occupyPosition();
