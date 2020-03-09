@@ -104,23 +104,35 @@ angular.module('openspecimen')
     // This function decides whether to initiate a search to obtain selected PV from backend
     //
     function checkAndFetchSelectedVal(scope, selectedVal, pvs, attrs) {
-      scope.isSelectedValFetched = !selectedVal;
+      scope.isSelectedValFetched = !selectedVal || (selectedVal instanceof Array && selectedVal.length == 0);
       if (scope.isSelectedValFetched) {
         return;
       }
 
+      var selValues = [];
+      if (selectedVal instanceof Array) {
+        selValues = angular.copy(selectedVal);
+      } else {
+        selValues = [selectedVal];
+      }
+
       scope.isSelectedValFetched = true;
-      for (var i = 0; i < pvs.length; i++) {
-        if (pvs[i].value == selectedVal) {
-          return;
+      for (var i = 0; i < pvs.length && selValues.length > 0; i++) {
+        var idx = selValues.indexOf(pvs[i].value);
+        if (idx != -1) {
+          selValues.splice(idx, 1);
         }
+      }
+
+      if (selValues.length == 0) {
+        return;
       }
 
       //
       // selected value is not in list;
       // initiate search to retrieve it from backend
       //
-      _loadPvs(scope, attrs, selectedVal, true).then(
+      _loadPvs(scope, attrs, selValues, true).then(
         function(searchPvs) {
           angular.forEach(searchPvs, function(p) { pvs.push(p); });
         }
