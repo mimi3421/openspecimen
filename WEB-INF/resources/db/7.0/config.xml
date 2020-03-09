@@ -5,23 +5,46 @@
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
 
-  <changeSet author="single" id="Default planned visit-name format configuration settings module">
+  <changeSet author="single" id="Default name format for the planned visits">
     <sql>
       call add_cfg_prop(
-        'biospecimen', 'def_visit_name_fmt',
-        'def_visit_name_fmt', 'def_visit_name_fmt_desc',
+        'biospecimen', 'visit_name_format',
+        'visit_name_format', 'visit_name_format_desc',
         'STRING', '%PPI%_%EVENT_LABEL%_%SYS_UID%'
       );
     </sql>
   </changeSet>
 
-  <changeSet author="single" id="Default unplanned visit-name format configuration settings module">
+  <changeSet author="single" id="Default name format for the unplanned visits">
     <sql>
       call add_cfg_prop(
-        'biospecimen', 'def_unplan_visit_name_fmt',
-        'def_unplan_visit_name_fmt', 'def_unplan_visit_name_fmt_desc',
+        'biospecimen', 'unplanned_visit_name_format',
+        'unplanned_visit_name_format', 'unplanned_visit_name_format_desc',
         'STRING', '%PPI%_%SYS_UID%'
       );
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Temporary changeset to remove the unwanted config settings">
+    <sql>
+      delete from
+        os_cfg_settings
+      where
+        property_id in (
+          select
+            identifier
+          from
+            os_cfg_props
+          where
+            name in ('def_visit_name_fmt', 'def_unplan_visit_name_fmt')
+        )
+    </sql>
+
+    <sql>
+      delete from
+        os_cfg_props
+      where
+        name in ('def_visit_name_fmt', 'def_unplan_visit_name_fmt')
     </sql>
   </changeSet>
 </databaseChangeLog>

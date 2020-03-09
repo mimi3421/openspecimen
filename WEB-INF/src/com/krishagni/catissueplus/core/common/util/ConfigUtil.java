@@ -72,7 +72,11 @@ public class ConfigUtil {
 	public String getDateTimeFmt() {
 		return getDateFmt() + " " + getTimeFmt();
 	}
-	
+
+	public String getStrSetting(String module, String name) {
+		return getStrSetting(module, name, null);
+	}
+
 	public String getStrSetting(String module, String name, String defValue) {
 		return cfgSvc.getStrSetting(module, name, defValue);
 	}

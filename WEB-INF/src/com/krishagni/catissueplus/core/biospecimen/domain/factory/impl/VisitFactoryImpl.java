@@ -2,8 +2,6 @@
 package com.krishagni.catissueplus.core.biospecimen.domain.factory.impl;
 
 import static com.krishagni.catissueplus.core.common.PvAttributes.*;
-import static com.krishagni.catissueplus.core.common.service.PvValidator.areValid;
-import static com.krishagni.catissueplus.core.common.service.PvValidator.isValid;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -18,6 +16,7 @@ import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
 import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.administrative.domain.factory.SiteErrorCode;
+import com.krishagni.catissueplus.core.biospecimen.ConfigParams;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolEvent;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
 import com.krishagni.catissueplus.core.biospecimen.domain.ParticipantMedicalIdentifier;
@@ -464,20 +463,18 @@ public class VisitFactoryImpl implements VisitFactory {
 	}
 
 	private String getDefaultNameTmpl() {
-		String defVisitFmt = ConfigUtil.getInstance().getStrSetting("biospecimen", "def_visit_name_fmt", null);
-
-		if (StringUtils.isEmpty(defVisitFmt)) {
-			throw new OpenSpecimenException(ErrorType.USER_ERROR, VisitErrorCode.DEF_LABEL_FMT_NOT_SPECIFIED);
+		String defVisitFmt = ConfigUtil.getInstance().getStrSetting(ConfigParams.MODULE, ConfigParams.VISIT_NAME_FMT);
+		if (StringUtils.isBlank(defVisitFmt)) {
+			throw new OpenSpecimenException(ErrorType.USER_ERROR, VisitErrorCode.NAME_FMT_NOT_SPECIFIED);
 		}
 
 		return defVisitFmt;
 	}
 
 	private String getUnplannedNameTmpl() {
-		String defVisitFmt = ConfigUtil.getInstance().getStrSetting("biospecimen", "def_unplan_visit_name_fmt", null);
-
-		if (StringUtils.isEmpty(defVisitFmt)) {
-			throw new OpenSpecimenException(ErrorType.USER_ERROR, VisitErrorCode.DEF_LABEL_FMT_NOT_SPECIFIED);
+		String defVisitFmt = ConfigUtil.getInstance().getStrSetting(ConfigParams.MODULE, ConfigParams.UNPLANNED_VISIT_NAME_FMT);
+		if (StringUtils.isBlank(defVisitFmt)) {
+			throw new OpenSpecimenException(ErrorType.USER_ERROR, VisitErrorCode.NAME_FMT_NOT_SPECIFIED);
 		}
 
 		return defVisitFmt;

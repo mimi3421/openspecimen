@@ -54,7 +54,7 @@ public enum VisitErrorCode implements ErrorCode {
 
 	INVALID_LOOKUP_FLOW,
 
-	DEF_LABEL_FMT_NOT_SPECIFIED;
+	NAME_FMT_NOT_SPECIFIED;
 	
 	public String code() {
 		return "VISIT_" + this.name();
