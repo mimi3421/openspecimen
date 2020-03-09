@@ -2823,9 +2823,9 @@
         "mandatory_aliquot_qty": "Mandatory Aliquot Quantity",
         "mandatory_aliquot_qty_desc": "Enable to make aliquots quantity a mandatory field.",
         "visit_name_format": "Visit Name Format",
-        "visit_name_format_desc": "The system-level format for planned visit names.",
+        "visit_name_format_desc": "The system-level format for the planned visit names.",
         "unplanned_visit_name_format": "Unplanned Visit Name Format",
-        "unplanned_visit_name_format_desc": "The system-level format for unplanned visit names."
+        "unplanned_visit_name_format_desc": "The system-level format for the unplanned visit names."
       },
 
       "common": {
