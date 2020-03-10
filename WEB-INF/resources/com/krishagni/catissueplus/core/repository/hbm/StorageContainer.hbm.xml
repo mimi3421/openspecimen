@@ -293,12 +293,10 @@
         c.identifier as containerId
       from
         os_storage_containers c
-        left join os_container_positions p on p.storage_container_id = c.identifier
         left join os_stor_container_comp_cps allowed_cps on allowed_cps.storage_container_id = c.identifier
       where
         c.store_specimens = 1 and
         c.activity_status = 'Active' and
-        (p.reservation_time is null or p.reservation_time > :reservedLaterThan or p.blocked = 1) and
         (
           allowed_cps.cp_id = :cpId or
           (allowed_cps.cp_id is null and
@@ -335,13 +333,10 @@
               pct.value = :specimenType and
               storage_container_id = c.identifier
           ) > 0
-        )
-      group by
-        c.identifier, c.no_of_rows, c.no_of_cols
-      having
-        (c.no_of_rows * c.no_of_cols - count(p.identifier)) > (:minFreeLocs - 1)
+        ) and
+        (c.no_of_rows * c.no_of_cols - c.utilisation) > (:minFreeLocs - 1)
       order by
-        (c.no_of_rows * c.no_of_cols - count(p.identifier)), c.identifier
+        (c.no_of_rows * c.no_of_cols - c.utilisation), c.identifier
     </sql-query>
 
     <sql-query name="getRootContainerSpecimensCount">

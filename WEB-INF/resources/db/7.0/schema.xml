@@ -40,4 +40,129 @@
   <changeSet author="vpawar" id="Form data entry token ID generator" dbms="oracle">
     <createSequence sequenceName="OS_FORM_DATA_ENTRY_TOKENS_SEQ" startValue="1" incrementBy="1" ordered="true"/>
   </changeSet>
+
+  <changeSet author="vpawar" id="Container utilisation">
+    <addColumn tableName="OS_STORAGE_CONTAINERS">
+      <column name="UTILISATION" type="${int.type}" defaultValueNumeric="0"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Trigger to increment container utilisation when a position is occupied" dbms="mysql" runOnChange="true">
+    <sql>
+      drop trigger if exists os_incr_container_utilisation;
+    </sql>
+
+    <sql endDelimiter="//">
+      create trigger os_incr_container_utilisation after insert on os_container_positions
+      for each row
+      begin
+        update
+          os_storage_containers
+        set
+          utilisation = utilisation + 1
+        where
+          identifier = new.storage_container_id;
+      end;
+      //
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Trigger to decrement container utilisation when a position is vacated" dbms="mysql" runOnChange="true">
+    <sql>
+      drop trigger if exists os_decr_container_utilisation;
+    </sql>
+
+    <sql endDelimiter="//">
+      create trigger os_decr_container_utilisation after delete on os_container_positions
+      for each row
+      begin
+        update
+          os_storage_containers
+        set
+          utilisation = utilisation - 1
+        where
+          identifier = old.storage_container_id;
+      end;
+      //
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Trigger to update container utilisation when a position is updated" dbms="mysql" runOnChange="true">
+    <sql>
+      drop trigger if exists os_chg_container_utilisation;
+    </sql>
+
+    <sql endDelimiter="//">
+      create trigger os_chg_container_utilisation after update on os_container_positions
+      for each row
+      begin
+        update
+          os_storage_containers
+        set
+          utilisation = utilisation - 1
+        where
+          identifier = old.storage_container_id;
+
+        update
+          os_storage_containers
+        set
+          utilisation = utilisation + 1
+        where
+          identifier = new.storage_container_id;
+      end;
+      //
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Trigger to increment container utilisation when a position is occupied" dbms="oracle" runOnChange="true">
+    <sql splitStatements="false">
+      create or replace trigger os_incr_container_utilisation after insert on os_container_positions
+      for each row
+      begin
+        update
+          os_storage_containers
+        set
+          utilisation = utilisation + 1
+        where
+          identifier = :new.storage_container_id;
+      end;
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Trigger to decrement container utilisation when a position is vacated" dbms="oracle" runOnChange="true">
+    <sql splitStatements="false">
+      create or replace trigger os_decr_container_utilisation after delete on os_container_positions
+      for each row
+      begin
+        update
+          os_storage_containers
+        set
+          utilisation = utilisation - 1
+        where
+          identifier = :old.storage_container_id;
+      end;
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Trigger to update container utilisation when a position is updated" dbms="oracle" runOnChange="true">
+    <sql splitStatements="false">
+      create or replace trigger os_chg_container_utilisation after update on os_container_positions
+      for each row
+      begin
+        update
+          os_storage_containers
+        set
+          utilisation = utilisation - 1
+        where
+          identifier = :old.storage_container_id;
+
+        update
+          os_storage_containers
+        set
+          utilisation = utilisation + 1
+        where
+          identifier = :new.storage_container_id;
+      end;
+    </sql>
+  </changeSet>
 </databaseChangeLog>

@@ -16,4 +16,38 @@
         activity_status = 'Disabled';
     </sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="Update container utilisation" dbms="mysql">
+    <sql>
+      update
+        os_storage_containers c
+        inner join (
+          select
+            storage_container_id, count(*) as utilisation
+          from
+            os_container_positions
+          group by
+            storage_container_id
+        ) p on p.storage_container_id = c.identifier
+      set
+        c.utilisation = p.utilisation
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Update container utilisation" dbms="oracle">
+    <sql>
+      merge into
+        os_storage_containers c
+      using (
+        select
+          storage_container_id, count(*) as utilisation
+        from
+          os_container_positions
+        group by
+          storage_container_id
+      ) p on (p.storage_container_id = c.identifier)
+      when matched then
+        update set c.utilisation = p.utilisation
+    </sql>
+  </changeSet>
 </databaseChangeLog>

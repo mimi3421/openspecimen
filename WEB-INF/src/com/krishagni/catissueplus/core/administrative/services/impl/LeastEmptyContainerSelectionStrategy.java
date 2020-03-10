@@ -1,9 +1,9 @@
 package com.krishagni.catissueplus.core.administrative.services.impl;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -16,7 +16,9 @@ import com.krishagni.catissueplus.core.administrative.domain.StorageContainer;
 import com.krishagni.catissueplus.core.administrative.events.ContainerCriteria;
 import com.krishagni.catissueplus.core.administrative.services.ContainerSelectionStrategy;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
+import com.krishagni.catissueplus.core.common.TransactionalThreadLocals;
 import com.krishagni.catissueplus.core.common.access.SiteCpPair;
+import com.krishagni.catissueplus.core.common.util.Utility;
 
 @Configurable
 public class LeastEmptyContainerSelectionStrategy implements ContainerSelectionStrategy {
@@ -26,28 +28,107 @@ public class LeastEmptyContainerSelectionStrategy implements ContainerSelectionS
 	@Autowired
 	private DaoFactory daoFactory;
 
+	//
+	// key - hash of the container criteria
+	// value - list of container IDs satisfying the criteria
+	//
+	private ThreadLocal<Map<String, List<Long>>> recentlyUsedContainers =
+		new ThreadLocal<Map<String, List<Long>>>() {
+			@Override
+			protected Map<String, List<Long>> initialValue() {
+				TransactionalThreadLocals.getInstance().register(this);
+				return new HashMap<>();
+			}
+		};
+
+	private ThreadLocal<Map<Long, StorageContainer>> containersCache =
+		new ThreadLocal<Map<Long, StorageContainer>>() {
+			@Override
+			protected Map<Long, StorageContainer> initialValue() {
+				TransactionalThreadLocals.getInstance().register(this);
+				return new HashMap<>();
+			}
+		};
+
 	@Override
 	public StorageContainer getContainer(ContainerCriteria criteria, Boolean aliquotsInSameContainer) {
-		criteria.reservedLaterThan(ignoreReservationsBeforeDate()).numContainers(1);
-		List<Long> containerIds = getLeastEmptyContainerId(criteria, aliquotsInSameContainer);
+		String criteriaKey = getCriteriaKey(criteria);
+		List<Long> containerIds = recentlyUsedContainers.get().get(criteriaKey);
+		if (containerIds != null) {
+			int reqPositions = criteria.getRequiredPositions(aliquotsInSameContainer);
+			for (Long containerId : containerIds) {
+				StorageContainer container = containersCache.get().get(containerId);
+				if (container == null) {
+					container = daoFactory.getStorageContainerDao().getById(containerId);
+					containersCache.get().put(containerId, container);
+				}
+
+				if (container.hasFreePositionsForReservation(reqPositions)) {
+					return container;
+				}
+			}
+		}
+
+		criteria.numContainers(5);
+		containerIds = getLeastEmptyContainerIds(criteria, aliquotsInSameContainer);
 		if (CollectionUtils.isEmpty(containerIds)) {
 			return null;
 		}
 
-		return daoFactory.getStorageContainerDao().getById(containerIds.get(0));
+		List<Long> cachedContainerIds = recentlyUsedContainers.get().computeIfAbsent(criteriaKey, (k) -> new ArrayList<>());
+		for (Long containerId : containerIds) {
+			if (cachedContainerIds.contains(containerId)) {
+				continue;
+			}
+
+			cachedContainerIds.add(containerId);
+		}
+
+		StorageContainer container = daoFactory.getStorageContainerDao().getById(containerIds.get(0));
+		containersCache.get().put(container.getId(), container);
+		return container;
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<Long> getLeastEmptyContainerId(ContainerCriteria crit, Boolean aliquotsInSameContainer) {
+	private List<Long> getLeastEmptyContainerIds(ContainerCriteria crit, Boolean aliquotsInSameContainer) {
 		sessionFactory.getCurrentSession().flush();
 
 		String sql = sessionFactory.getCurrentSession().getNamedQuery(GET_LEAST_EMPTY_CONTAINER_ID).getQueryString();
-		int groupByIdx = sql.indexOf("group by");
-		String beforeGroupBySql = sql.substring(0, groupByIdx);
-		String groupByLaterSql  = sql.substring(groupByIdx);
-		sql = beforeGroupBySql;
+		int orderByIdx = sql.indexOf("order by");
+		String beforeOrderBySql = sql.substring(0, orderByIdx);
+		String orderByLaterSql  = sql.substring(orderByIdx);
+		sql = beforeOrderBySql;
 
+		sql += " and (" + getAccessRestrictions(crit) + ") ";
+		if (crit.rule() != null) {
+			sql += " and (" + crit.rule().getSql("c", crit.ruleParams()) + ") ";
+		}
+
+		sql += orderByLaterSql;
+		return sessionFactory.getCurrentSession().createSQLQuery(sql)
+			.addScalar("containerId", LongType.INSTANCE)
+			.setParameter("cpId", crit.specimen().getCpId())
+			.setParameter("specimenClass", crit.specimen().getSpecimenClass())
+			.setParameter("specimenType", crit.specimen().getType())
+			.setParameter("minFreeLocs", crit.getRequiredPositions(aliquotsInSameContainer))
+			.setMaxResults(crit.numContainers())
+			.list();
+	}
+
+	private String getCriteriaKey(ContainerCriteria crit) {
+		String key = new StringBuilder()
+			.append(crit.specimen().getCpId()).append(":")
+			.append(crit.specimen().getSpecimenClass()).append(":")
+			.append(crit.specimen().getType()).append(":")
+			.append(getAccessRestrictions(crit)).append(":")
+			.append(crit.rule() != null ? crit.rule().getSql("c", crit.ruleParams()) : "")
+			.toString();
+		return Utility.getDigest(key);
+	}
+
+	private String getAccessRestrictions(ContainerCriteria crit) {
 		List<String> accessRestrictions = new ArrayList<>();
+
 		for (SiteCpPair siteCp : crit.siteCps()) {
 			accessRestrictions.add(new StringBuilder("(c.site_id = ")
 				.append(siteCp.getSiteId())
@@ -57,28 +138,8 @@ public class LeastEmptyContainerSelectionStrategy implements ContainerSelectionS
 				.toString()
 			);
 		}
-		sql += " and (" + StringUtils.join(accessRestrictions, " or ") + ") ";
 
-		if (crit.rule() != null) {
-			sql += " and (" + crit.rule().getSql("c", crit.ruleParams()) + ") ";
-		}
-
-		sql += groupByLaterSql;
-		return sessionFactory.getCurrentSession().createSQLQuery(sql)
-			.addScalar("containerId", LongType.INSTANCE)
-			.setParameter("cpId", crit.specimen().getCpId())
-			.setParameter("specimenClass", crit.specimen().getSpecimenClass())
-			.setParameter("specimenType", crit.specimen().getType())
-			.setParameter("minFreeLocs", crit.getRequiredPositions(aliquotsInSameContainer))
-			.setParameter("reservedLaterThan", crit.reservedLaterThan())
-			.setMaxResults(crit.numContainers())
-			.list();
-	}
-
-	private Date ignoreReservationsBeforeDate() {
-		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.MINUTE, -5);
-		return cal.getTime();
+		return StringUtils.join(accessRestrictions, " or ");
 	}
 
 	private static final String GET_LEAST_EMPTY_CONTAINER_ID = StorageContainer.class.getName() + ".getLeastEmptyContainerId";
