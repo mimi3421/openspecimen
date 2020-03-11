@@ -320,7 +320,8 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
   .controller('CollectSpecimensCtrl', 
     function(
       $scope, $translate, $state, $document, $q, $parse, $injector, $modal,
-      cp, cpr, visit, latestVisit, cpDict, spmnCollFields, mrnAccessRestriction,
+      cp, cpr, visit, latestVisit, cpDict, spmnCollFields,
+      barcodingEnabled, spmnBarcodesAutoGen, mrnAccessRestriction,
       Visit, Specimen, PvManager, CollectSpecimensSvc, Container, ExtensionsUtil,
       CpConfigSvc, Alerts, Util, SpecimenUtil, AuthorizationService) {
 
@@ -970,6 +971,16 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
             visited.push(uiSpecimen);
 
             var specimen = getSpecimenToSave(uiSpecimen);
+            if (specimen.lineage == 'Aliquot') {
+              if (barcodingEnabled && !spmnBarcodesAutoGen && !specimen.barcode) {
+                return;
+              }
+
+              if (!barcodingEnabled && (cp.manualSpecLabelEnabled || !specimen.labelFmt) && !specimen.label) {
+                return;
+              }
+            }
+
             specimen.children = getSpecimensToSave(cp, uiSpecimen.children, visited);
             specimen.specimensPool = getSpecimensToSave(cp, uiSpecimen.specimensPool, visited);
             result.push(specimen);
