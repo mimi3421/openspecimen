@@ -106,6 +106,12 @@
                       <span translate="srs.ctx_menu.delete"> Delete </span>
                     </a>
                   </li>
+                  <li ng-if="sr.activityStatus == 'Closed'" show-if-allowed="cpResource.updateOpts">
+                    <a ng-click="reopenSr(sr)">
+                      <span class="fa fa-check"></span>
+                      <span translate="srs.ctx_menu.reopen"> Reopen </span>
+                    </a>
+                  </li>
                   <li ng-if="sr.activityStatus != 'Closed'" show-if-allowed="cpResource.updateOpts">
                     <a ng-click="closeSr(sr)">
                       <span class="fa fa-close"></span>

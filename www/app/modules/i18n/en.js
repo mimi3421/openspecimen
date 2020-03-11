@@ -280,6 +280,7 @@
     "copy_cpe": "Copy",
     "remove_cpe": "Delete",
     "close_cpe": "Close",
+    "reopen_cpe": "Reopen",
     "no_cpes": "There are no collection protocol events to show. Please create an event by clicking on Add Event...",
     "add_cpe": "Add Event...",
     "cpe_list": "Events",
@@ -1019,7 +1020,8 @@
       "create_derivatives": "Create Derivatives",
       "create_pool_spmn": "Create Pool Specimen",
       "delete": "Delete",
-      "close": "Close"
+      "close": "Close",
+      "reopen": "Reopen"
     },
  
     "buttons": {

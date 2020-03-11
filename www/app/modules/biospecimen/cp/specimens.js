@@ -416,5 +416,16 @@ angular.module('os.biospecimen.cp.specimens', ['os.biospecimen.models'])
       });
     }
 
+    $scope.reopenSr = function(sr) {
+      var toOpen = cloneSr(sr);
+      toOpen.activityStatus = 'Active';
+
+      removeUiProps(toOpen).$saveOrUpdate().then(
+        function(result) {
+          updateSrList(result);
+        }
+      );
+    }
+
     init();
   });

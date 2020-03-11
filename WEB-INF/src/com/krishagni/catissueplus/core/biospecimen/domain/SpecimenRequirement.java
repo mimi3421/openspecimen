@@ -359,7 +359,9 @@ public class SpecimenRequirement extends BaseEntity implements Comparable<Specim
 	}
 
 	public void update(SpecimenRequirement sr) {
-		ensureReqIsNotClosed();
+		if (getActivityStatus().equals(sr.getActivityStatus())) {
+			ensureReqIsNotClosed();
+		}
 
 		if (isPrimary() && !isSpecimenPoolReq()) {
 			updateRequirementAttrs(sr);
@@ -641,7 +643,6 @@ public class SpecimenRequirement extends BaseEntity implements Comparable<Specim
 		if (!isClosed()) {
 			return;
 		}
-
 
 		String key = getCode();
 		if (StringUtils.isBlank(key)) {

@@ -135,5 +135,17 @@ angular.module('os.biospecimen.cp.events', ['os.biospecimen.models'])
       });
     }
 
+    $scope.reopenEvent = function(evt) {
+      var toOpen = angular.copy(evt);
+      toOpen.activityStatus = 'Active';
+
+      toOpen.$saveOrUpdate().then(
+        function(openedEvt) {
+          angular.extend(evt, openedEvt);
+          loadSpecimenRequirements(evt, true);
+        }
+      );
+    }
+
     init();
   });

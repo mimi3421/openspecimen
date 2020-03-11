@@ -53,6 +53,12 @@
                     <span translate="cp.close_cpe">Close</span>
                   </a>
                 </li>
+                <li ng-if="evt.activityStatus == 'Closed'">
+                  <a ng-click="reopenEvent(evt)">
+                    <span class="fa fa-check"></span>
+                    <span translate="cp.reopen_cpe">Reopen</span>
+                  </a>
+                </li>
               </ul>
             </div>
           </div>

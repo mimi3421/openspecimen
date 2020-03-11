@@ -223,7 +223,7 @@ public class CollectionProtocolEvent extends BaseEntity implements Comparable<Co
 
 	// updates all but specimen requirements
 	public void update(CollectionProtocolEvent other) {
-		if (isClosed()) {
+		if (isClosed() && other.isClosed()) {
 			throw OpenSpecimenException.userError(CpeErrorCode.CLOSED, getEventLabel());
 		}
 
