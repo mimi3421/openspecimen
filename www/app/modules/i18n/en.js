@@ -50,7 +50,7 @@
     "warning": "Warning",
     "form_validation_error": "There are validation errors as highlighted below. Please correct them",
     "server_error": "Internal Server Error. Please report this problem to system administrator",
-    "ui_error": "UI Error. Please refresh (Ctrl + F5) the page and retry the operation. If the problem persists, report to the system administrator.",
+    "ui_error": "UI Error. Please refresh (Ctrl + F5, Mac: Cmd + Shift + R) the page and retry the operation. If the problem persists, report to the system administrator.",
     "server_connect_error": "Unable to connect server",
     "recent_activity": "Recent Activity",
     "no_file_selected": "No File Selected",
