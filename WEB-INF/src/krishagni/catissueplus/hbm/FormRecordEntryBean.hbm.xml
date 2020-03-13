@@ -179,7 +179,10 @@
         inner join catissue_form_context fc
           on fc.identifier = re.form_ctxt_id
         left join catissue_form_record_entry re1
-          on re1.form_ctxt_id = re.form_ctxt_id and re1.object_id = re.object_id and re.update_time &lt; re1.update_time
+          on re1.form_ctxt_id = re.form_ctxt_id and
+             re1.object_id = re.object_id and
+             re.update_time &lt; re1.update_time and
+             re1.activity_status = 'ACTIVE'
       where
         fc.container_id = :formId and
         fc.entity_type = :entityType and
