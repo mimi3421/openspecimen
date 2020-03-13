@@ -224,19 +224,21 @@ angular.module('os.biospecimen.specimen.bulkaddevent', ['os.biospecimen.models']
     }
 
     $scope.initEventDetailsView = function() {
-      Form.getDefinition(ctx.formId).then(
-        function(formDef) {
+      var formDefQ = Form.getDefinition(ctx.formId);
+      var recordsQ = loadRecords();
+
+      ctx.noEvents = false; ctx.noEventsFor = [];
+      $q.all([formDefQ, recordsQ]).then(
+        function(resps) {
+          var formDef = resps[0];
+          var records = resps[1];
+
           ctx.formDef = formDef;
           ctx.mFormDef = removeRequiredAndDefValues(formDef);
           setFormDefToUse();
           ctx.opts.formId  = ctx.formId;
           ctx.opts.formDef = ctx.formDefToUse;
-        }
-      );
 
-      ctx.noEvents = false; ctx.noEventsFor = [];
-      $q.when(loadRecords()).then(
-        function(records) {
           ctx.records = records;
           if (!records || records.length == 0) {
             ctx.noEvents = (ctx.op == 'EDIT');
