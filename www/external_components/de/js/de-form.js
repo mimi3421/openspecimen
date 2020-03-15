@@ -2630,15 +2630,8 @@ edu.common.de.SignatureWidget = function(canvas) {
     var bounds = canvas.getBoundingClientRect();
 
     if (e.changedTouches && e.changedTouches[0]) {
-      //
-      // xOffset and yOffset gives the (x, y) coordinates
-      // on the screen from where the canvas starts
-      //
-      var yOffset = canvas.offsetTop  || 0;
-      var xOffset = canvas.offsetLeft || 0;
-
-      pos.x = e.changedTouches[0].pageX - xOffset;
-      pos.y = e.changedTouches[0].pageY - yOffset;
+      pos.x = e.changedTouches[0].clientX - bounds.x;
+      pos.y = e.changedTouches[0].clientY - bounds.y;
     } else if (e.layerX || 0 == e.layerX) {
       pos.x = e.layerX;
       pos.y = e.layerY;
@@ -2657,15 +2650,26 @@ edu.common.de.SignatureWidget = function(canvas) {
   }
 
   function onMouseDown(evt) {
+    if (evt.target == canvas) {
+      evt.preventDefault();
+    }
+
     lastPos = getPosition(canvas, evt);
     ctxt.beginPath();
     ctxt.moveTo(lastPos.x, lastPos.y);
 
     canvas.addEventListener('mousemove', onMouseMove, false);
+    canvas.addEventListener('touchmove', onMouseMove, false);
+
     canvas.addEventListener('mouseup', onMouseUp, false);
+    canvas.addEventListener('touchend', onMouseUp, false);
   }
 
   function onMouseMove(evt) {
+    if (evt.target == canvas) {
+      evt.preventDefault();
+    }
+
     if (!lastPos) {
       return;
     }
@@ -2681,14 +2685,22 @@ edu.common.de.SignatureWidget = function(canvas) {
   }
 
   function onMouseUp(evt) {
+    if (evt.target == canvas) {
+      evt.preventDefault();
+    }
+
     ctxt.stroke();
     lastPos = undefined;
 
     canvas.removeEventListener('mousemove', onMouseMove, false);
+    canvas.removeEventListener('touchmove', onMouseMove, false);
+
     canvas.removeEventListener('mouseup', onMouseUp, false);
+    canvas.removeEventListener('touchend', onMouseUp, false);
   }
 
   canvas.addEventListener('mousedown', onMouseDown, false);
+  canvas.addEventListener('touchstart', onMouseDown, false);
 
   this.clear = function() {
     ctxt.clearRect(0, 0, canvas.width, canvas.height);
