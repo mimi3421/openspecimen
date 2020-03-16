@@ -13,6 +13,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 
+import com.krishagni.catissueplus.core.audit.services.impl.DeleteLogUtil;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolGroup;
 import com.krishagni.catissueplus.core.biospecimen.domain.CpGroupForm;
@@ -35,6 +36,8 @@ import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
 import com.krishagni.catissueplus.core.common.access.SiteCpPair;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
+import com.krishagni.catissueplus.core.common.events.BulkDeleteEntityOp;
+import com.krishagni.catissueplus.core.common.events.BulkDeleteEntityResp;
 import com.krishagni.catissueplus.core.common.events.EntityQueryCriteria;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
@@ -161,6 +164,29 @@ public class CollectionProtocolGroupServiceImpl implements CollectionProtocolGro
 		} catch (Exception e) {
 			return ResponseEvent.serverError(e);
 		}
+	}
+
+	@Override
+	@PlusTransactional
+	public ResponseEvent<BulkDeleteEntityResp<CollectionProtocolGroupDetail>> deleteCpGroups(
+			RequestEvent<BulkDeleteEntityOp> req) {
+		Set<Long> cpGroupIds = req.getPayload().getIds();
+		List<CollectionProtocolGroup> cpGroups = daoFactory.getCpGroupDao().getByIds(cpGroupIds);
+
+		if (cpGroupIds.size() != cpGroups.size()) {
+			cpGroups.forEach(group -> cpGroupIds.remove(group.getId()));
+			throw OpenSpecimenException.userError(CpGroupErrorCode.NOT_FOUND, cpGroupIds);
+		}
+
+		cpGroups.forEach(cpGroup -> ensureUpdateAccess(cpGroup));
+
+		boolean completed = deleteCpGroups(cpGroups, req.getPayload().getReason());
+
+		BulkDeleteEntityResp<CollectionProtocolGroupDetail> resp = new BulkDeleteEntityResp<>();
+		resp.setCompleted(completed);
+		resp.setEntities(cpGroups.stream().map(group -> CollectionProtocolGroupDetail.from(group)).collect(Collectors.toList()));
+
+		return ResponseEvent.response(resp);
 	}
 
 	@Override
@@ -403,6 +429,17 @@ public class CollectionProtocolGroupServiceImpl implements CollectionProtocolGro
 				cpSvc.saveWorkflows(cp, cpWfs);
 			}
 		}
+	}
+
+	private boolean deleteCpGroups(List<CollectionProtocolGroup> cpGroups, String reason) {
+		cpGroups.forEach(cpGroup -> deleteCpGroup(cpGroup, reason));
+		return true;
+	}
+
+	private void deleteCpGroup(CollectionProtocolGroup cpGroup, String reason) {
+		daoFactory.getCpGroupDao().delete(cpGroup);
+		cpGroup.setOpComments(reason);
+		DeleteLogUtil.getInstance().log(cpGroup);
 	}
 
 	private void addForms(CollectionProtocolGroup group, String level, List<Pair<Form, Boolean>> inputForms) {

@@ -2,7 +2,9 @@ package com.krishagni.catissueplus.rest.controller;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -33,6 +35,9 @@ import com.krishagni.catissueplus.core.biospecimen.repository.CpGroupListCriteri
 import com.krishagni.catissueplus.core.biospecimen.services.CollectionProtocolGroupService;
 import com.krishagni.catissueplus.core.common.errors.CommonErrorCode;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
+import com.krishagni.catissueplus.core.common.events.BulkDeleteEntityOp;
+import com.krishagni.catissueplus.core.common.events.BulkDeleteEntityResp;
+import com.krishagni.catissueplus.core.common.events.EntityDeleteResp;
 import com.krishagni.catissueplus.core.common.events.EntityQueryCriteria;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
@@ -100,6 +105,40 @@ public class CollectionProtocolGroupsController {
 
 		group.setId(groupId);
 		return ResponseEvent.unwrap(groupSvc.updateGroup(RequestEvent.wrap(group)));
+	}
+
+	@RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public EntityDeleteResp<CollectionProtocolGroupDetail> deleteCpGroup(
+			@PathVariable("id")
+			Long id,
+
+			@RequestParam(value = "reason", required = false, defaultValue = "")
+			String reason) {
+		BulkDeleteEntityOp crit = new BulkDeleteEntityOp();
+		crit.setIds(Collections.singleton(id));
+		crit.setReason(reason);
+
+		BulkDeleteEntityResp<CollectionProtocolGroupDetail> payload = ResponseEvent.unwrap(groupSvc.deleteCpGroups(RequestEvent.wrap(crit)));
+		CollectionProtocolGroupDetail cpgDetail = payload.getEntities().iterator().next();
+		return new EntityDeleteResp<>(cpgDetail, payload.isCompleted());
+	}
+
+	@RequestMapping(method = RequestMethod.DELETE)
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public BulkDeleteEntityResp<CollectionProtocolGroupDetail> deleteCpGroups(
+			@RequestParam("id")
+			Long[] ids,
+
+			@RequestParam(value = "reason", required = false, defaultValue = "")
+			String reason) {
+		BulkDeleteEntityOp crit = new BulkDeleteEntityOp();
+		crit.setIds(new HashSet<>(Arrays.asList(ids)));
+		crit.setReason(reason);
+
+		return ResponseEvent.unwrap(groupSvc.deleteCpGroups(RequestEvent.wrap(crit)));
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "{id}/forms")
