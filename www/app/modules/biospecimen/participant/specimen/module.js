@@ -235,9 +235,28 @@ angular.module('os.biospecimen.specimen',
               }
             ];
           },
-          viewOpts: function($window, $stateParams, formDef, SpecimenEvent, LocationChangeListener) {
+          viewOpts: function($state, $stateParams, formDef, SpecimenEvent, LocationChangeListener) {
+            var goBackFn = null;
+            if ($stateParams.spe == 'true') {
+              if ($stateParams.recordId) {
+                goBackFn = LocationChangeListener.back;
+              } else {
+                goBackFn = function(eventData) {
+                  if (!eventData) {
+                    LocationChangeListener.back();
+                  } else {
+                    LocationChangeListener.allowChange();
+                    $state.go('specimen-detail.event-overview',
+                      {formId: eventData.containerId, recordId: eventData.id},
+                      {location: 'replace'}
+                    );
+                  }
+                }
+              }
+            }
+
             return {
-              goBackFn: ($stateParams.spe == 'true') ? LocationChangeListener.back : null,
+              goBackFn: goBackFn,
               showSaveNext: $stateParams.spe != 'true',
               showActionBtns: !SpecimenEvent.isSysEvent(formDef.name)
             };
@@ -249,7 +268,7 @@ angular.module('os.biospecimen.specimen',
       .state('specimen-detail.events', {
         url: '/events',
         templateUrl: 'modules/biospecimen/participant/specimen/events.html',
-        controller: function($scope, cp, cpr, visit, specimen, fdeRules, currentUser, ExtensionsUtil) {
+        controller: function($scope, $state, cp, cpr, visit, specimen, fdeRules, currentUser, ExtensionsUtil) {
           $scope.entityType = 'SpecimenEvent';
           $scope.extnState = 'specimen-detail.events';
           $scope.events = specimen.getEvents();
@@ -260,6 +279,10 @@ angular.module('os.biospecimen.specimen',
               $scope.eventForms = ExtensionsUtil.getMatchingForms(eventForms, fdeRules, ctxt);
             }
           );
+
+          $scope.showOverview = function(event) {
+            $state.go('specimen-detail.event-overview', {formId: event.formId, recordId: event.id});
+          }
 
           $scope.deleteEvent = function(event) {
             var record = {recordId: event.id, formId: event.formId, formCaption: event.name};
@@ -286,9 +309,22 @@ angular.module('os.biospecimen.specimen',
       .state('specimen-detail.event-overview', {
         url: '/event-overview?formId&recordId',
         templateUrl: 'modules/biospecimen/participant/specimen/event-overview.html',
-        controller: function($scope, event, specimen) {
+        controller: function($scope, event, specimen, ExtensionsUtil) {
           $scope.event = event;
           event.osEntity = specimen;
+          event.isDeletable = (event.appData.sysForm != 'true' && event.appData.sysForm != true);
+          event.isEditable = event.isDeletable ||
+            (['SpecimenCollectionEvent', 'SpecimenReceivedEvent'].indexOf(event.name) != -1);
+
+          $scope.deleteEvent = function(event) {
+            var record = {recordId: event.id, formId: event.containerId, formCaption: event.name};
+            ExtensionsUtil.deleteRecord(
+              record,
+              function() {
+                $scope.back();
+              }
+            );
+          }
         },
         resolve: {
           event: function($stateParams, Form) {

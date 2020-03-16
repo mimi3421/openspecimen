@@ -1262,9 +1262,10 @@ public class FormServiceImpl implements FormService, InitializingBean {
 			throw OpenSpecimenException.userError(FormErrorCode.REC_NOT_FOUND);
 		}
 
+		FormRecordEntryBean record = null;
 		if (objectId == null || entityType == null) {
-			FormRecordEntryBean record = formDao.getRecordEntry(formData.getContainer().getId(), formData.getRecordId());
-			objectId = record.getObjectId();
+			record     = formDao.getRecordEntry(formData.getContainer().getId(), formData.getRecordId());
+			objectId   = record.getObjectId();
 			formCtxtId = record.getFormCtxtId();
 			entityType = record.getEntityType();
 		}
@@ -1275,7 +1276,12 @@ public class FormServiceImpl implements FormService, InitializingBean {
 
 		Map<String, Object> appData = formData.getAppData();
 		appData.put("formCtxtId", formCtxtId);
-		appData.put("objectId", objectId);
+		appData.put("objectId",   objectId);
+		if (record != null) {
+			appData.put("sysForm",     record.isSysRecord());
+			appData.put("multiRecord", record.isMultiRecord());
+		}
+
 		return formData;
 	}
 

@@ -39,7 +39,7 @@ angular.module('os.biospecimen.extensions.addedit-record', [])
             LocationChangeListener.allowChange();
             $state.go($state.current.name, params);
           } else {
-            gotoRecsList();
+            gotoRecsList(formData);
           }
         },
 
@@ -90,9 +90,9 @@ angular.module('os.biospecimen.extensions.addedit-record', [])
       return nextForm;
     }
 
-    function gotoRecsList() {
+    function gotoRecsList(savedFormData) {
       if (typeof viewOpts.goBackFn == 'function') {
-        viewOpts.goBackFn();
+        viewOpts.goBackFn(savedFormData);
         return;
       }
 

@@ -105,6 +105,14 @@ public class FormRecordEntryBean {
 		return formCtxt != null ? formCtxt.getEntityType() : null;
 	}
 
+	public boolean isSysRecord() {
+		return formCtxt != null && formCtxt.isSysForm();
+	}
+
+	public boolean isMultiRecord() {
+		return formCtxt != null && formCtxt.isMultiRecord();
+	}
+
 	public FormContextBean getFormCtxt() {
 		return formCtxt;
 	}
