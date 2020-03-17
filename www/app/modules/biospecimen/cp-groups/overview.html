@@ -5,6 +5,10 @@
         <span class="fa fa-pencil"></span>
         <span translate="common.buttons.edit">Edit</span>
       </button>
+      <button class="default" ng-click="deleteGroup()" ng-if="ctx.editAllowed">
+        <span class="fa fa-trash"></span>
+        <span translate="common.buttons.delete">Delete</span>
+      </button>
       <a class="btn default" href="{{octx.workflowUri}}" target="_blank" rel="noopener" ng-if="!ctx.editAllowed">
         <span class="fa fa-download"></span>
         <span translate="cp_groups.export_workflows">Export Workflows</span>

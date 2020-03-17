@@ -22,6 +22,8 @@ public interface CollectionProtocolGroupService {
 
 	ResponseEvent<CollectionProtocolGroupDetail> updateGroup(RequestEvent<CollectionProtocolGroupDetail> req);
 
+	ResponseEvent<BulkDeleteEntityResp<CollectionProtocolGroupSummary>> deleteGroups(RequestEvent<BulkDeleteEntityOp> req);
+
 	ResponseEvent<List<CpGroupFormsDetail>> getForms(RequestEvent<EntityQueryCriteria> req);
 
 	ResponseEvent<Boolean> addForms(RequestEvent<CpGroupFormsDetail> req);
@@ -31,6 +33,4 @@ public interface CollectionProtocolGroupService {
 	ResponseEvent<CpGroupWorkflowCfgDetail> getWorkflows(RequestEvent<EntityQueryCriteria> req);
 
 	ResponseEvent<CpGroupWorkflowCfgDetail> saveWorkflows(RequestEvent<CpGroupWorkflowCfgDetail> req);
-
-	ResponseEvent<BulkDeleteEntityResp<CollectionProtocolGroupDetail>> deleteCpGroups(RequestEvent<BulkDeleteEntityOp> req);
 }

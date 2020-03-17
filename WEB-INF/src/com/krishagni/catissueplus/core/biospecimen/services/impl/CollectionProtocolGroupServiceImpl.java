@@ -168,24 +168,21 @@ public class CollectionProtocolGroupServiceImpl implements CollectionProtocolGro
 
 	@Override
 	@PlusTransactional
-	public ResponseEvent<BulkDeleteEntityResp<CollectionProtocolGroupDetail>> deleteCpGroups(
-			RequestEvent<BulkDeleteEntityOp> req) {
-		Set<Long> cpGroupIds = req.getPayload().getIds();
-		List<CollectionProtocolGroup> cpGroups = daoFactory.getCpGroupDao().getByIds(cpGroupIds);
+	public ResponseEvent<BulkDeleteEntityResp<CollectionProtocolGroupSummary>> deleteGroups(RequestEvent<BulkDeleteEntityOp> req) {
+		Set<Long> groupIds = req.getPayload().getIds();
 
-		if (cpGroupIds.size() != cpGroups.size()) {
-			cpGroups.forEach(group -> cpGroupIds.remove(group.getId()));
-			throw OpenSpecimenException.userError(CpGroupErrorCode.NOT_FOUND, cpGroupIds);
+		List<CollectionProtocolGroup> groups = daoFactory.getCpGroupDao().getByIds(groupIds);
+		if (groupIds.size() != groups.size()) {
+			groups.forEach(group -> groupIds.remove(group.getId()));
+			throw OpenSpecimenException.userError(CpGroupErrorCode.NOT_FOUND, groupIds);
 		}
 
-		cpGroups.forEach(cpGroup -> ensureUpdateAccess(cpGroup));
+		groups.forEach(this::ensureUpdateAccess);
+		groups.forEach(group -> deleteGroup(group, req.getPayload().getReason()));
 
-		boolean completed = deleteCpGroups(cpGroups, req.getPayload().getReason());
-
-		BulkDeleteEntityResp<CollectionProtocolGroupDetail> resp = new BulkDeleteEntityResp<>();
-		resp.setCompleted(completed);
-		resp.setEntities(cpGroups.stream().map(group -> CollectionProtocolGroupDetail.from(group)).collect(Collectors.toList()));
-
+		BulkDeleteEntityResp<CollectionProtocolGroupSummary> resp = new BulkDeleteEntityResp<>();
+		resp.setCompleted(true);
+		resp.setEntities(CollectionProtocolGroupSummary.from(groups));
 		return ResponseEvent.response(resp);
 	}
 
@@ -431,17 +428,6 @@ public class CollectionProtocolGroupServiceImpl implements CollectionProtocolGro
 		}
 	}
 
-	private boolean deleteCpGroups(List<CollectionProtocolGroup> cpGroups, String reason) {
-		cpGroups.forEach(cpGroup -> deleteCpGroup(cpGroup, reason));
-		return true;
-	}
-
-	private void deleteCpGroup(CollectionProtocolGroup cpGroup, String reason) {
-		daoFactory.getCpGroupDao().delete(cpGroup);
-		cpGroup.setOpComments(reason);
-		DeleteLogUtil.getInstance().log(cpGroup);
-	}
-
 	private void addForms(CollectionProtocolGroup group, String level, List<Pair<Form, Boolean>> inputForms) {
 		Map<Long, Set<Long>> cpForms = daoFactory.getCpGroupDao().getCpForms(group.getCpIds(), level);
 		for (CollectionProtocol cp : group.getCps()) {
@@ -544,5 +530,13 @@ public class CollectionProtocolGroupServiceImpl implements CollectionProtocolGro
 		return !level.equals("ParticipantExtension") &&
 			!level.equals("VisitExtension") &&
 			!level.equals("SpecimenExtension");
+	}
+
+	private void deleteGroup(CollectionProtocolGroup group, String reason) {
+		daoFactory.getCpGroupDao().delete(group);
+		if (StringUtils.isNotBlank(reason)) {
+			group.setOpComments(reason);
+			DeleteLogUtil.getInstance().log(group);
+		}
 	}
 }

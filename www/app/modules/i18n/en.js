@@ -443,6 +443,10 @@
     "empty_list": "No collection protocol groups to show!",
     "loading_list": "Loading collection protocol groups, please wait for a moment...",
 
+    "delete_group_q": "Delete Collection Protocol Group?",
+    "confirm_delete_group": "Are you sure you want to delete the collection protocol group - {{name}}?",
+    "group_deleted": "Collection protocol group, {{name}}, deleted.",
+
     "participant": "Participant",
     "visit": "Visit",
     "specimen": "Specimen",

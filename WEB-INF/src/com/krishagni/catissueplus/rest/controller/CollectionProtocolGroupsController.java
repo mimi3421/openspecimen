@@ -37,7 +37,6 @@ import com.krishagni.catissueplus.core.common.errors.CommonErrorCode;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.BulkDeleteEntityOp;
 import com.krishagni.catissueplus.core.common.events.BulkDeleteEntityResp;
-import com.krishagni.catissueplus.core.common.events.EntityDeleteResp;
 import com.krishagni.catissueplus.core.common.events.EntityQueryCriteria;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
@@ -110,35 +109,33 @@ public class CollectionProtocolGroupsController {
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
-	public EntityDeleteResp<CollectionProtocolGroupDetail> deleteCpGroup(
-			@PathVariable("id")
-			Long id,
+	public CollectionProtocolGroupSummary deleteGroup(
+		@PathVariable("id")
+		Long id,
 
-			@RequestParam(value = "reason", required = false, defaultValue = "")
-			String reason) {
+		@RequestParam(value = "reason", required = false)
+		String reason) {
+
 		BulkDeleteEntityOp crit = new BulkDeleteEntityOp();
 		crit.setIds(Collections.singleton(id));
 		crit.setReason(reason);
-
-		BulkDeleteEntityResp<CollectionProtocolGroupDetail> payload = ResponseEvent.unwrap(groupSvc.deleteCpGroups(RequestEvent.wrap(crit)));
-		CollectionProtocolGroupDetail cpgDetail = payload.getEntities().iterator().next();
-		return new EntityDeleteResp<>(cpgDetail, payload.isCompleted());
+		return ResponseEvent.unwrap(groupSvc.deleteGroups(RequestEvent.wrap(crit))).getEntities().get(0);
 	}
 
 	@RequestMapping(method = RequestMethod.DELETE)
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
-	public BulkDeleteEntityResp<CollectionProtocolGroupDetail> deleteCpGroups(
-			@RequestParam("id")
-			Long[] ids,
+	public List<CollectionProtocolGroupSummary> deleteGroups(
+		@RequestParam("id")
+		Long[] ids,
 
-			@RequestParam(value = "reason", required = false, defaultValue = "")
-			String reason) {
+		@RequestParam(value = "reason", required = false)
+		String reason) {
+
 		BulkDeleteEntityOp crit = new BulkDeleteEntityOp();
 		crit.setIds(new HashSet<>(Arrays.asList(ids)));
 		crit.setReason(reason);
-
-		return ResponseEvent.unwrap(groupSvc.deleteCpGroups(RequestEvent.wrap(crit)));
+		return ResponseEvent.unwrap(groupSvc.deleteGroups(RequestEvent.wrap(crit))).getEntities();
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "{id}/forms")

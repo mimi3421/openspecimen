@@ -1,6 +1,6 @@
 
 angular.module('os.biospecimen.cpgroups')
-  .controller('CpGroupOverviewCtrl', function($scope, $state, group, CollectionProtocolGroup, Util) {
+  .controller('CpGroupOverviewCtrl', function($scope, $state, group, CollectionProtocolGroup, Util, Alerts) {
 
     var octx;
     function init() {
@@ -10,6 +10,22 @@ angular.module('os.biospecimen.cpgroups')
 
     $scope.showCpOverview = function(cp) {
       $state.go('cp-detail.overview', {cpId: cp.id});
+    }
+
+    $scope.deleteGroup = function() {
+      Util.showConfirm({
+        title: 'cp_groups.delete_group_q',
+        confirmMsg: 'cp_groups.confirm_delete_group',
+        input: group,
+        ok: function() {
+          group.$remove().then(
+            function() {
+              Alerts.success('cp_groups.group_deleted', group);
+              $state.go('cp-groups-list');
+            }
+          );
+        }
+      });
     }
 
     init();
