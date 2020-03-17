@@ -402,7 +402,16 @@ edu.common.de.Form = function(args) {
       this.formDiv.find("input").change(evalSl);
       this.formDiv.find("textarea").change(evalSl);
       this.formDiv.find("select").change(evalSl);
-      evalSl();
+
+      if (this.$delayedInits && this.$delayedInits.length > 0) {
+        $.when.apply($, this.$delayedInits).then(
+          function() {
+            evalSl();
+          }
+        );
+      } else {
+        evalSl();
+      }
     }
   };
 
@@ -2341,8 +2350,16 @@ edu.common.de.LookupField = function(params, callback) {
   };
 
   var initSelection = function(elem, callback) {
+    var initQs = [];
+    if (that.$form) {
+      initQs = that.$form.$delayedInits = that.$form.$delayedInits || [];
+    }
+
     if (!that.value && field.defaultType != 'none') {
-      $.when(that.getDefaultValue()).done(
+      var dd = that.getDefaultValue();
+      initQs.push(dd);
+
+      $.when(dd).done(
         function(result) {
           that.value = result.id;
           that.control.setValue(result.id);
@@ -2350,7 +2367,10 @@ edu.common.de.LookupField = function(params, callback) {
         }
       );
     } else if (!!that.value) {
-      $.when(that.lookup(that.value)).done(
+      var dd = that.lookup(that.value);
+      initQs.push(dd);
+
+      $.when(dd).done(
         function(result) {
           callback(result);
         }
