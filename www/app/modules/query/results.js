@@ -584,7 +584,7 @@ angular.module('os.query.results', ['os.query.models'])
 
     function getSelectedSpecimens() {
       return $scope.selectedRows.map(function(row) {
-        return {id: row.hidden[0].$specimenId};
+        return {id: row.hidden[0].$specimenId, cpId: row.hidden[0].$cpId};
       });
     };
 

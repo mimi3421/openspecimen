@@ -613,5 +613,140 @@
                 }
             ]
         }
+    },
+    {
+        "name": "bulk-update-dictionary",
+        "data": {
+            "fields": [
+                {
+                    "name": "specimen.anatomicSite",
+                    "caption": "Anatomic Site",
+                    "type": "pvs",
+                    "attr": "anatomic_site",
+                    "showOnlyLeafValues": true
+                },
+                {
+                    "name": "specimen.laterality",
+                    "caption": "Laterality",
+                    "type": "pvs",
+                    "attr": "laterality"
+                },
+                {
+                    "name": "specimen.status",
+                    "caption": "Collection Status",
+                    "type": "dropdown",
+                    "listSource": {
+                        "options": [
+                            "Collected",
+                            "Missed Collection",
+                            "Not Collected",
+                            "Pending"
+                        ]
+                    }
+                },
+                {
+                    "name": "specimen.pathology",
+                    "caption": "Pathological Status",
+                    "type": "pvs",
+                    "attr": "pathology_status"
+                },
+                {
+                    "name": "specimen.initialQty",
+                    "caption": "Initial Quantity",
+                    "type" : "specimen-quantity",
+                    "specimen": "specimen"
+                },
+                {
+                    "name": "specimen.availableQty",
+                    "caption": "Available Quantity",
+                    "type" : "specimen-quantity",
+                    "specimen": "specimen",
+                    "optional": true
+                },
+                {
+                    "name": "specimen.concentration",
+                    "caption": "Concentration",
+                    "type" : "specimen-quantity",
+                    "specimen": "specimen",
+                    "measure" : "concentration",
+                    "optional": true
+                },
+                {
+                    "name": "specimen.createdOn",
+                    "caption": "Created On",
+                    "type": "date"
+                },
+                {
+                    "name": "specimen.freezeThawCycles",
+                    "caption": "Freeze/Thaw Cycles",
+                    "type": "text",
+                    "pattern" : "/^[0-9]+$/",
+                    "optional": true
+                },
+                {
+                    "name": "specimen.biohazards",
+                    "caption": "Biohazards",
+                    "type": "pvs",
+                    "attr": "specimen_biohazard",
+                    "multiple": true
+                },
+                {
+                    "name": "specimen.comments",
+                    "caption": "Comments",
+                    "type": "textarea",
+                    "optional": true
+                },
+                {
+                    "name": "specimen.collectionEvent.time",
+                    "caption": "Collection Time",
+                    "type": "datetime"
+                },
+                {
+                    "name": "specimen.collectionEvent.user",
+                    "caption": "Collector",
+                    "type": "user"
+                },
+                {
+                    "name": "specimen.collectionEvent.comments",
+                    "caption": "Collector Comments",
+                    "type": "textarea",
+                    "optional": true
+                },
+                {
+                    "name": "specimen.collectionEvent.procedure",
+                    "caption": "Collection Procedure",
+                    "type": "pvs",
+                    "attr": "collection_procedure"
+                },
+                {
+                    "name": "specimen.collectionEvent.container",
+                    "caption": "Collection Container",
+                    "type": "pvs",
+                    "attr": "collection_container"
+                },
+                {
+                    "name": "specimen.receivedEvent.time",
+                    "caption": "Received Time",
+                    "type": "datetime"
+                },
+                {
+                    "name": "specimen.receivedEvent.user",
+                    "caption": "Receiver",
+                    "type": "user"
+                },
+                {
+                    "name": "specimen.receivedEvent.comments",
+                    "caption": "Receiver Comments",
+                    "type": "textarea",
+                    "optional": true
+                },
+                {
+                    "name": "specimen.receivedEvent.receivedQuality",
+                    "caption": "Received Quality",
+                    "type": "pvs",
+                    "attr": "receive_quality"
+                }
+            ]
+        }
     }
 ]

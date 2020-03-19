@@ -75,7 +75,7 @@ angular.module('os.biospecimen.participant')
         return [];
       }
 
-      return selectedSpmns.map(function(spmn) { return {id: spmn.hidden.specimenId}; });
+      return selectedSpmns.map(function(spmn) { return {id: spmn.hidden.specimenId, cpId: cp.id}; });
     }
 
     this.loadSpecimens = function() {

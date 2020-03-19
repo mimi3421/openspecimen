@@ -4,9 +4,15 @@ angular.module('os.query.util', ['os.query.models', 'os.query.save'])
     var ops = SavedQuery.ops;
 
     var propIdFields = {
-      'Participant.ppid': {expr: 'Participant.id', caption: '$cprId'},
-      'Specimen.label': {expr: 'Specimen.id', caption: '$specimenId'},
-      'Specimen.parentSpecimen.parentLabel': {expr: 'Specimen.parentSpecimen.parentId', caption: '$parentSpecimenId'}
+      'Participant.ppid' : [{expr: 'Participant.id', caption: '$cprId'}],
+      'Specimen.label'   : [
+                             {expr: 'Specimen.id', caption: '$specimenId'},
+                             {expr: 'CollectionProtocol.id', caption: '$cpId'}
+                           ],
+      'Specimen.parentSpecimen.parentLabel': [
+                             {expr: 'Specimen.parentSpecimen.parentId', caption: '$parentSpecimenId'},
+                             {expr: 'CollectionProtocol.id', caption: '$cpId'}
+                           ]
     }
 
     var init = false;
@@ -287,13 +293,16 @@ angular.module('os.query.util', ['os.query.models', 'os.query.save'])
               continue;
             }
 
-            var idField = propIdFields[prop];
-            if (selFieldName != prop || addedIds[idField.expr]) {
-              continue;
-            }
+            propIdFields[prop].forEach(
+              function(idField) {
+                if (selFieldName != prop || addedIds[idField.expr]) {
+                  return;
+                }
 
-            result += idField.expr + " as \"" + idField.caption + "\"" + ", ";
-            addedIds[idField.expr] = true;
+                result += idField.expr + " as \"" + idField.caption + "\"" + ", ";
+                addedIds[idField.expr] = true;
+              }
+            );
           }
         }
 

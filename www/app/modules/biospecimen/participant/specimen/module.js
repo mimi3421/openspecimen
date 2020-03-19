@@ -567,6 +567,53 @@ angular.module('os.biospecimen.specimen',
         url: '/bulk-edit-specimens',
         templateUrl: "modules/biospecimen/participant/specimen/bulk-edit.html",
         controller: 'BulkEditSpecimensCtrl',
+        resolve: {
+          hasSde: function($injector) {
+            return $injector.has('sdeFieldsSvc');
+          },
+
+          cpId: function(SpecimensHolder) {
+            var spmns = (SpecimensHolder.getSpecimens() || []);
+            var cpId  = spmns.length > 0 ? spmns[0].cpId : -1;
+            for (var i = 1; i < spmns.length; ++i) {
+              if (spmns[i].cpId != cpId) {
+                return -1;
+              }
+            }
+
+            return cpId;
+          },
+
+          cpDict: function(cpId, hasSde, CpConfigSvc) {
+            if (!hasSde) {
+              return {cpId: cpId, fields: []};
+            }
+
+            return CpConfigSvc.getBulkUpdateDictionary(cpId);
+          },
+
+          customFields: function(cpId, cpDict, Specimen, Form, ExtensionsUtil) {
+            if (cpDict.cpId != -1 || cpDict.fields.length == 0) {
+              return [];
+            }
+
+            return Specimen.getExtensionCtxt({cpId: cpId}).then(
+              function(ctxt) {
+                if (!ctxt) {
+                  return [];
+                }
+
+                return Form.getDefinition(ctxt.formId).then(
+                  function(formDef) {
+                    var sdeFields = ExtensionsUtil.toSdeFields('specimen.extensionDetail.attrsMap', ctxt.formId, formDef);
+                    cpDict.fields = cpDict.fields.concat(sdeFields);
+                    return sdeFields;
+                  }
+                );
+              }
+            );
+          }
+        },
         parent: 'signed-in'
       })
       .state('bulk-add-event', {

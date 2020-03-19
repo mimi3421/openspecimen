@@ -221,6 +221,89 @@ angular.module('os.biospecimen.extensions.util', [])
       );
     }
 
+    //
+    // converts the DE form fields metadata to SDE metadata
+    //
+    function toSdeFields(prefix, formId, formDef) {
+      return toSdeFields0(prefix, formId, '', formDef);
+    }
+
+    function toSdeFields0(prefix, formId, sfPrefix, formDef) {
+      var fields = [];
+      for (var r = 0; r < formDef.rows.length; ++r) {
+        for (var c = 0; c < formDef.rows[r].length; ++c) {
+          var sdeField = toSdeField(prefix, formId, sfPrefix, formDef.rows[r][c]);
+          if (sdeField) {
+            fields.push(sdeField);
+          }
+        }
+      }
+
+      return fields;
+    }
+
+    function toSdeField(prefix, formId, sfPrefix, deField) {
+      var sdeField = {
+        name: prefix ? prefix + '.' + deField.name : deField.name,
+        caption: deField.caption,
+        optional: (deField.validationRules || []).every(function(r) { return r.name != 'required'; })
+      };
+
+      if (deField.type == 'stringTextField') {
+        sdeField.type = 'text';
+      } else if (deField.type == 'numberField') {
+        sdeField.type = 'text';
+        if (deField.noOfDigitsAfterDecimal) {
+          sdeField.pattern = '/^([0-9]+|[0-9]*\\.?[0-9]+[e]?[+-]?[0-9]*)$/';
+        } else {
+          sdeField.pattern = '/^[0-9]+$/';
+        }
+      } else if (deField.type == 'textArea') {
+        sdeField.type = 'textarea';
+      } else if (deField.type == 'radiobutton') {
+        sdeField.type = 'radio';
+        sdeField.options = deField.pvs.map(function(pv) { return pv.value; });
+      } else if (deField.type == 'booleanCheckbox') {
+        sdeField.type = 'toggle-checkbox';
+      } else if (deField.type == 'combobox' || deField.type == 'multiSelectListbox' || deField.type == 'checkbox') {
+        sdeField.type = 'dropdown';
+        sdeField.multiple = (deField.type != 'combobox');
+        sdeField.listSource = {
+          selectProp: 'value',
+          displayProp: 'value',
+          apiUrl: 'forms/' + formId + '/permissible-values',
+          queryParams: {
+            static: {
+              controlName: sfPrefix ? sfPrefix + '.' + deField.name : deField.name
+            }
+          }
+        };
+      } else if (deField.type == 'datePicker') {
+        sdeField.type = deField.format && deField.format.indexOf('HH:mm') != -1 ? 'datetime' : 'date';
+      } else if (deField.type == 'userField') {
+        sdeField.type = 'user';
+        sdeField.selectProp = 'id';
+      } else if (deField.type == 'siteField') {
+        sdeField.type = 'dropdown';
+        sdeField.listSource = {
+          selectProp: 'id',
+          displayProp: 'name',
+          apiUrl: 'sites'
+        };
+      } else if (deField.type == 'subForm') {
+        sdeField.type = 'collection';
+        sfPrefix = sfPrefix ? sfPrefix + '.' + deField.name : deField.name;
+        sdeField.fields = toSdeFields0('', formId, sfPrefix, deField);
+        if (!sdeField.fields || sdeField.fields.length == 0) {
+          sdeField = null;
+        }
+      } else {
+        sdeField = null;
+      }
+
+      return sdeField;
+    }
+
     var viewTmpls = {};
 
     return {
@@ -244,7 +327,9 @@ angular.module('os.biospecimen.extensions.util', [])
 
       getViewTmpl: function(name) {
         return viewTmpls[name];
-      }
+      },
+
+      toSdeFields: toSdeFields
     }
  
   });

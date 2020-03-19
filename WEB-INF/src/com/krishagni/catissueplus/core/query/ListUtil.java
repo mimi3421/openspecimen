@@ -38,10 +38,15 @@ public class ListUtil {
 		specimenClass.setExpr("Specimen.class");
 		specimenClass.setCaption("specimenClass");
 
+		Column cpId = new Column();
+		cpId.setExpr("CollectionProtocol.id");
+		cpId.setCaption("cpId");
+
 		List<Column> hiddenColumns = new ArrayList<>();
 		hiddenColumns.add(id);
 		hiddenColumns.add(type);
 		hiddenColumns.add(specimenClass);
+		hiddenColumns.add(cpId);
 		cfg.setHiddenColumns(hiddenColumns);
 		return cfg;
 	}

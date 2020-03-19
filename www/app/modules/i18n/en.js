@@ -929,6 +929,9 @@
     },
 
     "bulk_update": "Bulk Update Specimens",
+    "clear_field_values_q": "Clear Field Values?",
+    "confirm_clear_field_values": "One or more fields have no values specified. Are you sure you want to proceed with clearing values of such fields?",
+    "select_field": "Select Field",
 
     "bulk_events": {
       "add_edit": "Bulk Events",

@@ -71,7 +71,11 @@ angular.module('os.biospecimen.specimenlist')
 
     $scope.getSelectedSpecimens = function() {
       var selectedSpmns = $scope.ctx.listCtrl.getSelectedItems();
-      return (selectedSpmns || []).map(function(spmn) { return new Specimen({id: spmn.hidden.specimenId}); });
+      return (selectedSpmns || []).map(
+        function(spmn) {
+          return new Specimen({id: spmn.hidden.specimenId, cpId: spmn.hidden.cpId});
+        }
+      );
     }
 
     $scope.addChildSpecimens = function() {
