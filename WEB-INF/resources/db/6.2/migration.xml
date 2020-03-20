@@ -169,12 +169,12 @@
     </sql>
   </changeSet>
 
-  <changeSet author="vpawar" id="PV: Update specimen requirement - Not Specified type">
+  <changeSet author="vpawar" id="PV: Update specimen requirement - Not Specified type" runOnChange="true">
     <sql>
       update
         catissue_cp_req_specimen
       set
-        specimen_type = concat(specimen_type, concat(' - ', specimen_class))
+        specimen_type = concat(specimen_class, concat(' - ', specimen_type))
       where
         specimen_type = 'Not Specified'
     </sql>
@@ -182,7 +182,7 @@
       update
         catissue_cp_req_specimen_aud
       set
-        specimen_type = concat(specimen_type, concat(' - ', specimen_class))
+        specimen_type = concat(specimen_class, concat(' - ', specimen_type))
       where
         specimen_type = 'Not Specified'
     </sql>
@@ -223,12 +223,12 @@
     <sql>call set_pv_ids('catissue_specimen_aud', 'specimen_class', 'specimen_class_id', 'specimen_type');</sql>
   </changeSet>
 
-  <changeSet author="vpawar" id="PV: Update specimen - Not Specified type">
+  <changeSet author="vpawar" id="PV: Update specimen - Not Specified type" runOnChange="true">
     <sql>
       update
         catissue_specimen
       set
-        specimen_type = concat(specimen_type, concat(' - ', specimen_class))
+        specimen_type = concat(specimen_class, concat(' - ', specimen_type))
       where
         specimen_type = 'Not Specified'
     </sql>
@@ -236,7 +236,7 @@
       update
         catissue_specimen_aud
       set
-        specimen_type = concat(specimen_type, concat(' - ', specimen_class))
+        specimen_type = concat(specimen_class, concat(' - ', specimen_type))
       where
         specimen_type = 'Not Specified'
     </sql>
@@ -371,12 +371,15 @@
     <sql>call set_pv_ids('os_cpr_anticipated_spmns', 'clinical_diagnosis', 'clinical_diagnosis_id', 'clinical_diagnosis');</sql>
   </changeSet>
 
-  <changeSet author="vpawar" id="Anticipated specimens: not specified type">
+  <changeSet author="vpawar" id="Anticipated specimens: not specified type" runOnChange="true">
+    <preConditions onFail="MARK_RAN">
+      <columnExists tableName="os_cpr_anticipated_spmns" columnName="specimen_type"/>
+    </preConditions>
     <sql>
       update
         os_cpr_anticipated_spmns
       set
-        specimen_type = concat(specimen_type, concat(' - ', specimen_class))
+        specimen_type = concat(specimen_class, concat(' - ', specimen_type))
       where
         specimen_type = 'Not Specified'
     </sql>
