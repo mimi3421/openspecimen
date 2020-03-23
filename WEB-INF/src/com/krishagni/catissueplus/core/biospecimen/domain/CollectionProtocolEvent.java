@@ -347,7 +347,6 @@ public class CollectionProtocolEvent extends BaseEntity implements Comparable<Co
 
 	private static final String[] EXCLUDE_COPY_PROPS = {
 			"id",
-			"code",
 			"collectionProtocol",
 			"specimenRequirements",
 			"specimenCollectionGroups"
