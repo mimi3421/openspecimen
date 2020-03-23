@@ -12,6 +12,7 @@ angular.module('os.biospecimen.specimen')
       });
 
       $scope.specimens = specimens;
+      $scope.ctx = {incrFreezeThaw: false};
     }
 
     $scope.removeSpecimen = function(index) {
@@ -40,6 +41,27 @@ angular.module('os.biospecimen.specimen')
       }
     }
 
+    $scope.copyFirstQtyToAll = function() {
+      var qty = $scope.specimens[0].availableQty;
+      for (var i = 1; i < $scope.specimens.length; ++i) {
+        $scope.specimens[i].availableQty = qty;
+      }
+    }
+
+    $scope.toggleAllIncrFreezeThaw = function() {
+      for (var i = 0; i < $scope.specimens.length; ++i) {
+        $scope.specimens[i].incrFreezeThaw = $scope.ctx.incrFreezeThaw;
+      }
+    }
+
+    $scope.toggleIncrFreezeThaw = function(s) {
+      if (s.incrFreezeThaw) {
+        $scope.ctx.incrFreezeThaw = $scope.specimens.every(function(sp) { return sp.incrFreezeThaw; });
+      } else {
+        $scope.ctx.incrFreezeThaw = false;
+      }
+    }
+
     $scope.transferSpecimens = function() {
       var specimens = $scope.specimens.map(
         function(spmn) {
@@ -47,7 +69,9 @@ angular.module('os.biospecimen.specimen')
             id: spmn.id,
             storageLocation: spmn.storageLocation,
             transferComments: spmn.transferComments,
-            transferTime: spmn.transferTime
+            transferTime: spmn.transferTime,
+            availableQty: spmn.availableQty,
+            freezeThawCycles: (spmn.incrFreezeThaw && ((spmn.freezeThawCycles || 0) +  1)) || spmn.freezeThawCycles
           };
         }
       );

@@ -14,35 +14,46 @@
           <table class="os-table bulk-edit">
             <thead class="os-table-head">
               <tr class="row">
-                <th class="col os-col-10">
+                <th class="col os-col-20">
                   <span translate="specimens.label">Label</span>
-                </th>
-                <th class="col os-col-13">
-                  <span translate="specimens.cp">Collection Protocol</span>
-                </th>
-                <th class="col os-col-10">
-                  <span translate="specimens.type">Type</span>
                 </th>
                 <th class="col os-col-15">
                   <span translate="specimens.bulk_transfer.current_location">Current Location</span>
                 </th>
                 <th class="col os-col-20">
                   <span translate="specimens.bulk_transfer.new_location">New Location</span>
-                  <a ng-click="copyFirstLocationToAll()" style="font-weight: normal">
-                    (<span translate="common.copy_first_to_all">Copy first to all</span>)
-                  </a>
+                  <button class="btn btn-xs btn-default" style="font-weight: normal"
+                    os-tooltip="{{'common.copy_first_to_all' | translate}}" ng-click="copyFirstLocationToAll()">
+                    <span class="fa fa-copy"></span>
+                  </button>
                 </th>
                 <th class="col os-col-15">
                   <span translate="specimens.bulk_transfer.time">Transfer Time</span>
-                  <a ng-click="copyFirstTimeToAll()" style="font-weight: normal">
-                    (<span translate="common.copy_first_to_all">Copy first to all</span>)
-                  </a>
+                  <button class="btn btn-xs btn-default" style="font-weight: normal"
+                    os-tooltip="{{'common.copy_first_to_all' | translate}}" ng-click="copyFirstTimeToAll()">
+                    <span class="fa fa-copy"></span>
+                  </button>
                 </th>
                 <th class="col os-col-15">
                   <span translate="specimens.bulk_transfer.comments">Comments</span>
-                  <a ng-click="copyFirstCommentsToAll()" style="font-weight: normal">
-                    (<span ttranslate="common.copy_first_to_all">Copy first to all</span>)
-                  </a>
+                  <button class="btn btn-xs btn-default" style="font-weight: normal"
+                    os-tooltip="{{'common.copy_first_to_all' | translate}}" ng-click="copyFirstCommentsToAll()">
+                    <span class="fa fa-copy"></span>
+                  </button>
+                </th>
+                <th class="col os-col-10">
+                  <span translate="specimens.qty">Available Quantity</span>
+                  <button class="btn btn-xs btn-default" style="font-weight: normal"
+                    os-tooltip="{{'common.copy_first_to_all' | translate}}" ng-click="copyFirstQtyToAll()">
+                    <span class="fa fa-copy"></span>
+                  </button>
+                </th>
+                <th class="col os-col-3">
+                  <div class="clearfix" os-tooltip="{{'specimens.increment_freeze_thaw' | translate}}">
+                    <span class="fa fa-thermometer-empty" style="font-size: 24px;">
+                    </span>
+                    <os-checkbox ng-model="ctx.incrFreezeThaw" ng-change="toggleAllIncrFreezeThaw()"></os-checkbox>
+                  </div>
                 </th>
                 <th class="col os-col-2">
                   <span>&nbsp;</span>
@@ -55,12 +66,7 @@
                   <a ui-sref="specimen({specimenId: spmn.id})">
                     <span>{{spmn.label}}</span>
                   </a>
-                </td>
-                <td class="col">
-                  <span>{{spmn.cpShortTitle}}</span>
-                </td>
-                <td class="col">
-                  <span>{{spmn.type}}</span>
+                  <span>({{spmn.cpShortTitle}}, {{spmn.type}})</span>
                 </td>
                 <td class="col">
                   <os-disp-storage-position position="spmn.oldLocation"></os-disp-storage-position>
@@ -81,6 +87,12 @@
                 </td>
                 <td class="col">
                   <input type="text" os-md-input ng-model="spmn.transferComments">
+                </td>
+                <td class="col">
+                  <os-spmn-measure specimen="spmn" md-input quantity="spmn.availableQty"></os-spmn-measure>
+                </td>
+                <td class="col">
+                  <os-checkbox ng-model="spmn.incrFreezeThaw" ng-change="toggleIncrFreezeThaw(spmn)"></os-checkbox>
                 </td>
                 <td class="col">
                   <button class="btn btn-xs btn-default" ng-click="removeSpecimen($index)">
