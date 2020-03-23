@@ -99,6 +99,8 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 
 	private static final String FORGOT_PASSWD = "forgot_password";
 
+	private static final String DUMMY_EMAIL_ADDR = "localhost@localhost";
+
 	private static final Map<String, String> NOTIF_OPS = new HashMap<String, String>() {{
 		put("created",  "CREATE");
 		put("deleted",  "DELETE");
@@ -1007,6 +1009,11 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 
 	private void emailAnnouncements(AnnouncementDetail detail, List<String> emailAddresses) {
 		String[] adminEmailAddr = {ConfigUtil.getInstance().getAdminEmailId()};
+
+		if (StringUtils.isBlank(adminEmailAddr[0])) {
+			adminEmailAddr[0] = DUMMY_EMAIL_ADDR;
+		}
+
 		String[] rcpts = emailAddresses.toArray(new String[emailAddresses.size()]);
 
 		Map<String, Object> props = new HashMap<>();
