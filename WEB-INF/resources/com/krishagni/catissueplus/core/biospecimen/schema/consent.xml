@@ -43,6 +43,11 @@
       <caption>#getMessage("participant_consent_tier_statement")</caption>
       <attribute>statement</attribute>
     </field>
+
+    <field>
+      <caption>#getMessage("participant_consent_tier_stmt_code")</caption>
+      <attribute>code</attribute>
+    </field>
       
     <field>
       <caption>#getMessage("participant_consent_tier_response")</caption>

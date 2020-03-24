@@ -1354,6 +1354,7 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 							}
 
 							detail.setStatement(resp.getStatement());
+							detail.setCode(resp.getStatementCode());
 							detail.setResponse(PermissibleValue.getValue(resp.getResponse()));
 							firstResp = false;
 						}
