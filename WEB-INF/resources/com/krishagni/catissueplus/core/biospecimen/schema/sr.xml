@@ -7,6 +7,11 @@
     <name>com.krishagni.catissueplus.core.biospecimen.events.SpecimenRequirementDetail</name>
 
     <field>
+      <caption>#getMessage("sr_identifier")</caption>
+      <attribute>id</attribute>
+    </field>
+
+    <field>
       <caption>#getMessage("sr_cp_short_title")</caption>
       <attribute>cpShortTitle</attribute>
     </field>
@@ -124,6 +129,11 @@
     <field>
       <caption>#getMessage("sr_sort_order")</caption>
       <attribute>sortOrder</attribute>
+    </field>
+
+    <field>
+      <caption>#getMessage("sr_activity_status")</caption>
+      <attribute>activityStatus</attribute>
     </field>
     
     <record>

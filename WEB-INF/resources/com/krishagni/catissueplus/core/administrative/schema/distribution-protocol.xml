@@ -30,6 +30,11 @@
       <attribute>defReceivingSiteName</attribute>
     </field>
 
+    <field>
+      <caption>#getMessage("dp_activity_status")</caption>
+      <attribute>activityStatus</attribute>
+    </field>
+
     <record>
       <attribute>principalInvestigator</attribute>
       <caption>#getMessage("dp_pi")</caption>

@@ -46,6 +46,11 @@
       </field>
     </record>
 
+    <field>
+      <caption>#getMessage("site_activity_status")</caption>
+      <attribute>activityStatus</attribute>
+    </field>
+
     <record type="customFields" entityType="SiteExtension">
       <attribute>extensionDetail</attribute>
     </record>

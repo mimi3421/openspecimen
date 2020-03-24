@@ -58,6 +58,11 @@
       <attribute>comments</attribute>
     </field>
 
+    <field>
+      <caption>#getMessage("dp_req_activity_status")</caption>
+      <attribute>activityStatus</attribute>
+    </field>
+
     <record type="customFields" entityType="DpRequirementExtension">
       <attribute>extensionDetail</attribute>
     </record>

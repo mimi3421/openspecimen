@@ -15,6 +15,10 @@
       <attribute>name</attribute>
     </field>
 
+    <field>
+      <caption>#getMessage("institute_activity_status")</caption>
+      <attribute>activityStatus</attribute>
+    </field>
   </record>
 </object-schema>
 
