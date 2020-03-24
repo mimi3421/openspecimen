@@ -969,18 +969,17 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
             }
 
             visited.push(uiSpecimen);
-
-            var specimen = getSpecimenToSave(uiSpecimen);
-            if (specimen.lineage == 'Aliquot') {
-              if (barcodingEnabled && !spmnBarcodesAutoGen && !specimen.barcode) {
+            if (uiSpecimen.lineage == 'Aliquot') {
+              if (barcodingEnabled && !spmnBarcodesAutoGen && !uiSpecimen.barcode) {
                 return;
               }
 
-              if (!barcodingEnabled && (cp.manualSpecLabelEnabled || !specimen.labelFmt) && !specimen.label) {
+              if (!barcodingEnabled && (cp.manualSpecLabelEnabled || !uiSpecimen.labelFmt) && !uiSpecimen.label) {
                 return;
               }
             }
 
+            var specimen = getSpecimenToSave(uiSpecimen);
             specimen.children = getSpecimensToSave(cp, uiSpecimen.children, visited);
             specimen.specimensPool = getSpecimensToSave(cp, uiSpecimen.specimensPool, visited);
             result.push(specimen);
