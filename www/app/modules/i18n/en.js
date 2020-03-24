@@ -291,7 +291,7 @@
     "deleting_event": "Deleting Event...",
     "confirm_delete_event": "Event '{{eventLabel}}' and its specimen requirements will be deleted. Are you sure you want to proceed?",
     "closing_event": "Closing Event...",
-    "confirm_close_event": "Event '{{eventLabel}}' and its specimen requirements will be closed. Closed events and requirements cannot be reopened. Are you sure you want to proceed?",
+    "confirm_close_event": "Event '{{eventLabel}}' and its specimen requirements will be closed. Are you sure you want to proceed?",
 
     "bulk_import": "Biospecimen Data",
     "bulk_import_biospecimen_obj_jobs": "Import Biospecimen Objects Job List",
@@ -1018,7 +1018,7 @@
     "deleting_sr": "Deleting Requirement...",
     "confirm_delete_sr": "Selected requirement and all its children will be deleted. Are you sure you want to proceed?",
     "closing_sr": "Closing Requirement...",
-    "confirm_close_sr": "Selected requirement and all its children will be closed. Closed requirements cannot be reopened. Are you sure you want to proceed?",
+    "confirm_close_sr": "Selected requirement and all its children will be closed. Are you sure you want to proceed?",
     "lbl_fmt_required_for_auto_print": "Pre-printing requires specimen label format to be specified either at CP level or requirement level",
     "ctx_menu": {
       "view": "View",
