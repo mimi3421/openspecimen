@@ -894,9 +894,11 @@ public class QueryServiceImpl implements QueryService {
 	@PlusTransactional
 	public ResponseEvent<List<FacetDetail>> getFacetValues(RequestEvent<GetFacetValuesOp> req) {
 		try {
-			ensureReadRights();
-
 			GetFacetValuesOp op = req.getPayload();
+			if (!op.isDisableAccessChecks()) {
+				ensureReadRights();
+			}
+
 			List<FacetDetail> result = op.getFacets().stream()
 				.map(facet -> getFacetDetail(op.getCpId(), op.getCpGroupId(), facet, op.getRestriction(), op.getSearchTerm()))
 				.collect(Collectors.toList());

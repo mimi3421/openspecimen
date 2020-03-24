@@ -13,6 +13,8 @@ public class GetFacetValuesOp {
 
 	private String restriction;
 
+	private boolean disableAccessChecks;
+
 	public Long getCpId() {
 		return cpId;
 	}
@@ -51,5 +53,13 @@ public class GetFacetValuesOp {
 
 	public void setRestriction(String restriction) {
 		this.restriction = restriction;
+	}
+
+	public boolean isDisableAccessChecks() {
+		return disableAccessChecks;
+	}
+
+	public void setDisableAccessChecks(boolean disableAccessChecks) {
+		this.disableAccessChecks = disableAccessChecks;
 	}
 }

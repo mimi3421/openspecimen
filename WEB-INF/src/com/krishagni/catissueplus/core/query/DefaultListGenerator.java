@@ -67,6 +67,7 @@ public class DefaultListGenerator implements ListGenerator {
 		op.setFacets(Collections.singletonList(expr));
 		op.setSearchTerm(searchTerm);
 		op.setRestriction(getCriteria(cfg, null));
+		op.setDisableAccessChecks(true);
 
 		ResponseEvent<List<FacetDetail>> resp = querySvc.getFacetValues(new RequestEvent<>(op));
 		resp.throwErrorIfUnsuccessful();
