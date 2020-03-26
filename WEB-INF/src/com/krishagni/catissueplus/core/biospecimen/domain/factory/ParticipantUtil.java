@@ -51,6 +51,19 @@ public class ParticipantUtil {
 		return true;
 	}
 
+	public static boolean ensureUniqueEmailId(DaoFactory daoFactory, String emailId, OpenSpecimenException ose) {
+		if (StringUtils.isBlank(emailId)) {
+			return true;
+		}
+
+		if (daoFactory.getParticipantDao().getByEmailId(emailId) != null) {
+			ose.addError(ParticipantErrorCode.DUP_EMAIL_ID, emailId);
+			return false;
+		}
+
+		return true;
+	}
+
 	public static boolean ensureUniquePmis(DaoFactory daoFactory, List<PmiDetail> pmis, Participant participant, OpenSpecimenException ose) {
 		List<Long> participantIds = daoFactory.getParticipantDao().getParticipantIdsByPmis(pmis);
 		if (CollectionUtils.isEmpty(participantIds)) { 

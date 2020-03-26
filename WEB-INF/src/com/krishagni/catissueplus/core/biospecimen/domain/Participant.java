@@ -46,6 +46,8 @@ public class Participant extends BaseExtensionEntity {
 
 	private Date birthDate;
 
+	private String emailAddress;
+
 	private PermissibleValue gender;
 
 	private String sexGenotype;
@@ -112,6 +114,14 @@ public class Participant extends BaseExtensionEntity {
 
 	public void setBirthDate(Date birthDate) {
 		this.birthDate = birthDate;
+	}
+
+	public String getEmailAddress() {
+		return emailAddress;
+	}
+
+	public void setEmailAddress(String emailAddress) {
+		this.emailAddress = emailAddress;
 	}
 
 	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
@@ -241,6 +251,7 @@ public class Participant extends BaseExtensionEntity {
 		setMiddleName(participant.getMiddleName());
 		setUid(participant.getUid());
 		setEmpi(participant.getEmpi());
+		setEmailAddress(participant.getEmailAddress());
 		setActivityStatus(participant.getActivityStatus());
 		setSexGenotype(participant.getSexGenotype());
 		setVitalStatus(participant.getVitalStatus());
@@ -275,6 +286,7 @@ public class Participant extends BaseExtensionEntity {
 		disableMrns();		
 		setUid(Utility.getDisabledValue(getUid(), 50));
 		setEmpi(Utility.getDisabledValue(getEmpi(), 50));
+		setEmailAddress(Utility.getDisabledValue(getEmailAddress(), 255));
 		activityStatus = Status.ACTIVITY_STATUS_DISABLED.getStatus();
 		FormUtil.getInstance().deleteRecords(-1L, Collections.singletonList("CommonParticipant"), getId());
 	}

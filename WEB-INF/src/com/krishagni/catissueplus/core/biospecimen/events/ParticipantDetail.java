@@ -37,6 +37,8 @@ public class ParticipantDetail extends AttributeModifiedSupport {
 	
 	private String middleName;
 
+	private String emailAddress;
+
 	private Date birthDate;
 
 	private Date deathDate;
@@ -125,6 +127,14 @@ public class ParticipantDetail extends AttributeModifiedSupport {
 
 	public void setMiddleName(String middleName) {
 		this.middleName = middleName;
+	}
+
+	public String getEmailAddress() {
+		return emailAddress;
+	}
+
+	public void setEmailAddress(String emailAddress) {
+		this.emailAddress = emailAddress;
 	}
 
 	public Date getBirthDate() {
@@ -322,6 +332,7 @@ public class ParticipantDetail extends AttributeModifiedSupport {
 		result.setFirstName(excludePhi ? "###" : participant.getFirstName());
 		result.setLastName(excludePhi ? "###" : participant.getLastName());
 		result.setMiddleName(excludePhi ? "###" : participant.getMiddleName());
+		result.setEmailAddress(excludePhi ? "###" : participant.getEmailAddress());
 		result.setActivityStatus(participant.getActivityStatus());
 		result.setBirthDate(excludePhi ? null : participant.getBirthDate());
 		result.setDeathDate(excludePhi ? null : participant.getDeathDate());

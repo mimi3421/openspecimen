@@ -387,6 +387,16 @@
     </div>
 
     <div class="form-group">
+      <label class="col-xs-3 control-label">
+        <span translate="participant.email_address">Email Address</span>
+      </label>
+      <div class="col-xs-6">
+        <input type="text" ng-model="cpr.participant.emailAddress" class="form-control"
+          placeholder="{{'participant.email_address' | translate}}"/>
+      </div>
+    </div>
+
+    <div class="form-group">
       <label class="col-xs-3 control-label" translate="participant.birth_date">Birth Date</label>
       <div class="col-xs-6">
         <os-date-picker name="birthDate" date="cpr.participant.birthDate"

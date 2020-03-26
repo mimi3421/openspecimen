@@ -58,6 +58,7 @@ public class ParticipantAnonymizer implements Anonymizer<CollectionProtocolRegis
 		p.setDeathDate(null);
 		p.setEmpi(null);
 		p.setUid(null);
+		p.setEmailAddress(null);
 
 		p.getPmis().forEach(pmi -> pmi.setMedicalRecordNumber(null));
 		if (p.getExtension() != null) {

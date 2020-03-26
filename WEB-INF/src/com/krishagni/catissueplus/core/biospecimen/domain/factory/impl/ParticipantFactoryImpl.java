@@ -31,6 +31,7 @@ import com.krishagni.catissueplus.core.common.errors.ErrorType;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.util.ConfigUtil;
 import com.krishagni.catissueplus.core.common.util.Status;
+import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.catissueplus.core.de.domain.DeObject;
 
 
@@ -78,6 +79,7 @@ public class ParticipantFactoryImpl implements ParticipantFactory {
 		setUid(detail, participant, partial, ose);
 		setEmpi(detail, participant, partial, ose);
 		setName(detail, participant, partial, ose);
+		setEmailAddress(detail, participant, partial, ose);
 		setVitalStatus(detail, participant, partial, ose);
 		setBirthAndDeathDate(detail, participant, partial, ose);
 		setActivityStatus(detail, participant, partial, ose);
@@ -156,7 +158,17 @@ public class ParticipantFactoryImpl implements ParticipantFactory {
 		if (!partial || detail.isAttrModified("lastName")) {
 			participant.setLastName(detail.getLastName());
 		}		
-	}	
+	}
+
+	private void setEmailAddress(ParticipantDetail detail, Participant participant, boolean partial, OpenSpecimenException ose) {
+		if (!partial || detail.isAttrModified("emailAddress")) {
+			if (StringUtils.isNotBlank(detail.getEmailAddress()) && !Utility.isValidEmail(detail.getEmailAddress())) {
+				ose.addError(ParticipantErrorCode.INVALID_EMAIL_ID, detail.getEmailAddress());
+			}
+
+			participant.setEmailAddress(detail.getEmailAddress());
+		}
+	}
 
 	private void setVitalStatus(ParticipantDetail detail, Participant participant, boolean partial, OpenSpecimenException oce) {
 		if (partial && !detail.isAttrModified("vitalStatus")) {

@@ -26,7 +26,7 @@
         cpr.identifier as cpr_id, cpr.collection_protocol_id as cp_id,
         cpr.participant_id as participant_id, p.first_name as first_name,
         p.middle_name as middle_name, p.last_name as last_name,
-        p.birth_date as dob, p.social_security_number as ssn,
+        p.email_address as email_address, p.birth_date as dob, p.social_security_number as ssn,
         cpr.activity_status as activity_status, p.gender_id as gender_id,
         p.genotype as genotype, cpr.registration_date as registration_date,
         cpr.protocol_participant_id as ppid, p.vital_status_id as vital_status_id,

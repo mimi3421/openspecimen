@@ -165,4 +165,15 @@
       end;
     </sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="Participant email address">
+    <addColumn tableName="CATISSUE_PARTICIPANT">
+      <column name="EMAIL_ADDRESS" type="${text.type}(255)"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Email addresses are unique">
+    <addUniqueConstraint constraintName="PART_EMAIL_ADDR_UQ"
+      tableName="CATISSUE_PARTICIPANT" columnNames="EMAIL_ADDRESS"/>
+  </changeSet>
 </databaseChangeLog>

@@ -125,6 +125,7 @@
   <include file="db/7.0/schema.xml"/>
   <include file="db/7.0/seed-data.xml"/>
   <include file="db/7.0/config.xml"/>
+  <include file="db/7.0/audit.xml"/>
   <include file="db/7.0/migration.xml"/>
 
   <!-- Views are created always at the last -->

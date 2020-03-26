@@ -29,6 +29,11 @@
     </li>
 
     <li class="item">
+      <strong class="key key-sm" translate="participant.email_address">Email Address</strong>
+      <span class="value value-md"> {{cpr.participant.emailAddress | osNoValue}} </span>
+    </li>
+
+    <li class="item">
       <strong class="key key-sm" translate="participant.birth_date">Birth Date:</strong>
       <span class="value value-md"> {{cpr.participant.birthDate | date: global.dateFmt | osNoValue}} </span>
     </li>

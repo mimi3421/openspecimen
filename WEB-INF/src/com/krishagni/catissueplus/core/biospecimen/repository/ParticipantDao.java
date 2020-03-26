@@ -10,17 +10,19 @@ import com.krishagni.catissueplus.core.common.repository.Dao;
 
 public interface ParticipantDao extends Dao<Participant> {
 	
-	public Participant getByUid(String uid);
+	Participant getByUid(String uid);
 	
-	public Participant getByEmpi(String empi);
-	
-	public List<Participant> getByLastNameAndBirthDate(String lname, Date dob);
-	
-	public List<Participant> getByPmis(List<PmiDetail> pmis);
-	
-	public List<Long> getParticipantIdsByPmis(List<PmiDetail> pmis);
+	Participant getByEmpi(String empi);
 
-	public boolean isUidUnique(String uid);
+	Participant getByEmailId(String emailId);
+	
+	List<Participant> getByLastNameAndBirthDate(String lname, Date dob);
+	
+	List<Participant> getByPmis(List<PmiDetail> pmis);
+	
+	List<Long> getParticipantIdsByPmis(List<PmiDetail> pmis);
 
-	public boolean isPmiUnique(String siteName, String mrn);
+	boolean isUidUnique(String uid);
+
+	boolean isPmiUnique(String siteName, String mrn);
 }

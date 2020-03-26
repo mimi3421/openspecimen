@@ -42,6 +42,15 @@
       </textField>
     </row>
     <row>
+      <textField>
+        <name>emailAddress</name>
+        <udn>emailAddress</udn>
+        <caption>#getMessage("participant_email_address")</caption>
+        <column>EMAIL_ADDRESS</column>
+        <phi>true</phi>
+      </textField>
+    </row>
+    <row>
       <datePicker>
         <name>dateOfBirth</name>
         <udn>dateOfBirth</udn>
