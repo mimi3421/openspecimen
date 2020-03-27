@@ -258,6 +258,14 @@ public class CollectionProtocolRegistrationDaoImpl extends AbstractDao<Collectio
 		return rows.stream().collect(Collectors.toMap(row -> (String)row[0], row -> ((Number)row[1]).intValue()));
 	}
 
+	@Override
+	public List<CollectionProtocolRegistration> getByPpids(String cpShortTitle, List<String> ppids) {
+		return getCurrentSession().getNamedQuery(GET_BY_PPIDS)
+			.setParameter("cpShortTitle", cpShortTitle)
+			.setParameterList("ppids", ppids)
+			.list();
+	}
+
 	private Criteria getCprListQuery(CprListCriteria cprCrit) {
 		Criteria query = getSessionFactory().getCurrentSession()
 			.createCriteria(CollectionProtocolRegistration.class)
@@ -584,4 +592,6 @@ public class CollectionProtocolRegistrationDaoImpl extends AbstractDao<Collectio
 	private static final String GET_BY_CP_ID = FQN + ".getCprsByCpId";
 
 	private static final String GET_COUNTS_BY_SITE = FQN + ".getParticipantsCountBySite";
+
+	private static final String GET_BY_PPIDS = FQN + ".getByPpids";
 }

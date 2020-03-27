@@ -10,6 +10,8 @@ import com.krishagni.catissueplus.core.biospecimen.events.ConsentDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.CpEntityDeleteCriteria;
 import com.krishagni.catissueplus.core.biospecimen.events.FileDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.ParticipantRegistrationsList;
+import com.krishagni.catissueplus.core.biospecimen.events.PdeTokenDetail;
+import com.krishagni.catissueplus.core.biospecimen.events.PdeTokenGenDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.RegistrationQueryCriteria;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.VisitDetail;
@@ -53,5 +55,7 @@ public interface CollectionProtocolRegistrationService {
 	public ResponseEvent<ConsentDetail> saveConsents(RequestEvent<ConsentDetail> req);
 
 	public ResponseEvent<ConsentDetail> getConsents(RequestEvent<RegistrationQueryCriteria> req);
+
+	ResponseEvent<List<PdeTokenDetail>> generatePdeTokens(RequestEvent<PdeTokenGenDetail> req);
 }
 

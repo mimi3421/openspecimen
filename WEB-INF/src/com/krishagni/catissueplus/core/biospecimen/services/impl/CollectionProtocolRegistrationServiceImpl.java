@@ -9,6 +9,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +58,8 @@ import com.krishagni.catissueplus.core.biospecimen.events.MatchedParticipant;
 import com.krishagni.catissueplus.core.biospecimen.events.MatchedParticipantsList;
 import com.krishagni.catissueplus.core.biospecimen.events.ParticipantDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.ParticipantRegistrationsList;
+import com.krishagni.catissueplus.core.biospecimen.events.PdeTokenDetail;
+import com.krishagni.catissueplus.core.biospecimen.events.PdeTokenGenDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.PmiDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.RegistrationQueryCriteria;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenDetail;
@@ -69,6 +72,8 @@ import com.krishagni.catissueplus.core.biospecimen.repository.VisitsListCriteria
 import com.krishagni.catissueplus.core.biospecimen.services.Anonymizer;
 import com.krishagni.catissueplus.core.biospecimen.services.CollectionProtocolRegistrationService;
 import com.krishagni.catissueplus.core.biospecimen.services.ParticipantService;
+import com.krishagni.catissueplus.core.biospecimen.services.PdeTokenGenerator;
+import com.krishagni.catissueplus.core.biospecimen.services.PdeTokenGeneratorRegistry;
 import com.krishagni.catissueplus.core.biospecimen.services.SpecimenKitService;
 import com.krishagni.catissueplus.core.biospecimen.services.VisitService;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
@@ -84,6 +89,7 @@ import com.krishagni.catissueplus.core.common.service.ObjectAccessor;
 import com.krishagni.catissueplus.core.common.service.impl.ConfigurationServiceImpl;
 import com.krishagni.catissueplus.core.common.service.impl.EventPublisher;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
+import com.krishagni.catissueplus.core.common.util.EmailUtil;
 import com.krishagni.catissueplus.core.common.util.Status;
 import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.catissueplus.core.de.domain.DeObject;
@@ -113,6 +119,8 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 	private SpecimenKitService specimenKitSvc;
 
 	private ExportService exportSvc;
+
+	private PdeTokenGeneratorRegistry pdeTokenGeneratorRegistry;
 	
 	public void setDaoFactory(DaoFactory daoFactory) {
 		this.daoFactory = daoFactory;
@@ -152,6 +160,10 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 
 	public void setExportSvc(ExportService exportSvc) {
 		this.exportSvc = exportSvc;
+	}
+
+	public void setPdeTokenGeneratorRegistry(PdeTokenGeneratorRegistry pdeTokenGeneratorRegistry) {
+		this.pdeTokenGeneratorRegistry = pdeTokenGeneratorRegistry;
 	}
 
 	@Override
@@ -583,7 +595,36 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 			return ResponseEvent.serverError(e);
 		}
 	}
-	
+
+	@Override
+	@PlusTransactional
+	public ResponseEvent<List<PdeTokenDetail>> generatePdeTokens(RequestEvent<PdeTokenGenDetail> req) {
+		try {
+			PdeTokenGenDetail input = req.getPayload();
+			List<CollectionProtocolRegistration> cprs = getRegistrations(input.getCpShortTitle(), input.getPpids());
+			if (input.isNotifyByEmail()) {
+				ensureAllHaveEmailIds(cprs);
+			}
+
+			if (!AccessCtrlMgr.getInstance().isAccessRestrictedBasedOnMrn()) {
+				AccessCtrlMgr.getInstance().ensureUpdateCprRights(cprs.get(0));
+			} else {
+				cprs.forEach(reg -> AccessCtrlMgr.getInstance().ensureUpdateCprRights(reg));
+			}
+
+			Map<CollectionProtocolRegistration, List<PdeTokenDetail>> tokens = generateTokens(cprs, input.getForms());
+			if (input.isNotifyByEmail()) {
+				notifyTokensByEmail(tokens);
+			}
+
+			return ResponseEvent.response(tokens.values().stream().flatMap(List::stream).collect(Collectors.toList()));
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
+		} catch (Exception e) {
+			return ResponseEvent.serverError(e);
+		}
+	}
+
 	@Override
 	public String getObjectName() {
 		return CollectionProtocolRegistration.getEntityName();
@@ -1056,6 +1097,17 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 		return cpr;
 	}
 
+	private List<CollectionProtocolRegistration> getRegistrations(String cpShortTitle, List<String> ppids) {
+		List<CollectionProtocolRegistration> regs = daoFactory.getCprDao().getByPpids(cpShortTitle, ppids);
+		if (regs.size() != ppids.size()) {
+			List<String> notFoundPpids = new ArrayList<>(ppids);
+			regs.forEach(reg -> notFoundPpids.remove(reg.getPpid()));
+			throw OpenSpecimenException.userError(CprErrorCode.M_NOT_FOUND, notFoundPpids, notFoundPpids.size());
+		}
+
+		return regs;
+	}
+
 	private void checkDistributedSpecimens(List<SpecimenDetail> specimens) {
 		List<Long> specimenIds = getSpecimenIds(specimens);
 		if (CollectionUtils.isEmpty(specimenIds)) {
@@ -1213,6 +1265,63 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 		}
 
 		return cpId;
+	}
+
+	private void ensureAllHaveEmailIds(List<CollectionProtocolRegistration> cprs) {
+		List<String> noEmailIds = cprs.stream()
+			.filter(cpr -> StringUtils.isBlank(cpr.getParticipant().getEmailAddress()))
+			.map(CollectionProtocolRegistration::getPpid)
+			.collect(Collectors.toList());
+
+		if (!noEmailIds.isEmpty()) {
+			throw OpenSpecimenException.userError(CprErrorCode.NO_EMAIL_IDS, noEmailIds, noEmailIds.size());
+		}
+	}
+
+	private Map<CollectionProtocolRegistration, List<PdeTokenDetail>> generateTokens(
+		List<CollectionProtocolRegistration> cprs,
+		List<Map<String, Object>> forms) {
+
+		Map<CollectionProtocolRegistration, List<PdeTokenDetail>> tokens = new LinkedHashMap<>();
+		for (CollectionProtocolRegistration cpr : cprs) {
+			for (Map<String, Object> formDetail : forms) {
+				String type = (String) formDetail.get("type");
+				PdeTokenGenerator pdeTokenGenerator = pdeTokenGeneratorRegistry.get(type);
+				if (pdeTokenGenerator == null) {
+					throw OpenSpecimenException.userError(CprErrorCode.INVALID_FORM_TYPE, type);
+				}
+
+				PdeTokenDetail token = pdeTokenGenerator.generate(cpr, formDetail);
+				List<PdeTokenDetail> patientTokens = tokens.computeIfAbsent(cpr, (k) -> new ArrayList<>());
+				patientTokens.add(token);
+			}
+		}
+
+		return tokens;
+	}
+
+	private void notifyTokensByEmail(Map<CollectionProtocolRegistration, List<PdeTokenDetail>> tokens) {
+		tokens.forEach(
+			(cpr, patientTokens) -> {
+				Map<String, Object> props = new HashMap<>();
+
+				String name = cpr.getParticipant().formattedName();
+				if (StringUtils.isBlank(name)) {
+					name = cpr.getPpid();
+				}
+
+				props.put("participantName", name);
+				props.put("cpr", cpr);
+				props.put("tokens", patientTokens);
+				props.put("cpShortTitle", cpr.getCollectionProtocol().getShortTitle());
+				props.put("$subject", new String[] { cpr.getCollectionProtocol().getShortTitle(), cpr.getPpid() });
+				EmailUtil.getInstance().sendEmail(
+					"pde_links",
+					new String[] { cpr.getParticipant().getEmailAddress() },
+					null,
+					props);
+			}
+		);
 	}
 
 	private abstract class AbstractCprsGenerator implements Function<ExportJob, List<? extends Object>> {

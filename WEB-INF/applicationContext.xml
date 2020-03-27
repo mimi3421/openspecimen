@@ -264,6 +264,8 @@
     <property name="formSvc" ref="formSvc"/>
   </bean>
 
+  <bean id="pdeTokenGeneratorRegistry" class="com.krishagni.catissueplus.core.biospecimen.services.impl.DefaultPdeTokenGeneratorRegistry"/>
+
   <bean id="cprSvc" class="com.krishagni.catissueplus.core.biospecimen.services.impl.CollectionProtocolRegistrationServiceImpl">
     <property name="daoFactory" ref="biospecimenDaoFactory"/>
     <property name="cprFactory" ref="cprFactory"/>
@@ -275,6 +277,7 @@
     <property name="anonymizer" ref="participantAnonymizer"/>
     <property name="specimenKitSvc" ref="specimenKitSvc"/>
     <property name="exportSvc" ref="exportSvc"/>
+    <property name="pdeTokenGeneratorRegistry" ref="pdeTokenGeneratorRegistry"/>
   </bean>
   
   <bean id="ppidTokensRegistrar" class="com.krishagni.catissueplus.core.common.domain.DefaultLabelTmplTokenRegistrar">
@@ -452,6 +455,7 @@
     <property name="deDaoFactory" ref="deDaoFactory"/>
     <property name="exportSvc" ref="exportSvc"/>
     <property name="taskManager" ref="scheduledTaskMgr"/>
+    <property name="pdeTokenGeneratorRegistry" ref="pdeTokenGeneratorRegistry"/>
     <property name="ctxtProcs">
       <map>
         <entry key="ParticipantExtension">
