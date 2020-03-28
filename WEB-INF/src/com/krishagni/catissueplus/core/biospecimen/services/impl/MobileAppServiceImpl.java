@@ -1545,14 +1545,14 @@ public class MobileAppServiceImpl implements MobileAppService, InitializingBean 
 
 	private static final String GET_RECORDS_SQL =
 		"select" +
-		"  re.record_id, user.identifier as user_id, user.first_name, user.last_name, " +
+		"  re.record_id, u.identifier as user_id, u.first_name, u.last_name, " +
 		"  re.update_time, fc.identifier as form_ctxt_id, fc.entity_type, " +
 		"  f.identifier as form_id, f.caption " +
 		"from " +
 		"  catissue_form_record_entry re " +
 		"  inner join catissue_form_context fc on fc.identifier = re.form_ctxt_id " +
 		"  inner join dyextn_containers f on f.identifier = fc.container_id " +
-		"  inner join catissue_user user on user.identifier = re.updated_by " +
+		"  inner join catissue_user u on u.identifier = re.updated_by " +
 		"where " +
 		"  re.activity_status = 'ACTIVE' and " +
 		"  fc.deleted_on is null and " +
