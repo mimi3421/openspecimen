@@ -282,6 +282,7 @@ public class CollectionProtocolRegistrationDaoImpl extends AbstractDao<Collectio
 		addDobCondition(query, cprCrit);
 		addSpecimenCondition(query, cprCrit);
 		addSiteCpsCond(query, cprCrit);
+		addPpidsCond(query, cprCrit);
 		return query;		
 	}
 
@@ -373,6 +374,12 @@ public class CollectionProtocolRegistrationDaoImpl extends AbstractDao<Collectio
 					.add(Restrictions.ilike("specimen.barcode", crit.specimen(), MatchMode.ANYWHERE)))
 			.add(Restrictions.ne("specimen.activityStatus", "Disabled"))
 			.add(Restrictions.ne("visit.activityStatus", "Disabled"));
+	}
+
+	private void addPpidsCond(Criteria query, CprListCriteria crit) {
+		if (CollectionUtils.isNotEmpty(crit.ppids())) {
+			query.add(Restrictions.in("ppid", crit.ppids()));
+		}
 	}
 
 	private void addSiteCpsCond(Criteria query, CprListCriteria crit) {
@@ -484,8 +491,10 @@ public class CollectionProtocolRegistrationDaoImpl extends AbstractDao<Collectio
 			projs.add(Projections.property("participant.firstName"))
 				.add(Projections.property("participant.lastName"))
 				.add(Projections.property("participant.empi"))
-				.add(Projections.property("participant.uid"));
+				.add(Projections.property("participant.uid"))
+				.add(Projections.property("participant.emailAddress"));
 		}
+
 		return Projections.distinct(projs);
 	}
 	
@@ -507,6 +516,7 @@ public class CollectionProtocolRegistrationDaoImpl extends AbstractDao<Collectio
 			participant.setLastName((String) row[idx++]);
 			participant.setEmpi((String) row[idx++]);
 			participant.setUid((String) row[idx++]);
+			participant.setEmailAddress((String) row[idx++]);
 		}
 		
 		return cpr;

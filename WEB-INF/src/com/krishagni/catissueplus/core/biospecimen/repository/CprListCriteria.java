@@ -170,6 +170,7 @@ public class CprListCriteria extends AbstractListCriteria<CprListCriteria> {
 		return ppids;
 	}
 
+	@JsonProperty("ppids")
 	public CprListCriteria ppids(List<String> ppids) {
 		this.ppids = ppids;
 		return self();

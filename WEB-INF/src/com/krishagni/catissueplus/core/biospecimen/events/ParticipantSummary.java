@@ -14,6 +14,8 @@ public class ParticipantSummary {
 
 	private String uid;
 
+	private String emailAddress;
+
 	public Long getId() {
 		return id;
 	}
@@ -60,5 +62,13 @@ public class ParticipantSummary {
 
 	public void setUid(String uid) {
 		this.uid = uid;
+	}
+
+	public String getEmailAddress() {
+		return emailAddress;
+	}
+
+	public void setEmailAddress(String emailAddress) {
+		this.emailAddress = emailAddress;
 	}
 }

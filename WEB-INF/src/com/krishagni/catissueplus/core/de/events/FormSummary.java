@@ -33,6 +33,8 @@ public class FormSummary {
 
 	private boolean multipleRecords;
 
+	private Long formCtxtId;
+
 	public Long getFormId() {
 		return formId;
 	}
@@ -111,6 +113,14 @@ public class FormSummary {
 
 	public void setMultipleRecords(boolean multipleRecords) {
 		this.multipleRecords = multipleRecords;
+	}
+
+	public Long getFormCtxtId() {
+		return formCtxtId;
+	}
+
+	public void setFormCtxtId(Long formCtxtId) {
+		this.formCtxtId = formCtxtId;
 	}
 
 	public static FormSummary from(Form form) {
