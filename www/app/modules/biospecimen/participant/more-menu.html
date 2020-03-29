@@ -67,6 +67,13 @@
       </a>
     </li>
 
+    <li ng-if="cpViewCtx.participantUpdateAllowed || cpViewCtx.consentsUpdateAllowed">
+      <a ui-sref="email-forms">
+        <span class="fa fa-envelope-o"></span>
+        <span translate="participant.email_forms">Email Forms</span>
+      </a>
+    </li>
+
     <os-plugin-hooks view-name="'participant-list'" sec-name="'more-menu'"></os-plugin-hooks>
   </ul>
 </div>

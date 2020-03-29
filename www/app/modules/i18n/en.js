@@ -534,6 +534,13 @@
     "participant_registered": "{{numOfParticipants}} participants registered successfully.",
     "spmn_kit_created": "Successfully created specimen kit for {{numOfParticipants}} newly registered participants.",
 
+    "email_forms": "Email Forms",
+    "select_participants": "Select Participants",
+    "no_participants_selected": "Add at least one participant having email address.",
+    "select_forms": "Select Forms",
+    "no_forms_selected": "No forms have been selected.",
+    "forms_emailed": "Form links have been emailed to the selected participants.",
+
     "consent": {
       "signed_form": "Signed Consent Form",
       "deleting_form": "Deleting Signed Consent Form",

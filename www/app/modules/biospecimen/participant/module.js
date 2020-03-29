@@ -71,6 +71,13 @@ angular.module('os.biospecimen.participant',
           },
 
           cpViewCtx: function(cp, currentUser, authInit, AuthorizationService) {
+            var participantUpdateAllowed = AuthorizationService.isAllowed({
+              resource: 'ParticipantPhi',
+              operations: ['Update'],
+              cp: cp.shortTitle,
+              sites: cp.cpSites.map(function(cpSite) { return cpSite.siteName; })
+            });
+
             var participantEximAllowed = AuthorizationService.isAllowed({
               resource: 'ParticipantPhi',
               operations: ['Export Import'],
@@ -103,6 +110,13 @@ angular.module('os.biospecimen.participant',
               sites: cp.cpSites.map(function(cpSite) { return cpSite.siteName; })
             });
 
+            var consentsUpdateAllowed = AuthorizationService.isAllowed({
+              resources: ['Consent'],
+              operations: ['Update'],
+              cp: cp.shortTitle,
+              sites: cp.cpSites.map(function(cpSite) { return cpSite.siteName; })
+            });
+
             var consentsEximAllowed = AuthorizationService.isAllowed({
               resource: 'Consent',
               operations: ['Export Import'],
@@ -119,9 +133,11 @@ angular.module('os.biospecimen.participant',
               visitSpecimenImportAllowed: visitSpmnEximAllowed,
               participantExportAllowed: participantEximAllowed,
               visitSpecimenExportAllowed: visitSpmnEximAllowed,
+              participantUpdateAllowed: participantUpdateAllowed,
               spmnReadAllowed: spmnReadAllowed,
               allSpmnEximAllowed: allSpmnEximAllowed,
               consentsReadAllowed: consentsReadAllowed,
+              consentsUpdateAllowed: consentsUpdateAllowed,
               consentsEximAllowed: consentsEximAllowed,
               queryReadAllowed: queryReadAllowed
             }
@@ -399,6 +415,29 @@ angular.module('os.biospecimen.participant',
 
           exportDetail: function(cp, allowedEntityTypes, forms, ExportUtil) {
             return ExportUtil.getExportDetail(cp, allowedEntityTypes, forms);
+          }
+        },
+        parent: 'cp-view'
+      })
+      .state('email-forms', {
+        url: '/email-forms',
+        templateUrl: 'modules/biospecimen/participant/email-forms.html',
+        controller: 'EmailFormsCtrl',
+        resolve: {
+          forms: function(cp, cpViewCtx) {
+            if (!cpViewCtx.participantUpdateAllowed) {
+              return [];
+            }
+
+            return cp.getForms(['CommonParticipant', 'Participant']);
+          },
+
+          documents: function($injector, cp, cpViewCtx) {
+            if (!$injector.has('ecDocument') || !cpViewCtx.consentsUpdateAllowed) {
+              return [];
+            }
+
+            return $injector.get('ecDocument').query({cpId: cp.id, maxResults: 1000});
           }
         },
         parent: 'cp-view'
