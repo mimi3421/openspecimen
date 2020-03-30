@@ -11,9 +11,9 @@
                   <br><br>
                   We would like to thank you for participating in the study <b>$cpShortTitle</b>.
                   #if ($tokens.size() > 1)
-                    Please click on the below links to answer the questionnaires.
+                    Please click on the below links to fill up the forms.
                   #else
-                    Please click on the below link to answer the questionnaire.
+                    Please click on the below link to fill up the form.
                   #end
                   <br><br>
                 </p>
