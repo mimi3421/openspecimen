@@ -36,4 +36,13 @@ public class EmailUtil {
 
 		return emailSvc.sendEmail(emailTmplKey, to, attachments, props);
 	}
+
+	public boolean sendEmail(String subject, String body, String[] to, Map<String, Object> props) {
+		if (emailSvc == null) {
+			logger.warn("Email subsystem not yet initialised. Couldn't send email: " + subject);
+			return false;
+		}
+
+		return emailSvc.sendEmail(subject, body, to, props);
+	}
 }

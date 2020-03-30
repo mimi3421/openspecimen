@@ -258,7 +258,6 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 		}
 
 		boolean emailEnabled = cfgSvc.getBoolSetting("notifications", "email_" + tmplKey, true);
-
 		if (!emailEnabled) {
 			return false;
 		}
@@ -299,8 +298,14 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 		return sendEmail(email, props);
 	}
 
-	private String getSubject(String subjKey, Object[] subjParams) {
-		return getSubjectPrefix() + MessageUtil.getInstance().getMessage(subjKey.toLowerCase() + "_subj", subjParams);
+	private String getSubject(String subject, Object[] params) {
+		String key = subject.toLowerCase() + "_subj";
+		String message = MessageUtil.getInstance().getMessage(key, "not_found_subj", params);
+		if (!message.equals("not_found_subj")) {
+			subject = message;
+		}
+
+		return getSubjectPrefix() + subject;
 	}
 
 	private String getSubjectPrefix() {
