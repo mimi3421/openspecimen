@@ -7,4 +7,6 @@ import com.krishagni.catissueplus.core.biospecimen.events.PdeTokenDetail;
 
 public interface PdeTokenGenerator {
 	PdeTokenDetail generate(CollectionProtocolRegistration cpr, Map<String, Object> detail);
+
+	PdeTokenDetail getToken(CollectionProtocolRegistration cpr, Long tokenId);
 }

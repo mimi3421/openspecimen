@@ -1317,7 +1317,9 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 				props.put("cpr", cpr);
 				props.put("tokens", patientTokens);
 				props.put("cpShortTitle", cpr.getCollectionProtocol().getShortTitle());
-				props.put("$subject", new String[] { cpr.getCollectionProtocol().getShortTitle(), cpr.getPpid() });
+				props.put("reminder", false);
+				props.put("expiryTime", Utility.getDateTimeString(patientTokens.get(0).getExpiryTime()));
+				props.put("$subject", new Object[] {1, cpr.getCollectionProtocol().getShortTitle(), cpr.getPpid() });
 				EmailUtil.getInstance().sendEmail(
 					"pde_links",
 					new String[] { cpr.getParticipant().getEmailAddress() },

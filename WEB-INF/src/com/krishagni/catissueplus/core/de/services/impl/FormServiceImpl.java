@@ -1726,13 +1726,22 @@ public class FormServiceImpl implements FormService, InitializingBean {
 			}
 
 			FormDataEntryToken token = createDataEntryToken(formCtxt, cpr);
+			return tokenDetail(cpr, token);
+		}
 
+		@Override
+		public PdeTokenDetail getToken(CollectionProtocolRegistration cpr, Long tokenId) {
+			FormDataEntryToken token = deDaoFactory.getFormDataEntryTokenDao().getById(tokenId);
+			return tokenDetail(cpr, token);
+		}
+
+		private PdeTokenDetail tokenDetail(CollectionProtocolRegistration cpr, FormDataEntryToken token) {
 			PdeTokenDetail result = new PdeTokenDetail();
 			result.setCprId(cpr.getId());
 			result.setCpShortTitle(cpr.getCpShortTitle());
 			result.setPpid(cpr.getPpid());
 			result.setType(PDE_FORM_TYPE);
-			result.setFormCaption(formCtxt.getForm().getCaption());
+			result.setFormCaption(token.getFormCtxt().getForm().getCaption());
 			result.setTokenId(token.getId());
 			result.setToken(token.getToken());
 			result.setDataEntryLink(ConfigUtil.getInstance().getAppUrl() + "/#/patient-data-entry?token=" + token.getToken());

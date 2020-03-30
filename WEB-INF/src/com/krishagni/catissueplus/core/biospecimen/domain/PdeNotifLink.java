@@ -40,4 +40,8 @@ public class PdeNotifLink extends BaseEntity {
 	public void setStatus(String status) {
 		this.status = status;
 	}
+
+	public boolean isPending() {
+		return "PENDING".equals(status);
+	}
 }

@@ -10,12 +10,16 @@
                   Hello $participantName,
                   <br><br>
                   We would like to thank you for participating in the study <b>$cpShortTitle</b>.
-                  #if ($tokens.size() > 1)
-                    Please click on the below links to fill up the forms.
+
+                  #if ($reminder)
+                    This is a gentle reminder to fill up the below #if($tokens.size() > 1)forms#{else}form#end:
                   #else
-                    Please click on the below link to fill up the form.
+                    #if ($tokens.size() > 1)
+                      Click on the below links to fill up the forms.
+                    #else
+                      Click on the below link to fill up the form.
+                    #end
                   #end
-                  <br><br>
                 </p>
               </td>
             </tr>
@@ -30,6 +34,11 @@
                     </tr>
                   #end
                 </table>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>The links will be active until $expiryTime.</p>
               </td>
             </tr>
             <tr>
