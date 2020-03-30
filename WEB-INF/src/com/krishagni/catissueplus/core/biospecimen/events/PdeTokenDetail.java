@@ -1,5 +1,7 @@
 package com.krishagni.catissueplus.core.biospecimen.events;
 
+import java.util.Date;
+
 public class PdeTokenDetail {
 	private String cpShortTitle;
 
@@ -11,9 +13,13 @@ public class PdeTokenDetail {
 
 	private String formCaption;
 
+	private Long tokenId;
+
 	private String token;
 
 	private String dataEntryLink;
+
+	private Date expiryTime;
 
 	public String getCpShortTitle() {
 		return cpShortTitle;
@@ -55,6 +61,14 @@ public class PdeTokenDetail {
 		this.formCaption = formCaption;
 	}
 
+	public Long getTokenId() {
+		return tokenId;
+	}
+
+	public void setTokenId(Long tokenId) {
+		this.tokenId = tokenId;
+	}
+
 	public String getToken() {
 		return token;
 	}
@@ -69,5 +83,13 @@ public class PdeTokenDetail {
 
 	public void setDataEntryLink(String dataEntryLink) {
 		this.dataEntryLink = dataEntryLink;
+	}
+
+	public Date getExpiryTime() {
+		return expiryTime;
+	}
+
+	public void setExpiryTime(Date expiryTime) {
+		this.expiryTime = expiryTime;
 	}
 }

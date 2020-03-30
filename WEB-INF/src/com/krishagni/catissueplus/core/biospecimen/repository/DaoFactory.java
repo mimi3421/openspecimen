@@ -125,4 +125,6 @@ public interface DaoFactory {
 	MobileUploadJobDao getMobileUploadJobDao();
 
 	StarredItemDao getStarredItemDao();
+
+	PdeNotifDao getPdeNotifDao();
 } 

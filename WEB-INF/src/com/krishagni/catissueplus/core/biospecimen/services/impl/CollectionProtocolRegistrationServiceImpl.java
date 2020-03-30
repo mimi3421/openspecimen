@@ -38,6 +38,8 @@ import com.krishagni.catissueplus.core.biospecimen.domain.ConsentResponses;
 import com.krishagni.catissueplus.core.biospecimen.domain.ConsentTierResponse;
 import com.krishagni.catissueplus.core.biospecimen.domain.CprSavedEvent;
 import com.krishagni.catissueplus.core.biospecimen.domain.Participant;
+import com.krishagni.catissueplus.core.biospecimen.domain.PdeNotif;
+import com.krishagni.catissueplus.core.biospecimen.domain.PdeNotifLink;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenRequirement;
 import com.krishagni.catissueplus.core.biospecimen.domain.Visit;
@@ -1303,13 +1305,14 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 	private void notifyTokensByEmail(Map<CollectionProtocolRegistration, List<PdeTokenDetail>> tokens) {
 		tokens.forEach(
 			(cpr, patientTokens) -> {
-				Map<String, Object> props = new HashMap<>();
+				savePdeNotif(cpr, patientTokens);
 
 				String name = cpr.getParticipant().formattedName();
 				if (StringUtils.isBlank(name)) {
 					name = cpr.getPpid();
 				}
 
+				Map<String, Object> props = new HashMap<>();
 				props.put("participantName", name);
 				props.put("cpr", cpr);
 				props.put("tokens", patientTokens);
@@ -1322,6 +1325,23 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 					props);
 			}
 		);
+	}
+
+	private void savePdeNotif(CollectionProtocolRegistration cpr, List<PdeTokenDetail> tokens) {
+		PdeNotif notif = new PdeNotif();
+		notif.setCpr(cpr);
+
+		for (PdeTokenDetail token : tokens) {
+			PdeNotifLink link = new PdeNotifLink();
+			link.setNotif(notif);
+			link.setType(token.getType());
+			link.setTokenId(token.getTokenId());
+			link.setStatus("PENDING");
+			notif.getLinks().add(link);
+			notif.setExpiryTime(token.getExpiryTime());
+		}
+
+		daoFactory.getPdeNotifDao().saveOrUpdate(notif);
 	}
 
 	private abstract class AbstractCprsGenerator implements Function<ExportJob, List<? extends Object>> {

@@ -136,6 +136,8 @@ public class FormServiceImpl implements FormService, InitializingBean {
 
 	private static Map<String, Function<Long, Boolean>> entityAccessCheckers = new HashMap<>();
 
+	private static final String PDE_FORM_TYPE = "deForms";
+
 	static {
 		staticExtendedForms.add(PARTICIPANT_FORM);
 		staticExtendedForms.add(SCG_FORM);
@@ -220,7 +222,7 @@ public class FormServiceImpl implements FormService, InitializingBean {
 			60
 		);
 
-		pdeTokenGeneratorRegistry.register("deForms", new PatientDataEntryTokenGenerator());
+		pdeTokenGeneratorRegistry.register(PDE_FORM_TYPE, new PatientDataEntryTokenGenerator());
 	}
 
 	@Override
@@ -1133,6 +1135,7 @@ public class FormServiceImpl implements FormService, InitializingBean {
 		if (fdeToken != null) {
 			fdeToken.setCompletionTime(Calendar.getInstance().getTime());
 			fdeToken.setStatus(FormDataEntryToken.Status.COMPLETED);
+			daoFactory.getPdeNotifDao().updateLinkStatus(PDE_FORM_TYPE, fdeToken.getId(), FormDataEntryToken.Status.COMPLETED.name());
 		}
 
 		if (collOrRecvEvent != null) {
@@ -1728,9 +1731,12 @@ public class FormServiceImpl implements FormService, InitializingBean {
 			result.setCprId(cpr.getId());
 			result.setCpShortTitle(cpr.getCpShortTitle());
 			result.setPpid(cpr.getPpid());
+			result.setType(PDE_FORM_TYPE);
 			result.setFormCaption(formCtxt.getForm().getCaption());
+			result.setTokenId(token.getId());
 			result.setToken(token.getToken());
 			result.setDataEntryLink(ConfigUtil.getInstance().getAppUrl() + "/#/patient-data-entry?token=" + token.getToken());
+			result.setExpiryTime(token.getExpiryTime());
 			return result;
 		}
 	}

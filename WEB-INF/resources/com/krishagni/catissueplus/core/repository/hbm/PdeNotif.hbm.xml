@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-mapping PUBLIC
+  "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping auto-import="false">
+  <class name="com.krishagni.catissueplus.core.biospecimen.domain.PdeNotif" table="OS_PDE_NOTIFS">
+    <id name="id" column="IDENTIFIER">
+      <generator class="native">
+        <param name="sequence">OS_PDE_NOTIF_SEQ</param>
+      </generator>
+    </id>
+
+    <many-to-one name="cpr" column="CPR_ID"/>
+
+    <many-to-one name="creator" column="CREATED_BY"/>
+
+    <property name="creationTime" column="CREATION_TIME"/>
+
+    <property name="expiryTime" column="EXPIRY_TIME"/>
+
+    <set name="links" table="OS_PDE_NOTIF_LINKS" inverse="true" cascade="all-delete-orphan">
+      <key column="NOTIF_ID"/>
+      <one-to-many class="com.krishagni.catissueplus.core.biospecimen.domain.PdeNotifLink"/>
+    </set>
+
+    <sql-query name="updateLinkStatus">
+      update
+        os_pde_notif_links
+      set
+        status = :status
+      where
+        form_type = :formType and
+        token_id = :tokenId
+    </sql-query>
+  </class>
+</hibernate-mapping>
