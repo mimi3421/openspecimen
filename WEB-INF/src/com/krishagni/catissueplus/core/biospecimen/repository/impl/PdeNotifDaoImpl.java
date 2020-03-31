@@ -3,6 +3,8 @@ package com.krishagni.catissueplus.core.biospecimen.repository.impl;
 import java.util.Calendar;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Criteria;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
@@ -11,6 +13,7 @@ import org.hibernate.criterion.Subqueries;
 
 import com.krishagni.catissueplus.core.biospecimen.domain.PdeNotif;
 import com.krishagni.catissueplus.core.biospecimen.repository.PdeNotifDao;
+import com.krishagni.catissueplus.core.biospecimen.repository.PdeNotifListCriteria;
 import com.krishagni.catissueplus.core.common.repository.AbstractDao;
 
 public class PdeNotifDaoImpl extends AbstractDao<PdeNotif> implements PdeNotifDao {
@@ -49,6 +52,60 @@ public class PdeNotifDaoImpl extends AbstractDao<PdeNotif> implements PdeNotifDa
 			.add(Restrictions.gt("id", lastId))
 			.addOrder(Order.asc("id"))
 			.setMaxResults(maxResults)
+			.list();
+	}
+
+	@Override
+	public List<PdeNotif> getNotifs(PdeNotifListCriteria crit) {
+		Criteria query = getCurrentSession().createCriteria(PdeNotif.class, "pn")
+			.createAlias("pn.links", "link");
+
+		boolean cprAliasAdded = false;
+		if (StringUtils.isNotBlank(crit.ppid())) {
+			query.createAlias("pn.cpr", "cpr")
+				.add(Restrictions.ilike("cpr.ppid", crit.ppid()));
+			cprAliasAdded = true;
+		}
+
+		if (crit.cpId() != null) {
+			if (!cprAliasAdded) {
+				query.createAlias("pn.cpr", "cpr");
+				cprAliasAdded = true;
+			}
+
+			query.createAlias("cpr.collectionProtocol", "cp")
+				.add(Restrictions.eq("cp.id", crit.cpId()));
+		}
+
+		if (crit.minCreationTime() != null) {
+			query.add(Restrictions.ge("pn.creationTime", crit.minCreationTime()));
+		}
+
+		if (crit.maxCreationTime() != null) {
+			query.add(Restrictions.le("pn.creationTime", crit.maxCreationTime()));
+		}
+
+		if (StringUtils.isNotBlank(crit.status())) {
+			switch (crit.status().toLowerCase()) {
+				case "completed":
+					query.add(Restrictions.eq("link.status", "COMPLETED"));
+					break;
+
+				case "pending":
+					query.add(Restrictions.eq("link.status", "PENDING"))
+						.add(Restrictions.gt("pn.expiryTime", Calendar.getInstance().getTime()));
+					break;
+
+				case "expired":
+					query.add(Restrictions.eq("link.status", "PENDING"))
+						.add(Restrictions.le("pn.expiryTime", Calendar.getInstance().getTime()));
+					break;
+			}
+		}
+
+		return query.addOrder(Order.desc("pn.creationTime"))
+			.setFirstResult(crit.startAt())
+			.setMaxResults(crit.maxResults())
 			.list();
 	}
 

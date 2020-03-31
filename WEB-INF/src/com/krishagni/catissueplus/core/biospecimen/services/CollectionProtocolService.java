@@ -24,10 +24,12 @@ import com.krishagni.catissueplus.core.biospecimen.events.CpWorkflowCfgDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.CprSummary;
 import com.krishagni.catissueplus.core.biospecimen.events.FileDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.MergeCpDetail;
+import com.krishagni.catissueplus.core.biospecimen.events.PdeTokenDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenPoolRequirements;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenRequirementDetail;
 import com.krishagni.catissueplus.core.biospecimen.repository.CpListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.repository.CprListCriteria;
+import com.krishagni.catissueplus.core.biospecimen.repository.PdeNotifListCriteria;
 import com.krishagni.catissueplus.core.common.Tuple;
 import com.krishagni.catissueplus.core.common.events.BulkDeleteEntityOp;
 import com.krishagni.catissueplus.core.common.events.BulkDeleteEntityResp;
@@ -119,6 +121,10 @@ public interface CollectionProtocolService {
 	public ResponseEvent<SpecimenRequirementDetail> deleteSpecimenRequirement(RequestEvent<Long> req);
 
 	public ResponseEvent<Integer> getSrSpecimensCount(RequestEvent<Long> req);
+
+	//
+	// PDE email links
+	ResponseEvent<List<PdeTokenDetail>> getPdeLinks(RequestEvent<PdeNotifListCriteria> req);
 
 	//
 	// CP reports API

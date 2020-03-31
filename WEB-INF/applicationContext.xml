@@ -208,6 +208,7 @@
     <property name="rptSettingsFactory" ref="reportSettingsFact"/>
     <property name="sessionFactory" ref="sessionFactory"/>
     <property name="starredItemSvc" ref="starredItemSvc"/>
+    <property name="pdeTokenGeneratorRegistry" ref="pdeTokenGeneratorRegistry"/>
   </bean>
 
   <bean id="cpGroupFactory" class="com.krishagni.catissueplus.core.biospecimen.domain.factory.impl.CollectionProtocolGroupFactoryImpl">
@@ -454,7 +455,6 @@
     <property name="daoFactory" ref="biospecimenDaoFactory"/>
     <property name="deDaoFactory" ref="deDaoFactory"/>
     <property name="exportSvc" ref="exportSvc"/>
-    <property name="taskManager" ref="scheduledTaskMgr"/>
     <property name="pdeTokenGeneratorRegistry" ref="pdeTokenGeneratorRegistry"/>
     <property name="ctxtProcs">
       <map>

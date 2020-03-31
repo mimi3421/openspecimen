@@ -41,14 +41,30 @@
         fdet.token = :token
     </query>
 
-    <query name="deleteExpiredTokens">
-      <![CDATA[
-        delete from
-          com.krishagni.catissueplus.core.de.domain.FormDataEntryToken fdeToken
-        where
-          fdeToken.status = 'PENDING' and
-          fdeToken.expiryTime < :expireTime
-      ]]>
-    </query>
+    <sql-query name="getTokensById">
+      <return-scalar column="short_title" type="string"/>
+      <return-scalar column="protocol_participant_id" type="string"/>
+      <return-scalar column="cprId" type="long"/>
+      <return-scalar column="caption" type="string"/>
+      <return-scalar column="tokenId" type="long"/>
+      <return-scalar column="token" type="string"/>
+      <return-scalar column="creation_time" type="timestamp"/>
+      <return-scalar column="expiry_time" type="timestamp"/>
+      <return-scalar column="completion_time" type="timestamp"/>
+      <return-scalar column="status" type="string"/>
+
+      select
+        cp.short_title, cpr.protocol_participant_id, cpr.identifier as cprId,
+        f.caption, t.identifier as tokenId, t.token, t.creation_time, t.expiry_time,
+        t.completion_time, t.status
+      from
+        os_form_data_entry_tokens t
+        inner join catissue_coll_prot_reg cpr on cpr.identifier = t.object_id
+        inner join catissue_collection_protocol cp on cp.identifier = cpr.collection_protocol_id
+        inner join catissue_form_context fc on fc.identifier = t.form_ctxt_id
+        inner join dyextn_containers f on f.identifier = fc.container_id
+      where
+        t.identifier in (:tokenIds)
+    </sql-query>
   </class>
 </hibernate-mapping>

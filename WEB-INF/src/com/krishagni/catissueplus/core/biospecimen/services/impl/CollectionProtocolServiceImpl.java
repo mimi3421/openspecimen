@@ -53,6 +53,8 @@ import com.krishagni.catissueplus.core.biospecimen.domain.CpReportSettings;
 import com.krishagni.catissueplus.core.biospecimen.domain.CpWorkflowConfig;
 import com.krishagni.catissueplus.core.biospecimen.domain.CpWorkflowConfig.Workflow;
 import com.krishagni.catissueplus.core.biospecimen.domain.DerivedSpecimenRequirement;
+import com.krishagni.catissueplus.core.biospecimen.domain.PdeNotif;
+import com.krishagni.catissueplus.core.biospecimen.domain.PdeNotifLink;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenRequirement;
 import com.krishagni.catissueplus.core.biospecimen.domain.Visit;
@@ -79,6 +81,7 @@ import com.krishagni.catissueplus.core.biospecimen.events.CpWorkflowCfgDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.CprSummary;
 import com.krishagni.catissueplus.core.biospecimen.events.FileDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.MergeCpDetail;
+import com.krishagni.catissueplus.core.biospecimen.events.PdeTokenDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenPoolRequirements;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenRequirementDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.WorkflowDetail;
@@ -86,8 +89,11 @@ import com.krishagni.catissueplus.core.biospecimen.repository.CollectionProtocol
 import com.krishagni.catissueplus.core.biospecimen.repository.CpListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.repository.CprListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
+import com.krishagni.catissueplus.core.biospecimen.repository.PdeNotifListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.repository.impl.BiospecimenDaoHelper;
 import com.krishagni.catissueplus.core.biospecimen.services.CollectionProtocolService;
+import com.krishagni.catissueplus.core.biospecimen.services.PdeTokenGenerator;
+import com.krishagni.catissueplus.core.biospecimen.services.PdeTokenGeneratorRegistry;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.Tuple;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
@@ -142,6 +148,8 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 
 	private StarredItemService starredItemSvc;
 
+	private PdeTokenGeneratorRegistry pdeTokenGeneratorRegistry;
+
 	public void setTaskExecutor(ThreadPoolTaskExecutor taskExecutor) {
 		this.taskExecutor = taskExecutor;
 	}
@@ -180,6 +188,10 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 
 	public void setStarredItemSvc(StarredItemService starredItemSvc) {
 		this.starredItemSvc = starredItemSvc;
+	}
+
+	public void setPdeTokenGeneratorRegistry(PdeTokenGeneratorRegistry pdeTokenGeneratorRegistry) {
+		this.pdeTokenGeneratorRegistry = pdeTokenGeneratorRegistry;
 	}
 
 	@Override
@@ -1001,6 +1013,52 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 			
 			return ResponseEvent.response(
 					daoFactory.getSpecimenRequirementDao().getSpecimensCount(srId));
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
+		} catch (Exception e) {
+			return ResponseEvent.serverError(e);
+		}
+	}
+
+	@Override
+	@PlusTransactional
+	public ResponseEvent<List<PdeTokenDetail>> getPdeLinks(RequestEvent<PdeNotifListCriteria> req) {
+		try {
+			PdeNotifListCriteria crit = req.getPayload();
+			List<PdeNotif> notifs = daoFactory.getPdeNotifDao().getNotifs(crit);
+
+			Map<String, List<Long>> tokenIdsByType = new HashMap<>();
+			for (PdeNotif notif : notifs) {
+				for (PdeNotifLink link : notif.getLinks()) {
+					List<Long> tokenIds = tokenIdsByType.computeIfAbsent(link.getType(), (k) -> new ArrayList<>());
+					tokenIds.add(link.getTokenId());
+				}
+			}
+
+			Map<String, PdeTokenDetail> tokensMap = new HashMap<>();
+			for (Map.Entry<String, List<Long>> typeTokenIds : tokenIdsByType.entrySet()) {
+				PdeTokenGenerator generator = pdeTokenGeneratorRegistry.get(typeTokenIds.getKey());
+				if (generator == null) {
+					continue;
+				}
+
+				List<PdeTokenDetail> tokens = generator.getTokens(typeTokenIds.getValue());
+				for (PdeTokenDetail token : tokens) {
+					tokensMap.put(token.getType() + ":" + token.getTokenId(), token);
+				}
+			}
+
+			List<PdeTokenDetail> result = new ArrayList<>();
+			for (PdeNotif notif : notifs) {
+				for (PdeNotifLink link : notif.getLinks()) {
+					PdeTokenDetail token = tokensMap.get(link.getType() + ":" + link.getTokenId());
+					if (token != null) {
+						result.add(token);
+					}
+				}
+			}
+
+			return ResponseEvent.response(result);
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {

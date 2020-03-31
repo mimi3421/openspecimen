@@ -28,7 +28,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.krishagni.catissueplus.core.administrative.domain.FormDataSavedEvent;
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.administrative.repository.FormListCriteria;
-import com.krishagni.catissueplus.core.administrative.services.ScheduledTaskManager;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolGroup;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
@@ -161,8 +160,6 @@ public class FormServiceImpl implements FormService, InitializingBean {
 	
 	private Map<String, List<FormContextProcessor>> ctxtProcs = new HashMap<>();
 
-	private ScheduledTaskManager taskManager;
-
 	private PdeTokenGeneratorRegistry pdeTokenGeneratorRegistry;
 
 	public void setFormDao(FormDao formDao) {
@@ -189,10 +186,6 @@ public class FormServiceImpl implements FormService, InitializingBean {
 		this.ctxtProcs = ctxtProcs;
 	}
 
-	public void setTaskManager(ScheduledTaskManager taskManager) {
-		this.taskManager = taskManager;
-	}
-
 	public void setPdeTokenGeneratorRegistry(PdeTokenGeneratorRegistry pdeTokenGeneratorRegistry) {
 		this.pdeTokenGeneratorRegistry = pdeTokenGeneratorRegistry;
 	}
@@ -201,27 +194,6 @@ public class FormServiceImpl implements FormService, InitializingBean {
 	public void afterPropertiesSet() throws Exception {
 		FormEventsNotifier.getInstance().addListener(new SystemFormUpdatePreventer(formDao));
 		exportSvc.registerObjectsGenerator("extensions", this::getFormRecordsGenerator);
-
-		taskManager.scheduleWithFixedDelay(
-			new Runnable() {
-				@Override
-				public void run() {
-					try {
-						run0();
-					} catch (Throwable t) {
-						logger.error("Error deleting expired tokens", t);
-					}
-				}
-
-				@PlusTransactional
-				public void run0() {
-					deDaoFactory.getFormDataEntryTokenDao().deleteOldTokens();
-				}
-			},
-
-			60
-		);
-
 		pdeTokenGeneratorRegistry.register(PDE_FORM_TYPE, new PatientDataEntryTokenGenerator());
 	}
 
@@ -1733,6 +1705,13 @@ public class FormServiceImpl implements FormService, InitializingBean {
 		public PdeTokenDetail getToken(CollectionProtocolRegistration cpr, Long tokenId) {
 			FormDataEntryToken token = deDaoFactory.getFormDataEntryTokenDao().getById(tokenId);
 			return tokenDetail(cpr, token);
+		}
+
+		@Override
+		public List<PdeTokenDetail> getTokens(List<Long> tokenIds) {
+			List<PdeTokenDetail> tokens = deDaoFactory.getFormDataEntryTokenDao().getTokens(tokenIds);
+			tokens.forEach(token -> token.setType(PDE_FORM_TYPE));
+			return tokens;
 		}
 
 		private PdeTokenDetail tokenDetail(CollectionProtocolRegistration cpr, FormDataEntryToken token) {
