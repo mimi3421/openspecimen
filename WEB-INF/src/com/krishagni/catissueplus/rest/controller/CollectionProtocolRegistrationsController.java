@@ -4,14 +4,12 @@ package com.krishagni.catissueplus.rest.controller;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -290,6 +288,15 @@ public class CollectionProtocolRegistrationsController {
 	@ResponseBody
 	public List<PdeTokenDetail> generatePdeTokens(@RequestBody PdeTokenGenDetail input) {
 		return ResponseEvent.unwrap(cprSvc.generatePdeTokens(RequestEvent.wrap(input)));
+	}
+
+	@RequestMapping(method = RequestMethod.GET, value="/{id}/pde-links")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public List<PdeTokenDetail> getPdeTokens(@PathVariable("id") Long cprId) {
+		RegistrationQueryCriteria crit = new RegistrationQueryCriteria();
+		crit.setCprId(cprId);
+		return ResponseEvent.unwrap(cprSvc.getPdeTokens(RequestEvent.wrap(crit)));
 	}
 	
 	private RequestEvent<RegistrationQueryCriteria> getRegQueryReq(Long cprId) {

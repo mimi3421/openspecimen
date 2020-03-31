@@ -29,6 +29,7 @@ public class PdeNotifDaoImpl extends AbstractDao<PdeNotif> implements PdeNotifDa
 			.executeUpdate();
 	}
 
+	@Override
 	public List<PdeNotif> getPendingNotifs(long lastId, int maxResults) {
 		Calendar createdOneDayBefore = Calendar.getInstance();
 		createdOneDayBefore.add(Calendar.DATE, -1);

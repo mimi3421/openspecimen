@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -620,6 +621,41 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 			}
 
 			return ResponseEvent.response(tokens.values().stream().flatMap(List::stream).collect(Collectors.toList()));
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
+		} catch (Exception e) {
+			return ResponseEvent.serverError(e);
+		}
+	}
+
+	@Override
+	@PlusTransactional
+	public ResponseEvent<List<PdeTokenDetail>> getPdeTokens(RequestEvent<RegistrationQueryCriteria> req) {
+		try {
+			RegistrationQueryCriteria crit = req.getPayload();
+
+			CollectionProtocolRegistration reg = getCpr(crit.getCprId(), crit.getCpId(), crit.getPpid());
+			Collection<PdeNotif> notifs = reg.getPdeNotifs();
+
+			List<PdeTokenDetail> result = new ArrayList<>();
+			for (PdeNotif notif : notifs) {
+				for (PdeNotifLink link : notif.getLinks()) {
+					PdeTokenGenerator tokenGenerator = pdeTokenGeneratorRegistry.get(link.getType());
+					if (tokenGenerator == null) {
+						continue;
+					}
+
+					PdeTokenDetail token = tokenGenerator.getToken(reg, link.getTokenId());
+					if (token != null) {
+						result.add(token);
+						token.setToken(null);
+						token.setDataEntryLink(null);
+					}
+				}
+			}
+
+			result.sort((t1, t2) -> t2.getCreationTime().compareTo(t1.getCreationTime()));
+			return ResponseEvent.response(result);
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {

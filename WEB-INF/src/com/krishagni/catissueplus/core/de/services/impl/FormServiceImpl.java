@@ -1745,7 +1745,9 @@ public class FormServiceImpl implements FormService, InitializingBean {
 			result.setTokenId(token.getId());
 			result.setToken(token.getToken());
 			result.setDataEntryLink(ConfigUtil.getInstance().getAppUrl() + "/#/patient-data-entry?token=" + token.getToken());
+			result.setCreationTime(token.getCreationTime());
 			result.setExpiryTime(token.getExpiryTime());
+			result.setCompletionTime(token.getCompletionTime());
 			return result;
 		}
 	}

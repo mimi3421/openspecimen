@@ -57,5 +57,7 @@ public interface CollectionProtocolRegistrationService {
 	public ResponseEvent<ConsentDetail> getConsents(RequestEvent<RegistrationQueryCriteria> req);
 
 	ResponseEvent<List<PdeTokenDetail>> generatePdeTokens(RequestEvent<PdeTokenGenDetail> req);
+
+	ResponseEvent<List<PdeTokenDetail>> getPdeTokens(RequestEvent<RegistrationQueryCriteria> req);
 }
 

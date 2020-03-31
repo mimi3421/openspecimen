@@ -19,7 +19,11 @@ public class PdeTokenDetail {
 
 	private String dataEntryLink;
 
+	private Date creationTime;
+
 	private Date expiryTime;
+
+	private Date completionTime;
 
 	public String getCpShortTitle() {
 		return cpShortTitle;
@@ -85,11 +89,27 @@ public class PdeTokenDetail {
 		this.dataEntryLink = dataEntryLink;
 	}
 
+	public Date getCreationTime() {
+		return creationTime;
+	}
+
+	public void setCreationTime(Date creationTime) {
+		this.creationTime = creationTime;
+	}
+
 	public Date getExpiryTime() {
 		return expiryTime;
 	}
 
 	public void setExpiryTime(Date expiryTime) {
 		this.expiryTime = expiryTime;
+	}
+
+	public Date getCompletionTime() {
+		return completionTime;
+	}
+
+	public void setCompletionTime(Date completionTime) {
+		this.completionTime = completionTime;
 	}
 }

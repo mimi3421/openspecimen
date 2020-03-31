@@ -47,6 +47,8 @@ public class CollectionProtocolRegistration extends BaseEntity {
 
 	private Collection<Visit> visits = new HashSet<>();
 
+	private Collection<PdeNotif> pdeNotifs = new HashSet<>();
+
 	private String activityStatus;
 
 	private Date consentSignDate;
@@ -144,6 +146,15 @@ public class CollectionProtocolRegistration extends BaseEntity {
 
 	public void setVisits(Collection<Visit> visits) {
 		this.visits = visits;
+	}
+
+	@NotAudited
+	public Collection<PdeNotif> getPdeNotifs() {
+		return pdeNotifs;
+	}
+
+	public void setPdeNotifs(Collection<PdeNotif> pdeNotifs) {
+		this.pdeNotifs = pdeNotifs;
 	}
 
 	public List<Visit> getOrderedVisits() {
