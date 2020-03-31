@@ -1052,6 +1052,8 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 			for (PdeNotif notif : notifs) {
 				for (PdeNotifLink link : notif.getLinks()) {
 					PdeTokenDetail token = tokensMap.get(link.getType() + ":" + link.getTokenId());
+					token.setToken(null);
+					token.setDataEntryLink(null);
 					if (token != null) {
 						result.add(token);
 					}
