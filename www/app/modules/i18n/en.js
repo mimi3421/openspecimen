@@ -2711,7 +2711,7 @@
         "single_logout": "Single Logout",
         "single_logout_desc": "Enable single logout using SAML based identity provider.",
         "password_expiry_days": "Password Age",
-        "password_expiry_days_desc": "Number of days before passwords expire.",
+        "password_expiry_days_desc": "Number of days during which a password is valid.",
         "passwords_to_examine": "Password History",
         "passwords_to_examine_desc": "Number of unique passwords before an old password can be reused.",
         "password_pattern": "Password Complexity",
@@ -2843,7 +2843,9 @@
         "visit_name_format": "Visit Name Format",
         "visit_name_format_desc": "The system-level format for the planned visit names.",
         "unplanned_visit_name_format": "Unplanned Visit Name Format",
-        "unplanned_visit_name_format_desc": "The system-level format for the unplanned visit names."
+        "unplanned_visit_name_format_desc": "The system-level format for the unplanned visit names.",
+        "pde_link_age": "Data Entry Link Age",
+        "pde_link_age_desc": "Number of days during which a participant data entry link is valid."
       },
 
       "common": {

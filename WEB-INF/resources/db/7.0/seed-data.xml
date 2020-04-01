@@ -133,4 +133,14 @@
         pmi.medical_record_number is not null;
     </sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="Participant data entry links age">
+    <sql>
+      call add_cfg_prop(
+        'biospecimen', 'pde_link_age',
+        'pde_link_age', 'pde_link_age_desc',
+        'INT', '5'
+      );
+    </sql>
+  </changeSet>
 </databaseChangeLog>

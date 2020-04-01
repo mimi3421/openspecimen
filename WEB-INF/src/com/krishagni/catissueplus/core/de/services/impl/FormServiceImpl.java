@@ -28,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.krishagni.catissueplus.core.administrative.domain.FormDataSavedEvent;
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.administrative.repository.FormListCriteria;
+import com.krishagni.catissueplus.core.biospecimen.ConfigParams;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolGroup;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
@@ -1361,7 +1362,8 @@ public class FormServiceImpl implements FormService, InitializingBean {
 		Calendar cal = Calendar.getInstance();
 		Date now = cal.getTime();
 
-		cal.add(Calendar.DATE, 2);
+		Integer linkAge = ConfigUtil.getInstance().getIntSetting(ConfigParams.MODULE, ConfigParams.PDE_LINK_AGE, 5);
+		cal.add(Calendar.DATE, linkAge);
 		Date expiryTime = cal.getTime();
 
 		FormDataEntryToken deToken = new FormDataEntryToken();

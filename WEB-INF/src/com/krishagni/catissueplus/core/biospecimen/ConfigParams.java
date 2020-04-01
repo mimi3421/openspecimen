@@ -77,6 +77,8 @@ public class ConfigParams {
 
 	public static final String UNPLANNED_VISIT_NAME_FMT  = "unplanned_visit_name_format";
 
+	public static final String PDE_LINK_AGE              = "pde_link_age";
+
 	public static String getConsentsDirPath() {
 		String path = ConfigUtil.getInstance().getStrSetting(MODULE, CONSENTS_DIR, null);
 		if (StringUtils.isBlank(path)) {
