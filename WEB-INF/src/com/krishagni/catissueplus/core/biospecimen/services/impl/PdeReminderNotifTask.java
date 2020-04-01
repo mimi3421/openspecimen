@@ -11,13 +11,16 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 import com.krishagni.catissueplus.core.administrative.domain.ScheduledJobRun;
 import com.krishagni.catissueplus.core.administrative.services.ScheduledTask;
+import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
+import com.krishagni.catissueplus.core.biospecimen.domain.CpWorkflowConfig;
 import com.krishagni.catissueplus.core.biospecimen.domain.PdeNotif;
 import com.krishagni.catissueplus.core.biospecimen.domain.PdeNotifLink;
 import com.krishagni.catissueplus.core.biospecimen.events.PdeTokenDetail;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.biospecimen.services.PdeTokenGenerator;
 import com.krishagni.catissueplus.core.biospecimen.services.PdeTokenGeneratorRegistry;
+import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.util.EmailUtil;
 import com.krishagni.catissueplus.core.common.util.Utility;
@@ -86,6 +89,8 @@ public class PdeReminderNotifTask implements ScheduledTask {
 			name = cpr.getPpid();
 		}
 
+		Pair<String, String> emailTmpl = getEmailTmpl(cpr.getCollectionProtocol());
+		String[] rcpt = { cpr.getParticipant().getEmailAddress() };
 		Map<String, Object> props = new HashMap<>();
 		props.put("participantName", name);
 		props.put("cpr", cpr);
@@ -94,11 +99,18 @@ public class PdeReminderNotifTask implements ScheduledTask {
 		props.put("reminder", true);
 		props.put("expiryTime", Utility.getDateTimeString(tokens.get(0).getExpiryTime()));
 		props.put("$subject", new Object[] {2, cpr.getCollectionProtocol().getShortTitle(), cpr.getPpid() });
+		EmailUtil.getInstance().sendEmail("pde_links", emailTmpl.first(), emailTmpl.second(), rcpt, props);
+	}
 
-		EmailUtil.getInstance().sendEmail(
-			"pde_links",
-			new String[] { cpr.getParticipant().getEmailAddress() },
-			null,
-			props);
+	private Pair<String, String> getEmailTmpl(CollectionProtocol cp) {
+		String subject  = null;
+		String template = null;
+		CpWorkflowConfig.Workflow wf = CpWorkflowTxnCache.getInstance().getWorkflow(cp.getId(), "pde-settings");
+		if (wf != null && wf.getData() != null) {
+			subject  = (String) wf.getData().get("emailSubject");
+			template = (String) wf.getData().get("emailTmpl");
+		}
+
+		return Pair.make(subject, template);
 	}
 }
