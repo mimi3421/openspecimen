@@ -46,14 +46,6 @@ angular.module('os.biospecimen.models.cpr',
       return $http.post(url, bulkRegDetail).then(CollectionProtocolRegistration.modelRespTransform);
     }
 
-    CollectionProtocolRegistration.emailPdeLinks = function(req) {
-      return $http.post(CollectionProtocolRegistration.url() + '/pde-links', req).then(
-        function(resp) {
-          return resp.data;
-        }
-      );
-    }
-
     function prepareFilterOpts(cpId, includeStats, filterOpts) {
       var params = {cpId: cpId, includeStats: !!includeStats};
       angular.extend(params, filterOpts || {});

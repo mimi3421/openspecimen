@@ -534,13 +534,6 @@
     "participant_registered": "{{numOfParticipants}} participants registered successfully.",
     "spmn_kit_created": "Successfully created specimen kit for {{numOfParticipants}} newly registered participants.",
 
-    "email_forms": "Email Forms",
-    "select_participants": "Select Participants",
-    "no_participants_selected": "Add at least one participant having email address.",
-    "select_forms": "Select Forms",
-    "no_forms_selected": "No forms have been selected.",
-    "forms_emailed": "Form links have been emailed to the selected participants.",
-
     "consent": {
       "signed_form": "Signed Consent Form",
       "deleting_form": "Deleting Signed Consent Form",
@@ -2844,8 +2837,8 @@
         "visit_name_format_desc": "The system-level format for the planned visit names.",
         "unplanned_visit_name_format": "Unplanned Visit Name Format",
         "unplanned_visit_name_format_desc": "The system-level format for the unplanned visit names.",
-        "pde_link_age": "Data Entry Link Age",
-        "pde_link_age_desc": "Number of days during which a participant data entry link is valid."
+        "pde_link_age": "Survey Link Age",
+        "pde_link_age_desc": "Number of days during which a survey link is valid."
       },
 
       "common": {
