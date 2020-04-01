@@ -4,8 +4,8 @@ import java.util.Calendar;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.Criteria;
 import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -15,6 +15,7 @@ import com.krishagni.catissueplus.core.biospecimen.domain.PdeNotif;
 import com.krishagni.catissueplus.core.biospecimen.repository.PdeNotifDao;
 import com.krishagni.catissueplus.core.biospecimen.repository.PdeNotifListCriteria;
 import com.krishagni.catissueplus.core.common.repository.AbstractDao;
+import com.krishagni.catissueplus.core.common.util.Utility;
 
 public class PdeNotifDaoImpl extends AbstractDao<PdeNotif> implements PdeNotifDao {
 
@@ -57,56 +58,73 @@ public class PdeNotifDaoImpl extends AbstractDao<PdeNotif> implements PdeNotifDa
 
 	@Override
 	public List<PdeNotif> getNotifs(PdeNotifListCriteria crit) {
-		Criteria query = getCurrentSession().createCriteria(PdeNotif.class, "pn")
-			.createAlias("pn.links", "link");
+		return getCurrentSession().createCriteria(PdeNotif.class, "pn")
+			.add(Subqueries.propertyIn("pn.id", getNotifIdsQuery(crit)))
+			.addOrder(Order.desc("pn.creationTime"))
+			.setFirstResult(crit.startAt())
+			.setMaxResults(crit.maxResults())
+			.list();
+	}
+
+	@Override
+	public Long getNotifsCount(PdeNotifListCriteria crit) {
+		Number count = (Number) getCurrentSession().createCriteria(PdeNotif.class, "pn")
+			.createAlias("pn.links", "link")
+			.add(Subqueries.propertyIn("pn.id", getNotifIdsQuery(crit)))
+			.setProjection(Projections.count("link.id"))
+			.uniqueResult();
+		return count.longValue();
+	}
+
+	private DetachedCriteria getNotifIdsQuery(PdeNotifListCriteria crit) {
+		DetachedCriteria notifIdsQuery = DetachedCriteria.forClass(PdeNotif.class, "pn")
+			.createAlias("pn.links", "link")
+			.setProjection(Projections.distinct(Projections.property("pn.id")));
 
 		boolean cprAliasAdded = false;
 		if (StringUtils.isNotBlank(crit.ppid())) {
-			query.createAlias("pn.cpr", "cpr")
-				.add(Restrictions.ilike("cpr.ppid", crit.ppid()));
+			notifIdsQuery.createAlias("pn.cpr", "cpr")
+				.add(Restrictions.ilike("cpr.ppid", crit.ppid(), MatchMode.ANYWHERE));
 			cprAliasAdded = true;
 		}
 
 		if (crit.cpId() != null) {
 			if (!cprAliasAdded) {
-				query.createAlias("pn.cpr", "cpr");
+				notifIdsQuery.createAlias("pn.cpr", "cpr");
 				cprAliasAdded = true;
 			}
 
-			query.createAlias("cpr.collectionProtocol", "cp")
+			notifIdsQuery.createAlias("cpr.collectionProtocol", "cp")
 				.add(Restrictions.eq("cp.id", crit.cpId()));
 		}
 
 		if (crit.minCreationTime() != null) {
-			query.add(Restrictions.ge("pn.creationTime", crit.minCreationTime()));
+			notifIdsQuery.add(Restrictions.ge("pn.creationTime", Utility.chopTime(crit.minCreationTime())));
 		}
 
 		if (crit.maxCreationTime() != null) {
-			query.add(Restrictions.le("pn.creationTime", crit.maxCreationTime()));
+			notifIdsQuery.add(Restrictions.le("pn.creationTime", Utility.getEndOfDay(crit.maxCreationTime())));
 		}
 
 		if (StringUtils.isNotBlank(crit.status())) {
 			switch (crit.status().toLowerCase()) {
 				case "completed":
-					query.add(Restrictions.eq("link.status", "COMPLETED"));
+					notifIdsQuery.add(Restrictions.eq("link.status", "COMPLETED"));
 					break;
 
 				case "pending":
-					query.add(Restrictions.eq("link.status", "PENDING"))
+					notifIdsQuery.add(Restrictions.eq("link.status", "PENDING"))
 						.add(Restrictions.gt("pn.expiryTime", Calendar.getInstance().getTime()));
 					break;
 
 				case "expired":
-					query.add(Restrictions.eq("link.status", "PENDING"))
+					notifIdsQuery.add(Restrictions.eq("link.status", "PENDING"))
 						.add(Restrictions.le("pn.expiryTime", Calendar.getInstance().getTime()));
 					break;
 			}
 		}
 
-		return query.addOrder(Order.desc("pn.creationTime"))
-			.setFirstResult(crit.startAt())
-			.setMaxResults(crit.maxResults())
-			.list();
+		return notifIdsQuery;
 	}
 
 	private static final String FQN = PdeNotif.class.getName();

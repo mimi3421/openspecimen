@@ -11,4 +11,6 @@ public interface PdeNotifDao extends Dao<PdeNotif> {
 	List<PdeNotif> getPendingNotifs(long lastId, int maxResults);
 
 	List<PdeNotif> getNotifs(PdeNotifListCriteria crit);
+
+	Long getNotifsCount(PdeNotifListCriteria crit);
 }

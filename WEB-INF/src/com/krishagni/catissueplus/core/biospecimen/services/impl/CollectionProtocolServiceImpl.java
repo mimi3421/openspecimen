@@ -1052,15 +1052,28 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 			for (PdeNotif notif : notifs) {
 				for (PdeNotifLink link : notif.getLinks()) {
 					PdeTokenDetail token = tokensMap.get(link.getType() + ":" + link.getTokenId());
-					token.setToken(null);
-					token.setDataEntryLink(null);
 					if (token != null) {
+						token.setToken(null);
+						token.setDataEntryLink(null);
 						result.add(token);
 					}
 				}
 			}
 
 			return ResponseEvent.response(result);
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
+		} catch (Exception e) {
+			return ResponseEvent.serverError(e);
+		}
+	}
+
+	@Override
+	@PlusTransactional
+	public ResponseEvent<Long> getPdeLinksCount(RequestEvent<PdeNotifListCriteria> req) {
+		try {
+			PdeNotifListCriteria crit = req.getPayload();
+			return ResponseEvent.response(daoFactory.getPdeNotifDao().getNotifsCount(crit));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {

@@ -126,6 +126,8 @@ public interface CollectionProtocolService {
 	// PDE email links
 	ResponseEvent<List<PdeTokenDetail>> getPdeLinks(RequestEvent<PdeNotifListCriteria> req);
 
+	ResponseEvent<Long> getPdeLinksCount(RequestEvent<PdeNotifListCriteria> req);
+
 	//
 	// CP reports API
 	//

@@ -498,6 +498,36 @@ public class CollectionProtocolsController {
 		return ResponseEvent.unwrap(cpSvc.getPdeLinks(RequestEvent.wrap(crit)));
 	}
 
+	@RequestMapping(method = RequestMethod.GET, value = "/{id}/pde-links-count")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public Map<String, Long> getPdeLinksCount(
+		@PathVariable("id")
+		Long cpId,
+
+		@RequestParam(value = "ppid", required = false)
+		String ppid,
+
+		@RequestParam(value = "status", required = false)
+		String status,
+
+		@RequestParam(value = "minCreationDate", required = false)
+		@DateTimeFormat(pattern = "yyyy-MM-dd")
+		Date minCreationDate,
+
+		@RequestParam(value = "maxCreationDate", required = false)
+		@DateTimeFormat(pattern = "yyyy-MM-dd")
+		Date maxCreationDate) {
+
+		PdeNotifListCriteria crit = new PdeNotifListCriteria()
+			.cpId(cpId)
+			.ppid(ppid)
+			.status(status)
+			.minCreationTime(minCreationDate)
+			.maxCreationTime(maxCreationDate);
+		return Collections.singletonMap("count", response(cpSvc.getPdeLinksCount(request(crit))));
+	}
+
 	@RequestMapping(method = RequestMethod.GET, value="/{id}/workflows")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody		
