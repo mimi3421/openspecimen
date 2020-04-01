@@ -162,12 +162,17 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 
 	@Override
 	public boolean sendEmail(String emailTmplKey, String[] to, String[] bcc, File[] attachments, Map<String, Object> props) {
-		return sendEmail(emailTmplKey, null, to, bcc, attachments, props);
+		return sendEmail(emailTmplKey, null, null, to, bcc, attachments, props);
 	}
 
 	@Override
 	public boolean sendEmail(String emailTmplKey, String emailTmpl, String[] to, Map<String, Object> props) {
-		return sendEmail(emailTmplKey, emailTmpl, to, null, null, props);
+		return sendEmail(emailTmplKey, null, emailTmpl, to, null, null, props);
+	}
+
+	@Override
+	public boolean sendEmail(String emailTmplKey, String tmplSubj, String tmplContent, String[] to, Map<String, Object> props) {
+		return sendEmail(emailTmplKey, tmplSubj, tmplContent, to, null , null, props);
 	}
 
 	@Override
@@ -246,13 +251,13 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 		String[] adminEmailId = new String[] {getAdminEmailId()};
 		Map<String, Object> props = new HashMap<>();
 		props.put("$synchronous", true);
-		boolean status = sendEmail("test_email", null, adminEmailId, null, null, props);
+		boolean status = sendEmail("test_email", null, null, adminEmailId, null, null, props);
 		if (!status) {
 			throw OpenSpecimenException.userError(EmailErrorCode.UNABLE_TO_SEND, props.get("$error"));
 		}
 	}
 
-	private boolean sendEmail(String tmplKey, String tmplContent, String[] to, String[] bcc, File[] attachments, Map<String, Object> props) {
+	private boolean sendEmail(String tmplKey, String tmplSubj, String tmplContent, String[] to, String[] bcc, File[] attachments, Map<String, Object> props) {
 		if (!isEmailNotifEnabled()) {
 			return false;
 		}
@@ -280,7 +285,7 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 		props.put("adminPhone", cfgSvc.getStrSetting("email", "admin_phone_no", "Not Specified"));
 		props.put("dateFmt", new SimpleDateFormat(ConfigUtil.getInstance().getDateTimeFmt()));
 		props.put("urlEncoder", URLEncoder.class);
-		String subject = getSubject(tmplKey, (Object[]) props.get("$subject"));
+		String subject = StringUtils.isNotBlank(tmplSubj) ? tmplSubj : getSubject(tmplKey, (Object[]) props.get("$subject"));
 		String content = templateService.render(getBaseTmpl(), props);
 
 		Email email = new Email();
@@ -296,6 +301,16 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 		}
 
 		return sendEmail(email, props);
+	}
+
+	private String getTemplate(String tmplKey) {
+		String localeTmpl = TEMPLATE_SOURCE + Locale.getDefault().toString() + "/" + tmplKey + ".vm";
+		URL url = this.getClass().getClassLoader().getResource(localeTmpl);
+		if (url == null) {
+			localeTmpl = TEMPLATE_SOURCE + "default/" + tmplKey + ".vm";
+		}
+
+		return localeTmpl;
 	}
 
 	private String getSubject(String subject, Object[] params) {
@@ -390,16 +405,6 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 		}
 	}
 
-	private String getTemplate(String tmplKey) {
-		String localeTmpl = TEMPLATE_SOURCE + Locale.getDefault().toString() + "/" + tmplKey + ".vm";
-		URL url = this.getClass().getClassLoader().getResource(localeTmpl);
-		if (url == null) {
-			localeTmpl = TEMPLATE_SOURCE + "default/" + tmplKey + ".vm";			
-		}
-		
-		return localeTmpl;
-	}
-	
 	private String getBaseTmpl() {
 		return getTemplate(BASE_TMPL);
 	}

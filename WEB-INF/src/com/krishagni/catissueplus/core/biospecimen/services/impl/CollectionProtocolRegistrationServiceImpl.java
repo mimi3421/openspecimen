@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -37,6 +36,7 @@ import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolEven
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
 import com.krishagni.catissueplus.core.biospecimen.domain.ConsentResponses;
 import com.krishagni.catissueplus.core.biospecimen.domain.ConsentTierResponse;
+import com.krishagni.catissueplus.core.biospecimen.domain.CpWorkflowConfig;
 import com.krishagni.catissueplus.core.biospecimen.domain.CprSavedEvent;
 import com.krishagni.catissueplus.core.biospecimen.domain.Participant;
 import com.krishagni.catissueplus.core.biospecimen.domain.PdeNotif;
@@ -79,6 +79,7 @@ import com.krishagni.catissueplus.core.biospecimen.services.PdeTokenGenerator;
 import com.krishagni.catissueplus.core.biospecimen.services.PdeTokenGeneratorRegistry;
 import com.krishagni.catissueplus.core.biospecimen.services.SpecimenKitService;
 import com.krishagni.catissueplus.core.biospecimen.services.VisitService;
+import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
 import com.krishagni.catissueplus.core.common.errors.ErrorType;
@@ -1339,6 +1340,11 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 	}
 
 	private void notifyTokensByEmail(Map<CollectionProtocolRegistration, List<PdeTokenDetail>> tokens) {
+		if (tokens.isEmpty()) {
+			return;
+		}
+
+		Pair<String, String> emailTmpl = getEmailTmpl(tokens.keySet().iterator().next().getCollectionProtocol());
 		tokens.forEach(
 			(cpr, patientTokens) -> {
 				savePdeNotif(cpr, patientTokens);
@@ -1348,6 +1354,7 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 					name = cpr.getPpid();
 				}
 
+				String[] rcpt = { cpr.getParticipant().getEmailAddress() };
 				Map<String, Object> props = new HashMap<>();
 				props.put("participantName", name);
 				props.put("cpr", cpr);
@@ -1356,13 +1363,21 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 				props.put("reminder", false);
 				props.put("expiryTime", Utility.getDateTimeString(patientTokens.get(0).getExpiryTime()));
 				props.put("$subject", new Object[] {1, cpr.getCollectionProtocol().getShortTitle(), cpr.getPpid() });
-				EmailUtil.getInstance().sendEmail(
-					"pde_links",
-					new String[] { cpr.getParticipant().getEmailAddress() },
-					null,
-					props);
+				EmailUtil.getInstance().sendEmail("pde_links", emailTmpl.first(), emailTmpl.second(), rcpt, props);
 			}
 		);
+	}
+
+	private Pair<String, String> getEmailTmpl(CollectionProtocol cp) {
+		String subject  = null;
+		String template = null;
+		CpWorkflowConfig.Workflow wf = CpWorkflowTxnCache.getInstance().getWorkflow(cp.getId(), "pde-settings");
+		if (wf != null && wf.getData() != null) {
+			subject  = (String) wf.getData().get("emailSubject");
+			template = (String) wf.getData().get("emailTmpl");
+		}
+
+		return Pair.make(subject, template);
 	}
 
 	private void savePdeNotif(CollectionProtocolRegistration cpr, List<PdeTokenDetail> tokens) {

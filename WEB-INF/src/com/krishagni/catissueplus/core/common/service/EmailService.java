@@ -14,6 +14,8 @@ public interface EmailService {
 	boolean sendEmail(String emailTmplKey, String[] to, String[] bcc, File[] attachments, Map<String, Object> props);
 
 	boolean sendEmail(String subjectKey, String emailTmpl, String[] to, Map<String, Object> props);
+
+	boolean sendEmail(String emailTmplKey, String tmplSubj, String tmplContent, String[] to, Map<String, Object> props);
 	
 	boolean sendEmail(Email mail);
 

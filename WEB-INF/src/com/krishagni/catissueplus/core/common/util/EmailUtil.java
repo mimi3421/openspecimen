@@ -28,6 +28,7 @@ public class EmailUtil {
 		return instance;
 	}
 
+
 	public boolean sendEmail(String emailTmplKey, String[] to, File[] attachments, Map<String, Object> props) {
 		if (emailSvc == null) {
 			logger.warn("Email subsystem not yet initialised. Couldn't send email: " + emailTmplKey);
@@ -37,12 +38,16 @@ public class EmailUtil {
 		return emailSvc.sendEmail(emailTmplKey, to, attachments, props);
 	}
 
-	public boolean sendEmail(String subject, String body, String[] to, Map<String, Object> props) {
+	public boolean sendEmail(String tmplKey, String body, String[] to, Map<String, Object> props) {
+		return sendEmail(tmplKey, tmplKey, body, to, props);
+	}
+
+	public boolean sendEmail(String tmplKey, String subject, String body, String[] to, Map<String, Object> props) {
 		if (emailSvc == null) {
-			logger.warn("Email subsystem not yet initialised. Couldn't send email: " + subject);
+			logger.warn("Email subsystem not yet initialised. Couldn't send email: " + tmplKey);
 			return false;
 		}
 
-		return emailSvc.sendEmail(subject, body, to, props);
+		return emailSvc.sendEmail(tmplKey, subject, body, to, props);
 	}
 }
