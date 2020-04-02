@@ -543,7 +543,7 @@ angular.module('os.query.results', ['os.query.models'])
       var formattedRows = [];
       for (var i = 0; i < rows.length; ++i) {
         var formattedRow = {hidden:{}};
-        for (var j = 0; j < rows[i].length; ++j) {
+        for (var j = 0; j < rows[i].length && j < labels.length; ++j) {
           if (labels[j].charAt(0) == '$') {
             var colInstance = columnInstance(labels[j]);
             if (!formattedRow['hidden'][colInstance.instance]) {
