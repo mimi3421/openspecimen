@@ -55,6 +55,8 @@ public class ObjectReader implements Closeable {
 
 	private Map<Record, List<Integer>> columnIndicesMap = new HashMap<>();
 
+	private boolean trimTimeOfAllDates = false;
+
 	public ObjectReader(String filePath, ObjectSchema schema, String dateFmt, String timeFmt) {
 		this(filePath, schema, dateFmt, timeFmt, null);
 	}
@@ -98,7 +100,11 @@ public class ObjectReader implements Closeable {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
+	public void setTrimTimeOfAllDates(boolean trimTimeOfAllDates) {
+		this.trimTimeOfAllDates = trimTimeOfAllDates;
+	}
+
 	public Object next() {
 		if (csvReader.next()) {
 			currentRow = csvReader.getRow();
@@ -272,7 +278,7 @@ public class ObjectReader implements Closeable {
 		} else if (value.trim().equals(SET_TO_BLANK)) {
 			return SET_TO_BLANK;
 		} else if (field.getType() != null && (field.getType().equals("date") || field.getType().equals("dateOnly"))) {
-			return parseDate(value, field.getType().equals("dateOnly"));
+			return parseDate(value, trimTimeOfAllDates || field.getType().equals("dateOnly"));
 		} else if (field.getType() != null && field.getType().equals("datetime")) {
 			return parseDateTime(value);
 		} else if (field.getType() != null && field.getType().equals("boolean")) {
@@ -378,7 +384,7 @@ public class ObjectReader implements Closeable {
 	throws ParseException {
 		try {
 			if (value.endsWith("Z")) {
-				return parseDate(value, ISO_FMT);
+				return parseDate(value, ISO_FMT, TimeZone.getTimeZone("UTC"), false);
 			}
 
 			return parseDate(value, dateFmt + " " + timeFmt);
@@ -399,10 +405,15 @@ public class ObjectReader implements Closeable {
 
 	private Long parseDate(String value, String fmt, boolean dateOnly)
 	throws ParseException {
+		return parseDate(value, fmt, timeZone, dateOnly);
+	}
+
+	private Long parseDate(String value, String fmt, TimeZone tz, boolean dateOnly)
+	throws ParseException {
 		SimpleDateFormat sdf = new SimpleDateFormat(fmt);
 		sdf.setLenient(false);
-		if (!dateOnly && timeZone != null) {
-			sdf.setTimeZone(timeZone);
+		if (!dateOnly && tz != null) {
+			sdf.setTimeZone(tz);
 		}
 
 		return sdf.parse(value).getTime();

@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -864,7 +865,24 @@ public class MobileAppServiceImpl implements MobileAppService, InitializingBean 
 			collectionDate = Calendar.getInstance().getTime();
 		}
 
-		final Date visitDate = collectionDate;
+		input.setVisitId(createVisitIfAbsent(cpr, input, collectionDate));
+
+		if (StringUtils.isBlank(input.getReqCode()) && StringUtils.isBlank(input.getType())) {
+			if (StringUtils.isBlank(input.getSpecimenClass())) {
+				input.setType(FLUID_NS);
+			} else {
+				input.setType(input.getSpecimenClass() + " - " + NS);
+			}
+		}
+
+		return ResponseEvent.unwrap(spmnSvc.createSpecimen(RequestEvent.wrap(input)));
+	}
+
+	private Long createVisitIfAbsent(CollectionProtocolRegistration cpr, SpecimenDetail input, Date visitDate) {
+		if (input.getVisitId() != null) {
+			return input.getVisitId();
+		}
+
 		Visit visit = null;
 		if (StringUtils.isNotBlank(input.getEventLabel())) {
 			visit = cpr.getOrderedVisits().stream()
@@ -877,41 +895,31 @@ public class MobileAppServiceImpl implements MobileAppService, InitializingBean 
 		}
 
 		if (visit != null) {
-			input.setVisitId(visit.getId());
+			return visit.getId();
+		}
+
+		VisitDetail visitDetail = new VisitDetail();
+		visitDetail.setVisitDate(visitDate);
+		visitDetail.setClinicalStatus(Specimen.NOT_SPECIFIED);
+		visitDetail.setClinicalDiagnoses(Collections.singleton(Specimen.NOT_SPECIFIED));
+		visitDetail.setCprId(cpr.getId());
+		visitDetail.setEventLabel(input.getEventLabel());
+		visitDetail.setCpId(cpr.getCollectionProtocol().getId());
+		visitDetail.setCpShortTitle(cpr.getCollectionProtocol().getShortTitle());
+
+		if (cpr.getSite() != null) {
+			visitDetail.setSite(cpr.getSite().getName());
 		} else {
-			VisitDetail visitDetail = new VisitDetail();
-			visitDetail.setVisitDate(visitDate);
-			visitDetail.setClinicalStatus(Specimen.NOT_SPECIFIED);
-			visitDetail.setClinicalDiagnoses(Collections.singleton(Specimen.NOT_SPECIFIED));
-			visitDetail.setCprId(cpr.getId());
-			visitDetail.setEventLabel(input.getEventLabel());
-			visitDetail.setCpId(cpr.getCollectionProtocol().getId());
-			visitDetail.setCpShortTitle(cpr.getCollectionProtocol().getShortTitle());
-
-			if (cpr.getSite() != null) {
-				visitDetail.setSite(cpr.getSite().getName());
-			} else {
-				CollectionProtocol cp = cpr.getCollectionProtocol();
-				List<String> cpSites = cp.getSites().stream()
-					.map(cpSite -> cpSite.getSite().getName())
-					.sorted(String::compareTo)
-					.collect(Collectors.toList());
-				visitDetail.setSite(cpSites.get(0));
-			}
-
-			visitDetail = ResponseEvent.unwrap(visitSvc.addVisit(RequestEvent.wrap(visitDetail)));
-			input.setVisitId(visitDetail.getId());
+			CollectionProtocol cp = cpr.getCollectionProtocol();
+			List<String> cpSites = cp.getSites().stream()
+				.map(cpSite -> cpSite.getSite().getName())
+				.sorted(String::compareTo)
+				.collect(Collectors.toList());
+			visitDetail.setSite(cpSites.get(0));
 		}
 
-		if (StringUtils.isBlank(input.getReqCode()) && StringUtils.isBlank(input.getType())) {
-			if (StringUtils.isBlank(input.getSpecimenClass())) {
-				input.setType(FLUID_NS);
-			} else {
-				input.setType(input.getSpecimenClass() + " - " + NS);
-			}
-		}
-
-		return ResponseEvent.unwrap(spmnSvc.createSpecimen(RequestEvent.wrap(input)));
+		visitDetail = ResponseEvent.unwrap(visitSvc.addVisit(RequestEvent.wrap(visitDetail)));
+		return visitDetail.getId();
 	}
 
 	private List<SpecimenDetail> createAliquots(SpecimenAliquotsSpec spec) {
@@ -1299,7 +1307,11 @@ public class MobileAppServiceImpl implements MobileAppService, InitializingBean 
 		String outputFilePath = new File(job.getOutputDir(), params.inputFilename).getAbsolutePath();
 
 		ObjectReader reader = new ObjectReader(inputFilePath, schema, DATE_FMT, DATE_TIME_FMT, FIELD_SEPARATOR);
-		reader.setTimeZone("UTC");
+		reader.setTrimTimeOfAllDates(true);
+		TimeZone tz = AuthUtil.getUserTimeZone();
+		if (tz != null) {
+			reader.setTimeZone(tz.getID());
+		}
 
 		long totalRecords = job.getTotalRecords(), failedRecords = job.getFailedRecords();
 		CsvWriter writer = null;
