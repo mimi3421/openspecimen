@@ -73,7 +73,7 @@ angular.module('openspecimen')
     };
   })
   
-  .directive ('osDatePicker', function ($rootScope, $timeout) {
+  .directive ('osDatePicker', function ($rootScope, $timeout, $parse) {
     var inputAttrs = ['name', 'required', 'placeholder'];
     
     function linker (scope, element, attrs) {
@@ -83,6 +83,11 @@ angular.module('openspecimen')
           scope.datePicker.isOpen = true; 
         });
       };
+
+      var value = $parse(attrs.date);
+      if (!value(scope) && attrs.hasOwnProperty('defaultCurrentDate')) {
+        value.assign(scope, new Date());
+      }
     }
     
     return {
