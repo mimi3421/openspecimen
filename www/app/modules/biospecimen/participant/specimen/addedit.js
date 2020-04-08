@@ -369,7 +369,7 @@ angular.module('os.biospecimen.specimen.addedit', [])
         };
 
         scope.deFormCtrl = {};
-        opts.extensionCtxt.sdeMode = hasDict;
+        opts.extensionCtxt.sdeMode = opts.hasDict;
         scope.extnOpts = ExtensionsUtil.getExtnOpts(inputSpmn, opts.extensionCtxt);
 
         if (!opts.hasDict) {
