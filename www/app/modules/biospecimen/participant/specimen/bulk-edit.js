@@ -104,7 +104,7 @@ angular.module('os.biospecimen.specimen')
         var toSave = {};
 
         if (ctx.fields.length > 0) {
-          boolean edited = false;
+          var edited = false;
           angular.forEach(ctx.editedFields,
             function(editedField) {
               if (!editedField.field || !editedField.field.name) {
