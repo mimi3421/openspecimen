@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.krishagni.catissueplus.core.biospecimen.domain.Participant;
 import com.krishagni.catissueplus.core.biospecimen.events.BulkRegistrationsDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.CollectionProtocolRegistrationDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.ConsentDetail;
@@ -34,6 +35,7 @@ import com.krishagni.catissueplus.core.biospecimen.events.VisitDetail;
 import com.krishagni.catissueplus.core.biospecimen.repository.CprListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.services.CollectionProtocolRegistrationService;
 import com.krishagni.catissueplus.core.biospecimen.services.CollectionProtocolService;
+import com.krishagni.catissueplus.core.common.events.BulkEntityDetail;
 import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
@@ -131,7 +133,14 @@ public class CollectionProtocolRegistrationsController {
 		resp.throwErrorIfUnsuccessful();
 		return resp.getPayload();
 	}
-	
+
+	@RequestMapping(method = RequestMethod.PUT, value = "/bulk-update")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public List<CollectionProtocolRegistrationDetail> bulkUpdateRegistrations(@RequestBody BulkEntityDetail<CollectionProtocolRegistrationDetail> detail) {
+		return ResponseEvent.unwrap(cprSvc.bulkUpdateRegistrations(RequestEvent.wrap(detail)));
+	}
+
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}/anonymize")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
@@ -298,13 +307,23 @@ public class CollectionProtocolRegistrationsController {
 		crit.setCprId(cprId);
 		return ResponseEvent.unwrap(cprSvc.getPdeTokens(RequestEvent.wrap(crit)));
 	}
-	
+
+	@RequestMapping(method = RequestMethod.GET, value="/extension-form")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public Map<String, Object> getForm(
+		@RequestParam(value = "cpId", required = false, defaultValue = "-1")
+		Long cpId) {
+
+		return formSvc.getExtensionInfo(cpId, Participant.EXTN);
+	}
+
 	private RequestEvent<RegistrationQueryCriteria> getRegQueryReq(Long cprId) {
 		RegistrationQueryCriteria crit = new RegistrationQueryCriteria();
 		crit.setCprId(cprId);
 		return new RequestEvent<>(crit);
 	}
-	
+
 	private <T> RequestEvent<T> getRequest(T payload) {
 		return new RequestEvent<T>(payload);
 	}

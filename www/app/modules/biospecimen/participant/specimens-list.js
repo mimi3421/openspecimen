@@ -64,7 +64,7 @@ angular.module('os.biospecimen.participant')
     }
 
     $scope.setListCtrl = function(listCtrl) {
-      $scope.ctx.listCtrl = listCtrl;
+      ctrl.listCtrl = $scope.ctx.listCtrl = listCtrl;
       $scope.listViewCtx.showSearch = listCtrl.haveFilters;
       $scope.listViewCtx.pagerOpts  = listCtrl.pagerOpts;
     }

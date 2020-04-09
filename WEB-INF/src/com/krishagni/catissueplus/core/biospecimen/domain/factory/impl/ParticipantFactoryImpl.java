@@ -240,13 +240,8 @@ public class ParticipantFactoryImpl implements ParticipantFactory {
 		if (partial && !detail.isAttrModified("races")) {
 			return;
 		}
-		
-		Set<String> races = detail.getRaces();
-		if (races == null) {
-			return;
-		}
 
-		participant.setRaces(getPvs(RACE, races, ParticipantErrorCode.INVALID_RACE, oce));
+		participant.setRaces(getPvs(RACE, detail.getRaces(), ParticipantErrorCode.INVALID_RACE, oce));
 	}
 
 	private void setEthnicity(ParticipantDetail detail, Participant participant, boolean partial, OpenSpecimenException oce) {
@@ -254,12 +249,7 @@ public class ParticipantFactoryImpl implements ParticipantFactory {
 			return;
 		}
 		
-		Set<String> ethnicities = detail.getEthnicities();
-		if (ethnicities == null) {
-			return;
-		}
-
-		participant.setEthnicities(getPvs(ETHNICITY, ethnicities, ParticipantErrorCode.INVALID_ETHNICITY, oce));
+		participant.setEthnicities(getPvs(ETHNICITY, detail.getEthnicities(), ParticipantErrorCode.INVALID_ETHNICITY, oce));
 	}
 	
 	private void setPmi(

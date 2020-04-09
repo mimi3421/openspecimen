@@ -37,13 +37,17 @@
     <div class="left">
       <ng-include ng-if="!!listViewCtx.headerButtonsTmpl" src="listViewCtx.headerButtonsTmpl"></ng-include>
 
-      <os-plugin-hooks view-name="'participant-list'" sec-name="'page-header'"></os-plugin-hooks>
+      <span ng-if="!listViewCtx.ctrl.listCtrl.checkList || listViewCtx.ctrl.listCtrl.checkList.count == 0">
+        <os-plugin-hooks view-name="'participant-list'" sec-name="'page-header'"></os-plugin-hooks>
+      </span>
 
       <!-- Safari requires this. Otherwise the buttons in plugin-hooks or header buttons template will be
         sticking to search button -->
       <button class="default" ng-show="!true"></button>
 
-      <ng-include src="'modules/biospecimen/participant/more-menu.html'"></ng-include>
+      <span ng-if="!listViewCtx.ctrl.listCtrl.checkList || listViewCtx.ctrl.listCtrl.checkList.count == 0">
+        <ng-include src="'modules/biospecimen/participant/more-menu.html'"></ng-include>
+      </span>
     </div>
 
     <div class="right">

@@ -84,6 +84,7 @@ import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
 import com.krishagni.catissueplus.core.common.errors.ErrorType;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
+import com.krishagni.catissueplus.core.common.events.BulkEntityDetail;
 import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
@@ -203,9 +204,33 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 	@PlusTransactional
 	public ResponseEvent<CollectionProtocolRegistrationDetail> updateRegistration(RequestEvent<CollectionProtocolRegistrationDetail> req) {
 		try {
-			CollectionProtocolRegistrationDetail detail = req.getPayload();
-			CollectionProtocolRegistration existing = getCpr(detail.getId(), detail.getCpId(), detail.getCpShortTitle(), detail.getPpid());
-			return ResponseEvent.response(saveOrUpdateRegistration(detail, existing, true));
+			return ResponseEvent.response(updateRegistration(req.getPayload()));
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
+		} catch (Exception e) {
+			return ResponseEvent.serverError(e);
+		}
+	}
+
+	@Override
+	@PlusTransactional
+	public ResponseEvent<List<CollectionProtocolRegistrationDetail>> bulkUpdateRegistrations(RequestEvent<BulkEntityDetail<CollectionProtocolRegistrationDetail>> req) {
+		try {
+			BulkEntityDetail<CollectionProtocolRegistrationDetail> buDetail = req.getPayload();
+			CollectionProtocolRegistrationDetail inputCpr = buDetail.getDetail();
+
+			List<CollectionProtocolRegistrationDetail> savedCprs = new ArrayList<>();
+			for (Long id : buDetail.getIds()) {
+				inputCpr.setId(id);
+				if (inputCpr.getParticipant() != null) {
+					inputCpr.getParticipant().setId(null);
+					inputCpr.getParticipant().setCpId(null);
+				}
+
+				savedCprs.add(updateRegistration(inputCpr));
+			}
+
+			return ResponseEvent.response(savedCprs);
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {
@@ -693,6 +718,11 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 	public void afterPropertiesSet() throws Exception {
 		exportSvc.registerObjectsGenerator("cpr", this::getCprsGenerator);
 		exportSvc.registerObjectsGenerator("consent", this::getConsentsGenerator);
+	}
+
+	private CollectionProtocolRegistrationDetail updateRegistration(CollectionProtocolRegistrationDetail input) {
+		CollectionProtocolRegistration existing = getCpr(input.getId(), input.getCpId(), input.getCpShortTitle(), input.getPpid());
+		return saveOrUpdateRegistration(input, existing, true);
 	}
 
 	private CollectionProtocolRegistrationDetail saveOrUpdateRegistration(

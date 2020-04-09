@@ -1,6 +1,8 @@
 
 angular.module('os.biospecimen.participant.list', ['os.biospecimen.models'])
-  .controller('ParticipantListCtrl', function($scope, $state, cp, twoStepReg, mobileDataEntryEnabled, PluginReg) {
+  .controller('ParticipantListCtrl', function(
+    $scope, $state, cp, twoStepReg, mobileDataEntryEnabled,
+    ParticipantsHolder, PluginReg) {
 
     var ctrl = this;
 
@@ -33,9 +35,16 @@ angular.module('os.biospecimen.participant.list', ['os.biospecimen.models'])
     };
 
     $scope.setListCtrl = function(listCtrl) {
-      $scope.ctx.listCtrl = listCtrl;
+      ctrl.listCtrl = $scope.ctx.listCtrl = listCtrl;
       $scope.listViewCtx.showSearch = listCtrl.haveFilters;
       $scope.listViewCtx.pagerOpts  =  listCtrl.pagerOpts;
+    }
+
+    ctrl.bulkEdit = function() {
+      var selectedRows = ctrl.listCtrl.getSelectedItems();
+      var cprs = selectedRows.map(function(row) { return {id: +row.hidden.cprId}; });
+      ParticipantsHolder.setParticipants(cprs);
+      $state.go('participant-bulk-edit');
     }
 
     init();

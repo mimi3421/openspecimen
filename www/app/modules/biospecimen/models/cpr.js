@@ -46,6 +46,12 @@ angular.module('os.biospecimen.models.cpr',
       return $http.post(url, bulkRegDetail).then(CollectionProtocolRegistration.modelRespTransform);
     }
 
+    //Update registrations in bulk with same detail
+    CollectionProtocolRegistration.bulkEdit = function(detail) {
+      return $http.put(CollectionProtocolRegistration.url() + "bulk-update", detail)
+        .then(CollectionProtocolRegistration.modelArrayRespTransform);
+    }
+
     function prepareFilterOpts(cpId, includeStats, filterOpts) {
       var params = {cpId: cpId, includeStats: !!includeStats};
       angular.extend(params, filterOpts || {});

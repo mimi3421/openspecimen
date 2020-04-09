@@ -619,6 +619,53 @@
         "data": {
             "fields": [
                 {
+                    "name": "cpr.registrationDate",
+                    "caption": "Registration Date",
+                    "type": "date"
+                },
+                {
+                    "name" : "cpr.site",
+                    "caption" : "Registration Site",
+                    "type" : "dropdown",
+                    "listSource" : {
+                        "apiUrl" : "collection-protocols/{{cp.id}}/sites",
+                        "displayProp" : "name",
+                        "selectProp" : "name",
+                        "queryParams" : { }
+                    },
+                    "optional": true
+                },
+                {
+                    "name": "cpr.participant.gender",
+                    "caption": "Gender",
+                    "type": "pvs",
+                    "attr": "gender",
+                    "optional": true
+                },
+                {
+                    "name": "cpr.participant.vitalStatus",
+                    "caption": "Vital Status",
+                    "type": "pvs",
+                    "attr": "vital_status",
+                    "optional": true
+                },
+                {
+                    "name": "cpr.participant.ethnicities",
+                    "caption": "Ethnicity",
+                    "type": "pvs",
+                    "attr": "ethnicity",
+                    "optional": true,
+                    "multiple": true
+                },
+                {
+                    "name": "cpr.participant.races",
+                    "caption": "Race",
+                    "type": "pvs",
+                    "attr": "race",
+                    "optional": true,
+                    "multiple": true
+                },
+                {
                     "name": "specimen.anatomicSite",
                     "caption": "Anatomic Site",
                     "type": "pvs",

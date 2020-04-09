@@ -1,60 +1,52 @@
-angular.module('os.biospecimen.specimen')
-  .controller('BulkEditSpecimensCtrl', function(
-      $scope, $timeout, $parse, hasSde, cpDict,
-      Specimen, SpecimensHolder, PvManager, Util) {
+angular.module('os.biospecimen.participant')
+  .controller('BulkEditParticipantsCtrl', function(
+      $scope, $timeout, $parse, hasSde, cpDict, cp,
+      CollectionProtocolRegistration, ParticipantsHolder, Util) {
 
       var EXCLUSION_LIST = [
-        'specimen.label',
-        'specimen.barcode',
-        'specimen.storageLocation',
-        'specimen.lineage',
-        'specimen.type',
-        'specimen.parentLabel'
+        'cpr.ppid',
+        'cpr.participant.firstName',
+        'cpr.participant.lastName',
+        'cpr.participant.middleName',
+        'cpr.participant.emailAddress',
+        'cpr.participant.birthDate',
+        'cpr.participant.deathDate',
+        'cpr.participant.empi',
+        'cpr.participant.uid',
+        'cpr.participant.pmis'
       ];
 
-      var spmnIds, ctx;
+      var cprIds, ctx;
 
       function init() {
-        $scope.specimen = new Specimen();
-
-        var spmnFields = [];
+        var cprFields = [];
         angular.forEach(cpDict.fields,
           function(field) {
-            if (field.name.indexOf('specimen') != 0 ||         // not specimen field
-                field.name.indexOf('specimen.events') == 0 ||  // event field
+            if (field.name.indexOf('cpr') != 0 ||              // not participant field
                 EXCLUSION_LIST.indexOf(field.name) != -1) {    // excluded field
               return;
             }
 
-            spmnFields.push(field);
+            cprFields.push(field);
           }
         );
 
         ctx = $scope.ctx = {
           editedFields: [
             {
-              obj: {specimen: {}},
+              obj: {cp: cp, cpr: {}},
               opts: {}
             }
           ],
-          fields: spmnFields
+          fields: cprFields
         };
 
-        spmnIds = (SpecimensHolder.getSpecimens() || []).map(function(spmn) { return spmn.id; });
-        SpecimensHolder.setSpecimens(null);
-
-        if (spmnFields.length == 0) {
-          loadPvs();
-        }
+        cprIds = (ParticipantsHolder.getParticipants() || []).map(function(cpr) { return cpr.id; });
+        ParticipantsHolder.setParticipants(null);
       }
 
-      function loadPvs() {
-        $scope.biohazards = PvManager.getPvs('specimen-biohazard');
-        $scope.specimenStatuses = PvManager.getPvs('specimen-status');
-      }
-
-      function updateSpecimens(toSave) {
-        Specimen.bulkEdit(toSave).then(
+      function updateParticipants(toSave) {
+        CollectionProtocolRegistration.bulkEdit(toSave).then(
           function(result) {
             $scope.back();
           }
@@ -89,7 +81,7 @@ angular.module('os.biospecimen.specimen')
 
             var len = ctx.editedFields.length;
             if (ctx.editedFields[len - 1].field) {
-              ctx.editedFields.push({field: undefined, obj: {specimen: {}}, opts: {}});
+              ctx.editedFields.push({field: undefined, obj: {cp: cp, cpr: {}}, opts: {}});
             }
           },
           0
@@ -100,11 +92,11 @@ angular.module('os.biospecimen.specimen')
         ctx.editedFields.splice(idx, 1);
       }
 
-      $scope.bulkUpdate = function() {
+      $scope.update = function() {
         var toSave = {};
 
         if (ctx.fields.length > 0) {
-          boolean edited = false;
+          var edited = false;
           angular.forEach(ctx.editedFields,
             function(editedField) {
               if (!editedField.field || !editedField.field.name) {
@@ -112,7 +104,7 @@ angular.module('os.biospecimen.specimen')
               }
 
               edited = true;
-              Util.merge(editedField.obj.specimen, toSave, true);
+              Util.merge(editedField.obj.cpr, toSave, true);
             }
           );
 
@@ -120,23 +112,22 @@ angular.module('os.biospecimen.specimen')
             return;
           }
 
-          toSave = {detail: toSave, ids: spmnIds};
+          toSave = {detail: toSave, ids: cprIds};
           if (hasBlankValues(toSave.detail)) {
             Util.showConfirm({
               title: 'common.clear_field_values_q',
               confirmMsg: 'common.confirm_clear_field_values',
               ok: function() {
-                updateSpecimens(toSave);
+                updateParticipants(toSave);
               }
             });
           } else {
-            updateSpecimens(toSave);
+            updateParticipants(toSave);
           }
         } else {
-          toSave = {detail: $scope.specimen, ids: spmnIds};
-          updateSpecimens(toSave);
+          toSave = {detail: $scope.cpr, ids: cprIds};
+          updateParticipants(toSave);
         }
-
       }
 
       init();

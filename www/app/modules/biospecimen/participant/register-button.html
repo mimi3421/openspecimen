@@ -1,7 +1,16 @@
 
-<span ng-include src="'modules/biospecimen/participant/primary-button.html'"></span>
+<span ng-if="!listViewCtx.ctrl.listCtrl.checkList || listViewCtx.ctrl.listCtrl.checkList.count == 0">
+  <span ng-include src="'modules/biospecimen/participant/primary-button.html'"></span>
 
-<button ng-if="!!listViewCtx.spmnListCfg" class="default" ui-sref="cp-specimens({cpId: cp.id})">
-  <span class="fa fa-flask"></span>
-  <span translate="cp.view_specimens">View Specimens</span>
-</button>
+  <button ng-if="!!listViewCtx.spmnListCfg" class="default" ui-sref="cp-specimens({cpId: cp.id})">
+    <span class="fa fa-flask"></span>
+    <span translate="cp.view_specimens">View Specimens</span>
+  </button>
+</span>
+
+<span ng-if="listViewCtx.ctrl.listCtrl.checkList.count > 0">
+  <button class="default" ng-click="listViewCtx.ctrl.bulkEdit()">
+    <span class="fa fa-edit"></span>
+    <span translate="common.buttons.edit">Edit</span>
+  </button>
+</span>

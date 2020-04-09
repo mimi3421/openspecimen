@@ -442,6 +442,50 @@ angular.module('os.biospecimen.participant',
         },
         parent: 'cp-view'
       })
+      .state('participant-bulk-edit', {
+        url: '/bulk-edit',
+        templateUrl: "modules/biospecimen/participant/bulk-edit.html",
+        controller: 'BulkEditParticipantsCtrl',
+        resolve: {
+          hasSde: function($injector) {
+            return $injector.has('sdeFieldsSvc');
+          },
+
+          cpDict: function(cp, hasSde, CpConfigSvc) {
+            if (!hasSde) {
+              return {cpId: cp.id, fields: []};
+            }
+
+            return CpConfigSvc.getBulkUpdateDictionary(cp.id);
+          },
+
+          customFields: function(cp, cpDict, CollectionProtocolRegistration, Form, ExtensionsUtil) {
+            if (cpDict.cpId != -1 || cpDict.fields.length == 0) {
+              return [];
+            }
+
+            return CollectionProtocolRegistration.getExtensionCtxt({cpId: cp.id}).then(
+              function(ctxt) {
+                if (!ctxt) {
+                  return [];
+                }
+
+                return Form.getDefinition(ctxt.formId).then(
+                  function(formDef) {
+                    var sdeFields = ExtensionsUtil.toSdeFields(
+                      'cpr.participant.extensionDetail.attrsMap',
+                      ctxt.formId,
+                      formDef);
+                    cpDict.fields = cpDict.fields.concat(sdeFields);
+                    return sdeFields;
+                  }
+                );
+              }
+            );
+          }
+        },
+        parent: 'cp-view'
+      })
       .state('participant-root', {
         url: '/participants/:cprId',
         template: '<div ui-view></div>',

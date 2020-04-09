@@ -91,6 +91,10 @@
     "loading_list": "Loading records, please wait for a moment...",
     "empty_list": "No records to show!",
 
+    "clear_field_values_q": "Clear Field Values?",
+    "confirm_clear_field_values": "One or more fields values are blank. Are you sure you want to proceed with clearing values of such fields?",
+    "select_field": "Select Field",
+
     "interval_units": {
       "DAYS": "Days",
       "WEEKS": "Weeks",
@@ -533,6 +537,8 @@
     "collection_site": "Collection Site",
     "participant_registered": "{{numOfParticipants}} participants registered successfully.",
     "spmn_kit_created": "Successfully created specimen kit for {{numOfParticipants}} newly registered participants.",
+    "bulk_update": "Bulk Edit Participants",
+    "bulk_edit_ee": "Bulk edit of participant records is available only in the enterprise edition of the software. For more details, email us at support@krishagni.com",
 
     "consent": {
       "signed_form": "Signed Consent Form",
@@ -930,10 +936,7 @@
       "select_same_visit_spmns": "Please select specimens of same visit"
     },
 
-    "bulk_update": "Bulk Update Specimens",
-    "clear_field_values_q": "Clear Field Values?",
-    "confirm_clear_field_values": "One or more fields have no values specified. Are you sure you want to proceed with clearing values of such fields?",
-    "select_field": "Select Field",
+    "bulk_update": "Bulk Edit Specimens",
 
     "bulk_events": {
       "add_edit": "Bulk Events",
