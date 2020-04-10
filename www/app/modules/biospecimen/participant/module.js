@@ -78,6 +78,13 @@ angular.module('os.biospecimen.participant',
               sites: cp.cpSites.map(function(cpSite) { return cpSite.siteName; })
             });
 
+            var participantDeleteAllowed = AuthorizationService.isAllowed({
+              resource: 'ParticipantPhi',
+              operations: ['Delete'],
+              cp: cp.shortTitle,
+              sites: cp.cpSites.map(function(cpSite) { return cpSite.siteName; })
+            });
+
             var participantEximAllowed = AuthorizationService.isAllowed({
               resource: 'ParticipantPhi',
               operations: ['Export Import'],
@@ -134,6 +141,7 @@ angular.module('os.biospecimen.participant',
               participantExportAllowed: participantEximAllowed,
               visitSpecimenExportAllowed: visitSpmnEximAllowed,
               participantUpdateAllowed: participantUpdateAllowed,
+              participantDeleteAllowed: participantDeleteAllowed,
               spmnReadAllowed: spmnReadAllowed,
               allSpmnEximAllowed: allSpmnEximAllowed,
               consentsReadAllowed: consentsReadAllowed,

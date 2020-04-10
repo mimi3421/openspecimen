@@ -1,13 +1,20 @@
 package com.krishagni.catissueplus.core.biospecimen.events;
 
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 
+import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
+import com.krishagni.catissueplus.core.common.util.Utility;
+
 @JsonSerialize(include=Inclusion.NON_NULL)
 public class CprSummary {
 	private ParticipantSummary participant;
+
+	private Long id;
 	
 	private Long cprId;
 	
@@ -29,6 +36,14 @@ public class CprSummary {
 
 	public void setParticipant(ParticipantSummary participant) {
 		this.participant = participant;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public Long getCprId() {
@@ -85,5 +100,21 @@ public class CprSummary {
 
 	public void setSpecimenCount(Long specimenCount) {
 		this.specimenCount = specimenCount;
+	}
+
+	public static CprSummary from(CollectionProtocolRegistration cpr, boolean excludePhi) {
+		CprSummary result = new CprSummary();
+		result.setId(cpr.getId());
+		result.setCprId(cpr.getId());
+		result.setRegistrationDate(cpr.getRegistrationDate());
+		result.setPpid(cpr.getPpid());
+		result.setCpId(cpr.getCollectionProtocol().getId());
+		result.setCpShortTitle(cpr.getCollectionProtocol().getShortTitle());
+		result.setParticipant(ParticipantSummary.from(cpr.getParticipant(), excludePhi));
+		return result;
+	}
+
+	public static List<CprSummary> from(List<CollectionProtocolRegistration> cprs, boolean excludePhi) {
+		return Utility.nullSafeStream(cprs).map((cpr) -> from(cpr, excludePhi)).collect(Collectors.toList());
 	}
 }

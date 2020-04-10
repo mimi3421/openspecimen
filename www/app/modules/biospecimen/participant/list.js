@@ -2,7 +2,7 @@
 angular.module('os.biospecimen.participant.list', ['os.biospecimen.models'])
   .controller('ParticipantListCtrl', function(
     $scope, $state, cp, twoStepReg, mobileDataEntryEnabled,
-    ParticipantsHolder, PluginReg) {
+    ParticipantsHolder, PluginReg, DeleteUtil, CollectionProtocolRegistration) {
 
     var ctrl = this;
 
@@ -45,6 +45,21 @@ angular.module('os.biospecimen.participant.list', ['os.biospecimen.models'])
       var cprs = selectedRows.map(function(row) { return {id: +row.hidden.cprId}; });
       ParticipantsHolder.setParticipants(cprs);
       $state.go('participant-bulk-edit');
+    }
+
+    ctrl.deleteParticipants = function() {
+      var selectedRows = ctrl.listCtrl.getSelectedItems();
+      var cprIds = selectedRows.map(function(row) { return +row.hidden.cprId; });
+
+      var opts = {
+        confirmDelete:  'participant.delete_participants',
+        successMessage: 'participant.participants_deleted',
+        pendingMessage: 'participant.participants_delete_pending',
+        onBulkDeletion: function() { ctrl.listCtrl.loadList(); },
+        askReason:      true
+      }
+
+      DeleteUtil.bulkDelete({bulkDelete: CollectionProtocolRegistration.bulkDelete}, cprIds, opts);
     }
 
     init();

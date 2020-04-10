@@ -16,6 +16,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -23,11 +27,16 @@ import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
+import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.audit.services.impl.DeleteLogUtil;
 import com.krishagni.catissueplus.core.biospecimen.ConfigParams;
 import com.krishagni.catissueplus.core.biospecimen.domain.AnonymizeEvent;
@@ -56,6 +65,7 @@ import com.krishagni.catissueplus.core.biospecimen.events.CollectionProtocolEven
 import com.krishagni.catissueplus.core.biospecimen.events.CollectionProtocolRegistrationDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.ConsentDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.CpEntityDeleteCriteria;
+import com.krishagni.catissueplus.core.biospecimen.events.CprSummary;
 import com.krishagni.catissueplus.core.biospecimen.events.FileDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.MatchedParticipant;
 import com.krishagni.catissueplus.core.biospecimen.events.MatchedParticipantsList;
@@ -84,6 +94,8 @@ import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
 import com.krishagni.catissueplus.core.common.errors.ErrorType;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
+import com.krishagni.catissueplus.core.common.events.BulkDeleteEntityOp;
+import com.krishagni.catissueplus.core.common.events.BulkDeleteEntityResp;
 import com.krishagni.catissueplus.core.common.events.BulkEntityDetail;
 import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
@@ -126,6 +138,8 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 	private ExportService exportSvc;
 
 	private PdeTokenGeneratorRegistry pdeTokenGeneratorRegistry;
+
+	private ThreadPoolTaskExecutor taskExecutor;
 	
 	public void setDaoFactory(DaoFactory daoFactory) {
 		this.daoFactory = daoFactory;
@@ -169,6 +183,10 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 
 	public void setPdeTokenGeneratorRegistry(PdeTokenGeneratorRegistry pdeTokenGeneratorRegistry) {
 		this.pdeTokenGeneratorRegistry = pdeTokenGeneratorRegistry;
+	}
+
+	public void setTaskExecutor(ThreadPoolTaskExecutor taskExecutor) {
+		this.taskExecutor = taskExecutor;
 	}
 
 	@Override
@@ -339,16 +357,45 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 			raiseErrorIfSpecimenCentric(cpr);
 
 			AccessCtrlMgr.getInstance().ensureDeleteCprRights(cpr);
-			cpr.setOpComments(crit.getReason());
-			cpr.delete(!crit.isForceDelete(), crit.booleanParam("checkOnlyCollectedSpmns"));
-			DeleteLogUtil.getInstance().log(cpr);
+			deleteCpr(cpr, crit.getReason(), crit.isForceDelete(), crit.booleanParam("checkOnlyCollectedSpmns"));
 			return ResponseEvent.response(CollectionProtocolRegistrationDetail.from(cpr, false));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {
 			return ResponseEvent.serverError(e);
 		}
-	}	
+	}
+
+	@Override
+	@PlusTransactional
+	public ResponseEvent<BulkDeleteEntityResp<CprSummary>> deleteRegistrations(RequestEvent<BulkDeleteEntityOp> req) {
+		try {
+			BulkDeleteEntityOp crit = req.getPayload();
+
+			Set<Long> cprIds = crit.getIds();
+			List<CollectionProtocolRegistration> cprs = daoFactory.getCprDao().getByIds(cprIds);
+			if (crit.getIds().size() != cprs.size()) {
+				cprs.forEach(cpr -> cprIds.remove(cpr.getId()));
+				throw OpenSpecimenException.userError(CprErrorCode.M_NOT_FOUND, cprIds, cprIds.size());
+			}
+
+			for (CollectionProtocolRegistration cpr : cprs) {
+				AccessCtrlMgr.getInstance().ensureDeleteCprRights(cpr);
+				raiseErrorIfSpecimenCentric(cpr);
+			}
+
+			boolean completed = deleteCprs(cprs, crit.getReason(), crit.isForceDelete());
+
+			BulkDeleteEntityResp<CprSummary> resp = new BulkDeleteEntityResp<>();
+			resp.setCompleted(completed);
+			resp.setEntities(CprSummary.from(cprs, false));
+			return ResponseEvent.response(resp);
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
+		} catch (Exception e) {
+			return ResponseEvent.serverError(e);
+		}
+	}
 	
 	@Override
 	@PlusTransactional
@@ -1334,6 +1381,86 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 		}
 
 		return cpId;
+	}
+
+	private boolean deleteCprs(List<CollectionProtocolRegistration> cprs, String reason, boolean forceDelete)
+	throws Exception {
+		final Authentication auth = AuthUtil.getAuth();
+
+		Future<Boolean> result = taskExecutor.submit(new Callable<Boolean>() {
+			@Override
+			public Boolean call() throws Exception {
+				try {
+					SecurityContextHolder.getContext().setAuthentication(auth);
+
+					List<CollectionProtocolRegistration> success = new ArrayList<>();
+					Map<CollectionProtocolRegistration, String> failed = new HashMap<>();
+
+					for (CollectionProtocolRegistration cpr : cprs) {
+						try {
+							deleteCpr(cpr.getId(), reason, forceDelete);
+							success.add(cpr);
+						} catch (Throwable t) {
+							failed.put(cpr, ExceptionUtils.getStackTrace(t));
+						}
+					}
+
+					notifyOnCprsDeleted(AuthUtil.getCurrentUser(), success);
+					notifyOnCprsDeleteErrors(AuthUtil.getCurrentUser(), failed);
+				} catch (Throwable t) {
+					logger.error("Error deleting registrations", t);
+				}
+
+				return true;
+			}
+		});
+
+		boolean completed = false;
+		try {
+			completed = result.get(30, TimeUnit.SECONDS);
+		} catch (TimeoutException ex) {
+			completed = false;
+		}
+
+		return completed;
+	}
+
+	@PlusTransactional
+	private void deleteCpr(Long cprId, String reason, boolean forceDelete) {
+		CollectionProtocolRegistration cpr = daoFactory.getCprDao().getById(cprId);
+		deleteCpr(cpr, reason, forceDelete, true);
+	}
+
+	private void deleteCpr(CollectionProtocolRegistration cpr, String reason, boolean forceDelete, boolean checkOnlyCollectedSpmns) {
+		cpr.setOpComments(reason);
+		cpr.delete(!forceDelete, checkOnlyCollectedSpmns);
+		DeleteLogUtil.getInstance().log(cpr);
+	}
+
+	private void notifyOnCprsDeleted(User user, List<CollectionProtocolRegistration> cprs) {
+		if (cprs == null || cprs.isEmpty()) {
+			return;
+		}
+
+		String[] rcpts = { user.getEmailAddress() };
+		Map<String, Object> props = new HashMap<>();
+		props.put("rcpt", user);
+		props.put("cprs", cprs);
+		props.put("ccAdmin", false);
+		EmailUtil.getInstance().sendEmail("cprs_delete_success", rcpts, null, props);
+	}
+
+	private void notifyOnCprsDeleteErrors(User user, Map<CollectionProtocolRegistration, String> errors) {
+		if (errors == null || errors.isEmpty()) {
+			return;
+		}
+
+		String[] rcpts = { user.getEmailAddress() };
+		Map<String, Object> props = new HashMap<>();
+		props.put("rcpt", user);
+		props.put("ccAdmin", false);
+		props.put("errors", errors);
+		EmailUtil.getInstance().sendEmail("cprs_delete_error", rcpts, null, props);
 	}
 
 	private void ensureAllHaveEmailIds(List<CollectionProtocolRegistration> cprs) {

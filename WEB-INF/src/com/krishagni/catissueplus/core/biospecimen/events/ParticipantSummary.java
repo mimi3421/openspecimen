@@ -1,6 +1,8 @@
 
 package com.krishagni.catissueplus.core.biospecimen.events;
 
+import com.krishagni.catissueplus.core.biospecimen.domain.Participant;
+
 public class ParticipantSummary {
 	private Long id;
 
@@ -70,5 +72,21 @@ public class ParticipantSummary {
 
 	public void setEmailAddress(String emailAddress) {
 		this.emailAddress = emailAddress;
+	}
+
+	public static ParticipantSummary from(Participant p, boolean excludePhi) {
+		ParticipantSummary result = new ParticipantSummary();
+		result.setId(p.getId());
+		result.setSource(p.getSource());
+		if (excludePhi) {
+			return result;
+		}
+
+		result.setFirstName(p.getFirstName());
+		result.setLastName(p.getLastName());
+		result.setEmpi(p.getEmpi());
+		result.setUid(p.getUid());
+		result.setEmailAddress(p.getEmailAddress());
+		return result;
 	}
 }

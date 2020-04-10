@@ -3,7 +3,9 @@ package com.krishagni.catissueplus.rest.controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +37,8 @@ import com.krishagni.catissueplus.core.biospecimen.events.VisitDetail;
 import com.krishagni.catissueplus.core.biospecimen.repository.CprListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.services.CollectionProtocolRegistrationService;
 import com.krishagni.catissueplus.core.biospecimen.services.CollectionProtocolService;
+import com.krishagni.catissueplus.core.common.events.BulkDeleteEntityOp;
+import com.krishagni.catissueplus.core.common.events.BulkDeleteEntityResp;
 import com.krishagni.catissueplus.core.common.events.BulkEntityDetail;
 import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
@@ -183,6 +187,26 @@ public class CollectionProtocolRegistrationsController {
 		ResponseEvent<CollectionProtocolRegistrationDetail> resp = cprSvc.deleteRegistration(getRequest(crit));
 		resp.throwErrorIfUnsuccessful();
 		return resp.getPayload();
+	}
+
+	@RequestMapping(method = RequestMethod.DELETE)
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public BulkDeleteEntityResp<CprSummary> deleteRegistrations(
+		@RequestParam(value = "id")
+		Long[] ids,
+
+		@RequestParam(value = "forceDelete", required = false, defaultValue = "false")
+		boolean forceDelete,
+
+		@RequestParam(value = "reason", required = false, defaultValue = "")
+		String reason) {
+
+		BulkDeleteEntityOp crit = new BulkDeleteEntityOp();
+		crit.setIds(new HashSet<>(Arrays.asList(ids)));
+		crit.setForceDelete(forceDelete);
+		crit.setReason(reason);
+		return ResponseEvent.unwrap(cprSvc.deleteRegistrations(RequestEvent.wrap(crit)));
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value="/{id}/consent-form")

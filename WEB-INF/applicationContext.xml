@@ -279,6 +279,7 @@
     <property name="specimenKitSvc" ref="specimenKitSvc"/>
     <property name="exportSvc" ref="exportSvc"/>
     <property name="pdeTokenGeneratorRegistry" ref="pdeTokenGeneratorRegistry"/>
+    <property name="taskExecutor" ref="taskExecutor"/>
   </bean>
   
   <bean id="ppidTokensRegistrar" class="com.krishagni.catissueplus.core.common.domain.DefaultLabelTmplTokenRegistrar">

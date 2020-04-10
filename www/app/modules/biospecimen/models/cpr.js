@@ -52,6 +52,11 @@ angular.module('os.biospecimen.models.cpr',
         .then(CollectionProtocolRegistration.modelArrayRespTransform);
     }
 
+    CollectionProtocolRegistration.bulkDelete = function(cprIds, reason) {
+      return $http.delete(CollectionProtocolRegistration.url(), {params: {id: cprIds, forceDelete: true, reason: reason}})
+        .then(function(result) { return result.data; });
+    }
+
     function prepareFilterOpts(cpId, includeStats, filterOpts) {
       var params = {cpId: cpId, includeStats: !!includeStats};
       angular.extend(params, filterOpts || {});

@@ -14,5 +14,11 @@
     <span translate="common.buttons.edit">Edit</span>
   </button>
 
+  <button class="default" ng-click="listViewCtx.ctrl.deleteParticipants()"
+    ng-show="cpViewCtx.participantDeleteAllowed">
+    <span class="fa fa-trash"></span>
+    <span translate="common.buttons.delete">Delete</span>
+  </button>
+
   <os-plugin-hooks view-name="'participant-list'" sec-name="'bulk-ops'"></os-plugin-hooks>
 </span>
