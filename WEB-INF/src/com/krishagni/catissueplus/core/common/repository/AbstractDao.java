@@ -106,7 +106,7 @@ public class AbstractDao<T> implements Dao<T> {
 		Junction or = Restrictions.disjunction();
 		int numValues = ids.size();
 		for (int i = 0; i < numValues; i += 500) {
-			List<Long> params = ids.subList(i, i + 500 > numValues ? numValues : i + 500);
+			List<Long> params = ids.subList(i, Math.min(i + 500, numValues));
 			or.add(Restrictions.in(attrName, params));
 		}
 

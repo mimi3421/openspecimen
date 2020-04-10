@@ -142,6 +142,7 @@ public abstract class AbstractListCriteria<T extends ListCriteria<T>> implements
 	}
 	
 	@Override
+	@JsonProperty("ids")
 	public T ids(List<Long> ids) {
 		this.ids = ids;
 		return self();

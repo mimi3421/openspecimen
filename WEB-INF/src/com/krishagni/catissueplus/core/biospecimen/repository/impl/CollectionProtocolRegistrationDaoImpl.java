@@ -283,6 +283,7 @@ public class CollectionProtocolRegistrationDaoImpl extends AbstractDao<Collectio
 		addSpecimenCondition(query, cprCrit);
 		addSiteCpsCond(query, cprCrit);
 		addPpidsCond(query, cprCrit);
+		addIdsCond(query, cprCrit);
 		return query;		
 	}
 
@@ -379,6 +380,12 @@ public class CollectionProtocolRegistrationDaoImpl extends AbstractDao<Collectio
 	private void addPpidsCond(Criteria query, CprListCriteria crit) {
 		if (CollectionUtils.isNotEmpty(crit.ppids())) {
 			query.add(Restrictions.in("ppid", crit.ppids()));
+		}
+	}
+
+	private void addIdsCond(Criteria query, CprListCriteria crit) {
+		if (CollectionUtils.isNotEmpty(crit.ids())) {
+			applyIdsFilter(query, "id", crit.ids());
 		}
 	}
 
