@@ -51,7 +51,7 @@ public class CollectionProtocolRegistrationDaoImpl extends AbstractDao<Collectio
 	@Override
 	public List<CprSummary> getCprList(CprListCriteria crit) {
 		Criteria query = getCprListQuery(crit)
-			.addOrder(Order.asc("id"))
+			.addOrder(Order.desc("registrationDate"))
 			.setFirstResult(crit.startAt())
 			.setMaxResults(crit.maxResults())
 			.setProjection(getCprSummaryFields(crit));
