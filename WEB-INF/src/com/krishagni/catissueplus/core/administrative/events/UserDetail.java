@@ -11,6 +11,7 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.common.AttributeModifiedSupport;
 import com.krishagni.catissueplus.core.common.ListenAttributeChanges;
+import com.krishagni.catissueplus.core.common.util.MessageUtil;
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 @ListenAttributeChanges
@@ -18,6 +19,8 @@ public class UserDetail extends AttributeModifiedSupport {
 	private static final String ARCHIVED = "Archived";
 
 	private static final String CLOSED = "Closed";
+
+	private static String regularType;
 
 	private Long id;
 
@@ -131,6 +134,9 @@ public class UserDetail extends AttributeModifiedSupport {
 
 	public void setType(String type) {
 		this.type = type;
+		if (getRegularType().equalsIgnoreCase(getType())) {
+			this.type = User.Type.NONE.name();
+		}
 	}
 
 	public String getPhoneNumber() {
@@ -217,5 +223,13 @@ public class UserDetail extends AttributeModifiedSupport {
 	
 	public static List<UserDetail> from(Collection<User> users) {
 		return users.stream().map(UserDetail::from).collect(Collectors.toList());
+	}
+
+	private static String getRegularType() {
+		if (regularType == null) {
+			regularType = MessageUtil.getInstance().getMessage("user_type_regular");
+		}
+
+		return regularType;
 	}
 }
