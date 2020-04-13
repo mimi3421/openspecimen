@@ -225,4 +225,12 @@
   <changeSet author="vpawar" id="Patient data entry notification link ID generator" dbms="oracle">
     <createSequence sequenceName="OS_PDE_NOTIF_LINKS_SEQ" startValue="1" incrementBy="1" ordered="true"/>
   </changeSet>
+
+  <changeSet author="vpawar" id="Collection protocol group activity status">
+    <addColumn tableName="OS_CP_GROUPS">
+      <column name="ACTIVITY_STATUS" type="${text.type}(16)" defaultValue="Active">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

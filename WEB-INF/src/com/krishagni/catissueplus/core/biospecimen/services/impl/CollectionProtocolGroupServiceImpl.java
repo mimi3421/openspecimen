@@ -178,7 +178,7 @@ public class CollectionProtocolGroupServiceImpl implements CollectionProtocolGro
 		}
 
 		groups.forEach(this::ensureUpdateAccess);
-		groups.forEach(group -> deleteGroup(group, req.getPayload().getReason()));
+		groups.forEach(group -> group.delete(req.getPayload().getReason()));
 
 		BulkDeleteEntityResp<CollectionProtocolGroupSummary> resp = new BulkDeleteEntityResp<>();
 		resp.setCompleted(true);
@@ -530,13 +530,5 @@ public class CollectionProtocolGroupServiceImpl implements CollectionProtocolGro
 		return !level.equals("ParticipantExtension") &&
 			!level.equals("VisitExtension") &&
 			!level.equals("SpecimenExtension");
-	}
-
-	private void deleteGroup(CollectionProtocolGroup group, String reason) {
-		daoFactory.getCpGroupDao().delete(group);
-		if (StringUtils.isNotBlank(reason)) {
-			group.setOpComments(reason);
-			DeleteLogUtil.getInstance().log(group);
-		}
 	}
 }

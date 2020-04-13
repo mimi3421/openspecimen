@@ -11,6 +11,8 @@ public class CollectionProtocolGroupDetail {
 
 	private String name;
 
+	private String activityStatus;
+
 	private Set<CollectionProtocolSummary> cps = new HashSet<>();
 
 	public Long getId() {
@@ -29,6 +31,14 @@ public class CollectionProtocolGroupDetail {
 		this.name = name;
 	}
 
+	public String getActivityStatus() {
+		return activityStatus;
+	}
+
+	public void setActivityStatus(String activityStatus) {
+		this.activityStatus = activityStatus;
+	}
+
 	public Set<CollectionProtocolSummary> getCps() {
 		return cps;
 	}
@@ -42,6 +52,7 @@ public class CollectionProtocolGroupDetail {
 		result.setId(group.getId());
 		result.setName(group.getName());
 		result.setCps(group.getCps().stream().map(CollectionProtocolSummary::from).collect(Collectors.toSet()));
+		result.setActivityStatus(group.getActivityStatus());
 		return result;
 	}
 }

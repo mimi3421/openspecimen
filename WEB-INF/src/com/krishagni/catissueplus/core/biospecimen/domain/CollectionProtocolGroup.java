@@ -11,12 +11,17 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.krishagni.catissueplus.core.audit.services.impl.DeleteLogUtil;
 import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
+import com.krishagni.catissueplus.core.common.util.Status;
+import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.catissueplus.core.de.domain.Form;
 
 public class CollectionProtocolGroup extends BaseEntity {
 	private String name;
+
+	private String activityStatus;
 
 	private Set<CollectionProtocol> cps = new HashSet<>();
 
@@ -34,6 +39,14 @@ public class CollectionProtocolGroup extends BaseEntity {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getActivityStatus() {
+		return activityStatus;
+	}
+
+	public void setActivityStatus(String activityStatus) {
+		this.activityStatus = activityStatus;
 	}
 
 	public Set<CollectionProtocol> getCps() {
@@ -107,8 +120,26 @@ public class CollectionProtocolGroup extends BaseEntity {
 	}
 
 	public void update(CollectionProtocolGroup other) {
+		if (Status.isDisabledStatus(other.getActivityStatus())) {
+			delete(null);
+			return;
+		}
+
 		setName(other.getName());
 		setCps(other.getCps());
+	}
+
+	public void delete(String reason) {
+		setName(Utility.getDisabledValue(getName(), 64));
+		getCps().clear();
+		getForms().clear();
+
+		if (StringUtils.isNotBlank(reason)) {
+			setOpComments(reason);
+			DeleteLogUtil.getInstance().log(this);
+		}
+
+		setActivityStatus(Status.ACTIVITY_STATUS_DISABLED.getStatus());
 	}
 
 	public void addForms(String level, List<Pair<Form, Boolean>> formsToAdd) {

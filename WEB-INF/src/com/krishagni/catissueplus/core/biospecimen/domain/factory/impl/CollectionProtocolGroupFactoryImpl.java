@@ -14,8 +14,10 @@ import com.krishagni.catissueplus.core.biospecimen.domain.factory.CpGroupErrorCo
 import com.krishagni.catissueplus.core.biospecimen.events.CollectionProtocolGroupDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.CollectionProtocolSummary;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
+import com.krishagni.catissueplus.core.common.errors.ActivityStatusErrorCode;
 import com.krishagni.catissueplus.core.common.errors.ErrorType;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
+import com.krishagni.catissueplus.core.common.util.Status;
 
 public class CollectionProtocolGroupFactoryImpl implements CollectionProtocolGroupFactory {
 
@@ -33,6 +35,7 @@ public class CollectionProtocolGroupFactoryImpl implements CollectionProtocolGro
 		group.setId(input.getId());
 		setName(input, group, ose);
 		setCps(input, group, ose);
+		setActivityStatus(input, group, ose);
 		ose.checkAndThrow();
 
 		return group;
@@ -88,6 +91,16 @@ public class CollectionProtocolGroupFactoryImpl implements CollectionProtocolGro
 			} else {
 				group.getCps().addAll(cps);
 			}
+		}
+	}
+
+	private void setActivityStatus(CollectionProtocolGroupDetail input, CollectionProtocolGroup group, OpenSpecimenException ose) {
+		if (StringUtils.isBlank(input.getActivityStatus())) {
+			group.setActivityStatus(Status.ACTIVITY_STATUS_ACTIVE.getStatus());
+		} else if (Status.isValidActivityStatus(input.getActivityStatus())) {
+			group.setActivityStatus(input.getActivityStatus());
+		} else {
+			ose.addError(ActivityStatusErrorCode.INVALID, input.getActivityStatus());
 		}
 	}
 }
