@@ -69,7 +69,7 @@ public class Institute extends BaseEntity {
 
 	public void update(Institute other) {		
 		setName(other.getName());
-		updateActivityStatus(other.getActivityStatus());
+		updateStatus(other.getActivityStatus());
 	}
 	
 	public List<DependentEntityDetail> getDependentEntities() {
@@ -93,16 +93,16 @@ public class Institute extends BaseEntity {
 		return sites;
 	}
 
-	private void updateActivityStatus(String newActivityStatus) {
+	private void updateStatus(String newActivityStatus) {
 		if (activityStatus.equals(newActivityStatus)) {
 			return;
 		}
-		
-		if (Status.ACTIVITY_STATUS_DISABLED.getStatus().equals(newActivityStatus)) {
-			ensureFreeOfDependencies();
+
+		if (Status.isClosedOrDisabledStatus(newActivityStatus)) {
+			delete(Status.isClosedStatus(newActivityStatus));
+		} else {
+			setActivityStatus(newActivityStatus);
 		}
-		
-		setActivityStatus(newActivityStatus);
 	}
 	
 	private void ensureFreeOfDependencies() {

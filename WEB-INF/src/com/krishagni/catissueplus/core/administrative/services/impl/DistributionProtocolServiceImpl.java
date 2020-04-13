@@ -672,8 +672,6 @@ public class DistributionProtocolServiceImpl implements DistributionProtocolServ
 	private void deleteDistributionProtocol(DistributionProtocol dp) {
 		DistributionProtocol deletedDp = new DistributionProtocol();
 		BeanUtils.copyProperties(dp, deletedDp);
-
-		removeContainerRestrictions(dp);
 		dp.delete();
 		notifyOnDpDelete(deletedDp);
 	}
@@ -728,6 +726,12 @@ public class DistributionProtocolServiceImpl implements DistributionProtocolServ
 		try {
 			DistributionProtocolDetail reqDetail = req.getPayload();
 			DistributionProtocol existing = getDistributionProtocol(reqDetail.getId(), reqDetail.getShortTitle(), reqDetail.getTitle());
+			if (Status.isDisabledStatus(reqDetail.getActivityStatus())) {
+				AccessCtrlMgr.getInstance().ensureDeleteDpRights(existing);
+				deleteDistributionProtocol(existing);
+				return ResponseEvent.response(DistributionProtocolDetail.from(existing));
+			}
+
 			AccessCtrlMgr.getInstance().ensureCreateUpdateDpRights(existing);
 
 			reqDetail.setId(existing.getId());

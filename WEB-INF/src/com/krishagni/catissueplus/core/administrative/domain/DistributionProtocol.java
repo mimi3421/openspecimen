@@ -253,8 +253,7 @@ public class DistributionProtocol extends BaseExtensionEntity {
 
 	public void update(DistributionProtocol dp) {
 		if (dp.getActivityStatus().equals(Status.ACTIVITY_STATUS_DISABLED.getStatus())) {
-			setShortTitle(Utility.getDisabledValue(dp.getShortTitle(), 50));
-			setTitle(Utility.getDisabledValue(dp.getTitle(), 255));
+			delete();
 		} else {
 			setShortTitle(dp.getShortTitle());
 			setTitle(dp.getTitle());
@@ -285,11 +284,14 @@ public class DistributionProtocol extends BaseExtensionEntity {
 	}
 	
 	public void delete() {
+		getDistributionContainers().forEach(container -> container.removeDpRestriction(this));
+		getDistributionContainers().clear();
+
 		List<DependentEntityDetail> dependentEntities = getDependentEntities();
 		if (!dependentEntities.isEmpty()) {
 			throw OpenSpecimenException.userError(DistributionProtocolErrorCode.REF_ENTITY_FOUND, getShortTitle());
 		}
-		
+
 		setShortTitle(Utility.getDisabledValue(getShortTitle(), 50));
 		setTitle(Utility.getDisabledValue(getTitle(), 255));
 		setActivityStatus(Status.ACTIVITY_STATUS_DISABLED.getStatus());
