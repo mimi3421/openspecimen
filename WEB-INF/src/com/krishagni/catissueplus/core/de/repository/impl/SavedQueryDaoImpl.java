@@ -86,6 +86,7 @@ public class SavedQueryDaoImpl extends AbstractDao<SavedQuery> implements SavedQ
 				.setProjection(Projections.countDistinct("s.id"));
 		
 		addSearchConditions(criteria, searchString);
+		addActiveCpGroupCond(criteria);
 		return ((Number)criteria.uniqueResult()).longValue();
 	}
 
@@ -226,7 +227,7 @@ public class SavedQueryDaoImpl extends AbstractDao<SavedQuery> implements SavedQ
 
 		addCpCondition(query, crit.cpId());
 		addSearchConditions(query, crit.query());
-		return query;
+		return addActiveCpGroupCond(query);
 	}
 
 	private Criteria addCpCondition(Criteria query, Long cpId) {
@@ -254,6 +255,22 @@ public class SavedQueryDaoImpl extends AbstractDao<SavedQuery> implements SavedQ
 
 		srchCond.add(Restrictions.ilike("s.title", searchTerm, MatchMode.ANYWHERE));
 		return query.add(srchCond);
+	}
+
+	private Criteria addActiveCpGroupCond(Criteria query) {
+		return query.add(
+			Restrictions.or(
+				Restrictions.isNull("s.cpId"),
+				Restrictions.sqlRestriction(
+					"{alias}.cp_id in (select identifier from catissue_collection_protocol where activity_status != 'Disabled')")
+			)
+		).add(
+			Restrictions.or(
+				Restrictions.isNull("s.cpGroupId"),
+				Restrictions.sqlRestriction(
+					"{alias}.cp_group_id in (select identifier from os_cp_groups where activity_status != 'Disabled')")
+			)
+		);
 	}
 
 	private static final String INSERT_QUERY_CHANGE_LOG_SQL = FQN + ".insertQueryChangeLog"; 
