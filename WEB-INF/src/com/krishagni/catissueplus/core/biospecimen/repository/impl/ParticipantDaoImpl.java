@@ -121,8 +121,8 @@ public class ParticipantDaoImpl extends AbstractDao<Participant> implements Part
 			
 			junction.add(
 				Restrictions.and(
-					Restrictions.eq("site.name", pmi.getSiteName()),
-					Restrictions.eq("pmi.medicalRecordNumber", pmi.getMrn())
+					Restrictions.eq("site.name", pmi.getSiteName()).ignoreCase(),
+					Restrictions.eq("pmi.medicalRecordNumber", pmi.getMrn()).ignoreCase()
 				)
 			);
 			

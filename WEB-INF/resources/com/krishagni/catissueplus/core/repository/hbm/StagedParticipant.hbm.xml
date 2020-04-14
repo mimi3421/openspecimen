@@ -65,6 +65,15 @@
         lower(p.empi) = :empi
     </query>
 
+    <query name="getByUid">
+      select
+        p
+      from
+        com.krishagni.catissueplus.core.biospecimen.domain.StagedParticipant p
+      where
+        lower(p.uid) = :uid
+    </query>
+
     <query name="getByMrn">
       select
         p

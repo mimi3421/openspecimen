@@ -34,10 +34,16 @@ public class StagedParticipantDaoImpl extends AbstractDao<StagedParticipant> imp
 	@Override
 	@SuppressWarnings("unchecked")
 	public StagedParticipant getByEmpi(String empi) {
-		List<StagedParticipant> participants = getCurrentSession().getNamedQuery(GET_BY_EMPI)
-			.setString("empi", empi.toLowerCase())
-			.list();
-		return CollectionUtils.isEmpty(participants) ? null : participants.iterator().next();
+		return (StagedParticipant) getCurrentSession().getNamedQuery(GET_BY_EMPI)
+			.setParameter("empi", empi.toLowerCase())
+			.uniqueResult();
+	}
+
+	@Override
+	public StagedParticipant getByUid(String uid) {
+		return (StagedParticipant) getCurrentSession().getNamedQuery(GET_BY_UID)
+			.setParameter("uid", uid.toLowerCase())
+			.uniqueResult();
 	}
 
 	@Override
@@ -59,7 +65,7 @@ public class StagedParticipantDaoImpl extends AbstractDao<StagedParticipant> imp
 
 	private Criteria getByPmisQuery(List<PmiDetail> pmis) {
 		Criteria query = getCurrentSession().createCriteria(StagedParticipant.class)
-			.createAlias("pmis", "pmi");
+			.createAlias("pmiList", "pmi");
 		
 		Disjunction junction = Restrictions.disjunction();
 		boolean added = false;
@@ -70,8 +76,8 @@ public class StagedParticipantDaoImpl extends AbstractDao<StagedParticipant> imp
 			
 			junction.add(
 				Restrictions.and(
-					Restrictions.ilike("pmi.medicalRecordNumber", pmi.getMrn()),
-					Restrictions.ilike("pmi.site", pmi.getSiteName())));
+					Restrictions.eq("pmi.medicalRecordNumber", pmi.getMrn()).ignoreCase(),
+					Restrictions.eq("pmi.site", pmi.getSiteName()).ignoreCase()));
 			added = true;
 		}
 
@@ -85,6 +91,8 @@ public class StagedParticipantDaoImpl extends AbstractDao<StagedParticipant> imp
 	private static final String FQN = StagedParticipant.class.getName();
 
 	private static final String GET_BY_EMPI = FQN + ".getByEmpi";
+
+	private static final String GET_BY_UID = FQN + ".getByUid";
 
 	private static final String GET_BY_MRN = FQN + ".getByMrn";
 

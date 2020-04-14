@@ -66,18 +66,11 @@ public class LocalDbParticipantLookupImpl implements ParticipantLookupLogic {
 	}
 	
 	private void addParticipant(Map<Participant, List<String>> matchedParticipants, List<Participant> participants, String matchedAttr) {
-		for (Participant participant : participants) {
-			addParticipant(matchedParticipants, participant, matchedAttr);
-		}
+		participants.forEach(p -> addParticipant(matchedParticipants, p, matchedAttr));
 	}
 	
 	private void addParticipant(Map<Participant, List<String>> matchedParticipants, Participant participant, String matchedAttr) {
-		List<String> matchedAttrs = matchedParticipants.get(participant);
-		if (matchedAttrs == null) {
-			matchedAttrs = new ArrayList<>();
-			matchedParticipants.put(participant, matchedAttrs);
-		}
-		
+		List<String> matchedAttrs = matchedParticipants.computeIfAbsent(participant, (k) -> new ArrayList<>());
 		matchedAttrs.add(matchedAttr);
 	}
 }
