@@ -386,43 +386,12 @@ public class AccessCtrlMgr {
 			return;
 		}
 
-		Long userId = AuthUtil.getCurrentUser().getId();
-		String resource = Resource.CP.getName();
-		String[] ops = {op.getName()};
+		Long     userId   = AuthUtil.getCurrentUser().getId();
+		String   resource = Resource.CP.getName();
+		String[] ops      = { op.getName() };
 
-		boolean allowed = false;
-		List<SubjectAccess> accessList = daoFactory.getSubjectDao().getAccessList(userId, resource, ops);
-		for (SubjectAccess access : accessList) {
-			Site accessSite = access.getSite();
-			CollectionProtocol accessCp = access.getCollectionProtocol();
-
-			if (accessSite != null && accessCp != null && accessCp.equals(cp)) {
-				//
-				// Specific CP
-				//
-				allowed = true;
-			} else if (accessSite != null && accessCp == null && cp.getRepositories().contains(accessSite)) {
-				//
-				// TODO: 
-				// Current implementation is at least one site is CP repository. We do not check whether permission is
-				// for all CP repositories.
-				//
-				// All CPs of a site
-				//
-				allowed = true;
-			} else if (accessSite == null && (accessCp == null || accessCp.equals(cp))) {
-				//
-				// All CPs or specific CP 
-				//
-				
-				allowed = true;
-			}
-			
-			if (allowed) {
-				break;
-			}
-		}
-
+		List<SubjectAccess> accessList = daoFactory.getSubjectDao().getAccessList(userId, cp.getId(), resource, ops);
+		boolean allowed = isAccessAllowedOnAnySite(accessList, cp.getRepositories());
 		if (!allowed) {
 			throw OpenSpecimenException.userError(RbacErrorCode.ACCESS_DENIED);
 		}
