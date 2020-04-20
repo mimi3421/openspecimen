@@ -46,7 +46,7 @@ public class SpecimenDaoImpl extends AbstractDao<Specimen> implements SpecimenDa
 		Criteria query = getCurrentSession().createCriteria(Specimen.class, "specimen")
 			.add(Subqueries.propertyIn("specimen.id", getSpecimenIdsQuery(crit)));
 
-		if (crit.specimenListId() != null) {
+		if (crit.lastId() == null && crit.specimenListId() != null) {
 			query.createAlias("specimen.specimenListItems", "listItem")
 				.createAlias("listItem.list", "list")
 				.add(Restrictions.eq("list.id", crit.specimenListId()))

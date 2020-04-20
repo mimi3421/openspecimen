@@ -762,7 +762,7 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 	private void ensureValidSpecimens(DistributionOrder order, List<SiteCpPair> siteCps, OpenSpecimenException ose) {
 		if (order.getSpecimenList() != null || order.isForAllReservedSpecimens()) {
 			int maxSpmns = 100;
-			Long lastId = null;
+			Long lastId = -1L;
 			Long orderId = order.getId();
 			Function<Long, List<Specimen>> getSpecimens = getSpecimensFn(order, siteCps, maxSpmns);
 
@@ -1153,7 +1153,7 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 
 		boolean endOfSpecimens = false;
 		int maxSpmns = 100;
-		Long lastId = null;
+		Long lastId = -1L;
 		Function<Long, List<Specimen>> getSpecimens = getSpecimensFn(order, siteCps, maxSpmns);
 		List<Specimen> specimens;
 		while (!endOfSpecimens) {
