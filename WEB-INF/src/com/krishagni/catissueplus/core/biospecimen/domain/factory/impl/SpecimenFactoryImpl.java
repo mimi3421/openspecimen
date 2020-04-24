@@ -1017,6 +1017,10 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 	}
 	
 	private void setExtension(SpecimenDetail detail, Specimen specimen, OpenSpecimenException ose) {
+		if (specimen.getCollectionProtocol() == null) {
+			return;
+		}
+
 		DeObject extension = DeObject.createExtension(detail.getExtensionDetail(), specimen);
 		specimen.setExtension(extension);
 	}

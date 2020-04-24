@@ -481,6 +481,10 @@ public class VisitFactoryImpl implements VisitFactory {
 	}
 
 	private void setVisitExtension(VisitDetail visitDetail, Visit visit, OpenSpecimenException ose) {
+		if (visit.getRegistration() == null) {
+			return;
+		}
+
 		DeObject extension = DeObject.createExtension(visitDetail.getExtensionDetail(), visit);
 		visit.setExtension(extension);
 	}
