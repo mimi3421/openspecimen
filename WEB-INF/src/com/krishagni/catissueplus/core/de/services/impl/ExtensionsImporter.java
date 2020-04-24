@@ -15,6 +15,7 @@ import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.domain.Visit;
+import com.krishagni.catissueplus.core.biospecimen.domain.factory.CpErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.CprErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.VisitErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
@@ -106,8 +107,16 @@ public class ExtensionsImporter implements ObjectImporter<Map<String, Object>, M
 		CollectionProtocol cp = null;
 
 		if (entityType.equals("Participant") || entityType.equals("CommonParticipant")) {
-			String ppid = (String)extnObj.get("ppid");
 			String cpShortTitle = (String)extnObj.get("cpShortTitle");
+			if (StringUtils.isBlank(cpShortTitle)) {
+				return ResponseEvent.userError(CpErrorCode.SHORT_TITLE_REQUIRED);
+			}
+
+			String ppid = (String)extnObj.get("ppid");
+			if (StringUtils.isBlank(ppid)) {
+				return ResponseEvent.userError(CprErrorCode.PPID_REQUIRED);
+			}
+
 			CollectionProtocolRegistration cpr = daoFactory.getCprDao().getCprByCpShortTitleAndPpid(cpShortTitle, ppid);
 			if (cpr == null) {
 				return ResponseEvent.userError(CprErrorCode.NOT_FOUND);
@@ -117,6 +126,10 @@ public class ExtensionsImporter implements ObjectImporter<Map<String, Object>, M
 			cp = cpr.getCollectionProtocol();
 		} else if (entityType.equals("SpecimenCollectionGroup")) {
 			String visitName = (String)extnObj.get("visitName");
+			if (StringUtils.isBlank(visitName)) {
+				return ResponseEvent.userError(VisitErrorCode.NAME_REQUIRED);
+			}
+
 			Visit visit = daoFactory.getVisitsDao().getByName(visitName);
 			if (visit == null) {
 				return ResponseEvent.userError(VisitErrorCode.NOT_FOUND, visitName);
