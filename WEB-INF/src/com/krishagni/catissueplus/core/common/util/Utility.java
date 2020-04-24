@@ -12,8 +12,8 @@ import java.io.StringWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.Period;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Calendar;
@@ -500,18 +500,15 @@ public class Utility {
 	}
 
 	public static Integer yearsBetween(Date start, Date end) {
-		Period period = getPeriodBetween(start, end);
-		return period != null ? period.getYears() : null;
+		return getPeriodBetween(ChronoUnit.YEARS, start, end);
 	}
 
 	public static Integer monthsBetween(Date start, Date end) {
-		Period period = getPeriodBetween(start, end);
-		return period != null ? period.getMonths() : null;
+		return getPeriodBetween(ChronoUnit.MONTHS, start, end);
 	}
 
 	public static Integer daysBetween(Date start, Date end) {
-		Period period = getPeriodBetween(start, end);
-		return period != null ? period.getDays() : null;
+		return getPeriodBetween(ChronoUnit.DAYS, start, end);
 	}
 
 	public static int cmp(Date d1, Date d2) {
@@ -914,7 +911,7 @@ public class Utility {
 		return Utility.nullSafeStream(coll).map(mapper).collect(Collectors.joining(delimiter));
 	}
 
-	private static Period getPeriodBetween(Date from, Date to) {
+	private static Integer getPeriodBetween(ChronoUnit unit, Date from, Date to) {
 		if (from == null) {
 			return null;
 		}
@@ -925,6 +922,6 @@ public class Utility {
 			endDt = LocalDate.from(to.toInstant().atZone(ZoneId.systemDefault()));
 		}
 
-		return Period.between(startDt, endDt);
+		return Math.toIntExact(unit.between(startDt, endDt));
 	}
 }
