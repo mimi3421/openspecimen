@@ -877,11 +877,13 @@ public class ImportServiceImpl implements ImportService, ApplicationListener<Con
 					return resp.getError().getMessage();
 				}
 			} catch (Exception e) {
-				if (StringUtils.isBlank(e.getMessage())) {
-					return "Internal Server Error";
-				} else {
-					return e.getMessage();
+				String msg = ExceptionUtils.getRootCauseMessage(e);
+				if (StringUtils.isBlank(msg)) {
+					msg = "Internal Server Error: Despite our best efforts, we could not find the root cause of the error. " +
+						  "Please check the log files";
 				}
+
+				return msg;
 			}
 		}
 
