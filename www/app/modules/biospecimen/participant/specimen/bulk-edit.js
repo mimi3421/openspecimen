@@ -8,7 +8,6 @@ angular.module('os.biospecimen.specimen')
         'specimen.barcode',
         'specimen.storageLocation',
         'specimen.lineage',
-        'specimen.type',
         'specimen.parentLabel'
       ];
 

@@ -666,6 +666,13 @@
                     "multiple": true
                 },
                 {
+                    "name": "specimen.type",
+                    "caption": "Specimen Type",
+                    "type": "specimen-type",
+                    "optional": false,
+                    "specimen": "specimen"
+                },
+                {
                     "name": "specimen.anatomicSite",
                     "caption": "Anatomic Site",
                     "type": "pvs",
