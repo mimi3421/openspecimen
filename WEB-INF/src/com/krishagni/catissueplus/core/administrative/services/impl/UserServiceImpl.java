@@ -1011,10 +1011,10 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 		String[] adminEmailAddr = {ConfigUtil.getInstance().getAdminEmailId()};
 
 		if (StringUtils.isBlank(adminEmailAddr[0])) {
-			adminEmailAddr[0] = DUMMY_EMAIL_ADDR;
+			adminEmailAddr[0] = AuthUtil.getCurrentUser().getEmailAddress();
 		}
 
-		String[] rcpts = emailAddresses.toArray(new String[emailAddresses.size()]);
+		String[] rcpts = emailAddresses.toArray(new String[0]);
 
 		Map<String, Object> props = new HashMap<>();
 		props.put("user", AuthUtil.getCurrentUser());
