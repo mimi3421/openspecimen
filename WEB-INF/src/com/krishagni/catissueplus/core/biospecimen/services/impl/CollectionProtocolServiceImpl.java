@@ -46,6 +46,7 @@ import com.krishagni.catissueplus.core.biospecimen.domain.AliquotSpecimensRequir
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolEvent;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
+import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolSavedEvent;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolSite;
 import com.krishagni.catissueplus.core.biospecimen.domain.ConsentStatement;
 import com.krishagni.catissueplus.core.biospecimen.domain.CpConsentTier;
@@ -109,6 +110,7 @@ import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 import com.krishagni.catissueplus.core.common.service.ObjectAccessor;
 import com.krishagni.catissueplus.core.common.service.StarredItemService;
+import com.krishagni.catissueplus.core.common.service.impl.EventPublisher;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.catissueplus.core.common.util.ConfigUtil;
 import com.krishagni.catissueplus.core.common.util.EmailUtil;
@@ -297,6 +299,7 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 		try {
 			CollectionProtocol cp = createCollectionProtocol(req.getPayload(), null, false);
 			notifyUsersOnCpCreate(cp);
+			EventPublisher.getInstance().publish(new CollectionProtocolSavedEvent(cp));
 			return ResponseEvent.response(CollectionProtocolDetail.from(cp));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
@@ -347,6 +350,7 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 			// PI and coordinators role handling
 			addOrRemovePiCoordinatorRoles(cp, "UPDATE", oldPi, cp.getPrincipalInvestigator(), addedCoord, removedCoord);
 			notifyUsersOnCpUpdate(existingCp, addedSites, removedSites);
+			EventPublisher.getInstance().publish(new CollectionProtocolSavedEvent(existingCp));
 			return ResponseEvent.response(CollectionProtocolDetail.from(existingCp));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
@@ -370,6 +374,7 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 			
 			CollectionProtocol cp = createCollectionProtocol(opDetail.getCp(), existing, true);
 			notifyUsersOnCpCreate(cp);
+			EventPublisher.getInstance().publish(new CollectionProtocolSavedEvent(cp));
 			return ResponseEvent.response(CollectionProtocolDetail.from(cp));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
@@ -420,6 +425,7 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 			}
 
 			existingCp.setConsentsWaived(detail.getConsentsWaived());
+			EventPublisher.getInstance().publish(new CollectionProtocolSavedEvent(existingCp));
 			return ResponseEvent.response(CollectionProtocolDetail.from(existingCp));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
@@ -1963,6 +1969,7 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 			cp.delete();
 
 			DeleteLogUtil.getInstance().log(cp);
+			EventPublisher.getInstance().publish(new CollectionProtocolSavedEvent(cp));
 			success = true;
 		} catch (Exception ex) {
 			stackTrace = ExceptionUtils.getStackTrace(ex);
