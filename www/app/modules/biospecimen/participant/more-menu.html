@@ -14,6 +14,8 @@
     <span class="fa fa-caret-down"></span>
   </button>
   <ul class="dropdown-menu">
+    <os-plugin-hooks view-name="'participant-list'" sec-name="'more-menu-top'"></os-plugin-hooks>
+
     <li ng-if="listViewCtx.showImport">
       <a ui-sref="import-cp-objs">
         <span class="fa fa-upload"></span>
