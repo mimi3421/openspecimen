@@ -5,9 +5,9 @@ angular.module('os.administrative.containertype.list', ['os.administrative.model
 
     function init() {
       pagerOpts = $scope.pagerOpts = new ListPagerOpts({listSizeGetter: getContainerTypesCount});
-      $scope.containerTypeFilterOpts = {maxResults: pagerOpts.recordsPerPage + 1};
       ctx = $scope.ctx = {
         exportDetail: {objectType: 'storageContainerType'},
+        filterOpts: {maxResults: pagerOpts.recordsPerPage + 1},
         emptyState: {
           loading: true,
           empty: true,
@@ -16,13 +16,19 @@ angular.module('os.administrative.containertype.list', ['os.administrative.model
         }
       };
 
-      loadContainerTypes($scope.containerTypeFilterOpts);
-      Util.filter($scope, 'containerTypeFilterOpts', loadContainerTypes);
+      loadContainerTypes(ctx.filterOpts);
+      Util.filter($scope, 'ctx.filterOpts', loadContainerTypes);
     }
 
     function loadContainerTypes(filterOpts) {
       ctx.emptyState.loading = true;
-      ContainerType.query(filterOpts).then(
+
+      var q = ContainerType.query(filterOpts);
+      if (Object.keys(ctx.filterOpts).length == 1) {
+        ctx.defTypesQ = q;
+      }
+
+      q.then(
         function(containerTypes) {
           ctx.emptyState.loading = false;
           ctx.emptyState.empty = (containerTypes.length <= 0);
@@ -30,15 +36,12 @@ angular.module('os.administrative.containertype.list', ['os.administrative.model
 
           $scope.containerTypes = containerTypes;
           $scope.ctx.checkList = new CheckList(containerTypes);
-          if (Object.keys(filterOpts).length == 0) {
-            $scope.canHolds = angular.copy(containerTypes);
-          }
         }
       );
     };
 
     function getContainerTypesCount() {
-      return ContainerType.getCount($scope.containerTypeFilterOpts);
+      return ContainerType.getCount(ctx.filterOpts);
     }
 
     function getTypeIds(types) {
@@ -51,13 +54,36 @@ angular.module('os.administrative.containertype.list', ['os.administrative.model
         confirmDelete:  'container_type.delete_types',
         successMessage: 'container_type.types_deleted',
         onBulkDeletion: function() {
-          loadContainerTypes($scope.containerTypeFilterOpts);
+          loadContainerTypes(ctx.filterOpts);
         }
       }
 
       DeleteUtil.bulkDelete({bulkDelete: ContainerType.bulkDelete}, getTypeIds(types), opts);
     }
 
+    $scope.loadTypes = function(search) {
+      if (ctx.defTypes && (ctx.defTypes.length < 100 || !search)) {
+        $scope.canHolds = ctx.defTypes;
+        return;
+      }
+
+      var q;
+      if (!search && ctx.defTypesQ) {
+        q = ctx.defTypesQ;
+      } else {
+        q = ContainerType.query({name: search});
+      }
+
+      q.then(
+        function(types) {
+          if (!search) {
+            ctx.defTypes = types;
+          }
+
+          $scope.canHolds = types;
+        }
+      );
+    }
 
     $scope.showContainerTypeOverview = function(containerType) {
       $state.go('container-type-detail.overview', {containerTypeId: containerType.id});
