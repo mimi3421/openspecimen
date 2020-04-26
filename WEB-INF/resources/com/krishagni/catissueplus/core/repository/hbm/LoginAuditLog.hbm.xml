@@ -57,5 +57,19 @@
         log.login_time between :fromDate and :toDate and
         (:instituteId is null or u.institute_id = :instituteId)
     </sql-query>
+
+    <sql-query name="getLoginActiveTime">
+      <return-scalar column="auditLogId" type="long"/>
+      <return-scalar column="lastActiveTime" type="timestamp"/>
+
+      select
+        login_audit_log_id as auditLogId, max(call_end_time) as lastActiveTime
+      from
+        os_user_api_calls_log
+      where
+        login_audit_log_id in (:auditLogIds)
+      group by
+        login_audit_log_id
+    </sql-query>
   </class>
 </hibernate-mapping>
