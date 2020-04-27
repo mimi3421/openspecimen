@@ -2307,6 +2307,8 @@ edu.common.de.LookupField = function(params, callback) {
 
   this.validator;
 
+  this.params = params;
+
   var timeout = undefined;
 
   var field = params.field;
@@ -2471,7 +2473,7 @@ edu.common.de.LookupField = function(params, callback) {
   };
 
   this.getDefaultValue = function() {
-    return this.svc.getDefaultEntity();
+    return this.svc.getDefaultEntity(this);
   };
 
   this.lookup = function(id) {
@@ -2495,8 +2497,6 @@ edu.common.de.LookupSvc = function(params) {
   var defaultList = {};
 
   var xhrMap = {};
-
-  var defaultValue;
 
   this.defaultCacheKey = function(queryTerm, searchFilters, field) {
     var resultKey = '_default';
@@ -2610,19 +2610,14 @@ edu.common.de.LookupSvc = function(params) {
     return deferred.promise();
   };
 
-  this.getDefaultEntity = function() {
+  this.getDefaultEntity = function(luField) {
     var deferred = $.Deferred(); 
-    if (defaultValue) {
-      deferred.resolve(defaultValue);
-      return deferred.promise();
-    }
 
     var that = this;
-    this.getDefaultValue().done(
+    this.getDefaultValue(luField).done(
       function(data) {
         var result = that.formatResult(data);
         entitiesMap[result.id] = result;
-        defaultValue = result;
         deferred.resolve(result);
       })
       .fail(function(data) {
