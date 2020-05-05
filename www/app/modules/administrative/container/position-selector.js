@@ -41,6 +41,10 @@ openspecimen.ui.container.ContainerPositionSelector = function(opts) {
       return assignedMap;
     }
 
+    var nr = +container.noOfRows;
+    var nc = +container.noOfColumns;
+    var pa = container.getPositionAssigner();
+
     for (var i = 0; i < positions.length; ++i) {
       if (!positions[i].positionX || !positions[i].positionY) {
         continue;
@@ -48,7 +52,8 @@ openspecimen.ui.container.ContainerPositionSelector = function(opts) {
 
       var row = Utility.toNumber(container.rowLabelingScheme, positions[i].positionY);
       var column = Utility.toNumber(container.columnLabelingScheme, positions[i].positionX);
-      assignedMap[(row - 1) * container.noOfColumns + column] = true;
+      var position = pa.pos(row, column, nr, nc);
+      assignedMap[position] = true;
     }
 
     return assignedMap;
