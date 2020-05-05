@@ -233,4 +233,10 @@
       </column>
     </addColumn>
   </changeSet>
+
+  <changeSet author="vpawar" id="Drop unique constraint on container position as the order of DMLs cannot be controlled by the app">
+    <dropUniqueConstraint constraintName="CONTAINER_POS_UQ"
+      tableName="OS_CONTAINER_POSITIONS"
+      uniqueColumns="STORAGE_CONTAINER_ID,POS_ONE_STR,POS_TWO_STR"/>
+  </changeSet>
 </databaseChangeLog>
