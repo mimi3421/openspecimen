@@ -100,7 +100,15 @@ public class CollectionProtocolRegistration extends BaseEntity {
 	}
 
 	public void setExternalSubjectId(String externalSubjectId) {
-		this.externalSubjectId = externalSubjectId;
+		if (StringUtils.isBlank(externalSubjectId)) {
+			//
+			// this is done to avoid UQ violation because of ''
+			// For more details, refer to OPSMN-5348
+			//
+			this.externalSubjectId = null;
+		} else {
+			this.externalSubjectId = externalSubjectId;
+		}
 	}
 
 	public Site getSite() {
