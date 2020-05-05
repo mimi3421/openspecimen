@@ -121,7 +121,15 @@ public class Participant extends BaseExtensionEntity {
 	}
 
 	public void setEmailAddress(String emailAddress) {
-		this.emailAddress = emailAddress;
+		if (StringUtils.isBlank(emailAddress)) {
+			//
+			// this is done to avoid UQ violation because of ''
+			// For more details, refer to OPSMN-5344
+			//
+			this.emailAddress = null;
+		} else {
+			this.emailAddress = emailAddress;
+		}
 	}
 
 	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
