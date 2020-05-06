@@ -234,6 +234,18 @@
     </addColumn>
   </changeSet>
 
+  <changeSet author="vpawar" id="Ensure there is at least one index on the container ID of positions table" dbms="mysql">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <indexExists indexName="FK_OS_POS_ST_CONTS_CONT_ID"
+          tableName="OS_CONTAINER_POSITIONS" columnNames="STORAGE_CONTAINER_ID"/>
+      </not>
+    </preConditions>
+    <createIndex tableName="OS_CONTAINER_POSITIONS" indexName="FK_OS_POS_ST_CONTS_CONT_ID">
+      <column name="STORAGE_CONTAINER_ID"/>
+    </createIndex>
+  </changeSet>
+
   <changeSet author="vpawar" id="Drop unique constraint on container position as the order of DMLs cannot be controlled by the app" runOnChange="true" dbms="mysql">
     <preConditions onFail="MARK_RAN">
       <indexExists indexName="CONTAINER_POS_UQ"
