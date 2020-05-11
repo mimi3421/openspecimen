@@ -477,6 +477,7 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 				aliquot.setIncrParentFreezeThaw(spec.getIncrParentFreezeThaw());
 				aliquot.setCloseParent(spec.closeParent());
 				aliquot.setPrintLabel(spec.printLabel());
+				aliquot.setComments(spec.getComments());
 				aliquot.setExtensionDetail(spec.getExtensionDetail());
 
 				if (i < reqIds.size()) {

@@ -59,6 +59,8 @@ public class SpecimenAliquotsSpec {
 
 	private Boolean printLabel;
 
+	private String comments;
+
 	private ExtensionDetail extensionDetail;
 
 	private boolean linkToReqs;
@@ -270,6 +272,14 @@ public class SpecimenAliquotsSpec {
 	}
 
 	public boolean printLabel() { return printLabel != null && printLabel; }
+
+	public String getComments() {
+		return comments;
+	}
+
+	public void setComments(String comments) {
+		this.comments = comments;
+	}
 
 	public ExtensionDetail getExtensionDetail() {
 		return extensionDetail;
