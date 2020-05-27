@@ -208,7 +208,6 @@
     <property name="rptSettingsFactory" ref="reportSettingsFact"/>
     <property name="sessionFactory" ref="sessionFactory"/>
     <property name="starredItemSvc" ref="starredItemSvc"/>
-    <property name="pdeTokenGeneratorRegistry" ref="pdeTokenGeneratorRegistry"/>
   </bean>
 
   <bean id="cpGroupFactory" class="com.krishagni.catissueplus.core.biospecimen.domain.factory.impl.CollectionProtocolGroupFactoryImpl">
@@ -278,7 +277,6 @@
     <property name="anonymizer" ref="participantAnonymizer"/>
     <property name="specimenKitSvc" ref="specimenKitSvc"/>
     <property name="exportSvc" ref="exportSvc"/>
-    <property name="pdeTokenGeneratorRegistry" ref="pdeTokenGeneratorRegistry"/>
     <property name="taskExecutor" ref="taskExecutor"/>
   </bean>
   

@@ -89,7 +89,6 @@ import com.krishagni.catissueplus.core.biospecimen.repository.CprListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.biospecimen.repository.impl.BiospecimenDaoHelper;
 import com.krishagni.catissueplus.core.biospecimen.services.CollectionProtocolService;
-import com.krishagni.catissueplus.core.biospecimen.services.PdeTokenGeneratorRegistry;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.Tuple;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
@@ -145,8 +144,6 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 
 	private StarredItemService starredItemSvc;
 
-	private PdeTokenGeneratorRegistry pdeTokenGeneratorRegistry;
-
 	public void setTaskExecutor(ThreadPoolTaskExecutor taskExecutor) {
 		this.taskExecutor = taskExecutor;
 	}
@@ -185,10 +182,6 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 
 	public void setStarredItemSvc(StarredItemService starredItemSvc) {
 		this.starredItemSvc = starredItemSvc;
-	}
-
-	public void setPdeTokenGeneratorRegistry(PdeTokenGeneratorRegistry pdeTokenGeneratorRegistry) {
-		this.pdeTokenGeneratorRegistry = pdeTokenGeneratorRegistry;
 	}
 
 	@Override

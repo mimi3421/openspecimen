@@ -27,7 +27,7 @@
 
     <property name="status" column="STATUS" not-null="true">
       <type name="org.hibernate.type.EnumType">
-        <param name="enumClass">com.krishagni.catissueplus.core.de.domain.FormDataEntryToken$Status</param>
+        <param name="enumClass">com.krishagni.catissueplus.core.biospecimen.domain.DataEntryToken$Status</param>
         <param name="type">12</param>
       </type>
     </property>
