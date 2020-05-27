@@ -45,11 +45,8 @@ import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolEven
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
 import com.krishagni.catissueplus.core.biospecimen.domain.ConsentResponses;
 import com.krishagni.catissueplus.core.biospecimen.domain.ConsentTierResponse;
-import com.krishagni.catissueplus.core.biospecimen.domain.CpWorkflowConfig;
 import com.krishagni.catissueplus.core.biospecimen.domain.CprSavedEvent;
 import com.krishagni.catissueplus.core.biospecimen.domain.Participant;
-import com.krishagni.catissueplus.core.biospecimen.domain.PdeNotif;
-import com.krishagni.catissueplus.core.biospecimen.domain.PdeNotifLink;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenRequirement;
 import com.krishagni.catissueplus.core.biospecimen.domain.Visit;
@@ -71,8 +68,6 @@ import com.krishagni.catissueplus.core.biospecimen.events.MatchedParticipant;
 import com.krishagni.catissueplus.core.biospecimen.events.MatchedParticipantsList;
 import com.krishagni.catissueplus.core.biospecimen.events.ParticipantDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.ParticipantRegistrationsList;
-import com.krishagni.catissueplus.core.biospecimen.events.PdeTokenDetail;
-import com.krishagni.catissueplus.core.biospecimen.events.PdeTokenGenDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.PmiDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.RegistrationQueryCriteria;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenDetail;
@@ -85,11 +80,8 @@ import com.krishagni.catissueplus.core.biospecimen.repository.VisitsListCriteria
 import com.krishagni.catissueplus.core.biospecimen.services.Anonymizer;
 import com.krishagni.catissueplus.core.biospecimen.services.CollectionProtocolRegistrationService;
 import com.krishagni.catissueplus.core.biospecimen.services.ParticipantService;
-import com.krishagni.catissueplus.core.biospecimen.services.PdeTokenGenerator;
-import com.krishagni.catissueplus.core.biospecimen.services.PdeTokenGeneratorRegistry;
 import com.krishagni.catissueplus.core.biospecimen.services.SpecimenKitService;
 import com.krishagni.catissueplus.core.biospecimen.services.VisitService;
-import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
 import com.krishagni.catissueplus.core.common.errors.ErrorType;
@@ -137,8 +129,6 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 
 	private ExportService exportSvc;
 
-	private PdeTokenGeneratorRegistry pdeTokenGeneratorRegistry;
-
 	private ThreadPoolTaskExecutor taskExecutor;
 	
 	public void setDaoFactory(DaoFactory daoFactory) {
@@ -179,10 +169,6 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 
 	public void setExportSvc(ExportService exportSvc) {
 		this.exportSvc = exportSvc;
-	}
-
-	public void setPdeTokenGeneratorRegistry(PdeTokenGeneratorRegistry pdeTokenGeneratorRegistry) {
-		this.pdeTokenGeneratorRegistry = pdeTokenGeneratorRegistry;
 	}
 
 	public void setTaskExecutor(ThreadPoolTaskExecutor taskExecutor) {
@@ -665,70 +651,6 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 	public ResponseEvent<ParticipantRegistrationsList> updateRegistrations(RequestEvent<ParticipantRegistrationsList> req) {
 		try {
 			return ResponseEvent.response(saveOrUpdateRegistrations(req.getPayload(), true));
-		} catch (OpenSpecimenException ose) {
-			return ResponseEvent.error(ose);
-		} catch (Exception e) {
-			return ResponseEvent.serverError(e);
-		}
-	}
-
-	@Override
-	@PlusTransactional
-	public ResponseEvent<List<PdeTokenDetail>> generatePdeTokens(RequestEvent<PdeTokenGenDetail> req) {
-		try {
-			PdeTokenGenDetail input = req.getPayload();
-			List<CollectionProtocolRegistration> cprs = getRegistrations(input.getCpShortTitle(), input.getPpids());
-			if (input.isNotifyByEmail()) {
-				ensureAllHaveEmailIds(cprs);
-			}
-
-			if (!AccessCtrlMgr.getInstance().isAccessRestrictedBasedOnMrn()) {
-				AccessCtrlMgr.getInstance().ensureUpdateCprRights(cprs.get(0));
-			} else {
-				cprs.forEach(reg -> AccessCtrlMgr.getInstance().ensureUpdateCprRights(reg));
-			}
-
-			Map<CollectionProtocolRegistration, List<PdeTokenDetail>> tokens = generateTokens(cprs, input.getForms());
-			if (input.isNotifyByEmail()) {
-				notifyTokensByEmail(tokens);
-			}
-
-			return ResponseEvent.response(tokens.values().stream().flatMap(List::stream).collect(Collectors.toList()));
-		} catch (OpenSpecimenException ose) {
-			return ResponseEvent.error(ose);
-		} catch (Exception e) {
-			return ResponseEvent.serverError(e);
-		}
-	}
-
-	@Override
-	@PlusTransactional
-	public ResponseEvent<List<PdeTokenDetail>> getPdeTokens(RequestEvent<RegistrationQueryCriteria> req) {
-		try {
-			RegistrationQueryCriteria crit = req.getPayload();
-
-			CollectionProtocolRegistration reg = getCpr(crit.getCprId(), crit.getCpId(), crit.getPpid());
-			Collection<PdeNotif> notifs = reg.getPdeNotifs();
-
-			List<PdeTokenDetail> result = new ArrayList<>();
-			for (PdeNotif notif : notifs) {
-				for (PdeNotifLink link : notif.getLinks()) {
-					PdeTokenGenerator tokenGenerator = pdeTokenGeneratorRegistry.get(link.getType());
-					if (tokenGenerator == null) {
-						continue;
-					}
-
-					PdeTokenDetail token = tokenGenerator.getToken(reg, link.getTokenId());
-					if (token != null) {
-						result.add(token);
-						token.setToken(null);
-						token.setDataEntryLink(null);
-					}
-				}
-			}
-
-			result.sort((t1, t2) -> t2.getCreationTime().compareTo(t1.getCreationTime()));
-			return ResponseEvent.response(result);
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {
@@ -1461,97 +1383,6 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 		props.put("ccAdmin", false);
 		props.put("errors", errors);
 		EmailUtil.getInstance().sendEmail("cprs_delete_error", rcpts, null, props);
-	}
-
-	private void ensureAllHaveEmailIds(List<CollectionProtocolRegistration> cprs) {
-		List<String> noEmailIds = cprs.stream()
-			.filter(cpr -> StringUtils.isBlank(cpr.getParticipant().getEmailAddress()))
-			.map(CollectionProtocolRegistration::getPpid)
-			.collect(Collectors.toList());
-
-		if (!noEmailIds.isEmpty()) {
-			throw OpenSpecimenException.userError(CprErrorCode.NO_EMAIL_IDS, noEmailIds, noEmailIds.size());
-		}
-	}
-
-	private Map<CollectionProtocolRegistration, List<PdeTokenDetail>> generateTokens(
-		List<CollectionProtocolRegistration> cprs,
-		List<Map<String, Object>> forms) {
-
-		Map<CollectionProtocolRegistration, List<PdeTokenDetail>> tokens = new LinkedHashMap<>();
-		for (CollectionProtocolRegistration cpr : cprs) {
-			for (Map<String, Object> formDetail : forms) {
-				String type = (String) formDetail.get("type");
-				PdeTokenGenerator pdeTokenGenerator = pdeTokenGeneratorRegistry.get(type);
-				if (pdeTokenGenerator == null) {
-					throw OpenSpecimenException.userError(CprErrorCode.INVALID_FORM_TYPE, type);
-				}
-
-				PdeTokenDetail token = pdeTokenGenerator.generate(cpr, formDetail);
-				List<PdeTokenDetail> patientTokens = tokens.computeIfAbsent(cpr, (k) -> new ArrayList<>());
-				patientTokens.add(token);
-			}
-		}
-
-		return tokens;
-	}
-
-	private void notifyTokensByEmail(Map<CollectionProtocolRegistration, List<PdeTokenDetail>> tokens) {
-		if (tokens.isEmpty()) {
-			return;
-		}
-
-		Pair<String, String> emailTmpl = getEmailTmpl(tokens.keySet().iterator().next().getCollectionProtocol());
-		tokens.forEach(
-			(cpr, patientTokens) -> {
-				savePdeNotif(cpr, patientTokens);
-
-				String name = cpr.getParticipant().formattedName();
-				if (StringUtils.isBlank(name)) {
-					name = cpr.getPpid();
-				}
-
-				String[] rcpt = { cpr.getParticipant().getEmailAddress() };
-				Map<String, Object> props = new HashMap<>();
-				props.put("participantName", name);
-				props.put("cpr", cpr);
-				props.put("tokens", patientTokens);
-				props.put("cpShortTitle", cpr.getCollectionProtocol().getShortTitle());
-				props.put("reminder", false);
-				props.put("expiryTime", Utility.getDateTimeString(patientTokens.get(0).getExpiryTime()));
-				props.put("$subject", new Object[] {1, cpr.getCollectionProtocol().getShortTitle(), cpr.getPpid() });
-				EmailUtil.getInstance().sendEmail("pde_links", emailTmpl.first(), emailTmpl.second(), rcpt, props);
-			}
-		);
-	}
-
-	private Pair<String, String> getEmailTmpl(CollectionProtocol cp) {
-		String subject  = null;
-		String template = null;
-		CpWorkflowConfig.Workflow wf = CpWorkflowTxnCache.getInstance().getWorkflow(cp.getId(), "pde-settings");
-		if (wf != null && wf.getData() != null) {
-			subject  = (String) wf.getData().get("emailSubject");
-			template = (String) wf.getData().get("emailTmpl");
-		}
-
-		return Pair.make(subject, template);
-	}
-
-	private void savePdeNotif(CollectionProtocolRegistration cpr, List<PdeTokenDetail> tokens) {
-		PdeNotif notif = new PdeNotif();
-		notif.setCpr(cpr);
-
-		for (PdeTokenDetail token : tokens) {
-			PdeNotifLink link = new PdeNotifLink();
-			link.setNotif(notif);
-			link.setType(token.getType());
-			link.setTokenId(token.getTokenId());
-			link.setStatus("PENDING");
-			notif.getLinks().add(link);
-			notif.setExpiryTime(token.getExpiryTime());
-		}
-
-		daoFactory.getPdeNotifDao().saveOrUpdate(notif);
 	}
 
 	private abstract class AbstractCprsGenerator implements Function<ExportJob, List<? extends Object>> {

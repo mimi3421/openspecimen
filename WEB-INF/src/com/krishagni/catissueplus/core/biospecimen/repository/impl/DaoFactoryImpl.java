@@ -52,7 +52,6 @@ import com.krishagni.catissueplus.core.biospecimen.repository.CpReportSettingsDa
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.biospecimen.repository.LabelPrintJobDao;
 import com.krishagni.catissueplus.core.biospecimen.repository.ParticipantDao;
-import com.krishagni.catissueplus.core.biospecimen.repository.PdeNotifDao;
 import com.krishagni.catissueplus.core.biospecimen.repository.SpecimenDao;
 import com.krishagni.catissueplus.core.biospecimen.repository.SpecimenKitDao;
 import com.krishagni.catissueplus.core.biospecimen.repository.SpecimenListDao;
@@ -418,13 +417,6 @@ public class DaoFactoryImpl implements DaoFactory {
 	@Override
 	public StarredItemDao getStarredItemDao() {
 		StarredItemDaoImpl dao = new StarredItemDaoImpl();
-		setSessionFactory(dao);
-		return dao;
-	}
-
-	@Override
-	public PdeNotifDao getPdeNotifDao() {
-		PdeNotifDaoImpl dao = new PdeNotifDaoImpl();
 		setSessionFactory(dao);
 		return dao;
 	}

@@ -32,6 +32,7 @@ import com.krishagni.catissueplus.core.biospecimen.ConfigParams;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolGroup;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
+import com.krishagni.catissueplus.core.biospecimen.domain.DataEntryToken;
 import com.krishagni.catissueplus.core.biospecimen.domain.Participant;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenSavedEvent;
@@ -40,7 +41,6 @@ import com.krishagni.catissueplus.core.biospecimen.domain.factory.CpGroupErrorCo
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.CprErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.SpecimenErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.VisitErrorCode;
-import com.krishagni.catissueplus.core.biospecimen.events.PdeTokenDetail;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.biospecimen.services.PdeTokenGenerator;
 import com.krishagni.catissueplus.core.biospecimen.services.PdeTokenGeneratorRegistry;
@@ -1108,7 +1108,6 @@ public class FormServiceImpl implements FormService, InitializingBean {
 		if (fdeToken != null) {
 			fdeToken.setCompletionTime(Calendar.getInstance().getTime());
 			fdeToken.setStatus(FormDataEntryToken.Status.COMPLETED);
-			daoFactory.getPdeNotifDao().updateLinkStatus(PDE_FORM_TYPE, fdeToken.getId(), FormDataEntryToken.Status.COMPLETED.name());
 		}
 
 		if (collOrRecvEvent != null) {
@@ -1689,7 +1688,7 @@ public class FormServiceImpl implements FormService, InitializingBean {
 		};
 
 		@Override
-		public PdeTokenDetail generate(CollectionProtocolRegistration cpr, Map<String, Object> input) {
+		public DataEntryToken generate(CollectionProtocolRegistration cpr, Map<String, Object> input) {
 			Number formCtxtId = (Number) input.get("formCtxtId");
 			if (formCtxtId == null) {
 				throw OpenSpecimenException.userError(FormErrorCode.CTXT_ID_REQ);
@@ -1706,37 +1705,12 @@ public class FormServiceImpl implements FormService, InitializingBean {
 				formCtxts.get().put(formCtxt.getIdentifier(), formCtxt);
 			}
 
-			FormDataEntryToken token = createDataEntryToken(formCtxt, cpr);
-			return tokenDetail(cpr, token);
+			return createDataEntryToken(formCtxt, cpr);
 		}
 
 		@Override
-		public PdeTokenDetail getToken(CollectionProtocolRegistration cpr, Long tokenId) {
-			FormDataEntryToken token = deDaoFactory.getFormDataEntryTokenDao().getById(tokenId);
-			return tokenDetail(cpr, token);
-		}
-
-		@Override
-		public List<PdeTokenDetail> getTokens(List<Long> tokenIds) {
-			List<PdeTokenDetail> tokens = deDaoFactory.getFormDataEntryTokenDao().getTokens(tokenIds);
-			tokens.forEach(token -> token.setType(PDE_FORM_TYPE));
-			return tokens;
-		}
-
-		private PdeTokenDetail tokenDetail(CollectionProtocolRegistration cpr, FormDataEntryToken token) {
-			PdeTokenDetail result = new PdeTokenDetail();
-			result.setCprId(cpr.getId());
-			result.setCpShortTitle(cpr.getCpShortTitle());
-			result.setPpid(cpr.getPpid());
-			result.setType(PDE_FORM_TYPE);
-			result.setFormCaption(token.getFormCtxt().getForm().getCaption());
-			result.setTokenId(token.getId());
-			result.setToken(token.getToken());
-			result.setDataEntryLink(ConfigUtil.getInstance().getAppUrl() + "/#/patient-data-entry?token=" + token.getToken());
-			result.setCreationTime(token.getCreationTime());
-			result.setExpiryTime(token.getExpiryTime());
-			result.setCompletionTime(token.getCompletionTime());
-			return result;
+		public DataEntryToken getToken(CollectionProtocolRegistration cpr, Long tokenId) {
+			return deDaoFactory.getFormDataEntryTokenDao().getById(tokenId);
 		}
 	}
 }

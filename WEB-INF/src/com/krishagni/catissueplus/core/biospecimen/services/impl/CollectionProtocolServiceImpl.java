@@ -54,8 +54,6 @@ import com.krishagni.catissueplus.core.biospecimen.domain.CpReportSettings;
 import com.krishagni.catissueplus.core.biospecimen.domain.CpWorkflowConfig;
 import com.krishagni.catissueplus.core.biospecimen.domain.CpWorkflowConfig.Workflow;
 import com.krishagni.catissueplus.core.biospecimen.domain.DerivedSpecimenRequirement;
-import com.krishagni.catissueplus.core.biospecimen.domain.PdeNotif;
-import com.krishagni.catissueplus.core.biospecimen.domain.PdeNotifLink;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenRequirement;
 import com.krishagni.catissueplus.core.biospecimen.domain.Visit;
@@ -82,7 +80,6 @@ import com.krishagni.catissueplus.core.biospecimen.events.CpWorkflowCfgDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.CprSummary;
 import com.krishagni.catissueplus.core.biospecimen.events.FileDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.MergeCpDetail;
-import com.krishagni.catissueplus.core.biospecimen.events.PdeTokenDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenPoolRequirements;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenRequirementDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.WorkflowDetail;
@@ -90,10 +87,8 @@ import com.krishagni.catissueplus.core.biospecimen.repository.CollectionProtocol
 import com.krishagni.catissueplus.core.biospecimen.repository.CpListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.repository.CprListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
-import com.krishagni.catissueplus.core.biospecimen.repository.PdeNotifListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.repository.impl.BiospecimenDaoHelper;
 import com.krishagni.catissueplus.core.biospecimen.services.CollectionProtocolService;
-import com.krishagni.catissueplus.core.biospecimen.services.PdeTokenGenerator;
 import com.krishagni.catissueplus.core.biospecimen.services.PdeTokenGeneratorRegistry;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.Tuple;
@@ -463,6 +458,7 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 
 			for (CollectionProtocol cp : cps) {
 				AccessCtrlMgr.getInstance().ensureDeleteCpRights(cp);
+				ensureUserUpdateRights(cp);
 			}
 
 			boolean completed = crit.isForceDelete() ? forceDeleteCps(cps, crit.getReason()) : deleteCps(cps, crit.getReason());
@@ -1019,67 +1015,6 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 			
 			return ResponseEvent.response(
 					daoFactory.getSpecimenRequirementDao().getSpecimensCount(srId));
-		} catch (OpenSpecimenException ose) {
-			return ResponseEvent.error(ose);
-		} catch (Exception e) {
-			return ResponseEvent.serverError(e);
-		}
-	}
-
-	@Override
-	@PlusTransactional
-	public ResponseEvent<List<PdeTokenDetail>> getPdeLinks(RequestEvent<PdeNotifListCriteria> req) {
-		try {
-			PdeNotifListCriteria crit = req.getPayload();
-			List<PdeNotif> notifs = daoFactory.getPdeNotifDao().getNotifs(crit);
-
-			Map<String, List<Long>> tokenIdsByType = new HashMap<>();
-			for (PdeNotif notif : notifs) {
-				for (PdeNotifLink link : notif.getLinks()) {
-					List<Long> tokenIds = tokenIdsByType.computeIfAbsent(link.getType(), (k) -> new ArrayList<>());
-					tokenIds.add(link.getTokenId());
-				}
-			}
-
-			Map<String, PdeTokenDetail> tokensMap = new HashMap<>();
-			for (Map.Entry<String, List<Long>> typeTokenIds : tokenIdsByType.entrySet()) {
-				PdeTokenGenerator generator = pdeTokenGeneratorRegistry.get(typeTokenIds.getKey());
-				if (generator == null) {
-					continue;
-				}
-
-				List<PdeTokenDetail> tokens = generator.getTokens(typeTokenIds.getValue());
-				for (PdeTokenDetail token : tokens) {
-					tokensMap.put(token.getType() + ":" + token.getTokenId(), token);
-				}
-			}
-
-			List<PdeTokenDetail> result = new ArrayList<>();
-			for (PdeNotif notif : notifs) {
-				for (PdeNotifLink link : notif.getLinks()) {
-					PdeTokenDetail token = tokensMap.get(link.getType() + ":" + link.getTokenId());
-					if (token != null) {
-						token.setToken(null);
-						token.setDataEntryLink(null);
-						result.add(token);
-					}
-				}
-			}
-
-			return ResponseEvent.response(result);
-		} catch (OpenSpecimenException ose) {
-			return ResponseEvent.error(ose);
-		} catch (Exception e) {
-			return ResponseEvent.serverError(e);
-		}
-	}
-
-	@Override
-	@PlusTransactional
-	public ResponseEvent<Long> getPdeLinksCount(RequestEvent<PdeNotifListCriteria> req) {
-		try {
-			PdeNotifListCriteria crit = req.getPayload();
-			return ResponseEvent.response(daoFactory.getPdeNotifDao().getNotifsCount(crit));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {
@@ -1915,6 +1850,17 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 		}
 	}
 
+	private void ensureUserUpdateRights(CollectionProtocol cp) {
+		try {
+			AccessCtrlMgr.getInstance().ensureCreateUpdateUserRolesRights(cp.getPrincipalInvestigator(), null);
+			for (User coord : cp.getCoordinators()) {
+				AccessCtrlMgr.getInstance().ensureCreateUpdateUserRolesRights(coord, null);
+			}
+		} catch (OpenSpecimenException ose) {
+			ose.rethrow(RbacErrorCode.ACCESS_DENIED, CpErrorCode.USER_UPDATE_RIGHTS_REQUIRED);
+		}
+	}
+
 	private boolean forceDeleteCps(final List<CollectionProtocol> cps, final String reason)
 	throws Exception {
 		final Authentication auth = AuthUtil.getAuth();
@@ -1959,11 +1905,11 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 			// if in same transaction, then it will be obtained from session
 			//
 			cp = daoFactory.getCollectionProtocolDao().getById(cp.getId());
+			BeanUtils.copyProperties(cp, deletedCp);
 
 			removeContainerRestrictions(cp);
 			addOrRemovePiCoordinatorRoles(cp, "DELETE", cp.getPrincipalInvestigator(), null, null, cp.getCoordinators());
 			removeCpRoles(cp);
-			BeanUtils.copyProperties(cp, deletedCp);
 
 			cp.setOpComments(reason);
 			cp.delete();

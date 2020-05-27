@@ -30,8 +30,6 @@ import com.krishagni.catissueplus.core.biospecimen.events.ConsentDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.CpEntityDeleteCriteria;
 import com.krishagni.catissueplus.core.biospecimen.events.CprSummary;
 import com.krishagni.catissueplus.core.biospecimen.events.FileDetail;
-import com.krishagni.catissueplus.core.biospecimen.events.PdeTokenDetail;
-import com.krishagni.catissueplus.core.biospecimen.events.PdeTokenGenDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.RegistrationQueryCriteria;
 import com.krishagni.catissueplus.core.biospecimen.events.VisitDetail;
 import com.krishagni.catissueplus.core.biospecimen.repository.CprListCriteria;
@@ -314,22 +312,6 @@ public class CollectionProtocolRegistrationsController {
 		ResponseEvent<List<FormRecordsList>> resp = formSvc.getFormRecords(getRequest(opDetail));
 		resp.throwErrorIfUnsuccessful();
 		return resp.getPayload();				
-	}
-
-	@RequestMapping(method = RequestMethod.POST, value="/pde-links")
-	@ResponseStatus(HttpStatus.OK)
-	@ResponseBody
-	public List<PdeTokenDetail> generatePdeTokens(@RequestBody PdeTokenGenDetail input) {
-		return ResponseEvent.unwrap(cprSvc.generatePdeTokens(RequestEvent.wrap(input)));
-	}
-
-	@RequestMapping(method = RequestMethod.GET, value="/{id}/pde-links")
-	@ResponseStatus(HttpStatus.OK)
-	@ResponseBody
-	public List<PdeTokenDetail> getPdeTokens(@PathVariable("id") Long cprId) {
-		RegistrationQueryCriteria crit = new RegistrationQueryCriteria();
-		crit.setCprId(cprId);
-		return ResponseEvent.unwrap(cprSvc.getPdeTokens(RequestEvent.wrap(crit)));
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value="/extension-form")

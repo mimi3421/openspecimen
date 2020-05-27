@@ -5,18 +5,12 @@ import java.util.Date;
 
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.biospecimen.domain.BaseEntity;
+import com.krishagni.catissueplus.core.biospecimen.domain.DataEntryToken;
+import com.krishagni.catissueplus.core.common.util.ConfigUtil;
 
 import krishagni.catissueplus.beans.FormContextBean;
 
-public class FormDataEntryToken extends BaseEntity {
-	public enum Status {
-		PENDING,
-
-		COMPLETED,
-
-		EXPIRED
-	}
-
+public class FormDataEntryToken extends BaseEntity implements DataEntryToken {
 	private FormContextBean formCtxt;
 
 	private Long objectId;
@@ -49,6 +43,7 @@ public class FormDataEntryToken extends BaseEntity {
 		this.objectId = objectId;
 	}
 
+	@Override
 	public String getToken() {
 		return token;
 	}
@@ -57,6 +52,7 @@ public class FormDataEntryToken extends BaseEntity {
 		this.token = token;
 	}
 
+	@Override
 	public User getCreatedBy() {
 		return createdBy;
 	}
@@ -75,6 +71,7 @@ public class FormDataEntryToken extends BaseEntity {
 		this.creationTime = creationTime;
 	}
 
+	@Override
 	public Date getCompletionTime() {
 		return completionTime;
 	}
@@ -83,6 +80,7 @@ public class FormDataEntryToken extends BaseEntity {
 		this.completionTime = completionTime;
 	}
 
+	@Override
 	public Date getExpiryTime() {
 		return expiryTime;
 	}
@@ -91,6 +89,7 @@ public class FormDataEntryToken extends BaseEntity {
 		this.expiryTime = expiryTime;
 	}
 
+	@Override
 	public Status getStatus() {
 		return status;
 	}
@@ -101,5 +100,10 @@ public class FormDataEntryToken extends BaseEntity {
 
 	public boolean isValid() {
 		return status == Status.PENDING && expiryTime.after(Calendar.getInstance().getTime());
+	}
+
+	@Override
+	public String getUrl() {
+		return ConfigUtil.getInstance().getAppUrl() + "/#/patient-data-entry?token=" + getToken();
 	}
 }

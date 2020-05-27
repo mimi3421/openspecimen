@@ -57,11 +57,6 @@
       <filter name="activeEntity"/>
     </set>
 
-    <set name="pdeNotifs" table="OS_PDE_NOTIFS" inverse="true">
-      <key column="CPR_ID"/>
-      <one-to-many class="com.krishagni.catissueplus.core.biospecimen.domain.PdeNotif"/>
-    </set>
-
     <filter name="activeEntity"/>
 
     <query name="getCprByCpIdAndPpid">
