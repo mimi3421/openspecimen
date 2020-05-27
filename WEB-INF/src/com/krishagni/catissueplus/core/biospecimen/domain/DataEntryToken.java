@@ -13,6 +13,8 @@ public interface DataEntryToken {
 		EXPIRED
 	}
 
+	Long getId();
+
 	String getToken();
 
 	User getCreatedBy();
