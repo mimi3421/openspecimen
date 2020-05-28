@@ -20,7 +20,8 @@ var osApp = angular.module('openspecimen', [
   'mgcrea.ngStrap.popover',
   'angular-loading-bar',
   'pascalprecht.translate',
-  'chart.js'
+  'chart.js',
+  'ui.tinymce'
   ]);
 
 osApp.config(function(
