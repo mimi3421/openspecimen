@@ -6,6 +6,8 @@ import edu.common.dynamicextensions.napi.FormData;
 
 public class FormDataSavedEvent extends OpenSpecimenEvent {
 
+	private static final long serialVersionUID = 5255220925616156515L;
+
 	private String entityType;
 
 	private Object object;

@@ -44,6 +44,7 @@ import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolEvent;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
 import com.krishagni.catissueplus.core.biospecimen.domain.ConsentResponses;
+import com.krishagni.catissueplus.core.biospecimen.domain.ConsentSavedEvent;
 import com.krishagni.catissueplus.core.biospecimen.domain.ConsentTierResponse;
 import com.krishagni.catissueplus.core.biospecimen.domain.CprSavedEvent;
 import com.krishagni.catissueplus.core.biospecimen.domain.Participant;
@@ -524,6 +525,15 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 			
 			ConsentResponses consentResponses = consentResponsesFactory.createConsentResponses(existing, consentDetail);
 			existing.updateConsents(consentResponses);
+
+			Map<String, String> responses = consentResponses.getConsentResponses().stream()
+				.filter(r -> r.getResponse() != null)
+				.collect(Collectors.toMap(
+					ConsentTierResponse::getStatementCode,
+					r -> r.getResponse().getValue()
+				));
+			EventPublisher.getInstance().publish(new ConsentSavedEvent(existing, responses));
+
 			return ResponseEvent.response(ConsentDetail.fromCpr(existing));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
