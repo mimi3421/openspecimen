@@ -16,7 +16,6 @@ import com.krishagni.catissueplus.core.de.events.FileDetail;
 import com.krishagni.catissueplus.core.de.events.FormContextDetail;
 import com.krishagni.catissueplus.core.de.events.FormCtxtSummary;
 import com.krishagni.catissueplus.core.de.events.FormDataDetail;
-import com.krishagni.catissueplus.core.de.events.FormDataEntryTokenDetail;
 import com.krishagni.catissueplus.core.de.events.FormFieldSummary;
 import com.krishagni.catissueplus.core.de.events.FormRecordCriteria;
 import com.krishagni.catissueplus.core.de.events.FormRecordsList;
@@ -75,13 +74,6 @@ public interface FormService {
 	public ResponseEvent<List<FormRecordsList>> getFormRecords(RequestEvent<GetFormRecordsListOp> req);
 	
 	public ResponseEvent<List<DependentEntityDetail>> getDependentEntities(RequestEvent<Long> req);
-
-	//
-	// patient data entry
-	//
-	ResponseEvent<FormDataEntryTokenDetail> createDataEntryToken(RequestEvent<FormDataEntryTokenDetail> req);
-
-	ResponseEvent<FormDataEntryTokenDetail> getDataEntryToken(RequestEvent<String> req);
 
 	/**
 	 * Internal usage

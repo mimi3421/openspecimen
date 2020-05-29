@@ -57,8 +57,6 @@ public class AuthTokenFilter extends GenericFilterBean implements InitializingBe
 	
 	private Map<String, List<String>> excludeUrls = new HashMap<>();
 
-	private Map<String, List<String>> pdeUrls = new HashMap<>();
-	
 	private AuditService auditService;
 
 	private ConfigurationService cfgSvc;
@@ -77,14 +75,6 @@ public class AuthTokenFilter extends GenericFilterBean implements InitializingBe
 
 	public void addExcludeUrl(String method, String resourceUrl) {
 		addUrl(excludeUrls, method, resourceUrl);
-	}
-
-	public void setPdeUrls(Map<String, List<String>> pdeUrls) {
-		this.pdeUrls = pdeUrls;
-	}
-
-	public void addPdeUrl(String method, String resourceUrl) {
-		addUrl(pdeUrls, method, resourceUrl);
 	}
 
 	public void setAuditService(AuditService auditService) {
@@ -176,13 +166,6 @@ public class AuthTokenFilter extends GenericFilterBean implements InitializingBe
 			}
 		}
 
-		if (user == null && isPdeUrl(httpReq)) {
-			String fdeToken = AuthUtil.getFdeTokenFromHeader(httpReq);
-			if (StringUtils.isNotBlank(fdeToken) && authService.isValidFdeToken(fdeToken)) {
-				user = getSystemUser();
-			}
-		}
-		
 		if (user == null) {
 			String clientHdr = httpReq.getHeader(OS_CLIENT_HDR);
 			if (clientHdr != null && clientHdr.equals("webui")) {
@@ -299,10 +282,6 @@ public class AuthTokenFilter extends GenericFilterBean implements InitializingBe
 
 	private boolean requiresSignIn(ServletRequest req) {
 		return !matchesUrl(req, excludeUrls);
-	}
-
-	private boolean isPdeUrl(ServletRequest req) {
-		return matchesUrl(req, pdeUrls);
 	}
 
 	private boolean matchesUrl(ServletRequest req, Map<String, List<String>> inputUrls) {

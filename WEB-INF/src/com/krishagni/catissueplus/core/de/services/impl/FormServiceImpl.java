@@ -7,13 +7,11 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -28,11 +26,9 @@ import org.springframework.web.multipart.MultipartFile;
 import com.krishagni.catissueplus.core.administrative.domain.FormDataSavedEvent;
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.administrative.repository.FormListCriteria;
-import com.krishagni.catissueplus.core.biospecimen.ConfigParams;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolGroup;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
-import com.krishagni.catissueplus.core.biospecimen.domain.DataEntryToken;
 import com.krishagni.catissueplus.core.biospecimen.domain.Participant;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenSavedEvent;
@@ -42,12 +38,9 @@ import com.krishagni.catissueplus.core.biospecimen.domain.factory.CprErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.SpecimenErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.VisitErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
-import com.krishagni.catissueplus.core.biospecimen.services.PdeTokenGenerator;
-import com.krishagni.catissueplus.core.biospecimen.services.PdeTokenGeneratorRegistry;
 import com.krishagni.catissueplus.core.biospecimen.services.impl.SystemFormUpdatePreventer;
 import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
-import com.krishagni.catissueplus.core.common.TransactionalThreadLocals;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
 import com.krishagni.catissueplus.core.common.access.SiteCpPair;
 import com.krishagni.catissueplus.core.common.errors.CommonErrorCode;
@@ -61,11 +54,9 @@ import com.krishagni.catissueplus.core.common.events.Resource;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 import com.krishagni.catissueplus.core.common.service.impl.EventPublisher;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
-import com.krishagni.catissueplus.core.common.util.ConfigUtil;
 import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.catissueplus.core.de.domain.DeObject;
 import com.krishagni.catissueplus.core.de.domain.Form;
-import com.krishagni.catissueplus.core.de.domain.FormDataEntryToken;
 import com.krishagni.catissueplus.core.de.domain.FormErrorCode;
 import com.krishagni.catissueplus.core.de.events.AddRecordEntryOp;
 import com.krishagni.catissueplus.core.de.events.EntityFormRecords;
@@ -73,7 +64,6 @@ import com.krishagni.catissueplus.core.de.events.FileDetail;
 import com.krishagni.catissueplus.core.de.events.FormContextDetail;
 import com.krishagni.catissueplus.core.de.events.FormCtxtSummary;
 import com.krishagni.catissueplus.core.de.events.FormDataDetail;
-import com.krishagni.catissueplus.core.de.events.FormDataEntryTokenDetail;
 import com.krishagni.catissueplus.core.de.events.FormFieldSummary;
 import com.krishagni.catissueplus.core.de.events.FormRecordCriteria;
 import com.krishagni.catissueplus.core.de.events.FormRecordSummary;
@@ -136,8 +126,6 @@ public class FormServiceImpl implements FormService, InitializingBean {
 
 	private static Map<String, Function<Long, Boolean>> entityAccessCheckers = new HashMap<>();
 
-	private static final String PDE_FORM_TYPE = "deForms";
-
 	static {
 		staticExtendedForms.add(PARTICIPANT_FORM);
 		staticExtendedForms.add(SCG_FORM);
@@ -160,8 +148,6 @@ public class FormServiceImpl implements FormService, InitializingBean {
 	private ExportService exportSvc;
 	
 	private Map<String, List<FormContextProcessor>> ctxtProcs = new HashMap<>();
-
-	private PdeTokenGeneratorRegistry pdeTokenGeneratorRegistry;
 
 	public void setFormDao(FormDao formDao) {
 		this.formDao = formDao;
@@ -187,15 +173,10 @@ public class FormServiceImpl implements FormService, InitializingBean {
 		this.ctxtProcs = ctxtProcs;
 	}
 
-	public void setPdeTokenGeneratorRegistry(PdeTokenGeneratorRegistry pdeTokenGeneratorRegistry) {
-		this.pdeTokenGeneratorRegistry = pdeTokenGeneratorRegistry;
-	}
-
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		FormEventsNotifier.getInstance().addListener(new SystemFormUpdatePreventer(formDao));
 		exportSvc.registerObjectsGenerator("extensions", this::getFormRecordsGenerator);
-		pdeTokenGeneratorRegistry.register(PDE_FORM_TYPE, new PatientDataEntryTokenGenerator());
 	}
 
 	@Override
@@ -702,53 +683,6 @@ public class FormServiceImpl implements FormService, InitializingBean {
 		}
 	}
 
-	@Override
-	@PlusTransactional
-	public ResponseEvent<FormDataEntryTokenDetail> createDataEntryToken(RequestEvent<FormDataEntryTokenDetail> req) {
-		try {
-			FormDataEntryTokenDetail input = req.getPayload();
-			FormDataEntryToken token = createDataEntryToken(input.getFormCtxtId(), input.getObjectId());
-			return ResponseEvent.response(FormDataEntryTokenDetail.from(token));
-		} catch (OpenSpecimenException ose) {
-			return ResponseEvent.error(ose);
-		} catch (Exception e) {
-			return ResponseEvent.serverError(e);
-		}
-	}
-
-	@Override
-	@PlusTransactional
-	public ResponseEvent<FormDataEntryTokenDetail> getDataEntryToken(RequestEvent<String> req) {
-		try {
-			String token = req.getPayload();
-			FormDataEntryToken fdeToken = deDaoFactory.getFormDataEntryTokenDao().getByToken(token);
-			if (fdeToken == null || !fdeToken.isValid()) {
-				return ResponseEvent.userError(FormErrorCode.INVALID_TOKEN, token);
-			}
-
-			FormContextBean fctxt = fdeToken.getFormCtxt();
-			FormDataEntryTokenDetail tokenDetail = FormDataEntryTokenDetail.from(fdeToken);
-			if ("Participant".equals(fctxt.getEntityType()) || "CommonParticipant".equals(fctxt.getEntityType())) {
-				CollectionProtocolRegistration cpr = daoFactory.getCprDao().getById(fdeToken.getObjectId());
-				if (cpr == null) {
-					return ResponseEvent.userError(CprErrorCode.NOT_FOUND, fdeToken.getObjectId());
-				}
-
-				tokenDetail.setCpId(cpr.getCollectionProtocol().getId());
-				tokenDetail.setCpShortTitle(cpr.getCpShortTitle());
-				tokenDetail.setRecordLabel(cpr.getPpid());
-			} else {
-				return ResponseEvent.userError(FormErrorCode.OP_NOT_ALLOWED);
-			}
-
-			return ResponseEvent.response(tokenDetail);
-		} catch (OpenSpecimenException ose) {
-			return ResponseEvent.error(ose);
-		} catch (Exception e) {
-			return ResponseEvent.serverError(e);
-		}
-	}
-
 	//
 	// Internal APIs
 	//
@@ -996,19 +930,6 @@ public class FormServiceImpl implements FormService, InitializingBean {
 
 	private FormData saveOrUpdateFormData(Long recordId, FormData formData, boolean isPartial) {
 		Map<String, Object> appData = formData.getAppData();
-
-		String token = (String) appData.get("fdeToken");
-		FormDataEntryToken fdeToken = null;
-		if (StringUtils.isNotBlank(token)) {
-			fdeToken = deDaoFactory.getFormDataEntryTokenDao().getByToken(token);
-			if (fdeToken == null) {
-				throw OpenSpecimenException.userError(FormErrorCode.INVALID_TOKEN, token);
-			}
-
-			appData.put("formCtxtId", fdeToken.getFormCtxt().getIdentifier());
-			appData.put("objectId", fdeToken.getObjectId());
-		}
-
 		if (appData.get("formCtxtId") == null || appData.get("objectId") == null) {
 			throw new IllegalArgumentException("Invalid form context id or object id ");
 		}
@@ -1104,11 +1025,6 @@ public class FormServiceImpl implements FormService, InitializingBean {
 		recordEntry.setUpdatedTime(Calendar.getInstance().getTime());
 		formDao.saveOrUpdateRecordEntry(recordEntry);
 		formData.setRecordId(recordId);
-
-		if (fdeToken != null) {
-			fdeToken.setCompletionTime(Calendar.getInstance().getTime());
-			fdeToken.setStatus(FormDataEntryToken.Status.COMPLETED);
-		}
 
 		if (collOrRecvEvent != null) {
 			EventPublisher.getInstance().publish(collOrRecvEvent);
@@ -1318,64 +1234,6 @@ public class FormServiceImpl implements FormService, InitializingBean {
 		}
 
 		return result;
-	}
-
-	private FormDataEntryToken createDataEntryToken(Long formCtxtId, Long objectId) {
-		if (formCtxtId == null) {
-			throw OpenSpecimenException.userError(FormErrorCode.CTXT_ID_REQ);
-		}
-
-		if (objectId == null) {
-			throw OpenSpecimenException.userError(FormErrorCode.OBJ_ID_REQ);
-		}
-
-		List<FormContextBean> formCtxts = formDao.getFormContextsById(Collections.singletonList(formCtxtId));
-		if (CollectionUtils.isEmpty(formCtxts)) {
-			throw OpenSpecimenException.userError(FormErrorCode.INVALID_FORM_CTXT, formCtxtId);
-		}
-
-		return createDataEntryToken(formCtxts.get(0), objectId);
-	}
-
-	private FormDataEntryToken createDataEntryToken(FormContextBean formCtxt, Long objectId) {
-		CollectionProtocolRegistration cpr = daoFactory.getCprDao().getById(objectId);
-		if (cpr == null) {
-			throw OpenSpecimenException.userError(CprErrorCode.NOT_FOUND, objectId);
-		}
-
-		AccessCtrlMgr.getInstance().ensureUpdateCprRights(cpr);
-		return createDataEntryToken(formCtxt, cpr);
-	}
-
-	private FormDataEntryToken createDataEntryToken(FormContextBean formCtxt, CollectionProtocolRegistration cpr) {
-		Form form = formCtxt.getForm();
-		if (formCtxt.isSysForm() && !isCollectionOrReceivedEvent(form.getName())) {
-			throw OpenSpecimenException.userError(FormErrorCode.SYS_REC_EDIT_NOT_ALLOWED);
-		}
-
-		String entityType = formCtxt.getEntityType();
-		if (!"Participant".equals(entityType) && !"CommonParticipant".equals(entityType)) {
-			throw OpenSpecimenException.userError(FormErrorCode.OP_NOT_ALLOWED);
-		}
-
-		Calendar cal = Calendar.getInstance();
-		Date now = cal.getTime();
-
-		Integer linkAge = ConfigUtil.getInstance().getIntSetting(ConfigParams.MODULE, ConfigParams.PDE_LINK_AGE, 5);
-		cal.add(Calendar.DATE, linkAge);
-		Date expiryTime = cal.getTime();
-
-		FormDataEntryToken deToken = new FormDataEntryToken();
-		deToken.setFormCtxt(formCtxt);
-		deToken.setObjectId(cpr.getId());
-		deToken.setToken(UUID.randomUUID().toString());
-		deToken.setCreatedBy(AuthUtil.getCurrentUser());
-		deToken.setCreationTime(now);
-		deToken.setExpiryTime(expiryTime);
-		deToken.setStatus(FormDataEntryToken.Status.PENDING);
-
-		deDaoFactory.getFormDataEntryTokenDao().saveOrUpdate(deToken);
-		return deToken;
 	}
 
 	private Specimen ensureSpecimenUpdateRights(Long objectId, boolean checkPhiAccess) {
@@ -1677,40 +1535,5 @@ public class FormServiceImpl implements FormService, InitializingBean {
 		}
 
 		return form;
-	}
-
-	private class PatientDataEntryTokenGenerator implements PdeTokenGenerator {
-		private ThreadLocal<Map<Long, FormContextBean>> formCtxts = new ThreadLocal<Map<Long, FormContextBean>>() {
-			protected Map<Long, FormContextBean> initialValue() {
-				TransactionalThreadLocals.getInstance().register(this);
-				return new HashMap<>();
-			}
-		};
-
-		@Override
-		public DataEntryToken generate(CollectionProtocolRegistration cpr, Map<String, Object> input) {
-			Number formCtxtId = (Number) input.get("formCtxtId");
-			if (formCtxtId == null) {
-				throw OpenSpecimenException.userError(FormErrorCode.CTXT_ID_REQ);
-			}
-
-			FormContextBean formCtxt = formCtxts.get().get(formCtxtId.longValue());
-			if (formCtxt == null) {
-				List<FormContextBean> fcs = formDao.getFormContextsById(Collections.singletonList(formCtxtId.longValue()));
-				if (fcs.isEmpty()) {
-					throw OpenSpecimenException.userError(FormErrorCode.INVALID_FORM_CTXT, formCtxtId);
-				}
-
-				formCtxt = fcs.get(0);
-				formCtxts.get().put(formCtxt.getIdentifier(), formCtxt);
-			}
-
-			return createDataEntryToken(formCtxt, cpr);
-		}
-
-		@Override
-		public DataEntryToken getToken(CollectionProtocolRegistration cpr, Long tokenId) {
-			return deDaoFactory.getFormDataEntryTokenDao().getById(tokenId);
-		}
 	}
 }

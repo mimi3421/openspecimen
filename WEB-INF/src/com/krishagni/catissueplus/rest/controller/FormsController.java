@@ -37,7 +37,6 @@ import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.catissueplus.core.de.events.FormContextDetail;
 import com.krishagni.catissueplus.core.de.events.FormDataDetail;
-import com.krishagni.catissueplus.core.de.events.FormDataEntryTokenDetail;
 import com.krishagni.catissueplus.core.de.events.FormFieldSummary;
 import com.krishagni.catissueplus.core.de.events.FormRecordCriteria;
 import com.krishagni.catissueplus.core.de.events.FormRecordsList;
@@ -491,21 +490,7 @@ public class FormsController {
 		return resp.getPayload();
 	}
 
-	@RequestMapping(method = RequestMethod.POST, value="/data-entry-tokens")
-	@ResponseStatus(HttpStatus.OK)
-	@ResponseBody
-	public FormDataEntryTokenDetail createDataEntryToken(@RequestBody FormDataEntryTokenDetail input) {
-		return ResponseEvent.unwrap(formSvc.createDataEntryToken(RequestEvent.wrap(input)));
-	}
-
-	@RequestMapping(method = RequestMethod.GET, value = "/data-entry-tokens/{token:.+}")
-	@ResponseStatus(HttpStatus.OK)
-	@ResponseBody
-	public FormDataEntryTokenDetail getDataEntryToken(@PathVariable("token") String token) {
-		return ResponseEvent.unwrap(formSvc.getDataEntryToken(RequestEvent.wrap(token)));
-	}
-
-	private Map<String, Object> saveOrUpdateFormData(Long formId, Map<String, Object> valueMap) {		
+	private Map<String, Object> saveOrUpdateFormData(Long formId, Map<String, Object> valueMap) {
 		FormData formData = FormData.fromValueMap(formId, valueMap);
 		
 		FormDataDetail detail = new FormDataDetail();

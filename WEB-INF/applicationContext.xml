@@ -264,8 +264,6 @@
     <property name="formSvc" ref="formSvc"/>
   </bean>
 
-  <bean id="pdeTokenGeneratorRegistry" class="com.krishagni.catissueplus.core.biospecimen.services.impl.DefaultPdeTokenGeneratorRegistry"/>
-
   <bean id="cprSvc" class="com.krishagni.catissueplus.core.biospecimen.services.impl.CollectionProtocolRegistrationServiceImpl">
     <property name="daoFactory" ref="biospecimenDaoFactory"/>
     <property name="cprFactory" ref="cprFactory"/>
@@ -454,7 +452,6 @@
     <property name="daoFactory" ref="biospecimenDaoFactory"/>
     <property name="deDaoFactory" ref="deDaoFactory"/>
     <property name="exportSvc" ref="exportSvc"/>
-    <property name="pdeTokenGeneratorRegistry" ref="pdeTokenGeneratorRegistry"/>
     <property name="ctxtProcs">
       <map>
         <entry key="ParticipantExtension">
@@ -812,28 +809,6 @@
             <value>/config-settings/deployment-site-logo</value>
             <value>/auth-domains/</value>
             <value>/forms/data-entry-tokens/**</value>
-          </list>
-        </entry>
-      </map>
-    </property>
-    <property name="pdeUrls">
-      <map>
-        <entry key="POST">
-          <list>
-            <value>/forms/**/data</value>
-            <value>/form-files</value>
-            <value>/form-files/images</value>
-          </list>
-        </entry>
-        <entry key="GET">
-          <list>
-            <value>/forms/**/definition</value>
-            <value>/forms/**/permissible-values</value>
-            <value>/form-files/**</value>
-            <value>/permissible-values/v</value>
-            <value>/sites</value>
-            <value>/storage-containers</value>
-            <value>/users</value>
           </list>
         </entry>
       </map>
