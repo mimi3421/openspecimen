@@ -6,7 +6,6 @@ import java.net.URLDecoder;
 import java.util.Collection;
 import java.util.TimeZone;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -32,8 +31,6 @@ public class AuthUtil {
 	private static final String OS_AUTH_TOKEN_HDR = "X-OS-API-TOKEN";
 
 	private static final String OS_IMP_USER_HDR = "X-OS-IMPERSONATE-USER";
-
-	private static final String OS_FDE_TOKEN_HDR = "X-OS-FDE-TOKEN";
 
 	public static Authentication getAuth() {
 		return SecurityContextHolder.getContext().getAuthentication();
@@ -151,10 +148,6 @@ public class AuthUtil {
 
 	public static String getAuthTokenFromHeader(HttpServletRequest httpReq) {
 		return httpReq.getHeader(OS_AUTH_TOKEN_HDR);
-	}
-
-	public static String getFdeTokenFromHeader(HttpServletRequest httpReq) {
-		return httpReq.getHeader(OS_FDE_TOKEN_HDR);
 	}
 
 	public static String getImpersonateUser(HttpServletRequest httpReq) {

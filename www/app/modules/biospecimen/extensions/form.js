@@ -55,8 +55,9 @@ angular.module('os.biospecimen.extensions', ['os.biospecimen.models'])
           var filesUrl = ApiUrls.getBaseUrl() + 'form-files';
           var hdrs = {
             'X-OS-API-TOKEN': $http.defaults.headers.common['X-OS-API-TOKEN'],
-            'X-OS-FDE-TOKEN': $http.defaults.headers.common['X-OS-FDE-TOKEN']
+            'X-OS-SURVEY-TOKEN': $http.defaults.headers.common['X-OS-SURVEY-TOKEN']
           };
+
           var args = {
             id             : opts.formId,
             formDiv        : element,

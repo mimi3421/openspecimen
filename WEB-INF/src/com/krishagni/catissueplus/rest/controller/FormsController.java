@@ -14,10 +14,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -30,11 +28,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import com.krishagni.catissueplus.core.administrative.repository.FormListCriteria;
+import com.krishagni.catissueplus.core.auth.domain.UserRequestData;
 import com.krishagni.catissueplus.core.common.events.BulkDeleteEntityOp;
 import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
-import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.catissueplus.core.de.events.FormContextDetail;
 import com.krishagni.catissueplus.core.de.events.FormDataDetail;
 import com.krishagni.catissueplus.core.de.events.FormFieldSummary;
@@ -265,19 +263,7 @@ public class FormsController {
 		Long formId,
 
 		@RequestBody
-		Map<String, Object> valueMap,
-
-		HttpServletRequest httpReq) {
-
-		String token = AuthUtil.getFdeTokenFromHeader(httpReq);
-		if (StringUtils.isNotBlank(token) && AuthUtil.getCurrentUser().isSysUser()) {
-			Map<String, Object> appData = (Map<String, Object>) valueMap.computeIfAbsent(
-				"appData",
-				(k) -> new HashMap<String, Object>()
-			);
-			appData.put("fdeToken", token);
-		}
-
+		Map<String, Object> valueMap) {
 		return saveOrUpdateFormData(formId, valueMap);
 	}
 	
@@ -491,6 +477,12 @@ public class FormsController {
 	}
 
 	private Map<String, Object> saveOrUpdateFormData(Long formId, Map<String, Object> valueMap) {
+		Map<String, Object> appData = (Map<String, Object>) valueMap.computeIfAbsent(
+			"appData",
+			(k) -> new HashMap<String, Object>()
+		);
+		appData.putAll(UserRequestData.getInstance().getData());
+
 		FormData formData = FormData.fromValueMap(formId, valueMap);
 		
 		FormDataDetail detail = new FormDataDetail();
@@ -500,6 +492,8 @@ public class FormsController {
 		
 		ResponseEvent<FormDataDetail> resp = formSvc.saveFormData(getRequest(detail));
 		resp.throwErrorIfUnsuccessful();
+
+		formData.getAppData().entrySet().removeIf(kv -> kv.getKey().startsWith("$"));
 		return resp.getPayload().getFormData().getFieldNameValueMap(formData.isUsingUdn());
 	}
 

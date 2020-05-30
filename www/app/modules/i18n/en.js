@@ -1786,10 +1786,6 @@
     "sys_form": "System Form",
     "sys_form_help": "System form records cannot be added or edited or deleted!",
 
-    "switch_to_patient_mode_q": "Switch to Patient Mode?",
-    "confirm_switch_to_patient_mode": "You will be signed out of the system. Do you really wish to switch to the patient data entry mode?",
-    "thank_you_patient": "Thank you for taking the time to answer the questions.",
-
     "name": "Name",
     "updated_by": "Updated By",
     "update_time": "Update Time",

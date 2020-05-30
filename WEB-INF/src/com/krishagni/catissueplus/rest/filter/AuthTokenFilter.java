@@ -35,9 +35,11 @@ import com.krishagni.catissueplus.core.audit.domain.UserApiCallLog;
 import com.krishagni.catissueplus.core.audit.services.AuditService;
 import com.krishagni.catissueplus.core.auth.domain.AuthToken;
 import com.krishagni.catissueplus.core.auth.domain.LoginAuditLog;
+import com.krishagni.catissueplus.core.auth.domain.UserRequestData;
 import com.krishagni.catissueplus.core.auth.events.LoginDetail;
 import com.krishagni.catissueplus.core.auth.events.TokenDetail;
 import com.krishagni.catissueplus.core.auth.services.UserAuthenticationService;
+import com.krishagni.catissueplus.core.auth.services.UserRequestDataProvider;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 import com.krishagni.catissueplus.core.common.service.ConfigChangeListener;
@@ -61,6 +63,8 @@ public class AuthTokenFilter extends GenericFilterBean implements InitializingBe
 
 	private ConfigurationService cfgSvc;
 
+	private List<UserRequestDataProvider> userRequestDataProviders = new ArrayList<>();
+
 	public void setAuthService(UserAuthenticationService authService) {
 		this.authService = authService;
 	}
@@ -79,6 +83,10 @@ public class AuthTokenFilter extends GenericFilterBean implements InitializingBe
 
 	public void setAuditService(AuditService auditService) {
 		this.auditService = auditService;
+	}
+
+	public void addUserRequestDataProvider(UserRequestDataProvider provider) {
+		userRequestDataProviders.add(provider);
 	}
 
 	public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain)
@@ -129,7 +137,7 @@ public class AuthTokenFilter extends GenericFilterBean implements InitializingBe
 
 		httpResp.setHeader("Access-Control-Allow-Credentials", "true");
 		httpResp.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, PATCH, OPTIONS");
-		httpResp.setHeader("Access-Control-Allow-Headers", "Origin, Accept, Content-Type, X-OS-API-TOKEN, X-OS-API-CLIENT, X-OS-IMPERSONATE-USER, X-OS-CLIENT-TZ, X-OS-FDE-TOKEN");
+		httpResp.setHeader("Access-Control-Allow-Headers", "Origin, Accept, Content-Type, X-OS-API-TOKEN, X-OS-API-CLIENT, X-OS-IMPERSONATE-USER, X-OS-CLIENT-TZ, X-OS-SURVEY-TOKEN");
 		httpResp.setHeader("Access-Control-Expose-Headers", "Content-Disposition, Content-Length, Content-Type");
 
 		httpResp.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
@@ -166,6 +174,16 @@ public class AuthTokenFilter extends GenericFilterBean implements InitializingBe
 			}
 		}
 
+		boolean runReqDataTeardown = false;
+		if (user == null) {
+			//
+			// Not a normal request. Run the custom request data providers setup
+			//
+			setupReqDataProviders(httpReq, httpResp);
+			runReqDataTeardown = true;
+			user = UserRequestData.getInstance().getUser();
+		}
+
 		if (user == null) {
 			String clientHdr = httpReq.getHeader(OS_CLIENT_HDR);
 			if (clientHdr != null && clientHdr.equals("webui")) {
@@ -173,6 +191,8 @@ public class AuthTokenFilter extends GenericFilterBean implements InitializingBe
 			} else {
 				setRequireAuthResp(req, resp, chain);
 			}
+
+			teardownReqDataProviders(httpReq, httpResp);
 			return;
 		}
 
@@ -185,6 +205,10 @@ public class AuthTokenFilter extends GenericFilterBean implements InitializingBe
 					user.formattedName(), user.getId(), user.getType().name(), user.getActivityStatus()
 				)
 			);
+
+			if (runReqDataTeardown) {
+				teardownReqDataProviders(httpReq, httpResp);
+			}
 			return;
 		}
 
@@ -193,11 +217,13 @@ public class AuthTokenFilter extends GenericFilterBean implements InitializingBe
 			String impUserStr = AuthUtil.getImpersonateUser(httpReq);
 			if (StringUtils.isNotBlank(impUserStr)) {
 				impersonatedUser = getUser(impUserStr);
-				if (impersonatedUser == null) {
-					httpResp.sendError(HttpServletResponse.SC_BAD_REQUEST, "User " + impUserStr + " does not exist!");
-					return;
-				} else if (!impersonatedUser.isActive()) {
-					httpResp.sendError(HttpServletResponse.SC_BAD_REQUEST, "User " + impUserStr + " is not active!");
+				if (impersonatedUser == null || !impersonatedUser.isActive()) {
+					String message = impersonatedUser == null ? " does not exist!" : " is not active!";
+					httpResp.sendError(HttpServletResponse.SC_BAD_REQUEST, "User " + impUserStr + message);
+					if (runReqDataTeardown) {
+						teardownReqDataProviders(httpReq, httpResp);
+					}
+
 					return;
 				}
 			}
@@ -207,6 +233,9 @@ public class AuthTokenFilter extends GenericFilterBean implements InitializingBe
 		Date callStartTime = Calendar.getInstance().getTime();
 		chain.doFilter(req, resp);
 		AuthUtil.clearCurrentUser();
+		if (runReqDataTeardown) {
+			teardownReqDataProviders(httpReq, httpResp);
+		}
 
 		if (isRecordableApi(httpReq)) {
 			UserApiCallLog userAuditLog = new UserApiCallLog();
@@ -275,7 +304,7 @@ public class AuthTokenFilter extends GenericFilterBean implements InitializingBe
 
 	private void addUrl(Map<String, List<String>> urlsMap, String method, String resourceUrl) {
 		List<String> urls = urlsMap.computeIfAbsent(method, (key) -> new ArrayList<>());
-		if (urls.indexOf(resourceUrl) == -1) {
+		if (!urls.contains(resourceUrl)) {
 			urls.add(resourceUrl);
 		}
 	}
@@ -389,7 +418,15 @@ public class AuthTokenFilter extends GenericFilterBean implements InitializingBe
 		return Stream.of(setting.split(",")).map(String::trim).collect(Collectors.toSet());
 	}
 
-	private User getSystemUser() {
-		return authService.getUser(User.DEFAULT_AUTH_DOMAIN, User.SYS_USER);
+	private void setupReqDataProviders(HttpServletRequest httpReq, HttpServletResponse httpResp) {
+		for (UserRequestDataProvider provider : userRequestDataProviders) {
+			provider.setup(httpReq, httpResp);
+		}
+	}
+
+	private void teardownReqDataProviders(HttpServletRequest httpReq, HttpServletResponse httpResp) {
+		for (UserRequestDataProvider provider : userRequestDataProviders) {
+			provider.teardown(httpReq, httpResp);
+		}
 	}
 }
