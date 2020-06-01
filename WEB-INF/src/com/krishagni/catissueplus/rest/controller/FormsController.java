@@ -493,6 +493,7 @@ public class FormsController {
 		ResponseEvent<FormDataDetail> resp = formSvc.saveFormData(getRequest(detail));
 		resp.throwErrorIfUnsuccessful();
 
+		formData.getAppData().put("nextSurveyToken", UserRequestData.getInstance().getDataItem("nextSurveyToken"));
 		formData.getAppData().entrySet().removeIf(kv -> kv.getKey().startsWith("$"));
 		return resp.getPayload().getFormData().getFieldNameValueMap(formData.isUsingUdn());
 	}
