@@ -74,6 +74,14 @@
 
     <iframe src="{{logoutUrl}}" style="height: 0; width: 0; display:none;" ng-if="logout"></iframe>
 
+    <script>
+      (function initTinyMce() {
+        window.tinyMCEPreInit = {
+          baseURL: 'plugin-ui-resources/tinymce', suffix: ''
+        };
+      })();
+    </script>
+
     <!-- build:js(.) scripts/vendor.js -->
     <!-- bower:js -->
     <script src="bower_components/jquery/dist/jquery.js"></script>
