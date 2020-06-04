@@ -71,7 +71,7 @@ angular.module('os.biospecimen.participant',
             return CollectionProtocol.getById($stateParams.cpId);
           },
 
-          cpViewCtx: function(cp, currentUser, authInit, AuthorizationService) {
+          cpViewCtx: function($q, $injector, cp, currentUser, authInit, AuthorizationService) {
             var participantUpdateAllowed = AuthorizationService.isAllowed({
               resource: 'ParticipantPhi',
               operations: ['Update'],
@@ -149,6 +149,8 @@ angular.module('os.biospecimen.participant',
               operations: ['Read']
             });
 
+            var surveys = null;
+
             return {
               participantImportAllowed: participantEximAllowed,
               visitImportAllowed: visitEximAllowed,
@@ -164,7 +166,22 @@ angular.module('os.biospecimen.participant',
               consentsReadAllowed: consentsReadAllowed,
               consentsUpdateAllowed: consentsUpdateAllowed,
               consentsEximAllowed: consentsEximAllowed,
-              queryReadAllowed: queryReadAllowed
+              queryReadAllowed: queryReadAllowed,
+              getSurveys: function() {
+                if (surveys || !$injector.has('Survey')) {
+                  var q = $q.defer();
+                  q.resolve(surveys);
+                  return q.promise;
+                }
+
+                var provider = $injector.get('Survey');
+                return provider.query({cpId: cp.id}).then(
+                  function(dbSurveys) {
+                    surveys = dbSurveys;
+                    return surveys;
+                  }
+                );
+              }
             }
           },
 
@@ -939,12 +956,24 @@ angular.module('os.biospecimen.participant',
       .state('participant-detail.extensions', {
         url: '/extensions',
         template: '<div ui-view></div>',
-        controller: function($scope, cpr, forms, records, ExtensionsUtil) {
+        controller: function($scope, cpr, forms, records, surveys, ExtensionsUtil) {
           $scope.extnOpts = {
             update: $scope.participantResource.updateOpts,
             isEntityActive: cpr.activityStatus == 'Active',
             entity: cpr
           }
+
+          angular.forEach(surveys,
+            function(survey) {
+              angular.forEach(forms,
+                function(form) {
+                  if (form.formCtxtId == survey.formCtxtId) {
+                    form.survey = survey;
+                  }
+                }
+              );
+            }
+          );
 
           ExtensionsUtil.linkFormRecords(forms, records);
         },
@@ -974,6 +1003,9 @@ angular.module('os.biospecimen.participant',
                 return ExtensionsUtil.sortForms(forms, orderSpec);
               }
             );
+          },
+          surveys: function(cpViewCtx) {
+            return cpViewCtx.getSurveys();
           },
           records: function(cpr) {
             return cpr.getRecords();

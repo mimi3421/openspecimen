@@ -79,6 +79,11 @@
           <span class="fa fa-plus"></span>
           <span translate="common.buttons.add_another"></span>
         </button>
+        <button class="btn btn-default" ng-if="selectedForm.survey && selectedForm.multiRecord"
+          ng-click="switchToSurveyMode(selectedForm.survey)">
+          <span class="fa fa-plus"></span>
+          <span translate="extensions.survey_mode">Survey Mode</span>
+        </button>
       </span>
       <span ng-switch-when="false" class="btn os-status-info" style="margin-bottom: 0px;"
         os-tooltip="{{'extensions.sys_form_help' | translate}}">
@@ -103,6 +108,12 @@
           <span class="fa fa-plus"></span>
           <span ng-if="selectedForm.records.length >= 1" translate="common.buttons.add_another"></span>
           <span ng-if="selectedForm.records.length == 0" translate="common.buttons.add"></span>
+        </button>
+
+        <button class="btn btn-default" ng-if="selectedForm.survey"
+          ng-click="switchToSurveyMode(selectedForm.survey)">
+          <span class="fa fa-plus"></span>
+          <span translate="extensions.survey_mode">Survey Mode</span>
         </button>
       </span>
       <span ng-switch-when="false" class="btn os-status-info" style="margin-bottom: 0px;"
