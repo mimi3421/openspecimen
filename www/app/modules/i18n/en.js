@@ -1809,9 +1809,7 @@
     "bulk_import_specimen_extns": "Bulk Import Specimen Forms",
     "bulk_import_specimen_events": "Bulk Import Specimen Events",
 
-    "survey_mode": "Survey Mode",
-    "switch_to_survey_mode_q": "Switch to Survey Mode?",
-    "confirm_switch_to_survey_mode_q": "You will be signed out of the system. Do you really wish to switch to the survey mode?"
+    "survey_mode": "Survey Mode"
   },
 
   "delete_entity": {

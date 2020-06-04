@@ -2,7 +2,7 @@
 angular.module('os.biospecimen.extensions.list', ['os.biospecimen.models', 'os.biospecimen.extensions.util'])
   .controller('FormsListCtrl', function(
     $scope, $state, $stateParams, $injector,
-    forms, Form, ExtensionsUtil, AuthService, Util) {
+    forms, Form, ExtensionsUtil) {
 
     function init() {
       $scope.forms   = forms;
@@ -120,29 +120,7 @@ angular.module('os.biospecimen.extensions.list', ['os.biospecimen.models', 'os.b
     }
 
     $scope.switchToSurveyMode = function(survey) {
-      Util.showConfirm({
-        title: 'extensions.switch_to_survey_mode_q',
-        confirmMsg: 'extensions.confirm_switch_to_survey_mode_q',
-        ok: function() {
-          var cpr = $scope.object;
-          var payload = {
-            cpShortTitle: cpr.cpShortTitle,
-            ppids: [cpr.ppid],
-            surveyIds: [survey.id],
-            onlineMode: true
-          };
-
-          $injector.get('SurveyInstance').sendInvitations(payload).then(
-            function(instances) {
-              AuthService.logout().then(
-                function() {
-                  $state.go('patient-surveys', {token: instances[0].token});
-                }
-              );
-            }
-          );
-        }
-      });
+      $injector.get('SurveyInstance').switchToSurveyMode($scope.object, survey);
     }
 
     init();

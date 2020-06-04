@@ -963,17 +963,16 @@ angular.module('os.biospecimen.participant',
             entity: cpr
           }
 
-          angular.forEach(surveys,
-            function(survey) {
-              angular.forEach(forms,
-                function(form) {
-                  if (form.formCtxtId == survey.formCtxtId) {
-                    form.survey = survey;
-                  }
-                }
-              );
+          for (var i = 0; i < surveys.length; ++i) {
+            var survey = surveys[i];
+            for (var j = 0; j < forms.length; ++j) {
+              var form = forms[j];
+              if (form.formCtxtId == survey.formCtxtId) {
+                form.survey = survey;
+                break;
+              }
             }
-          );
+          }
 
           ExtensionsUtil.linkFormRecords(forms, records);
         },
