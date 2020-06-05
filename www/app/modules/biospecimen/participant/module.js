@@ -847,8 +847,8 @@ angular.module('os.biospecimen.participant',
             return $injector.has('ecDocument');
           },
 
-          consent: function(cpr, cpViewCtx) {
-            return cpViewCtx.consentsReadAllowed ? cpr.getConsents() : null;
+          consent: function(cpr, cpViewCtx, hasEc) {
+            return cpViewCtx.consentsReadAllowed && !hasEc ? cpr.getConsents() : null;
           }
         },
         controller: 'ParticipantConsentsCtrl',

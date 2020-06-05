@@ -6,7 +6,7 @@ angular.module('os.biospecimen.models.cpr',
     'os.biospecimen.models.form'
   ])
   .factory('CollectionProtocolRegistration', function(
-    $filter, $http, $parse, osModel,
+    $filter, $http, $parse, $injector, osModel,
     Participant, Visit, Form, Util, ExtensionsUtil) {
 
     var CollectionProtocolRegistration = 
@@ -119,6 +119,10 @@ angular.module('os.biospecimen.models.cpr',
     }
 
     CollectionProtocolRegistration.prototype.getConsents = function() {
+      if ($injector.has('ecDocResponse')) {
+        return $injector.get('ecDocResponse').getConsents(this.$id());
+      }
+
       var url = CollectionProtocolRegistration.url() + this.$id() + "/consents";
       return $http.get(url).then(function(result) {return result.data;});
     }
