@@ -1,5 +1,6 @@
 package com.krishagni.catissueplus.core.biospecimen.repository.impl;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -44,6 +45,13 @@ public class ConsentStatementDaoImpl extends AbstractDao<ConsentStatement> imple
 		return (ConsentStatement)getCurrentSession().getNamedQuery(GET_BY_CODE)
 			.setString("code", code)
 			.uniqueResult();
+	}
+
+	@Override
+	public List<ConsentStatement> getByCodes(Collection<String> codes) {
+		return getCurrentSession().createCriteria(ConsentStatement.class, "cs")
+			.add(Restrictions.in("cs.code", codes))
+			.list();
 	}
 
 	@Override

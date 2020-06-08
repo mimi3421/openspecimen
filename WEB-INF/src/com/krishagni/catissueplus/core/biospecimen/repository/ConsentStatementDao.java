@@ -1,5 +1,6 @@
 package com.krishagni.catissueplus.core.biospecimen.repository;
 
+import java.util.Collection;
 import java.util.List;
 
 import com.krishagni.catissueplus.core.biospecimen.domain.ConsentStatement;
@@ -11,6 +12,8 @@ public interface ConsentStatementDao extends Dao<ConsentStatement> {
 	Long getStatementsCount(ConsentStatementListCriteria crit);
 	
 	ConsentStatement getByCode(String code);
+
+	List<ConsentStatement> getByCodes(Collection<String> codes);
 
 	ConsentStatement getByStatement(String statement);
 }
