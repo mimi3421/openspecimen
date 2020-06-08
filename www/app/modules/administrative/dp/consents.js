@@ -1,18 +1,21 @@
 
 angular.module('os.administrative.dp.consents', ['os.administrative.models'])
   .controller('DpConsentsCtrl',function(
-    $scope, $http, $q, distributionProtocol,
+    $scope, $http, $q, distributionProtocol, hasEc,
     currentUser, consentTiers, DeleteUtil, ConsentStatement) {
 
     var defStmts;
 
     function init() {
       $scope.consentCtx = {
+        hasEc: hasEc,
         tiers: initConsentTiers(consentTiers),
         stmts: []
       };
 
-      loadConsentStmts();
+      if (!hasEc) {
+        loadConsentStmts();
+      }
     }
 
     function initConsentTiers(consentTiers) {
