@@ -1,5 +1,5 @@
 angular.module('os.biospecimen.participant')
-  .factory('ImportUtil', function($translate) {
+  .factory('ImportUtil', function($translate, $injector) {
     var pluginTypes = {};
 
     function addPluginTypes(importTypes, group, entityType) {
@@ -68,10 +68,17 @@ angular.module('os.biospecimen.participant')
 
     function getConsentTypes(cpId) {
       var group = $translate.instant('participant.title');
-      return [{
-        group: group, type: 'consent', title: 'participant.consents',
-        showImportType: false, csvType: 'MULTIPLE_ROWS_PER_OBJ', importType: 'UPDATE'
-      }];
+      if ($injector.has('ecDocument')) {
+        return [{
+          group: group, type: 'econsentsDocumentResponse', title: 'participant.consents',
+          showImportType: false, importType: 'UPDATE'
+        }];
+      } else {
+        return [{
+          group: group, type: 'consent', title: 'participant.consents',
+          showImportType: false, csvType: 'MULTIPLE_ROWS_PER_OBJ', importType: 'UPDATE'
+        }];
+      }
     }
 
     function getVisitTypes(entityForms) {

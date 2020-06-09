@@ -411,8 +411,8 @@ angular.module('os.biospecimen.participant',
         resolve: {
           importDetail: function(cp, ImportUtil) {
             var objectTypes = [
-              'cpr', 'participant', 'consent', 'visit',
-              'specimen', 'specimenDerivative', 'specimenAliquot',
+              'cpr', 'participant', 'consent', 'econsentsDocumentResponse',
+              'visit', 'specimen', 'specimenDerivative', 'specimenAliquot',
               'masterSpecimen', 'specimenDisposal', 'extensions'
             ];
 

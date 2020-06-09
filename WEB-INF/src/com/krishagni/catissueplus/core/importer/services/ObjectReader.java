@@ -290,20 +290,18 @@ public class ObjectReader implements Closeable {
 			fileProps.put("defile", true);
 			fileProps.put("contentType", Utility.getContentType(value));
 			return fileProps;
+		} else if (field.getType() != null && field.getType().equals("signature")) {
+			Map<String, Object> fileProps = new HashMap<>();
+			fileProps.put("signature", true);
+			fileProps.put("filename", value);
+			return fileProps;
 		} else {
 			return value;
 		}
 	}
 	
 	private List<Map<String, Object>> removeEmptyObjs(List<Map<String, Object>> objs) {
-		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
-		for (Map<String, Object> obj : objs) {
-			if (nullOrObj(obj) != null) {
-				result.add(obj);
-			}
-		}
-		
-		return result;
+		return objs.stream().filter(obj -> nullOrObj(obj) != null).collect(Collectors.toList());
 	}
 	
 	private Map<String, Object> nullOrObj(Map<String, Object> obj) {

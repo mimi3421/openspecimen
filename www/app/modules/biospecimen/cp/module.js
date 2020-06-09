@@ -178,8 +178,8 @@ angular.module('os.biospecimen.cp',
         resolve: {
           importDetail: function(ImportUtil) {
             var objectTypes = [
-              'cprMultiple', 'otherCpr', 'cpr', 'participant', 'consent', 'visit',
-              'specimen', 'specimenDerivative', 'specimenAliquot',
+              'cprMultiple', 'otherCpr', 'cpr', 'participant', 'consent', 'econsentsDocumentResponse',
+              'visit', 'specimen', 'specimenDerivative', 'specimenAliquot',
               'masterSpecimen', 'specimenDisposal', 'extensions'
             ];
 

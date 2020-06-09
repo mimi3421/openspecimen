@@ -46,33 +46,57 @@ public class ExtensionsUtil {
 					}
 				}
 			} else if (attrValue instanceof Map) {
-				Map<String, String> fileDetail = getFileDetail(filesDir, (Map<String, Object>) attrValue);
-				if (fileDetail != null) {
-					attr.setValue(fileDetail);
+				Map<String, Object> fcv = (Map<String, Object>) attrValue;
+				if (Objects.equals(fcv.get("defile"), Boolean.TRUE)) {
+					Map<String, String> fileDetail = getFileDetail(filesDir, fcv);
+					if (fileDetail != null) {
+						attr.setValue(fileDetail);
+					}
+				} else if (Objects.equals(fcv.get("signature"), Boolean.TRUE)) {
+					String imageId = getImageId(filesDir, fcv);
+					if (imageId != null) {
+						attr.setValue(imageId);
+					}
 				}
 			}
 		}
 	}
 
 	private static Map<String, String> getFileDetail(String filesDir, Map<String, Object> fcv) {
-		if (!Objects.equals(fcv.get("defile"), Boolean.TRUE)) {
-			return null;
-		}
-
 		String filename = (String) fcv.get("filename");
 		if (StringUtils.isBlank(filename)) {
 			return null;
 		}
 
-		return uploadFile(filesDir, filename);
+		return uploadFile(filesDir, filename, null);
 	}
 
-	private static Map<String, String> uploadFile(String filesDir, String filename) {
+	private static String getImageId(String filesDir, Map<String, Object> fcv) {
+		String filename = (String) fcv.get("filename");
+		if (StringUtils.isBlank(filename)) {
+			return null;
+		}
+
+		int idx = filename.lastIndexOf(".");
+		String extn = null;
+		if (idx != -1) {
+			extn = filename.substring(idx + 1);
+		}
+
+		if (StringUtils.isBlank(extn)) {
+			extn = "png";
+		}
+
+		Map<String, String> imageDetail = uploadFile(filesDir, filename, extn);
+		return imageDetail != null ? imageDetail.get("fileId") : null;
+	}
+
+	private static Map<String, String> uploadFile(String filesDir, String filename, String extn) {
 		FileInputStream fin = null;
 		try {
 			File fileToUpload = new File(filesDir + File.separator + filename);
 			fin = new FileInputStream(fileToUpload);
-			String fileId = FileUploadMgr.getInstance().saveFile(fin);
+			String fileId = FileUploadMgr.getInstance().saveFile(fin, extn);
 
 			Map<String, String> fileDetail = new HashMap<>();
 			fileDetail.put("filename", filename);
