@@ -1,5 +1,5 @@
 angular.module('os.biospecimen.participant')
-  .factory('ExportUtil', function($translate) {
+  .factory('ExportUtil', function($translate, $injector) {
 
     function addForms(exportTypes, group, entityType, input, forms) {
       angular.forEach(forms,
@@ -33,9 +33,14 @@ angular.module('os.biospecimen.participant')
     }
 
     function getConsentTypes(cpId, input) {
+      var type = 'consent';
+      if ($injector.has('ecDocument')) {
+        type = 'econsentsDocumentResponse';
+      }
+
       var group = $translate.instant('participant.title');
       input = input || {'var': 'ppids', varName: 'participant.ppids', varDesc: 'participant.ppids_csv'};
-      return [{ group: group, type: 'consent', title: msg('participant.consents'), '$$input': input }];
+      return [{ group: group, type: type, title: msg('participant.consents'), '$$input': input }];
     }
 
     function getVisitTypes(entityForms) {
