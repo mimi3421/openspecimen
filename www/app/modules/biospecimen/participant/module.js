@@ -742,7 +742,7 @@ angular.module('os.biospecimen.participant',
               return false;
             }
 
-            return $injector.get('ecValidation').getRules(cp.id).then(
+            return $injector.get('ecValidation').getCpRules(cp.id).then(
               function(cpRules) {
                 return cpRules && cpRules.rules && cpRules.rules.length > 0;
               }
