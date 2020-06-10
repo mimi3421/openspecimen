@@ -174,13 +174,9 @@ public class AuthTokenFilter extends GenericFilterBean implements InitializingBe
 			}
 		}
 
-		boolean runReqDataTeardown = false;
+		httpReq.setAttribute("user", user);
+		setupReqDataProviders(httpReq, httpResp);
 		if (user == null) {
-			//
-			// Not a normal request. Run the custom request data providers setup
-			//
-			setupReqDataProviders(httpReq, httpResp);
-			runReqDataTeardown = true;
 			user = UserRequestData.getInstance().getUser();
 		}
 
@@ -206,9 +202,8 @@ public class AuthTokenFilter extends GenericFilterBean implements InitializingBe
 				)
 			);
 
-			if (runReqDataTeardown) {
-				teardownReqDataProviders(httpReq, httpResp);
-			}
+
+			teardownReqDataProviders(httpReq, httpResp);
 			return;
 		}
 
@@ -220,10 +215,7 @@ public class AuthTokenFilter extends GenericFilterBean implements InitializingBe
 				if (impersonatedUser == null || !impersonatedUser.isActive()) {
 					String message = impersonatedUser == null ? " does not exist!" : " is not active!";
 					httpResp.sendError(HttpServletResponse.SC_BAD_REQUEST, "User " + impUserStr + message);
-					if (runReqDataTeardown) {
-						teardownReqDataProviders(httpReq, httpResp);
-					}
-
+					teardownReqDataProviders(httpReq, httpResp);
 					return;
 				}
 			}
@@ -233,9 +225,7 @@ public class AuthTokenFilter extends GenericFilterBean implements InitializingBe
 		Date callStartTime = Calendar.getInstance().getTime();
 		chain.doFilter(req, resp);
 		AuthUtil.clearCurrentUser();
-		if (runReqDataTeardown) {
-			teardownReqDataProviders(httpReq, httpResp);
-		}
+		teardownReqDataProviders(httpReq, httpResp);
 
 		if (isRecordableApi(httpReq)) {
 			UserApiCallLog userAuditLog = new UserApiCallLog();
