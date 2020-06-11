@@ -101,11 +101,16 @@ angular.module('openspecimen')
   })
   .directive('osFixDd', function($timeout) {
     return {
+      require: 'uiSelect',
+
       restrict: 'A',
 
-      link: function(scope, element, attrs) {
-        var dd = null;
+      link: function(scope, element, attrs, $select) {
+        if (attrs.multiple != undefined && !$select.selected) {
+          $select.selected = [];
+        }
 
+        var dd = null;
         var ddCont = new MutationObserver(
           function(ddContMutations) {
             if (!ddContMutations.some(function(r) { return r.attributeName == 'class' })) {
@@ -183,4 +188,138 @@ angular.module('openspecimen')
         });
       }
     };
+  })
+
+  .directive('osDropdown', function($http, ApiUrls) {
+    function loadList(ctx, scope, attrs, searchValue) {
+      if (!searchValue && ctx.cache[attrs.queryParams]) {
+        //
+        // No user search and the default list is already cached.
+        // return cached results
+        //
+        scope.list = ctx.cache[attrs.queryParams];
+        return;
+      }
+
+      var apiEndpoint = ApiUrls.getBaseUrl() + attrs.apiUrl;
+      var params = JSON.parse(attrs.queryParams);
+      if (!!attrs.searchProp && !!searchValue) {
+        params[attrs.searchProp] = searchValue;
+      }
+
+      $http.get(apiEndpoint, {params: params}).then(
+        function(resp) {
+          var list = resp.data;
+          if (!!searchValue) {
+            //
+            // obtained list is filtered based on user search
+            // no need to cache the list
+            //
+            scope.list = list;
+            return;
+          }
+
+          var selectedVal = scope.$eval(attrs.ngModel);
+          if (!attrs.searchProp || !selectedVal) {
+            //
+            // either no remote search is enabled or no value is pre-selected
+            // cache and return the default list
+            //
+            scope.list = ctx.cache[attrs.queryParams] = list;
+            return;
+          }
+
+          //
+          // remote search is enabled and dropdown value is pre-selected
+          // first check whether the pre-selected value is in default list
+          //
+          var found = list.some(function(ele) { return ele[attrs.selectProp] == selectedVal; });
+          if (found) {
+            //
+            // pre-selected value found in default list
+            // cache and return the default list
+            //
+            scope.list = ctx.cache[attrs.queryParams] = list;
+            return;
+          }
+
+          //
+          // pre-selected value not in default list
+          // remote search for pre-selected value
+          //
+          params[attrs.searchProp] = selectedVal;
+          $http.get(apiEndpoint, {params: params}).then(
+            function(searchResp) {
+              //
+              // extend the default list with pre-selected value elements
+              //
+              list = list.concat(searchResp.data);
+              scope.list = ctx.cache[attrs.queryParams] = list;
+            }
+          );
+        }
+      );
+    }
+
+    return  {
+      restrict: 'E',
+
+      scope: true,
+
+      replace: false,
+
+      template: function(tElem, tAttrs) {
+        var attrs = {
+          'name'          : tAttrs.name,
+          'ng-model'      : tAttrs.ngModel,
+          'select-prop'   : tAttrs.selectProp,
+          'display-prop'  : tAttrs.displayProp,
+          'append-to-body': (tAttrs.appendToBody == true || tAttrs.appendToBody == 'true'),
+          'list'          : 'list'
+        };
+
+        if (tAttrs.searchProp) {
+          attrs.refresh = 'searchList($select.search)';
+        }
+
+        if (tAttrs.multiple) {
+          attrs.multiple = true;
+        }
+
+        var el = angular.element('<os-select/>').attr(attrs);
+        if (tAttrs.mdType == 'true') {
+          el.attr('os-md-input', 'os-md-input');
+        }
+
+        if (tAttrs.required) {
+          el.attr('required', 'required');
+        }
+
+        if (tAttrs.ngInit) {
+          el.attr('ng-init', tAttrs.ngInit);
+        }
+
+        if (tAttrs.onSelect) {
+          el.attr('on-select', tAttrs.onSelect);
+        }
+
+        return el.attr('placeholder', tAttrs.placeholder);
+      },
+
+      link: function(scope, element, attrs) {
+        var ctx = {cache: {}};
+
+        scope.list = [];
+        if (attrs.options) {
+          scope.list = scope.$eval(attrs.options);
+        } else if (attrs.apiUrl) {
+          attrs.$observe('queryParams', function() { loadList(ctx, scope, attrs); });
+        }
+
+
+        scope.searchList = function(searchValue) {
+          loadList(ctx, scope, attrs, searchValue);
+        }
+      }
+    }
   });
