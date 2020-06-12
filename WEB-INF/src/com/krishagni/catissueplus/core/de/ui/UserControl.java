@@ -4,6 +4,8 @@ import java.io.Writer;
 import java.util.Map;
 import java.util.Properties;
 
+import com.krishagni.catissueplus.core.common.util.Utility;
+
 import edu.common.dynamicextensions.domain.nui.AbstractLookupControl;
 
 public class UserControl extends AbstractLookupControl {
@@ -42,6 +44,15 @@ public class UserControl extends AbstractLookupControl {
 	
 	@Override
 	public String getAltKeyColumn() {		
+		return ALT_KEY;
+	}
+
+	@Override
+	public String getValueColumn() {
+		if (!Utility.isExportOp()) {
+			return super.getValueColumn();
+		}
+
 		return ALT_KEY;
 	}
 	

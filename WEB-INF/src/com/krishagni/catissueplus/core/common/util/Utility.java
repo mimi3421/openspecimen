@@ -60,6 +60,7 @@ import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.PdfUtil;
 import com.krishagni.catissueplus.core.common.domain.IntervalUnit;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
+import com.krishagni.catissueplus.core.exporter.services.impl.ExporterContextHolder;
 
 import au.com.bytecode.opencsv.CSVWriter;
 
@@ -909,6 +910,10 @@ public class Utility {
 
 	public static <T> String join(Collection<T> coll, Function<T, String> mapper, String delimiter) {
 		return Utility.nullSafeStream(coll).map(mapper).collect(Collectors.joining(delimiter));
+	}
+
+	public static boolean isExportOp() {
+		return ExporterContextHolder.getInstance().isExportOp();
 	}
 
 	private static Integer getPeriodBetween(ChronoUnit unit, Date from, Date to) {
