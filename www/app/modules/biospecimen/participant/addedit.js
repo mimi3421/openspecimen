@@ -200,7 +200,19 @@ angular.module('os.biospecimen.participant.addedit', ['os.biospecimen.models', '
                 gotoSpmnCollection(savedCpr, event);
               }
             } else if (gotoConsents) {
-              $state.go('participant-detail.consents', {cprId: savedCpr.id});
+              if ($injector.has('Survey')) {
+                $injector.get('Survey').getStarterConsent(savedCpr.id).then(
+                  function(survey) {
+                    if (survey) {
+                      $injector.get('SurveyInstance').switchToSurveyMode(savedCpr, survey, true);
+                    } else {
+                      $state.go('participant-detail.consents', {cprId: savedCpr.id});
+                    }
+                  }
+                );
+              } else {
+                $state.go('participant-detail.consents', {cprId: savedCpr.id});
+              }
             } else {
               $state.go('participant-detail.overview', {cprId: savedCpr.id});
             }
