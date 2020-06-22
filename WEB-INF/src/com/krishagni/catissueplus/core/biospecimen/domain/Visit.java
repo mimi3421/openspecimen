@@ -620,7 +620,13 @@ public class Visit extends BaseExtensionEntity {
 	}
 
 	private void createSpecimens(String status) {
-		Set<SpecimenRequirement> anticipated = getCpEvent().getTopLevelAnticipatedSpecimens();
+		Set<SpecimenRequirement> anticipated;
+		if (getCpEvent() == null) {
+			anticipated = new HashSet<>();
+		} else {
+			anticipated = getCpEvent().getTopLevelAnticipatedSpecimens();
+		}
+
 		for (Specimen specimen : getTopLevelSpecimens()) {
 			if (specimen.getSpecimenRequirement() != null) {
 				anticipated.remove(specimen.getSpecimenRequirement());
