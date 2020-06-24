@@ -42,13 +42,6 @@ public class ParticipantDaoImpl extends AbstractDao<Participant> implements Part
 	}
 
 	@Override
-	public Participant getByEmailId(String emailId) {
-		return (Participant) getCurrentSession().getNamedQuery(GET_BY_EMAIL_ID)
-			.setParameter("emailId", emailId)
-			.uniqueResult();
-	}
-
-	@Override
 	@SuppressWarnings("unchecked")	
 	public List<Participant> getByLastNameAndBirthDate(String lname, Date dob) {
 		ZonedDateTime zdt = ZonedDateTime.ofInstant(dob.toInstant(), ZoneId.systemDefault());
@@ -146,7 +139,5 @@ public class ParticipantDaoImpl extends AbstractDao<Participant> implements Part
 	
 	private static final String GET_BY_EMPI = FQN + ".getByEmpi";
 
-	private static final String GET_BY_EMAIL_ID = FQN + ".getByEmailId";
-	
 	private static final String GET_BY_LNAME_AND_DOB = FQN + ".getByLnameAndDob";
 }

@@ -180,7 +180,6 @@ public class ParticipantServiceImpl implements ParticipantService, ObjectAccesso
 		ParticipantUtil.ensureUniqueUid(daoFactory, participant.getUid(), ose);
 		ParticipantUtil.ensureUniquePmis(daoFactory, PmiDetail.from(participant.getPmis(), false), participant, ose);
 		ParticipantUtil.ensureUniqueEmpi(daoFactory, participant.getEmpi(), ose);
-		ParticipantUtil.ensureUniqueEmailId(daoFactory, participant.getEmailAddress(), ose);
 
 		ose.checkAndThrow();
 
@@ -209,12 +208,6 @@ public class ParticipantServiceImpl implements ParticipantService, ObjectAccesso
 			ParticipantUtil.ensureUniqueEmpi(daoFactory, newEmpi, ose);
 		}
 
-		String existingEmailId = existing.getEmailAddress();
-		String newEmailId      = newParticipant.getEmailAddress();
-		if (StringUtils.isNotBlank(newEmailId) && !newEmailId.equals(existingEmailId)) {
-			ParticipantUtil.ensureUniqueEmailId(daoFactory, newEmailId, ose);
-		}
-		
 		List<PmiDetail> pmis = PmiDetail.from(newParticipant.getPmis(), false);
 		ParticipantUtil.ensureUniquePmis(daoFactory, pmis, existing, ose);
 		ose.checkAndThrow();

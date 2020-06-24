@@ -82,15 +82,6 @@
         lower(p.empi) = :empi
     </query>
 
-    <query name="getByEmailId">
-      select
-        p
-      from
-        com.krishagni.catissueplus.core.biospecimen.domain.Participant p
-      where
-        lower(p.emailAddress) = :emailId
-    </query>
-
     <query name="getByLnameAndDob">
       from 
         com.krishagni.catissueplus.core.biospecimen.domain.Participant p

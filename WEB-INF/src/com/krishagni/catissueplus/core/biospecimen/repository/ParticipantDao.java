@@ -14,8 +14,6 @@ public interface ParticipantDao extends Dao<Participant> {
 	
 	Participant getByEmpi(String empi);
 
-	Participant getByEmailId(String emailId);
-	
 	List<Participant> getByLastNameAndBirthDate(String lname, Date dob);
 	
 	List<Participant> getByPmis(List<PmiDetail> pmis);
