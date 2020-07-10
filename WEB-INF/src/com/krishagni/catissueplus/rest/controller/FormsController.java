@@ -482,6 +482,7 @@ public class FormsController {
 			(k) -> new HashMap<String, Object>()
 		);
 		appData.putAll(UserRequestData.getInstance().getData());
+		boolean includeMetadata = Boolean.TRUE.equals(appData.get("includeMetadata"));
 
 		FormData formData = FormData.fromValueMap(formId, valueMap);
 		
@@ -495,7 +496,12 @@ public class FormsController {
 
 		formData.getAppData().put("nextSurveyToken", UserRequestData.getInstance().getDataItem("nextSurveyToken"));
 		formData.getAppData().entrySet().removeIf(kv -> kv.getKey().startsWith("$"));
-		return resp.getPayload().getFormData().getFieldNameValueMap(formData.isUsingUdn());
+
+		if (includeMetadata) {
+			return resp.getPayload().getFormData().getFieldValueMap();
+		} else {
+			return resp.getPayload().getFormData().getFieldNameValueMap(formData.isUsingUdn());
+		}
 	}
 
 	private String zipFiles(String dir) {
