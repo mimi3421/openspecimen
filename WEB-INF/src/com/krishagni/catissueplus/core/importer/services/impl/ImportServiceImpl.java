@@ -605,8 +605,8 @@ public class ImportServiceImpl implements ImportService, ApplicationListener<Con
 				queuedJobs.offer(job);
 			});
 
-			endOfJobs = (queuedJobs.size() < 100);
-			startAt += queuedJobs.size();
+			endOfJobs = (jobs.size() < 100);
+			startAt += jobs.size();
 		}
 
 		logger.info("Loaded " + startAt + " bulk import jobs in queue from previous incarnation");
