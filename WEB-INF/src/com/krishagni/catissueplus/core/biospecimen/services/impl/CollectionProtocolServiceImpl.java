@@ -54,6 +54,7 @@ import com.krishagni.catissueplus.core.biospecimen.domain.CpReportSettings;
 import com.krishagni.catissueplus.core.biospecimen.domain.CpWorkflowConfig;
 import com.krishagni.catissueplus.core.biospecimen.domain.CpWorkflowConfig.Workflow;
 import com.krishagni.catissueplus.core.biospecimen.domain.DerivedSpecimenRequirement;
+import com.krishagni.catissueplus.core.biospecimen.domain.Participant;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenRequirement;
 import com.krishagni.catissueplus.core.biospecimen.domain.Visit;
@@ -112,6 +113,7 @@ import com.krishagni.catissueplus.core.common.util.MessageUtil;
 import com.krishagni.catissueplus.core.common.util.NotifUtil;
 import com.krishagni.catissueplus.core.common.util.Status;
 import com.krishagni.catissueplus.core.common.util.Utility;
+import com.krishagni.catissueplus.core.de.domain.DeObject;
 import com.krishagni.catissueplus.core.init.AppProperties;
 import com.krishagni.catissueplus.core.query.Column;
 import com.krishagni.catissueplus.core.query.ListConfig;
@@ -261,6 +263,7 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 			}
 
 			List<CollectionProtocolRegistration> cprs = daoFactory.getCprDao().getCprs(listCrit);
+			createExtensions(cprs);
 
 			Map<CollectionProtocol, Boolean> phiAccess = new HashMap<>();
 			List<CollectionProtocolRegistrationDetail> result = new ArrayList<>();
@@ -2324,6 +2327,17 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 			.getProperty("database.type", "mysql")
 			.toLowerCase();
 		return dbType.equalsIgnoreCase("oracle");
+	}
+
+	private void createExtensions(List<CollectionProtocolRegistration> cprs) {
+		Map<CollectionProtocol, List<CollectionProtocolRegistration>> cpRegs = new HashMap<>();
+		cprs.forEach(cpr -> cpRegs.computeIfAbsent(cpr.getCollectionProtocol(), (k) -> new ArrayList<>()).add(cpr));
+		cpRegs.forEach((cp, regs) ->
+			DeObject.createExtensions(
+				true, Participant.EXTN, cp.getId(),
+				regs.stream().map(CollectionProtocolRegistration::getParticipant).collect(Collectors.toList())
+			)
+		);
 	}
 
 	private static final String PPID_MSG                     = "cp_ppid";
