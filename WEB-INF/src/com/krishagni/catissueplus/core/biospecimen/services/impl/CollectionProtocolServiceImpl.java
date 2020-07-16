@@ -68,6 +68,7 @@ import com.krishagni.catissueplus.core.biospecimen.domain.factory.SpecimenRequir
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.SrErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.events.CollectionProtocolDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.CollectionProtocolEventDetail;
+import com.krishagni.catissueplus.core.biospecimen.events.CollectionProtocolRegistrationDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.CollectionProtocolSummary;
 import com.krishagni.catissueplus.core.biospecimen.events.ConsentTierDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.ConsentTierOp;
@@ -77,7 +78,6 @@ import com.krishagni.catissueplus.core.biospecimen.events.CopyCpeOpDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.CpQueryCriteria;
 import com.krishagni.catissueplus.core.biospecimen.events.CpReportSettingsDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.CpWorkflowCfgDetail;
-import com.krishagni.catissueplus.core.biospecimen.events.CprSummary;
 import com.krishagni.catissueplus.core.biospecimen.events.FileDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.MergeCpDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenPoolRequirements;
@@ -253,14 +253,34 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 
 	@Override
 	@PlusTransactional
-	public ResponseEvent<List<CprSummary>> getRegisteredParticipants(RequestEvent<CprListCriteria> req) {
-		try { 
+	public ResponseEvent<List<CollectionProtocolRegistrationDetail>> getRegisteredParticipants(RequestEvent<CprListCriteria> req) {
+		try {
 			CprListCriteria listCrit = addCprListCriteria(req.getPayload());
 			if (listCrit == null) {
 				return ResponseEvent.response(Collections.emptyList());
 			}
 
-			return ResponseEvent.response(daoFactory.getCprDao().getCprList(listCrit));
+			List<CollectionProtocolRegistration> cprs = daoFactory.getCprDao().getCprs(listCrit);
+
+			Map<CollectionProtocol, Boolean> phiAccess = new HashMap<>();
+			List<CollectionProtocolRegistrationDetail> result = new ArrayList<>();
+			for (CollectionProtocolRegistration cpr : cprs) {
+				boolean includePhi = listCrit.includePhi();
+				if (includePhi && CollectionUtils.isNotEmpty(listCrit.phiSiteCps())) {
+					CollectionProtocol cp = cpr.getCollectionProtocol();
+					if (!phiAccess.containsKey(cp)) {
+						phiAccess.put(cp, AccessCtrlMgr.getInstance().isAccessAllowed(listCrit.phiSiteCps(), cp));
+					}
+
+					includePhi = phiAccess.get(cp);
+				}
+
+				result.add(CollectionProtocolRegistrationDetail.from(cpr, !includePhi));
+			}
+
+			return ResponseEvent.response(result);
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
 		} catch (Exception e) {
 			return ResponseEvent.serverError(e);
 		}

@@ -66,10 +66,9 @@ public class CollectionProtocolRegistrationsController {
 	@RequestMapping(method = RequestMethod.POST, value = "/list")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
-	public List<CprSummary> getRegistrations(@RequestBody CprListCriteria crit) {
-		ResponseEvent<List<CprSummary>> resp = cpSvc.getRegisteredParticipants(getRequest(crit.includePhi(true)));
-		resp.throwErrorIfUnsuccessful();
-		return resp.getPayload();
+	public List<CollectionProtocolRegistrationDetail> getRegistrations(@RequestBody CprListCriteria crit) {
+		crit.orderBy("registrationDate").asc(false);
+		return ResponseEvent.unwrap(cpSvc.getRegisteredParticipants(RequestEvent.wrap(crit)));
 	}
 
 	@RequestMapping(method = RequestMethod.POST, value = "/count")

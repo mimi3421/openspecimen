@@ -1657,6 +1657,20 @@ public class AccessCtrlMgr {
 	// Utility methods                                                   //
 	//                                                                   //
 	///////////////////////////////////////////////////////////////////////
+	public boolean isAccessAllowed(Collection<SiteCpPair> siteCps, CollectionProtocol cp) {
+		return siteCps.stream().anyMatch(siteCp -> isAccessAllowed(siteCp, cp));
+	}
+
+	public boolean isAccessAllowed(SiteCpPair siteCp, CollectionProtocol cp) {
+		if (siteCp.getCpId() != null) {
+			return cp.getId().equals(siteCp.getCpId());
+		} else if (siteCp.getSiteId() != null) {
+			return cp.getRepositories().stream().anyMatch(site -> site.getId().equals(siteCp.getSiteId()));
+		} else {
+			return cp.getRepositories().stream().anyMatch(site -> site.getInstitute().getId().equals(siteCp.getInstituteId()));
+		}
+	}
+
 	public Set<SiteCpPair> getSiteCps(Resource resource, Operation op) {
 		return getSiteCps(resource.getName(), null, new String[] { op.getName() }, true);
 	}

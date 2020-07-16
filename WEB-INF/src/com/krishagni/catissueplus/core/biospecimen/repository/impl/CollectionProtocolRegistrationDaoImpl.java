@@ -102,7 +102,8 @@ public class CollectionProtocolRegistrationDaoImpl extends AbstractDao<Collectio
 			query.setFirstResult(crit.startAt()).setMaxResults(crit.maxResults());
 		}
 
-		return query.addOrder(Order.asc("id")).list();
+		String orderBy = StringUtils.isNotBlank(crit.orderBy()) ? crit.orderBy() : "id";
+		return query.addOrder(crit.asc() ? Order.asc(orderBy) : Order.desc(orderBy)).list();
 	}
 
 	@Override
@@ -580,6 +581,12 @@ public class CollectionProtocolRegistrationDaoImpl extends AbstractDao<Collectio
 			BiospecimenDaoHelper.getInstance().addSiteCpsCond(query, crit.siteCps(), crit.useMrnSites(), startAlias, false);
 		}
 
+		addCpRestrictions(query, crit);
+		addRegDateCondition(query, crit);
+		addMrnEmpiUidCondition(query, crit);
+		addNamePpidAndUidCondition(query, crit);
+		addDobCondition(query, crit);
+		addSpecimenCondition(query, crit);
 		return detachedCriteria;
 	}
 

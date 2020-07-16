@@ -13,6 +13,7 @@ import com.krishagni.catissueplus.core.biospecimen.domain.CpWorkflowConfig;
 import com.krishagni.catissueplus.core.biospecimen.domain.DerivedSpecimenRequirement;
 import com.krishagni.catissueplus.core.biospecimen.events.CollectionProtocolDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.CollectionProtocolEventDetail;
+import com.krishagni.catissueplus.core.biospecimen.events.CollectionProtocolRegistrationDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.CollectionProtocolSummary;
 import com.krishagni.catissueplus.core.biospecimen.events.ConsentTierDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.ConsentTierOp;
@@ -47,7 +48,7 @@ public interface CollectionProtocolService {
 
 	ResponseEvent<List<SiteSummary>> getSites(RequestEvent<CpQueryCriteria> req);
 
-	public ResponseEvent<List<CprSummary>> getRegisteredParticipants(RequestEvent<CprListCriteria> req);
+	ResponseEvent<List<CollectionProtocolRegistrationDetail>> getRegisteredParticipants(RequestEvent<CprListCriteria> req);
 
 	public ResponseEvent<Long> getRegisteredParticipantsCount(RequestEvent<CprListCriteria> req);
 
