@@ -272,6 +272,7 @@ public class CollectionProtocolRegistrationDaoImpl extends AbstractDao<Collectio
 			.createCriteria(CollectionProtocolRegistration.class)
 			.createAlias("collectionProtocol", "cp")
 			.createAlias("participant", "participant")
+			.createAlias("participant.pmis", "pmi", JoinType.LEFT_OUTER_JOIN)
 			.add(Restrictions.ne("activityStatus", "Disabled"))
 			.add(Restrictions.ne("cp.activityStatus", "Disabled"))
 			.add(Restrictions.ne("participant.activityStatus", "Disabled"));
@@ -311,12 +312,12 @@ public class CollectionProtocolRegistrationDaoImpl extends AbstractDao<Collectio
 			return;
 		}
 
-		Junction cond = Restrictions.disjunction()
-			.add(Restrictions.ilike("pmi.medicalRecordNumber", crit.participantId(), MatchMode.ANYWHERE))
-			.add(Restrictions.ilike("participant.empi", crit.participantId(), MatchMode.ANYWHERE))
-			.add(Restrictions.ilike("participant.uid", crit.participantId(), MatchMode.ANYWHERE));
-
-		query.createAlias("participant.pmis", "pmi", JoinType.LEFT_OUTER_JOIN).add(cond);
+		query.add(
+			Restrictions.disjunction()
+				.add(Restrictions.ilike("pmi.medicalRecordNumber", crit.participantId(), MatchMode.ANYWHERE))
+				.add(Restrictions.ilike("participant.empi", crit.participantId(), MatchMode.ANYWHERE))
+				.add(Restrictions.ilike("participant.uid", crit.participantId(), MatchMode.ANYWHERE))
+		);
 	}
 	
 	private void addNamePpidAndUidCondition(Criteria query, CprListCriteria crit) {
@@ -341,7 +342,7 @@ public class CollectionProtocolRegistrationDaoImpl extends AbstractDao<Collectio
 		if (!crit.includePhi()) {
 			return;
 		}
-		
+
 		if (StringUtils.isNotBlank(crit.uid())) {
 			query.add(Restrictions.ilike("participant.uid", crit.uid(), crit.matchMode()));
 		}
@@ -577,8 +578,10 @@ public class CollectionProtocolRegistrationDaoImpl extends AbstractDao<Collectio
 			query.add(Restrictions.in("ppid", crit.ppids()));
 		}
 
-		if (CollectionUtils.isNotEmpty(crit.siteCps())) {
-			BiospecimenDaoHelper.getInstance().addSiteCpsCond(query, crit.siteCps(), crit.useMrnSites(), startAlias, false);
+		BiospecimenDaoHelper.getInstance().addSiteCpsCond(query, crit.siteCps(), crit.useMrnSites(), startAlias, false);
+		if (CollectionUtils.isEmpty(crit.siteCps()) && crit.includePhi()) {
+			query.createAlias("cpr.participant", "participant")
+				.createAlias("participant.pmis", "pmi", JoinType.LEFT_OUTER_JOIN);
 		}
 
 		addCpRestrictions(query, crit);
