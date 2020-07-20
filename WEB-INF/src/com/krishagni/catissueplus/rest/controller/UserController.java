@@ -3,6 +3,7 @@ package com.krishagni.catissueplus.rest.controller;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +35,7 @@ import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
+import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.catissueplus.core.common.util.Status;
 import com.krishagni.rbac.events.SubjectRoleDetail;
 
@@ -367,10 +369,22 @@ public class UserController {
 	@RequestMapping(method = RequestMethod.GET, value = "/current-user-ui-state")
 	@ResponseBody
 	@ResponseStatus(HttpStatus.OK)
-	public Map<String, Object> getCurrentUserUiState() {
+	public Map<String, Object> getCurrentUserUiState(HttpServletRequest httpReq) {
 		ResponseEvent<UserUiState> resp = userService.getUiState();
 		resp.throwErrorIfUnsuccessful();
-		return resp.getPayload() == null ? Collections.emptyMap() : resp.getPayload().getState();
+
+		String authToken = AuthUtil.getAuthTokenFromHeader(httpReq);
+		if (authToken == null) {
+			authToken = AuthUtil.getTokenFromCookie(httpReq);
+		}
+
+		Map<String, Object> state = new HashMap<>();
+		state.put("authToken", authToken);
+		if (resp.getPayload() != null) {
+			state.putAll(resp.getPayload().getState());
+		}
+
+		return state;
 	}
 
 	@RequestMapping(method = RequestMethod.PUT, value = "/current-user-ui-state")

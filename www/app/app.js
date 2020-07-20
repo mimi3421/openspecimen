@@ -91,6 +91,11 @@ osApp.config(function(
           },
           videoSettings : function (Setting) {
             return Setting.getWelcomeVideoSetting();
+          },
+          authToken: function(userUiState, AuthService) {
+            if (userUiState.authToken) {
+              AuthService.saveToken(userUiState.authToken);
+            }
           }
         },
         controller: 'SignedInCtrl'
