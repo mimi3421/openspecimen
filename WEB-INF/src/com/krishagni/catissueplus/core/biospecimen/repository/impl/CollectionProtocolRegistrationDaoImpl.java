@@ -329,6 +329,8 @@ public class CollectionProtocolRegistrationDaoImpl extends AbstractDao<Collectio
 				cond.add(Restrictions.ilike("participant.firstName", crit.query(), MatchMode.ANYWHERE));
 				cond.add(Restrictions.ilike("participant.lastName", crit.query(), MatchMode.ANYWHERE));
 				cond.add(Restrictions.ilike("participant.uid", crit.query(), MatchMode.ANYWHERE));
+				cond.add(Restrictions.ilike("participant.empi", crit.query(), MatchMode.ANYWHERE));
+				cond.add(Restrictions.ilike("pmi.medicalRecordNumber", crit.query(), MatchMode.ANYWHERE));
 			}
 			
 			query.add(cond);
