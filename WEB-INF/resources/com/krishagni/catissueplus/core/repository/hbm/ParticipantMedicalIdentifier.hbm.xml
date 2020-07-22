@@ -4,10 +4,7 @@
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping auto-import="false">
-  <class 
-    name="com.krishagni.catissueplus.core.biospecimen.domain.ParticipantMedicalIdentifier"
-    table="CATISSUE_PART_MEDICAL_ID">
-    
+  <class name="com.krishagni.catissueplus.core.biospecimen.domain.ParticipantMedicalIdentifier" table="CATISSUE_PART_MEDICAL_ID">
     <id name="id" column="IDENTIFIER">
       <generator class="native">
         <param name="sequence">CATISSUE_PART_MEDICAL_ID_SEQ</param>
@@ -16,7 +13,7 @@
 
     <property name="medicalRecordNumber"  column="MEDICAL_RECORD_NUMBER"/>
 
-    <many-to-one name="site" column="SITE_ID"/>
+    <many-to-one name="site" column="SITE_ID" fetch="join"/>
 
     <many-to-one name="participant" column="PARTICIPANT_ID"/>
   </class>

@@ -4,7 +4,7 @@
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping auto-import="false">
-  <class name="com.krishagni.catissueplus.core.biospecimen.domain.Participant" table="CATISSUE_PARTICIPANT">
+  <class name="com.krishagni.catissueplus.core.biospecimen.domain.Participant" table="CATISSUE_PARTICIPANT" batch-size="100">
     <id name="id" column="IDENTIFIER" type="long">
       <generator class="native">
         <param name="sequence">CATISSUE_PARTICIPANT_SEQ</param>
@@ -45,12 +45,12 @@
 
     <many-to-one name="updater" column="UPDATER"/>
 
-    <set name="ethnicities" table="OS_PARTICIPANT_ETHNICITIES">
+    <set name="ethnicities" table="OS_PARTICIPANT_ETHNICITIES" batch-size="100">
       <key column="PARTICIPANT_ID"/>
       <many-to-many class="com.krishagni.catissueplus.core.administrative.domain.PermissibleValue" column="ETHNICITY_ID"/>
     </set>
 
-    <set name="pmis" table="CATISSUE_PART_MEDICAL_ID" inverse="true" cascade="all-delete-orphan">
+    <set name="pmis" table="CATISSUE_PART_MEDICAL_ID" inverse="true" cascade="all-delete-orphan" batch-size="100">
       <key column="PARTICIPANT_ID" />
       <one-to-many class="com.krishagni.catissueplus.core.biospecimen.domain.ParticipantMedicalIdentifier"/>
     </set>
@@ -61,7 +61,7 @@
       <filter name="activeEntity"/>
     </set>
 
-    <set name="races" table="CATISSUE_RACE">
+    <set name="races" table="CATISSUE_RACE" batch-size="100">
       <key column="PARTICIPANT_ID" />
       <many-to-many class="com.krishagni.catissueplus.core.administrative.domain.PermissibleValue" column="RACE_ID"/>
     </set>
