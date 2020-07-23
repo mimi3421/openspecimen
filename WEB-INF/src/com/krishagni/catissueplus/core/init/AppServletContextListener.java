@@ -1,12 +1,12 @@
 package com.krishagni.catissueplus.core.init;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
@@ -105,34 +105,45 @@ public class AppServletContextListener implements ServletContextListener {
 		}
 	}
 
-	private void loadPluginResources(String pluginDir) 
-	throws IOException {
-		File pluginDirFile = new File(pluginDir);
-		if (!pluginDirFile.isDirectory()) {
-			throw new RuntimeException("Invalid plugin directory: " + pluginDir);
+	private void loadPluginResources(String pluginDirPath) {
+		File pluginDir = new File(pluginDirPath);
+		if (!pluginDir.isDirectory()) {
+			throw new RuntimeException("Invalid plugin directory: " + pluginDirPath);
 		}
 
-		List<File> pluginFiles = Arrays.stream(pluginDirFile.listFiles())
-			.filter(f -> !f.isDirectory() && f.getName().endsWith(".jar"))
+		List<File> files = Arrays.stream(Objects.requireNonNull(pluginDir.listFiles()))
 			.sorted((f1, f2) -> ObjectUtils.compare(f1.getName(), f2.getName()))
 			.collect(Collectors.toList());
 
-		for (File file : pluginFiles) {
-			JarFile jarFile = null;
-			try {
-				logger.info("Loading plugin resource from: " + file.getAbsolutePath());
-				jarFile = new JarFile(file);
-				Attributes attrs = jarFile.getManifest().getMainAttributes();
-				String pluginName = attrs.getValue("os-plugin-name");
-				if (StringUtils.isNotBlank(pluginName)) {
-					ClassPathUtil.addFile(file);
-					PluginManager.getInstance().addPluginName(pluginName.trim());
-				}
-			} catch (Exception e) {
-				logger.error("Error loading plugin resources from: ", e);
-			} finally {
-				IOUtils.closeQuietly(jarFile);
+		files.stream().filter(File::isDirectory).forEach(this::loadPluginResources);
+		files.stream().filter(File::isFile).forEach(this::loadPlugin);
+	}
+
+	private void loadPluginResources(File pluginDir) {
+		Arrays.stream(Objects.requireNonNull(pluginDir.listFiles()))
+			.sorted((f1, f2) -> ObjectUtils.compare(f1.getName(), f2.getName()))
+			.forEach(this::loadPlugin);
+	}
+
+	private void loadPlugin(File file) {
+		if (file.isDirectory() || !file.getName().endsWith(".jar")) {
+			return;
+		}
+
+		JarFile jarFile = null;
+		try {
+			logger.info("Loading plugin resource from: " + file.getAbsolutePath());
+			jarFile = new JarFile(file);
+			Attributes attrs = jarFile.getManifest().getMainAttributes();
+			String pluginName = attrs.getValue("os-plugin-name");
+			if (StringUtils.isNotBlank(pluginName)) {
+				ClassPathUtil.addFile(file);
+				PluginManager.getInstance().addPluginName(pluginName.trim());
 			}
+		} catch (Exception e) {
+			logger.error("Error loading plugin resources from: ", e);
+		} finally {
+			IOUtils.closeQuietly(jarFile);
 		}
 	}
 
