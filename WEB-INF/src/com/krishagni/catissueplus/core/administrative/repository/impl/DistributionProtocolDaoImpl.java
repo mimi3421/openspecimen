@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -101,13 +102,9 @@ public class DistributionProtocolDaoImpl extends AbstractDao<DistributionProtoco
 				.getNamedQuery(GET_SPMN_COUNT_BY_DPS)
 				.setParameterList("dpIds", dpIds)
 				.list();
-		
-		Map<Long, Integer> countMap = new HashMap<Long, Integer>();
-		for (Object[] row : rows) {
-			countMap.put((Long)row[0], ((Long)row[1]).intValue());
-		}
-		
-		return countMap;
+
+		return rows.stream().collect(
+			Collectors.toMap(row -> (Long) row[0], row -> ((Long) row[1]).intValue()));
 	}
 	
 	public Class<DistributionProtocol> getType() {
@@ -117,16 +114,19 @@ public class DistributionProtocolDaoImpl extends AbstractDao<DistributionProtoco
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<DistributionOrderStat> getOrderStats(DistributionOrderStatListCriteria listCrit) {
-		Criteria query = sessionFactory.getCurrentSession().createCriteria(DistributionOrder.class)
-				.createAlias("orderItems", "item")
-				.createAlias("item.specimen", "specimen");
+		Criteria query = getCurrentSession().createCriteria(DistributionOrder.class)
+			.createAlias("distributionProtocol", "dp")
+			.createAlias("orderItems", "item")
+			.createAlias("item.specimen", "specimen",
+				JoinType.LEFT_OUTER_JOIN,
+				Restrictions.ne("specimen.activityStatus", "Disabled")
+			)
+			.add(Restrictions.eq("status", DistributionOrder.Status.EXECUTED));
 
-		query.add(Restrictions.eq("status", DistributionOrder.Status.EXECUTED));
 		if (listCrit.dpId() != null) {
-			query.add(Restrictions.eq("distributionProtocol.id", listCrit.dpId()));
+			query.add(Restrictions.eq("dp.id", listCrit.dpId()));
 		} else if (CollectionUtils.isNotEmpty(listCrit.sites())) {
-			query.createAlias("distributionProtocol", "dp")
-				.createAlias("dp.distributingSites", "distSites");
+			query.createAlias("dp.distributingSites", "distSites");
 			addSitesCondition(query, listCrit.sites());
 		}
 		
@@ -292,7 +292,7 @@ public class DistributionProtocolDaoImpl extends AbstractDao<DistributionProtoco
 		
 		for (String attr : crit.groupByAttrs()) {
 			String prop = props.get(attr);
-			query.createAlias(prop, attr + "pv");
+			query.createAlias(prop, attr + "pv", JoinType.LEFT_OUTER_JOIN);
 			projs.add(Projections.groupProperty(attr + "pv.value"));
 		}
 		

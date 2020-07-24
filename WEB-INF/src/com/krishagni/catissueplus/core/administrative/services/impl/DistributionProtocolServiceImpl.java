@@ -325,10 +325,7 @@ public class DistributionProtocolServiceImpl implements DistributionProtocolServ
 	@PlusTransactional
 	public ResponseEvent<List<DistributionOrderStat>> getOrderStats(RequestEvent<DistributionOrderStatListCriteria> req) {
 		try {
-			DistributionOrderStatListCriteria crit = req.getPayload();
-			List<DistributionOrderStat> stats = getOrderStats(crit);
-			
-			return ResponseEvent.response(stats);
+			return ResponseEvent.response(getOrderStats(req.getPayload()));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {
@@ -711,15 +708,10 @@ public class DistributionProtocolServiceImpl implements DistributionProtocolServ
 			return;
 		}
 		
-		Map<Long, DistributionProtocolDetail> dpMap = new HashMap<Long, DistributionProtocolDetail>();
-		for (DistributionProtocolDetail dp : dps) {
-			dpMap.put(dp.getId(), dp);
-		}
-				
-		Map<Long, Integer> countMap = daoFactory.getDistributionProtocolDao().getSpecimensCountByDpIds(dpMap.keySet());		
-		for (Map.Entry<Long, Integer> count : countMap.entrySet()) {
-			dpMap.get(count.getKey()).setDistributedSpecimensCount(count.getValue());
-		}		
+		Map<Long, DistributionProtocolDetail> dpMap = dps.stream()
+			.collect(Collectors.toMap(DistributionProtocolDetail::getId, dp -> dp));
+		Map<Long, Integer> countMap = daoFactory.getDistributionProtocolDao().getSpecimensCountByDpIds(dpMap.keySet());
+		countMap.forEach((dpId, count) -> dpMap.get(dpId).setDistributedSpecimensCount(count));
 	}
 
 	private ResponseEvent<DistributionProtocolDetail> updateProtocol(RequestEvent<DistributionProtocolDetail> req, boolean partial) {

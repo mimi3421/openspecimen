@@ -42,9 +42,9 @@
           </a>
         </div>
         <div class="col os-col-15">{{order.executionDate | date: global.dateFmt}}</div>
-        <div class="col os-col-15">{{order.groupByAttrVals.specimenType}}</div>
-        <div class="col os-col-15">{{order.groupByAttrVals.anatomicSite}}</div>
-        <div class="col os-col-15">{{order.groupByAttrVals.pathologyStatus}}</div>
+        <div class="col os-col-15">{{order.groupByAttrVals.specimenType | osNoValue}}</div>
+        <div class="col os-col-15">{{order.groupByAttrVals.anatomicSite | osNoValue}}</div>
+        <div class="col os-col-15">{{order.groupByAttrVals.pathologyStatus | osNoValue}}</div>
         <div class="col os-col-15">{{order.distributedSpecimenCount}}</div>
       </div>
     </div>
