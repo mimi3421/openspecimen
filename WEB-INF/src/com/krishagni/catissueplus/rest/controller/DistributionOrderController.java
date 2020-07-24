@@ -264,7 +264,8 @@ public class DistributionOrderController {
 
 		SpecimenListCriteria crit = new SpecimenListCriteria()
 			.labels(labels)
-			.barcodes(barcodes);
+			.barcodes(barcodes)
+			.exactMatch(true);
 
 		RequestEvent<SpecimenListCriteria> req = getRequest(crit);
 		ResponseEvent<List<DistributionOrderItemDetail>> resp = distributionService.getDistributedSpecimens(req);

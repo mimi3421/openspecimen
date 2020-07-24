@@ -43,9 +43,20 @@ angular.module('os.administrative.order.returnspecimens', [])
             return map;
           }, {});
 
-          return distItems.filter(function(item) {
-            return !!spmnsMap[item.specimen.id];
-          });
+          var inputKeys = labels || barcodes;
+          var attr = labels ? 'label' : 'barcode';
+          inputKeys = inputKeys.map(function(k) { return k.toLowerCase(); });
+          return distItems.filter(
+            function(item) {
+              return !!spmnsMap[item.specimen.id];
+            }
+          ).sort(
+            function(i1, i2) {
+              var i1Label = i1.specimen[attr].toLowerCase();
+              var i2Label = i2.specimen[attr].toLowerCase();
+              return inputKeys.indexOf(i1Label) - inputKeys.indexOf(i2Label);
+            }
+          );
         }
       );
     }

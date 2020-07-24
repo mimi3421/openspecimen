@@ -261,10 +261,15 @@ angular.module('os.biospecimen.specimen')
     function resolveSpecimens1(labels, attr, specimens, errorOpts) {
       var specimensMap = {};
       angular.forEach(specimens, function(spmn) {
-        if (!specimensMap[spmn[attr]]) {
-          specimensMap[spmn[attr]] = [spmn];
+        var key = spmn[attr];
+        if (key) {
+          key = key.toLowerCase();
+        }
+
+        if (!specimensMap[key]) {
+          specimensMap[key] = [spmn];
         } else {
-          specimensMap[spmn[attr]].push(spmn);
+          specimensMap[key].push(spmn);
         }
       });
 
@@ -276,7 +281,7 @@ angular.module('os.biospecimen.specimen')
 
       angular.forEach(labels, function(label) {
         var labelInfo = {label: label};
-        var spmns = specimensMap[label];
+        var spmns = specimensMap[label.toLowerCase()];
         if (!spmns) {
           notFoundLabels.push(label);
           return;
