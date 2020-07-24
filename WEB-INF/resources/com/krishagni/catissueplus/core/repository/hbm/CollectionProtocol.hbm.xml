@@ -240,8 +240,8 @@
       where
         cp.shortTitle in (:shortTitles) and
         site.name = :siteName and
-        cp.activityStatus = 'Active' and
-        site.activityStatus = 'Active'
+        cp.activityStatus != 'Disabled' and
+        site.activityStatus != 'Disabled'
     </query>
     
     <query name="getConsentTier">
