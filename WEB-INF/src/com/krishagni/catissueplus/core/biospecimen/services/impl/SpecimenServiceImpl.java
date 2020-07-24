@@ -309,7 +309,7 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 			for (SpecimenStatusDetail detail : req.getPayload()) {
 				Specimen specimen = getSpecimen(detail.getId(), detail.getCpShortTitle(), detail.getName(), detail.getBarcode(), ose);
 				User user = getUser(detail.getUser(), ose);
-				Date date = getDisposalDate(specimen, detail.getDate(), ose);
+				Date date = detail.getDate() != null ? detail.getDate() : Calendar.getInstance().getTime();
 				ose.checkAndThrow();
 
 				AccessCtrlMgr.getInstance().ensureCreateOrUpdateSpecimenRights(specimen, false);
@@ -1171,26 +1171,6 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 		}
 
 		return user;
-	}
-
-	private Date getDisposalDate(Specimen specimen, Date disposalDate, OpenSpecimenException ose) {
-		if (disposalDate == null) {
-			return Calendar.getInstance().getTime();
-		} else if (specimen == null) {
-			//
-			// Error to have null specimen; therefore return whatever
-			// disposal date was given as input
-			//
-			return disposalDate;
-		}
-
-		if (specimen.isPrimary() && disposalDate.before(specimen.getCollectionEvent().getTime())) {
-			ose.addError(SpecimenErrorCode.DISPOSAL_DT_LT_COLL_DT, disposalDate, specimen.getCollectionEvent().getTime());
-		} else if (!specimen.isPrimary() && disposalDate.before(specimen.getCreatedOn())) {
-			ose.addError(SpecimenErrorCode.DISPOSAL_DT_LT_CREATED_ON, disposalDate, specimen.getCreatedOn());
-		}
-
-		return disposalDate;
 	}
 
 	private SpecimenDetail getDerivedSpecimen(Specimen parentSpecimen, SpecimenAliquotsSpec spec) {
