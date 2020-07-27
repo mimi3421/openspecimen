@@ -20,6 +20,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -114,6 +115,8 @@ import com.krishagni.catissueplus.core.common.util.NotifUtil;
 import com.krishagni.catissueplus.core.common.util.Status;
 import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.catissueplus.core.de.domain.DeObject;
+import com.krishagni.catissueplus.core.exporter.domain.ExportJob;
+import com.krishagni.catissueplus.core.exporter.services.ExportService;
 import com.krishagni.catissueplus.core.init.AppProperties;
 import com.krishagni.catissueplus.core.query.Column;
 import com.krishagni.catissueplus.core.query.ListConfig;
@@ -145,6 +148,8 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 	private SessionFactory sessionFactory;
 
 	private StarredItemService starredItemSvc;
+
+	private ExportService exportSvc;
 
 	public void setTaskExecutor(ThreadPoolTaskExecutor taskExecutor) {
 		this.taskExecutor = taskExecutor;
@@ -184,6 +189,10 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 
 	public void setStarredItemSvc(StarredItemService starredItemSvc) {
 		this.starredItemSvc = starredItemSvc;
+	}
+
+	public void setExportSvc(ExportService exportSvc) {
+		this.exportSvc = exportSvc;
 	}
 
 	@Override
@@ -1291,6 +1300,9 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 		listSvc.registerListConfigurator("cp-list-view", this::getCpListConfig);
 		listSvc.registerListConfigurator("participant-list-view", this::getParticipantsListConfig);
 		listSvc.registerListConfigurator("specimen-list-view", this::getSpecimenListConfig);
+
+		exportSvc.registerObjectsGenerator("cpe", this::getEventsGenerator);
+		exportSvc.registerObjectsGenerator("sr", this::getSpecimenRequirementsGenerator);
 	}
 
 
@@ -2339,6 +2351,60 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 				regs.stream().map(CollectionProtocolRegistration::getParticipant).collect(Collectors.toList())
 			)
 		);
+	}
+
+	private Function<ExportJob, List<? extends Object>> getEventsGenerator() {
+		return new Function<ExportJob, List<? extends Object>>() {
+			private boolean endOfEvents;
+
+			@Override
+			public List<CollectionProtocolEventDetail> apply(ExportJob job) {
+				String cpIdStr = job.param("cpId");
+				if (endOfEvents || StringUtils.isBlank(cpIdStr)) {
+					return Collections.emptyList();
+				}
+
+				Long cpId = Long.parseLong(cpIdStr);
+				CollectionProtocol cp = daoFactory.getCollectionProtocolDao().getById(cpId);
+
+				endOfEvents = true;
+				return CollectionProtocolEventDetail.from(cp.getOrderedCpeList(), false);
+			}
+		};
+	}
+
+	private Function<ExportJob, List<? extends Object>> getSpecimenRequirementsGenerator() {
+		return new Function<ExportJob, List<? extends Object>>() {
+			private boolean endOfSrs;
+
+			@Override
+			public List<SpecimenRequirementDetail> apply(ExportJob job) {
+				String cpIdStr = job.param("cpId");
+				if (endOfSrs || StringUtils.isBlank(cpIdStr)) {
+					return Collections.emptyList();
+				}
+
+				Long cpId = Long.parseLong(cpIdStr);
+				CollectionProtocol cp = daoFactory.getCollectionProtocolDao().getById(cpId);
+
+				List<SpecimenRequirementDetail> result = new ArrayList<>();
+				for (CollectionProtocolEvent cpe : cp.getOrderedCpeList()) {
+					List<SpecimenRequirement> parents = new ArrayList<>(cpe.getOrderedTopLevelAnticipatedSpecimens());
+					while (!parents.isEmpty()) {
+						SpecimenRequirement sr = parents.remove(0);
+						parents.addAll(0, sr.getOrderedChildRequirements());
+
+						SpecimenRequirementDetail detail = SpecimenRequirementDetail.from(sr, false);
+						detail.setCpShortTitle(cp.getShortTitle());
+						detail.setEventLabel(cpe.getEventLabel());
+						result.add(detail);
+					}
+				}
+
+				endOfSrs = true;
+				return result;
+			}
+		};
 	}
 
 	private static final String PPID_MSG                     = "cp_ppid";

@@ -121,7 +121,7 @@ public class ExportServiceImpl implements ExportService {
 	}
 
 	@Override
-	public void registerObjectsGenerator(String type, Supplier<Function<ExportJob, List<? extends Object>>> genFactory) {
+	public void registerObjectsGenerator(String type, Supplier<Function<ExportJob, List<?>>> genFactory) {
 		genFactories.put(type, genFactory);
 	}
 

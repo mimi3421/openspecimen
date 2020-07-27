@@ -26,10 +26,29 @@
         <span class="fa fa-trash"></span>
         <span translate="cp.menu_options.delete">Delete</span>
       </button>
-      <a href="{{downloadUri}}" class="btn default" target="_blank" rel="noopener">
-        <span class="fa fa-download"></span>
-        <span translate="cp.menu_options.export">Export</span>
-      </a>
+      <div show-if-allowed="cpResource.importOpts" class="os-inline-btn" dropdown>
+        <button class="default dropdown-toggle">
+          <span class="fa fa-download"></span>
+          <span translate="cp.menu_options.export">Export</span>
+        </button>
+        <ul class="dropdown-menu">
+          <li>
+            <a href="{{downloadUri}}" target="_blank" rel="noopener">
+              <span translate="cp.export_cp">Collection Protocol (JSON)</span>
+            </a>
+          </li>
+          <li>
+            <a ng-click="exportEvents()">
+              <span translate="cp.export_events">Events (CSV)</span>
+            </a>
+          </li>
+          <li>
+            <a ng-click="exportReqs()">
+              <span translate="cp.export_reqs">Specimen Requirements (CSV)</span>
+            </a>
+          </li>
+        </ul>
+      </div>
       <button class="default" title="{{'cp.view_participants' | translate}}"
         ui-sref="participant-list({cpId: cp.id})" ng-if="!cp.specimenCentric">
         <span class="fa fa-group"></span>

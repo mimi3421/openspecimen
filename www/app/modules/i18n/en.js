@@ -300,6 +300,9 @@
     "bulk_import": "Biospecimen Data",
     "bulk_import_biospecimen_obj_jobs": "Import Biospecimen Objects Job List",
     "export": "Export",
+    "export_cp": "Collection Protocol (JSON)",
+    "export_events": "Events (CSV)",
+    "export_reqs": "Specimen Requirements (CSV)",
 
     "show_site_coding": "Show Site Code Information",
     "hide_site_coding": "Hide Site Code Information",

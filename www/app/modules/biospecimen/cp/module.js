@@ -25,7 +25,8 @@ angular.module('os.biospecimen.cp',
           $scope.cpResource = {
             createOpts: {resource: 'CollectionProtocol', operations: ['Create']},
             updateOpts: {resource: 'CollectionProtocol', operations: ['Update']},
-            deleteOpts: {resource: 'CollectionProtocol', operations: ['Delete']}
+            deleteOpts: {resource: 'CollectionProtocol', operations: ['Delete']},
+            importOpts: {resource: 'CollectionProtocol', operations: ['Export Import']}
           }
           
           $scope.participantResource = {

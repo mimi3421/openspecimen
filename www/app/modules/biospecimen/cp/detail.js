@@ -2,7 +2,8 @@
 angular.module('os.biospecimen.cp.detail', ['os.biospecimen.models'])
   .controller('CpDetailCtrl', function(
     $scope, $q, $translate, cp,
-    CollectionProtocol, PvManager, DeleteUtil, CpSettingsReg, SettingUtil, Util, Alerts) {
+    CollectionProtocol, PvManager, DeleteUtil, CpSettingsReg,
+    SettingUtil, Util, Alerts, osExportSvc) {
 
     function init() {
       //
@@ -69,6 +70,14 @@ angular.module('os.biospecimen.cp.detail', ['os.biospecimen.models'])
 
     $scope.reopenCp = function() {
       updateStatus('Active', 'cp.reopened');
+    }
+
+    $scope.exportEvents = function() {
+      osExportSvc.exportRecords({objectType: 'cpe', params: {cpId: cp.id}});
+    }
+
+    $scope.exportReqs = function() {
+      osExportSvc.exportRecords({objectType: 'sr', params: {cpId: cp.id}});
     }
 
     init();
