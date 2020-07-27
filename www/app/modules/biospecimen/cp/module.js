@@ -278,6 +278,14 @@ angular.module('os.biospecimen.cp',
         resolve: {
           events: function($stateParams, cp, CollectionProtocolEvent) {
             return CollectionProtocolEvent.listFor(cp.id);
+          },
+
+          mrnAccessRestriction: function(SettingUtil) {
+            return SettingUtil.getSetting('biospecimen', 'mrn_restriction_enabled').then(
+              function(setting) {
+                return setting.value == 'true';
+              }
+            );
           }
         },
         controller: 'CpEventsCtrl'

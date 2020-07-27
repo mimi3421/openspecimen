@@ -1,8 +1,8 @@
 
 angular.module('os.biospecimen.cp.events', ['os.biospecimen.models'])
   .controller('CpEventsCtrl', function(
-     $scope, $state, $stateParams,
-     cp, events, Alerts, CollectionProtocolEvent, PvManager, Util) {
+     $scope, $state, $stateParams, cp, events, mrnAccessRestriction,
+     Alerts, CollectionProtocolEvent, PvManager, Util) {
 
     var pvsLoaded = false;
 
@@ -12,6 +12,7 @@ angular.module('os.biospecimen.cp.events', ['os.biospecimen.models'])
       $scope.cp = cp;
       $scope.events = events;
       $scope.mode = undefined;
+      $scope.mrnAccessRestriction = mrnAccessRestriction;
          
       $scope.event = {};
       $scope.selected = {};
