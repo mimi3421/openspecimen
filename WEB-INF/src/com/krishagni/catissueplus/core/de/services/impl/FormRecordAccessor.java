@@ -64,7 +64,7 @@ public class FormRecordAccessor implements ObjectAccessor {
 				CollectionProtocolRegistration cpr = daoFactory.getCprDao().getById(re.getObjectId());
 				AccessCtrlMgr.getInstance().ensureReadCprRights(cpr);
 
-				result.put("state", "participant-detail.extensions.list");
+				result.put("stateName", "participant-detail.extensions.list");
 				result.put("cprId", cpr.getId());
 				result.put("cpId", cpr.getCollectionProtocol().getId());
 				break;
