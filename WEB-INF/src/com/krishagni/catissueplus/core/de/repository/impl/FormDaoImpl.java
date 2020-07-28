@@ -855,19 +855,25 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 			userOrCp.add(Restrictions.eq("createdBy.id", crit.userId()));
 
 			if (CollectionUtils.isNotEmpty(crit.siteCps())) {
-				userOrCp.add(
-					Subqueries.propertyIn(
-						"fc.cpId",
-						BiospecimenDaoHelper.getInstance().getCpIdsFilter(crit.siteCps())
-					)
-				);
+				userOrCp.add(Restrictions.eq("fc.cpId", -1L))
+					.add(
+						Subqueries.propertyIn(
+							"fc.cpId",
+							BiospecimenDaoHelper.getInstance().getCpIdsFilter(crit.siteCps())
+						)
+					);
 			}
 
 			query.add(userOrCp);
 		}
 
 		if (CollectionUtils.isNotEmpty(crit.cpIds())) {
-			query.add(Restrictions.in("fc.cpId", crit.cpIds()));
+			query.add(
+				Restrictions.or(
+					Restrictions.eq("fc.cpId", -1L),
+					Restrictions.in("fc.cpId", crit.cpIds())
+				)
+			);
 		}
 
 		if (CollectionUtils.isNotEmpty(crit.names())) {
