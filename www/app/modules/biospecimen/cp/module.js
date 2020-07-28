@@ -258,6 +258,53 @@ angular.module('os.biospecimen.cp',
         templateUrl: 'modules/biospecimen/cp/overview.html',
         parent: 'cp-detail'
       })
+      .state('cp-detail.settings.import-events', {
+        url: '/import-events',
+        templateUrl: 'modules/common/import/add.html',
+        controller: 'ImportObjectCtrl',
+        resolve: {
+          importDetail: function(cp) {
+            return {
+              objectType: 'cpe',
+              title: 'cp.import_events',
+              objectParams: {'cpId': cp.id},
+              onSuccess: {state: 'cp-detail.settings.import-jobs'}
+            };
+          }
+        },
+        parent: 'cp-detail.settings'
+      })
+      .state('cp-detail.settings.import-srs', {
+        url: '/import-reqs',
+        templateUrl: 'modules/common/import/add.html',
+        controller: 'ImportObjectCtrl',
+        resolve: {
+          importDetail: function(cp) {
+            return {
+              objectType: 'sr',
+              title: 'cp.import_reqs',
+              objectParams: {'cpId': cp.id},
+              onSuccess: {state: 'cp-detail.settings.import-jobs'}
+            };
+          }
+        },
+        parent: 'cp-detail.settings'
+      })
+      .state('cp-detail.settings.import-jobs', {
+        url: '/import-jobs',
+        templateUrl: 'modules/common/import/list.html',
+        controller: 'ImportJobsListCtrl',
+        resolve: {
+          importDetail: function(cp) {
+            return {
+              title: 'bulk_imports.jobs_list',
+              objectTypes: ['cpe', 'sr'],
+              objectParams: {'cpId': cp.id}
+            };
+          }
+        },
+        parent: 'cp-detail.settings'
+      })
       .state('cp-detail.consents', {
         url: '/consents',
         templateUrl: 'modules/biospecimen/cp/consents.html',

@@ -30,7 +30,7 @@ public class SpecimenRequirementImporter implements ObjectImporter<SpecimenRequi
 			SpecimenRequirementDetail detail = importDetail.getObject();
 
 			if (!importDetail.isCreate()) {
-				return cpSvc.updateSpecimenRequirement(new RequestEvent<SpecimenRequirementDetail>(detail));
+				return cpSvc.updateSpecimenRequirement(new RequestEvent<>(detail));
 			}
 
 			String lineage = detail.getLineage();

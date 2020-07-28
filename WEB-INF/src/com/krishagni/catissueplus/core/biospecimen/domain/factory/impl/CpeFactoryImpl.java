@@ -238,12 +238,17 @@ public class CpeFactoryImpl implements CpeFactory {
 			return;
 		}
 
-		VisitNamePrintMode printMode = null;
+		VisitNamePrintMode printMode;
 		try {
 			printMode = VisitNamePrintMode.valueOf(detail.getVisitNamePrintMode());
 		} catch (IllegalArgumentException iae) {
-			ose.addError(CpErrorCode.INVALID_VISIT_NAME_PRINT_MODE, detail.getVisitNamePrintMode());
-			return;
+			String mode = String.join("_", detail.getVisitNamePrintMode().split("\\s+")).toUpperCase();
+			try {
+				printMode = VisitNamePrintMode.valueOf(mode);
+			} catch (IllegalArgumentException iae1) {
+				ose.addError(CpErrorCode.INVALID_VISIT_NAME_PRINT_MODE, detail.getVisitNamePrintMode());
+				return;
+			}
 		}
 
 		cpe.setVisitNamePrintMode(printMode);

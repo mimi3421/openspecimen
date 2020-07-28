@@ -300,9 +300,11 @@
     "bulk_import": "Biospecimen Data",
     "bulk_import_biospecimen_obj_jobs": "Import Biospecimen Objects Job List",
     "export": "Export",
-    "export_cp": "Collection Protocol (JSON)",
-    "export_events": "Events (CSV)",
-    "export_reqs": "Specimen Requirements (CSV)",
+    "import_events": "Import Events",
+    "import_reqs": "Import Specimen Requirements",
+    "export_cp": "Export Collection Protocol (JSON)",
+    "export_events": "Export Events",
+    "export_reqs": "Export Specimen Requirements",
 
     "show_site_coding": "Show Site Code Information",
     "hide_site_coding": "Hide Site Code Information",
@@ -2150,7 +2152,9 @@
       "distributionOrder": "Orders",
       "returnSpecimen": "Returned Specimens",
       "distributionProtocol": "Distribution Protocols",
-      "dpRequirement": "Requirements"
+      "dpRequirement": "Requirements",
+      "cpe": "Events",
+      "sr": "Specimen Requirements"
     },
 
     "import_types": {
