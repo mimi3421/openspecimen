@@ -268,6 +268,27 @@ edu.common.de.SkipLogic = function(form, fieldObj, fieldAttrs) {
 
     if (evaluateRule(rule)) {
       fieldObj.$el.show();
+
+      var existing = fieldObj.getValue(fieldObj.recId);
+      existing = existing && existing.value;
+      if (existing != null && existing != undefined && existing != '') {
+        return;
+      }
+
+      var defValue = fieldObj.defaultValue;
+      if (defValue == undefined || defValue == null || defValue == '') {
+        defValue = fieldObj.$attrs.defaultValue;
+        if (defValue == undefined || defValue == null) {
+          return;
+        }
+      }
+
+      if (typeof defValue == 'object' && defValue.value != undefined && defValue.value != null) {
+        defValue = defValue.value;
+      }
+
+      fieldObj.setValue(fieldObj.recId, fieldObj.isMultiSelect ? [defValue] : defValue);
+      fieldObj.postRender();
     } else {
       fieldObj.$el.hide();
       fieldObj.setValue(fieldObj.recId, undefined); // clear field value
