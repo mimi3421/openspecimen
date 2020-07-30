@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.FlushMode;
 import org.hibernate.Query;
+import org.hibernate.Session;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Junction;
 import org.hibernate.criterion.MatchMode;
@@ -399,7 +400,23 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 			query.add(Restrictions.eq("containerId", formId));
 		}
 
-		return (FormContextBean) query.uniqueResult();
+		List<FormContextBean> fcs = query.list();
+		if (fcs.isEmpty()) {
+			return null;
+		} else if (!cpBased) {
+			return fcs.get(0);
+		} else {
+			FormContextBean allCp = null;
+			for (FormContextBean fc : fcs) {
+				if (fc.getCpId().equals(entityId)) {
+					return fc;
+				} else if (fc.getCpId().equals(-1L)) {
+					allCp = fc;
+				}
+			}
+
+			return allCp;
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -421,6 +438,22 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 		}
 		
 		return formContexts;
+	}
+
+	// Returns deleted form contexts for a specific input CP. Not fallback to all.
+	@Override
+	public FormContextBean getAbsFormContext(Long formId, Long cpId, String entity) {
+		Session session = getCurrentSession();
+		session.disableFilter("activeForms");
+
+		FormContextBean fc = (FormContextBean) session.createCriteria(FormContextBean.class, "fc")
+			.add(Restrictions.eq("fc.containerId", formId))
+			.add(Restrictions.eq("fc.cpId", cpId))
+			.add(Restrictions.eq("fc.entityType", entity))
+			.uniqueResult();
+
+		session.enableFilter("activeForms");
+		return fc;
 	}
 
 	@Override
@@ -835,6 +868,48 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 			});
 	}
 
+	@Override
+	public int moveRegistrationRecords(Long cpId, Long srcFormCtxtId, Long tgtFormCtxtId) {
+		String query = MV_REG_FORM_RECORDS;
+		if (isOracle()) {
+			query += "Ora";
+		}
+
+		return getCurrentSession().getNamedQuery(query)
+			.setParameter("cpId", cpId)
+			.setParameter("srcFcId", srcFormCtxtId)
+			.setParameter("tgtFcId", tgtFormCtxtId)
+			.executeUpdate();
+	}
+
+	@Override
+	public int moveVisitRecords(Long cpId, Long srcFormCtxtId, Long tgtFormCtxtId) {
+		String query = MV_VISIT_FORM_RECORDS;
+		if (isOracle()) {
+			query += "Ora";
+		}
+
+		return getCurrentSession().getNamedQuery(query)
+			.setParameter("cpId", cpId)
+			.setParameter("srcFcId", srcFormCtxtId)
+			.setParameter("tgtFcId", tgtFormCtxtId)
+			.executeUpdate();
+	}
+
+	@Override
+	public int moveSpecimenRecords(Long cpId, Long srcFormCtxtId, Long tgtFormCtxtId) {
+		String query = MV_SPMN_FORM_RECORDS;
+		if (isOracle()) {
+			query += "Ora";
+		}
+
+		return getCurrentSession().getNamedQuery(query)
+			.setParameter("cpId", cpId)
+			.setParameter("srcFcId", srcFormCtxtId)
+			.setParameter("tgtFcId", tgtFormCtxtId)
+			.executeUpdate();
+	}
+
 	private DetachedCriteria getListFormIdsQuery(FormListCriteria crit) {
 		return getListFormsQuery(crit).setProjection(Projections.distinct(Projections.property("form.id")));
 	}
@@ -1198,4 +1273,14 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 	private static final String GET_VISIT_FORM_RECORDS = RE_FQN + ".getVisitRecords";
 
 	private static final String GET_SPMN_FORM_RECORDS  = RE_FQN + ".getSpecimenRecords";
+
+	//
+	// Used in form records movement
+	//
+	private static final String MV_REG_FORM_RECORDS   = RE_FQN + ".moveRegistrationRecords";
+
+	private static final String MV_VISIT_FORM_RECORDS = RE_FQN + ".moveVisitRecords";
+
+	private static final String MV_SPMN_FORM_RECORDS  = RE_FQN + ".moveSpecimenRecords";
+
 }

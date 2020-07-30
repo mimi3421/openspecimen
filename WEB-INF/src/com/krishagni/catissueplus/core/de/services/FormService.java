@@ -26,6 +26,7 @@ import com.krishagni.catissueplus.core.de.events.GetFormFieldPvsOp;
 import com.krishagni.catissueplus.core.de.events.GetFormRecordsListOp;
 import com.krishagni.catissueplus.core.de.events.ListEntityFormsOp;
 import com.krishagni.catissueplus.core.de.events.ListFormFields;
+import com.krishagni.catissueplus.core.de.events.MoveFormRecordsOp;
 import com.krishagni.catissueplus.core.de.events.RemoveFormContextOp;
 
 import edu.common.dynamicextensions.domain.nui.Container;
@@ -74,6 +75,8 @@ public interface FormService {
 	public ResponseEvent<List<FormRecordsList>> getFormRecords(RequestEvent<GetFormRecordsListOp> req);
 	
 	public ResponseEvent<List<DependentEntityDetail>> getDependentEntities(RequestEvent<Long> req);
+
+	ResponseEvent<Integer> moveRecords(RequestEvent<MoveFormRecordsOp> req);
 
 	/**
 	 * Internal usage

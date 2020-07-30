@@ -224,5 +224,91 @@
         fc.deleted_on is null and
         re.activity_status = 'ACTIVE'
     </sql-query>
+
+    <sql-query name="moveRegistrationRecords">
+      update
+        catissue_form_record_entry re
+        inner join catissue_coll_prot_reg reg on reg.identifier = re.object_id
+      set
+        re.form_ctxt_id = :tgtFcId
+      where
+        reg.collection_protocol_id = :cpId and
+        re.form_ctxt_id = :srcFcId
+    </sql-query>
+
+    <sql-query name="moveRegistrationRecordsOra">
+      merge into
+        catissue_form_record_entry re
+      using (
+        select
+          sre.identifier
+        from
+          catissue_form_record_entry sre
+          inner join catissue_coll_prot_reg reg on reg.identifier = sre.object_id
+        where
+          reg.collection_protocol_id = :cpId and
+          sre.form_ctxt_id = :srcFcId
+      ) ire on ire.identifier = re.identifier
+      when matched then
+        update set re.form_ctxt_id = :tgtFcId
+    </sql-query>
+
+    <sql-query name="moveVisitRecords">
+      update
+        catissue_form_record_entry re
+        inner join catissue_specimen_coll_group visit on visit.identifier = re.object_id
+        inner join catissue_coll_prot_reg reg on reg.identifier = visit.collection_protocol_reg_id
+      set
+        re.form_ctxt_id = :tgtFcId
+      where
+        reg.collection_protocol_id = :cpId and
+        re.form_ctxt_id = :srcFcId
+    </sql-query>
+
+    <sql-query name="moveVisitRecordsOra">
+      merge into
+        catissue_form_record_entry re
+      using (
+        select
+          sre.identifier
+        from
+          catissue_form_record_entry sre
+          inner join catissue_specimen_coll_group visit on visit.identifier = sre.object_id
+          inner join catissue_coll_prot_reg reg on reg.identifier = visit.collection_protocol_reg_id
+        where
+          reg.collection_protocol_id = :cpId and
+          sre.form_ctxt_id = :srcFcId
+      ) ire on ire.identifier = re.identifier
+      when matched then
+        update set re.form_ctxt_id = :tgtFcId
+    </sql-query>
+
+    <sql-query name="moveSpecimenRecords">
+      update
+        catissue_form_record_entry re
+        inner join catissue_specimen spmn on spmn.identifier = re.object_id
+      set
+        re.form_ctxt_id = :tgtFcId
+      where
+        spmn.collection_protocol_id = :cpId and
+        re.form_ctxt_id = :srcFcId
+    </sql-query>
+
+    <sql-query name="moveSpecimenRecordsOra">
+      merge into
+        catissue_form_record_entry re
+      using (
+        select
+          sre.identifier
+        from
+          catissue_form_record_entry sre
+          inner join catissue_specimen spmn on spmn.identifier = sre.object_id
+        where
+          spmn.collection_protocol_id = :cpId and
+          sre.form_ctxt_id = :srcFcId
+      ) ire on ire.identifier = re.identifier
+      when matched then
+        update set re.form_ctxt_id = :tgtFcId
+    </sql-query>
   </class>
 </hibernate-mapping>

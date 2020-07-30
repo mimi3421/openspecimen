@@ -96,7 +96,9 @@ public interface FormDao extends Dao<FormContextBean> {
 	public List<Long> getFormIds(Long cpId, List<String> entityTypes);
 	
 	public List<FormContextBean> getFormContextsById(List<Long> formContextIds);
-	
+
+	FormContextBean getAbsFormContext(Long formId, Long cpId, String entity);
+
 	public Map<Long, List<FormRecordSummary>> getFormRecords(Long objectId, String entityType, Long formId);
 	
 	public List<DependentEntityDetail> getDependentEntities(Long formId);
@@ -131,4 +133,10 @@ public interface FormDao extends Dao<FormContextBean> {
 	List<Map<String, Object>> getVisitRecords(Long cpId, Collection<SiteCpPair> siteCps, Long formId, List<String> visitNames, int startAt, int maxResults);
 
 	List<Map<String, Object>> getSpecimenRecords(Long cpId, Collection<SiteCpPair> siteCps, Long formId, String entityType, List<String> spmnLabels, int startAt, int maxResults);
+
+	int moveRegistrationRecords(Long cpId, Long srcFormCtxtId, Long tgtFormCtxtId);
+
+	int moveVisitRecords(Long cpId, Long srcFormCtxtId, Long tgtFormCtxtId);
+
+	int moveSpecimenRecords(Long cpId, Long srcFormCtxtId, Long tgtFormCtxtId);
 }

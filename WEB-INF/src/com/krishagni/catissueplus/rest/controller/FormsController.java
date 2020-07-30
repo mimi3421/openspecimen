@@ -42,6 +42,7 @@ import com.krishagni.catissueplus.core.de.events.FormSummary;
 import com.krishagni.catissueplus.core.de.events.GetFormFieldPvsOp;
 import com.krishagni.catissueplus.core.de.events.GetFormRecordsListOp;
 import com.krishagni.catissueplus.core.de.events.ListFormFields;
+import com.krishagni.catissueplus.core.de.events.MoveFormRecordsOp;
 import com.krishagni.catissueplus.core.de.events.RemoveFormContextOp;
 import com.krishagni.catissueplus.core.de.events.RemoveFormContextOp.RemoveType;
 import com.krishagni.catissueplus.core.de.services.FormService;
@@ -298,13 +299,8 @@ public class FormsController {
 		@RequestBody
 		List<FormContextDetail> formCtxts) {
 		
-		for (FormContextDetail formCtxt : formCtxts) {
-			formCtxt.setFormId(formId);
-		}
-		
-		ResponseEvent<List<FormContextDetail>> resp = formSvc.addFormContexts(getRequest(formCtxts));
-		resp.throwErrorIfUnsuccessful();
-		return resp.getPayload();
+		formCtxts.forEach(fc -> fc.setFormId(formId));
+		return ResponseEvent.unwrap(formSvc.addFormContexts(RequestEvent.wrap(formCtxts)));
 	}
 	
 	@RequestMapping(method = RequestMethod.DELETE, value="{id}/contexts")
@@ -314,10 +310,10 @@ public class FormsController {
 		@PathVariable("id")
 		Long formId,
 			
-		@RequestParam(value = "entityType", required = true)
+		@RequestParam(value = "entityType")
 		String entityType,
 			
-		@RequestParam(value = "cpId", required = true)
+		@RequestParam(value = "cpId")
 		Long cpId) {
 		
 		RemoveFormContextOp op = new RemoveFormContextOp();
@@ -325,10 +321,7 @@ public class FormsController {
 		op.setFormId(formId);
 		op.setEntityType(entityType);
 		op.setRemoveType(RemoveType.SOFT_REMOVE);
-
-		ResponseEvent<Boolean> resp = formSvc.removeFormContext(getRequest(op));
-		resp.throwErrorIfUnsuccessful();
-		return Collections.<String, Object>singletonMap("status", resp.getPayload());
+		return Collections.singletonMap("status", ResponseEvent.unwrap(formSvc.removeFormContext(RequestEvent.wrap(op))));
     }
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}/records")
@@ -474,6 +467,13 @@ public class FormsController {
 		ResponseEvent<List<PermissibleValue>> resp = formSvc.getPvs(getRequest(op));
 		resp.throwErrorIfUnsuccessful();
 		return resp.getPayload();
+	}
+
+	@RequestMapping(method = RequestMethod.PUT, value="/move-records")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public Map<String, Integer> moveRecords(@RequestBody MoveFormRecordsOp input) {
+		return Collections.singletonMap("count", ResponseEvent.unwrap(formSvc.moveRecords(RequestEvent.wrap(input))));
 	}
 
 	private Map<String, Object> saveOrUpdateFormData(Long formId, Map<String, Object> valueMap) {
