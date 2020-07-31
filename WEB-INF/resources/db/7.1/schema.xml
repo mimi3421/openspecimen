@@ -176,9 +176,11 @@
     </sql>
   </changeSet>
 
-  <changeSet author="vpawar" id="Trigger to remove query entity DE form record IDs when entity form association is severed" dbms="oracle" runOnChange="true">
-    <sql>drop trigger if exists os_del_entity_record_ids;</sql>
+  <changeSet author="vpawar" id="Drop the entity record IDs replicating trigger" dbms="oracle" failOnError="false">
+    <sql>drop trigger os_del_entity_record_ids;</sql>
+  </changeSet>
 
+  <changeSet author="vpawar" id="Trigger to remove query entity DE form record IDs when entity form association is severed" dbms="oracle" runOnChange="true">
     <sql endDelimiter="//">
       create or replace trigger os_addrm_entity_record_ids after update on catissue_form_context
       for each row
@@ -300,7 +302,7 @@
             where
               re.activity_status = 'ACTIVE' and
               re.form_ctxt_id = :new.identifier;
-          elsif (:new.entity_type = 'Specimen' || :new.entity_type = 'SpecimenEvent') then
+          elsif (:new.entity_type = 'Specimen' or :new.entity_type = 'SpecimenEvent') then
             insert into
               os_spmn_extn_recs(specimen_id, form_id, record_id)
             select
