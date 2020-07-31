@@ -248,7 +248,7 @@
         where
           reg.collection_protocol_id = :cpId and
           sre.form_ctxt_id = :srcFcId
-      ) ire on ire.identifier = re.identifier
+      ) ire on (ire.identifier = re.identifier)
       when matched then
         update set re.form_ctxt_id = :tgtFcId
     </sql-query>
@@ -278,7 +278,7 @@
         where
           reg.collection_protocol_id = :cpId and
           sre.form_ctxt_id = :srcFcId
-      ) ire on ire.identifier = re.identifier
+      ) ire on (ire.identifier = re.identifier)
       when matched then
         update set re.form_ctxt_id = :tgtFcId
     </sql-query>
@@ -306,7 +306,7 @@
         where
           spmn.collection_protocol_id = :cpId and
           sre.form_ctxt_id = :srcFcId
-      ) ire on ire.identifier = re.identifier
+      ) ire on (ire.identifier = re.identifier)
       when matched then
         update set re.form_ctxt_id = :tgtFcId
     </sql-query>
