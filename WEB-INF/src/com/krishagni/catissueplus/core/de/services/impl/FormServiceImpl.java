@@ -685,7 +685,7 @@ public class FormServiceImpl implements FormService, InitializingBean {
 
 			Form form = formDao.getFormByName(op.getFormName());
 			if (form == null) {
-				return ResponseEvent.userError(FormErrorCode.NOT_FOUND, op.getFormName());
+				return ResponseEvent.userError(FormErrorCode.NOT_FOUND, op.getFormName(), 1);
 			}
 
 			List<Long> srcCpIds = getCpIds(op.getSourceCp(), op.getSourceCpGroup());
