@@ -238,9 +238,6 @@ public class DistributionOrderFactoryImpl implements DistributionOrderFactory {
 		Date executionDate = detail.getExecutionDate();
 		if (executionDate == null) {
 			executionDate = Calendar.getInstance().getTime();
-		} else if (executionDate.after(Calendar.getInstance().getTime())) {
-			ose.addError(DistributionOrderErrorCode.INVALID_EXECUTION_DATE);
-			return;
 		}
 		
 		order.setExecutionDate(executionDate);

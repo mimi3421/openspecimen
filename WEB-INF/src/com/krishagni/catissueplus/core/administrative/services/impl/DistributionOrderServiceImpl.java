@@ -636,8 +636,10 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 			DistributionOrder existingOrder = getOrder(input.getId(), input.getName());
 			input.setId(existingOrder.getId());
 
-			if (existingOrder.isOrderExecuted()) {
-				return ResponseEvent.userError(DistributionOrderErrorCode.CANT_UPDATE_EXEC_ORDER, existingOrder.getName());
+			boolean isDistributed = existingOrder.isOrderExecuted();
+			if (isDistributed) {
+				input.setCopyItemsFromExistingOrder(true);
+				input.setSpecimenList(null);
 			}
 
 			AccessCtrlMgr.getInstance().ensureUpdateDistributionOrderRights(existingOrder);
@@ -654,7 +656,9 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 				throw OpenSpecimenException.userError(RbacErrorCode.ACCESS_DENIED);
 			}
 
-			if (input.isCopyItemsFromExistingOrder()) {
+			if (isDistributed) {
+				newOrder.setDistributionProtocol(existingOrder.getDistributionProtocol());
+			} else if (input.isCopyItemsFromExistingOrder()) {
 				newOrder.setOrderItems(existingOrder.getOrderItems());
 			}
 
@@ -663,19 +667,19 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 			daoFactory.getDistributionOrderDao().saveOrUpdate(existingOrder, true);
 			existingOrder.addOrUpdateExtension();
 
+			if (!isDistributed) {
+				ensureValidSpecimens(existingOrder, siteCps, ose);
+				ose.checkAndThrow();
 
-			ensureValidSpecimens(existingOrder, siteCps, ose);
-			ose.checkAndThrow();
+				existingOrder = daoFactory.getDistributionOrderDao().getById(existingOrder.getId());
+				addRates(existingOrder, existingOrder.getOrderItems());
+				distributeOrder(existingOrder, siteCps, newOrder.getStatus());
+				existingOrder = daoFactory.getDistributionOrderDao().getById(existingOrder.getId());
+			}
 
-			existingOrder = daoFactory.getDistributionOrderDao().getById(existingOrder.getId());
-			addRates(existingOrder, existingOrder.getOrderItems());
-			distributeOrder(existingOrder, siteCps, newOrder.getStatus());
-
-			DistributionOrder savedOrder = daoFactory.getDistributionOrderDao().getById(existingOrder.getId());
-			DistributionOrderDetail output = DistributionOrderDetail.from(savedOrder);
-			listeners.forEach(listener -> listener.onSave(input, output, savedOrder));
-
-			notifySaveOrUpdateOrder(savedOrder, oldStatus, t1);
+			DistributionOrderDetail output = DistributionOrderDetail.from(existingOrder);
+			notifyOrderListeners(input, output, existingOrder);
+			notifySaveOrUpdateOrder(existingOrder, oldStatus, t1);
 			return ResponseEvent.response(output);
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
@@ -712,6 +716,10 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 		);
 
 		return unwrap(result, timeout);
+	}
+
+	private void notifyOrderListeners(DistributionOrderDetail input, DistributionOrderDetail output, DistributionOrder order) {
+		listeners.forEach(listener -> listener.onSave(input, output, order));
 	}
 
 	private ResponseEvent<DistributionOrderDetail> unwrap(Future<ResponseEvent<DistributionOrderDetail>> result, long timeout) {

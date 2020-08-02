@@ -24,7 +24,6 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
         order.distributionProtocol = requestDp;
       } else {
         loadDps();
-        setExtnFormCtxt(order);
       }
 
       $scope.dpList = [];
@@ -34,6 +33,7 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
       if (!order.id && !!order.distributionProtocol) {
         $scope.onDpSelect();
       } else {
+        setExtnFormCtxt(order);
         setUserAndSiteList(order);
         showOrHideHoldingLocation(order.distributionProtocol, order.orderItems);
       }
@@ -93,6 +93,10 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
     }
     
     function loadOrderItems() {
+      if (order.id && order.status == 'EXECUTED') {
+        return;
+      }
+
       order.getOrderItems({maxResults: maxSpmnsLimit + 1}).then(
         function(orderItems) {
           if (orderItems.length > maxSpmnsLimit) {
@@ -221,15 +225,15 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
       return (order.orderItems || []).some(function(item) { return !!item.holdingLocation && !!item.holdingLocation.name; });
     }
 
-    function saveOrUpdate(order) {
-      if (!areItemQuantitiesValid(order, function() { saveOrUpdate(order); })) {
+    function saveOrUpdate(order, status) {
+      if (!areItemQuantitiesValid(order, function() { saveOrUpdate(order, status); })) {
         return;
       }
 
       order.siteId = undefined;
 
-      var orderClone = angular.copy(order);
-      if (!!spmnRequest) {
+      var orderClone = angular.extend(angular.copy(order), {status: status});
+      if (!!spmnRequest && order.status != 'EXECUTED') {
         var items = [];
         angular.forEach(orderClone.orderItems,
           function(item) {
@@ -467,8 +471,7 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
     }
 
     $scope.distribute = function() {
-      $scope.order.status = 'EXECUTED';
-      saveOrUpdate($scope.order);
+      saveOrUpdate($scope.order, 'EXECUTED');
     }
 
     $scope.saveDraft = function() {
@@ -477,8 +480,7 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
         return;
       }
 
-      $scope.order.status = 'PENDING';
-      saveOrUpdate($scope.order);
+      saveOrUpdate($scope.order, 'PENDING');
     }
 
     $scope.passThrough = function() {
@@ -489,6 +491,10 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
       var formCtrl = ctx.extnFormCtrl.ctrl;
       if (formCtrl && !formCtrl.validate()) {
         return false;
+      }
+
+      if (order.status == 'EXECUTED') {
+        return true;
       }
 
       var countFn, spmnsFn;

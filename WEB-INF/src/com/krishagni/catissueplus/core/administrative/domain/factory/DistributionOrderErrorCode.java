@@ -15,8 +15,6 @@ public enum DistributionOrderErrorCode implements ErrorCode {
 	
 	INVALID_CREATION_DATE,
 	
-	INVALID_EXECUTION_DATE,
-
 	ITEM_QTY_REQ,
 
 	ITEM_INVALID_QTY,
@@ -48,8 +46,6 @@ public enum DistributionOrderErrorCode implements ErrorCode {
 	SPECIMEN_NOT_IN_REQ,
 	
 	INVALID_REQUESTER_RECV_SITE_INST,
-
-	CANT_UPDATE_EXEC_ORDER,
 
 	CANT_DELETE_EXEC_ORDER,
 

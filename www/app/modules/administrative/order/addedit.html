@@ -16,13 +16,23 @@
   </div>
   
   <div class="container">
-    <div os-wizard="doWizard" type="classic">
+    <div os-wizard="doWizard" type="classic" ng-if="order.status != 'EXECUTED'">
       <os-wizard-step title="{{'orders.details' | translate}}" on-finish="showSpecimens()">
         <div ng-include src="'orders/addedit-detail.html'"></div>
       </os-wizard-step>
 
-      <os-wizard-step title="{{'orders.specimens_with_count' | translate: input}}" on-finish="areItemQuantitiesValid(doWizard)">
+      <os-wizard-step title="{{'orders.specimens_with_count' | translate: input}}"
+        on-finish="areItemQuantitiesValid(doWizard)">
         <div ng-include src="'orders/addedit-order-specimens.html'"></div>
+      </os-wizard-step>
+
+      <os-plugin-hooks view-name="'order-addedit'" sec-name="'wizard'" default-tmpl="">
+      </os-plugin-hooks>
+    </div>
+
+    <div os-wizard="doWizard" type="classic" ng-if="order.status == 'EXECUTED'">
+      <os-wizard-step title="{{'orders.details' | translate}}" on-finish="showSpecimens()">
+        <div ng-include src="'orders/addedit-detail.html'"></div>
       </os-wizard-step>
 
       <os-plugin-hooks view-name="'order-addedit'" sec-name="'wizard'" default-tmpl="">
@@ -56,7 +66,7 @@
         <os-select name="dp" ng-model="order.distributionProtocol" 
           list="dpList" display-prop="shortTitle" on-select="onDpSelect()"
           placeholder="{{'orders.dp' | translate}}" required refresh="searchDp"
-          ng-disabled="!!order.request.dpId || !!order.allReservedSpmns">
+          ng-disabled="!!order.request.dpId || !!order.allReservedSpmns || order.status == 'EXECUTED'">
         </os-select>       
         <div os-field-error field="ordForm.dp"></div>
       </div>
@@ -153,18 +163,26 @@
           <span translate="common.buttons.cancel">Cancel</span>
         </button>
 
-        <button class="btn btn-primary" os-form-submit="doWizard.next(false)">
-          <span translate="common.buttons.next"> Next </span>
+        <button ng-show="!doWizard.isLastStep()" class="btn btn-primary" os-form-submit="doWizard.next(false)">
+           <span translate="common.buttons.next"> Next </span>
         </button>
 
-        <span ng-if="order.orderItems.length > 0 || !!order.specimenList.id || order.allReservedSpmns">
-          <button class="btn btn-primary" os-form-submit="saveDraft()">
-            <span translate="orders.buttons.save_draft"> Save as Draft </span>
-          </button>
-
+        <span ng-show="order.status == 'EXECUTED'">
           <button class="btn btn-primary" os-form-submit="distribute()">
-            <span translate="orders.buttons.distribute"> Distribute </span>
+            <span translate="common.buttons.update"> Update </span>
           </button>
+        </span>
+
+        <span ng-show="order.status != 'EXECUTED'">
+          <span ng-show="order.orderItems.length > 0 || !!order.specimenList.id || order.allReservedSpmns">
+            <button class="btn btn-primary" os-form-submit="saveDraft()">
+              <span translate="orders.buttons.save_draft"> Save as Draft </span>
+            </button>
+
+            <button class="btn btn-primary" os-form-submit="distribute()">
+              <span translate="orders.buttons.distribute"> Distribute </span>
+            </button>
+          </span>
         </span>
       </div>
     </div>
