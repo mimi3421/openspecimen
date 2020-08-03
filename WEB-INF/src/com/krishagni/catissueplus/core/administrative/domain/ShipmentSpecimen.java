@@ -61,6 +61,10 @@ public class ShipmentSpecimen extends BaseEntity {
 	}
 
 	public void ship() {
+		if (!shipment.isPending()) {
+			return;
+		}
+
 		Shipment shipment = getShipment();
 		if (shipment.isSpecimenShipment()) {
 			StorageContainerPosition position = new StorageContainerPosition();
@@ -75,13 +79,17 @@ public class ShipmentSpecimen extends BaseEntity {
 	
 	public void receive(ShipmentSpecimen other) {
 		setReceivedQuality(other.getReceivedQuality());
-		updateSpecimen(other);
-		SpecimenShipmentReceivedEvent.createForShipmentItem(this).saveRecordEntry();
+		if (!shipment.isReceived()) {
+			updateSpecimen(other);
+			SpecimenShipmentReceivedEvent.createForShipmentItem(this).saveRecordEntry();
+		}
 	}
 
 	public void receive(PermissibleValue receivedQuality) {
 		setReceivedQuality(receivedQuality);
-		SpecimenShipmentReceivedEvent.createForShipmentItem(this).saveRecordEntry();
+		if (!shipment.isReceived()) {
+			SpecimenShipmentReceivedEvent.createForShipmentItem(this).saveRecordEntry();
+		}
 	}
 
 	public static ShipmentSpecimen createShipmentSpecimen(Shipment shipment, Specimen specimen) {

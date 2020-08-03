@@ -257,8 +257,6 @@ public class Shipment extends BaseEntity {
 		setCourierName(other.getCourierName());
 		setTrackingNumber(other.getTrackingNumber());
 		setTrackingUrl(other.getTrackingUrl());
-		setSendingSite(other.getSendingSite());
-		setReceivingSite(other.getReceivingSite());
 		setShippedDate(other.getShippedDate());
 		setSender(other.getSender());
 		setSenderComments(other.getSenderComments());
@@ -266,6 +264,10 @@ public class Shipment extends BaseEntity {
 		setReceiver(other.getReceiver());
 		setReceiverComments(other.getReceiverComments());
 		setActivityStatus(other.getActivityStatus());
+		if (isPending()) {
+			setSendingSite(other.getSendingSite());
+			setReceivingSite(other.getReceivingSite());
+		}
 
 		updateShipmentSpecimens(other);
 		updateShipmentContainers(other);
@@ -275,8 +277,20 @@ public class Shipment extends BaseEntity {
 
 	public void ship() {
 		if (isShipped()) {
-			throw OpenSpecimenException.userError(ShipmentErrorCode.ALREADY_SHIPPED);
+			//
+			// the shipment is already in 'Shipped' state.
+			// no need to do any extra work
+			//
+			return;
 		}
+
+		if (!isPending()) {
+			throw OpenSpecimenException.userError(ShipmentErrorCode.STATUS_CHANGE_NOT_ALLOWED);
+		}
+
+		//
+		// if we are here - it means the shipment is in pending state
+		//
 
 		if (isSpecimenShipment()) {
 			if (CollectionUtils.isEmpty(getShipmentSpecimens())) {
@@ -296,8 +310,8 @@ public class Shipment extends BaseEntity {
 	}
 	
 	public void receive(Shipment other) {
-		if (isReceived()) {
-			throw OpenSpecimenException.userError(ShipmentErrorCode.ALREADY_RECEIVED);
+		if (!isShipped() && !isReceived()) {
+			throw OpenSpecimenException.userError(ShipmentErrorCode.STATUS_CHANGE_NOT_ALLOWED);
 		}
 
 		if (isSpecimenShipment()) {
@@ -338,7 +352,7 @@ public class Shipment extends BaseEntity {
 	}
 
 	private void updateShipmentSpecimens(Shipment other) {
-		if (!isSpecimenShipment() || getStatus() != Status.PENDING) {
+		if (!isSpecimenShipment() || !isPending()) {
 			return;
 		}
 
@@ -355,7 +369,9 @@ public class Shipment extends BaseEntity {
 	}
 
 	private void receiveSpecimens(Shipment other) {
-		ensureShippedSpecimens(other);
+		if (!isReceived()) {
+			ensureShippedSpecimens(other);
+		}
 
 		Map<Specimen, ShipmentSpecimen> existingItems = getShipmentSpecimensMap();
 		for (ShipmentSpecimen newItem : other.getShipmentSpecimens()) {
@@ -375,7 +391,7 @@ public class Shipment extends BaseEntity {
 	}
 
 	private void updateShipmentContainers(Shipment other) {
-		if (!isContainerShipment() || getStatus() != Status.PENDING) {
+		if (!isContainerShipment() || !isPending()) {
 			return;
 		}
 
@@ -392,7 +408,9 @@ public class Shipment extends BaseEntity {
 	}
 
 	private void receiveContainers(Shipment other) {
-		ensureShippedContainers(other);
+		if (!isReceived()) {
+			ensureShippedContainers(other);
+		}
 
 		Map<StorageContainer, ShipmentContainer> existingItems = getShipmentContainersMap();
 		for (ShipmentContainer newItem : other.getShipmentContainers()) {
@@ -412,7 +430,7 @@ public class Shipment extends BaseEntity {
 	}
 
 	private void updateNotifyUsers(Shipment other) {
-		if (getStatus() != Status.PENDING) {
+		if (getStatus() != Status.PENDING && getStatus() != Status.SHIPPED) {
 			return;
 		}
 
@@ -420,15 +438,11 @@ public class Shipment extends BaseEntity {
 	}
 
 	private void updateStatus(Shipment other) {
-		if (getStatus() == other.getStatus()) {
-			return;
-		}
-		
-		if (getStatus() == Status.PENDING && other.isShipped()) {
+		if ((isPending() || isShipped()) && other.isShipped()) {
 			ship();
-		} else if (isShipped() && other.isReceived()) {
+		} else if ((isShipped() || isReceived()) && other.isReceived()) {
 			receive(other);
-		} else {
+		} else if (getStatus() != other.getStatus()) {
 			throw OpenSpecimenException.userError(ShipmentErrorCode.STATUS_CHANGE_NOT_ALLOWED);
 		}
 	}

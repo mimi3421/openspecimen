@@ -3,7 +3,10 @@ angular.module('os.administrative.shipment.receive', ['os.administrative.models'
     $scope, $state, shipment, shipmentItems, isSpmnRelabelingAllowed, ShipmentUtil, Specimen, Container) {
 
     function init() {
-      $scope.ctx = {relabelSpmns: isSpmnRelabelingAllowed};
+      $scope.ctx = {
+        relabelSpmns: isSpmnRelabelingAllowed,
+        state: shipment.status == 'Shipped' ? 'RECV_SHIPMENT' : 'RECV_EDIT'
+      };
 
       var attrs = getItemAttrs();
       angular.forEach(shipmentItems,

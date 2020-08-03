@@ -190,12 +190,8 @@ public class ShipmentFactoryImpl implements ShipmentFactory {
 	
 	private void setShippedDate(ShipmentDetail detail, Shipment shipment, OpenSpecimenException ose) {
 		Date shippedDate = detail.getShippedDate();
-		Date todayDate = Calendar.getInstance().getTime();
 		if (shippedDate == null) {
-			shippedDate = todayDate;
-		} else if (shippedDate.after(todayDate)) {
-			ose.addError(ShipmentErrorCode.INVALID_SHIPPED_DATE);
-			return;
+			shippedDate = Calendar.getInstance().getTime();
 		}
 
 		shipment.setShippedDate(shippedDate);
@@ -223,8 +219,8 @@ public class ShipmentFactoryImpl implements ShipmentFactory {
 		Date receivedDate = detail.getReceivedDate();
 		Date todayDate = Calendar.getInstance().getTime();
 		if (receivedDate == null) {
-			receivedDate = todayDate;
-		} else if (receivedDate.before(shipment.getShippedDate()) || receivedDate.after(todayDate)) {
+			receivedDate = todayDate.after(shipment.getShippedDate()) ? todayDate : shipment.getShippedDate();
+		} else if (receivedDate.before(shipment.getShippedDate())) {
 			ose.addError(ShipmentErrorCode.INVALID_RECEIVED_DATE);
 		}
 

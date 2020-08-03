@@ -35,94 +35,75 @@
     os-form-validator="shipForm" validator="shipFormValidator" novalidate>
     <div class="form-group">
       <label class="col-xs-3 control-label" translate="shipments.name">Name</label>
-      <div class="col-xs-6" ng-switch on="shipment.status">
-        <div ng-switch-when="Shipped" class="form-value">{{shipment.name}}</div>
-        <div ng-switch-default>
-          <input type="text" name="name" ng-model="shipment.name"
-            class="form-control" placeholder="{{'shipments.name' | translate}}" ng-maxlength="255" required/>
-          <div os-field-error field="shipForm.name"></div>
-        </div>
+      <div class="col-xs-6">
+        <input type="text" name="name" ng-model="shipment.name"
+          class="form-control" placeholder="{{'shipments.name' | translate}}" ng-maxlength="255" required/>
+        <div os-field-error field="shipForm.name"></div>
       </div>
     </div>
      
     <div class="form-group">
       <label class="col-xs-3 control-label" translate="shipments.courier_name">Courier Name</label>
-      <div class="col-xs-6" ng-switch on="shipment.status">
-        <div ng-switch-when="Shipped" class="form-value">{{shipment.courierName | osNoValue}}</div>
-        <div ng-switch-default>
-          <input type="text" name="courierName" ng-model="shipment.courierName"
-            class="form-control" placeholder="{{'shipments.courier_name' | translate}}" ng-maxlength="255"/>
-        </div>
+      <div class="col-xs-6">
+        <input type="text" name="courierName" ng-model="shipment.courierName"
+          class="form-control" placeholder="{{'shipments.courier_name' | translate}}" ng-maxlength="255"/>
       </div>
     </div>
      
     <div class="form-group"> 
       <label class="col-xs-3 control-label" translate="shipments.tracking_number">Tracking Number</label>
-      <div class="col-xs-6" ng-switch on="shipment.status">
-        <div ng-switch-when="Shipped" class="form-value">{{shipment.trackingNumber | osNoValue}}</div>
-        <div ng-switch-default>
-          <input type="text" name="trackingNumber" ng-model="shipment.trackingNumber"
-            class="form-control" placeholder="{{'shipments.tracking_number' | translate}}" ng-maxlength="255"/>
-        </div>
+      <div class="col-xs-6">
+        <input type="text" name="trackingNumber" ng-model="shipment.trackingNumber"
+          class="form-control" placeholder="{{'shipments.tracking_number' | translate}}" ng-maxlength="255"/>
       </div>
     </div>
      
     <div class="form-group"> 
       <label class="col-xs-3 control-label" translate="shipments.tracking_url">Tracking URL</label>
-      <div class="col-xs-6" ng-switch on="shipment.status">
-        <div ng-switch-when="Shipped" class="form-value">{{shipment.trackingUrl | osNoValue}}</div>
-        <div ng-switch-default>
-          <input type="text" name="trackingUrl" ng-model="shipment.trackingUrl"
-            class="form-control" placeholder="{{'shipments.tracking_url' | translate}}" ng-maxlength="255"/>
-        </div>
+      <div class="col-xs-6">
+        <input type="text" name="trackingUrl" ng-model="shipment.trackingUrl"
+          class="form-control" placeholder="{{'shipments.tracking_url' | translate}}" ng-maxlength="255"/>
       </div>
     </div>
     
     <div class="form-group">
       <label class="col-xs-3 control-label" translate="shipments.sending_site">Sending Site</label>
-      <div class="col-xs-6" ng-switch on="shipment.status">
-        <div ng-switch-when="Shipped" class="form-value">{{shipment.sendingSite}}</div>
-        <div ng-switch-default>
-          <os-sites name="sendingSite" ng-model="shipment.sendingSite"
-            placeholder="{{'shipments.sending_site' | translate}}"
-            list-fn="loadSendingSites(searchTerm)" required>
-          </os-sites>
-          <div os-field-error field="shipForm.sendingSite"></div>
-        </div>
+      <div class="col-xs-6" ng-switch on="ctx.state == 'PENDING_EDIT'">
+        <os-sites ng-switch-when="true" name="sendingSite" ng-model="shipment.sendingSite"
+          placeholder="{{'shipments.sending_site' | translate}}"
+          list-fn="loadSendingSites(searchTerm)" required>
+        </os-sites>
+        <div class="form-value" ng-switch-default>{{shipment.sendingSite}}</div>
+        <div os-field-error field="shipForm.sendingSite"></div>
       </div>
     </div>
      
     <div class="form-group">
-      <label class="col-xs-3 control-label" translate="shipments.receiving_institute">
-        Receiving Institute
-      </label>
-      <div class="col-xs-6" ng-switch on="shipment.status">
-        <div ng-switch-when="Shipped" class="form-value">{{shipment.receivingInstitute}}</div>
-        <div ng-switch-default>
-          <os-institutes name="receivingInstitute" ng-model="shipment.receivingInstitute"
-            placeholder="{{'shipments.receiving_institute' | translate}}"
-            on-select="onInstituteSelect(institute)" required>
-          </os-institutes>
-          <div os-field-error field="shipForm.receivingInstitute"></div>
-        </div>
+      <label class="col-xs-3 control-label" translate="shipments.receiving_institute">Receiving Institute</label>
+      <div class="col-xs-6" ng-switch on="ctx.state == 'PENDING_EDIT'">
+        <os-institutes ng-switch-when="true" name="receivingInstitute" ng-model="shipment.receivingInstitute"
+          placeholder="{{'shipments.receiving_institute' | translate}}"
+          on-select="onInstituteSelect(institute)" required>
+        </os-institutes>
+        <div class="form-value" ng-switch-default>{{shipment.receivingInstitute}}</div>
+        <div os-field-error field="shipForm.receivingInstitute"></div>
       </div>
     </div>
     
     <div class="form-group">
       <label class="col-xs-3 control-label" translate="shipments.receiving_site">Receiving Site</label>
-      <div class="col-xs-6" ng-switch on="shipment.status">
-        <div ng-switch-when="Shipped" class="form-value">{{shipment.receivingSite}}</div>
-        <div ng-switch-default>
-          <os-sites name="receivingSite" ng-model="shipment.receivingSite" institute="shipment.receivingInstitute"
-            placeholder="{{'shipments.receiving_site' | translate}}"
-            list-fn="loadRecvSites(shipment.receivingInstitute, searchTerm)" on-select="onSiteSelect($item)" required>
-          </os-sites>
-          <div os-field-error field="shipForm.receivingSite"></div>
-        </div>
+      <div class="col-xs-6" ng-switch on="ctx.state == 'PENDING_EDIT'">
+        <os-sites ng-switch-when="true" name="receivingSite" ng-model="shipment.receivingSite"
+          institute="shipment.receivingInstitute" placeholder="{{'shipments.receiving_site' | translate}}"
+          list-fn="loadRecvSites(shipment.receivingInstitute, searchTerm)" on-select="onSiteSelect($item)"
+          required>
+        </os-sites>
+        <div class="form-value" ng-switch-default>{{shipment.receivingSite}}</div>
+        <div os-field-error field="shipForm.receivingSite"></div>
       </div>
     </div>
 
-    <div class="form-group" ng-if="shipment.status != 'Shipped'">
+    <div class="form-group" ng-if="ctx.state != 'RECV_EDIT'">
       <label class="control-label col-xs-3" translate="shipments.notify_users">Notify Users</label>
       <div class="col-xs-6">
         <os-users name="notifyUsers" ng-model="shipment.notifyUsers" multiple 
@@ -134,42 +115,34 @@
     
     <div class="form-group">
       <label class="control-label col-xs-3" translate="shipments.shipped_date">Shipped Date</label>
-      <div class="col-xs-6" ng-switch on="shipment.status">
-        <div ng-switch-when="Shipped" class="form-value">
-          <span>{{shipment.shippedDate | date: global.dateTimeFmt}}</span>
-        </div>
-        <div ng-switch-default>
-          <div class="os-date-time clearfix">
-            <div class="col-xs-9 input os-no-padding">
-              <os-date-picker name="shippedDate" date="shipment.shippedDate"
-                placeholder="{{'shipments.shipped_date' | translate}}" required>
-              </os-date-picker>
-            </div>
-            <div class="col-xs-3">
-              <div class="os-timepicker">
-                <timepicker ng-model="shipment.shippedDate" class="os-time-no-wheels" show-meridian="false">
-                </timepicker>
-              </div>
+      <div class="col-xs-6">
+        <div class="os-date-time clearfix">
+          <div class="col-xs-9 input os-no-padding">
+            <os-date-picker name="shippedDate" date="shipment.shippedDate"
+              placeholder="{{'shipments.shipped_date' | translate}}" required>
+            </os-date-picker>
+          </div>
+          <div class="col-xs-3">
+            <div class="os-timepicker">
+              <timepicker ng-model="shipment.shippedDate" class="os-time-no-wheels" show-meridian="false">
+              </timepicker>
             </div>
           </div>
-          <div os-field-error field="shipForm.shippedDate"></div>
         </div>
-      </div>  
+        <div os-field-error field="shipForm.shippedDate"></div>
+      </div>
     </div>
 
     <div class="form-group">
       <label class="control-label col-xs-3" translate="shipments.sender_comments">Sender Comments</label>
-      <div class="col-xs-6" ng-switch on="shipment.status">
-        <div ng-switch-when="Shipped" class="form-value">{{shipment.senderComments | osNoValue}}</div>
-        <div ng-switch-default>
-          <textarea type="text" name="senderComments" ng-model="shipment.senderComments" class="form-control" 
-            placeholder="{{'shipments.sender_comments' | translate}}" rows="2"> 
-          </textarea>
-        </div>
+      <div class="col-xs-6">
+        <textarea type="text" name="senderComments" ng-model="shipment.senderComments" class="form-control"
+          placeholder="{{'shipments.sender_comments' | translate}}" rows="2">
+        </textarea>
       </div>
     </div>
 
-    <div class="form-group" ng-if="shipment.status == 'Shipped'">
+    <div class="form-group" ng-if="ctx.state == 'RECV_SHIPMENT' || ctx.state == 'RECV_EDIT'">
       <label class="control-label col-xs-3" translate="shipments.received_date">Received Date</label>
       <div class="col-xs-6">
         <div class="os-date-time clearfix">
@@ -189,7 +162,7 @@
       </div>  
     </div>
 
-    <div class="form-group" ng-if="shipment.status == 'Shipped'">
+    <div class="form-group" ng-if="ctx.state == 'RECV_SHIPMENT' || ctx.state == 'RECV_EDIT'">
       <label class="control-label col-xs-3" translate="shipments.receiver_comments">Receiver Comments</label>
       <div class="col-xs-6">
         <textarea type="text" name="receiverComments" ng-model="shipment.receiverComments" class="form-control" 
@@ -222,7 +195,7 @@
       </span>
     </div>
 
-    <os-add-specimens ng-if="shipment.status != 'Shipped'" on-add="addSpecimens(specimens)"
+    <os-add-specimens ng-if="ctx.state == 'PENDING_EDIT'" on-add="addSpecimens(specimens)"
       ctrl="input" filter-opts="spmnOpts.filters" error-opts="spmnOpts.error"
       placeholder="{{'shipments.enter_specimen_label' | translate}}">
       <button class="btn btn-primary" ng-click="validateSpecimens(input.ctrl)">
@@ -251,10 +224,11 @@
           <th class="col os-mw-100">
             <span translate="specimens.qty">Quantity</span>
           </th>
-          <th class="col os-mw-140" ng-if="shipment.status != 'Shipped'">
+          <th class="col os-mw-140" ng-if="ctx.state == 'PENDING_EDIT' ||
+            ctx.state == 'SHIPMENT_EDIT' || ctx.state == 'RECV_EDIT'">
             <span translate="specimens.location">Location</span>
           </th>
-          <th class="col os-mw-260" ng-if="shipment.status == 'Shipped'">
+          <th class="col os-mw-260" ng-if="ctx.state == 'RECV_SHIPMENT'">
             <div class="os-col-60 os-no-left-padding">
               <span translate="specimens.container">Container</span>
               <a ng-click="applyFirstLocationToAll()"style="font-weight:normal">
@@ -265,21 +239,22 @@
               <span translate="specimens.position">Position</span>
             </div>
           </th>
-          <th class="col os-mw-140" ng-if="shipment.status == 'Shipped'">
+          <th class="col os-mw-140" ng-if="ctx.state == 'RECV_SHIPMENT' || ctx.state == 'RECV_EDIT'">
             <span translate="shipments.received_quality">Quality</span>
             <a ng-click="copyFirstQualityToAll()" style="font-weight: normal">
               (<span translate="common.copy_first_to_all">Copy First To All</span>)
             </a>
           </th>
-          <th class="col" ng-if="shipment.status != 'Shipped'">
+          <th class="col" ng-if="ctx.state == 'PENDING_EDIT'">
             <span>&nbsp;</span>
           </th>
         </tr>
       </thead>
       <tbody class="os-table-body" os-storage-positions>
         <tr class="row" ng-repeat="item in shipment.shipmentSpmns"
-          ng-form="sform" ng-init="specimen = item.specimen; item.receivedQuality = qualityStatuses[0]">
-          <td class="col" ng-switch on="shipment.status != 'Shipped' || !ctx.relabelSpmns">
+          ng-form="sform" ng-init="specimen = item.specimen">
+          <td class="col" ng-switch on="ctx.state == 'PENDING_EDIT' ||
+            ctx.state == 'SHIPMENT_EDIT' || ctx.state == 'RECV_EDIT' || !ctx.relabelSpmns">
             <a ng-switch-when="true" ui-sref="specimen({specimenId: specimen.id})">
               <span>{{specimen.label}}</span>
               <span ng-if="!!specimen.barcode">
@@ -305,7 +280,8 @@
           <td class="col" ng-if="ctx.hasPpid">
             <span>{{specimen.ppid}}</span>
           </td>
-          <td class="col" ng-switch on="shipment.status != 'Shipped'">
+          <td class="col" ng-switch on="ctx.state == 'PENDING_EDIT' ||
+            ctx.state == 'SHIPMENT_EDIT' || ctx.state == 'RECV_EDIT'">
             <div ng-switch-when="true">
               <os-spmn-measure-val specimen="specimen" value="specimen.availableQty"></os-spmn-measure-val>
             </div>
@@ -315,21 +291,22 @@
               <div os-field-error field="sform.qty"></div>
             </div>
           </td>
-          <td class="col" ng-if="shipment.status != 'Shipped'">
+          <td class="col" ng-if="ctx.state == 'PENDING_EDIT' || ctx.state == 'SHIPMENT_EDIT'
+            || ctx.state == 'RECV_EDIT'">
             <os-disp-storage-position position="specimen.storageLocation"></os-disp-storage-position>
           </td>
-          <td class="col" ng-if="shipment.status != 'Shipped'">
+          <td class="col" ng-if="ctx.state == 'PENDING_EDIT'">
             <button class="btn btn-xs btn-default" ng-click="removeShipmentItem(item)">
               <span class="fa fa-remove"></span>
             </button>
           </td>
-          <td class="col" style="overflow: visible;" ng-if="shipment.status == 'Shipped'">
+          <td class="col" style="overflow: visible;" ng-if="ctx.state == 'RECV_SHIPMENT'">
             <os-storage-position os-md-input entity="specimen"
               cp-id="specimen.cpId" container-list-cache="containerListCache"
               site="shipment.receivingSite" hide-placeholder>
             </os-storage-position>
           </td>
-          <td class="col" style="overflow: visible;" ng-if="shipment.status == 'Shipped'">
+          <td class="col" style="overflow: visible;" ng-if="ctx.state == 'RECV_SHIPMENT' || ctx.state == 'RECV_EDIT'">
             <os-pvs os-md-input name="quality" attribute="shipment_item_received_quality"
               ng-model="item.receivedQuality" required>
             </os-pvs>
@@ -350,14 +327,20 @@
           <span translate="common.buttons.previous"> Previous </span>
         </button>
         <button class="btn btn-primary" os-form-submit="saveDraft()" ng-disabled="!shipment.shipmentSpmns.length"
-          ng-if="shipment.status != 'Shipped'">
+          ng-if="ctx.state == 'PENDING_EDIT'">
           <span translate="shipments.buttons.save_draft"> Save as Draft </span>
         </button>
+        <button class="btn btn-primary" os-form-submit="ship()" ng-if="ctx.state == 'SHIPMENT_EDIT'">
+          <span translate="common.buttons.update"> Update </span>
+        </button>
+        <button class="btn btn-primary" os-form-submit="receive()" ng-if="ctx.state == 'RECV_EDIT'">
+          <span translate="common.buttons.update"> Update </span>
+        </button>
         <button class="btn btn-primary" os-form-submit="ship()" ng-disabled="!shipment.shipmentSpmns.length"
-          ng-if="shipment.status != 'Shipped'">
+          ng-if="ctx.state == 'PENDING_EDIT'">
           <span translate="shipments.buttons.ship"> Ship </span>
         </button>
-        <button class="btn btn-primary" os-form-submit="receive()" ng-if="shipment.status == 'Shipped'">
+        <button class="btn btn-primary" os-form-submit="receive()" ng-if="ctx.state == 'RECV_SHIPMENT'">
           <span translate="shipments.buttons.receive"> Receive </span>
         </button>
       </div>
@@ -373,7 +356,7 @@
       </span>
     </div>
 
-    <os-add-items ng-if="shipment.status == 'Pending'"
+    <os-add-items ng-if="ctx.state == 'PENDING_EDIT'"
       item-list="shipment.shipmentContainers" item-key="container.name" on-add="addContainers(itemLabels)"
       placeholder="{{'shipments.enter_container_names' | translate}}">
     </os-add-items>
@@ -384,19 +367,19 @@
           <th class="col os-col-25">
             <span translate="container.name">Name</span>
           </th>
-          <th class="col" ng-class="{true: 'os-col-20', false: 'os-col-10'}[shipment.status == 'Pending']">
+          <th class="col" ng-class="{true: 'os-col-20', false: 'os-col-10'}[ctx.state == 'PENDING_EDIT']">
             <span translate="container.dimension">Dimension</span>
           </th>
-          <th class="col os-col-40" ng-if="shipment.status == 'Pending'">
+          <th class="col os-col-40" ng-if="ctx.state != 'RECV_SHIPMENT'">
             <span translate="container.parent_container">Parent Container</span>
           </th>
           <th class="col os-col-10">
             <span translate="shipments.specimens">Specimens</th>
           </th>
-          <th class="col os-col-5" ng-if="shipment.status == 'Pending'">
+          <th class="col os-col-5" ng-if="ctx.state == 'PENDING_EDIT'">
             <span>&nbsp;</span>
           </th>
-          <th class="col os-col-40" ng-if="shipment.status == 'Shipped'">
+          <th class="col os-col-40" ng-if="ctx.state == 'RECV_SHIPMENT'">
             <div class="os-col-60 os-no-left-padding">
               <span translate="specimens.container">Container</span>
               <a ng-click="applyFirstLocationToAll()"style="font-weight:normal">
@@ -410,7 +393,7 @@
               <span translate="specimens.column">Column</span>
             </div>
           </th>
-          <th class="col os-col-15" ng-if="shipment.status == 'Shipped'">
+          <th class="col os-col-15" ng-if="ctx.state == 'RECV_SHIPMENT' || ctx.state == 'RECV_EDIT'">
             <span translate="shipments.received_quality">Quality</span>
             <a ng-click="copyFirstQualityToAll()" style="font-weight: normal">
               (<span translate="common.copy_first_to_all">Copy First To All</span>)
@@ -420,7 +403,7 @@
       </thead>
       <tbody class="os-table-body" os-storage-positions>
         <tr class="row" ng-repeat="item in shipment.shipmentContainers"
-          ng-form="cform" ng-init="container = item.container; item.receivedQuality = qualityStatuses[0]">
+          ng-form="cform" ng-init="container = item.container">
           <td class="col">
             <a ui-sref="container-detail.overview({containerId: container.id})">
               <span>{{container.name}}</span>
@@ -430,23 +413,23 @@
             <span ng-switch-when="true">{{container.noOfRows}} X {{container.noOfColumns}}</span>
             <span ng-switch-when="false" translate="common.not_applicable">Not Applicable</span>
           </td>
-          <td class="col" ng-if="shipment.status == 'Pending'">
+          <td class="col" ng-if="ctx.state != 'RECV_SHIPMENT'">
             <os-disp-storage-position position="container.storageLocation"></os-disp-storage-position>
           </td>
           <td class="col">
             <span>{{item.specimensCount | number: 0}}</span>
           </td>
-          <td class="col" ng-if="shipment.status == 'Pending'">
+          <td class="col" ng-if="ctx.state == 'PENDING_EDIT'">
             <button class="btn btn-xs btn-default" ng-click="removeShipmentItem(item)">
               <span class="fa fa-remove"></span>
             </button>
           </td>
-          <td class="col" style="overflow: visible;" ng-if="shipment.status == 'Shipped'">
+          <td class="col" style="overflow: visible;" ng-if="ctx.state == 'RECV_SHIPMENT'">
             <os-storage-position os-md-input entity="container" container-list-cache="containerListCache"
               site="shipment.receivingSite" hide-placeholder>
             </os-storage-position>
           </td>
-          <td class="col" style="overflow: visible;" ng-if="shipment.status == 'Shipped'">
+          <td class="col" style="overflow: visible;" ng-if="ctx.state == 'RECV_SHIPMENT' || ctx.state == 'RECV_EDIT'">
             <os-pvs os-md-input name="quality" attribute="shipment_item_received_quality"
               ng-model="item.receivedQuality" required>
             </os-pvs>
@@ -464,18 +447,25 @@
           <span translate="common.buttons.cancel">Cancel</span>
         </button>
         <button class="btn os-btn-secondary" ng-click="shipWizard.previous(false)">
-          <span translate="common.buttons.previous"> Previous </span>
+          <span translate="common.buttons.previous">Previous</span>
         </button>
         <button class="btn btn-primary" os-form-submit="saveDraft()" ng-disabled="!shipment.shipmentContainers.length"
-          ng-if="shipment.status != 'Shipped'">
-          <span translate="shipments.buttons.save_draft"> Save as Draft </span>
+          ng-if="ctx.state == 'PENDING_EDIT'">
+          <span translate="shipments.buttons.save_draft">Save as Draft</span>
         </button>
         <button class="btn btn-primary" os-form-submit="ship()" ng-disabled="!shipment.shipmentContainers.length"
-          ng-if="shipment.status != 'Shipped'">
-          <span translate="shipments.buttons.ship"> Ship </span>
+          ng-if="ctx.state == 'PENDING_EDIT'">
+          <span translate="shipments.buttons.ship">Ship</span>
         </button>
-        <button class="btn btn-primary" os-form-submit="receive()" ng-if="shipment.status == 'Shipped'">
-          <span translate="shipments.buttons.receive"> Receive </span>
+        <button class="btn btn-primary" os-form-submit="ship()" ng-disabled="!shipment.shipmentContainers.length"
+          ng-if="ctx.state == 'SHIPMENT_EDIT'">
+          <span translate="common.buttons.update">Update</span>
+        </button>
+        <button class="btn btn-primary" os-form-submit="receive()" ng-if="ctx.state == 'RECV_SHIPMENT'">
+          <span translate="shipments.buttons.receive">Receive</span>
+        </button>
+        <button class="btn btn-primary" os-form-submit="receive()" ng-if="ctx.state == 'RECV_EDIT'">
+          <span translate="common.buttons.update">Update</span>
         </button>
       </div>
     </div>

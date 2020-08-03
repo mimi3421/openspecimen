@@ -11,7 +11,7 @@ angular.module('os.administrative.shipment.addedit', ['os.administrative.models'
       $scope.shipment = shipment;
       $scope.spmnOpts = {filters: {}, error: {}};
       $scope.input = {};
-      $scope.ctx = {};
+      $scope.ctx = { state: shipment.status == 'Pending' ? 'PENDING_EDIT' : 'SHIPMENT_EDIT' };
 
       if (!shipment.id && angular.isArray(SpecimensHolder.getSpecimens())) {
         shipment.shipmentSpmns = getShipmentSpecimens(SpecimensHolder.getSpecimens());

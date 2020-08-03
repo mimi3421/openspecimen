@@ -33,8 +33,6 @@ public enum ShipmentErrorCode implements ErrorCode {
 	
 	NOT_SHIPPED_TO_RECV,
 	
-	INVALID_SHIPPED_DATE,
-	
 	INVALID_RECEIVED_DATE,
 	
 	ALREADY_SHIPPED,
