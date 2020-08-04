@@ -598,10 +598,9 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
       }
 
       function shallowCopy(spmn) {
+        var attrs = ['id', 'barcode', 'label', 'reqId', 'reqLabel'];
         var copy = new Specimen(spmn);
-        delete copy.id;
-        delete copy.barcode;
-        delete copy.label;
+        attrs.forEach(function(attr) { delete copy[attr]; });
 
         copy.children = [];
 
