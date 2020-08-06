@@ -14,7 +14,7 @@ public class VisitSpecimenDetail {
 	}
 
 	public VisitSpecimenDetail(Visit visit) {
-		this.visit = VisitDetail.from(visit);
+		this.visit = VisitDetail.from(visit, false, false);
 		this.specimens = SpecimenDetail.from(visit.getOrderedTopLevelSpecimens());
 	}
 

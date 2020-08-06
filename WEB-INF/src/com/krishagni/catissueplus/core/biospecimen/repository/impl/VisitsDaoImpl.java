@@ -116,9 +116,18 @@ public class VisitsDaoImpl extends AbstractDao<Visit> implements VisitsDao {
 	@Override
 	@SuppressWarnings("unchecked")
 	public List<Visit> getBySpr(String sprNumber) {
-		return sessionFactory.getCurrentSession()
-			.getNamedQuery(GET_VISIT_BY_SPR)
+		return getCurrentSession().getNamedQuery(GET_VISIT_BY_SPR)
 			.setParameter("sprNumber", sprNumber.toUpperCase())
+			.list();
+	}
+
+	@Override
+	public List<Visit> getByEvent(Long cprId, String eventLabel) {
+		return getCurrentSession().createCriteria(Visit.class, "v")
+			.createAlias("v.cpEvent", "event")
+			.createAlias("v.registration", "reg")
+			.add(Restrictions.eq("reg.id", cprId))
+			.add(Restrictions.eq("event.eventLabel", eventLabel))
 			.list();
 	}
 

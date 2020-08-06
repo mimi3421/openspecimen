@@ -1,7 +1,7 @@
 
 angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.models'])
   .factory('CollectSpecimensSvc', function(
-    $state, $parse, CpConfigSvc, Specimen, Container, ParticipantSpecimensViewState) {
+    $state, $parse, CpConfigSvc, Specimen, Container, ParticipantSpecimensViewState, LocationChangeListener) {
 
     var data = {opts: {}};
 
@@ -72,14 +72,14 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
     //
     // opts: {ignoreQtyWarning: [true | false], showCollVisitDetails: [true | false]}
     //
-    function collect(stateDetail, visit, specimens, opts) {
+    function collect(stateDetail, visit, specimens, opts, navigateToCollPage) {
       data.stateDetail = angular.copy(stateDetail);
       data.visit = visit;
       data.specimens = specimens;
       data.opts = opts || {};
 
       assignUids(specimens);
-      allocatePositions(visit, specimens).then(function() { gotoCollectionPage(visit); });
+      allocatePositions(visit, specimens).then(function() { gotoCollectionPage(visit, navigateToCollPage); });
     }
 
     function assignUids(specimens) {
@@ -138,24 +138,24 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
       }
     }
 
-    function gotoCollectionPage(visit) {
+    function gotoCollectionPage(visit, navigateToCollPage) {
       CpConfigSvc.getWorkflowData(visit.cpId, 'specimenCollection').then(
         function(wfData) {
           if (wfData && !angular.equals(wfData, {})) {
-            gotoCollectionPage0(visit, wfData);
+            gotoCollectionPage0(visit, wfData, navigateToCollPage);
             return;
           }
 
           CpConfigSvc.getWorkflowData(-1, 'specimenCollection').then(
             function(wfData) {
-              gotoCollectionPage0(visit, wfData);
+              gotoCollectionPage0(visit, wfData, navigateToCollPage);
             }
           );
         }
       );
     }
 
-    function gotoCollectionPage0(visit, wfData) {
+    function gotoCollectionPage0(visit, wfData, navigateToCollPage) {
       var params = {cprId: visit.cprId, visitId: visit.id, eventId: visit.eventId};
       var state = 'tree';
       if (wfData.showCollectionTree == false || wfData.showCollectionTree == 'false') {
@@ -164,7 +164,11 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
       }
 
       data.opts.defReceiveQuality = wfData.defReceiveQuality;
-      $state.go('participant-detail.collect-specimens.' + state, params);
+      if (navigateToCollPage) {
+        navigateToCollPage(state, params);
+      } else {
+        $state.go('participant-detail.collect-specimens.' + state, params);
+      }
     }
 
     function isAnyChildOrPoolSpecimenPending(spmn) {
@@ -213,7 +217,7 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
     return {
       collect: collect,
 
-      collectPending: function(returnState, cp, cprId, visit) {
+      collectPending: function(returnState, cp, cprId, visit, navigateToCollPage) {
         var visitDetail = {visitId: visit.id, eventId: visit.eventId};
         Specimen.listFor(cprId, visitDetail).then(
           function(specimens) {
@@ -229,12 +233,12 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
             );
 
             visit.cprId = cprId;
-            collect(returnState, visit, spmnsToCollect);
+            collect(returnState, visit, spmnsToCollect, undefined, navigateToCollPage);
           }
         );
       },
 
-      collectVisit: function(returnState, cp, cprId, visit) {
+      collectVisit: function(returnState, cp, cprId, visit, navigateToCollPage) {
         var visitDetail = {visitId: visit.id, eventId: visit.eventId};
         Specimen.listFor(cprId, visitDetail).then(
           function(specimens) {
@@ -256,7 +260,7 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
             );
 
             visit.cprId = cprId;
-            collect(returnState, visit, spmnsToCollect);
+            collect(returnState, visit, spmnsToCollect, undefined, navigateToCollPage);
           }
         );
       },
@@ -308,7 +312,7 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
         } else if (gotoVisit) {
           $state.go('visit', {visitId: visit.id});
         } else {
-          scope.back();
+          LocationChangeListener.back();
         }
 
         clear();
@@ -1311,7 +1315,7 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
     $scope.spmnBarcodesAutoGen = spmnBarcodesAutoGen;
     $scope.mrnAccessRestriction = mrnAccessRestriction;
 
-    $scope.onSave = function(collectedSpecimens) {
+    $scope.onSave = function(visit, collectedSpecimens) {
       if (!spmnCollFields || !spmnCollFields.fieldGroups || spmnCollFields.fieldGroups.length == 0) {
         CollectSpecimensSvc.navigateTo($scope, visit);
         return;
@@ -1379,7 +1383,6 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
             hideFooterActions: true
           };
 
-          alert(cp.shortTitle);
           var groups = $scope.customFieldGroups = SpecimenUtil.sdeGroupSpecimens(
             cpDict, spmnCollFields.fieldGroups || [], specimens, {cp: cp, cpr: cpr, visit: visit}, opts);
 
