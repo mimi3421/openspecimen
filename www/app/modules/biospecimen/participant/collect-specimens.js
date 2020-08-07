@@ -163,7 +163,10 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
         data.opts.hierarchical =  true;
       }
 
-      data.opts.defReceiveQuality = wfData.defReceiveQuality;
+      data.opts.showVisitDetails    = wfData.showVisitDetails != 'false' && wfData.showVisitDetails != false;
+      data.opts.showCollectionEvent = wfData.showCollectionEvent != 'false' && wfData.showCollectionEvent != false;
+      data.opts.showReceivedEvent   = wfData.showReceivedEvent != 'false' && wfData.showReceivedEvent != false;
+      data.opts.defReceiveQuality   = wfData.defReceiveQuality;
       if (navigateToCollPage) {
         navigateToCollPage(state, params);
       } else {
@@ -303,6 +306,10 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
         return data.opts.defReceiveQuality;
       },
 
+      opts: function() {
+        return data.opts || {};
+      },
+
       navigateTo: function(scope, visit, gotoVisit) {
         ParticipantSpecimensViewState.specimensUpdated(scope);
 
@@ -359,6 +366,7 @@ angular.module('os.biospecimen.participant.collect-specimens', ['os.biospecimen.
         function init() {
           ignoreQtyWarning = CollectSpecimensSvc.ignoreQtyWarning();
           $scope.showCollVisitDetails = CollectSpecimensSvc.showCollVisitDetails();
+          $scope.uiOpts               = CollectSpecimensSvc.opts();
 
           var sites = cp.cpSites.map(function(cpSite) { return cpSite.siteName; });
           $scope.storeSpmnsAllowed = AuthorizationService.isAllowed(

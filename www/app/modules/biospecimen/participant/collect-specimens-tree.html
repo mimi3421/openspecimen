@@ -232,7 +232,7 @@
 
 <script type="text/ng-template" id="specimen_coll_visit_details.html">
   <div class="form-horizontal os-md-form">
-    <div class="row" ng-if="!cp.specimenCentric">
+    <div class="row" ng-if="!cp.specimenCentric && uiOpts.showVisitDetails">
       <div class="col-xs-12">
         <div class="form-group">
           <label class="col-xs-2 control-label" translate="specimens.visit_details">Visit Details</label>
@@ -271,7 +271,7 @@
       </div>
     </div>
 
-    <div class="row">
+    <div class="row" ng-show="uiOpts.showCollectionEvent">
       <div class="col-xs-12">
         <div class="form-group">
           <label class="col-xs-2 control-label" translate="specimens.col_event.title">Collection Details</label>
@@ -293,7 +293,7 @@
       </div>
     </div>
 
-    <div class="row">
+    <div class="row" ng-show="uiOpts.showReceivedEvent">
       <div class="col-xs-12">
         <div class="form-group">
           <label class="col-xs-2 control-label" translate="specimens.recv_event.title">Receive Details</label>
