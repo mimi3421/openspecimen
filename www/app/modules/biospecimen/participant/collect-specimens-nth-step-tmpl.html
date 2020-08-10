@@ -7,7 +7,7 @@
       </sde-form-fields>
     </div>
     <div ng-repeat="group in customFieldGroups" ng-if="!group.noMatch && !group.visitFields">
-      <div class="panel panel-default" ng-show="group.input.length > 0">
+      <div class="panel panel-default" ng-show="group.input.length > 0 && !group.hideTable">
         <div class="panel-heading">
           <span>{{group.title}}</span>
           <a class="btn btn-xs btn-default" ng-click="group.opts.cofrc = !group.opts.cofrc"

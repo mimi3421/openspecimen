@@ -422,13 +422,21 @@ angular.module('os.biospecimen.specimen')
           hcfa = angular.isDefined(hcfa) && (hcfa === 'true' || hcfa === true);
 
           result.push({
+            hideTable: group.hideTable == true,
             multiple: true,
             title: group.title,
             fields: { table: group.fields },
             baseFields: baseFields,
             input: selectedSpmns,
             lastRow: angular.copy(selectedSpmns[selectedSpmns.length - 1]),
-            opts: angular.extend({static: true, enableCofrc: cofrc, cofrc: cofrc, hideCopyFirstToAll: hcfa}, otherOpts || {})
+            opts: angular.extend(
+              {
+                static: true,
+                enableCofrc: cofrc,
+                cofrc: cofrc,
+                hideCopyFirstToAll: hcfa
+              }, otherOpts || {}
+            )
           });
         }
       }
@@ -501,12 +509,12 @@ angular.module('os.biospecimen.specimen')
       }
 
       var expr = $parse(prop);
-      if (angular.isObject(value)) {
-        value = angular.copy(value);
-      }
-
       angular.forEach(descendants,
         function(descendant) {
+          if (angular.isObject(value)) {
+            value = angular.copy(value);
+          }
+
           expr.assign(descendant, value);
         }
       );
