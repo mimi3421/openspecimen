@@ -155,12 +155,12 @@ public class SpecimensController {
 			size += crit.barcodes().size();
 		}
 
-		if (size > 1000) {
+		if (size > 10000) {
 			throw OpenSpecimenException.userError(SpecimenErrorCode.LABELS_SRCH_LIMIT_MAXED, 1000);
 		}
 
-		if (crit.maxResults() > 1000) {
-			crit.maxResults(1000);
+		if (crit.maxResults() > 10000) {
+			crit.maxResults(10000);
 		}
 
 		return ResponseEvent.unwrap(specimenSvc.getSpecimens(RequestEvent.wrap(crit.limitItems(true))));

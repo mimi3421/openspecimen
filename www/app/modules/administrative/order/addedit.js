@@ -68,6 +68,8 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
           //
           // newly created order. item costs are auto-populated
           //
+          $scope.input.moreSpmnsThanLimit = (order.orderItems && order.orderItems.length > maxSpmnsLimit);
+          $scope.input.spmnsCount = order.orderItems ? order.orderItems.length : 0;
           addItemCosts(order.distributionProtocol, order.orderItems);
           loadCustomFields(order.orderItems);
         } else if (!!order.id) {
@@ -138,7 +140,7 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
     }
 
     function getOrderItems(specimens, printLabel) {
-      return specimens.filter(
+      var result = specimens.filter(
         function(specimen) {
           return specimen.activityStatus == 'Active';
         }
@@ -152,6 +154,21 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
           }
         }
       );
+
+      if (result.length < specimens.length) {
+        var removedSpmns = specimens.filter(
+          function(specimen) {
+            return specimen.activityStatus != 'Active'
+          }
+        ).map(
+          function(specimen) {
+            return specimen.label;
+          }
+        );
+        Util.showErrorMsg({msg: 'orders.specimens_removed', args: {specimens: removedSpmns}});
+      }
+
+      return result;
     }
 
     function getOrderItemsFromReq(reqItems, orderItems) {
@@ -267,6 +284,10 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
             Alerts.info('orders.more_time');
             $state.go('order-list');
           }
+        },
+
+        function(errResp) {
+          Util.showErrorMsg(errResp);
         }
       );
     };
@@ -303,7 +324,7 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
     }
 
     function addItemCosts(dp, items) {
-      if (!$injector.has('distInvDistributionCost')) {
+      if (!$injector.has('distInvDistributionCost') || items.length > maxSpmnsLimit) {
         return;
       }
 

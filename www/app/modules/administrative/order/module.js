@@ -43,7 +43,7 @@ angular.module('os.administrative.order',
         parent: 'order-root'
       })
       .state('order-addedit', {
-        url: '/order-addedit/:orderId?requestId&specimenListId&allReservedSpmns&dpId',
+        url: '/order-addedit/:orderId?requestId&specimenListId&allReservedSpmns&dpId&clearFromCart',
         templateUrl: 'modules/administrative/order/addedit.html',
         controller: 'OrderAddEditCtrl',
         resolve: {
@@ -74,7 +74,8 @@ angular.module('os.administrative.order',
                   distributionProtocol: dp,
                   orderItems: [],
                   specimenList: specimenList,
-                  allReservedSpmns: allReservedSpmns
+                  allReservedSpmns: allReservedSpmns,
+                  clearListId: specimenList ? specimenList.id : $stateParams.clearFromCart
                 });
               }
             );

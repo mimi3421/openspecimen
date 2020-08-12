@@ -166,7 +166,7 @@ angular.module('os.biospecimen.models.specimen', ['os.common.models', 'os.biospe
     }
 
     Specimen.getByIds = function(ids, includeExtensions) {
-      return Specimen.query({id: ids, includeExtensions: includeExtensions});
+      return Specimen.search({ids: ids, includeExtensions: includeExtensions || false, maxResults: ids.length});
     }
 
     Specimen.prototype.getType = function() {

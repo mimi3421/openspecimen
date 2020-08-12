@@ -135,6 +135,13 @@ public class SpecimenListDaoImpl extends AbstractDao<SpecimenList> implements Sp
 			.executeUpdate();
 	}
 
+	@Override
+	public int clearList(Long listId) {
+		return getCurrentSession().getNamedQuery(CLEAR_LIST)
+			.setParameter("listId", listId)
+			.executeUpdate();
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Long> getSpecimenIdsInList(Long listId, List<Long> specimenIds) {
@@ -245,6 +252,8 @@ public class SpecimenListDaoImpl extends AbstractDao<SpecimenList> implements Sp
 	private static final String GET_LIST_SPECIMENS_COUNT = FQN + ".getListSpecimensCount";
 
 	private static final String DELETE_LIST_SPECIMENS = FQN + ".deleteListSpecimens";
+
+	private static final String CLEAR_LIST = FQN + ".clearList";
 
 	private static final String ADD_CHILD_SPECIMENS_MYSQL = FQN + ".addChildSpecimensMySQL";
 

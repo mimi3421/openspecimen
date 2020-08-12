@@ -48,6 +48,15 @@
 
     <many-to-one name="specimenList" column="SPECIMEN_LIST_ID"/>
 
+    <property name="clearListId" column="CLEAR_LIST_ID"/>
+
+    <property name="clearListMode" column="CLEAR_LIST_MODE">
+      <type name="org.hibernate.type.EnumType">
+        <param name="enumClass">com.krishagni.catissueplus.core.administrative.domain.DistributionOrder$ClearListMode</param>
+        <param name="type">12</param>
+      </type>
+    </property>
+
     <property name="allReservedSpecimens" column="SPMNS_RESERVED_FOR_DP"/>
       
     <filter name="activeEntity"/>

@@ -32,6 +32,7 @@ import com.krishagni.catissueplus.core.biospecimen.events.SpecimenInfo;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.biospecimen.services.SpecimenResolver;
 import com.krishagni.catissueplus.core.common.errors.ActivityStatusErrorCode;
+import com.krishagni.catissueplus.core.common.errors.CommonErrorCode;
 import com.krishagni.catissueplus.core.common.errors.ErrorCode;
 import com.krishagni.catissueplus.core.common.errors.ErrorType;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
@@ -70,6 +71,7 @@ public class DistributionOrderFactoryImpl implements DistributionOrderFactory {
 		setName(detail, order, ose);
 		setRequest(detail, order, ose);
 		setSpecimenList(detail, order, ose);
+		setClearList(detail, order, ose);
 		setAllReservedSpecimens(detail, order, ose);
 		setDistributionProtocol(detail, order, ose);		
 		setRequesterAndReceivingSite(detail, order, ose);
@@ -129,6 +131,21 @@ public class DistributionOrderFactoryImpl implements DistributionOrderFactory {
 		}
 
 		order.setSpecimenList(specimenList);
+	}
+
+	private void setClearList(DistributionOrderDetail detail, DistributionOrder order, OpenSpecimenException ose) {
+		if (detail.getClearListId() == null) {
+			return;
+		}
+
+		order.setClearListId(detail.getClearListId());
+		try {
+			if (StringUtils.isNotBlank(detail.getClearListMode())) {
+				order.setClearListMode(DistributionOrder.ClearListMode.valueOf(detail.getClearListMode()));
+			}
+		} catch (Exception e) {
+			ose.addError(CommonErrorCode.INVALID_REQUEST, "Invalid clear mode: " + detail.getClearListMode());
+		}
 	}
 
 	private void setAllReservedSpecimens(DistributionOrderDetail detail, DistributionOrder order, OpenSpecimenException ose) {

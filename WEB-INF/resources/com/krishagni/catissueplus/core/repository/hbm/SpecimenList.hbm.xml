@@ -86,6 +86,10 @@
       delete from catissue_spec_tag_items where tag_id = :listId and obj_id in (:specimenIds)
     </sql-query>
 
+    <sql-query name="clearList">
+      delete from catissue_spec_tag_items where tag_id = :listId
+    </sql-query>
+
     <sql-query name="addChildSpecimensMySQL">
       insert into
         catissue_spec_tag_items(tag_id, obj_id)

@@ -25,7 +25,11 @@ public class DistributionOrderDetail extends DistributionOrderSummary implements
 	private SpecimenListSummary specimenList;
 
 	private Boolean allReservedSpmns;
-	
+
+	private Long clearListId;
+
+	private String clearListMode;
+
 	private List<DistributionOrderItemDetail> orderItems = new ArrayList<>();
 	
 	private String activityStatus;
@@ -94,6 +98,22 @@ public class DistributionOrderDetail extends DistributionOrderSummary implements
 
 	public void setAllReservedSpmns(Boolean allReservedSpmns) {
 		this.allReservedSpmns = allReservedSpmns;
+	}
+
+	public Long getClearListId() {
+		return clearListId;
+	}
+
+	public void setClearListId(Long clearListId) {
+		this.clearListId = clearListId;
+	}
+
+	public String getClearListMode() {
+		return clearListMode;
+	}
+
+	public void setClearListMode(String clearListMode) {
+		this.clearListMode = clearListMode;
 	}
 
 	public List<DistributionOrderItemDetail> getOrderItems() {
@@ -181,6 +201,8 @@ public class DistributionOrderDetail extends DistributionOrderSummary implements
 			detail.setSpecimenList(SpecimenListSummary.fromSpecimenList(order.getSpecimenList()));
 		}
 
+		detail.setClearListId(order.getClearListId());
+		detail.setClearListMode(order.getClearListMode() != null ? order.getClearListMode().name() : null);
 		detail.setAllReservedSpmns(order.getAllReservedSpecimens());
 		detail.setTrackingUrl(order.getTrackingUrl());
 		detail.setComments(order.getComments());

@@ -1156,6 +1156,7 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 		daoFactory.getDistributionOrderDao().saveOrUpdate(order);
 		if (order.getSpecimenList() == null && !order.isForAllReservedSpecimens()) {
 			printDistributionLabels(order.getOrderItems());
+			clearList(order);
 			return;
 		}
 
@@ -1182,6 +1183,8 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 			specimens.clear();
 			SessionUtil.getInstance().clearSession();
 		}
+
+		clearList(order);
 	}
 
 	private DistributionOrderItem distributeSpecimen(DistributionOrder order, Specimen specimen) {
@@ -1205,6 +1208,37 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 		}
 
 		return labelPrinter.print(PrintItem.make(orderItems, copies));
+	}
+
+	private void clearList(DistributionOrder order) {
+		if (order.getClearListId() == null ||
+			order.getClearListMode() == null ||
+			order.getClearListMode() == DistributionOrder.ClearListMode.NONE) {
+			return;
+		}
+
+		if (order.getClearListMode() == DistributionOrder.ClearListMode.ALL) {
+			daoFactory.getSpecimenListDao().clearList(order.getClearListId());
+		} else if (order.getClearListMode() == DistributionOrder.ClearListMode.DISTRIBUTED) {
+			List<Long> specimenIds = new ArrayList<>();
+			for (DistributionOrderItem item : order.getOrderItems()) {
+				specimenIds.add(item.getSpecimen().getId());
+				if (specimenIds.size() == 963) {
+					clearList(order.getClearListId(), specimenIds);
+				}
+			}
+
+			clearList(order.getClearListId(), specimenIds);
+		}
+	}
+
+	private void clearList(Long listId, List<Long> specimenIds) {
+		if (specimenIds.isEmpty()) {
+			return;
+		}
+
+		daoFactory.getSpecimenListDao().deleteListItems(listId, specimenIds);
+		specimenIds.clear();
 	}
 
 	private SavedQuery getReportQuery(DistributionOrder order) {

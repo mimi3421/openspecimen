@@ -24,6 +24,12 @@ public class DistributionOrder extends BaseExtensionEntity {
 		PENDING,
 		EXECUTED
 	}
+
+	public enum ClearListMode {
+		ALL,
+		DISTRIBUTED,
+		NONE
+	};
 	
 	private static final String ENTITY_NAME = "distribution_order";
 
@@ -58,7 +64,11 @@ public class DistributionOrder extends BaseExtensionEntity {
 	private SpecimenList specimenList;
 
 	private Boolean allReservedSpecimens;
-	
+
+	private Long clearListId;
+
+	private ClearListMode clearListMode;
+
 	public static String getEntityName() {
 		return ENTITY_NAME;
 	}
@@ -204,6 +214,22 @@ public class DistributionOrder extends BaseExtensionEntity {
 		return Boolean.TRUE.equals(allReservedSpecimens);
 	}
 
+	public Long getClearListId() {
+		return clearListId;
+	}
+
+	public void setClearListId(Long clearListId) {
+		this.clearListId = clearListId;
+	}
+
+	public ClearListMode getClearListMode() {
+		return clearListMode;
+	}
+
+	public void setClearListMode(ClearListMode clearListMode) {
+		this.clearListMode = clearListMode;
+	}
+
 	public Institute getInstitute() {
 		return requester.getInstitute();
 	}
@@ -220,6 +246,8 @@ public class DistributionOrder extends BaseExtensionEntity {
 		setComments(newOrder.getComments());
 		setExtension(newOrder.getExtension());
 		setSpecimenList(newOrder.getSpecimenList());
+		setClearListId(newOrder.getClearListId());
+		setClearListMode(newOrder.getClearListMode());
 		setAllReservedSpecimens(newOrder.getAllReservedSpecimens());
 
 		updateRequest(newOrder);

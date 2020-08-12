@@ -338,4 +338,14 @@
       //
     </sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="Columns to remember the cart and clean up mode on distribution of specimens">
+    <addColumn tableName="OS_ORDERS">
+      <column name="CLEAR_LIST_MODE" type="${text.type}(16)"/>
+      <column name="CLEAR_LIST_ID" type="${int.type}">
+        <constraints foreignKeyName="FK_DO_CLEAR_LIST_ID"
+          referencedTableName="CATISSUE_SPECIMENLIST_TAGS" referencedColumnNames="IDENTIFIER"/>
+      </column>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

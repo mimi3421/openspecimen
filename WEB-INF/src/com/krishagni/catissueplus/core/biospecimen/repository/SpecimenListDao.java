@@ -31,6 +31,8 @@ public interface SpecimenListDao extends Dao<SpecimenList> {
 
 	int deleteListItems(Long listId, List<Long> specimenIds);
 
+	int clearList(Long listId);
+
 	List<Long> getSpecimenIdsInList(Long listId, List<Long> specimenIds);
 
 	void addChildSpecimens(Long listId, boolean oracle);

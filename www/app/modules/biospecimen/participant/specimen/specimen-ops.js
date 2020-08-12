@@ -2,7 +2,7 @@ angular.module('os.biospecimen.specimen')
   .directive('osSpecimenOps', function(
     $state, $rootScope, $modal, $q, Util, DistributionProtocol, DistributionOrder, Specimen, ExtensionsUtil,
     SpecimensHolder, Alerts, DeleteUtil, SpecimenLabelPrinter, ParticipantSpecimensViewState,
-    AuthorizationService) {
+    AuthorizationService, SettingUtil) {
 
     function initOpts(scope, element, attrs) {
       scope.title = attrs.title || 'specimens.ops';
@@ -200,6 +200,10 @@ angular.module('os.biospecimen.specimen')
           Alerts.success('orders.creation_success', createdOrder);
           ParticipantSpecimensViewState.specimensUpdated(scope, {inline: true});
           scope.initList();
+        },
+
+        function(errResp) {
+          Util.showErrorMsg(errResp);
         }
       );
     }
@@ -252,6 +256,7 @@ angular.module('os.biospecimen.specimen')
         specimens: '&',
         initList: '&',
         resourceOpts: '=?',
+        cart: '=?',
         beforeNav: '&'
       },
 
@@ -262,7 +267,7 @@ angular.module('os.biospecimen.specimen')
 
         initOpts(scope, element, attrs);
 
-        function gotoView(state, params, msgCode, anyStatus) {
+        function gotoView(state, params, msgCode, anyStatus, excludeExtensions) {
           var selectedSpmns = scope.specimens({anyStatus: anyStatus});
           if (!selectedSpmns || selectedSpmns.length == 0) {
             Alerts.error('specimen_list.' + msgCode);
@@ -270,7 +275,7 @@ angular.module('os.biospecimen.specimen')
           }
 
           var specimenIds = selectedSpmns.map(function(spmn) {return spmn.id});
-          Specimen.getByIds(specimenIds, true).then(
+          Specimen.getByIds(specimenIds, excludeExtensions != true).then(
             function(spmns) {
               angular.forEach(spmns, function(spmn) { ExtensionsUtil.createExtensionFieldMap(spmn, true); });
               SpecimensHolder.setSpecimens(spmns);
@@ -355,7 +360,23 @@ angular.module('os.biospecimen.specimen')
 
         scope.distributeSpecimens = function() {
           if (!scope.cp) {
-            gotoView('order-addedit', {orderId: ''}, 'no_specimens_for_distribution', false);
+            var selectedSpmns = scope.specimens({anyStatus: false});
+            if (!selectedSpmns || selectedSpmns.length == 0) {
+              Alerts.error('specimen_list.no_specimens_for_distribution');
+              return;
+            }
+
+            SettingUtil.getSetting('administrative', 'max_order_spmns_ui_limit').then(
+              function(setting) {
+                var maxSpmnsLimit = (setting.value && +setting.value) || 100;
+                gotoView(
+                  'order-addedit',
+                  angular.extend({orderId: ''}, scope.cart ? {clearFromCart: scope.cart.id } : {}),
+                  'no_specimens_for_distribution',
+                  false,
+                  selectedSpmns.length > maxSpmnsLimit);
+              }
+            );
           } else {
             var selectedSpmns = scope.specimens({anyStatus: false});
             if (!selectedSpmns || selectedSpmns.length == 0) {

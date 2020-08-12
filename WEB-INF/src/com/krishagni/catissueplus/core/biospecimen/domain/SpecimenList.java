@@ -120,13 +120,7 @@ public class SpecimenList extends BaseEntity {
 	
 	public void updateSharedUsers(Collection<User> users) {
 		sharedWith.retainAll(users);
-
-		for (User user : users) {
-			if (!sharedWith.contains(user)) {
-				sharedWith.add(user);
-			}
-		}
-
+		sharedWith.addAll(users);
 		setLastUpdatedOn(Calendar.getInstance().getTime());
 	}
 		
