@@ -105,6 +105,12 @@
       <os-plugin-hooks view-name="'query-results'" sec-name="'page-header'"></os-plugin-hooks>
 
       <os-help class="os-btns btn default" link="query_results_help_link"></os-help>
+
+      <div style="display: inline-block;" ng-if="selectedRows.length > 0">
+        <div class="alert alert-info os-lean-box">
+          <span> {{'common.items_selected_info' | translate: {count: selectedRows.length} }} </span>
+        </div>
+      </div>
     </div>
   </div>
 

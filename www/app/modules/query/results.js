@@ -88,6 +88,14 @@ angular.module('os.query.results', ['os.query.models'])
         counters: {waiting: true, error: false},
       }
 
+      $scope.$on('ngGridEventDigestGridParent',
+        function() {
+          /* Patented idea.
+             This is to trigger a digest cycle when user changes the selection by
+             using up and down arrow keys. */
+          $timeout(function() { }, 0);
+        }
+      );
       executeQuery($stateParams.editMode);
     }
 
