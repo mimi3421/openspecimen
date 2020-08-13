@@ -2213,7 +2213,7 @@
     "update_list": "Update Cart",
     "create_new_list": "Create New",
     "manage_lists": "Manage Carts",
-    "search_list": "Search Cart",
+    "search_list": "Use $$ to search users' default carts",
     "default_list": "My Default Cart",
     "view_default_list": "View My Default Cart",
     "user_default_list": "{{firstName}} {{lastName}}'s Default Cart",
