@@ -511,6 +511,7 @@ angular.module('os.administrative.order.addedit', ['os.administrative.models', '
     $scope.showSpecimens = function() {
       var formCtrl = ctx.extnFormCtrl.ctrl;
       if (formCtrl && !formCtrl.validate()) {
+        Alerts.error('common.form_validation_error');
         return false;
       }
 
