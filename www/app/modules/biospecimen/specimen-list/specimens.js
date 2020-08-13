@@ -108,10 +108,6 @@ angular.module('os.biospecimen.specimenlist')
       });
     }
 
-    $scope.distributeCart = function() {
-      $state.go('order-addedit', {specimenListId: list.id});
-    }
-
     $scope.setListCtrl = function(listCtrl) {
       $scope.ctx.listCtrl = listCtrl;
       $scope.ctx.showSearch = listCtrl.haveFilters;

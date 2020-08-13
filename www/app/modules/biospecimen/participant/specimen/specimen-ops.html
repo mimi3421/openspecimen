@@ -35,10 +35,10 @@
         <span translate="specimen_list.distribute">Distribute</span>
       </a>
     </li>
-    <li show-if-allowed="resourceOpts.orderCreateOpts" ng-if="allowDistribution && !cp">
-      <a ng-click="reserveSpecimens()">
-        <span class="fa fa-ban"></span>
-        <span translate="specimen_list.reserve">Reserve</span>
+    <li ng-if="allowDistribution && cart.id >= 0">
+      <a ng-click="distributeSpecimens(true)">
+        <span class="fa fa-share"></span>
+        <span translate="specimen_list.distribute_all">Distribute All</span>
       </a>
     </li>
     <li show-if-allowed="resourceOpts.shipmentCreateOpts">

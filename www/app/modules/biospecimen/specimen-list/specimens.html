@@ -31,12 +31,6 @@
       <os-specimen-ops specimens="getSelectedSpecimens()" init-list="loadSpecimens()" cart="ctx.list">
       </os-specimen-ops>
 
-      <button show-if-allowed="orderCreateOpts" ng-if="!ctx.reqBasedDistOrShip" class="default"
-        ng-click="distributeCart()">
-        <span class="fa fa-share"></span>
-        <span translate="specimen_list.distribute_all">Distribute All</span>
-      </button>
-
       <os-plugin-hooks view-name="'specimen-list'" sec-name="'page-header'"></os-plugin-hooks>
 
       <div dropdown os-show-if-menu-items-present class="os-inline-btn">

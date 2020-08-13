@@ -73,7 +73,7 @@ angular.module('os.biospecimen.specimen')
       }
     }
 
-    function getDp(scope, hideDistributeBtn) {
+    function getDp(scope, hideDistributeBtn, distList) {
       return $modal.open({
         templateUrl: 'modules/biospecimen/participant/specimen/distribute.html',
         controller: function($scope, $modalInstance) {
@@ -81,6 +81,8 @@ angular.module('os.biospecimen.specimen')
 
           function init() {
             ctx = $scope.ctx = {
+              distList: distList,
+              clearListId: scope.cart && scope.cart.id,
               defDps: undefined,
               dps: [],
               dp: undefined,
@@ -154,21 +156,24 @@ angular.module('os.biospecimen.specimen')
       }).result;
     }
 
-    function selectDpAndDistributeSpmns(scope, specimens, hideDistributeBtn) {
-      getDp(scope, hideDistributeBtn).then(
+    function selectDpAndDistributeSpmns(scope, specimens, hideDistributeBtn, distList) {
+      getDp(scope, hideDistributeBtn, distList).then(
         function(details) {
           if (details.distribute) {
-            var r = specimens.find(function(spmn) { return !spmn.hasOwnProperty('label'); });
-            if (r) { // at least one specimen without label property
-              var spmnIds = specimens.map(function(spmn) {return spmn.id});
-              Specimen.getByIds(spmnIds).then(
-                function(result) {
-                  distributeSpmns(scope, details, result);
-                }
-              );
-            } else {
-              distributeSpmns(scope, details, specimens);
+            if (specimens) {
+              var r = specimens.find(function(spmn) { return !spmn.hasOwnProperty('label'); });
+              if (r) { // at least one specimen without label property
+                var spmnIds = specimens.map(function(spmn) {return spmn.id});
+                Specimen.getByIds(spmnIds).then(
+                  function(result) {
+                    distributeSpmns(scope, details, result);
+                  }
+                );
+
+                return;
+              }
             }
+            distributeSpmns(scope, details, specimens);
           } else {
             reserveSpmns(scope, details, specimens);
           }
@@ -177,9 +182,23 @@ angular.module('os.biospecimen.specimen')
     }
 
     function distributeSpmns(scope, details, specimens) {
+      var specimenListId;
+      if ((!specimens || specimens.length == 0) && scope.cart && scope.cart.id >= 0) {
+        specimenListId = scope.cart.id;
+      }
+
       if (details.editOrder) {
         SpecimensHolder.setSpecimens(specimens, details);
-        navTo(scope, 'order-addedit', {dpId: details.dp.id});
+        navTo(
+          scope,
+          'order-addedit',
+          {
+            dpId: details.dp.id,
+            clearFromCart: details.clearListId,
+            clearCart: details.clearListMode,
+            specimenListId: specimenListId
+          }
+        );
         return;
       }
 
@@ -192,12 +211,20 @@ angular.module('os.biospecimen.specimen')
         distributionProtocol: dp,
         requester: dp.principalInvestigator,
         siteName: dp.defReceivingSiteName,
+        specimenList: {id: specimenListId},
+        clearListId: details.clearListId,
+        clearListMode: details.clearListMode,
         orderItems: getOrderItems(specimens, details.printLabels),
         comments: details.comments,
         status: 'EXECUTED'
       }).$saveOrUpdate().then(
         function(createdOrder) {
-          Alerts.success('orders.creation_success', createdOrder);
+          if (createdOrder.completed) {
+            Alerts.success('orders.creation_success', createdOrder);
+          } else {
+            Alerts.info('orders.more_time');
+          }
+
           ParticipantSpecimensViewState.specimensUpdated(scope, {inline: true});
           scope.initList();
         },
@@ -209,7 +236,7 @@ angular.module('os.biospecimen.specimen')
     }
 
     function getOrderItems(specimens, printLabel) {
-      return specimens.map(
+      return (specimens || []).map(
         function(specimen) {
           return {
             specimen: specimen,
@@ -358,34 +385,17 @@ angular.module('os.biospecimen.specimen')
           );
         };
 
-        scope.distributeSpecimens = function() {
-          if (!scope.cp) {
-            var selectedSpmns = scope.specimens({anyStatus: false});
+        scope.distributeSpecimens = function(distAll) {
+          var selectedSpmns = undefined;
+          if (!scope.cart || !distAll) {
+            selectedSpmns = scope.specimens({anyStatus: false});
             if (!selectedSpmns || selectedSpmns.length == 0) {
               Alerts.error('specimen_list.no_specimens_for_distribution');
               return;
             }
-
-            SettingUtil.getSetting('administrative', 'max_order_spmns_ui_limit').then(
-              function(setting) {
-                var maxSpmnsLimit = (setting.value && +setting.value) || 100;
-                gotoView(
-                  'order-addedit',
-                  angular.extend({orderId: ''}, scope.cart ? {clearFromCart: scope.cart.id } : {}),
-                  'no_specimens_for_distribution',
-                  false,
-                  selectedSpmns.length > maxSpmnsLimit);
-              }
-            );
-          } else {
-            var selectedSpmns = scope.specimens({anyStatus: false});
-            if (!selectedSpmns || selectedSpmns.length == 0) {
-              Alerts.error('specimen_list.no_specimens_for_distribution');
-              return;
-            }
-
-            selectDpAndDistributeSpmns(scope, selectedSpmns);
           }
+
+          selectDpAndDistributeSpmns(scope, selectedSpmns, false, scope.cart && distAll);
         }
 
         scope.reserveSpecimens = function() {
