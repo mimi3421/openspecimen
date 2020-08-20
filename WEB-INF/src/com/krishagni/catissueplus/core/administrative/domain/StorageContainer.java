@@ -635,15 +635,7 @@ public class StorageContainer extends BaseExtensionEntity {
 	}
 
 	public List<StorageContainer> getChildContainersSortedByPosition() {
-		return getChildContainers().stream()
-			.sorted((c1, c2) -> {
-				if (isDimensionless()) {
-					return c1.getId().compareTo(c2.getId());
-				} else {
-					return c1.getPosition().getPosition().compareTo(c2.getPosition().getPosition());
-				}
-			})
-			.collect(Collectors.toList());
+		return sort(this, getChildContainers());
 	}
 
 	public Set<Integer> occupiedPositionsOrdinals() {
@@ -1272,6 +1264,18 @@ public class StorageContainer extends BaseExtensionEntity {
 
 	public static String getReservationId() {
 		return UUID.randomUUID().toString();
+	}
+
+	public static List<StorageContainer> sort(StorageContainer parent, Collection<StorageContainer> containers) {
+		return containers.stream()
+			.sorted((c1, c2) -> {
+				if (parent.isDimensionless()) {
+					return c1.getId().compareTo(c2.getId());
+				} else {
+					return c1.getPosition().getPosition().compareTo(c2.getPosition().getPosition());
+				}
+			})
+			.collect(Collectors.toList());
 	}
 
 	private void deleteWithoutCheck() {

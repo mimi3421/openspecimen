@@ -497,6 +497,27 @@ public class StorageContainerDaoImpl extends AbstractDao<StorageContainer> imple
 			.list();
 	}
 
+	@Override
+	public List<StorageContainerSummary> getUtilisations(Collection<Long> containerIds) {
+		List<Object[]> rows = getCurrentSession().getNamedQuery(GET_CONTAINER_UTILISATION)
+			.setParameterList("containerIds", containerIds)
+			.list();
+
+		return rows.stream().map(
+			row -> {
+				int idx = -1;
+
+				StorageContainerSummary summary = new StorageContainerSummary();
+				summary.setId((Long) row[++idx]);
+				summary.setName((String) row[++idx]);
+				summary.setNoOfRows((Integer) row[++idx]);
+				summary.setNoOfColumns((Integer) row[++idx]);
+				summary.setUsedPositions((Integer) row[++idx]);
+				return summary;
+			}
+		).collect(Collectors.toList());
+	}
+
 	@SuppressWarnings("unchecked")
 	private Map<String, List<String>> getInvalidSpecimens(List<Long> containerIds, DetachedCriteria validSpmnsQuery, int firstN) {
 		List<Object[]> rows = getCurrentSession().createCriteria(Specimen.class, "specimen")
@@ -995,4 +1016,6 @@ public class StorageContainerDaoImpl extends AbstractDao<StorageContainer> imple
 	private static final String GET_DESCENDANT_CONTAINER_IDS = FQN + ".getDescendantContainerIds";
 
 	private static final String GET_SHIPPED_CONTAINERS = FQN + ".getShippedContainers";
+
+	private static final String GET_CONTAINER_UTILISATION = FQN + ".getContainersUtilisation";
 }

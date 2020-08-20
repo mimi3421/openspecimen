@@ -51,6 +51,8 @@ public class StorageContainerSummary extends AttributeModifiedSupport {
 	private String rowLabelingScheme;
 
 	private Integer freePositions;
+
+	private Integer usedPositions;
 	
 	private Boolean storeSpecimensEnabled;
 
@@ -198,6 +200,14 @@ public class StorageContainerSummary extends AttributeModifiedSupport {
 
 	public void setFreePositions(Integer freePositions) {
 		this.freePositions = freePositions;
+	}
+
+	public Integer getUsedPositions() {
+		return usedPositions;
+	}
+
+	public void setUsedPositions(Integer usedPositions) {
+		this.usedPositions = usedPositions;
 	}
 
 	@JsonProperty

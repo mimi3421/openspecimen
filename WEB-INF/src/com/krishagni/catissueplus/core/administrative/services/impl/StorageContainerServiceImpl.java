@@ -62,8 +62,7 @@ import com.krishagni.catissueplus.core.administrative.events.VacantPositionsOp;
 import com.krishagni.catissueplus.core.administrative.repository.ContainerStoreListCriteria;
 import com.krishagni.catissueplus.core.administrative.repository.StorageContainerListCriteria;
 import com.krishagni.catissueplus.core.administrative.repository.UserListCriteria;
-import com.krishagni.catissueplus.core.administrative.services.ContainerDefragmenter;
-import com.krishagni.catissueplus.core.administrative.services.ContainerMapExporter;
+import com.krishagni.catissueplus.core.administrative.services.ContainerReport;
 import com.krishagni.catissueplus.core.administrative.services.ContainerSelectionRule;
 import com.krishagni.catissueplus.core.administrative.services.ContainerSelectionStrategy;
 import com.krishagni.catissueplus.core.administrative.services.ContainerSelectionStrategyFactory;
@@ -78,7 +77,6 @@ import com.krishagni.catissueplus.core.biospecimen.events.SpecimenInfo;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.biospecimen.repository.SpecimenListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.services.SpecimenResolver;
-import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.RollbackTransaction;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
@@ -128,7 +126,13 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 	
 	private StorageContainerFactory containerFactory;
 	
-	private ContainerMapExporter mapExporter;
+	private ContainerReport mapExporter;
+
+	private ContainerReport emptyPositionsReport;
+
+	private ContainerReport utilisationReport;
+
+	private ContainerReport defragReport;
 
 	private LabelGenerator nameGenerator;
 
@@ -166,8 +170,20 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 		this.containerFactory = containerFactory;
 	}
 	
-	public void setMapExporter(ContainerMapExporter mapExporter) {
+	public void setMapExporter(ContainerReport mapExporter) {
 		this.mapExporter = mapExporter;
+	}
+
+	public void setEmptyPositionsReport(ContainerReport emptyPositionsReport) {
+		this.emptyPositionsReport = emptyPositionsReport;
+	}
+
+	public void setUtilisationReport(ContainerReport utilisationReport) {
+		this.utilisationReport = utilisationReport;
+	}
+
+	public void setDefragReport(ContainerReport defragReport) {
+		this.defragReport = defragReport;
 	}
 
 	public void setNameGenerator(LabelGenerator nameGenerator) {
@@ -365,21 +381,18 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 	}
 	
 	@Override
-	@PlusTransactional
 	public ResponseEvent<ExportedFileDetail> exportMap(RequestEvent<ContainerQueryCriteria> req) {
-		try {
-			StorageContainer container = getContainer(req.getPayload());						
-			AccessCtrlMgr.getInstance().ensureReadContainerRights(container);
+		return exportReport(req, mapExporter);
+	}
 
-			if (container.isDimensionless()) {
-				return ResponseEvent.userError(StorageContainerErrorCode.DIMLESS_NO_MAP, container.getName());
-			}
+	@Override
+	public ResponseEvent<ExportedFileDetail> exportEmptyPositions(RequestEvent<ContainerQueryCriteria> req) {
+		return exportReport(req, emptyPositionsReport);
+	}
 
-			File file = mapExporter.exportToFile(container);
-			return ResponseEvent.response(new ExportedFileDetail(container.getName(), file));
-		} catch (Exception e) {
-			return ResponseEvent.serverError(e);
-		}
+	@Override
+	public ResponseEvent<ExportedFileDetail> exportUtilisation(RequestEvent<ContainerQueryCriteria> req) {
+		return exportReport(req, utilisationReport);
 	}
 
 	@Override
@@ -776,53 +789,39 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 
 	@Override
 	@PlusTransactional
-	public ResponseEvent<ContainerDefragDetail> defragment(RequestEvent<ContainerDefragDetail> req) {
-		try {
-			ContainerDefragDetail detail = req.getPayload();
-			StorageContainer container = getContainer(detail.getId(), detail.getName());
-			AccessCtrlMgr.getInstance().ensureUpdateContainerRights(container);
-
-			User user = AuthUtil.getCurrentUser();
-			Future<ContainerDefragDetail> result = taskExecutor.submit(
-				() -> generateDefragReport(detail, user, container)
-			);
-
-			try {
-				return ResponseEvent.response(result.get(30, TimeUnit.SECONDS));
-			} catch (TimeoutException te) {
-				return ResponseEvent.response(null);
-			} catch (OpenSpecimenException ose) {
-				return ResponseEvent.error(ose);
-			} catch (Exception e) {
-				return ResponseEvent.serverError(e);
-			}
-		} catch (OpenSpecimenException ose) {
-			return ResponseEvent.error(ose);
-		} catch (Exception e) {
-			return ResponseEvent.serverError(e);
+	public ResponseEvent<ExportedFileDetail> defragment(RequestEvent<ContainerDefragDetail> req) {
+		ContainerDefragDetail input = req.getPayload();
+		ContainerQueryCriteria crit = null;
+		if (input.getId() != null) {
+			crit = new ContainerQueryCriteria(input.getId());
+		} else {
+			crit = new ContainerQueryCriteria(input.getName());
 		}
+
+		return exportReport(RequestEvent.wrap(crit), defragReport, input);
 	}
 
 	@Override
-	public ResponseEvent<FileDetail> getDefragReport(RequestEvent<String> req) {
+	public ResponseEvent<FileDetail> getReport(RequestEvent<String> req) {
 		String fileId = req.getPayload();
-		String[] parts = fileId.split("_", 3); // <uuid_userid_name>
-		if (parts.length < 3) {
+		String[] parts = fileId.split("_", 4); // <extn_uuid_userid_name>
+		if (parts.length < 4) {
 			return ResponseEvent.userError(CommonErrorCode.INVALID_INPUT, fileId);
 		}
 
-		if (!parts[1].equals(AuthUtil.getCurrentUser().getId().toString())) {
+		if (!parts[2].equals(AuthUtil.getCurrentUser().getId().toString())) {
 			return ResponseEvent.userError(RbacErrorCode.ACCESS_DENIED);
 		}
 
-		File rptFile = new File(ConfigUtil.getInstance().getReportsDir(), fileId + ".zip");
+		String filename = String.join("_", parts[0], parts[1], parts[2], parts[3]) + "." + parts[0];
+		File rptFile = new File(ConfigUtil.getInstance().getReportsDir(), filename);
 		if (!rptFile.exists()) {
 			return ResponseEvent.userError(CommonErrorCode.FILE_NOT_FOUND, fileId);
 		}
 
 		FileDetail result = new FileDetail();
-		result.setContentType("application/zip");
-		result.setFilename(parts[2] + ".zip");
+		result.setContentType(Utility.getContentType(rptFile));
+		result.setFilename(parts[3] + "." + parts[0]);
 		result.setFileOut(rptFile);
 		return ResponseEvent.response(result);
 	}
@@ -1567,6 +1566,48 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 		return site;
 	}
 
+	@PlusTransactional
+	private ResponseEvent<ExportedFileDetail> exportReport(RequestEvent<ContainerQueryCriteria> req, ContainerReport report, Object... params) {
+		try {
+			StorageContainer container = getContainer(req.getPayload());
+			AccessCtrlMgr.getInstance().ensureReadContainerRights(container);
+			User user = AuthUtil.getCurrentUser();
+			Future<ExportedFileDetail> result = taskExecutor.submit(
+				() -> {
+					Throwable t = null;
+					String fileId = null;
+					try {
+						AuthUtil.setCurrentUser(user);
+						ExportedFileDetail file = report.generate(container, params);
+						fileId = file != null ? file.getName() : null;
+						return file;
+					} catch (Throwable e) {
+						t = e;
+						throw e;
+					} finally {
+						sendReportEmail(report.getName(), user, container, fileId, t);
+					}
+				}
+			);
+
+			try {
+				return ResponseEvent.response(result.get(30, TimeUnit.SECONDS));
+			} catch (TimeoutException te) {
+				return ResponseEvent.response(null);
+			} catch (OpenSpecimenException ose) {
+				return ResponseEvent.error(ose);
+			} catch (Exception e) {
+				return ResponseEvent.serverError(e);
+			}
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
+		} catch (Exception e) {
+			return ResponseEvent.serverError(e);
+		}
+	}
+
+
+
 	private QueryDataExportResult exportResult(final StorageContainer container, SavedQuery query) {
 		Filter filter = new Filter();
 		filter.setField("Specimen.specimenPosition.allAncestors.ancestorId");
@@ -1865,47 +1906,7 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 		}
 	}
 
-	private ContainerDefragDetail generateDefragReport(ContainerDefragDetail detail, User user, StorageContainer container) {
-		String fileId = null;
-		File rptFile = null;
-
-		Throwable exception = null;
-		try {
-			AuthUtil.setCurrentUser(user);
-
-			UUID uuid = UUID.randomUUID();
-			String containerName = container.getName().replaceAll("\\s+", "_");
-			fileId = uuid.toString() + "_" + user.getId() + "_" + containerName;
-
-			rptFile = new File(ConfigUtil.getInstance().getReportsDir(), fileId + ".csv");
-			ContainerDefragmenter defragmenter = new DefaultContainerDefragmenter(rptFile, detail.isAliquotsInSameContainer());
-			int movedSpmnsCnt = defragmenter.defragment(container);
-
-			Pair<String, String> fd = Pair.make(rptFile.getAbsolutePath(), containerName + ".csv");
-			String zipFilePath = new File(rptFile.getParentFile(), fileId + ".zip").getAbsolutePath();
-			Utility.zipFilesWithNames(Collections.singletonList(fd), zipFilePath);
-
-			detail.setFileId(fileId);
-			detail.setMovedSpecimensCount(movedSpmnsCnt);
-			return detail;
-		} catch (OpenSpecimenException ose) {
-			exception = ose;
-			logger.error("Error generating defrag report for " + container.getName(), ose);
-			throw ose;
-		} catch (Exception e) {
-			exception = e;
-			logger.info("Error generating defrag report for " + container.getName(), e);
-			throw OpenSpecimenException.serverError(e);
-		} finally {
-			if (rptFile != null) {
-				rptFile.delete();
-			}
-
-			sendDefragReport(user, container, fileId, exception);
-		}
-	}
-
-	private void sendDefragReport(User user, StorageContainer container, String fileId, Throwable exception) {
+	private void sendReportEmail(String report, User user, StorageContainer container, String fileId, Throwable exception) {
 		String error = null;
 		if (exception != null) {
 			Throwable rootCause = ExceptionUtils.getRootCause(exception);
@@ -1915,13 +1916,15 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 			error = ExceptionUtils.getStackTrace(rootCause);
 		}
 
+		report = MessageUtil.getInstance().getMessage(report);
 		Map<String, Object> props = new HashMap<>();
-		props.put("$subject", new String[] { container.getName() });
+		props.put("$subject", new String[] { report.toLowerCase(), container.getName() });
+		props.put("report", report.toLowerCase());
 		props.put("fileId", fileId);
 		props.put("error", error);
 		props.put("rcpt", user);
 		props.put("container", container);
-		EmailUtil.getInstance().sendEmail(DEFRAG_RPT, new String[] { user.getEmailAddress() }, null, props);
+		EmailUtil.getInstance().sendEmail(RPT_EMAIL_TMPL, new String[] { user.getEmailAddress() }, null, props);
 	}
 
 	private String msg(String code) {
@@ -1932,5 +1935,5 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 
 	private final static String AUTO_FREEZER_FAILED_OPS_RPT = "auto_freezer_failed_ops";
 
-	private final static String DEFRAG_RPT                  = "container_defrag_report";
+	private final static String RPT_EMAIL_TMPL              = "container_report";
 }

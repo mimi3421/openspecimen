@@ -1540,7 +1540,7 @@
       "report_gen_initiated": "Generating container specimens report...",
       "downloading_report": "Downloading container specimens report...",
       "report_will_be_emailed": "Generating container specimens report is taking more time than anticipated. Link to download report will be sent to you by email",
-      "no_specimens_for_specimen_list": "Please select atleast one specimen to add to cart"
+      "no_specimens_for_specimen_list": "Please select at least one specimen to add to cart"
     },
 
     "replication_count": "Enter number of containers to create",
@@ -1583,6 +1583,27 @@
       "initiated": "Generating defragmentation report...",
       "downloading": "Downloading the defragmentation report...",
       "will_be_emailed": "Defragmentation report generation is taking more time. Link to download the report will be sent to you by email."
+    },
+
+    "map": "Map",
+    "map_rpt": {
+      "initiated": "Generating container map...",
+      "downloading": "Downloading the container map...",
+      "will_be_emailed": "Container map generation is taking more time. Link to download the map will be sent to you by email."
+    },
+
+    "empty_positions": "Empty Positions",
+    "empty_positions_rpt": {
+      "initiated": "Generating empty positions report...",
+      "downloading": "Downloading the empty positions report...",
+      "will_be_emailed": "Empty positions report generation is taking more time. Link to download the report will be sent to you by email."
+    },
+
+    "utilisation_exp": "Utilisation",
+    "utilisation_rpt": {
+      "initiated": "Generating utilisation report...",
+      "downloading": "Downloading the utilisation report...",
+      "will_be_emailed": "Utilisation report generation is taking more time. Link to download the report will be sent to you by email."
     },
 
     "maintenance": {

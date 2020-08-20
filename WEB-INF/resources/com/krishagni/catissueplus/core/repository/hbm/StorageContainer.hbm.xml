@@ -392,5 +392,24 @@
         d.activity_status != 'Disabled' and
         a.identifier != d.identifier
     </sql-query>
+
+    <sql-query name="getContainersUtilisation">
+      <return-scalar column="identifier" type="long"/>
+      <return-scalar column="name" type="string"/>
+      <return-scalar column="no_of_rows" type="integer"/>
+      <return-scalar column="no_of_cols" type="integer"/>
+      <return-scalar column="occupied" type="integer"/>
+
+      select
+        b.identifier, b.name, b.no_of_rows, b.no_of_cols, count(p.identifier) as occupied
+      from
+        os_storage_containers b
+        left join os_container_positions p on p.storage_container_id = b.identifier
+      where
+        b.identifier in (:containerIds) and
+        b.activity_status != 'Disabled'
+      group by
+        b.identifier, b.name, b.no_of_rows, b.no_of_cols
+    </sql-query>
   </class>
 </hibernate-mapping>

@@ -59,6 +59,10 @@ public interface StorageContainerService {
 	ResponseEvent<Boolean> isAllowed(RequestEvent<TenantDetail> req);
 	
 	ResponseEvent<ExportedFileDetail> exportMap(RequestEvent<ContainerQueryCriteria> req);
+
+	ResponseEvent<ExportedFileDetail> exportEmptyPositions(RequestEvent<ContainerQueryCriteria> req);
+
+	ResponseEvent<ExportedFileDetail> exportUtilisation(RequestEvent<ContainerQueryCriteria> req);
 	
 	ResponseEvent<List<StorageContainerPositionDetail>> assignPositions(RequestEvent<PositionsDetail> req);
 		
@@ -97,9 +101,9 @@ public interface StorageContainerService {
 	//
 	// defrag
 	//
-	ResponseEvent<ContainerDefragDetail> defragment(RequestEvent<ContainerDefragDetail> req);
+	ResponseEvent<ExportedFileDetail> defragment(RequestEvent<ContainerDefragDetail> req);
 
-	ResponseEvent<FileDetail> getDefragReport(RequestEvent<String> req);
+	ResponseEvent<FileDetail> getReport(RequestEvent<String> req);
 
 	//
 	// Mostly present to implement UI tree for faster access

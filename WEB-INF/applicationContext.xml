@@ -576,10 +576,6 @@
     <property name="daoFactory" ref="biospecimenDaoFactory"/>
   </bean>
 
-  <bean id="containerMapExporter" class="com.krishagni.catissueplus.core.administrative.services.impl.ContainerMapExporterImpl">
-    <property name="messageSource" ref="messageSource"/>
-  </bean>
-
   <bean id="containerSelectionStrategyFactory" class="com.krishagni.catissueplus.core.administrative.services.impl.ContainerSelectionStrategyFactoryImpl">
     <property name="strategyClasses">
       <map>
@@ -598,7 +594,26 @@
     <property name="daoFactory" ref="biospecimenDaoFactory"/>
     <property name="deDaoFactory" ref="deDaoFactory"/>
     <property name="containerFactory" ref="storageContainerFactory"/>
-    <property name="mapExporter" ref="containerMapExporter"/>
+    <property name="mapExporter">
+      <bean class="com.krishagni.catissueplus.core.administrative.services.impl.ContainerMapReport">
+        <property name="daoFactory" ref="biospecimenDaoFactory"/>
+      </bean>
+    </property>
+    <property name="emptyPositionsReport">
+      <bean class="com.krishagni.catissueplus.core.administrative.services.impl.ContainerEmptyPositionsReport">
+        <property name="daoFactory" ref="biospecimenDaoFactory"/>
+      </bean>
+    </property>
+    <property name="utilisationReport">
+      <bean class="com.krishagni.catissueplus.core.administrative.services.impl.ContainerUtilisationReport">
+        <property name="daoFactory" ref="biospecimenDaoFactory"/>
+      </bean>
+    </property>
+    <property name="defragReport">
+      <bean class="com.krishagni.catissueplus.core.administrative.services.impl.ContainerDefragReport">
+        <property name="daoFactory" ref="biospecimenDaoFactory"/>
+      </bean>
+    </property>
     <property name="nameGenerator" ref="containerNameGenerator"/>
     <property name="specimenResolver" ref="specimenResolver"/>
     <property name="selectionStrategyFactory" ref="containerSelectionStrategyFactory"/>

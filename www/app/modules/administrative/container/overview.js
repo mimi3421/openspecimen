@@ -21,18 +21,27 @@ angular.module('os.administrative.container.overview', ['os.administrative.model
       return nodes;
     }
 
-    function defragment(container, aliquotsInSameContainer) {
-      var alert = Alerts.info('container.defragment_rpt.initiated', {}, false);
-      container.generateDefragReport(aliquotsInSameContainer).then(
+    function exportReport(exporter, msgKey) {
+      var alert = Alerts.info('container.' + msgKey + '.initiated', {}, false);
+      exporter().then(
         function(result) {
           Alerts.remove(alert);
           if (result.fileId) {
-            Alerts.info('container.defragment_rpt.downloading');
-            Util.downloadFile(ApiUrls.getBaseUrl() + 'storage-containers/defragment-report?fileId=' + result.fileId);
+            Alerts.info('container.' + msgKey + '.downloading');
+            Util.downloadFile(ApiUrls.getBaseUrl() + 'storage-containers/report?fileId=' + result.fileId);
           } else {
-            Alerts.info('container.defragment_rpt.will_be_emailed');
+            Alerts.info('container.' + msgKey + '.will_be_emailed');
           }
         }
+      );
+    }
+
+    function defragment(container, aliquotsInSameContainer) {
+      exportReport(
+        function() {
+          return container.generateDefragReport(aliquotsInSameContainer);
+        },
+        'defragment_rpt'
       );
     }
 
@@ -106,6 +115,33 @@ angular.module('os.administrative.container.overview', ['os.administrative.model
           }
         }
       });
+    }
+
+    $scope.exportMap = function() {
+      exportReport(
+        function() {
+          return container.generateMap();
+        },
+        'map_rpt'
+      );
+    }
+
+    $scope.exportEmptyPositionsReport = function() {
+      exportReport(
+        function() {
+          return container.generateEmptyPositionsReport();
+        },
+        'empty_positions_rpt'
+      );
+    }
+
+    $scope.exportUtilisationReport = function() {
+      exportReport(
+        function() {
+          return container.generateUtilisationReport();
+        },
+        'utilisation_rpt'
+      );
     }
 
     init();

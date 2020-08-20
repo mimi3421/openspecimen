@@ -14,28 +14,34 @@
         <span class="fa fa-trash"></span>
         <span translate="common.buttons.delete">Delete</span>
       </button>
+      <button class="default" ng-click="printLabel()">
+        <span class="fa fa-print"></span>
+        <span translate="common.buttons.print">Print</span>
+      </button>
       <div dropdown class="os-inline-btn">
         <button class="btn btn-default dropdown-toggle default">
-          <span translate="common.buttons.more">More</span>
+          <span translate="common.buttons.export">Export</span>
           <span class="fa fa-caret-down"></span>
         </button>
         <ul class="dropdown-menu">
+          <li ng-if="!ctx.dimless">
+            <a ng-click="exportMap()">
+              <span translate="container.map">Map</span>
+            </a>
+          </li>
           <li show-if-allowed="containerResource.updateOpts">
             <a ng-click="defragment()">
-              <span class="fa fa-cubes" style="padding-right: 7px;"></span>
               <span translate="container.defragment">Defragment</span>
             </a>
           </li>
-          <li ng-if="!ctx.dimless">
-            <a href="{{ctx.downloadUri}}" target="_blank" rel="noopener">
-              <span class="fa fa-download"></span>
-              <span translate="common.buttons.export">Export</span>
+          <li>
+            <a ng-click="exportEmptyPositionsReport()">
+              <span translate="container.empty_positions">Empty Positions</span>
             </a>
           </li>
           <li>
-            <a ng-click="printLabel()">
-              <span class="fa fa-print"></span>
-              <span translate="common.buttons.print">Print</span>
+            <a ng-click="exportUtilisationReport()">
+              <span translate="container.utilisation_exp">Utilisation</span>
             </a>
           </li>
         </ul>

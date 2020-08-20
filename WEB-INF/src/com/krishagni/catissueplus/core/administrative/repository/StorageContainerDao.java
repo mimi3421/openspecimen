@@ -64,5 +64,7 @@ public interface StorageContainerDao extends Dao<StorageContainer> {
 	Map<Long, List<Long>> getDescendantContainerIds(Collection<Long> containerIds);
 
 	List<StorageContainer> getShippedContainers(Collection<Long> containerIds);
+
+	List<StorageContainerSummary> getUtilisations(Collection<Long> containerIds);
 }
 	
