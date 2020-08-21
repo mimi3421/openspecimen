@@ -446,14 +446,28 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 		Session session = getCurrentSession();
 		session.disableFilter("activeForms");
 
-		FormContextBean fc = (FormContextBean) session.createCriteria(FormContextBean.class, "fc")
+		List<FormContextBean> fcs = session.createCriteria(FormContextBean.class, "fc")
 			.add(Restrictions.eq("fc.containerId", formId))
 			.add(Restrictions.eq("fc.cpId", cpId))
 			.add(Restrictions.eq("fc.entityType", entity))
-			.uniqueResult();
-
+			.list();
 		session.enableFilter("activeForms");
-		return fc;
+
+		fcs.sort((f1, f2) -> {
+			if (f1.getDeletedOn() == null && f2.getDeletedOn() != null) {
+				return -1;
+			} else if (f1.getDeletedOn() != null && f2.getDeletedOn() == null) {
+				return 1;
+			} else if (f1.getDeletedOn() != null && f2.getDeletedOn() != null) {
+				return f2.getDeletedOn().compareTo(f1.getDeletedOn());
+			} else if (f1.getDeletedOn() == null && f2.getDeletedOn() == null) {
+				return f2.getIdentifier().compareTo(f1.getIdentifier());
+			}
+
+			return 0;
+		});
+
+		return !fcs.isEmpty() ? fcs.get(0) : null;
 	}
 
 	@Override
