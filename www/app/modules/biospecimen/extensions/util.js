@@ -67,8 +67,10 @@ angular.module('os.biospecimen.extensions.util', [])
           } else if (!!attr.value || attr.value === 0) {
             attr.value = new Date(attr.value);
           }
-        } else if (sdeMode && attr.type == 'pvField') {
-          attr.value = attr.displayValue;
+        } else if (sdeMode) {
+          if (attr.type == 'pvField' || attr.type == 'siteField') {
+            attr.value = attr.displayValue;
+          }
         }
 
         extensionDetail.attrsMap[attr.name] = attr.type != 'subForm' ? attr.value : getSubformFieldMap(attr, sdeMode);
