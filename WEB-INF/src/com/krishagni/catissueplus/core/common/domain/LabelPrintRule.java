@@ -194,8 +194,8 @@ public abstract class LabelPrintRule {
 				LabelTmplToken token = tokenArgs.first();
 				List<String> args = tokenArgs.second();
 
-				String name = token.getName();
-				if (name.equals("eval") && args.size() > 1) {
+				String name = token.getName().toLowerCase();
+				if (args.size() > 1 && (name.equals("eval") || name.equals("custom_field"))) {
 					name = args.get(0).replaceAll("^\"|\"$", "");
 					args = args.subList(1, args.size());
 				} else {
