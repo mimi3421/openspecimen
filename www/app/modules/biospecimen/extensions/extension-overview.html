@@ -2,7 +2,7 @@
   <div class="os-content">
     <ul class="os-key-values" ng-class="{'os-one-col': showColumn == 1, 'os-two-cols': showColumn == 2}">
       <li class="item" ng-repeat="attr in extObject.attrs | filter: {type: '!subForm'}" ng-if="!!attr.value || attr.value === 0">
-        <strong class="key key-sm">{{attr.caption}}</strong>
+        <strong class="key key-sm" os-unsafe-html="attr.caption"></strong>
         <span class="value value-md">
           <span ng-include src="'modules/biospecimen/extensions/display-value'"></span>
         </span>
@@ -23,7 +23,7 @@
           <thead class="os-table-head">
             <tr class="row">
               <th class="col" ng-repeat="attr in sf.value[0]">
-                <span>{{attr.caption}}</span>
+                <span os-unsafe-html="attr.caption"></span>
               </th>
             </tr>
           </thead>
