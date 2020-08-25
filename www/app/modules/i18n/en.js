@@ -2542,9 +2542,9 @@
   },
 
   "audit": {
-    "activity": "Activity",
-    "created_by": "Created By",
-    "created_on": "Created On",
+    "activity": "Audit Trail",
+    "created_by": "Entered By",
+    "created_on": "Entered On",
     "updated_by": "Updated By",
     "updated_on": "Updated On",
     "no_of_revisions": "Number of Revisions",
