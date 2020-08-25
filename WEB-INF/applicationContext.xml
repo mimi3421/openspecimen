@@ -558,6 +558,7 @@
         <bean class="com.krishagni.catissueplus.core.administrative.print.container.NamePrintToken"/>
         <bean class="com.krishagni.catissueplus.core.administrative.print.container.SiteCodePrintToken"/>
         <bean class="com.krishagni.catissueplus.core.administrative.print.container.TypePrintToken"/>
+        <bean class="com.krishagni.catissueplus.core.biospecimen.print.CustomFieldPrintToken"/>
         <bean class="com.krishagni.catissueplus.core.biospecimen.print.EvalExprPrintToken">
           <property name="objectName" value="container"/>
         </bean>
@@ -882,6 +883,7 @@
         <bean class="com.krishagni.catissueplus.core.biospecimen.print.SpecimenCollectionContainerPrintToken"/>
         <bean class="com.krishagni.catissueplus.core.biospecimen.print.VisitDatePrintToken"/>
         <bean class="com.krishagni.catissueplus.core.biospecimen.print.VisitNamePrintToken"/>
+        <bean class="com.krishagni.catissueplus.core.biospecimen.print.CustomFieldPrintToken"/>
         <bean class="com.krishagni.catissueplus.core.biospecimen.print.EvalExprPrintToken">
           <property name="objectName" value="specimen"/>
         </bean>
@@ -895,6 +897,7 @@
         <bean class="com.krishagni.catissueplus.core.biospecimen.print.VisitCpShortTitlePrintToken"/>
         <bean class="com.krishagni.catissueplus.core.biospecimen.print.VisitDatePrintToken"/>
         <bean class="com.krishagni.catissueplus.core.biospecimen.print.VisitNamePrintToken"/>
+        <bean class="com.krishagni.catissueplus.core.biospecimen.print.CustomFieldPrintToken"/>
         <bean class="com.krishagni.catissueplus.core.biospecimen.print.EvalExprPrintToken">
           <property name="objectName" value="visit"/>
         </bean>

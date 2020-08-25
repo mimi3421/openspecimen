@@ -27,6 +27,7 @@ import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.service.LabelGenerator;
 import com.krishagni.catissueplus.core.common.util.Status;
 import com.krishagni.catissueplus.core.common.util.Utility;
+import com.krishagni.catissueplus.core.de.domain.DeObject;
 import com.krishagni.catissueplus.core.de.services.impl.FormUtil;
 import com.krishagni.rbac.common.errors.RbacErrorCode;
 
@@ -147,6 +148,15 @@ public class CollectionProtocolRegistration extends BaseEntity {
 
 	public void setExtensionRev(Integer extensionRev) {
 		this.extensionRev = extensionRev;
+	}
+
+	public DeObject getExtension() {
+		if (participant == null) {
+			return null;
+		}
+
+		participant.setCpId(getCollectionProtocol().getId());
+		return participant.getExtension();
 	}
 
 	@NotAudited
