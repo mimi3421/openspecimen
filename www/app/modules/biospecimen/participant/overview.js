@@ -105,10 +105,13 @@ angular.module('os.biospecimen.participant.overview', ['os.biospecimen.models'])
       CollectSpecimensSvc.collectPending(retSt, cp, cpr.id, visit);
     }
 
-    $scope.printSpecimenLabels = function() {
+    $scope.printSpecimenLabels = function(args) {
+      args = args || {};
+      args = angular.extend(args, {cprId: cpr.id});
+
       var ts = Util.formatDate(Date.now(), 'yyyyMMdd_HHmmss');
       var outputFilename = [cpr.cpShortTitle, cpr.ppid, ts].join('_') + '.csv';
-      SpecimenLabelPrinter.printLabels({cprId: cpr.id}, outputFilename);
+      SpecimenLabelPrinter.printLabels(args, outputFilename);
     }
 
     init();
