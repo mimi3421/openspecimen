@@ -274,8 +274,11 @@ public class ScheduledJobServiceImpl implements ScheduledJobService, Application
 				return ResponseEvent.userError(ScheduledJobErrorCode.JOB_RUN_NOT_FOUND);
 			}
 
-			AccessCtrlMgr.getInstance().ensureRunJobRights(jobRun.getScheduledJob());
-			if (!AuthUtil.isAdmin() && !jobRun.getRunBy().equals(AuthUtil.getCurrentUser())) {
+			User currentUser = AuthUtil.getCurrentUser();
+			ScheduledJob job = jobRun.getScheduledJob();
+			if (!AuthUtil.isAdmin() && // not admin
+				!jobRun.getRunBy().equals(currentUser) &&  // not the user who has run the job
+				!job.getRecipients().contains(currentUser)) { // not the user who is in the notif rcpts list
 				return ResponseEvent.userError(ScheduledJobErrorCode.OP_NOT_ALLOWED);
 			}
 

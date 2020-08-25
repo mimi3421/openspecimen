@@ -38,7 +38,7 @@ public class ScheduledJob extends BaseEntity {
 		WEDNESDAY(4),
 		THURSDAY(5),
 		FRIDAY(6),
-		SATRUDAY(7);
+		SATURDAY(7);
 		
 		private final int value;
 		
