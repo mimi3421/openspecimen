@@ -811,6 +811,7 @@ public class CollectionProtocol extends BaseExtensionEntity {
 			throw OpenSpecimenException.userError(CpErrorCode.REF_ENTITY_FOUND);
 		}
 
+		getCollectionProtocolEvents().forEach(CollectionProtocolEvent::delete);
 		setTitle(Utility.getDisabledValue(getTitle(), 255));
 		setShortTitle(Utility.getDisabledValue(getShortTitle(), 50));
 		setCode(Utility.getDisabledValue(getCode(), 32));
