@@ -53,7 +53,10 @@ angular.module('os.administrative.job.addedit', ['os.administrative.models'])
     }
 
     function onQueryTypeSelect() {
-      job.runAs = currentUser;
+      if (!job.id && !job.runAs) {
+        job.runAs = currentUser;
+      }
+
       loadSavedQueries();
     }
 
