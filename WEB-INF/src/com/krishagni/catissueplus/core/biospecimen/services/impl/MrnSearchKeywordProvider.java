@@ -30,6 +30,10 @@ public class MrnSearchKeywordProvider extends AbstractSearchEntityKeywordProvide
 			result.removeAll(participant.getNewCprIds());
 		}
 
+		if (participant.getKwAddedCprIds() != null) {
+			result.removeAll(participant.getKwAddedCprIds());
+		}
+
 		return result;
 	}
 

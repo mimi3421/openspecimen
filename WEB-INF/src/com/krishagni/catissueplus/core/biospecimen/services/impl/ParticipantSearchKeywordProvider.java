@@ -28,6 +28,10 @@ public class ParticipantSearchKeywordProvider extends AbstractSearchEntityKeywor
 			result.removeAll(participant.getNewCprIds());
 		}
 
+		if (participant.getKwAddedCprIds() != null) {
+			result.removeAll(participant.getKwAddedCprIds());
+		}
+
 		return result;
 	}
 

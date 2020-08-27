@@ -84,4 +84,17 @@ public class SearchEntityKeyword extends BaseEntity {
 		setValue(other.getValue());
 		setStatus(other.getStatus());
 	}
+
+	@Override
+	public String toString() {
+		return "SearchEntityKeyword{" +
+			"entity='" + entity + '\'' +
+			", entityId=" + entityId +
+			", key='" + key + '\'' +
+			", value='" + value + '\'' +
+			", status=" + status +
+			", op=" + op +
+			", oldValue='" + oldValue + '\'' +
+			'}';
+	}
 }

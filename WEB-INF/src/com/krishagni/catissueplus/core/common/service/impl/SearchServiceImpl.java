@@ -2,6 +2,7 @@ package com.krishagni.catissueplus.core.common.service.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -11,6 +12,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.engine.spi.SessionImplementor;
@@ -38,6 +41,8 @@ import com.krishagni.catissueplus.core.common.service.SearchService;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
 
 public class SearchServiceImpl implements SearchService, InitializingBean {
+	private static final Log logger = LogFactory.getLog(SearchServiceImpl.class);
+
 	private SessionFactory sessionFactory;
 
 	private DaoFactory daoFactory;
@@ -123,14 +128,10 @@ public class SearchServiceImpl implements SearchService, InitializingBean {
 		}
 
 		addEntityProps(results);
-		return results.stream().sorted((r1, r2) -> {
-			int cmp = rankMap.get(r1.getEntity()).compareTo(rankMap.get(r2.getEntity()));
-			if (cmp == 0) {
-				cmp = r1.getValue().compareTo(r2.getValue());
-			}
-
-			return cmp;
-		}).collect(Collectors.toList());
+		return results.stream().sorted(
+			Comparator.comparingInt((SearchResult r) -> rankMap.get(r.getEntity()))
+				.thenComparing(SearchResult::getValue)
+		).collect(Collectors.toList());
 	}
 
 	@Override
@@ -248,6 +249,8 @@ public class SearchServiceImpl implements SearchService, InitializingBean {
 			SearchEntityKeywordDao keywordDao = daoFactory.getSearchEntityKeywordDao();
 
 			for (SearchEntityKeyword keyword : keywords) {
+				logger.debug("Processing the search keyword: " + keyword);
+
 				if (StringUtils.isNotBlank(keyword.getValue())) {
 					keyword.setValue(keyword.getValue().toLowerCase());
 				}

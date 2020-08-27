@@ -76,6 +76,8 @@ public class Participant extends BaseExtensionEntity {
 
 	private transient Set<Long> newCprIds;
 
+	private transient Set<Long> kwAddedCprIds;
+
 	public String getSource() {
 		return StringUtils.isBlank(source) ? DEF_SOURCE : source;
 	}
@@ -251,6 +253,22 @@ public class Participant extends BaseExtensionEntity {
 
 	public void setNewCprIds(Set<Long> newCprIds) {
 		this.newCprIds = newCprIds;
+	}
+
+	public Set<Long> getKwAddedCprIds() {
+		return kwAddedCprIds;
+	}
+
+	public void setKwAddedCprIds(Set<Long> kwAddedCprIds) {
+		this.kwAddedCprIds = kwAddedCprIds;
+	}
+
+	public void addKwAddedCprId(Long cprId) {
+		if (kwAddedCprIds == null) {
+			kwAddedCprIds = new HashSet<>();
+		}
+
+		kwAddedCprIds.add(cprId);
 	}
 
 	public void update(Participant participant) {
