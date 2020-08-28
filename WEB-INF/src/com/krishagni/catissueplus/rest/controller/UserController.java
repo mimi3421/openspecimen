@@ -109,7 +109,10 @@ public class UserController {
 		String resourceName,
 
 		@RequestParam(value = "op", required = false)
-		String[] ops) {
+		String[] ops,
+
+		@RequestParam(value = "includeSysUser", required = false, defaultValue = "false")
+		boolean includeSysUser) {
 		
 		UserListCriteria crit = new UserListCriteria()
 			.startAt(start)
@@ -129,7 +132,8 @@ public class UserController {
 			.cpShortTitle(cpShortTitle)
 			.roleNames(roles != null ? Arrays.asList(roles) : Collections.emptyList())
 			.resourceName(resourceName)
-			.opNames(ops != null ? Arrays.asList(ops) : Collections.emptyList());
+			.opNames(ops != null ? Arrays.asList(ops) : Collections.emptyList())
+			.includeSysUser(includeSysUser);
 		
 		
 		RequestEvent<UserListCriteria> req = new RequestEvent<>(crit);
@@ -172,7 +176,10 @@ public class UserController {
 
 		@RequestParam(value = "activeSince", required = false)
 		@DateTimeFormat(pattern="yyyy-MM-dd")
-		Date activeSince) {
+		Date activeSince,
+
+		@RequestParam(value = "includeSysUser", required = false, defaultValue = "false")
+		boolean includeSysUser) {
 		
 		UserListCriteria crit = new UserListCriteria()
 			.query(searchString)
@@ -184,7 +191,8 @@ public class UserController {
 			.type(type)
 			.excludeTypes(excludeTypes != null ? Arrays.asList(excludeTypes) : null)
 			.listAll(listAll)
-			.activeSince(activeSince);
+			.activeSince(activeSince)
+			.includeSysUser(includeSysUser);
 		
 		RequestEvent<UserListCriteria> req = new RequestEvent<>(crit);
 		ResponseEvent<Long> resp = userService.getUsersCount(req);

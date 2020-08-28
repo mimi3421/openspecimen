@@ -265,8 +265,12 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 		return criteria;
 	}
 
-	private List<String> excludeUsersList() {
-		return Arrays.asList(User.SYS_USER, "public_catalog_user", "public_dashboard_user");
+	private List<String> excludeUsersList(boolean includeSysUser) {
+		if (includeSysUser) {
+			return Arrays.asList("public_catalog_user", "public_dashboard_user");
+		} else {
+			return Arrays.asList(User.SYS_USER, "public_catalog_user", "public_dashboard_user");
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -286,7 +290,7 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 	}
 	
 	private Criteria addSearchConditions(Criteria criteria, UserListCriteria listCrit) {
-		addNonSystemUserRestriction(criteria);
+		addNonSystemUserRestriction(criteria, listCrit.includeSysUser());
 
 		String searchString = listCrit.query();
 		if (StringUtils.isBlank(searchString)) {
@@ -313,11 +317,11 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 		return criteria;
 	}
 
-	private void addNonSystemUserRestriction(Criteria criteria) {
+	private void addNonSystemUserRestriction(Criteria criteria, boolean includeSysUser) {
 		criteria.createAlias("u.authDomain", "domain")
 			.add( // not system user
 				Restrictions.not(Restrictions.conjunction()
-					.add(Restrictions.in("u.loginName", excludeUsersList()))
+					.add(Restrictions.in("u.loginName", excludeUsersList(includeSysUser)))
 					.add(Restrictions.eq("domain.name", User.DEFAULT_AUTH_DOMAIN))
 			)
 		);

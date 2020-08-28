@@ -144,9 +144,11 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 	@PlusTransactional
 	public ResponseEvent<List<UserSummary>> getUsers(RequestEvent<UserListCriteria> req) {
 		UserListCriteria crit = req.getPayload();
-
 		validateTypes(crit.type());
 		validateTypes(crit.excludeTypes());
+		if (AuthUtil.getCurrentUser() == null) {
+			crit.includeSysUser(false);
+		}
 
 		List<User> users = daoFactory.getUserDao().getUsers(addUserListCriteria(crit));
 		return ResponseEvent.response(UserSummary.from(users));
@@ -156,9 +158,11 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 	@PlusTransactional
 	public ResponseEvent<Long> getUsersCount(RequestEvent<UserListCriteria> req) {
 		UserListCriteria crit = req.getPayload();
-
 		validateTypes(crit.type());
 		validateTypes(crit.excludeTypes());
+		if (AuthUtil.getCurrentUser() == null) {
+			crit.includeSysUser(false);
+		}
 
 		return ResponseEvent.response(daoFactory.getUserDao().getUsersCount(addUserListCriteria(crit)));
 	}
