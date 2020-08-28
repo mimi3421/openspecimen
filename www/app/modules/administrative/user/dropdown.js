@@ -15,6 +15,10 @@ angular.module('os.administrative.user.dropdown', ['os.administrative.models'])
         opts.activityStatus = opts.activityStatus || 'all';
       }
 
+      if (attrs.hasOwnProperty('includeSysUser')) {
+        opts.includeSysUser = 'true';
+      }
+
       ctrl.listLoaded = true;
 
       var promise = !attrs.listFn ? User.query(opts) : scope.listFn(opts);
