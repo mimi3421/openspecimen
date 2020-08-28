@@ -348,4 +348,8 @@
       </column>
     </addColumn>
   </changeSet>
+
+  <changeSet author="vpawar" id="Set the last name of the system user to blank string">
+    <sql>update catissue_user set last_name = '' where login_name = '$system'</sql>
+  </changeSet>
 </databaseChangeLog>
