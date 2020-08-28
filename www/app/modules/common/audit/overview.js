@@ -1,5 +1,5 @@
 angular.module('os.common.audit')
-  .directive('osAuditOverview', function($modal, Audit) {
+  .directive('osAuditOverview', function($modal, Audit, AuditRevisionsModal) {
 
 
     function linker(scope, element, attrs) {
@@ -40,21 +40,7 @@ angular.module('os.common.audit')
       );
 
       scope.showRevisions = function() {
-        $modal.open({
-          templateUrl: 'modules/common/audit/revisions.html',
-          controller: function($scope, $modalInstance, revisions) {
-            $scope.revisions = revisions;
-
-            $scope.done = function() {
-              $modalInstance.close(true);
-            }
-          },
-          resolve: {
-            revisions: function() {
-              return Audit.getRevisions(objectsList);
-            }
-          }
-        });
+        AuditRevisionsModal.show(objectsList);
       }
     }
 

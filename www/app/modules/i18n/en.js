@@ -2549,7 +2549,8 @@
     "updated_on": "Updated On",
     "no_of_revisions": "Number of Revisions",
     "view_all": "View all",
-    "revisions": "Revisions"
+    "revisions": "Revisions",
+    "no_revisions": "No revisions to show!"
   },
 
   "jobs": {
