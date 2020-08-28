@@ -125,7 +125,7 @@ public class AuditServiceImpl implements AuditService, InitializingBean {
 			.collect(Collectors.toList());
 
 		if (criteria.size() > 1) {
-			Collections.sort(revisions, (r1, r2) -> r2.getChangedOn().compareTo(r1.getChangedOn()));
+			revisions.sort((r1, r2) -> r2.getChangedOn().compareTo(r1.getChangedOn()));
 		}
 
 		return ResponseEvent.response(revisions);
