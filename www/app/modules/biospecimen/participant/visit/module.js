@@ -159,11 +159,22 @@ angular.module('os.biospecimen.visit', [
       .state('visit-detail.extensions', {
         url: '/extensions',
         template: '<div ui-view></div>',
-        controller: function($scope, visit, forms, records, ExtensionsUtil) {
+        controller: function($scope, visit, forms, surveys, records, ExtensionsUtil) {
           $scope.extnOpts = {
             update: $scope.visitResource.updateOpts,
             entity: visit,
             isEntityActive: visit.activityStatus == 'Active'
+          }
+
+          for (var i = 0; i < surveys.length; ++i) {
+            var survey = surveys[i];
+            for (var j = 0; j < forms.length; ++j) {
+              var form = forms[j];
+              if (form.formCtxtId == survey.formCtxtId) {
+                form.survey = survey;
+                break;
+              }
+            }
           }
 
           ExtensionsUtil.linkFormRecords(forms, records);
@@ -194,6 +205,9 @@ angular.module('os.biospecimen.visit', [
           },
           records: function(visit) {
             return visit.getRecords();
+          },
+          surveys: function(cpViewCtx) {
+            return cpViewCtx.getSurveys();
           },
           viewOpts: function() {
             return {
