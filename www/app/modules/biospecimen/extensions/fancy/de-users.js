@@ -40,7 +40,7 @@ openspecimen.ui.fancy.Users = edu.common.de.LookupSvc.extend({
     var $http = angular.element(document).injector().get('$http');
     return {
       'X-OS-API-TOKEN': $http.defaults.headers.common['X-OS-API-TOKEN'],
-      'X-OS-FDE-TOKEN': $http.defaults.headers.common['X-OS-FDE-TOKEN']
+      'X-OS-SURVEY-TOKEN': $http.defaults.headers.common['X-OS-SURVEY-TOKEN']
     };
   }
 });
