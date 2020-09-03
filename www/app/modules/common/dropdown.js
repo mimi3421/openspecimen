@@ -38,6 +38,7 @@ angular.module('openspecimen')
           .attr('ng-required', tAttrs.ngRequired)
           .attr('reset-search-input', true)
           .attr('append-to-body', tAttrs.appendToBody == true || tAttrs.appendToBody == 'true')
+          .attr('on-open', tAttrs.onOpen)
           .attr('os-tabable', !!tAttrs.osTabable);
     
         if (tAttrs.ngInit) {
@@ -99,13 +100,18 @@ angular.module('openspecimen')
       }
     };
   })
-  .directive('osFixDd', function($timeout) {
+  .directive('osFixDd', function($parse, $timeout) {
     return {
       require: 'uiSelect',
 
       restrict: 'A',
 
       link: function(scope, element, attrs, $select) {
+        if (attrs.onOpen) {
+          var onOpenFn = $parse(attrs.onOpen);
+          scope.$on('uis:activate', function() { onOpenFn(scope)(); });
+        }
+
         if (attrs.multiple != undefined && !$select.selected) {
           $select.selected = [];
         }
@@ -261,6 +267,14 @@ angular.module('openspecimen')
       );
     }
 
+    function loadListUsingFn(scope, element, attrs, searchValue) {
+      scope.$eval(attrs.listFn)(scope, searchValue).then(
+        function(list) {
+          scope.list = list;
+        }
+      );
+    }
+
     return  {
       restrict: 'E',
 
@@ -275,7 +289,8 @@ angular.module('openspecimen')
           'select-prop'   : tAttrs.selectProp,
           'display-prop'  : tAttrs.displayProp,
           'append-to-body': (tAttrs.appendToBody == true || tAttrs.appendToBody == 'true'),
-          'list'          : 'list'
+          'list'          : 'list',
+          'on-open'       : 'onOpen'
         };
 
         if (tAttrs.searchProp) {
@@ -314,11 +329,22 @@ angular.module('openspecimen')
           scope.list = scope.$eval(attrs.options);
         } else if (attrs.apiUrl) {
           attrs.$observe('queryParams', function() { loadList(ctx, scope, attrs); });
+        } else if (attrs.listFn) {
+          loadListUsingFn(scope, element, attrs);
         }
 
-
         scope.searchList = function(searchValue) {
-          loadList(ctx, scope, attrs, searchValue);
+          if (attrs.listFn) {
+            loadListUsingFn(scope, element, attrs, searchValue);
+          } else {
+            loadList(ctx, scope, attrs, searchValue);
+          }
+        }
+
+        scope.onOpen = function() {
+          if (attrs.listFn) {
+            loadListUsingFn(scope, element, attrs);
+          }
         }
       }
     }
