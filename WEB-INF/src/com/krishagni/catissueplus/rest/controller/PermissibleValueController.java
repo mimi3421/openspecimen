@@ -62,6 +62,9 @@ public class PermissibleValueController {
 
 		@RequestParam(value = "activityStatus", required = false)
 		String activityStatus,
+
+		@RequestParam(value = "startAt", required = false, defaultValue = "0")
+		int startAt,
 						
 		@RequestParam(value = "maxResults", required = false, defaultValue = "1000")
 		int maxResults) {
@@ -76,6 +79,7 @@ public class PermissibleValueController {
 			.includeOnlyLeafValue(includeOnlyLeafValue)
 			.includeOnlyRootValue(includeOnlyRootValue)
 			.activityStatus(activityStatus)
+			.startAt(startAt)
 			.maxResults(maxResults);
 		return ResponseEvent.unwrap(pvSvc.getPermissibleValues(RequestEvent.wrap(crit)));
 	}
@@ -112,6 +116,9 @@ public class PermissibleValueController {
 		@RequestParam(value = "activityStatus", required = false)
 		String activityStatus,
 
+		@RequestParam(value = "startAt", required = false, defaultValue = "0")
+		int startAt,
+
 		@RequestParam(value = "maxResults", required = false, defaultValue = "1000")
 		int maxResults) {
 
@@ -125,6 +132,7 @@ public class PermissibleValueController {
 			includeOnlyLeafValue,
 			includeOnlyRootValue,
 			activityStatus,
+			startAt,
 			maxResults);
 	}
 
