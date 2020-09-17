@@ -31,7 +31,7 @@ body {
   height: 40px;
   width: 235px;
   padding: 2.5px;
-  flex-grow: 0.30;
+  flex-grow: 1;
   position: relative;
 }
 
