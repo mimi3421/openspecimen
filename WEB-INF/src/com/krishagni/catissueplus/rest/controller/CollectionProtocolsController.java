@@ -197,7 +197,14 @@ public class CollectionProtocolsController {
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}/definition")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
-	public void getCpDefFile(@PathVariable("id") Long cpId, HttpServletResponse response) 
+	public void getCpDefFile(
+		@PathVariable("id")
+		Long cpId,
+
+		@RequestParam(value = "includeIds", required = false, defaultValue = "false")
+		boolean includeIds,
+
+		HttpServletResponse httpResp)
 	throws JsonProcessingException {
 		CpQueryCriteria crit = new CpQueryCriteria();
 		crit.setId(cpId);
@@ -210,18 +217,23 @@ public class CollectionProtocolsController {
 		cp.setSopDocumentName(null);
 		cp.setSopDocumentUrl(null);
 
+		SimpleFilterProvider filters = new SimpleFilterProvider();
+		if (includeIds) {
+			filters.addFilter("withoutId", SimpleBeanPropertyFilter.serializeAllExcept());
+		} else {
+			filters.addFilter("withoutId", SimpleBeanPropertyFilter.serializeAllExcept("id", "statementId"));
+		}
+
 		ObjectMapper mapper = new ObjectMapper();
-		FilterProvider filters = new SimpleFilterProvider()
-			.addFilter("withoutId", SimpleBeanPropertyFilter.serializeAllExcept("id", "statementId"));
 		String def = mapper.writer(filters).withDefaultPrettyPrinter().writeValueAsString(cp);
-		
-		response.setContentType("application/json");
-		response.setHeader("Content-Disposition", "attachment;filename=CpDef_" + cpId + ".json");
-			
+
+		httpResp.setContentType("application/json");
+		httpResp.setHeader("Content-Disposition", "attachment;filename=CpDef_" + cpId + ".json");
+
 		InputStream in = null;
 		try {
 			in = new ByteArrayInputStream(def.getBytes());
-			IoUtil.copy(in, response.getOutputStream());
+			IoUtil.copy(in, httpResp.getOutputStream());
 		} catch (IOException e) {
 			throw new RuntimeException("Error sending file", e);
 		} finally {
