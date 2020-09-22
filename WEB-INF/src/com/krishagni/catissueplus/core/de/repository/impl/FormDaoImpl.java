@@ -129,6 +129,7 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 					.add(Projections.property("fc.sysForm"))
 					.add(Projections.property("fc.multiRecord"))
 					.add(Projections.property("fc.identifier"))
+					.add(Projections.property("fc.cpId"))
 			)
 			.getExecutableCriteria(getCurrentSession())
 			.list();
@@ -148,6 +149,7 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 			Boolean multiRecords = (Boolean) row[++idx];
 			form.setMultipleRecords(multiRecords != null ? multiRecords : false);
 			form.setFormCtxtId((Long) row[++idx]);
+			form.setCpId((Long) row[++idx]);
 			result.add(form);
 		}
 
