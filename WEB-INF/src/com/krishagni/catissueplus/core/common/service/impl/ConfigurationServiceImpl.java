@@ -607,14 +607,18 @@ public class ConfigurationServiceImpl implements ConfigurationService, Initializ
 	}
 
 	private void notifyListeners(String module, String property, String setting) {
-		List<ConfigChangeListener> listeners = changeListeners.get(module);
-		if (listeners == null) {
-			return;
+		List<ConfigChangeListener> toNotifyListeners = new ArrayList<>();
+		List<ConfigChangeListener> listeners = changeListeners.get("*");
+		if (listeners != null) {
+			toNotifyListeners.addAll(listeners);
 		}
-		
-		for (ConfigChangeListener listener : listeners) {
-			listener.onConfigChange(property, setting);
+
+		listeners = changeListeners.get(module);
+		if (listeners != null) {
+			toNotifyListeners.addAll(listeners);
 		}
+
+		toNotifyListeners.forEach(listener -> listener.onConfigChange(property, setting));
 	}
 	
 	private void setLocale() {

@@ -482,7 +482,12 @@
       </map>
     </property>
   </bean>
-  
+
+  <bean id="formInfoCache" class="com.krishagni.catissueplus.core.de.domain.FormInfoCache">
+    <property name="formSvc" ref="formSvc"/>
+    <property name="daoFactory" ref="deDaoFactory"/>
+  </bean>
+
   <bean id="specimenEventsSvc" class="com.krishagni.catissueplus.core.biospecimen.services.impl.SpecimenEventsServiceImpl">
     <property name="formDao" ref="formDao"/>
     <property name="formSvc" ref="formSvc"/>

@@ -10,7 +10,6 @@ import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
 
 import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.de.repository.DaoFactory;
@@ -28,23 +27,23 @@ import krishagni.catissueplus.beans.FormContextBean;
 // DeObject works.
 //
 
-@Configurable
-class FormInfoCache implements FormContextProcessor, FormEventsListener {
-	@Autowired
-	private FormService formService;
+public class FormInfoCache implements FormContextProcessor, FormEventsListener {
+	private FormService formSvc;
 
-	@Autowired
 	private DaoFactory daoFactory;
+
+	public void setFormSvc(FormService formSvc) {
+		this.formSvc = formSvc;
+	}
+
+	public void setDaoFactory(DaoFactory daoFactory) {
+		this.daoFactory = daoFactory;
+	}
 
 	//
 	// Key is CP ID. For non CP specific, key is -1L
 	//
 	private final Map<Long, ContextInfo> contextInfoMap = new HashMap<>();
-
-	//
-	// Key is form name
-	//
-	private final Map<String, Container> formsCache = new HashMap<>();
 
 	public FormInfoCache() {
 
@@ -107,15 +106,7 @@ class FormInfoCache implements FormContextProcessor, FormEventsListener {
 	}
 
 	public Container getForm(String formName) {
-		Container form = formsCache.get(formName);
-		if (form == null) {
-			synchronized (formsCache) {
-				form = Container.getContainer(formName);
-				formsCache.put(formName, form);
-			}
-		}
-
-		return form;
+		return Container.getContainer(formName);
 	}
 
 	public Map<String, Object> getFormInfo(Long cpId, String entity) {
@@ -152,22 +143,21 @@ class FormInfoCache implements FormContextProcessor, FormEventsListener {
 
 	@Override
 	public void onCreate(Container container) {
-		formsCache.remove(container.getName());
+		// no-op
 	}
 
 	@Override
 	public void preUpdate(Container form) {
+		// no-op
 	}
 
 	@Override
 	public void onUpdate(Container container) {
-		formsCache.remove(container.getName());
+		// no-op
 	}
 
 	@Override
 	public synchronized void onDelete(Container container) {
-		formsCache.remove(container.getName());
-
 		for (ContextInfo ctxtInfo : contextInfoMap.values()) {
 			ctxtInfo.removeForm(container.getName());
 		}
@@ -191,7 +181,7 @@ class FormInfoCache implements FormContextProcessor, FormEventsListener {
 	}
 
 	private FormService getFormService() {
-		return formService;
+		return formSvc;
 	}
 
 	private DaoFactory getDaoFactory() {

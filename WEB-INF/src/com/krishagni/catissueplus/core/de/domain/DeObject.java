@@ -23,6 +23,7 @@ import org.springframework.dao.DataAccessException;
 
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.biospecimen.domain.BaseExtensionEntity;
+import com.krishagni.catissueplus.core.common.OpenSpecimenAppCtxProvider;
 import com.krishagni.catissueplus.core.common.errors.CommonErrorCode;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
@@ -49,7 +50,8 @@ import krishagni.catissueplus.beans.FormRecordEntryBean.Status;
 public abstract class DeObject {
 	private static final Log logger = LogFactory.getLog(DeObject.class);
 
-	private static FormInfoCache formInfoCache = new FormInfoCache();
+	@Autowired
+	private FormInfoCache formInfoCache;
 
 	@Autowired
 	private FormDataManager formDataMgr;
@@ -422,11 +424,13 @@ public abstract class DeObject {
 	}
 
 	public static Map<String, Object> getFormInfo(boolean cpBased, String entity, Long entityId) {
-		return formInfoCache.getFormInfo(cpBased, entity, entityId);
+		FormInfoCache cache = OpenSpecimenAppCtxProvider.getBean("formInfoCache");
+		return cache.getFormInfo(cpBased, entity, entityId);
 	}
 
 	public static Container getForm(String formName) {
-		return formInfoCache.getForm(formName);
+		FormInfoCache cache = OpenSpecimenAppCtxProvider.getBean("formInfoCache");
+		return cache.getForm(formName);
 	}
 
 	public static Long getFormContextId(boolean cpBased, String entity, Long entityId, String formName) {
