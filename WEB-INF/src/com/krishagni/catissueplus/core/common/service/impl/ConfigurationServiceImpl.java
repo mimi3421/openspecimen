@@ -608,12 +608,12 @@ public class ConfigurationServiceImpl implements ConfigurationService, Initializ
 
 	private void notifyListeners(String module, String property, String setting) {
 		List<ConfigChangeListener> toNotifyListeners = new ArrayList<>();
-		List<ConfigChangeListener> listeners = changeListeners.get("*");
+		List<ConfigChangeListener> listeners = changeListeners.get(module);
 		if (listeners != null) {
 			toNotifyListeners.addAll(listeners);
 		}
 
-		listeners = changeListeners.get(module);
+		listeners = changeListeners.get("*");
 		if (listeners != null) {
 			toNotifyListeners.addAll(listeners);
 		}

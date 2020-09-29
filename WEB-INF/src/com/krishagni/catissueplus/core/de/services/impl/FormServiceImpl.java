@@ -1010,7 +1010,7 @@ public class FormServiceImpl implements FormService, InitializingBean {
 		formCtxt.setSortOrder(input.getSortOrder());
 
 		notifyContextSaved(formCtxt);
-		formDao.saveOrUpdate(formCtxt);
+		formDao.saveOrUpdate(formCtxt, true);
 		input.setFormCtxtId(formCtxt.getIdentifier());
 		return formCtxt;
 	}
