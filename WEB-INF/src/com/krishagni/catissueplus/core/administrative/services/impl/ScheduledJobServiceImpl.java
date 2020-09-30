@@ -17,6 +17,7 @@ import org.springframework.context.event.ContextRefreshedEvent;
 
 import com.krishagni.catissueplus.core.administrative.domain.ScheduledJob;
 import com.krishagni.catissueplus.core.administrative.domain.ScheduledJobRun;
+import com.krishagni.catissueplus.core.administrative.domain.ScheduledJobSavedEvent;
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.administrative.domain.factory.ScheduledJobErrorCode;
 import com.krishagni.catissueplus.core.administrative.domain.factory.ScheduledJobFactory;
@@ -33,6 +34,7 @@ import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
+import com.krishagni.catissueplus.core.common.service.impl.EventPublisher;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.catissueplus.core.common.util.EmailUtil;
 
@@ -125,9 +127,10 @@ public class ScheduledJobServiceImpl implements ScheduledJobService, Application
 			job.setCreatedBy(AuthUtil.getCurrentUser());
 			ensureUniqueJobName(job);
 			
-			daoFactory.getScheduledJobDao().saveOrUpdate(job);
+			daoFactory.getScheduledJobDao().saveOrUpdate(job, true);
 			taskMgr.schedule(job);
 			sendSharedJobNotification(job, job.getSharedWith());
+			EventPublisher.getInstance().publish(new ScheduledJobSavedEvent(job));
 			return ResponseEvent.response(ScheduledJobDetail.from(job));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
@@ -168,6 +171,7 @@ public class ScheduledJobServiceImpl implements ScheduledJobService, Application
 				.collect(Collectors.toList());
 			sendSharedJobNotification(job, newSharedUsers);
 
+			EventPublisher.getInstance().publish(new ScheduledJobSavedEvent(existing));
 			return ResponseEvent.response(ScheduledJobDetail.from(existing));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
@@ -189,6 +193,7 @@ public class ScheduledJobServiceImpl implements ScheduledJobService, Application
 			taskMgr.cancel(job);
 			job.delete();
 			daoFactory.getScheduledJobDao().saveOrUpdate(job);
+			EventPublisher.getInstance().publish(new ScheduledJobSavedEvent(job));
 			return ResponseEvent.response(ScheduledJobDetail.from(job));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);

@@ -13,6 +13,8 @@ public interface ScheduledTaskManager {
 
 	void cancel(ScheduledJob job);
 
+	void cancel(Long jobId);
+
 	//
 	// for internal scheduled tasks
 	//

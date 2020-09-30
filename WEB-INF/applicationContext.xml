@@ -753,6 +753,7 @@
   <bean id="scheduledTaskMgr" class="com.krishagni.catissueplus.core.administrative.services.impl.ScheduledTaskManagerImpl" >
     <property name="daoFactory" ref="biospecimenDaoFactory"/>
     <property name="emailSvc" ref="emailService"/>
+    <property name="transactionManager" ref="transactionManager"/>
   </bean>
   
   <bean id="scheduledJobSvc" class="com.krishagni.catissueplus.core.administrative.services.impl.ScheduledJobServiceImpl">

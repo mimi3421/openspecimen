@@ -80,6 +80,8 @@
     
     <property name="rtArgsHelpText" column="RT_ARGS_HELP_TEXT"/>
 
+    <property name="runByNode" column="RUN_BY_NODE"/>
+
     <filter name="activeEntity"/>
 
     <query name="getJobByName">
@@ -102,6 +104,24 @@
         status in (:statuses)
       group by
         scheduled_job_id
+    </sql-query>
+
+    <sql-query name="getRunByNodeForUpdate">
+      <return-scalar column="identifier" type="long"/>
+      <return-scalar column="name" type="string"/>
+      <return-scalar column="node" type="string"/>
+
+      select
+        identifier, name, run_by_node as node
+      from
+        os_scheduled_jobs
+      where
+        identifier = :jobId
+      for update
+    </sql-query>
+
+    <sql-query name="updateRunByNode">
+      update os_scheduled_jobs set run_by_node = :nodeName where identifier = :jobId
     </sql-query>
   </class>
 </hibernate-mapping>

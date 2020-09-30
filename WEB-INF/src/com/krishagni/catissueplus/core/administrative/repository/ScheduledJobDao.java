@@ -16,9 +16,13 @@ public interface ScheduledJobDao extends Dao<ScheduledJob> {
 
 	Long getScheduledJobsCount(ScheduledJobListCriteria listCriteria);
 
-	ScheduledJobRun getJobRun(Long id);
-	
 	ScheduledJob getJobByName(String name);
+
+	String getRunByNodeForUpdate(Long jobId);
+
+	int updateRunByNode(Long jobId, String node);
+
+	ScheduledJobRun getJobRun(Long id);
 	
 	List<ScheduledJobRun> getJobRuns(JobRunsListCriteria listCriteria);
 

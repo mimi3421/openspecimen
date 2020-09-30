@@ -54,6 +54,22 @@ public class ScheduledJobDaoImpl extends AbstractDao<ScheduledJob> implements Sc
 	}
 
 	@Override
+	public String getRunByNodeForUpdate(Long jobId) {
+		Object[] row = (Object[]) getCurrentSession().getNamedQuery(GET_RUN_BY_NODE_FOR_UPDATE)
+			.setParameter("jobId", jobId)
+			.uniqueResult();
+		return (String) row[2];
+	}
+
+	@Override
+	public int updateRunByNode(Long jobId, String node) {
+		return getCurrentSession().getNamedQuery(UPDATE_RUN_BY_NODE)
+			.setParameter("jobId", jobId)
+			.setParameter("nodeName", node)
+			.executeUpdate();
+	}
+
+	@Override
 	public ScheduledJobRun getJobRun(Long id) {
 		return getCurrentSession().get(ScheduledJobRun.class, id);
 	}
@@ -178,6 +194,10 @@ public class ScheduledJobDaoImpl extends AbstractDao<ScheduledJob> implements Sc
 	private static final String FQN = ScheduledJob.class.getName();
 
 	private static final String GET_JOB_BY_NAME = FQN + ".getJobByName";
+
+	private static final String GET_RUN_BY_NODE_FOR_UPDATE = FQN + ".getRunByNodeForUpdate";
+
+	private static final String UPDATE_RUN_BY_NODE = FQN + ".updateRunByNode";
 
 	private static final String GET_JOBS_LAST_RUNTIME = FQN + ".getJobsLastRuntime";
 

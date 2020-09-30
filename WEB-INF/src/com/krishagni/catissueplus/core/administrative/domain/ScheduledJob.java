@@ -92,6 +92,8 @@ public class ScheduledJob extends BaseEntity {
 	private SavedQuery savedQuery;
 
 	private User runAs;
+
+	private String runByNode;
 	
 	private Set<User> recipients = new HashSet<>();
 
@@ -248,6 +250,14 @@ public class ScheduledJob extends BaseEntity {
 
 	public void setRunAs(User runAs) {
 		this.runAs = runAs;
+	}
+
+	public String getRunByNode() {
+		return runByNode;
+	}
+
+	public void setRunByNode(String runByNode) {
+		this.runByNode = runByNode;
 	}
 
 	public Set<User> getRecipients() {

@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -16,6 +17,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.krishagni.catissueplus.core.administrative.domain.ScheduledJob;
 import com.krishagni.catissueplus.core.administrative.domain.ScheduledJobRun;
@@ -29,6 +33,7 @@ import com.krishagni.catissueplus.core.common.service.EmailService;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.catissueplus.core.common.util.MessageUtil;
 import com.krishagni.catissueplus.core.common.util.NotifUtil;
+import com.krishagni.catissueplus.core.init.AppProperties;
 
 public class ScheduledTaskManagerImpl implements ScheduledTaskManager, ScheduledTaskListener {
 	private static final Log logger = LogFactory.getLog(ScheduledTaskManagerImpl.class);
@@ -44,6 +49,8 @@ public class ScheduledTaskManagerImpl implements ScheduledTaskManager, Scheduled
 	private DaoFactory daoFactory;
 
 	private EmailService emailSvc;
+
+	private TransactionTemplate newTxTmpl;
 	
 	public void setDaoFactory(DaoFactory daoFactory) {
 		this.daoFactory = daoFactory;
@@ -51,6 +58,11 @@ public class ScheduledTaskManagerImpl implements ScheduledTaskManager, Scheduled
 
 	public void setEmailSvc(EmailService emailSvc) {
 		this.emailSvc = emailSvc;
+	}
+
+	public void setTransactionManager(PlatformTransactionManager txnMgr) {
+		this.newTxTmpl = new TransactionTemplate(txnMgr);
+		this.newTxTmpl.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -90,11 +102,19 @@ public class ScheduledTaskManagerImpl implements ScheduledTaskManager, Scheduled
 	
 	@Override
 	public void cancel(ScheduledJob job) {
-		ScheduledFuture<?> future = scheduledJobs.remove(job.getId());
+		cancel(job.getId());
+	}
+
+	@Override
+	public void cancel(Long jobId) {
+		ScheduledFuture<?> future = scheduledJobs.remove(jobId);
 		try {
-			future.cancel(false);
+			if (future != null) {
+				logger.info("Unscheduling the job " + jobId);
+				future.cancel(false);
+			}
 		} catch (Exception e) {
-			logger.error("Error canceling scheduled job: " + job.getName(), e);
+			logger.error("Error canceling scheduled job: " + jobId, e);
 		}
 	}
 
@@ -113,6 +133,12 @@ public class ScheduledTaskManagerImpl implements ScheduledTaskManager, Scheduled
 	@PlusTransactional
 	public ScheduledJobRun started(ScheduledJob job, String args, User user) {
 		try {
+			if (!acquireLock(job)) {
+				logger.info("Relinquishing the job " + job.getName());
+				return null;
+			}
+
+			logger.info("Acquired the lock on the job " + job.getName());
 			job = getScheduledJob(job.getId());
 			if (job == null) {
 				return null;
@@ -139,6 +165,8 @@ public class ScheduledTaskManagerImpl implements ScheduledTaskManager, Scheduled
 		dbRun.completed(jobRun.getLogFilePath());
 		notifyJobCompleted(dbRun);
 		scheduledJobs.remove(dbRun.getScheduledJob().getId());
+		releaseLock(dbRun.getScheduledJob());
+		logger.info("Released the lock on the job " + dbRun.getScheduledJob().getName());
 		schedule(dbRun.getScheduledJob().getId());
 	}
 
@@ -149,7 +177,37 @@ public class ScheduledTaskManagerImpl implements ScheduledTaskManager, Scheduled
 		dbRun.failed(e);
 		notifyJobFailed(dbRun);
 		scheduledJobs.remove(dbRun.getScheduledJob().getId());
+		releaseLock(dbRun.getScheduledJob());
+		logger.info("Released the lock on the job " + dbRun.getScheduledJob().getName());
 		schedule(dbRun.getScheduledJob().getId());
+	}
+
+	private boolean acquireLock(ScheduledJob job) {
+		return setLock(job, false);
+	}
+
+	private boolean releaseLock(ScheduledJob job) {
+		return setLock(job, true);
+	}
+
+	private boolean setLock(ScheduledJob job, boolean clear) {
+		return newTxTmpl.execute(
+			status -> {
+				Properties appProps = AppProperties.getInstance().getProperties();
+				String thisNode = appProps.getProperty("node.name", "none");
+
+				String node = daoFactory.getScheduledJobDao().getRunByNodeForUpdate(job.getId());
+				logger.info("Lock on the job " + job.getName() + " is held by " + (node != null ? node : "none"));
+
+				if (StringUtils.isNotBlank(node) &&
+					((clear && !node.equals(thisNode)) || (!clear && !node.equals("none")))) {
+					return false;
+				}
+
+				daoFactory.getScheduledJobDao().updateRunByNode(job.getId(), clear ? "none" : thisNode);
+				return true;
+			}
+		);
 	}
 		
 	private void runJob(User user, ScheduledJob job, String args, Long minutesLater) {
@@ -170,7 +228,8 @@ public class ScheduledTaskManagerImpl implements ScheduledTaskManager, Scheduled
 				return;
 			}
 		}
-		
+
+		logger.info("Scheduling the job " + job.getName() + " to run " + minutesLater + " minutes later");
 		ScheduledTaskWrapper taskWrapper = new ScheduledTaskWrapper(job, args, user, this);
 		ScheduledFuture<?> future = executorService.schedule(taskWrapper, minutesLater, TimeUnit.MINUTES);
 		scheduledJobs.put(job.getId(), future);		
