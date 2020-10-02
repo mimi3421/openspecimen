@@ -10,4 +10,22 @@
       <column name="RUN_BY_NODE" type="${text.type}(32)" defaultValue="none"/>
     </addColumn>
   </changeSet>
+
+  <changeSet author="vpawar" id="Track the cluster node that worked on the import job">
+    <addColumn tableName="OS_BULK_IMPORT_JOBS">
+      <column name="RUN_BY_NODE" type="${text.type}(32)" defaultValue="none"/>
+      <column name="STOP_RUNNING" type="${boolean.type}" defaultValueBoolean="false"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Track the cluster node that is running some import job">
+    <createTable tableName="OS_IMPORT_RUNNER">
+      <column name="ACTIVE_NODE" type="${text.type}(32)"/>
+      <column name="LOCK_TIME" type="${timestamp.type}"/>
+    </createTable>
+  </changeSet>
+
+  <changeSet author="vpawar" id="The default import runner - none">
+    <sql>insert into os_import_runner (active_node, lock_time) values ('none', ${now})</sql>
+  </changeSet>
 </databaseChangeLog>

@@ -55,7 +55,9 @@ public class ImportJob extends BaseEntity {
 
 	private Boolean atomic;
 
-	private transient volatile  boolean stopRunning;
+	private String runByNode;
+
+	private volatile Boolean stopRunning = Boolean.FALSE;
 	
 	private Map<String, String> params = new HashMap<>();
 	
@@ -171,6 +173,14 @@ public class ImportJob extends BaseEntity {
 		this.atomic = atomic;
 	}
 
+	public String getRunByNode() {
+		return runByNode;
+	}
+
+	public void setRunByNode(String runByNode) {
+		this.runByNode = runByNode;
+	}
+
 	public Map<String, String> getParams() {
 		return params;
 	}
@@ -179,15 +189,20 @@ public class ImportJob extends BaseEntity {
 		this.params = params;
 	}
 
-	public boolean isAskedToStop() {
+	public Boolean getStopRunning() {
 		return stopRunning;
 	}
 
-	public void stop() {
-		this.stopRunning = true;
-		if (isQueued()) {
-			status = Status.STOPPED;
-		}
+	public void setStopRunning(Boolean stopRunning) {
+		this.stopRunning = stopRunning;
+	}
+
+	public void stopRunning() {
+		stopRunning = true;
+	}
+
+	public boolean isAskedToStop() {
+		return stopRunning;
 	}
 
 	public boolean isQueued() {

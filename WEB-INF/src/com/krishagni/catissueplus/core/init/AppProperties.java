@@ -46,6 +46,8 @@ public class AppProperties implements FactoryBean<Properties> {
 
 	private static final String DEF_CFG_LOC     = "%s" + File.separator + "conf" + File.separator + "%s.properties";
 
+	private static final String NODE_NAME_PROP  = "node.name";
+
 	private static AppProperties instance;
 
 	private String tomcatDir;
@@ -74,6 +76,10 @@ public class AppProperties implements FactoryBean<Properties> {
 
 	public String getBuildRevision() {
 		return props.getProperty(REVISION_PROP);
+	}
+
+	public String getNodeName() {
+		return props.getProperty(NODE_NAME_PROP, "none");
 	}
 
 	@Override

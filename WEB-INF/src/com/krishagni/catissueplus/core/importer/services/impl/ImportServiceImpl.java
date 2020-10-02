@@ -35,6 +35,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.krishagni.catissueplus.core.administrative.domain.User;
@@ -75,6 +77,7 @@ import com.krishagni.catissueplus.core.importer.services.ObjectImporterFactory;
 import com.krishagni.catissueplus.core.importer.services.ObjectImporterLifecycle;
 import com.krishagni.catissueplus.core.importer.services.ObjectReader;
 import com.krishagni.catissueplus.core.importer.services.ObjectSchemaFactory;
+import com.krishagni.catissueplus.core.init.AppProperties;
 
 import edu.common.dynamicextensions.query.cachestore.LinkedEhCacheMap;
 import edu.common.dynamicextensions.util.ZipUtility;
@@ -99,8 +102,6 @@ public class ImportServiceImpl implements ImportService, ApplicationListener<Con
 	private TransactionTemplate newTxTmpl;
 
 	private BlockingQueue<ImportJob> queuedJobs = new LinkedBlockingQueue<>();
-
-	private volatile ImportJob currentJob = null;
 
 	private volatile long lastRefreshTime = 0;
 
@@ -247,38 +248,26 @@ public class ImportServiceImpl implements ImportService, ApplicationListener<Con
 	}
 
 	@Override
+	@PlusTransactional
 	public ResponseEvent<ImportJobDetail> stopJob(RequestEvent<Long> req) {
 		try {
 			Long jobId = req.getPayload();
+			ImportJob job = importJobDao.getJobForUpdate(jobId);
+			ensureAccess(job);
 
-			ImportJob toRemove = null;
-			for (ImportJob job : queuedJobs) {
-				if (job.getId().equals(jobId)) {
-					toRemove = job;
-					break;
-				}
-			}
-
-			if (toRemove == null && currentJob != null && currentJob.getId().equals(jobId)) {
-				toRemove = currentJob;
-			}
-
-			if (toRemove == null || (!toRemove.isQueued() && !toRemove.isInProgress())) {
+			if (!job.isInProgress() && !job.isQueued()) {
 				return ResponseEvent.userError(ImportJobErrorCode.NOT_IN_PROGRESS, req.getPayload());
 			}
 
-			ensureAccess(toRemove);
-			toRemove.stop();
-			queuedJobs.remove(toRemove);
-
-			for (int i = 0; i < 5; ++i) {
-				TimeUnit.SECONDS.sleep(1);
-				if (!toRemove.isQueued() && !toRemove.isInProgress()) {
-					break;
-				}
+			if (job.isQueued()) {
+				queuedJobs.removeIf(qj -> qj.equals(job));
+				job.setStatus(Status.STOPPED);
+			} else {
+				job.stopRunning();
 			}
 
-			return ResponseEvent.response(ImportJobDetail.from(toRemove));
+			importJobDao.saveOrUpdate(job);
+			return ResponseEvent.response(ImportJobDetail.from(job));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {
@@ -493,6 +482,7 @@ public class ImportServiceImpl implements ImportService, ApplicationListener<Con
 		job.setAtomic(detail.isAtomic());
 		job.setParams(detail.getObjectParams());
 		job.setFieldSeparator(detail.getFieldSeparator());
+		job.setRunByNode("none");
 
 		setImportType(detail, job, ose);
 		setCsvType(detail, job, ose);
@@ -564,13 +554,28 @@ public class ImportServiceImpl implements ImportService, ApplicationListener<Con
 
 			while (true) {
 				logger.info("Probing for queued bulk import jobs");
-				ImportJob job = queuedJobs.take();
+				ImportJob job = queuedJobs.poll(15, TimeUnit.MINUTES);
+				if (job == null) {
+					//
+					// to load the jobs, if any, that were queued on the dead nodes
+					//
+					loadJobQueue();
+					continue;
+				} else if (job.isStopped()) {
+					continue;
+				}
 
 				try {
+					if (!acquireLock(job)) {
+						continue;
+					}
+
 					logger.info("Picked import job " + job.getId() + " for processing");
 					new ImporterTask(job).run();
 				} catch (Throwable t) {
 					logger.error("Error running the job " + job.getId() + " to completion", t);
+				} finally {
+					releaseRunLock();
 				}
 			}
 		} catch (Throwable t) {
@@ -580,7 +585,7 @@ public class ImportServiceImpl implements ImportService, ApplicationListener<Con
 
 	@PlusTransactional
 	private int markInProgressJobsAsFailed() {
-		return importJobDao.markInProgressJobsAsFailed();
+		return importJobDao.markInProgressJobsAsFailed(AppProperties.getInstance().getNodeName());
 	}
 
 	@PlusTransactional
@@ -612,6 +617,114 @@ public class ImportServiceImpl implements ImportService, ApplicationListener<Con
 		logger.info("Loaded " + startAt + " bulk import jobs in queue from previous incarnation");
 	}
 
+	private boolean acquireLock(ImportJob job) {
+		logger.info("Attempting to acquire lock on the job: " + job.getId());
+		if (!acquireJobLock(job)) {
+			logger.info("Failed to acquire lock on the job: " + job.getId());
+			return false;
+		}
+
+		logger.info("Acquired lock on the job: " + job.getId());
+
+		while (true) {
+			try {
+				logger.info("Attempting to acquire import job run lock... ");
+				if (acquireRunLock()) {
+					break;
+				}
+
+				logger.info("Failed to acquire import job run lock. Will try again in 60 seconds!");
+				TimeUnit.SECONDS.sleep(60);
+			} catch (Exception e) {
+				releaseJobLock(job);
+				logger.info("Error when acquiring run lock.", e);
+				throw OpenSpecimenException.serverError(e);
+			}
+		}
+
+		logger.info("Acquired import job run lock");
+		return true;
+	}
+
+	private boolean acquireJobLock(ImportJob job) {
+		return newTxTmpl.execute(
+			status -> {
+				String thisNode = AppProperties.getInstance().getNodeName();
+				ImportJob dbJob = importJobDao.getJobForUpdate(job.getId());
+				String activeNode = dbJob.getRunByNode();
+				logger.info("Lock on the job " + job.getId() + " is held by " + activeNode);
+
+				if ("none".equals(activeNode) && !"none".equals(thisNode)) {
+					dbJob.setRunByNode(thisNode);
+					importJobDao.saveOrUpdate(dbJob);
+					setJobRunBy(job, thisNode);
+					return true;
+				} else {
+					return thisNode.equals(activeNode);
+				}
+			}
+		);
+	}
+
+	private boolean releaseJobLock(ImportJob job) {
+		return newTxTmpl.execute(
+			status -> {
+				String thisNode = AppProperties.getInstance().getNodeName();
+				ImportJob dbJob = importJobDao.getJobForUpdate(job.getId());
+				String activeNode = dbJob.getRunByNode();
+				if (!thisNode.equals(activeNode)) {
+					return false;
+				}
+
+				dbJob.setRunByNode("none");
+				importJobDao.saveOrUpdate(dbJob);
+				setJobRunBy(job, "none");
+				return true;
+			}
+		);
+	}
+
+	private void setJobRunBy(ImportJob job, String node) {
+		TransactionSynchronizationManager.registerSynchronization(
+			new TransactionSynchronizationAdapter() {
+				@Override
+				public void afterCommit() {
+					job.setRunByNode(node);
+				}
+			}
+		);
+	}
+
+	private boolean acquireRunLock() {
+		return newTxTmpl.execute(
+			status -> {
+				String thisNode = AppProperties.getInstance().getNodeName();
+				String activeNode = importJobDao.getActiveImportRunnerNode();
+				logger.info("Run lock is held by " + activeNode);
+
+				if ("none".equals(activeNode) && !"none".equals(thisNode)) {
+					return importJobDao.setActiveImportRunnerNode(thisNode);
+				} else {
+					return thisNode.equals(activeNode);
+				}
+			}
+		);
+	}
+
+	private boolean releaseRunLock() {
+		return newTxTmpl.execute(
+			status -> {
+				String thisNode = AppProperties.getInstance().getNodeName();
+				String activeNode = importJobDao.getActiveImportRunnerNode();
+				if (!thisNode.equals(activeNode)) {
+					return false;
+				}
+
+				return importJobDao.setActiveImportRunnerNode("none");
+			}
+		);
+	}
+
 	private class ImporterTask implements Runnable {
 		private ImportJob job;
 
@@ -632,11 +745,12 @@ public class ImportServiceImpl implements ImportService, ApplicationListener<Con
 			CsvWriter csvWriter = null;
 
 			try {
-				currentJob = job;
-
 				AuthUtil.setCurrentUser(job.getCreatedBy());
 				ImporterContextHolder.getInstance().newContext();
 				saveJob(totalRecords, failedRecords, Status.IN_PROGRESS);
+				if (job.isStopped()) {
+					return;
+				}
 
 				ObjectSchema schema = schemaFactory.getSchema(job.getName(), job.getParams());
 				String filePath = getJobDir(job.getId()) + File.separator + "input.csv";
@@ -672,7 +786,6 @@ public class ImportServiceImpl implements ImportService, ApplicationListener<Con
 			} finally {
 				ImporterContextHolder.getInstance().clearContext();
 				AuthUtil.clearCurrentUser();
-				currentJob = null;
 
 				IOUtils.closeQuietly(objReader);
 				closeQuietly(csvWriter);
@@ -726,8 +839,7 @@ public class ImportServiceImpl implements ImportService, ApplicationListener<Con
 		}
 
 		private boolean processSingleRowPerObj(ObjectReader objReader, CsvWriter csvWriter, ObjectImporter<Object, Object> importer) {
-			boolean stopped = false;
-			while (!job.isAskedToStop() || !(stopped = true)) {
+			while (!job.isStopped()) {
 				String errMsg = null;
 				try {
 					Object object = objReader.next();
@@ -758,7 +870,7 @@ public class ImportServiceImpl implements ImportService, ApplicationListener<Con
 				}
 			}
 
-			return stopped;
+			return job.isStopped();
 		}
 
 		private boolean processMultipleRowsPerObj(ObjectReader objReader, CsvWriter csvWriter, ObjectImporter<Object, Object> importer) {
@@ -801,9 +913,8 @@ public class ImportServiceImpl implements ImportService, ApplicationListener<Con
 				objectsMap.put(key, mergedObj);
 			}
 
-			boolean stopped = false;
 			Iterator<MergedObject> mergedObjIter = objectsMap.iterator();
-			while (mergedObjIter.hasNext() && (!job.isAskedToStop() || !(stopped = true))) {
+			while (mergedObjIter.hasNext() && !job.isStopped()) {
 				MergedObject mergedObj = mergedObjIter.next();
 				if (!mergedObj.isErrorneous()) {
 					String errMsg = null;
@@ -838,7 +949,7 @@ public class ImportServiceImpl implements ImportService, ApplicationListener<Con
 			}
 
 			objectsMap.clear();
-			return stopped;
+			return job.isStopped();
 		}
 		
 		private String importObject(final ObjectImporter<Object, Object> importer, Object object, Map<String, String> params) {
@@ -917,21 +1028,33 @@ public class ImportServiceImpl implements ImportService, ApplicationListener<Con
 			}
 		}
 
-		private void saveJob(long totalRecords, long failedRecords, Status status) {
-			job.setTotalRecords(totalRecords);
-			job.setFailedRecords(failedRecords);
-			job.setStatus(status);
+		private Status saveJob(long totalRecords, long failedRecords, Status status) {
+			return newTxTmpl.execute(txnStatus -> {
+				ImportJob dbJob = importJobDao.getJobForUpdate(job.getId());
+				dbJob.setTotalRecords(totalRecords);
+				dbJob.setFailedRecords(failedRecords);
 
-			if (status != Status.IN_PROGRESS) {
-				job.setEndTime(Calendar.getInstance().getTime());
-			}
-
-			newTxTmpl.execute(new TransactionCallback<Void>() {
-				@Override
-				public Void doInTransaction(TransactionStatus status) {
-					importJobDao.saveOrUpdate(job);
-					return null;
+				if (status != Status.IN_PROGRESS) {
+					// either completed or failed
+					dbJob.setStatus(status);
+				} else if (dbJob.isAskedToStop() || dbJob.isStopped()) {
+					// in progress job has been asked to stop
+					dbJob.setStatus(Status.STOPPED);
+				} else {
+					// in progress job
+					dbJob.setStatus(status);
 				}
+
+				if (!dbJob.isInProgress()) {
+					dbJob.setEndTime(Calendar.getInstance().getTime());
+				}
+
+				job.setTotalRecords(dbJob.getTotalRecords());
+				job.setFailedRecords(dbJob.getFailedRecords());
+				job.setStatus(dbJob.getStatus());
+				job.setEndTime(dbJob.getEndTime());
+				importJobDao.saveOrUpdate(dbJob);
+				return dbJob.getStatus();
 			});
 		}
 
