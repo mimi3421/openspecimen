@@ -97,6 +97,13 @@ public class AppServletContextListener implements ServletContextListener {
 		new File(logDir).mkdirs();
 		System.setProperty("os_log_dir", logDir);
 
+		String nodeName = AppProperties.getInstance().getNodeName();
+		if (!"none".equals(nodeName)) {
+			System.setProperty("os_log_file", "os." + nodeName.replaceAll("\\s+", "_"));
+		} else {
+			System.setProperty("os_log_file", "os");
+		}
+
 		BasicConfigurator.resetConfiguration();
 		PropertyConfigurator.configure(url);
 		logger.info("Initialised logging configuration from following file: " + url);
