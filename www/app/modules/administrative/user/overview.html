@@ -55,12 +55,12 @@
         <span>{{'user.expired' | translate: user }}</span>
       </div>
       <ul class="os-key-values os-two-cols">
-        <li class="item" ng-show="user.type != 'CONTACT'">
+        <li class="item" ng-if="user.type != 'CONTACT'">
           <strong class="key key-sm" translate="user.domain_name">Domain Name</strong>
           <span class="value value-md">{{user.domainName}}</span>
         </li>
       
-        <li class="item" ng-show="user.type != 'CONTACT'">
+        <li class="item" ng-if="user.type != 'CONTACT'">
           <strong class="key key-sm" translate="user.login_name">Login Name</strong>
           <span class="value value-md">{{user.loginName}}</span>
         </li>
@@ -95,12 +95,12 @@
           <span class="value value-md">{{user.timeZone | osNoValue}}</span>
         </li>
 
-        <li class="item" ng-show="user.type != 'CONTACT'">
+        <li class="item" ng-if="user.type != 'CONTACT'">
           <strong class="key key-sm" translate="user.manage_forms">Manage Forms?</strong>
           <span class="value value-md">{{user.manageForms | osBoolValue: 'common.yes': 'common.no': 'common.not_specified'}}</span>
         </li>
 
-        <li class="item" ng-show="user.type != 'CONTACT'">
+        <li class="item">
           <strong class="key key-sm" translate="user.disable_notifs">Disable Email Notifications?</strong>
           <span class="value value-md">{{user.dnd | osBoolValue: 'common.yes': 'common.no': 'common.not_specified'}}</span>
         </li>

@@ -28,4 +28,8 @@
   <changeSet author="vpawar" id="The default import runner - none">
     <sql>insert into os_import_runner (active_node, lock_time) values ('none', ${now})</sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="Update the DND status of all contact users to true">
+    <sql>update catissue_user set dnd = 1 where type = 'CONTACT'</sql>
+  </changeSet>
 </databaseChangeLog>

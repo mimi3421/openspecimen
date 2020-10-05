@@ -225,17 +225,12 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public Map<String, Pair<String, Boolean>> getEmailIdUserTypesAndDnds(Collection<String> emailIds) {
-		List<Object[]> rows = getCurrentSession().getNamedQuery(GET_EMAIL_ID_TYPES_AND_DNDS)
+	public Map<String, Boolean> getEmailIdDnds(Collection<String> emailIds) {
+		List<Object[]> rows = getCurrentSession().getNamedQuery(GET_EMAIL_ID_DNDS)
 			.setParameterList("emailIds", emailIds)
 			.list();
 
-		return rows.stream().collect(
-			Collectors.toMap(
-				row -> (String) row[0],
-				row -> Pair.make(((User.Type) row[1]).name(), (Boolean) row[2])
-			)
-		);
+		return rows.stream().collect(Collectors.toMap(row -> (String) row[0], row -> (Boolean) row[1]));
 	}
 
 	@Override
@@ -531,7 +526,7 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 	
 	private static final String UPDATE_STATUS = FQN + ".updateStatus";
 
-	private static final String GET_EMAIL_ID_TYPES_AND_DNDS = FQN + ".getEmailIdTypesAndDnds";
+	private static final String GET_EMAIL_ID_DNDS = FQN + ".getEmailIdDnds";
 
 	private static final String GET_STATE = UserUiState.class.getName() + ".getState";
 }

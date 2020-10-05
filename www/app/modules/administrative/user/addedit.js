@@ -1,7 +1,7 @@
 angular.module('os.administrative.user.addedit', ['os.administrative.models'])
   .controller('UserAddEditCtrl', function(
     $scope, $rootScope, $state, $stateParams, user, users, currentUser,
-    User, Institute, AuthDomain, Util, TimeZone) {
+    User, Institute, AuthDomain, Util, TimeZone, LocationChangeListener) {
 
     var instituteSites = {}, prevInstitute;
 
@@ -11,6 +11,14 @@ angular.module('os.administrative.user.addedit', ['os.administrative.models'])
       $scope.user = user;
       $scope.signedUp = false;
       loadPvs();
+
+      $scope.disabledFields = {fields: {}};
+      if (user.$$editProfile && !user.admin) {
+        [
+          'firstName', 'lastName', 'emailAddress', 'domainName', 'loginName',
+          'instituteName', 'primarySite', 'type', 'manageForms'
+        ].forEach(function(f) { $scope.disabledFields.fields['user.' + f] = true; });
+      }
     }
 
     function loadPvs() {
@@ -62,7 +70,11 @@ angular.module('os.administrative.user.addedit', ['os.administrative.models'])
       var user = angular.copy($scope.user);
       user.$saveOrUpdate().then(
         function(savedUser) {
-          $state.go('user-detail.overview', {userId: savedUser.id});
+          if ($scope.user.$$editProfile) {
+            LocationChangeListener.back();
+          } else {
+            $state.go('user-detail.overview', {userId: savedUser.id});
+          }
         }
       );
     }

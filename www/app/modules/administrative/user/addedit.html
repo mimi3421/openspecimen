@@ -1,7 +1,7 @@
 <div>
   <div os-page-header>
     <div class="os-page-header-content">
-      <ul os-breadcrumbs>
+      <ul os-breadcrumbs ng-show="!user.$$editProfile">
         <li>
           <a ui-sref="user-list">
             <span translate="user.list">Users</span>
@@ -16,7 +16,8 @@
   </div>
 
   <div class="container">
-    <form name="userForm" class="form-horizontal" os-form-validator="userForm" validator="userFormValidator" novalidate>
+    <form name="userForm" class="form-horizontal" os-form-validator="userForm" validator="userFormValidator" novalidate
+      os-disable-fields="disabledFields">
       <div show-if-admin class="form-group">
         <label class="col-xs-3 control-label" translate="user.type">Type</label>
         <div class="col-xs-6">
@@ -138,7 +139,7 @@
         </div>
       </div>
 
-      <div class="form-group" ng-if="user.type != 'CONTACT'">
+      <div class="form-group">
         <label class="col-xs-3 control-label">
           <span translate="user.disable_notifs">Disable Email Notifications</span>
         </label>

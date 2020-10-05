@@ -20,7 +20,11 @@
           <span class="fa fa-user"></span>
         </a>
         <ul class="dropdown-menu dropdown-menu-right" role="menu">
-          <li class="disabled"><a>{{currentUser | osUserDisplayName}}</a></li>
+          <li>
+            <a ui-sref="user-edit-profile">
+              <span>{{currentUser | osUserDisplayName}}</span>
+            </a>
+          </li>
           <li class="divider"></li>
           <li ng-if="currentUser.domain == global.defaultDomain">
             <a ui-sref="user-password({userId: currentUser.id})">

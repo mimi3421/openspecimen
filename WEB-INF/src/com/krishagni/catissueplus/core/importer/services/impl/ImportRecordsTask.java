@@ -36,7 +36,7 @@ import com.krishagni.catissueplus.core.importer.events.ImportJobDetail;
 
 @Configurable
 public class ImportRecordsTask implements ScheduledTask {
-	private static Log logger = LogFactory.getLog(ImportRecordsTask.class);
+	private static final Log logger = LogFactory.getLog(ImportRecordsTask.class);
 
 	private static final String TSTAMP_FMT = "yyyyMMddHHmmssSSS";
 

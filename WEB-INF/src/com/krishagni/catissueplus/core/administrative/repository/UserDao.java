@@ -59,6 +59,6 @@ public interface UserDao extends Dao<User> {
 
 	UserUiState getState(Long userId);
 
-	// [{emailId, Pair<Type, DND>}, {'abc@localhost', Pair<'SUPER', true>}]
-	Map<String, Pair<String, Boolean>> getEmailIdUserTypesAndDnds(Collection<String> emailIds);
+	// [{emailId, DND}, {'abc@localhost', true}]
+	Map<String, Boolean> getEmailIdDnds(Collection<String> emailIds);
 }

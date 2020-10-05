@@ -335,12 +335,12 @@ public class User extends BaseEntity implements UserDetails {
 		setPhoneNumber(user.getPhoneNumber());
 		setComments(user.getComments());
 		setTimeZone(user.getTimeZone());
+		setDnd(user.isDndEnabled());
 
 		if (!isContact()) {
 			setAuthDomain(user.getAuthDomain());
 			setLoginName(user.getLoginName());
 			setManageForms(user.canManageForms());
-			setDnd(user.isDndEnabled());
 		}
 	}
 

@@ -51,6 +51,25 @@ angular.module('os.administrative.user',
         controller: 'UserAddEditCtrl',
         parent: 'user-root'
       })
+      .state('user-edit-profile', {
+        url: '/user-edit-profile',
+        templateUrl: 'modules/administrative/user/addedit.html',
+        resolve: {
+          user: function(currentUser, User) {
+            return User.getById(currentUser.id).then(
+              function(user) {
+                user.$$editProfile = true;
+                return user;
+              }
+            );
+          },
+          users: function() {
+            return [];
+          }
+        },
+        controller: 'UserAddEditCtrl',
+        parent: 'user-root'
+      })
       .state('user-bulk-edit', {
         url: '/bulk-edit-users',
         templateUrl: 'modules/administrative/user/bulk-edit.html',

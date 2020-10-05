@@ -755,6 +755,22 @@ public class Utility {
 		return error;
 	}
 
+	public static Object getProperty(Object object, String propName) {
+		try {
+			return PropertyUtils.getProperty(object, propName);
+		} catch (Exception e) {
+			throw OpenSpecimenException.serverError(e);
+		}
+	}
+
+	public static void setProperty(Object object, String propName, Object value) {
+		try {
+			PropertyUtils.setProperty(object, propName, value);
+		} catch (Exception e) {
+			throw OpenSpecimenException.serverError(e);
+		}
+	}
+
 	private static Map<String, Object> getExtnAttrValues(BaseExtensionEntity obj) {
 		if (obj.getExtension() != null) {
 			return obj.getExtension().getAttrValues();

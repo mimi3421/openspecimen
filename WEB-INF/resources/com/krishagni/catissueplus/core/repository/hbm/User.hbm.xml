@@ -189,9 +189,9 @@
         user.id in (:userIds)
     </query>
 
-    <query name="getEmailIdTypesAndDnds">
+    <query name="getEmailIdDnds">
       select
-        u.emailAddress, u.type, u.dnd
+        u.emailAddress, u.dnd
       from
         com.krishagni.catissueplus.core.administrative.domain.User u
       where

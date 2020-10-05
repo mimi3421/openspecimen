@@ -183,6 +183,12 @@ public class AccessCtrlMgr {
 
 	private void ensureUserObjectRights(User user, Operation op) {
 		if (AuthUtil.isAdmin()) {
+			// admin allowed to update all kinds of users
+			return;
+		}
+
+		if (user.equals(AuthUtil.getCurrentUser()) && op != Operation.DELETE) {
+			// user is editing his/her own profile
 			return;
 		}
 
@@ -190,7 +196,8 @@ public class AccessCtrlMgr {
 			throw OpenSpecimenException.userError(RbacErrorCode.ADMIN_RIGHTS_REQUIRED);
 		}
 
-		if (!canUserPerformOp(AuthUtil.getCurrentUser().getId(), Resource.USER, new Operation[] {op})) {
+		if (!user.getInstitute().equals(AuthUtil.getCurrentUserInstitute()) ||
+			!canUserPerformOp(AuthUtil.getCurrentUser().getId(), Resource.USER, new Operation[] {op})) {
 			throw OpenSpecimenException.userError(RbacErrorCode.ACCESS_DENIED);
 		}
 	}

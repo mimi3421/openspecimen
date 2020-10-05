@@ -42,7 +42,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.common.OpenSpecimenAppCtxProvider;
-import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.domain.Email;
 import com.krishagni.catissueplus.core.common.domain.factory.EmailErrorCode;
@@ -415,13 +414,12 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 
 	private String[] filterEmailIds(String field, String[] emailIds, boolean ignoreDnd) {
 		String[] validEmailIds = filterInvalidEmails(emailIds);
-
 		if (validEmailIds.length == 0) {
 			logger.error("Invalid email IDs in " + field + " : " + toString(emailIds));
 			return validEmailIds;
 		}
 
-		String[] filteredEmailIds = filterEmailIds(validEmailIds, ignoreDnd);
+		String[] filteredEmailIds = ignoreDnd ? validEmailIds : filterEmailIds(validEmailIds);
 		if (logger.isDebugEnabled()) {
 			String ignoredEmailIds = Stream.of(validEmailIds)
 				.filter(emailId -> Stream.of(filteredEmailIds).noneMatch(emailId::equals))
@@ -432,21 +430,11 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 		return filteredEmailIds;
 	}
 
-	private String[] filterEmailIds(String[] emailIds, Boolean ignoreDnd) {
-		Map<String, Pair<String, Boolean>> settings = getEmailIdUserTypesDnds(emailIds);
+	private String[] filterEmailIds(String[] emailIds) {
+		Map<String, Boolean> settings = getEmailIdDnds(emailIds);
 		return Arrays.stream(emailIds)
-			.filter(emailId -> filterEmailId(emailId, settings, ignoreDnd))
+			.filter(emailId -> !settings.getOrDefault(emailId, false))
 			.toArray(String[]::new);
-	}
-
-	private boolean filterEmailId(String emailId, Map<String, Pair<String, Boolean>> settings, Boolean ignoreDnd) {
-		Pair<String, Boolean> setting = settings.getOrDefault(emailId, Pair.make(StringUtils.EMPTY, false));
-
-		if ("CONTACT".equals(setting.first()) || (!ignoreDnd && setting.second())) {
-			return false;
-		}
-
-		return true;
 	}
 
 	private String[] filterInvalidEmails(String[] emailIds) {
@@ -458,8 +446,8 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 	}
 
 	@PlusTransactional
-	private Map<String, Pair<String, Boolean>> getEmailIdUserTypesDnds(String[] validEmailIds) {
-		return daoFactory.getUserDao().getEmailIdUserTypesAndDnds(Arrays.asList(validEmailIds));
+	private Map<String, Boolean> getEmailIdDnds(String[] validEmailIds) {
+		return daoFactory.getUserDao().getEmailIdDnds(Arrays.asList(validEmailIds));
 	}
 
 	private String toString(String[] arr) {

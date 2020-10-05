@@ -2,6 +2,7 @@
 package com.krishagni.catissueplus.core.administrative.services.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -650,20 +651,34 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 		}
 	}
 
-	private UserDetail updateUser(UserDetail detail, boolean partial) {
-		User existingUser = getUser(detail.getId(), detail.getEmailAddress());
+	private UserDetail updateUser(UserDetail input, boolean partial) {
+		User existingUser = getUser(input.getId(), input.getEmailAddress());
 
-		if (Status.ACTIVITY_STATUS_DISABLED.getStatus().equals(detail.getActivityStatus())) {
+		if (Status.ACTIVITY_STATUS_DISABLED.getStatus().equals(input.getActivityStatus())) {
 			AccessCtrlMgr.getInstance().ensureDeleteUserRights(existingUser);
 		} else {
 			AccessCtrlMgr.getInstance().ensureUpdateUserRights(existingUser);
+			if (!AuthUtil.isAdmin() && AuthUtil.getCurrentUser().equals(existingUser)) {
+				//
+				// User is not an admin and trying update his/her profile.
+				//
+				UserDetail newDetail = UserDetail.from(existingUser);
+				List<String> allowedAttrs = Arrays.asList("phoneNumber", "timeZone", "dnd", "address");
+				for (String attr : allowedAttrs) {
+					if (input.isAttrModified(attr)) {
+						Utility.setProperty(newDetail, attr, Utility.getProperty(input, attr));
+					}
+				}
+
+				input = newDetail;
+			}
 		}
 
 		User user = null;
 		if (partial) {
-			user = userFactory.createUser(existingUser, detail);
+			user = userFactory.createUser(existingUser, input);
 		} else {
-			user = userFactory.createUser(detail);
+			user = userFactory.createUser(input);
 		}
 
 		resetAttrs(existingUser, user);

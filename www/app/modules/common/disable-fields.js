@@ -1,7 +1,7 @@
 
 angular.module('openspecimen')
   .directive('osDisableFields', function() {
-    var inputTags = 'input,os-date-picker,os-pvs,os-sites,os-select,fieldset'
+    var inputTags = 'input,os-date-picker,os-pvs,os-sites,os-select,fieldset,os-institutes'
   
     function ngModelAttr(el) {
       return el.attr('ng-model');
@@ -19,6 +19,8 @@ angular.module('openspecimen')
       'OS-SITES': ngModelAttr,
 
       'OS-SELECT': ngModelAttr,
+
+      'OS-INSTITUTES': ngModelAttr,
 
       'FIELDSET': function(el) {
         return el.attr('record-name');
