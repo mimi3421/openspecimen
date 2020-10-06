@@ -59,6 +59,6 @@ public class ShipmentSpecimenDetail implements Comparable<ShipmentSpecimenDetail
 	}
 	
 	public static List<ShipmentSpecimenDetail> from(Collection<ShipmentSpecimen> shipmentSpmns) {
-		return shipmentSpmns.stream().map(ShipmentSpecimenDetail::from).sorted().collect(Collectors.toList());
+		return shipmentSpmns.stream().map(ShipmentSpecimenDetail::from).collect(Collectors.toList());
 	}
 }

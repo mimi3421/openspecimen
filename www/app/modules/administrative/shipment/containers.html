@@ -4,8 +4,11 @@
       <table class="os-table">
         <thead class="os-table-head">
           <tr class="row">
-            <th class="col">
+            <th class="col os-pointer-cursor" ng-click="sortBy('name')">
               <span translate="container.name">Name</span>
+              <span ng-show="ctx.orderBy == 'name'" class="fa"
+                ng-class="{'asc': 'fa-long-arrow-up', 'desc': 'fa-long-arrow-down'}[ctx.direction]">
+              </span>
             </th>
             <th class="col">
               <span translate="container.dimension">Dimension</span>

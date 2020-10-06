@@ -26,7 +26,7 @@ angular.module('os.administrative.shipment')
       var maxResults  = ctx.itemsPerPage + 1;
 
       ctx.emptyState.loading = true;
-      shipment.getSpecimens(startAt, maxResults).then(
+      shipment.getSpecimens(startAt, maxResults, ctx.orderBy, ctx.direction).then(
         function(shipmentSpmns) {
           ctx.totalItems = (ctx.currPage - 1) * ctx.itemsPerPage + shipmentSpmns.length;
 
@@ -41,6 +41,17 @@ angular.module('os.administrative.shipment')
           angular.extend(ctx, ShipmentUtil.hasPpidAndExtIds(shipmentSpmns));
         }
       );
+    }
+
+    $scope.sortBy = function(attr) {
+      if (ctx.orderBy == attr) {
+        ctx.direction = (ctx.direction == 'asc' ? 'desc' : 'asc');
+      } else {
+        ctx.orderBy = attr;
+        ctx.direction = 'asc';
+      }
+
+      loadSpecimens();
     }
 
     init();

@@ -161,12 +161,14 @@ public class ShipmentServiceImpl implements ShipmentService, ObjectAccessor {
 				return ResponseEvent.response(Collections.emptyList());
 			}
 
-			Map<Long, ShipmentContainerDetail> containersMap = getShipmentDao().getShipmentContainers(crit).stream()
-				.collect(Collectors.toMap(sc -> sc.getContainer().getId(), ShipmentContainerDetail::from));
-
-			if (containersMap.isEmpty()) {
+			List<ShipmentContainer> shipmentContainers = getShipmentDao().getShipmentContainers(crit);
+			if (shipmentContainers.isEmpty()) {
 				return ResponseEvent.response(Collections.emptyList());
 			}
+
+			List<ShipmentContainerDetail> result = ShipmentContainerDetail.from(shipmentContainers);
+			Map<Long, ShipmentContainerDetail> containersMap = result.stream()
+				.collect(Collectors.toMap(sc -> sc.getContainer().getId(), sc -> sc));
 
 			Map<Long, Integer> spmnCounts;
 			if (shipment.isPending()) {
@@ -176,7 +178,7 @@ public class ShipmentServiceImpl implements ShipmentService, ObjectAccessor {
 			}
 
 			spmnCounts.forEach((cid, count) -> containersMap.get(cid).setSpecimensCount(count));
-			return ResponseEvent.response(new ArrayList<>(containersMap.values()));
+			return ResponseEvent.response(result);
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {

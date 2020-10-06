@@ -119,6 +119,12 @@ public class ShipmentController {
 		@PathVariable("id")
 		Long shipmentId,
 
+		@RequestParam(value = "orderBy", required = false)
+		String orderBy,
+
+		@RequestParam(value = "direction", required = false, defaultValue = "asc")
+		String direction,
+
 		@RequestParam(value = "startAt", required = false, defaultValue = "0")
 		int startAt,
 
@@ -127,6 +133,8 @@ public class ShipmentController {
 
 		ShipmentItemsListCriteria crit = new ShipmentItemsListCriteria()
 			.shipmentId(shipmentId)
+			.orderBy(orderBy)
+			.asc("asc".equals(direction))
 			.startAt(startAt)
 			.maxResults(maxResults);
 		return response(shipmentSvc.getShipmentContainers(request(crit)));
@@ -139,6 +147,12 @@ public class ShipmentController {
 		@PathVariable("id")
 		Long shipmentId,
 
+		@RequestParam(value = "orderBy", required = false)
+		String orderBy,
+
+		@RequestParam(value = "direction", required = false, defaultValue = "asc")
+		String direction,
+
 		@RequestParam(value = "startAt", required = false, defaultValue = "0")
 		int startAt,
 
@@ -147,6 +161,8 @@ public class ShipmentController {
 
 		ShipmentItemsListCriteria crit = new ShipmentItemsListCriteria()
 			.shipmentId(shipmentId)
+			.orderBy(orderBy)
+			.asc("asc".equals(direction))
 			.startAt(startAt)
 			.maxResults(maxResults);
 		return response(shipmentSvc.getShipmentSpecimens(request(crit)));

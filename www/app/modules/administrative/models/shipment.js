@@ -35,8 +35,8 @@ angular.module('os.administrative.models.shipment', ['os.common.models'])
       );
     }
 
-    Shipment.prototype.getSpecimens = function(startAt, maxSpmns) {
-      var params = {startAt: startAt, maxResults: maxSpmns};
+    Shipment.prototype.getSpecimens = function(startAt, maxSpmns, orderBy, direction) {
+      var params = {orderBy: orderBy, direction: direction, startAt: startAt, maxResults: maxSpmns};
       return $http.get(Shipment.url() + this.$id() + '/specimens', {params: params}).then(
         function(resp) {
           return resp.data;
@@ -44,8 +44,8 @@ angular.module('os.administrative.models.shipment', ['os.common.models'])
       );
     }
 
-    Shipment.prototype.getContainers = function(startAt, maxSpmns) {
-      var params = {startAt: startAt, maxResults: maxSpmns};
+    Shipment.prototype.getContainers = function(startAt, maxSpmns, orderBy, direction) {
+      var params = {orderBy: orderBy, direction: direction, startAt: startAt, maxResults: maxSpmns};
       return $http.get(Shipment.url() + this.$id() + '/containers', {params: params}).then(
         function(resp) {
           return resp.data;

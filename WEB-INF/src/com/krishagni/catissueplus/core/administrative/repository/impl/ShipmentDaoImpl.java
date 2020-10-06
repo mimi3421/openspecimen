@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
-import org.hibernate.criterion.Conjunction;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Disjunction;
@@ -18,6 +17,7 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
+import org.hibernate.sql.JoinType;
 
 import com.krishagni.catissueplus.core.administrative.domain.Shipment;
 import com.krishagni.catissueplus.core.administrative.domain.Shipment.Status;
@@ -84,13 +84,20 @@ public class ShipmentDaoImpl extends AbstractDao<Shipment> implements ShipmentDa
 	@Override
 	@SuppressWarnings("unchecked")
 	public List<ShipmentContainer> getShipmentContainers(ShipmentItemsListCriteria crit) {
-		return getCurrentSession().createCriteria(ShipmentContainer.class, "sc")
+		Criteria query = getCurrentSession().createCriteria(ShipmentContainer.class, "sc")
 			.createAlias("sc.shipment", "s")
 			.add(Restrictions.eq("s.id", crit.shipmentId()))
 			.setFirstResult(crit.startAt())
-			.setMaxResults(crit.maxResults())
-			.addOrder(Order.asc("sc.id"))
-			.list();
+			.setMaxResults(crit.maxResults());
+
+		if (StringUtils.isNotBlank(crit.orderBy())) {
+			if ("name".equals(crit.orderBy())) {
+				query.createAlias("sc.container", "box")
+					.addOrder(crit.asc() ? Order.asc("box.name") : Order.desc("box.name"));
+			}
+		}
+
+		return query.addOrder(Order.asc("sc.id")).list();
 	}
 
 	@Override
@@ -98,20 +105,54 @@ public class ShipmentDaoImpl extends AbstractDao<Shipment> implements ShipmentDa
 	public List<ShipmentSpecimen> getShipmentSpecimens(ShipmentItemsListCriteria crit) {
 		Criteria query = getCurrentSession().createCriteria(ShipmentSpecimen.class, "ss")
 			.createAlias("ss.shipment", "s")
-			.add(Restrictions.eq("s.id", crit.shipmentId()))
-			.setFirstResult(crit.startAt())
-			.setMaxResults(crit.maxResults())
-			.addOrder(Order.asc("ss.id"));
+			.add(Restrictions.eq("s.id", crit.shipmentId()));
 
 		if (crit.containerId() != null) {
-			query.createAlias("ss.specimen", "specimen")
-				.createAlias("specimen.position", "pos")
+			query.createAlias("ss.specimen", "spmn")
+				.createAlias("spmn.position", "pos")
 				.createAlias("pos.container", "box")
 				.createAlias("box.ancestorContainers", "container")
 				.add(Restrictions.eq("container.id", crit.containerId()));
 		}
 
-		return query.list();
+		if (StringUtils.isNotBlank(crit.orderBy())) {
+			switch (crit.orderBy()) {
+				case "label":
+					query.createAlias("ss.specimen", "spmn")
+						.addOrder(crit.asc() ? Order.asc("spmn.label") : Order.desc("spmn.label"));
+					break;
+
+				case "ppid":
+					query.createAlias("ss.specimen", "spmn")
+						.createAlias("spmn.visit", "visit")
+						.createAlias("visit.registration", "cpr")
+						.addOrder(crit.asc() ? Order.asc("cpr.ppid") : Order.desc("cpr.ppid"));
+					break;
+
+				case "cp":
+					query.createAlias("ss.specimen", "spmn")
+						.createAlias("spmn.collectionProtocol", "cp")
+						.addOrder(crit.asc() ? Order.asc("cp.shortTitle") : Order.desc("cp.shortTitle"));
+					break;
+
+				case "location":
+					if (crit.containerId() == null) {
+						query.createAlias("ss.specimen", "spmn")
+							.createAlias("spmn.position", "pos", JoinType.LEFT_OUTER_JOIN)
+							.createAlias("pos.container", "box", JoinType.LEFT_OUTER_JOIN);
+					}
+
+					query.addOrder(crit.asc() ? Order.asc("box.name") : Order.desc("box.name"))
+						.addOrder(crit.asc() ? Order.asc("pos.posTwoOrdinal") : Order.desc("pos.posOneOrdinal"))
+						.addOrder(crit.asc() ? Order.asc("pos.posOneOrdinal") : Order.desc("pos.posOneOrdinal"));
+					break;
+			}
+		}
+
+		return query.addOrder(Order.asc("ss.id"))
+			.setFirstResult(crit.startAt())
+			.setMaxResults(crit.maxResults())
+			.list();
 	}
 
 	@Override

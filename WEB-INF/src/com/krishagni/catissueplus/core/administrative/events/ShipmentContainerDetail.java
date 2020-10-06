@@ -66,6 +66,6 @@ public class ShipmentContainerDetail implements Comparable<ShipmentContainerDeta
 	}
 
 	public static List<ShipmentContainerDetail> from(Collection<ShipmentContainer> shipmentContainers) {
-		return shipmentContainers.stream().map(ShipmentContainerDetail::from).sorted().collect(Collectors.toList());
+		return shipmentContainers.stream().map(ShipmentContainerDetail::from).collect(Collectors.toList());
 	}
 }
