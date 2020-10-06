@@ -13,7 +13,8 @@ angular.module('os.administrative.user.addedit', ['os.administrative.models'])
       loadPvs();
 
       $scope.disabledFields = {fields: {}};
-      if (user.$$editProfile && !user.admin) {
+
+      if (user.$$editProfile && user.type != 'SUPER') {
         [
           'firstName', 'lastName', 'emailAddress', 'domainName', 'loginName',
           'instituteName', 'primarySite', 'type', 'manageForms'
@@ -71,7 +72,8 @@ angular.module('os.administrative.user.addedit', ['os.administrative.models'])
       user.$saveOrUpdate().then(
         function(savedUser) {
           if ($scope.user.$$editProfile) {
-            LocationChangeListener.back();
+            angular.extend(currentUser, savedUser);
+            $state.go('home', {}, {reload: true});
           } else {
             $state.go('user-detail.overview', {userId: savedUser.id});
           }
