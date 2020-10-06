@@ -40,6 +40,7 @@ import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.catissueplus.core.common.util.ConfigUtil;
+import com.krishagni.catissueplus.core.common.util.Utility;
 
 public class SamlFilter extends FilterChainProxy {
 	private static final Log logger = LogFactory.getLog(SamlFilter.class);
@@ -199,7 +200,7 @@ public class SamlFilter extends FilterChainProxy {
 
 		TokenDetail tokenDetail = new TokenDetail();
 		tokenDetail.setToken(authToken);
-		tokenDetail.setIpAddress(httpReq.getRemoteAddr());
+		tokenDetail.setIpAddress(Utility.getRemoteAddress(httpReq));
 
 		RequestEvent<TokenDetail> atReq = new RequestEvent<>(tokenDetail);
 		ResponseEvent<AuthToken> atResp = authService.validateToken(atReq);

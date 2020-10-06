@@ -20,6 +20,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -40,6 +41,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.beanutils.BeanToPropertyValueTransformer;
@@ -769,6 +771,31 @@ public class Utility {
 		} catch (Exception e) {
 			throw OpenSpecimenException.serverError(e);
 		}
+	}
+
+	public static String getRemoteAddress(HttpServletRequest httpReq) {
+		Enumeration<String> headers = httpReq.getHeaderNames();
+
+		String result = null;
+		while (headers.hasMoreElements()) {
+			String header = headers.nextElement();
+			if (header != null && !header.toLowerCase().equals("x-forwarded-for")) {
+				continue;
+			}
+
+			String value = httpReq.getHeader(header);
+			if (StringUtils.isNotBlank(value)) {
+				String[] parts = value.split(",");
+				result = parts[0].trim();
+				break;
+			}
+		}
+
+		if (StringUtils.isBlank(result)) {
+			result = httpReq.getRemoteAddr();
+		}
+
+		return result;
 	}
 
 	private static Map<String, Object> getExtnAttrValues(BaseExtensionEntity obj) {

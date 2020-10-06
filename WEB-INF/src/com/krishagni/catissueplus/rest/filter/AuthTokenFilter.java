@@ -46,6 +46,7 @@ import com.krishagni.catissueplus.core.common.service.ConfigChangeListener;
 import com.krishagni.catissueplus.core.common.service.ConfigurationService;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.catissueplus.core.common.util.ConfigUtil;
+import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.catissueplus.rest.RestErrorController;
 
 public class AuthTokenFilter extends GenericFilterBean implements InitializingBean {
@@ -159,7 +160,7 @@ public class AuthTokenFilter extends GenericFilterBean implements InitializingBe
 		if (authToken != null) {
 			TokenDetail tokenDetail = new TokenDetail();
 			tokenDetail.setToken(authToken);
-			tokenDetail.setIpAddress(httpReq.getRemoteAddr());			
+			tokenDetail.setIpAddress(Utility.getRemoteAddress(httpReq));
 
 			ResponseEvent<AuthToken> atResp = authService.validateToken(new RequestEvent<>(tokenDetail));
 			if (atResp.isSuccessful()) {
@@ -256,12 +257,11 @@ public class AuthTokenFilter extends GenericFilterBean implements InitializingBe
 		LoginDetail detail = new LoginDetail();
 		detail.setLoginName(parts[0]);
 		detail.setPassword(parts[1]);
-		detail.setIpAddress(httpReq.getRemoteAddr());
 		detail.setDomainName(User.DEFAULT_AUTH_DOMAIN);
 		detail.setDoNotGenerateToken(true);
+		detail.setIpAddress(Utility.getRemoteAddress(httpReq));
 
-		RequestEvent<LoginDetail> req = new RequestEvent<LoginDetail>(detail);
-		ResponseEvent<Map<String, Object>> resp = authService.authenticateUser(req);
+		ResponseEvent<Map<String, Object>> resp = authService.authenticateUser(RequestEvent.wrap(detail));
 		if (resp.isSuccessful()) {
 			return (AuthToken) resp.getPayload().get("tokenObj");
 		}

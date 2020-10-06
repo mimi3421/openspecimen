@@ -21,6 +21,7 @@ import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
+import com.krishagni.catissueplus.core.common.util.Utility;
 
 @Configurable
 public class SamlAuthenticationServiceImpl extends SimpleUrlAuthenticationSuccessHandler implements AuthenticationService {
@@ -53,7 +54,7 @@ public class SamlAuthenticationServiceImpl extends SimpleUrlAuthenticationSucces
 		User user = (User) auth.getPrincipal();
 
 		LoginDetail loginDetail = new LoginDetail();
-		loginDetail.setIpAddress(req.getRemoteAddr());
+		loginDetail.setIpAddress(Utility.getRemoteAddress(req));
 		loginDetail.setApiUrl(req.getRequestURI());
 		loginDetail.setRequestMethod(RequestMethod.POST.name());
 

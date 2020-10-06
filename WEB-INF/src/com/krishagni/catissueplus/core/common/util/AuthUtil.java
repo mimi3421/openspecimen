@@ -17,7 +17,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.codec.Base64;
-import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 
 import com.krishagni.catissueplus.core.administrative.domain.Institute;
@@ -55,18 +54,12 @@ public class AuthUtil {
 	}
 	
 	public static String getRemoteAddr() {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if (auth == null) {
+		UserAuthToken token = (UserAuthToken) SecurityContextHolder.getContext().getAuthentication();
+		if (token == null) {
 			return null;
 		}
-		
-		Object obj = auth.getDetails();
-		if (obj instanceof WebAuthenticationDetails) {
-			WebAuthenticationDetails details = (WebAuthenticationDetails)obj;
-			return details.getRemoteAddress();
-		}
-		
-		return null;
+
+		return token.getIpAddress();
 	}
 
 	public static TimeZone getUserTimeZone() {
@@ -89,6 +82,7 @@ public class AuthUtil {
 		if (httpReq != null) {
 			token.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpReq));
 			token.setTimeZone(httpReq.getHeader("X-OS-CLIENT-TZ"));
+			token.setIpAddress(Utility.getRemoteAddress(httpReq));
 		}
 
 		SecurityContextHolder.getContext().setAuthentication(token);
@@ -225,6 +219,8 @@ public class AuthUtil {
 	private static class UserAuthToken extends UsernamePasswordAuthenticationToken {
 		private String timeZone;
 
+		private String ipAddress;
+
 		public UserAuthToken(Object principal, Object credentials) {
 			super(principal, credentials);
 		}
@@ -239,6 +235,14 @@ public class AuthUtil {
 
 		public void setTimeZone(String timeZone) {
 			this.timeZone = timeZone;
+		}
+
+		public String getIpAddress() {
+			return ipAddress;
+		}
+
+		public void setIpAddress(String ipAddress) {
+			this.ipAddress = ipAddress;
 		}
 	}
 }

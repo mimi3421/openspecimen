@@ -25,6 +25,7 @@ import com.krishagni.catissueplus.core.auth.services.UserAuthenticationService;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
+import com.krishagni.catissueplus.core.common.util.Utility;
 
 @Controller
 @RequestMapping("/sessions")
@@ -40,7 +41,7 @@ public class AuthenticationController {
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
 	public Map<String, Object> authenticate(@RequestBody LoginDetail loginDetail, HttpServletResponse httpResp) {
-		loginDetail.setIpAddress(httpReq.getRemoteAddr());
+		loginDetail.setIpAddress(Utility.getRemoteAddress(httpReq));
 		loginDetail.setApiUrl(httpReq.getRequestURI());
 		loginDetail.setRequestMethod(RequestMethod.POST.name());
 		ResponseEvent<Map<String, Object>> resp = userAuthService.authenticateUser(new RequestEvent<>(loginDetail));
