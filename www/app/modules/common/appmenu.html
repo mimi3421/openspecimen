@@ -16,9 +16,7 @@
     </div>
     <ul class="menu" ng-class="{'os-hide-nav-buttons': global.hideNavButtons}">
       <li class="dropdown" dropdown os-tooltip="{{'common.tooltip.user_profile' | translate}}">
-        <a class="dropdown-toggle">
-          <span class="fa fa-user"></span>
-        </a>
+        <a class="dropdown-toggle" os-letter-avatar name="userCtx.name" style="margin-top: -7px;"></a>
         <ul class="dropdown-menu dropdown-menu-right" role="menu">
           <li>
             <a ui-sref="user-edit-profile">

@@ -1,16 +1,18 @@
 angular.module('openspecimen')
   .controller('SignedInCtrl', function(
-     $scope, $rootScope, $state, $timeout, $sce, $modal, currentUser, userUiState, videoSettings,
+     $scope, $rootScope, $state, $timeout, $sce, $modal, $filter, currentUser, userUiState, videoSettings,
      AuthService, Alerts, AuthorizationService, SettingUtil, User) {
 
      function init() {
        $scope.alerts = Alerts.messages;
        $rootScope.currentUser = currentUser;
        $rootScope.logout = false;
+
        var ctx = $scope.userCtx = {
          hasPhiAccess: AuthorizationService.hasPhiAccess(),
          state: userUiState,
-         showNewStuff: true
+         showNewStuff: true,
+         name: $filter('osUserDisplayName')(currentUser) || ''
        }
 
        var revision = ui.os.global.appProps.build_commit_revision;
