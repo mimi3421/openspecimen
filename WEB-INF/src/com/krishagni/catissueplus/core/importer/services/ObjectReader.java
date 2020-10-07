@@ -189,7 +189,8 @@ public class ObjectReader implements Closeable {
 			} else if (subObjProps instanceof Map<?, ?>) {
 				Map<String, Object> subObj = (Map<String, Object>)subObjProps;
 				if (!subObj.isEmpty()) {
-					props.put(subRec.getAttribute(), nullOrObj(subObj));
+					// props.put(subRec.getAttribute(), nullOrObj(subObj));
+					props.put(subRec.getAttribute(), subObj);
 				}
 			}
 		}
