@@ -31,6 +31,7 @@ import com.krishagni.catissueplus.core.audit.services.impl.DeleteLogUtil;
 import com.krishagni.catissueplus.core.biospecimen.ConfigParams;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
+import com.krishagni.catissueplus.core.biospecimen.domain.CpSpecimenLabelPrintSetting;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenPreSaveEvent;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenRequirement;
@@ -1082,13 +1083,8 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 		List<PrintItem<Specimen>> printItems = new ArrayList<>();
 		specimens.stream().sorted(Comparator.comparingLong(Specimen::getId)).forEach(
 			(specimen) -> {
-				Integer copies = null;
-				if (specimen.getSpecimenRequirement() != null) {
-					copies = specimen.getSpecimenRequirement().getLabelPrintCopiesToUse();
-				}
-
 				if (specimen.isPrintLabel()) {
-					printItems.add(PrintItem.make(specimen, copies));
+					printItems.add(PrintItem.make(specimen, getCopiesToPrint(specimen)));
 				}
 
 				if (CollectionUtils.isNotEmpty(specimen.getSpecimensPool())) {
@@ -1102,6 +1098,15 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 		);
 
 		return printItems;
+	}
+
+	private Integer getCopiesToPrint(Specimen spmn) {
+		if (spmn.getSpecimenRequirement() != null) {
+			return spmn.getSpecimenRequirement().getLabelPrintCopiesToUse();
+		}
+
+		CpSpecimenLabelPrintSetting setting = spmn.getCollectionProtocol().getSpmnLabelPrintSetting(spmn.getLineage());
+		return setting != null ? setting.getCopies() : null;
 	}
 
 	private List<Specimen> getFlattenedSpecimens(Collection<Specimen> specimens) {
