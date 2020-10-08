@@ -349,6 +349,9 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 		
 		if (parent != null) {
 			specimen.setParentSpecimen(parent);
+			if (!parent.isCollected()) {
+				specimen.setAutoCollectParents(true);
+			}
 			return;
 		}
 		
@@ -361,13 +364,48 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 			Long srId = specimen.getSpecimenRequirement().getId();			
 			parent = daoFactory.getSpecimenDao().getParentSpecimenByVisitAndSr(visitId, srId);
 			if (parent == null) {
-				ose.addError(SpecimenErrorCode.PARENT_NF_BY_VISIT_AND_SR, visitId, srId);
+				parent = createParent(specimen);
 			}
 		} else {
 			ose.addError(SpecimenErrorCode.PARENT_REQUIRED);
 		}
 		
 		specimen.setParentSpecimen(parent);
+		if (parent != null && !parent.isCollected()) {
+			specimen.setAutoCollectParents(true);
+		}
+	}
+
+	private Specimen createParent(Specimen specimen) {
+		SpecimenRequirement sr = specimen.getSpecimenRequirement();
+		if (sr == null) {
+			return null;
+		}
+
+		SpecimenRequirement parentSr = sr.getParentSpecimenRequirement();
+		Specimen parent = parentSr.getSpecimen();
+		parent.setCollectionStatus(Specimen.PENDING);
+		parent.setVisit(specimen.getVisit());
+		parent.setCollectionProtocol(specimen.getVisit().getCollectionProtocol());
+		parent.setActivityStatus(Status.ACTIVITY_STATUS_ACTIVE.getStatus());
+		if (!parent.isPrimary()) {
+			Specimen parentOfParent = daoFactory.getSpecimenDao().getParentSpecimenByVisitAndSr(specimen.getVisit().getId(), parentSr.getId());
+			if (parentOfParent == null) {
+				parentOfParent = createParent(parent);
+			}
+
+			parent.setParentSpecimen(parentOfParent);
+		}
+
+		parent.setLabelIfEmpty();
+		if (parent.isPrimary()) {
+			daoFactory.getSpecimenDao().saveOrUpdate(parent);
+		} else {
+			parent.setAutoCollectParents(true);
+			parent.getParentSpecimen().addChildSpecimen(parent);
+		}
+
+		return parent;
 	}
 
 	private Specimen getSpecimen(Long id, String cpShortTitle, String label, OpenSpecimenException ose) {
