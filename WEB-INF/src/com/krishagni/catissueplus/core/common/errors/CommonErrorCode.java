@@ -9,6 +9,8 @@ public enum CommonErrorCode implements ErrorCode {
 
 	SQL_EXCEPTION,
 
+	DB_CONN_ERROR,
+
 	FILE_NOT_FOUND,
 
 	FILE_SEND_ERROR,
