@@ -422,12 +422,14 @@ angular.module('os.administrative.container.addedit', ['os.administrative.models
     }
 
     $scope.setDimensionless = function() {
-      $scope.container.$$regular = false;
-      $scope.container.$$dimensionless = true;
-      $scope.container.noOfRows = $scope.container.noOfColumns = null;
-      $scope.container.positionLabelingMode = 'LINEAR';
-      $scope.container.storeSpecimensEnabled = true;
-      $scope.container.rowLabelingScheme = $scope.container.columnLabelingScheme = 'Numbers';
+      var container = $scope.container;
+      container.$$regular = false;
+      container.$$dimensionless = true;
+      container.noOfRows = container.noOfColumns = null;
+      container.positionLabelingMode = 'LINEAR';
+      container.storeSpecimensEnabled =
+        (container.storeSpecimensEnabled == undefined || container.storeSpecimensEnabled == null);
+      container.rowLabelingScheme = $scope.container.columnLabelingScheme = 'Numbers';
     }
 
     $scope.setAutomated = function() {

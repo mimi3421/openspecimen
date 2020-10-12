@@ -701,14 +701,9 @@ public class StorageContainerFactoryImpl implements StorageContainerFactory {
 	}
 
 	private void setStoreSpecimenEnabled(StorageContainerDetail detail, StorageContainer container, OpenSpecimenException ose) {
-		boolean storeSpecimensEnabled;
-		if (container.isDimensionless()) {
-			storeSpecimensEnabled = true;
-		} else {
-			storeSpecimensEnabled = detail.isStoreSpecimensEnabled();
-			if (detail.getStoreSpecimensEnabled() == null && container.getType() != null) {
-				storeSpecimensEnabled = container.getType().isStoreSpecimenEnabled();
-			}
+		boolean storeSpecimensEnabled = detail.isStoreSpecimensEnabled();
+		if (detail.getStoreSpecimensEnabled() == null && container.getType() != null) {
+			storeSpecimensEnabled = container.getType().isStoreSpecimenEnabled();
 		}
 
 		container.setStoreSpecimenEnabled(storeSpecimensEnabled);
