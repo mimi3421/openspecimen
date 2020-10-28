@@ -34,7 +34,11 @@ public class JsonDateDeserializer extends UntypedObjectDeserializer {
 				try {
 					ret = Date.from(Instant.parse(p.getText()));
 				} catch (Exception e1) {
-					ret = super.deserialize(p, ctxt);
+					try {
+						ret = new Date(Long.parseLong(p.getText()));
+					} catch (Exception e2) {
+						ret = super.deserialize(p, ctxt);
+					}
 				}
 			}
 		} else if (p.getCurrentToken() == JsonToken.VALUE_NUMBER_INT) {
