@@ -80,6 +80,7 @@ public class CsvFileWriter implements CsvWriter {
 	@Override
 	public void close() throws IOException {
 		try {
+			flush();
 			csvWriter.close();
 		} catch (IOException e) {
 			throw new CsvException("Error closing CSVWriter", e);
