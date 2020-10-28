@@ -62,22 +62,20 @@ import com.krishagni.catissueplus.core.biospecimen.repository.VisitsDao;
 import com.krishagni.catissueplus.core.common.repository.AbstractDao;
 import com.krishagni.catissueplus.core.common.repository.ConfigSettingDao;
 import com.krishagni.catissueplus.core.common.repository.ExternalAppIdDao;
-import com.krishagni.catissueplus.core.common.repository.StarredItemDao;
 import com.krishagni.catissueplus.core.common.repository.MessageLogDao;
-import com.krishagni.catissueplus.core.common.repository.MobileUploadJobDao;
 import com.krishagni.catissueplus.core.common.repository.PrintRuleConfigDao;
 import com.krishagni.catissueplus.core.common.repository.SearchEntityKeywordDao;
+import com.krishagni.catissueplus.core.common.repository.StarredItemDao;
 import com.krishagni.catissueplus.core.common.repository.UnhandledExceptionDao;
 import com.krishagni.catissueplus.core.common.repository.UniqueIdGenerator;
 import com.krishagni.catissueplus.core.common.repository.UpgradeLogDao;
 import com.krishagni.catissueplus.core.common.repository.UserNotificationDao;
 import com.krishagni.catissueplus.core.common.repository.impl.ConfigSettingDaoImpl;
 import com.krishagni.catissueplus.core.common.repository.impl.ExternalAppIdDaoImpl;
-import com.krishagni.catissueplus.core.common.repository.impl.StarredItemDaoImpl;
 import com.krishagni.catissueplus.core.common.repository.impl.MessageLogDaoImpl;
-import com.krishagni.catissueplus.core.common.repository.impl.MobileUploadJobDaoImpl;
 import com.krishagni.catissueplus.core.common.repository.impl.PrintRuleConfigDaoImpl;
 import com.krishagni.catissueplus.core.common.repository.impl.SearchEntityKeywordDaoImpl;
+import com.krishagni.catissueplus.core.common.repository.impl.StarredItemDaoImpl;
 import com.krishagni.catissueplus.core.common.repository.impl.UnhandledExceptionDaoImpl;
 import com.krishagni.catissueplus.core.common.repository.impl.UniqueIdGeneratorImpl;
 import com.krishagni.catissueplus.core.common.repository.impl.UpgradeLogDaoImpl;
@@ -403,13 +401,6 @@ public class DaoFactoryImpl implements DaoFactory {
 	@Override
 	public CollectionProtocolGroupDao getCpGroupDao() {
 		CollectionProtocolGroupDaoImpl dao = new CollectionProtocolGroupDaoImpl();
-		setSessionFactory(dao);
-		return dao;
-	}
-
-	@Override
-	public MobileUploadJobDao getMobileUploadJobDao() {
-		MobileUploadJobDaoImpl dao = new MobileUploadJobDaoImpl();
 		setSessionFactory(dao);
 		return dao;
 	}
