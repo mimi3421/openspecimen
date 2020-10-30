@@ -1,6 +1,7 @@
 package com.krishagni.catissueplus.core.common.service.impl;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
@@ -331,7 +332,7 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 	}
 
 	private MimeMessage createMessage(Email mail, Map<String, Object> props)
-	throws MessagingException  {
+	throws MessagingException, UnsupportedEncodingException {
 		if (props == null) {
 			props = Collections.emptyMap();
 		}
@@ -363,6 +364,20 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 
 		message.setText(mail.getBody(), true); // true = isHtml
 		message.setFrom(getAccountId());
+
+		String replyDispName = (String) props.getOrDefault("$replyToDisplayName", null);
+		String replyTo = (String) props.getOrDefault("$replyTo", null);
+		if (StringUtils.isBlank(replyDispName)) {
+			replyDispName = replyTo;
+		}
+
+		if (StringUtils.isNotBlank(replyDispName)) {
+			message.setFrom(new InternetAddress(getAccountId(), replyDispName));
+		}
+
+		if (StringUtils.isNotBlank(replyTo)) {
+			message.setReplyTo(new InternetAddress(replyTo, replyDispName));
+		}
 
 		if (mail.getAttachments() != null) {
 			for (File attachment: mail.getAttachments()) {
