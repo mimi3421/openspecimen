@@ -194,7 +194,7 @@ public class ScheduledTaskManagerImpl implements ScheduledTaskManager, Scheduled
 		return newTxTmpl.execute(
 			status -> {
 				Properties appProps = AppProperties.getInstance().getProperties();
-				String thisNode = appProps.getProperty("node.name", "none");
+				String thisNode = appProps.getProperty("node.name", "thisNode");
 
 				String node = daoFactory.getScheduledJobDao().getRunByNodeForUpdate(job.getId());
 				logger.info("Lock on the job " + job.getName() + " is held by " + (node != null ? node : "none"));
