@@ -22,6 +22,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationListener;
@@ -49,6 +51,7 @@ import com.krishagni.catissueplus.core.common.util.Status;
 import com.krishagni.catissueplus.core.common.util.Utility;
 
 public class ConfigurationServiceImpl implements ConfigurationService, InitializingBean, ApplicationListener<ContextRefreshedEvent> {
+	private static final Log logger = LogFactory.getLog(ConfigurationServiceImpl.class);
 	
 	private Map<String, List<ConfigChangeListener>> changeListeners = new ConcurrentHashMap<>();
 	
@@ -629,6 +632,8 @@ public class ConfigurationServiceImpl implements ConfigurationService, Initializ
 		if (!existingLocale.equals(newLocale)) {
 			Locale.setDefault(newLocale);
 		}
+
+		logger.info("App is using the locale: " + newLocale.toString());
 	}
 	
 	private boolean isAutoEmpiEnabled() {

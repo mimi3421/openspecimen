@@ -110,6 +110,7 @@
 
   <changeSet author="vpawar" id="Common application settings" dbms="mysql">
     <validCheckSum>7:db2e1d754db0d380c8926b11950f9535</validCheckSum>
+    <validCheckSum>8:fa654a939124ebffdcb0725f43acd5f4</validCheckSum>
     <sql>
       insert into os_modules
         (identifier, name, description)
@@ -125,13 +126,14 @@
       call add_cfg_prop(
         'common', 'locale',
         'common_locale', 'common_locale_desc',
-        'STRING', 'en_US'
+        'STRING', ''
       );
     </sql>
   </changeSet>
 
   <changeSet author="vpawar" id="Common application settings" dbms="oracle">
     <validCheckSum>7:f7e18dab8a3189a75d4559cab3aeaf2f</validCheckSum>
+    <validCheckSum>8:7ec8b79a9c1b4eb115237a59d16a8a8b</validCheckSum>
     <sql>
       insert into os_modules
         (identifier, name, description)
@@ -147,7 +149,7 @@
       call add_cfg_prop(
         'common', 'locale',
         'common_locale', 'common_locale_desc',
-        'STRING', 'en_US'
+        'STRING', ''
       );
     </sql>
   </changeSet>
