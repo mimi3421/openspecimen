@@ -57,32 +57,6 @@
       <key column="PARTICIPANT_ID"/>
       <one-to-many class="com.krishagni.catissueplus.core.biospecimen.domain.StagedVisit"/>
     </set>
-    
-    <query name="getByEmpi">
-      from
-        com.krishagni.catissueplus.core.biospecimen.domain.StagedParticipant p
-      where
-        lower(p.empi) = :empi
-    </query>
-
-    <query name="getByUid">
-      select
-        p
-      from
-        com.krishagni.catissueplus.core.biospecimen.domain.StagedParticipant p
-      where
-        lower(p.uid) = :uid
-    </query>
-
-    <query name="getByMrn">
-      select
-        p
-      from
-        com.krishagni.catissueplus.core.biospecimen.domain.StagedParticipant p
-        join p.pmiList pmi
-      where
-        lower(pmi.medicalRecordNumber) = :mrn
-    </query>
 
     <sql-query name="deleteOldParticipantPmis">
       <![CDATA[

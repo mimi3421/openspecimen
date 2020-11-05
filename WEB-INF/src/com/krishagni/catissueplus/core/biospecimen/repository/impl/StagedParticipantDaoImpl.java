@@ -6,11 +6,11 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.criterion.SimpleExpression;
 
 import com.krishagni.catissueplus.core.biospecimen.domain.StagedParticipant;
 import com.krishagni.catissueplus.core.biospecimen.events.PmiDetail;
@@ -34,24 +34,40 @@ public class StagedParticipantDaoImpl extends AbstractDao<StagedParticipant> imp
 	@Override
 	@SuppressWarnings("unchecked")
 	public StagedParticipant getByEmpi(String empi) {
-		return (StagedParticipant) getCurrentSession().getNamedQuery(GET_BY_EMPI)
-			.setParameter("empi", empi.toLowerCase())
-			.uniqueResult();
+		Criteria query = getCurrentSession().createCriteria(StagedParticipant.class, "sp");
+		if (isMySQL()) {
+			query.add(Restrictions.eq("sp.empi", empi));
+		} else {
+			query.add(Restrictions.eq("sp.empi", empi).ignoreCase());
+		}
+
+		return (StagedParticipant) query.uniqueResult();
 	}
 
 	@Override
 	public StagedParticipant getByUid(String uid) {
-		return (StagedParticipant) getCurrentSession().getNamedQuery(GET_BY_UID)
-			.setParameter("uid", uid.toLowerCase())
-			.uniqueResult();
+		Criteria query = getCurrentSession().createCriteria(StagedParticipant.class, "sp");
+		if (isMySQL()) {
+			query.add(Restrictions.eq("sp.uid", uid));
+		} else {
+			query.add(Restrictions.eq("sp.uid", uid).ignoreCase());
+		}
+
+		return (StagedParticipant) query.uniqueResult();
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public List<StagedParticipant> getByMrn(String mrn) {
-		return getCurrentSession().getNamedQuery(GET_BY_MRN)
-			.setParameter("mrn", mrn.toLowerCase())
-			.list();
+		Criteria query = getCurrentSession().createCriteria(StagedParticipant.class, "sp")
+			.createAlias("sp.pmiList", "pmi");
+		if (isMySQL()) {
+			query.add(Restrictions.eq("pmi.medicalRecordNumber", mrn));
+		} else {
+			query.add(Restrictions.eq("pmi.medicalRecordNumber", mrn).ignoreCase());
+		}
+
+		return query.list();
 	}
 
 	@Override
@@ -73,11 +89,15 @@ public class StagedParticipantDaoImpl extends AbstractDao<StagedParticipant> imp
 			if (StringUtils.isBlank(pmi.getSiteName()) || StringUtils.isBlank(pmi.getMrn())) {
 				continue;
 			}
-			
-			junction.add(
-				Restrictions.and(
-					Restrictions.eq("pmi.medicalRecordNumber", pmi.getMrn()).ignoreCase(),
-					Restrictions.eq("pmi.site", pmi.getSiteName()).ignoreCase()));
+
+			SimpleExpression eqMrn  = Restrictions.eq("pmi.medicalRecordNumber", pmi.getMrn());
+			SimpleExpression eqSite = Restrictions.eq("pmi.site", pmi.getSiteName());
+			if (!isMySQL()) {
+				eqMrn  = eqMrn.ignoreCase();
+				eqSite = eqSite.ignoreCase();
+			}
+
+			junction.add(Restrictions.and(eqMrn, eqSite));
 			added = true;
 		}
 
@@ -89,12 +109,6 @@ public class StagedParticipantDaoImpl extends AbstractDao<StagedParticipant> imp
 	}
 
 	private static final String FQN = StagedParticipant.class.getName();
-
-	private static final String GET_BY_EMPI = FQN + ".getByEmpi";
-
-	private static final String GET_BY_UID = FQN + ".getByUid";
-
-	private static final String GET_BY_MRN = FQN + ".getByMrn";
 
 	private static final String DEL_OLD_PARTICIPANTS = FQN + ".deleteOldParticipants";
 
