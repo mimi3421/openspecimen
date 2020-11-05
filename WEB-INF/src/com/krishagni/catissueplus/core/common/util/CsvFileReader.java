@@ -156,11 +156,14 @@ public class CsvFileReader implements CsvReader {
 			}
 
 			for (int i = 0; i < line.length; ++i) {
-				if (line[i] == null || line[i].trim().length() == 0) {
-					throw new CsvException(
-							"CSV file column names line has empty/blank column names", line);
+				String column = line[i] != null ? line[i].trim() : null;
+				if (StringUtils.isBlank(column)) {
+					throw new CsvException("CSV file column names line has empty/blank column names", line);
+				} else if (columnNameIdxMap.containsKey(column)) {
+					throw new CsvException("CSV file column names are duplicate: " + column, line);
 				}
-				columnNameIdxMap.put(line[i].trim(), i);
+
+				columnNameIdxMap.put(column, i);
 			}
 		} catch (IOException e) {
 			throw new CsvException("Error reading CSV file column names line", e);
