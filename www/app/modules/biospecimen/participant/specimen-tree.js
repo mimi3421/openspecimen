@@ -288,6 +288,7 @@ angular.module('os.biospecimen.participant.specimen-tree',
 
       var opts = {hideDerivatives: treeCfg.hideDerivatives};
       scope.specimens = Specimen.flatten(scope.specimenTree, undefined, undefined, undefined, opts);
+      scope.showAliquotType = (treeCfg.hideDerivatives == true);
       openSpecimenTree(scope.specimens, null, treeCfg);
       scope.hidePendingSpmns = hideOldPendingSpmns(scope.specimens, scope.pendingSpmnsDispInterval);
 

@@ -58,7 +58,7 @@ angular.module('os.biospecimen.models.specimen', ['os.common.models', 'os.biospe
       angular.forEach(specimens, function(specimen) {
         var depthIncrStep = 1;
         var hasChildren = (!!specimen.children && specimen.children.length > 0);
-        if (opts && opts.hideDerivatives && !specimen.reqId && specimen.lineage == 'Derived' && hasChildren &&
+        if (opts && opts.hideDerivatives && specimen.lineage == 'Derived' && hasChildren &&
           specimen.children.every(function(a) { return a.lineage == 'Aliquot'; })) {
           depthIncrStep = 0;
           specimen.$$invisibleN = true;

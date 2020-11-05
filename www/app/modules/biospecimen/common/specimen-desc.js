@@ -8,7 +8,8 @@ angular.module('os.biospecimen.common.specimendesc', [])
       scope: {
         cp: '=?',
         specimen: '=',
-        showReqLabel: '=?'
+        showReqLabel: '=?',
+        showAliquotType: '=?'
       },
 
       link: function(scope, element, attrs) {
@@ -41,6 +42,7 @@ angular.module('os.biospecimen.common.specimendesc', [])
             '</span>' +
             '<span ng-if="specimen.lineage == \'Aliquot\' && !detailed">' +
               '<span translate="specimens.aliquot">Aliquot</span>' +
+              '<span ng-show="showAliquotType"> {{specimen.type}} </span>' +
             '</span>' +
             '<span ng-if="specimen.lineage == \'Derived\' && !detailed">' +
               '<span translate="specimens.derived">Derived</span> {{specimen.type}}' +
