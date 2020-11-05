@@ -84,6 +84,10 @@ angular.module('os.common.import.addctrl', ['os.common.import.importjob'])
             Alerts.success('bulk_imports.job_submitted', resp);
             $state.go(importDetail.onSuccess.state, importDetail.onSuccess.params);
           }
+        },
+
+        function(err) {
+          $scope.submitting = false;
         }
       );
     }
