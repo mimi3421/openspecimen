@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -353,10 +352,6 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 			}
 
 			ose.checkAndThrow();
-			
-			User oldPi = existingCp.getPrincipalInvestigator();
-			Collection<User> addedCoord = Utility.subtract(cp.getCoordinators(), existingCp.getCoordinators());
-			Collection<User> removedCoord = Utility.subtract(existingCp.getCoordinators(), cp.getCoordinators());
 
 			Set<Site> addedSites = Utility.subtract(cp.getRepositories(), existingCp.getRepositories());
 			Set<Site> removedSites = Utility.subtract(existingCp.getRepositories(), cp.getRepositories());
@@ -366,9 +361,6 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 			existingCp.addOrUpdateExtension();
 			
 			fixSopDocumentName(existingCp);
-
-			// PI and coordinators role handling
-			addOrRemovePiCoordinatorRoles(cp, "UPDATE", oldPi, cp.getPrincipalInvestigator(), addedCoord, removedCoord);
 			notifyUsersOnCpUpdate(existingCp, addedSites, removedSites);
 			EventPublisher.getInstance().publish(new CollectionProtocolSavedEvent(existingCp));
 			return ResponseEvent.response(CollectionProtocolDetail.from(existingCp));
@@ -481,11 +473,7 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 				throw OpenSpecimenException.userError(CpErrorCode.DOES_NOT_EXIST, cpIds);
 			}
 
-			for (CollectionProtocol cp : cps) {
-				AccessCtrlMgr.getInstance().ensureDeleteCpRights(cp);
-				ensureUserUpdateRights(cp);
-			}
-
+			cps.forEach(cp -> AccessCtrlMgr.getInstance().ensureDeleteCpRights(cp));
 			boolean completed = crit.isForceDelete() ? forceDeleteCps(cps, crit.getReason()) : deleteCps(cps, crit.getReason());
 			BulkDeleteEntityResp<CollectionProtocolDetail> resp = new BulkDeleteEntityResp<>();
 			resp.setCompleted(completed);
@@ -1369,9 +1357,6 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 
 		daoFactory.getCollectionProtocolDao().saveOrUpdate(cp, true);
 		cp.addOrUpdateExtension();
-
-		//Assign default roles to PI and Coordinators
-		addOrRemovePiCoordinatorRoles(cp, "CREATE", null, cp.getPrincipalInvestigator(), cp.getCoordinators(), null);
 		fixSopDocumentName(cp);
 		copyWorkflows(existing, cp);
 		return cp;
@@ -1619,108 +1604,6 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 		}
 	}
 
-	private void addOrRemovePiCoordinatorRoles(CollectionProtocol cp, String cpOp, User oldPi, User newPi, Collection<User> newCoord, Collection<User> removedCoord) {
-		List<User> notifUsers = null;
-		if (!Objects.equals(oldPi, newPi)) {
-			notifUsers = AccessCtrlMgr.getInstance().getSiteAdmins(null, cp);
-
-			if (newPi != null) {
-				addDefaultPiRoles(cp, notifUsers, newPi, cpOp);
-			}
-
-			if (oldPi != null) {
-				removeDefaultPiRoles(cp, notifUsers, oldPi, cpOp);
-			}
-		}
-
-		if (CollectionUtils.isNotEmpty(newCoord)) {
-			if (notifUsers == null) {
-				notifUsers = AccessCtrlMgr.getInstance().getSiteAdmins(null, cp);
-			}
-
-			addDefaultCoordinatorRoles(cp, notifUsers, newCoord, cpOp);
-		}
-
-		if (CollectionUtils.isNotEmpty(removedCoord)) {
-			if (notifUsers == null) {
-				notifUsers = AccessCtrlMgr.getInstance().getSiteAdmins(null, cp);
-			}
-
-			removeDefaultCoordinatorRoles(cp, notifUsers, removedCoord, cpOp);
-		}
-	}
-
-	private void addDefaultPiRoles(CollectionProtocol cp, List<User> notifUsers, User user, String cpOp) {
-		try {
-			if (user.isContact()) {
-				return;
-			}
-
-			for (String role : getDefaultPiRoles()) {
-				addRole(cp, notifUsers, user, role, cpOp);
-			}
-		} catch (OpenSpecimenException ose) {
-			ose.rethrow(RbacErrorCode.ACCESS_DENIED, CpErrorCode.USER_UPDATE_RIGHTS_REQUIRED);
-			throw ose;
-		}
-	}
-
-	private void removeDefaultPiRoles(CollectionProtocol cp, List<User> notifUsers, User user, String cpOp) {
-		try {
-			for (String role : getDefaultPiRoles()) {
-				removeRole(cp, notifUsers, user, role, cpOp);
-			}
-		} catch (OpenSpecimenException ose) {
-			ose.rethrow(RbacErrorCode.ACCESS_DENIED, CpErrorCode.USER_UPDATE_RIGHTS_REQUIRED);
-		}
-	}
-	
-	private void addDefaultCoordinatorRoles(CollectionProtocol cp, List<User> notifUsers, Collection<User> coordinators, String cpOp) {
-		try {
-			for (User user : coordinators) {
-				if (user.isContact()) {
-					continue;
-				}
-
-				for (String role : getDefaultCoordinatorRoles()) {
-					addRole(cp, notifUsers, user, role, cpOp);
-				}
-			}
-		} catch (OpenSpecimenException ose) {
-			ose.rethrow(RbacErrorCode.ACCESS_DENIED, CpErrorCode.USER_UPDATE_RIGHTS_REQUIRED);
-		}
-	}
-	
-	private void removeDefaultCoordinatorRoles(CollectionProtocol cp, List<User> notifUsers, Collection<User> coordinators, String cpOp) {
-		try {
-			for (User user : coordinators) {
-				for (String role : getDefaultCoordinatorRoles()) {
-					removeRole(cp, notifUsers, user, role, cpOp);
-				}
-			}
-		} catch (OpenSpecimenException ose) {
-			ose.rethrow(RbacErrorCode.ACCESS_DENIED, CpErrorCode.USER_UPDATE_RIGHTS_REQUIRED);
-		}
-	}
-
-	private void addRole(CollectionProtocol cp, List<User> admins, User user, String role, String cpOp) {
-		SubjectRoleOpNotif notifReq = getNotifReq(cp, role, admins, user, cpOp, "ADD");
-		rbacSvc.addSubjectRole(null, cp, user, new String[] { role }, notifReq);
-	}
-
-	private void removeRole(CollectionProtocol cp, List<User> admins, User user, String role, String cpOp) {
-		SubjectRoleOpNotif notifReq = getNotifReq(cp, role, admins, user, cpOp, "REMOVE");
-		rbacSvc.removeSubjectRole(null, cp, user, new String[] { role }, notifReq);
-	}
-	
-	private String[] getDefaultPiRoles() {
-		return new String[] {"Principal Investigator"};
-	}
-	
-	private String[] getDefaultCoordinatorRoles() {
-		return new String[] {"Coordinator"};
-	}
-	
 	private CpConsentTier getConsentTier(ConsentTierDetail consentTierDetail) {
 		CollectionProtocolDao cpDao = daoFactory.getCollectionProtocolDao();
 		
@@ -1879,17 +1762,6 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 		}
 	}
 
-	private void ensureUserUpdateRights(CollectionProtocol cp) {
-		try {
-			AccessCtrlMgr.getInstance().ensureCreateUpdateUserRolesRights(cp.getPrincipalInvestigator(), null);
-			for (User coord : cp.getCoordinators()) {
-				AccessCtrlMgr.getInstance().ensureCreateUpdateUserRolesRights(coord, null);
-			}
-		} catch (OpenSpecimenException ose) {
-			ose.rethrow(RbacErrorCode.ACCESS_DENIED, CpErrorCode.USER_UPDATE_RIGHTS_REQUIRED);
-		}
-	}
-
 	private boolean forceDeleteCps(final List<CollectionProtocol> cps, final String reason)
 	throws Exception {
 		final Authentication auth = AuthUtil.getAuth();
@@ -1937,7 +1809,6 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 			BeanUtils.copyProperties(cp, deletedCp);
 
 			removeContainerRestrictions(cp);
-			addOrRemovePiCoordinatorRoles(cp, "DELETE", cp.getPrincipalInvestigator(), null, null, cp.getCoordinators());
 			removeCpRoles(cp);
 
 			cp.setOpComments(reason);
