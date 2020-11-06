@@ -100,6 +100,17 @@
         p.empi = :empi
     </query>
 
+    <query name="getCprByCpShortTitleAndUid">
+      select
+        cpr
+      from
+        com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration cpr
+        join cpr.participant p
+      where
+        cpr.collectionProtocol.shortTitle = :shortTitle and
+        p.uid = :uid
+    </query>
+
     <query name="getCprByCpIdAndPid">
       select
         cpr

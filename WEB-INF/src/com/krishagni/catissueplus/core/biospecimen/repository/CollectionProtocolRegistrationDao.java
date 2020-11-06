@@ -25,11 +25,13 @@ public interface CollectionProtocolRegistrationDao extends Dao<CollectionProtoco
 	
 	CollectionProtocolRegistration getCprByCpShortTitleAndPpid(String cpShortTitle, String ppid);
 
-	CollectionProtocolRegistration getCprByCpShortTitleAndEmpi(String cpShortTitle, String empi);
+	CollectionProtocolRegistration getCprByEmpi(String cpShortTitle, String empi);
+
+	CollectionProtocolRegistration getCprByUid(String cpShortTitle, String uid);
 
 	List<CollectionProtocolRegistration> getByPpids(String cpShortTitle, List<String> ppids);
 
-	List<CollectionProtocolRegistration> getCprsByCpShortTitleAndPmis(String cpShortTitle, List<PmiDetail> pmis);
+	List<CollectionProtocolRegistration> getCprsByPmis(String cpShortTitle, List<PmiDetail> pmis);
 
 	CollectionProtocolRegistration getCprByBarcode(String barcode);
 

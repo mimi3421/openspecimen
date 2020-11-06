@@ -164,17 +164,27 @@ public class CollectionProtocolRegistrationDaoImpl extends AbstractDao<Collectio
 	}
 
 	@Override
-	public CollectionProtocolRegistration getCprByCpShortTitleAndEmpi(String cpShortTitle, String empi) {
+	public CollectionProtocolRegistration getCprByEmpi(String cpShortTitle, String empi) {
 		List<CollectionProtocolRegistration> result = getCurrentSession()
 				.getNamedQuery(GET_BY_CP_SHORT_TITLE_AND_EMPI)
-				.setString("shortTitle", cpShortTitle)
-				.setString("empi", empi)
+				.setParameter("shortTitle", cpShortTitle)
+				.setParameter("empi", empi)
 				.list();
 		return CollectionUtils.isEmpty(result) ? null : result.iterator().next();
 	}
 
 	@Override
-	public List<CollectionProtocolRegistration> getCprsByCpShortTitleAndPmis(String cpShortTitle, List<PmiDetail> pmis) {
+	public CollectionProtocolRegistration getCprByUid(String cpShortTitle, String uid) {
+		List<CollectionProtocolRegistration> result = getCurrentSession()
+			.getNamedQuery(GET_BY_CP_SHORT_TITLE_AND_UID)
+			.setParameter("shortTitle", cpShortTitle)
+			.setParameter("uid", uid)
+			.list();
+		return CollectionUtils.isEmpty(result) ? null : result.iterator().next();
+	}
+
+	@Override
+	public List<CollectionProtocolRegistration> getCprsByPmis(String cpShortTitle, List<PmiDetail> pmis) {
 		Criteria query = getByCpShortTitleAndPmisQuery(cpShortTitle, pmis);
 		if (query == null) {
 			return Collections.emptyList();
@@ -615,6 +625,8 @@ public class CollectionProtocolRegistrationDaoImpl extends AbstractDao<Collectio
 	private static final String GET_BY_CP_SHORT_TITLE_AND_PPID = FQN + ".getCprByCpShortTitleAndPpid";
 
 	private static final String GET_BY_CP_SHORT_TITLE_AND_EMPI = FQN + ".getCprByCpShortTitleAndEmpi";
+
+	private static final String GET_BY_CP_SHORT_TITLE_AND_UID = FQN + ".getCprByCpShortTitleAndUid";
 
 	private static final String GET_BY_CP_ID_AND_PID = FQN + ".getCprByCpIdAndPid";
 
