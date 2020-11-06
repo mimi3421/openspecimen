@@ -149,8 +149,8 @@ public class DefaultSpecimenLabelPrinter extends AbstractLabelPrinter<Specimen> 
 		SpecimenLabelPrintRule rule = new SpecimenLabelPrintRule();
 		rule.setCps(getCps(ruleLineFields[idx++]));
 		rule.setVisitSite(getSite(ruleLineFields[idx++]));
-		rule.setSpecimenClass(ruleLineFields[idx++]);
-		rule.setSpecimenType(ruleLineFields[idx++]);
+		idx++;
+		rule.setSpecimenTypes(Collections.singletonList(ruleLineFields[idx++]));
 		rule.setUsers(getUsers(ruleLineFields[idx++]));
 
 		if (!ruleLineFields[idx++].equals("*")) {
@@ -233,8 +233,7 @@ public class DefaultSpecimenLabelPrinter extends AbstractLabelPrinter<Specimen> 
 
 	private SpecimenLabelPrintRule replaceWildcardsWithNull(SpecimenLabelPrintRule rule) {
 		rule.setLineage(replaceWildcardWithNull(rule.getLineage()));
-		rule.setSpecimenClass(replaceWildcardWithNull(rule.getSpecimenClass()));
-		rule.setSpecimenType(replaceWildcardWithNull(rule.getSpecimenType()));
+		rule.setSpecimenTypes(replaceWildcardWithNull(rule.getSpecimenTypes()));
 		rule.setLabelType(replaceWildcardWithNull(rule.getLabelType()));
 		rule.setLabelDesign(replaceWildcardWithNull(rule.getLabelDesign()));
 		rule.setPrinterName(replaceWildcardWithNull(rule.getPrinterName()));

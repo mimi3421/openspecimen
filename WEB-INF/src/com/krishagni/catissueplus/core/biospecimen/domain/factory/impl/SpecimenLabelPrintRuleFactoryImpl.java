@@ -1,6 +1,7 @@
 package com.krishagni.catissueplus.core.biospecimen.domain.factory.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -29,8 +30,8 @@ public class SpecimenLabelPrintRuleFactoryImpl extends AbstractLabelPrintRuleFac
 		setCps(ruleDef, failOnError, rule, ose);
 		setVisitSite(ruleDef, failOnError, rule, ose);
 		setLineage(ruleDef, failOnError, rule, ose);
-		setSpecimenClass(ruleDef, failOnError, rule, ose);
-		setSpecimenType(ruleDef, failOnError, rule, ose);
+		setSpecimenClasses(ruleDef, failOnError, rule, ose);
+		setSpecimenTypes(ruleDef, failOnError, rule, ose);
 		return rule;
 	}
 
@@ -99,37 +100,33 @@ public class SpecimenLabelPrintRuleFactoryImpl extends AbstractLabelPrintRuleFac
 		rule.setLineage(lineage);
 	}
 
-	private void setSpecimenClass(Map<String, String> inputMap, boolean failOnError, SpecimenLabelPrintRule rule, OpenSpecimenException ose) {
-		String specimenClass = inputMap.get("specimenClass");
-		rule.setSpecimenClass(specimenClass);
-
-		if (StringUtils.isBlank(specimenClass) || !failOnError) {
+	private void setSpecimenClasses(Map<String, String> inputMap, boolean failOnError, SpecimenLabelPrintRule rule, OpenSpecimenException ose) {
+		List<String> specimenClasses = Utility.csvToStringList(inputMap.get("specimenClasses"));
+		rule.setSpecimenClasses(specimenClasses);
+		if (specimenClasses.isEmpty() || !failOnError) {
 			return;
 		}
 
-		if (!PvValidator.isValid("specimen_type", specimenClass)) {
-			ose.addError(SpecimenErrorCode.INVALID_SPECIMEN_CLASS, specimenClass);
-			return;
+		if (!PvValidator.areValid("specimen_type", specimenClasses)) {
+			ose.addError(SpecimenErrorCode.INVALID_SPECIMEN_CLASS, specimenClasses);
 		}
 	}
 
-	private void setSpecimenType(Map<String, String> input, boolean failOnError, SpecimenLabelPrintRule rule, OpenSpecimenException ose) {
-		String specimenType = input.get("specimenType");
-		rule.setSpecimenType(specimenType);
+	private void setSpecimenTypes(Map<String, String> input, boolean failOnError, SpecimenLabelPrintRule rule, OpenSpecimenException ose) {
+		List<String> types = Utility.csvToStringList(input.get("specimenTypes"));
+		rule.setSpecimenTypes(types);
+		if (types.isEmpty() || !failOnError) {
+			String type = input.get("specimenType");
+			if (StringUtils.isBlank(type)) {
+				return;
+			}
 
-		if (StringUtils.isBlank(specimenType) || !failOnError) {
-			return;
+			types = Collections.singletonList(type);
+			rule.setSpecimenTypes(types);
 		}
 
-		boolean isValid;
-		if (StringUtils.isNotBlank(rule.getSpecimenClass())) {
-			isValid = PvValidator.isValid("specimen_type", rule.getSpecimenClass(), specimenType);
-		} else {
-			isValid = PvValidator.isValid("specimen_type", specimenType, true);
-		}
-
-		if (!isValid) {
-			ose.addError(SpecimenErrorCode.INVALID_SPECIMEN_TYPE, specimenType);
+		if (!PvValidator.areValid("specimen_type", types)) {
+			ose.addError(SpecimenErrorCode.INVALID_SPECIMEN_TYPE, types);
 		}
 	}
 }
