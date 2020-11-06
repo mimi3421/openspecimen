@@ -67,7 +67,7 @@ public class ParticipantImporter implements ObjectImporter<ParticipantDetail, Pa
 		
 		CollectionProtocolRegistration cpr = daoFactory.getCprDao().getCprByCpShortTitleAndPpid(cpShortTitle, ppid);
 		if (cpr == null) {
-			throw OpenSpecimenException.userError(CprErrorCode.NOT_FOUND);
+			throw OpenSpecimenException.userError(CprErrorCode.M_NOT_FOUND, cpShortTitle + ":" + ppid, 1);
 		}
 		
 		detail.setId(cpr.getParticipant().getId());

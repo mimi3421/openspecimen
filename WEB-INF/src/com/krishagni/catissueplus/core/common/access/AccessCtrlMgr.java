@@ -571,7 +571,7 @@ public class AccessCtrlMgr {
 	private boolean ensureCprObjectRights(Long cprId, Operation op) {
 		CollectionProtocolRegistration cpr = daoFactory.getCprDao().getById(cprId);
 		if (cpr == null) {
-			throw OpenSpecimenException.userError(CprErrorCode.NOT_FOUND);
+			throw OpenSpecimenException.userError(CprErrorCode.M_NOT_FOUND, cprId, 1);
 		}
 
 		boolean phiAccess = ensureCprObjectRights(cpr, op);

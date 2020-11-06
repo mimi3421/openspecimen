@@ -1064,7 +1064,7 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 			}
 
 			if (cpr == null) {
-				throw OpenSpecimenException.userError(CprErrorCode.NOT_FOUND, key);
+				throw OpenSpecimenException.userError(CprErrorCode.M_NOT_FOUND, key, 1);
 			}
 
 			specimens = cpr.getVisits().stream()

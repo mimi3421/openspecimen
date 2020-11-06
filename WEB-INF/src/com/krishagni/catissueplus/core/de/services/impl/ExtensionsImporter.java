@@ -119,7 +119,7 @@ public class ExtensionsImporter implements ObjectImporter<Map<String, Object>, M
 
 			CollectionProtocolRegistration cpr = daoFactory.getCprDao().getCprByCpShortTitleAndPpid(cpShortTitle, ppid);
 			if (cpr == null) {
-				return ResponseEvent.userError(CprErrorCode.NOT_FOUND);
+				return ResponseEvent.userError(CprErrorCode.M_NOT_FOUND, cpShortTitle + ":" + ppid, 1);
 			}
 			
 			objectId = cpr.getId();

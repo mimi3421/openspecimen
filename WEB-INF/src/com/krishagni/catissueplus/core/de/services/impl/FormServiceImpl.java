@@ -1052,7 +1052,7 @@ public class FormServiceImpl implements FormService, InitializingBean {
 		if (entityType.equals("Participant")) {
 			CollectionProtocolRegistration cpr = daoFactory.getCprDao().getById(objectId);
 			if (cpr == null) {
-				throw OpenSpecimenException.userError(CprErrorCode.NOT_FOUND, objectId);
+				throw OpenSpecimenException.userError(CprErrorCode.M_NOT_FOUND, objectId, 1);
 			}
 
 			AccessCtrlMgr.getInstance().ensureUpdateCprRights(cpr);
@@ -1060,7 +1060,7 @@ public class FormServiceImpl implements FormService, InitializingBean {
 		} else if (entityType.equals("CommonParticipant")) {
 			CollectionProtocolRegistration cpr = daoFactory.getCprDao().getById(objectId);
 			if (cpr == null) {
-				throw OpenSpecimenException.userError(CprErrorCode.NOT_FOUND, objectId);
+				throw OpenSpecimenException.userError(CprErrorCode.M_NOT_FOUND, objectId, 1);
 			}
 
 			AccessCtrlMgr.getInstance().ensureUpdateCprRights(cpr);

@@ -391,7 +391,7 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 			Long cprId = req.getPayload().getCprId();
 			CollectionProtocolRegistration existing = daoFactory.getCprDao().getById(cprId);
 			if (existing == null) {
-				return ResponseEvent.userError(CprErrorCode.NOT_FOUND);
+				return ResponseEvent.userError(CprErrorCode.M_NOT_FOUND, cprId, 1);
 			}
 			
 			AccessCtrlMgr.getInstance().ensureReadConsentRights(existing);
@@ -467,7 +467,7 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 			Long cprId = req.getPayload().getCprId();
 			CollectionProtocolRegistration cpr = daoFactory.getCprDao().getById(cprId);
 			if (cpr == null) {
-				return ResponseEvent.userError(CprErrorCode.NOT_FOUND);
+				return ResponseEvent.userError(CprErrorCode.M_NOT_FOUND, cprId, 1);
 			}
 
 			raiseErrorIfSpecimenCentric(cpr);
@@ -1130,16 +1130,20 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 
 	private CollectionProtocolRegistration getCpr(Long cprId, Long cpId, String cpShortTitle, String ppid) {
 		CollectionProtocolRegistration cpr = null;
+		String key = null;
 		if (cprId != null) {
+			key = cprId.toString();
 			cpr = daoFactory.getCprDao().getById(cprId);
 		} else if (cpId != null && StringUtils.isNotBlank(ppid)) {
+			key = cpId.toString() + ":" + ppid;
 			cpr = daoFactory.getCprDao().getCprByPpid(cpId, ppid);
 		} else if (StringUtils.isNotBlank(cpShortTitle) && StringUtils.isNotBlank(ppid)) {
+			key = cpShortTitle + ":" + ppid;
 			cpr = daoFactory.getCprDao().getCprByCpShortTitleAndPpid(cpShortTitle, ppid);
 		}
 		
 		if (cpr == null) {
-			throw OpenSpecimenException.userError(CprErrorCode.NOT_FOUND);
+			throw OpenSpecimenException.userError(CprErrorCode.M_NOT_FOUND, key, 1);
 		}
 		
 		return cpr;

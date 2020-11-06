@@ -493,7 +493,7 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 			Long cpId = req.getPayload();
 			CollectionProtocol cp = daoFactory.getCollectionProtocolDao().getById(cpId);
 			if (cp == null) {
-				return ResponseEvent.userError(CprErrorCode.NOT_FOUND);
+				return ResponseEvent.userError(CpErrorCode.NOT_FOUND);
 			}
 
 			AccessCtrlMgr.getInstance().ensureReadCpRights(cp);

@@ -162,13 +162,18 @@ public class VisitFactoryImpl implements VisitFactory {
 			ppid = visitDetail.getPpid();
 
 		CollectionProtocolRegistration cpr = null;
+		String key = null;
 		if (cprId != null) {
+			key = cprId.toString();
 			cpr = daoFactory.getCprDao().getById(cprId);
 		} else if (cpId != null && StringUtils.isNotBlank(ppid)) {
+			key = cpId.toString() + ":" + ppid;
 			cpr = daoFactory.getCprDao().getCprByPpid(cpId, ppid);
-		} else if (StringUtils.isNotBlank(cpTitle) && StringUtils.isNotBlank(ppid)) {			
+		} else if (StringUtils.isNotBlank(cpTitle) && StringUtils.isNotBlank(ppid)) {
+			key = cpTitle + ":" + ppid;
 			cpr = daoFactory.getCprDao().getCprByPpid(cpTitle, ppid);
 		} else if (StringUtils.isNotBlank(cpShortTitle) && StringUtils.isNotBlank(ppid)) {
+			key = cpShortTitle + ":" + ppid;
 			cpr = daoFactory.getCprDao().getCprByCpShortTitleAndPpid(cpShortTitle, ppid);
 		} else {
 			ose.addError(StringUtils.isBlank(ppid) ? CprErrorCode.PPID_REQUIRED : CprErrorCode.CP_REQUIRED);
@@ -176,7 +181,7 @@ public class VisitFactoryImpl implements VisitFactory {
 		}
 
 		if (cpr == null) {
-			ose.addError(CprErrorCode.NOT_FOUND);
+			ose.addError(CprErrorCode.M_NOT_FOUND, key, 1);
 			return;
 		}
 		
