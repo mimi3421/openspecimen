@@ -163,7 +163,7 @@ public class DistributionProtocolFactoryImpl implements DistributionProtocolFact
 			return;
 		}
 		
-		if (!defReceivingSite.getInstitute().equals(dp.getInstitute())) {
+		if (dp.getInstitute() != null && !defReceivingSite.getInstitute().equals(dp.getInstitute())) {
 			ose.addError(SiteErrorCode.INVALID_SITE_INSTITUTE, defReceivingSite.getName(), dp.getInstitute().getName());
 			return;
 		}
