@@ -2,8 +2,12 @@
 package com.krishagni.catissueplus.core.biospecimen.services.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -12,9 +16,13 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.InitializingBean;
 
+import com.krishagni.catissueplus.core.administrative.domain.Site;
+import com.krishagni.catissueplus.core.administrative.domain.factory.SiteErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.ConfigParams;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
 import com.krishagni.catissueplus.core.biospecimen.domain.Participant;
+import com.krishagni.catissueplus.core.biospecimen.domain.ParticipantMedicalIdentifier;
+import com.krishagni.catissueplus.core.biospecimen.domain.StagedParticipant;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.ParticipantErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.ParticipantFactory;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.ParticipantUtil;
@@ -22,6 +30,7 @@ import com.krishagni.catissueplus.core.biospecimen.events.MatchedParticipant;
 import com.krishagni.catissueplus.core.biospecimen.events.MatchedParticipantsList;
 import com.krishagni.catissueplus.core.biospecimen.events.ParticipantDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.PmiDetail;
+import com.krishagni.catissueplus.core.biospecimen.events.StagedParticipantDetail;
 import com.krishagni.catissueplus.core.biospecimen.matching.ParticipantLookupLogic;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.biospecimen.services.ParticipantService;
@@ -32,13 +41,14 @@ import com.krishagni.catissueplus.core.common.errors.ErrorType;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
-import com.krishagni.catissueplus.core.common.service.ConfigChangeListener;
 import com.krishagni.catissueplus.core.common.service.ConfigurationService;
 import com.krishagni.catissueplus.core.common.service.MpiGenerator;
 import com.krishagni.catissueplus.core.common.service.ObjectAccessor;
+import com.krishagni.catissueplus.core.common.util.Utility;
+import com.krishagni.catissueplus.core.de.events.ExtensionDetail;
 
 public class ParticipantServiceImpl implements ParticipantService, ObjectAccessor, InitializingBean {
-	private static Log logger = LogFactory.getLog(ParticipantServiceImpl.class);
+	private static final Log logger = LogFactory.getLog(ParticipantServiceImpl.class);
 
 	private DaoFactory daoFactory;
 
@@ -49,6 +59,8 @@ public class ParticipantServiceImpl implements ParticipantService, ObjectAccesso
 	private ParticipantLookupLogic participantLookupLogic;
 
 	private ConfigurationService cfgSvc;
+
+	private Set<Site> externalSourceSites = null;
 
 	public void setDaoFactory(DaoFactory daoFactory) {
 		this.daoFactory = daoFactory;
@@ -83,7 +95,7 @@ public class ParticipantServiceImpl implements ParticipantService, ObjectAccesso
 	public ResponseEvent<ParticipantDetail> createParticipant(RequestEvent<ParticipantDetail> req) {
 		try {
 			Participant participant = participantFactory.createParticipant(req.getPayload());
-			createParticipant(participant);
+			participant = createParticipant(participant);
 			return ResponseEvent.response(ParticipantDetail.from(participant, false));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
@@ -175,7 +187,11 @@ public class ParticipantServiceImpl implements ParticipantService, ObjectAccesso
 		}
 	}
 	
-	public void createParticipant(Participant participant) {
+	public Participant createParticipant(Participant participant) {
+		if (!getExternalSourceSites().isEmpty() && !participant.getPmis().isEmpty()) {
+			participant = getParticipantToUse(participant, null);
+		}
+
 		OpenSpecimenException ose = new OpenSpecimenException(ErrorType.USER_ERROR);
 		ParticipantUtil.ensureUniqueUid(daoFactory, participant.getUid(), ose);
 		ParticipantUtil.ensureUniquePmis(daoFactory, PmiDetail.from(participant.getPmis(), false), participant, ose);
@@ -186,10 +202,14 @@ public class ParticipantServiceImpl implements ParticipantService, ObjectAccesso
 		participant.setEmpiIfEmpty();
 		daoFactory.getParticipantDao().saveOrUpdate(participant, true);
 		participant.addOrUpdateExtension();
+		return participant;
 	}
 
 	public void updateParticipant(Participant existing, Participant newParticipant) {
 		ParticipantUtil.ensureLockedFieldsAreUntouched(existing, newParticipant);
+		if (!getExternalSourceSites().isEmpty()) {
+			newParticipant = getParticipantToUse(newParticipant, getNewlyAddedPmis(existing, newParticipant));
+		}
 
 		OpenSpecimenException ose = new OpenSpecimenException(ErrorType.USER_ERROR);
 
@@ -208,6 +228,7 @@ public class ParticipantServiceImpl implements ParticipantService, ObjectAccesso
 			ParticipantUtil.ensureUniqueEmpi(daoFactory, newEmpi, ose);
 		}
 
+
 		List<PmiDetail> pmis = PmiDetail.from(newParticipant.getPmis(), false);
 		ParticipantUtil.ensureUniquePmis(daoFactory, pmis, existing, ose);
 		ose.checkAndThrow();
@@ -223,7 +244,7 @@ public class ParticipantServiceImpl implements ParticipantService, ObjectAccesso
 
 		if (existing == null) {
 			Participant participant = participantFactory.createParticipant(detail);
-			createParticipant(participant);
+			participant = createParticipant(participant);
 			return ParticipantDetail.from(participant, false);
 		} else {
 			Participant participant = participantFactory.createParticipant(existing, detail);
@@ -254,12 +275,16 @@ public class ParticipantServiceImpl implements ParticipantService, ObjectAccesso
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		cfgSvc.registerChangeListener(ConfigParams.MODULE, new ConfigChangeListener() {
-			@Override
-			public void onConfigChange(String name, String value) {
+		cfgSvc.registerChangeListener(
+			ConfigParams.MODULE,
+			(name, value) -> {
 				participantLookupLogic = null;
+
+				if (StringUtils.isBlank(name) || ConfigParams.EXT_PARTICIPANT_SITES.equals(name)) {
+					externalSourceSites = null;
+				}
 			}
-		});
+		);
 	}
 
 	private Participant getParticipant(ParticipantDetail detail, boolean forUpdate) {
@@ -358,5 +383,74 @@ public class ParticipantServiceImpl implements ParticipantService, ObjectAccesso
 
 	private List<CollectionProtocolRegistration> getCprs(Participant participant) {
 		return AccessCtrlMgr.getInstance().getAccessibleCprs(participant.getCprs());
+	}
+
+	private Set<Site> getExternalSourceSites() {
+		if (externalSourceSites != null) {
+			return externalSourceSites;
+		}
+
+		String sitesStr = cfgSvc.getStrSetting(ConfigParams.MODULE, ConfigParams.EXT_PARTICIPANT_SITES, "");
+		List<String> sitesList = Utility.csvToStringList(sitesStr);
+
+		externalSourceSites = new HashSet<>();
+		for (String inputSite : sitesList) {
+			Site site = null;
+			if (StringUtils.isNumeric(inputSite)) {
+				site = daoFactory.getSiteDao().getById(Long.parseLong(inputSite));
+			} else {
+				site = daoFactory.getSiteDao().getSiteByName(inputSite);
+			}
+
+			if (site == null) {
+				logger.error("External source site not found. Key = " + inputSite);
+				throw OpenSpecimenException.userError(SiteErrorCode.NOT_FOUND, inputSite);
+			}
+
+			externalSourceSites.add(site);
+		}
+
+		return externalSourceSites;
+	}
+
+	private Participant getParticipantToUse(Participant participant, Collection<ParticipantMedicalIdentifier> newPmis) {
+		if (newPmis == null) {
+			newPmis = participant.getPmis();
+		}
+
+		List<ParticipantMedicalIdentifier> lookupPmis = Utility.nullSafeStream(newPmis)
+			.filter(pmi -> getExternalSourceSites().contains(pmi.getSite()) && StringUtils.isNotBlank(pmi.getMedicalRecordNumber()))
+			.collect(Collectors.toList());
+		if (lookupPmis.isEmpty()) {
+			return participant;
+		}
+
+		List<PmiDetail> searchPmis = PmiDetail.from(lookupPmis, false);
+		List<StagedParticipant> participants = daoFactory.getStagedParticipantDao().getByPmis(searchPmis);
+		if (participants.isEmpty()) {
+			throw OpenSpecimenException.userError(ParticipantErrorCode.STAGED_NOT_FOUND, PmiDetail.toString(searchPmis));
+		} else if (participants.size() > 1) {
+			throw OpenSpecimenException.userError(ParticipantErrorCode.MRN_DIFF, PmiDetail.toString(searchPmis));
+		}
+
+		ParticipantDetail match = StagedParticipantDetail.from(participants.get(0));
+		match.setCpId(participant.getCpId());
+		match.setExtensionDetail(ExtensionDetail.from(participant.getExtension(), false));
+		return participantFactory.createParticipant(participant, match);
+	}
+
+	private List<ParticipantMedicalIdentifier> getNewlyAddedPmis(Participant existing, Participant newParticipant) {
+		Map<Site, String> existingPmis = existing.getPmis().stream().collect(
+			Collectors.toMap(ParticipantMedicalIdentifier::getSite, ParticipantMedicalIdentifier::getMedicalRecordNumber));
+
+		List<ParticipantMedicalIdentifier> newPmis = new ArrayList<>();
+		for (ParticipantMedicalIdentifier newPmi : newParticipant.getPmis()) {
+			String existingMrn = existingPmis.get(newPmi.getSite());
+			if (!StringUtils.equals(existingMrn, newPmi.getMedicalRecordNumber())) {
+				newPmis.add(newPmi);
+			}
+		}
+
+		return newPmis;
 	}
 }

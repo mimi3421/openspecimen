@@ -843,12 +843,12 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 			// existing reg, therefore it has to be existing participant
 			existingParticipant = mergeParticipant(existing, cpr);
 		}
-		
+
 		if (existingParticipant != null) {
 			participantService.updateParticipant(existingParticipant, participant);
 			cpr.setParticipant(existingParticipant);
 		} else {
-			participantService.createParticipant(participant);
+			participant = participantService.createParticipant(participant);
 			cpr.setParticipant(participant);
 		}
 	}

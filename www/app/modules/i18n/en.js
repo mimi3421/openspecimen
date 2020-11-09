@@ -2881,7 +2881,9 @@
         "unplanned_visit_name_format": "Unplanned Visit Name Format",
         "unplanned_visit_name_format_desc": "The system-level format for the unplanned visit names.",
         "pde_link_age": "Survey Link Age",
-        "pde_link_age_desc": "Number of days during which a survey link is valid."
+        "pde_link_age_desc": "Number of days during which a survey link is valid.",
+        "ext_participant_sites": "External Participant Sites",
+        "ext_participant_sites_desc": "Comma separated list of site names or IDs for which the participant demographic details are sourced from the external databases like EPIC etc"
       },
 
       "common": {

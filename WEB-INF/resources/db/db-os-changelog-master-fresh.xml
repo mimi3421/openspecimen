@@ -132,6 +132,7 @@
   <include file="db/7.1/audit.xml"/>
 
   <include file="db/7.2/schema.xml"/>
+  <include file="db/7.2/config.xml"/>
 
   <!-- Views are created always at the last -->
   <include file="db/views.xml"/>

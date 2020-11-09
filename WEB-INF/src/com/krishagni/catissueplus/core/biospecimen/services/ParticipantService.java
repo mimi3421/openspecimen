@@ -26,7 +26,7 @@ public interface ParticipantService {
 	//
 	// Internal APIs
 	//
-	void createParticipant(Participant participant);
+	Participant createParticipant(Participant participant);
 	
 	void updateParticipant(Participant existing, Participant newParticipant);
 	

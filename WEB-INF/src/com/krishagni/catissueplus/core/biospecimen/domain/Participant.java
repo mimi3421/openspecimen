@@ -328,12 +328,7 @@ public class Participant extends BaseExtensionEntity {
 	}
 	
 	public Set<Site> getMrnSites() {
-		Set<Site> result = new HashSet<Site>();
-		for (ParticipantMedicalIdentifier pmi : getPmis()) {
-			result.add(pmi.getSite());
-		}
-		
-		return result;
+		return getPmis().stream().map(ParticipantMedicalIdentifier::getSite).collect(Collectors.toSet());
 	}
 	
 	public void setEmpiIfEmpty() {

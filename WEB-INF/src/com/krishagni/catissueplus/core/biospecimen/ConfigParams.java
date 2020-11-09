@@ -79,6 +79,8 @@ public class ConfigParams {
 
 	public static final String PDE_LINK_AGE              = "pde_link_age";
 
+	public static final String EXT_PARTICIPANT_SITES     = "ext_participant_sites";
+
 	public static String getConsentsDirPath() {
 		String path = ConfigUtil.getInstance().getStrSetting(MODULE, CONSENTS_DIR, null);
 		if (StringUtils.isBlank(path)) {
