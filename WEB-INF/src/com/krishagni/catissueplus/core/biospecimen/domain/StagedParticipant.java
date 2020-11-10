@@ -3,7 +3,10 @@ package com.krishagni.catissueplus.core.biospecimen.domain;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+
+import com.krishagni.catissueplus.core.biospecimen.events.StagedConsentDetail;
 
 public class StagedParticipant extends Participant {
 	
@@ -12,6 +15,8 @@ public class StagedParticipant extends Participant {
 	private Set<StagedParticipantMedicalIdentifier> pmiList = new HashSet<>();
 
 	private Set<StagedVisit> visits = new HashSet<>();
+
+	private transient List<StagedConsentDetail> consents;
 
 	public Long getId() {
 		return id;
@@ -43,6 +48,14 @@ public class StagedParticipant extends Participant {
 
 	public void setVisits(Set<StagedVisit> visits) {
 		this.visits = visits;
+	}
+
+	public List<StagedConsentDetail> getConsents() {
+		return consents;
+	}
+
+	public void setConsents(List<StagedConsentDetail> consents) {
+		this.consents = consents;
 	}
 
 	public void update(StagedParticipant participant) {

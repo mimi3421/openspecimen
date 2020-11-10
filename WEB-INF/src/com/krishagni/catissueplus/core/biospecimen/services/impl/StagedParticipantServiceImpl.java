@@ -18,6 +18,7 @@ import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
 import com.krishagni.catissueplus.core.biospecimen.domain.Participant;
 import com.krishagni.catissueplus.core.biospecimen.domain.StagedParticipant;
 import com.krishagni.catissueplus.core.biospecimen.domain.StagedParticipantMedicalIdentifier;
+import com.krishagni.catissueplus.core.biospecimen.domain.StagedParticipantSavedEvent;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.ParticipantErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.events.ParticipantDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.PmiDetail;
@@ -31,7 +32,7 @@ import com.krishagni.catissueplus.core.common.errors.ErrorCode;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
-import com.krishagni.catissueplus.core.common.util.Utility;
+import com.krishagni.catissueplus.core.common.service.impl.EventPublisher;
 
 public class StagedParticipantServiceImpl implements StagedParticipantService {
 	private static final Log logger = LogFactory.getLog(StagedParticipantServiceImpl.class);
@@ -52,9 +53,12 @@ public class StagedParticipantServiceImpl implements StagedParticipantService {
 	@PlusTransactional
 	public ResponseEvent<StagedParticipantDetail> saveOrUpdateParticipant(RequestEvent<StagedParticipantDetail> req) {
 		try {
-			StagedParticipantDetail detail = req.getPayload();
-			updateParticipantIfExists(detail);
-			StagedParticipant savedParticipant = saveOrUpdateParticipant(getMatchingParticipant(detail), detail);
+			StagedParticipantDetail input = req.getPayload();
+			updateParticipantIfExists(input);
+			StagedParticipant savedParticipant = saveOrUpdateParticipant(getMatchingParticipant(input), input);
+			savedParticipant.setConsents(input.getConsents());
+
+			EventPublisher.getInstance().publish(new StagedParticipantSavedEvent(savedParticipant));
 			return ResponseEvent.response(StagedParticipantDetail.from(savedParticipant));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);

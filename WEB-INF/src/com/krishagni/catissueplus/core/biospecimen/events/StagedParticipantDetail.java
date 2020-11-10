@@ -1,7 +1,7 @@
 package com.krishagni.catissueplus.core.biospecimen.events;
 
 import java.util.Date;
-import java.util.HashSet;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -19,6 +19,8 @@ public class StagedParticipantDetail extends ParticipantDetail {
 
 	private String newEmpi;
 
+	private List<StagedConsentDetail> consents;
+
 	public Date getUpdatedTime() {
 		return updatedTime;
 	}
@@ -33,6 +35,14 @@ public class StagedParticipantDetail extends ParticipantDetail {
 
 	public void setNewEmpi(String newEmpi) {
 		this.newEmpi = newEmpi;
+	}
+
+	public List<StagedConsentDetail> getConsents() {
+		return consents;
+	}
+
+	public void setConsents(List<StagedConsentDetail> consents) {
+		this.consents = consents;
 	}
 
 	public static StagedParticipantDetail from(StagedParticipant participant) {
