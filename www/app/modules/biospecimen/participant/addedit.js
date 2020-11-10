@@ -69,7 +69,7 @@ angular.module('os.biospecimen.participant.addedit', ['os.biospecimen.models', '
         $scope.$watch('cpr',
           function(newVal, oldVal) {
             var allowedEvents = $scope.cpr.getAllowedEvents(visitsTab);
-            $scope.partCtx.cpEvents = cpEvents.filter(
+            $scope.partCtx.cpEvents = (cpEvents || []).filter(
               function(e) {
                 return !allowedEvents || !e.code || allowedEvents.indexOf(e.code) != -1;
               }

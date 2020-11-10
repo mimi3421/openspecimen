@@ -8,9 +8,12 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
+import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Disjunction;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.SimpleExpression;
+import org.hibernate.criterion.Subqueries;
 
 import com.krishagni.catissueplus.core.biospecimen.domain.StagedParticipant;
 import com.krishagni.catissueplus.core.biospecimen.events.PmiDetail;
@@ -27,8 +30,14 @@ public class StagedParticipantDaoImpl extends AbstractDao<StagedParticipant> imp
 	@Override
 	@SuppressWarnings("unchecked")	
 	public List<StagedParticipant> getByPmis(List<PmiDetail> pmis) {
-		Criteria query = getByPmisQuery(pmis);
-		return query != null ? query.list() : Collections.emptyList();
+		DetachedCriteria subQuery = getByPmisQuery(pmis);
+		if (subQuery == null) {
+			return Collections.emptyList();
+		}
+
+		return getCurrentSession().createCriteria(StagedParticipant.class, "sp")
+			.add(Subqueries.propertyIn("sp.id", subQuery))
+			.list();
 	}
 	
 	@Override
@@ -79,10 +88,12 @@ public class StagedParticipantDaoImpl extends AbstractDao<StagedParticipant> imp
 		return deleteOldParticipantRecs(DEL_OLD_PARTICIPANTS, olderThanDt);
 	}
 
-	private Criteria getByPmisQuery(List<PmiDetail> pmis) {
-		Criteria query = getCurrentSession().createCriteria(StagedParticipant.class)
+	private DetachedCriteria getByPmisQuery(List<PmiDetail> pmis) {
+		DetachedCriteria detachedCriteria = DetachedCriteria.forClass(StagedParticipant.class)
+			.setProjection(Projections.distinct(Projections.property("id")));
+		Criteria query = detachedCriteria.getExecutableCriteria(getCurrentSession())
 			.createAlias("pmiList", "pmi");
-		
+
 		Disjunction junction = Restrictions.disjunction();
 		boolean added = false;
 		for (PmiDetail pmi : pmis) {
@@ -101,7 +112,12 @@ public class StagedParticipantDaoImpl extends AbstractDao<StagedParticipant> imp
 			added = true;
 		}
 
-		return added ? query.add(junction) : null;
+		if (added) {
+			query.add(junction);
+			return detachedCriteria;
+		} else {
+			return null;
+		}
 	}
 
 	private int deleteOldParticipantRecs(String query, Date olderThanDt) {

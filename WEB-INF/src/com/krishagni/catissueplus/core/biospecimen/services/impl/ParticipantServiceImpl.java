@@ -188,9 +188,7 @@ public class ParticipantServiceImpl implements ParticipantService, ObjectAccesso
 	}
 	
 	public Participant createParticipant(Participant participant) {
-		if (!getExternalSourceSites().isEmpty() && !participant.getPmis().isEmpty()) {
-			participant = getParticipantToUse(participant, null);
-		}
+		participant = getParticipantToUse(participant, participant.getPmis());
 
 		OpenSpecimenException ose = new OpenSpecimenException(ErrorType.USER_ERROR);
 		ParticipantUtil.ensureUniqueUid(daoFactory, participant.getUid(), ose);
@@ -207,9 +205,7 @@ public class ParticipantServiceImpl implements ParticipantService, ObjectAccesso
 
 	public void updateParticipant(Participant existing, Participant newParticipant) {
 		ParticipantUtil.ensureLockedFieldsAreUntouched(existing, newParticipant);
-		if (!getExternalSourceSites().isEmpty()) {
-			newParticipant = getParticipantToUse(newParticipant, getNewlyAddedPmis(existing, newParticipant));
-		}
+		newParticipant = getParticipantToUse(newParticipant, getNewlyAddedPmis(existing, newParticipant));
 
 		OpenSpecimenException ose = new OpenSpecimenException(ErrorType.USER_ERROR);
 
@@ -414,12 +410,12 @@ public class ParticipantServiceImpl implements ParticipantService, ObjectAccesso
 	}
 
 	private Participant getParticipantToUse(Participant participant, Collection<ParticipantMedicalIdentifier> newPmis) {
-		if (newPmis == null) {
-			newPmis = participant.getPmis();
+		if (CollectionUtils.isEmpty(newPmis)) {
+			return participant;
 		}
 
 		List<ParticipantMedicalIdentifier> lookupPmis = Utility.nullSafeStream(newPmis)
-			.filter(pmi -> getExternalSourceSites().contains(pmi.getSite()) && StringUtils.isNotBlank(pmi.getMedicalRecordNumber()))
+			.filter(pmi -> StringUtils.isNotBlank(pmi.getMedicalRecordNumber()))
 			.collect(Collectors.toList());
 		if (lookupPmis.isEmpty()) {
 			return participant;
@@ -428,7 +424,11 @@ public class ParticipantServiceImpl implements ParticipantService, ObjectAccesso
 		List<PmiDetail> searchPmis = PmiDetail.from(lookupPmis, false);
 		List<StagedParticipant> participants = daoFactory.getStagedParticipantDao().getByPmis(searchPmis);
 		if (participants.isEmpty()) {
-			throw OpenSpecimenException.userError(ParticipantErrorCode.STAGED_NOT_FOUND, PmiDetail.toString(searchPmis));
+			if (lookupPmis.stream().anyMatch(pmi -> getExternalSourceSites().contains(pmi.getSite()))) {
+				throw OpenSpecimenException.userError(ParticipantErrorCode.STAGED_NOT_FOUND, PmiDetail.toString(searchPmis));
+			}
+
+			return participant;
 		} else if (participants.size() > 1) {
 			throw OpenSpecimenException.userError(ParticipantErrorCode.MRN_DIFF, PmiDetail.toString(searchPmis));
 		}
