@@ -35,8 +35,9 @@ public class CpWorkflowTxnCache {
 			config = daoFactory.getCollectionProtocolDao().getCpWorkflows(cpId);
 			if (config == null) {
 				config = new CpWorkflowConfig();
-				cpWorkflows.get().put(cpId, config);
 			}
+
+			cpWorkflows.get().put(cpId, config);
 		}
 
 		return config;

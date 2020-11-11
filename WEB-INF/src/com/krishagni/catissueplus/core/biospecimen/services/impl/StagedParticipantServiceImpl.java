@@ -70,7 +70,19 @@ public class StagedParticipantServiceImpl implements StagedParticipantService {
 	private void updateParticipantIfExists(StagedParticipantDetail input) {
 		Participant existing = daoFactory.getParticipantDao().getByEmpi(input.getEmpi());
 		if (existing == null) {
-			return;
+			if (CollectionUtils.isNotEmpty(input.getPmis())) {
+				List<Participant> matches = daoFactory.getParticipantDao().getByPmis(input.getPmis());
+				if (matches.size() == 1) {
+					existing = matches.iterator().next();
+				} else {
+					logger.error("Multiple matches for " + PmiDetail.toString(input.getPmis()));
+					throw OpenSpecimenException.userError(ParticipantErrorCode.MRN_DIFF, PmiDetail.toString(input.getPmis()));
+				}
+			}
+
+			if (existing == null) {
+				return;
+			}
 		}
 
 		ParticipantDetail detail = ParticipantDetail.from(existing, false);
@@ -178,10 +190,10 @@ public class StagedParticipantServiceImpl implements StagedParticipantService {
 
 		if (StringUtils.isNotBlank(detail.getNewEmpi())) {
 			participant.setEmpi(detail.getNewEmpi());
-			participant.getPmiList().addAll(getPmis(detail.getPmis()));
+			participant.getPmiList().addAll(getPmis(participant, detail.getPmis()));
 		} else {
 			participant.setEmpi(detail.getEmpi());
-			participant.setPmiList(getPmis(detail.getPmis()));
+			participant.setPmiList(getPmis(participant, detail.getPmis()));
 
 		}
 
@@ -196,7 +208,7 @@ public class StagedParticipantServiceImpl implements StagedParticipantService {
 		}
 	}
 
-	private Set<StagedParticipantMedicalIdentifier> getPmis(List<PmiDetail> pmis) {
+	private Set<StagedParticipantMedicalIdentifier> getPmis(StagedParticipant participant, List<PmiDetail> pmis) {
 		if (CollectionUtils.isEmpty(pmis)) {
 			return Collections.emptySet();
 		}
@@ -206,6 +218,7 @@ public class StagedParticipantServiceImpl implements StagedParticipantService {
 				StagedParticipantMedicalIdentifier pmi = new StagedParticipantMedicalIdentifier();
 				pmi.setSite(id.getSiteName());
 				pmi.setMedicalRecordNumber(id.getMrn());
+				pmi.setParticipant(participant);
 				return pmi;
 			}
 		).collect(Collectors.toSet());
