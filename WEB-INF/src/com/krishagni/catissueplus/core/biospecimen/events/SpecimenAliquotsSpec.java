@@ -45,7 +45,7 @@ public class SpecimenAliquotsSpec {
 
 	private String positionY;
 
-	private int position;
+	private Integer position;
 
 	private List<StorageLocationSummary> locations;
 
@@ -209,11 +209,11 @@ public class SpecimenAliquotsSpec {
 		this.positionY = positionY;
 	}
 
-	public int getPosition() {
+	public Integer getPosition() {
 		return position;
 	}
 
-	public void setPosition(int position) {
+	public void setPosition(Integer position) {
 		this.position = position;
 	}
 

@@ -508,7 +508,7 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 					location = new StorageLocationSummary();
 					location.setName(spec.getContainerName());
 					if (i == 0) {
-						if (spec.getPosition() != 0) {
+						if (spec.getPosition() != null && spec.getPosition() != 0) {
 							location.setPosition(spec.getPosition());
 						} else if (spec.getPositionX() != null && spec.getPositionY() != null) {
 							location.setPositionX(spec.getPositionX());
