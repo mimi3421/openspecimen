@@ -59,7 +59,10 @@
         {{field.value | osBoolValue : 'common.yes' : 'common.no' : 'common.not_specified'}}
       </span>
       <span ng-switch-default ng-switch on="!!field.displayValue">
-        <span ng-switch-when="true">{{field.displayValue}}</span>
+        <span ng-switch-when="true">
+          {{field.displayValue}}
+          <!-- span ng-show="!!field.codedValue">({{field.codedValue}})</span -->
+        </span>
         <span ng-switch-default> {{field.value | osArrayJoin}}</span>
       </span>
     </span>

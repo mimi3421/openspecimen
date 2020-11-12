@@ -125,6 +125,11 @@ public class PvControl extends AbstractLookupControl implements Serializable {
 		return props;
 	}
 
+	@Override
+	public String getCodeColumn() {
+		return CONCEPT_CODE;
+	}
+
 	private Long getIdByValue(String value) {
 		return JdbcDaoFactory.getJdbcDao().getResultSet(
 			GET_ID_BY_VALUE,
@@ -138,6 +143,8 @@ public class PvControl extends AbstractLookupControl implements Serializable {
 	private static final String VALUE_COLUMN = "VALUE";
 
 	private static final String ALT_KEY = "VALUE";
+
+	private static final String CONCEPT_CODE = "CONCEPT_CODE";
 
 	private static final String GET_ID_BY_VALUE =
 		"select " +

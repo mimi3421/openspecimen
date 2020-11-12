@@ -169,6 +169,8 @@ public class ExtensionDetail implements Serializable {
 
 		private String displayValue;
 
+		private String codedValue;
+
 		public String getName() {
 			return name;
 		}
@@ -217,6 +219,10 @@ public class ExtensionDetail implements Serializable {
 			this.displayValue = displayValue;
 		}
 
+		public void setCodedValue(String codedValue) {
+			this.codedValue = codedValue;
+		}
+
 		@SuppressWarnings({"unchecked" })
 		public static AttrDetail from(Attr attr, boolean excludePhi) {
 			AttrDetail detail = new AttrDetail();
@@ -224,6 +230,7 @@ public class ExtensionDetail implements Serializable {
 			detail.setUdn(attr.getUdn());
 			detail.setCaption(attr.getCaption());
 			detail.setType(attr.getType());
+			detail.setCodedValue(attr.getCodedValue());
 
 			if (attr.isSubForm()) {
 				if (attr.isOneToOne()) {

@@ -615,6 +615,8 @@ public abstract class DeObject {
 
 		private String type;
 
+		private String codedValue;
+
 		public ControlValue getCtrlValue() {
 			return ctrlValue;
 		}
@@ -661,6 +663,14 @@ public abstract class DeObject {
 
 		public void setType(String type) {
 			this.type = type;
+		}
+
+		public String getCodedValue() {
+			return codedValue;
+		}
+
+		public void setCodedValue(String codedValue) {
+			this.codedValue = codedValue;
 		}
 
 		public String getDisplayValue() {
@@ -729,6 +739,7 @@ public abstract class DeObject {
 			}
 
 			attr.setValue(value);
+			attr.setCodedValue(cv.getCodedValue());
 			return attr;
 		}
 	}

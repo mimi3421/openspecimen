@@ -4,7 +4,7 @@
       <li class="item" ng-repeat="attr in extObject.attrs | filter: {type: '!subForm'}" ng-if="!!attr.value || attr.value === 0">
         <strong class="key key-sm" os-unsafe-html="attr.caption"></strong>
         <span class="value value-md">
-          <span ng-include src="'modules/biospecimen/extensions/display-value'"></span>
+          <span ng-include src="'modules/biospecimen/extensions/display-value.html'"></span>
         </span>
       </li>
     </ul>
@@ -30,7 +30,7 @@
           <tbody class="os-table-body">
             <tr class="row" ng-repeat="record in sf.value">
               <td class="col" ng-repeat="attr in record">
-                <span ng-include src="'modules/biospecimen/extensions/display-value'"></span>
+                <span ng-include src="'modules/biospecimen/extensions/display-value.html'"></span>
               </td>
             </tr>
           </tbody>
@@ -40,7 +40,7 @@
   </div>
 </div>
 
-<script type="text/ng-template" id="modules/biospecimen/extensions/display-value">
+<script type="text/ng-template" id="modules/biospecimen/extensions/display-value.html">
   <span ng-switch on="attr.type">
     <span ng-switch-when="fileUpload">
       <a ng-href="{{url}}" ng-if="!!attr.value" ng-init="url=attr.$$fileDownloadUrl">{{attr.value.filename}}</a>
@@ -52,8 +52,12 @@
     </span>
     <span ng-switch-default>
       <span ng-switch on="!!attr.displayValue">
-        <span ng-switch-when="true">{{attr.displayValue | osNoValue}}</span>
-        <span ng-switch-default>{{attr.value | osArrayJoin | osNoValue}}</span>
+        <span ng-switch-when="true">
+          {{attr.displayValue | osNoValue}}
+        </span>
+        <span ng-switch-default>
+          {{attr.value | osArrayJoin | osNoValue}}
+        </span>
       </span>
     </span>
   </span>

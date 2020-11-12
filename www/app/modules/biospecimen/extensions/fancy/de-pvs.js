@@ -41,14 +41,28 @@ openspecimen.ui.fancy.Pvs = edu.common.de.LookupSvc.extend({
   formatResults: function(pvs) {
     var result = [];
     for (var i = 0; i < pvs.length; ++i) {
-      result.push({id: pvs[i].id, text: pvs[i].value || pvs[i].text});
+      var text = pvs[i].value || pvs[i].text;
+      if (pvs[i].conceptCode) {
+        text += ' (' + pvs[i].conceptCode + ')';
+      }
+
+      result.push({id: pvs[i].id, text: text});
     }
 
     return result;
   },
 
   formatResult: function(data) {
-    return !data ? "" : {id: data.id, text: data.value || data.text};
+    if (!data) {
+      return '';
+    }
+
+    var text = data.value || data.text;
+    if (data.conceptCode) {
+      text += ' (' + data.conceptCode + ')';
+    }
+
+    return {id: data.id, text: text};
   },
 
   getDefaultValue: function(luField) {

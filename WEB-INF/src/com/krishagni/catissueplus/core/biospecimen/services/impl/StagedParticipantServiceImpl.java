@@ -74,7 +74,7 @@ public class StagedParticipantServiceImpl implements StagedParticipantService {
 				List<Participant> matches = daoFactory.getParticipantDao().getByPmis(input.getPmis());
 				if (matches.size() == 1) {
 					existing = matches.iterator().next();
-				} else {
+				} else if (matches.size() > 1) {
 					logger.error("Multiple matches for " + PmiDetail.toString(input.getPmis()));
 					throw OpenSpecimenException.userError(ParticipantErrorCode.MRN_DIFF, PmiDetail.toString(input.getPmis()));
 				}
