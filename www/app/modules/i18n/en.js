@@ -2883,7 +2883,7 @@
         "pde_link_age": "Survey Link Age",
         "pde_link_age_desc": "Number of days during which a survey link is valid.",
         "ext_participant_sites": "External Participant Sites",
-        "ext_participant_sites_desc": "Comma separated list of site names or IDs for which the participant demographic details are sourced from the external databases like EPIC etc"
+        "ext_participant_sites_desc": "A comma-separated list of site IDs or names from which participant details are sourced from the external databases like EPIC etc"
       },
 
       "common": {
