@@ -33,6 +33,8 @@ public enum SpecimenErrorCode implements ErrorCode {
 	DUP_BARCODE_IN_CP,
 	
 	INVALID_LINEAGE,
+
+	CANNOT_CHG_LINEAGE,
 	
 	INVALID_COLL_STATUS,
 	

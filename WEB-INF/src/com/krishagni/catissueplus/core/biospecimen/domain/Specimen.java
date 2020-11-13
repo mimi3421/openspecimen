@@ -1008,6 +1008,11 @@ public class Specimen extends BaseExtensionEntity {
 	}
 
 	public void update(Specimen specimen) {
+		if (!StringUtils.equals(getLineage(), specimen.getLineage())) {
+			throw OpenSpecimenException.userError(
+				SpecimenErrorCode.CANNOT_CHG_LINEAGE, getLineage(), specimen.getLineage());
+		}
+
 		boolean wasCollected = isCollected();
 
 		setForceDelete(specimen.isForceDelete());
