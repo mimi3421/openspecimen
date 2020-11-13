@@ -578,7 +578,7 @@
             e.code event_code,
             e.collection_point_label event_label,
             case
-              when v.collection_status = \'Pending\' and v.encounter_timestamp is not null then v.encounter_timestamp
+              when v.collection_status = \'Pending\' and v.collection_timestamp is not null then v.collection_timestamp
               else date_add(r.registration_date, interval (e.offset - me.min_offset) day)
             end event_date,
             e.clinical_status_id,
@@ -706,7 +706,7 @@
             e.code event_code,
             e.collection_point_label event_label,
             case
-              when v.collection_status = ''Pending'' and v.encounter_timestamp is not null then v.encounter_timestamp
+              when v.collection_status = ''Pending'' and v.collection_timestamp is not null then v.collection_timestamp
               else r.registration_date + (e.offset - me.min_offset)
             end event_date,
             e.clinical_status_id,
