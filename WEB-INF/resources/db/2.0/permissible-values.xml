@@ -18,13 +18,14 @@
     </sql>
   </changeSet>
   
-  <changeSet author="nmarwaha" id="Creating function for getting next PV Id" dbms="mysql">
+  <changeSet author="nmarwaha" id="Creating function for getting next PV Id" dbms="mysql" runOnChange="true">
     <sql endDelimiter="//">
       drop function if exists getNextPvId
       //
   
       create function getNextPvId()
         returns bigint(20)
+        reads sql data
       begin
         declare nxtPvId bigint(20);
 
@@ -68,6 +69,7 @@
 
       create function getPvParentId (publicId varchar(255), pvValue varchar(255))
         returns bigint(20)
+        reads sql data
       begin
         declare pvId bigint(20);
 

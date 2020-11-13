@@ -76,13 +76,14 @@
       referencedColumnNames="IDENTIFIER"/>
   </changeSet>
 
-  <changeSet author="mdnasim" id="Function to obtain PV ID given attribute name and value" dbms="mysql">
+  <changeSet author="mdnasim" id="Function to obtain PV ID given attribute name and value" dbms="mysql" runOnChange="true">
     <sql endDelimiter="//">
       drop function if exists getPvId
       //
 
       create function getPvId (publicId varchar(255), pvValue varchar(255))
         returns bigint(20)
+        reads sql data
       begin
         return getPvParentId(publicId, pvValue);
       end

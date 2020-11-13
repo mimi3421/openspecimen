@@ -136,14 +136,8 @@
           0
         from
           catissue_specimen s
-          inner join catissue_form_record_entry cre on cre.object_id = s.identifier
-          inner join catissue_form_context cfc on cfc.identifier = cre.form_ctxt_id
-          inner join dyextn_containers cf on cf.identifier = cfc.container_id and cf.name = 'SpecimenCollectionEvent'
-          inner join catissue_coll_event_param ce on ce.identifier = cre.record_id
-          inner join catissue_form_record_entry rre on rre.object_id = s.identifier
-          inner join catissue_form_context rfc on rfc.identifier = rre.form_ctxt_id
-          inner join dyextn_containers rf on rf.identifier = rfc.container_id and rf.name = 'SpecimenReceivedEvent'
-          inner join catissue_received_event_param re on re.identifier = rre.record_id
+          inner join catissue_coll_event_param ce on ce.specimen_id = s.identifier
+          inner join catissue_received_event_param re on re.specimen_id = s.identifier
           left join (
             select
               fre.object_id as specimen_id, max(fep.event_timestamp) as event_timestamp
@@ -160,8 +154,7 @@
         where
           s.parent_specimen_id is null and s.collection_status != 'Pending' and
           s.activity_status != 'Disabled' and c.activity_status != 'Disabled' and
-          c.collection_status = 'Collected' and cre.activity_status = 'ACTIVE' and
-          rre.activity_status = 'ACTIVE';
+          c.collection_status = 'Collected';
 
         set @num := 0, @parent := 0;
 
