@@ -86,7 +86,7 @@ public class CollectionProtocolRegistrationDaoImpl extends AbstractDao<Collectio
 
 	@Override
 	public Long getCprCount(CprListCriteria cprCrit) {
-		Number count = (Number) getCprListQuery(cprCrit)
+		Number count = (Number) getCprIdsQuery(cprCrit).getExecutableCriteria(getCurrentSession())
 			.setProjection(Projections.rowCount())
 			.uniqueResult();
 		return count.longValue();

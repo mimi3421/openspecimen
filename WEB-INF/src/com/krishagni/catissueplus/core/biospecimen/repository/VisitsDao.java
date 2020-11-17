@@ -14,6 +14,8 @@ public interface VisitsDao extends Dao<Visit> {
 
 	void loadAnticipatedVisitStats(Map<Long, ? extends VisitSummary> visits);
 
+	Long getVisitsCount(VisitsListCriteria crit);
+
 	List<Visit> getVisitsList(VisitsListCriteria crit);
 	
 	Visit getByName(String name);

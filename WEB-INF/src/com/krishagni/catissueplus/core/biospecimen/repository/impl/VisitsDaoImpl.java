@@ -77,6 +77,14 @@ public class VisitsDaoImpl extends AbstractDao<Visit> implements VisitsDao {
 	}
 
 	@Override
+	public Long getVisitsCount(VisitsListCriteria crit) {
+		Number count = (Number) getVisitIdsListQuery(crit).getExecutableCriteria(getCurrentSession())
+			.setProjection(Projections.rowCount())
+			.uniqueResult();
+		return count.longValue();
+	}
+
+	@Override
 	@SuppressWarnings("unchecked")
 	public List<Visit> getVisitsList(VisitsListCriteria crit) {
 		Criteria query = getCurrentSession().createCriteria(Visit.class, "visit")
@@ -220,8 +228,6 @@ public class VisitsDaoImpl extends AbstractDao<Visit> implements VisitsDao {
 	}
 
 	private static final String FQN = Visit.class.getName();
-	
-//	private static final String GET_VISITS_SUMMARY_BY_CPR_ID = FQN + ".getVisitsSummaryByCprId";
 
 	private static final String GET_VISIT_STATS = FQN + ".getVisitStats";
 
