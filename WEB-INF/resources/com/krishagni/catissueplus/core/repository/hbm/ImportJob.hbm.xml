@@ -40,7 +40,7 @@
 
     <property name="failedRecords" column="FAILED_RECORDS"/>
 
-    <many-to-one name="createdBy" column="CREATED_BY" fetch="join"/>
+    <many-to-one name="createdBy" column="CREATED_BY"/>
 
     <property name="creationTime" column="CREATION_TIME"/>
 

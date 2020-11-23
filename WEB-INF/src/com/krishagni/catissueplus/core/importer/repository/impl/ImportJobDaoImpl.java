@@ -7,6 +7,7 @@ import java.util.Map;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
 import org.hibernate.LockMode;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Order;
@@ -29,6 +30,7 @@ public class ImportJobDaoImpl extends AbstractDao<ImportJob> implements ImportJo
 	public ImportJob getJobForUpdate(Long jobId) {
 		return (ImportJob) getCurrentSession().createCriteria(ImportJob.class, "job")
 			.add(Restrictions.eq("job.id", jobId))
+			.setFetchMode("job.createdBy", FetchMode.SELECT)
 			.setLockMode(LockMode.PESSIMISTIC_WRITE)
 			.uniqueResult();
 	}
@@ -40,6 +42,8 @@ public class ImportJobDaoImpl extends AbstractDao<ImportJob> implements ImportJo
 		int maxResults = crit.maxResults() <= 0 || crit.maxResults() > 100 ? 100 : crit.maxResults();
 		
 		Criteria query = getCurrentSession().createCriteria(ImportJob.class)
+			.createAlias("createdBy", "createdBy")
+			.setFetchMode("createdBy", FetchMode.JOIN)
 			.setFirstResult(startAt)
 			.setMaxResults(maxResults)
 			.addOrder(Order.desc("id"));
@@ -53,12 +57,10 @@ public class ImportJobDaoImpl extends AbstractDao<ImportJob> implements ImportJo
 		}
 
 		if (crit.instituteId() != null) {
-			query.createAlias("createdBy", "createdBy")
-				.createAlias("createdBy.institute","institute")
+			query.createAlias("createdBy.institute", "institute")
 				.add(Restrictions.eq("institute.id", crit.instituteId()));
 		} else if (crit.userId() != null) {
-			query.createAlias("createdBy", "createdBy")
-				.add(Restrictions.eq("createdBy.id", crit.userId()));
+			query.add(Restrictions.eq("createdBy.id", crit.userId()));
 		}
 		
 		if (CollectionUtils.isNotEmpty(crit.objectTypes())) {
