@@ -1,6 +1,8 @@
 
 package com.krishagni.catissueplus.core.biospecimen.events;
 
+import java.util.Date;
+
 import com.krishagni.catissueplus.core.biospecimen.domain.Participant;
 
 public class ParticipantSummary {
@@ -17,6 +19,8 @@ public class ParticipantSummary {
 	private String uid;
 
 	private String emailAddress;
+
+	private Date birthDate;
 
 	public Long getId() {
 		return id;
@@ -74,6 +78,14 @@ public class ParticipantSummary {
 		this.emailAddress = emailAddress;
 	}
 
+	public Date getBirthDate() {
+		return birthDate;
+	}
+
+	public void setBirthDate(Date birthDate) {
+		this.birthDate = birthDate;
+	}
+
 	public static ParticipantSummary from(Participant p, boolean excludePhi) {
 		ParticipantSummary result = new ParticipantSummary();
 		result.setId(p.getId());
@@ -87,6 +99,7 @@ public class ParticipantSummary {
 		result.setEmpi(p.getEmpi());
 		result.setUid(p.getUid());
 		result.setEmailAddress(p.getEmailAddress());
+		result.setBirthDate(p.getBirthDate());
 		return result;
 	}
 }
