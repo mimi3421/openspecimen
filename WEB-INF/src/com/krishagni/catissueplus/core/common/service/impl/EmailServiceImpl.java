@@ -365,18 +365,18 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 		message.setText(mail.getBody(), true); // true = isHtml
 		message.setFrom(getAccountId());
 
-		String replyDispName = (String) props.getOrDefault("$replyToDisplayName", null);
-		String replyTo = (String) props.getOrDefault("$replyTo", null);
-		if (StringUtils.isBlank(replyDispName)) {
-			replyDispName = replyTo;
+		String fromDisplayName = (String) props.getOrDefault("$fromDisplayName", null);
+		String fromId = (String) props.getOrDefault("$fromEmailId", null);
+		if (StringUtils.isBlank(fromDisplayName)) {
+			fromDisplayName = fromId;
 		}
 
-		if (StringUtils.isNotBlank(replyDispName)) {
-			message.setFrom(new InternetAddress(getAccountId(), replyDispName));
-		}
-
-		if (StringUtils.isNotBlank(replyTo)) {
-			message.setReplyTo(new InternetAddress(replyTo, replyDispName));
+		if (StringUtils.isNotBlank(fromId)) {
+			message.setFrom(new InternetAddress(fromId, fromDisplayName));
+			message.setReplyTo(new InternetAddress(fromId, fromDisplayName));
+		} else if (StringUtils.isNotBlank(fromDisplayName)) {
+			message.setFrom(new InternetAddress(getAccountId(), fromDisplayName));
+			message.setReplyTo(new InternetAddress(getAccountId(), fromDisplayName));
 		}
 
 		if (mail.getAttachments() != null) {
