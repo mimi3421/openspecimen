@@ -33,6 +33,7 @@ import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.common.OpenSpecimenAppCtxProvider;
 import com.krishagni.catissueplus.core.common.Pair;
+import com.krishagni.catissueplus.core.common.TransactionalThreadLocals;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
@@ -90,6 +91,8 @@ public class StorageContainer extends BaseExtensionEntity {
 	public static final String LOWER_CASE_ROMAN_LABELING_SCHEME = "Roman Lower Case";
 
 	private static final Map<PositionAssignment, PositionAssigner> POS_ASSIGNERS = new HashMap<PositionAssignment, PositionAssigner>() {
+		private static final long serialVersionUID = -2190575701287414096L;
+
 		{
 			put(PositionAssignment.HZ_TOP_DOWN_LEFT_RIGHT,  new HzTopDownLeftRightPosAssigner());
 			put(PositionAssignment.HZ_TOP_DOWN_RIGHT_LEFT,  new HzTopDownRightLeftPosAssigner());
@@ -101,6 +104,15 @@ public class StorageContainer extends BaseExtensionEntity {
 			put(PositionAssignment.VT_BOTTOM_UP_RIGHT_LEFT, new VtBottomUpRightLeftPosAssigner());
 		}
 	};
+
+	private static final ThreadLocal<Map<Long, StorageContainerPosition>> lastAssignedPositions =
+		new ThreadLocal<Map<Long, StorageContainerPosition>>() {
+			@Override
+			protected Map<Long, StorageContainerPosition> initialValue() {
+				TransactionalThreadLocals.getInstance().register(this);
+				return new HashMap<>();
+			}
+		};
 
 	private String name;
 
@@ -179,8 +191,6 @@ public class StorageContainer extends BaseExtensionEntity {
 	private Set<CollectionProtocol> compAllowedCps = new HashSet<>();
 
 	private Set<DistributionProtocol> compAllowedDps = new HashSet<>();
-
-	private transient StorageContainerPosition lastAssignedPos;
 
 	//
 	// transfer event
@@ -402,11 +412,11 @@ public class StorageContainer extends BaseExtensionEntity {
 	}
 
 	public StorageContainerPosition getLastAssignedPos() {
-		return lastAssignedPos;
+		return lastAssignedPositions.get().get(getId());
 	}
 
 	public void setLastAssignedPos(StorageContainerPosition lastAssignedPos) {
-		this.lastAssignedPos = lastAssignedPos;
+		lastAssignedPositions.get().put(getId(), lastAssignedPos);
 	}
 
 	public User getTransferredBy() {
@@ -743,6 +753,7 @@ public class StorageContainer extends BaseExtensionEntity {
 
 	public StorageContainerPosition nextAvailablePosition(boolean fromLastAssignedPos) {
 		String row = null, col = null;
+		StorageContainerPosition lastAssignedPos = lastAssignedPositions.get().get(getId());
 		if (!isDimensionless() && fromLastAssignedPos && lastAssignedPos != null) {
 			Pair<Integer, Integer> startPos = getPositionAssigner().nextPosition(this, lastAssignedPos.getPosTwoOrdinal(), lastAssignedPos.getPosOneOrdinal());
 			row = fromOrdinal(getRowLabelingScheme(), startPos.first());
@@ -779,7 +790,9 @@ public class StorageContainer extends BaseExtensionEntity {
 		if (nextPos != null) {
 			String posOne = fromOrdinal(getColumnLabelingScheme(), nextPos.second());
 			String posTwo = fromOrdinal(getRowLabelingScheme(), nextPos.first());
-			return (lastAssignedPos = createPosition(nextPos.second(), posOne, nextPos.first(), posTwo));
+			StorageContainerPosition position = createPosition(nextPos.second(), posOne, nextPos.first(), posTwo);
+			lastAssignedPositions.get().put(getId(), position);
+			return position;
 		}
 
 		if (startPosSpecified) {
