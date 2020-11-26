@@ -64,6 +64,7 @@ public class SpecimenTypePropsServiceImpl implements SpecimenTypePropsService {
 		props.put("concHtmlDisplayCode", getProperty(pv, "concentration_display_unit"));
 
 		SpecimenTypeProps detail = new SpecimenTypeProps();
+		detail.setId(pv.getId());
 		detail.setSpecimenClass(pv.getParent().getValue());
 		detail.setSpecimenType(pv.getValue());
 		detail.setProps(props);
