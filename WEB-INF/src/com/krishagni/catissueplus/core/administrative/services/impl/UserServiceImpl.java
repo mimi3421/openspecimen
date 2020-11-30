@@ -898,10 +898,16 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 			return;
 		}
 
-		//
-		// Only super admin can update these attributes; therefore reset to
-		// their earlier value or default value
-		//
+		if (AuthUtil.isInstituteAdmin()) {
+			if (!newUser.isAdmin() && (existingUser == null || !existingUser.isAdmin())) {
+				//
+				// newly created/updated user is not super admin
+				// existing user, if any, is not super admin either
+				//
+				return;
+			}
+		}
+
 		newUser.setType(existingUser != null ? existingUser.getType() : User.Type.NONE);
 		newUser.setManageForms(existingUser != null && existingUser.canManageForms());
 	}

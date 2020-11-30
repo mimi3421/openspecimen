@@ -18,10 +18,10 @@
   <div class="container">
     <form name="userForm" class="form-horizontal" os-form-validator="userForm" validator="userFormValidator" novalidate
       os-disable-fields="disabledFields">
-      <div show-if-admin class="form-group">
+      <div show-if-admin="institute" class="form-group">
         <label class="col-xs-3 control-label" translate="user.type">Type</label>
         <div class="col-xs-6">
-          <label class="radio-inline">
+          <label class="radio-inline" show-if-admin>
             <input type="radio" name="type" ng-model="user.type" ng-value="'SUPER'">
             <span translate="user.super_admin">Super Administrator</span>
           </label>
