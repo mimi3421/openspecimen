@@ -51,6 +51,7 @@ import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr;
 import com.krishagni.catissueplus.core.common.access.AccessCtrlMgr.ParticipantReadAccess;
 import com.krishagni.catissueplus.core.common.access.SiteCpPair;
 import com.krishagni.catissueplus.core.common.domain.Notification;
+import com.krishagni.catissueplus.core.common.errors.CommonErrorCode;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.EntityQueryCriteria;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
@@ -92,6 +93,7 @@ import com.krishagni.catissueplus.core.de.events.UpdateFolderQueriesOp;
 import com.krishagni.catissueplus.core.de.repository.DaoFactory;
 import com.krishagni.catissueplus.core.de.repository.SavedQueryDao;
 import com.krishagni.catissueplus.core.de.services.QueryService;
+import com.krishagni.catissueplus.core.de.services.QuerySpaceProvider;
 import com.krishagni.catissueplus.core.de.services.SavedQueryErrorCode;
 import com.krishagni.catissueplus.core.init.ImportQueryForms;
 import com.krishagni.catissueplus.core.init.ImportSpecimenEventForms;
@@ -108,6 +110,7 @@ import edu.common.dynamicextensions.query.QueryResultCsvExporter;
 import edu.common.dynamicextensions.query.QueryResultData;
 import edu.common.dynamicextensions.query.QueryResultExporter;
 import edu.common.dynamicextensions.query.QueryResultScreener;
+import edu.common.dynamicextensions.query.QuerySpace;
 import edu.common.dynamicextensions.query.ResultColumn;
 import edu.common.dynamicextensions.query.WideRowMode;
 
@@ -159,6 +162,8 @@ public class QueryServiceImpl implements QueryService {
 	private int maxRecsInMemory = DEF_MAX_RECS_IN_MEM;
 
 	private AtomicInteger concurrentQueriesCnt = new AtomicInteger(0);
+
+	private List<QuerySpaceProvider> querySpaceProviders = new ArrayList<>();
 
 	static {
 		initExportFileCleaner();
@@ -900,7 +905,7 @@ public class QueryServiceImpl implements QueryService {
 			}
 
 			List<FacetDetail> result = op.getFacets().stream()
-				.map(facet -> getFacetDetail(op.getCpId(), op.getCpGroupId(), facet, op.getRestriction(), op.getSearchTerm()))
+				.map(facet -> getFacetDetail(op, facet))
 				.collect(Collectors.toList());
 			return ResponseEvent.response(result);
 		} catch (OpenSpecimenException ose) {
@@ -929,7 +934,14 @@ public class QueryServiceImpl implements QueryService {
 		
 		return templates.toString();
 	}
-		
+
+	@Override
+	public void registerQuerySpaceProvider(QuerySpaceProvider qsProvider) {
+		if (!querySpaceProviders.contains(qsProvider)) {
+			querySpaceProviders.add(qsProvider);
+		}
+	}
+
 	private SavedQuery getSavedQuery(SavedQueryDetail detail) {
 		SavedQuery savedQuery = new SavedQuery();		
 		savedQuery.setTitle(detail.getTitle());
@@ -967,12 +979,6 @@ public class QueryServiceImpl implements QueryService {
 	private Query getQuery(ExecuteQueryEventOp op) {
 		boolean countQuery = "Count".equals(op.getRunType());
 		User user = AuthUtil.getCurrentUser();
-
-		String rootForm = cprForm;
-		if (StringUtils.isNotBlank(op.getDrivingForm())) {
-			rootForm = op.getDrivingForm();
-		}
-
 		TimeZone tz = AuthUtil.getUserTimeZone();
 		Query query = Query.createQuery()
 			.wideRowMode(WideRowMode.valueOf(op.getWideRowMode()))
@@ -983,6 +989,19 @@ public class QueryServiceImpl implements QueryService {
 			.timeFormat(ConfigUtil.getInstance().getTimeFmt())
 			.timeZone(tz != null ? tz.getID() : null);
 		addAutoJoinParams(query);
+
+
+		if (StringUtils.isNotBlank(op.getQuerySpace())) {
+			QuerySpace qs = getQuerySpace(op.getQuerySpace());
+			query.querySpace(qs).compile(qs.getRootForm(), op.getAql());
+			return query;
+		}
+
+		String rootForm = cprForm;
+		if (StringUtils.isNotBlank(op.getDrivingForm())) {
+			rootForm = op.getDrivingForm();
+		}
+
 		query.compile(rootForm, op.getAql());
 
 		String aql = op.getAql();
@@ -1087,6 +1106,21 @@ public class QueryServiceImpl implements QueryService {
 				return "select " + cpForm + ".id, " + afterSelect;
 			}
 		}
+	}
+
+	private QuerySpace getQuerySpace(String name) {
+		if (StringUtils.isBlank(name)) {
+			return null;
+		}
+
+		for (QuerySpaceProvider qsProvider : querySpaceProviders) {
+			QuerySpace result = qsProvider.getQuerySpace(name);
+			if (result != null) {
+				return result;
+			}
+		}
+
+		throw OpenSpecimenException.userError(CommonErrorCode.INVALID_INPUT, "Invalid query space: " + name);
 	}
 	
 	private static int getThreadPoolSize() {
@@ -1305,7 +1339,7 @@ public class QueryServiceImpl implements QueryService {
 		NotifUtil.getInstance().notify(notif, Collections.singletonMap("folder-queries", sharedUsers));
 	}
 
-	private FacetDetail getFacetDetail(Long cpId, Long cpGroupId, String facet, String restriction, String searchTerm) {
+	private FacetDetail getFacetDetail(GetFacetValuesOp op, String facet) {
 		String[] fieldParts = facet.split("\\.");
 		String rootForm = fieldParts[0];
 
@@ -1331,7 +1365,8 @@ public class QueryServiceImpl implements QueryService {
 			fieldName = StringUtils.join(fieldParts, ".", idx + 2, fieldParts.length);
 		}
 
-		Container form = Container.getContainer(formName);
+		QuerySpace qs = getQuerySpace(op.getQuerySpace());
+		Container form = qs != null ? qs.getForm(formName) : Container.getContainer(formName);
 		if (form == null) {
 			throw new IllegalArgumentException("Invalid facet: " + facet);
 		}
@@ -1345,7 +1380,7 @@ public class QueryServiceImpl implements QueryService {
 		List<Object> aqlFmtArgs = new ArrayList<>();
 
 		QueryResultScreener screener = null;
-		if (!AuthUtil.isAdmin() && field.isPhi()) {
+		if (qs == null && !AuthUtil.isAdmin() && field.isPhi()) {
 			aqlFmtArgs.add(cpForm + ".id, ");
 			screener = new QueryResultScreenerImpl(AuthUtil.getCurrentUser(), false, "");
 		} else {
@@ -1355,17 +1390,17 @@ public class QueryServiceImpl implements QueryService {
 		aqlFmtArgs.add(facet);
 
 		String searchTermCond = facet;
-		if (StringUtils.isNotBlank(searchTerm)) {
-			searchTermCond += " contains \"" + searchTerm.trim() + "\"";
+		if (StringUtils.isNotBlank(op.getSearchTerm())) {
+			searchTermCond += " contains \"" + op.getSearchTerm().trim() + "\"";
 		} else {
 			searchTermCond += " exists";
 		}
 		aqlFmtArgs.add(searchTermCond);
 
 		String restrictionCond = "";
-		if (StringUtils.isNotBlank(restriction)) {
-			restrictionCond = " and (" + restriction + ")";
-			rootForm = cprForm;
+		if (StringUtils.isNotBlank(op.getRestriction())) {
+			restrictionCond = " and (" + op.getRestriction() + ")";
+			rootForm = qs != null ? qs.getRootForm() : cprForm;
 		}
 		aqlFmtArgs.add(restrictionCond);
 
@@ -1376,10 +1411,16 @@ public class QueryServiceImpl implements QueryService {
 			.dateFormat(ConfigUtil.getInstance().getDeDateFmt())
 			.timeFormat(ConfigUtil.getInstance().getTimeFmt())
 			.timeZone(tz != null ? tz.getID() : null)
-			.wideRowMode(WideRowMode.OFF);
+			.wideRowMode(WideRowMode.OFF)
+			.querySpace(qs);
 		addAutoJoinParams(query);
-		query.compile(rootForm, aql, getRestriction(AuthUtil.getCurrentUser(), cpId, cpGroupId));
 
+		String restriction = null;
+		if (qs == null) {
+			restriction = getRestriction(AuthUtil.getCurrentUser(), op.getCpId(), op.getCpGroupId());
+		}
+
+		query.compile(rootForm, aql, restriction);
 		QueryResponse queryResp = query.getData();
 		QueryResultData queryResult = queryResp.getResultData();
 		queryResult.setScreener(screener);

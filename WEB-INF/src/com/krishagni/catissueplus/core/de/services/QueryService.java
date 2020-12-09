@@ -106,4 +106,6 @@ public interface QueryService {
 	// internal use
 	// 
 	String insertCustomQueryForms(String dirName) ;
+
+	void registerQuerySpaceProvider(QuerySpaceProvider qsProvider);
 }

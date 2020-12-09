@@ -4,6 +4,8 @@ package com.krishagni.catissueplus.core.de.events;
 import org.apache.commons.lang3.StringUtils;
 
 public class ExecuteQueryEventOp  {
+
+	private String querySpace;
 	
 	private Long cpId;
 
@@ -30,6 +32,14 @@ public class ExecuteQueryEventOp  {
 	private boolean synchronous;
 
 	private boolean disableAccessChecks;
+
+	public String getQuerySpace() {
+		return querySpace;
+	}
+
+	public void setQuerySpace(String querySpace) {
+		this.querySpace = querySpace;
+	}
 
 	public Long getCpId() {
 		return cpId;

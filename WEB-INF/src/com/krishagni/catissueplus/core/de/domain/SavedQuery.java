@@ -12,6 +12,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.krishagni.catissueplus.core.administrative.domain.ScheduledJob;
 import com.krishagni.catissueplus.core.administrative.domain.User;
 
+import edu.common.dynamicextensions.query.QuerySpace;
+
 public class SavedQuery {
 	private Long id;
 
@@ -50,6 +52,8 @@ public class SavedQuery {
 	private Set<QueryFolder> folders = new HashSet<>();
 
 	private Set<ScheduledJob> scheduledJobs = new HashSet<>();
+
+	private transient QuerySpace qs;
 	
 	private String wideRowMode = "DEEP";
 
@@ -298,7 +302,7 @@ public class SavedQuery {
 		try {
 			query = getReadMapper().readValue(queryDefJson, SavedQuery.class);
 		} catch (Exception e) {
-			throw new RuntimeException("Error marshalling JSON to saved query", e);
+			throw new RuntimeException("Error marshalling JSON to saved query: " + e.getMessage(), e);
 		}
 		if(includeTitle){
 			this.title = query.title;
@@ -315,17 +319,25 @@ public class SavedQuery {
 		this.outputColumnExprs = query.outputColumnExprs;
 		this.caseSensitive = query.caseSensitive;
 	}
-	
+
+	public QuerySpace getQuerySpace() {
+		return qs;
+	}
+
+	public void setQuerySpace(QuerySpace qs) {
+		this.qs = qs;
+	}
+
 	public String getAql() {
-		return AqlBuilder.getInstance().getQuery(selectList, filters, queryExpression, havingClause, reporting);
+		return AqlBuilder.getInstance().getQuery(this, new Filter[0]);
 	}
 	
 	public String getAql(Filter[] conjunctionFilters) {
-		return AqlBuilder.getInstance().getQuery(selectList, filters, conjunctionFilters, queryExpression, havingClause, reporting);
+		return AqlBuilder.getInstance().getQuery(this, conjunctionFilters);
 	}
 
 	public String getAql(String conjunction) {
-		return AqlBuilder.getInstance().getQuery(selectList, filters, conjunction, queryExpression, havingClause, reporting);
+		return AqlBuilder.getInstance().getQuery(this, conjunction);
 	}
 	
 	public void update(SavedQuery query) {

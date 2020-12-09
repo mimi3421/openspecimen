@@ -27,6 +27,7 @@ import edu.common.dynamicextensions.domain.nui.Container;
 import edu.common.dynamicextensions.domain.nui.Control;
 import edu.common.dynamicextensions.domain.nui.DataType;
 import edu.common.dynamicextensions.domain.nui.LookupControl;
+import edu.common.dynamicextensions.query.QuerySpace;
 
 @Configurable
 public class AqlBuilder {
@@ -56,27 +57,42 @@ public class AqlBuilder {
 
 	public String getQuery(Object[] selectList, Filter[] filters, Filter[] conjunctionFilters, QueryExpressionNode[] queryExprNodes, String havingClause, ReportSpec rptSpec) {
 		Context ctx = new Context();
-
-		StringBuilder conjunctionExpr = new StringBuilder();
-		if (conjunctionFilters != null) {
-			for (int i = 0; i < conjunctionFilters.length; ++i) {
-				if (i > 0) {
-					conjunctionExpr.append(" and ");
-				}
-
-				conjunctionExpr.append(buildFilterExpr(ctx, conjunctionFilters[i]));
-			}
-		}
-
-		return getQuery(ctx, selectList, filters, conjunctionExpr.toString(), queryExprNodes, havingClause, rptSpec);
+		return getQuery(ctx, selectList, filters, getConjunction(ctx, conjunctionFilters), queryExprNodes, havingClause, rptSpec);
 	}
 
 	public String getQuery(Object[] selectList, Filter[] filters, String conjunction, QueryExpressionNode[] queryExprNodes, String havingClause) {
-		return getQuery(new Context(), selectList, filters, conjunction, queryExprNodes, havingClause, null);
+		return getQuery(selectList, filters, conjunction, queryExprNodes, havingClause);
 	}
 
 	public String getQuery(Object[] selectList, Filter[] filters, String conjunction, QueryExpressionNode[] queryExprNodes, String havingClause, ReportSpec rptSpec) {
 		return getQuery(new Context(), selectList, filters, conjunction, queryExprNodes, havingClause, rptSpec);
+	}
+
+	public String getQuery(SavedQuery query, Filter[] conjunctions) {
+		Context ctx = new Context();
+		ctx.qs = query.getQuerySpace();
+		return getQuery(ctx, query.getSelectList(), query.getFilters(), getConjunction(ctx, conjunctions), query.getQueryExpression(), query.getHavingClause(), query.getReporting());
+	}
+
+	public String getQuery(SavedQuery query, String conjunction) {
+		Context ctx = new Context();
+		ctx.qs = query.getQuerySpace();
+		return getQuery(ctx, query.getSelectList(), query.getFilters(), conjunction, query.getQueryExpression(), query.getHavingClause(), query.getReporting());
+	}
+
+	private String getConjunction(Context ctx, Filter[] filters) {
+		StringBuilder conjunctionExpr = new StringBuilder();
+		if (filters != null) {
+			for (int i = 0; i < filters.length; ++i) {
+				if (i > 0) {
+					conjunctionExpr.append(" and ");
+				}
+
+				conjunctionExpr.append(buildFilterExpr(ctx, filters[i]));
+			}
+		}
+
+		return conjunctionExpr.toString();
 	}
 
 	private String getQuery(Context ctx, Object[] selectList, Filter[] filters, String conjunction, QueryExpressionNode[] queryExprNodes, String havingClause, ReportSpec rptSpec) {
@@ -267,10 +283,10 @@ public class AqlBuilder {
 				return "";
 			}
 			
-			form = getContainer(fieldParts[2]);
+			form = ctx.getContainer(fieldParts[2]);
 			ctrlName = StringUtils.join(fieldParts, ".", 3, fieldParts.length);
 		} else {
-			form = getContainer(fieldParts[0]);
+			form = ctx.getContainer(fieldParts[0]);
 			ctrlName = StringUtils.join(fieldParts, ".", 1, fieldParts.length);
 		}
 
@@ -486,14 +502,20 @@ public class AqlBuilder {
 		return parts[0];
 	}
 	
-	public Container getContainer(String formName){
-		return Container.getContainer(formName);
-	}
-
 	private class Context {
+		private QuerySpace qs;
+
 		private Map<Long, SavedQuery> queryMap = new HashMap<>();
 
 		private Set<Long> activeQueries = new HashSet<>();
+
+		Container getContainer(String formName) {
+			if (qs != null) {
+				return qs.getForm(formName);
+			}
+
+			return Container.getContainer(formName);
+		}
 
 		SavedQuery getQuery(Long queryId) {
 			SavedQuery query = queryMap.get(queryId);

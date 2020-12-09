@@ -3,6 +3,8 @@ package com.krishagni.catissueplus.core.de.events;
 import java.util.List;
 
 public class GetFacetValuesOp {
+	private String querySpace;
+
 	private Long cpId;
 
 	private Long cpGroupId;
@@ -14,6 +16,14 @@ public class GetFacetValuesOp {
 	private String restriction;
 
 	private boolean disableAccessChecks;
+
+	public String getQuerySpace() {
+		return querySpace;
+	}
+
+	public void setQuerySpace(String querySpace) {
+		this.querySpace = querySpace;
+	}
 
 	public Long getCpId() {
 		return cpId;
