@@ -2,14 +2,18 @@ package com.krishagni.catissueplus.core.common.service.impl;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import com.krishagni.catissueplus.core.administrative.domain.User;
+import com.krishagni.catissueplus.core.administrative.services.ScheduledTaskManager;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.domain.UnhandledException;
@@ -21,18 +25,25 @@ import com.krishagni.catissueplus.core.common.events.UnhandledExceptionSummary;
 import com.krishagni.catissueplus.core.common.repository.UnhandledExceptionListCriteria;
 import com.krishagni.catissueplus.core.common.service.CommonService;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
+import com.krishagni.catissueplus.core.common.util.ConfigUtil;
 import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.rbac.common.errors.RbacErrorCode;
 
-public class CommonServiceImpl implements CommonService {
+public class CommonServiceImpl implements CommonService, InitializingBean {
 	private static final Log logger = LogFactory.getLog(CommonServiceImpl.class);
 
 	private DaoFactory daoFactory;
+
+	private ScheduledTaskManager taskMgr;
 	
 	public void setDaoFactory(DaoFactory daoFactory) {
 		this.daoFactory = daoFactory;
 	}
-	
+
+	public void setTaskMgr(ScheduledTaskManager taskMgr) {
+		this.taskMgr = taskMgr;
+	}
+
 	@Override
 	@PlusTransactional
 	public ResponseEvent<List<UnhandledExceptionSummary>> getUnhandledExceptions(RequestEvent<UnhandledExceptionListCriteria> req) {
@@ -135,5 +146,33 @@ public class CommonServiceImpl implements CommonService {
 			logger.error("Error reading release notes", e);
 			throw new RuntimeException("Error reading release notes", e);
 		}
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		taskMgr.scheduleWithFixedDelay(
+			() -> {
+				try {
+					File tmpDir = new File(ConfigUtil.getInstance().getDataDir(), "tmp");
+					if (!tmpDir.exists()) {
+						return;
+					}
+
+					long currentTime = Calendar.getInstance().getTimeInMillis();
+					long olderThanOneDay = currentTime - 24 * 60 * 60 * 1000;
+					for (File file : Objects.requireNonNull(tmpDir.listFiles())) {
+						if (file.lastModified() < olderThanOneDay) {
+							logger.info("Deleting the temporary file: " + file.getAbsolutePath());
+							if (!file.delete()) {
+								logger.warn("Unable to delete the file: " + file.getAbsolutePath());
+							}
+						}
+					}
+				} catch (Throwable t) {
+					logger.error("Encountered error when cleaning files from the tmp directory", t);
+				}
+			},
+			24 * 60
+		);
 	}
 }
