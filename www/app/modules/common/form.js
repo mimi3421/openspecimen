@@ -187,7 +187,7 @@ angular.module('os.common.form', [])
             }
           );
         } else {
-          Alerts.error("common.form_validation_error");
+          $timeout(function() { Alerts.error("common.form_validation_error"); });
         }
       }
     }
