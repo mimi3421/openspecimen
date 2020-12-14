@@ -145,7 +145,7 @@ public class AppServletContextListener implements ServletContextListener {
 			String pluginName = attrs.getValue("os-plugin-name");
 			if (StringUtils.isNotBlank(pluginName)) {
 				ClassPathUtil.addFile(file);
-				PluginManager.getInstance().addPluginName(pluginName.trim());
+				PluginManager.getInstance().addPlugin(attrs);
 			}
 		} catch (Exception e) {
 			logger.error("Error loading plugin resources from: ", e);
