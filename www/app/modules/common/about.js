@@ -4,8 +4,9 @@ angular.module('openspecimen')
     $scope.showAboutOS = function() {
       $modal.open({
         templateUrl: 'modules/common/about.html',
-        windowClass: 'os-about-modal',
-        size: 'sm'
+        controller: function($scope) {
+          $scope.props = ui.os.appProps;
+        }
       });
     };
   });
