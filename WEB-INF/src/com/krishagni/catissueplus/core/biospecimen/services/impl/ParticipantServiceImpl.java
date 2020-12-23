@@ -3,6 +3,7 @@ package com.krishagni.catissueplus.core.biospecimen.services.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -440,8 +441,10 @@ public class ParticipantServiceImpl implements ParticipantService, ObjectAccesso
 	}
 
 	private List<ParticipantMedicalIdentifier> getNewlyAddedPmis(Participant existing, Participant newParticipant) {
-		Map<Site, String> existingPmis = existing.getPmis().stream().collect(
-			Collectors.toMap(ParticipantMedicalIdentifier::getSite, ParticipantMedicalIdentifier::getMedicalRecordNumber));
+		Map<Site, String> existingPmis = new HashMap<>();
+		for (ParticipantMedicalIdentifier pmi : existing.getPmis()) {
+			existingPmis.put(pmi.getSite(), pmi.getMedicalRecordNumber());
+		}
 
 		List<ParticipantMedicalIdentifier> newPmis = new ArrayList<>();
 		for (ParticipantMedicalIdentifier newPmi : newParticipant.getPmis()) {
