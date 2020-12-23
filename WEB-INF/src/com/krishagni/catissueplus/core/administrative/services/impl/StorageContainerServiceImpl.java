@@ -513,11 +513,11 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 					setCapacity = false;
 				}
 
-				List<StorageContainer> result = createContainerHierarchy(cloned.getType().getCanHold(), cloned);
 				daoFactory.getStorageContainerDao().saveOrUpdate(cloned);
 				cloned.addOrUpdateExtension();
 				containers.add(cloned);
 
+				List<StorageContainer> result = createContainerHierarchy(cloned.getType().getCanHold(), cloned);
 				result.add(0, cloned);
 				if (input.isPrintLabels()) {
 					printLabels(result);
@@ -1373,12 +1373,14 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 
 			generateName(cloned);
 			parentContainer.addChildContainer(cloned);
-			result.add(cloned);
 
 			if (cloned.isStoreSpecimenEnabled() && setCapacity) {
 				cloned.setFreezerCapacity();
 				setCapacity = false;
 			}
+
+			daoFactory.getStorageContainerDao().saveOrUpdate(cloned);
+			result.add(cloned);
 
 			List<StorageContainer> descendants = createContainerHierarchy(containerType.getCanHold(), cloned);
 			result.addAll(descendants);
