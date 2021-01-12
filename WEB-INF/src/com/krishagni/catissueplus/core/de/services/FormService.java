@@ -39,7 +39,9 @@ public interface FormService {
 	public ResponseEvent<Long> getFormsCount(RequestEvent<FormListCriteria> req);
 	
 	public ResponseEvent<Container> getFormDefinition(RequestEvent<Long> req);
-	
+
+	public ResponseEvent<Long> saveForm(RequestEvent<Map<String, Object>> req);
+
 	public ResponseEvent<Boolean> deleteForms(RequestEvent<BulkDeleteEntityOp> req);
 	
 	public ResponseEvent<List<FormFieldSummary>> getFormFields(RequestEvent<ListFormFields> req);

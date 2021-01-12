@@ -44,4 +44,21 @@
   display: none;
 }
 
+.os-form-designer-container {
+  position: absolute;
+  top: 107px;
+  width: 100%;
+  height: calc(100% - 107px);
+  overflow: hidden;
+  background: #f7f7f7;
+}
+
+.os-form-designer-container iframe {
+  border: 0px;
+  margin: -8px;
+}
+
+.os-form-designer-container iframe body {
+  margin: 0px;
+}
 

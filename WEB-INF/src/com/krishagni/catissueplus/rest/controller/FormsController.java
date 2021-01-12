@@ -169,7 +169,28 @@ public class FormsController {
 		serializer.serialize(maxPvListSize);
 		writer.flush();
 	}
-	
+
+	@RequestMapping(method = RequestMethod.PUT, value="{id}")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public Map<String, Long> saveForm(
+		@PathVariable("id")
+		Long formId,
+
+		@RequestBody
+		Map<String, Object> props
+	) {
+
+		if (formId != null && !formId.equals(-1L)) {
+			props.put("id", formId);
+		} else {
+			props.remove("id");
+		}
+
+		formId = ResponseEvent.unwrap(formSvc.saveForm(RequestEvent.wrap(props)));
+		return Collections.singletonMap("id", formId);
+	}
+
 	@RequestMapping(method = RequestMethod.GET, value="{id}/fields")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody

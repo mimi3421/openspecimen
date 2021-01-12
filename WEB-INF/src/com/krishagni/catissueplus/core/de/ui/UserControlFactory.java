@@ -1,5 +1,6 @@
 package com.krishagni.catissueplus.core.de.ui;
 
+import java.util.Map;
 import java.util.Properties;
 
 import org.w3c.dom.Element;
@@ -21,6 +22,13 @@ public class UserControlFactory extends AbstractControlFactory {
 	public Control parseControl(Element ele, int row, int xPos, Properties props) {
 		UserControl ctrl = new UserControl();
 		super.setControlProps(ctrl, ele, row, xPos);
+		return ctrl;
+	}
+
+	@Override
+	public Control parseControl(Map<String, Object> props, int row, int xPos) {
+		UserControl ctrl = new UserControl();
+		super.setControlProps(ctrl, props, row, xPos);
 		return ctrl;
 	}
 }

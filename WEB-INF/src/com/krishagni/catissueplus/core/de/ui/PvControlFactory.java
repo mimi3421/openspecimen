@@ -1,5 +1,6 @@
 package com.krishagni.catissueplus.core.de.ui;
 
+import java.util.Map;
 import java.util.Properties;
 
 import org.w3c.dom.Element;
@@ -25,6 +26,17 @@ public class PvControlFactory extends AbstractLookupControlFactory {
 		ctrl.setLeafNode(ParserUtil.getBooleanValue(ele, "leafValue"));
 		ctrl.setRootNode(ParserUtil.getBooleanValue(ele, "rootValue"));
 		ctrl.setDefaultValue(ParserUtil.getTextValue(ele, "defaultValue"));
+		return ctrl;
+	}
+
+	@Override
+	public Control parseControl(Map<String, Object> props, int row, int xPos) {
+		PvControl ctrl = new PvControl();
+		super.setControlProps(ctrl, props, row, xPos);
+		ctrl.setAttribute((String) props.get("attribute"));
+		ctrl.setLeafNode(getBool(props, "leafValue"));
+		ctrl.setRootNode(getBool(props, "rootValue"));
+		ctrl.setDefaultValue((String) props.get("defaultValue"));
 		return ctrl;
 	}
 

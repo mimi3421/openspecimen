@@ -1,5 +1,6 @@
 package com.krishagni.catissueplus.core.de.ui;
 
+import java.util.Map;
 import java.util.Properties;
 
 import org.w3c.dom.Element;
@@ -24,4 +25,10 @@ public class SiteControlFactory extends AbstractControlFactory {
 		return ctrl;
 	}
 
+	@Override
+	public Control parseControl(Map<String, Object> props, int row, int xPos) {
+		SiteControl ctrl = new SiteControl();
+		super.setControlProps(ctrl, props, row, xPos);
+		return ctrl;
+	}
 }

@@ -103,6 +103,7 @@ import edu.common.dynamicextensions.napi.FileControlValue;
 import edu.common.dynamicextensions.napi.FormData;
 import edu.common.dynamicextensions.napi.FormDataManager;
 import edu.common.dynamicextensions.napi.FormEventsNotifier;
+import edu.common.dynamicextensions.nutility.ContainerPropsParser;
 import edu.common.dynamicextensions.nutility.FileUploadMgr;
 import krishagni.catissueplus.beans.FormContextBean;
 import krishagni.catissueplus.beans.FormRecordEntryBean;
@@ -224,6 +225,14 @@ public class FormServiceImpl implements FormService, InitializingBean {
 	public ResponseEvent<Container> getFormDefinition(RequestEvent<Long> req) {
 		Container form = getContainer(req.getPayload(), null);
 		return ResponseEvent.response(form);
+	}
+
+	@Override
+	@PlusTransactional
+	public ResponseEvent<Long> saveForm(RequestEvent<Map<String, Object>> req) {
+		AccessCtrlMgr.getInstance().ensureFormUpdateRights();
+		Container input = new ContainerPropsParser(req.getPayload()).parse();
+		return ResponseEvent.response(Container.createContainer(getUserContext(), input, true));
 	}
     
 	@Override
