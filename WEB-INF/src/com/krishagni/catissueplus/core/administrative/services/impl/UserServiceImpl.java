@@ -469,7 +469,18 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 			}
 			
 			UserDetail detail = req.getPayload();
-			User user = getUser(detail.getId(), detail.getEmailAddress(), detail.getLoginName(), detail.getDomainName());
+			User user = null;
+			try {
+				user = getUser(detail.getId(), detail.getEmailAddress(), detail.getLoginName(), detail.getDomainName());
+			} catch (OpenSpecimenException ose) {
+				if (ose.containsError(UserErrorCode.NOT_FOUND)) {
+					// to prevent users from guessing the user login name / email ID.
+					return ResponseEvent.response(true);
+				}
+
+				return ResponseEvent.error(ose);
+			}
+
 			if (user.isPending() || user.isClosed() || !DEFAULT_AUTH_DOMAIN.equals(user.getAuthDomain().getName())) {
 				String key = StringUtils.isNotBlank(detail.getLoginName()) ? detail.getLoginName() : detail.getEmailAddress();
 				return ResponseEvent.userError(UserErrorCode.NOT_FOUND_IN_OS_DOMAIN, key);

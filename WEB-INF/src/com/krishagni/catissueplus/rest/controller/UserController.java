@@ -338,31 +338,21 @@ public class UserController {
 	@ResponseBody
 	@ResponseStatus(HttpStatus.OK)
 	public Boolean resetPassword(@RequestBody PasswordDetails passwordDetails) {
-		RequestEvent<PasswordDetails> req = new RequestEvent<PasswordDetails>(passwordDetails);
-		ResponseEvent<Boolean> resp = userService.resetPassword(req);
-		resp.throwErrorIfUnsuccessful();
-		
-		return resp.getPayload();
+		return ResponseEvent.unwrap(userService.resetPassword(RequestEvent.wrap(passwordDetails)));
 	}
 
 	@RequestMapping(method = RequestMethod.POST, value = "/forgot-password")
 	@ResponseBody
 	@ResponseStatus(HttpStatus.OK)
 	public Boolean forgotPassword(@RequestBody UserDetail detail) {
-		RequestEvent<UserDetail> req = new RequestEvent<UserDetail>(detail);
-		ResponseEvent<Boolean> resp = userService.forgotPassword(req);
-		resp.throwErrorIfUnsuccessful();
-		
-		return resp.getPayload();
+		return ResponseEvent.unwrap(userService.forgotPassword(RequestEvent.wrap(detail)));
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/current-user")
 	@ResponseBody
 	@ResponseStatus(HttpStatus.OK)
 	public UserSummary getCurrentUser() {
-		ResponseEvent<UserSummary> resp = userAuthService.getCurrentLoggedInUser();
-		resp.throwErrorIfUnsuccessful();
-		return resp.getPayload();
+		return ResponseEvent.unwrap(userAuthService.getCurrentLoggedInUser());
  	}
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/current-user-roles")

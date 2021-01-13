@@ -1415,7 +1415,7 @@
     "emailAddress":  "Email Address",
     "email_reset_password_link": "Email Reset Password Link",
     "return_to_signin": "Return to sign in page",
-    "reset_email_sent": "An email containing link to reset password has been sent to your email id. Please click to reset password.",
+    "reset_email_sent": "An email with the link to reset the password has been sent to your registered email address.",
     "invalid_login_name": "We couldn't find a user associated with {{loginName}}"
   },
 
