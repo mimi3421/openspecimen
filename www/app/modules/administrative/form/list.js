@@ -1,7 +1,7 @@
 
 angular.module('os.administrative.form.list', ['os.administrative.models'])
   .controller('FormListCtrl', function(
-    $scope, $state, $modal, $translate, Form, FormEntityReg,
+    $scope, $state, $modal, $translate, Form, FormEntityReg, ApiUrls,
     CollectionProtocol, Util, DeleteUtil, Alerts, ListPagerOpts, CheckList) {
 
     var cpListQ = undefined;
@@ -200,6 +200,10 @@ angular.module('os.administrative.form.list', ['os.administrative.models'])
 
     $scope.pageSizeChanged = function() {
       filterOpts.maxResults = pagerOpts.recordsPerPage + 1;
+    }
+
+    $scope.downloadForm = function(form) {
+      Util.downloadFile(ApiUrls.getBaseUrl() + 'forms/' + form.formId + '/definition-zip');
     }
 
     init();

@@ -40,6 +40,8 @@ public interface FormService {
 	
 	public ResponseEvent<Container> getFormDefinition(RequestEvent<Long> req);
 
+	ResponseEvent<FormSummary> importForm(RequestEvent<String> req);
+
 	public ResponseEvent<Long> saveForm(RequestEvent<Map<String, Object>> req);
 
 	public ResponseEvent<Boolean> deleteForms(RequestEvent<BulkDeleteEntityOp> req);

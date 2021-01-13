@@ -40,5 +40,11 @@ angular.module('os.administrative.form',
         },
         parent: 'form-root'
       })
+      .state('form-import', {
+        url: '/import',
+        templateUrl: 'modules/administrative/form/import.html',
+        controller: 'FormImportCtrl',
+        parent: 'form-root'
+      })
   });
 

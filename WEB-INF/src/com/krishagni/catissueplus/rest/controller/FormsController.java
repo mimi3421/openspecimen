@@ -16,6 +16,8 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.krishagni.catissueplus.core.administrative.repository.FormListCriteria;
 import com.krishagni.catissueplus.core.auth.domain.UserRequestData;
@@ -50,10 +53,13 @@ import com.krishagni.catissueplus.core.de.services.FormService;
 import edu.common.dynamicextensions.domain.nui.Container;
 import edu.common.dynamicextensions.domain.nui.PermissibleValue;
 import edu.common.dynamicextensions.napi.FormData;
+import edu.common.dynamicextensions.ndao.TransactionManager;
 import edu.common.dynamicextensions.nutility.ContainerJsonSerializer;
 import edu.common.dynamicextensions.nutility.ContainerSerializer;
 import edu.common.dynamicextensions.nutility.FormDefinitionExporter;
 import edu.common.dynamicextensions.nutility.IoUtil;
+import edu.common.dynamicextensions.util.ZipUtility;
+import edu.wustl.dynamicextensions.formdesigner.utility.Utility;
 
 
 @Controller
@@ -389,7 +395,36 @@ public class FormsController {
 		resp.throwErrorIfUnsuccessful();
 		return resp.getPayload();
 	}
-	
+
+	@RequestMapping(method = RequestMethod.POST, value="/definition-zip")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public FormSummary importForm(@PathVariable("file") MultipartFile file)
+	throws IOException {
+		File tmpDir = new File(getTmpDirName());
+		try {
+			String contentType = file.getContentType();
+			String filename    = file.getOriginalFilename();
+			if (StringUtils.equals(contentType, "application/zip") || filename.endsWith(".zip")) {
+				if (!tmpDir.exists()) {
+					tmpDir.mkdirs();
+				}
+
+				ZipUtility.extractZipToDestination(file.getInputStream(), tmpDir.getAbsolutePath());
+			} else {
+				Utility.downloadFile(file.getInputStream(), tmpDir.getAbsolutePath(), "forms.xml", false);
+			}
+
+			return ResponseEvent.unwrap(formSvc.importForm(RequestEvent.wrap(tmpDir.getAbsolutePath())));
+		} finally {
+			try {
+				FileUtils.deleteDirectory(tmpDir);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
 	@RequestMapping(method = RequestMethod.GET, value="/{id}/definition-zip")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody

@@ -1796,6 +1796,8 @@
     "forms_deleted": "Forms deleted successfully",
     "loading_list": "Loading forms, please wait for a moment...",
     "empty_list": "No forms to show!",
+    "import_form": "Import Form",
+    "def_file_zip": "Form XML",
 
     "tooltip": {
       "add": "Click to add new Form",
@@ -1803,7 +1805,9 @@
       "delete": "Click to delete Form",
       "delete_forms": "Click to delete selected forms",
       "search": "Click to search Form",
-      "attach_form_to_cp": "Click to attach form to a Collection Protocol"
+      "attach_form_to_cp": "Click to attach form to a Collection Protocol",
+      "download_xml": "Click to download the form XML",
+      "import_zip": "Create or update form by importing the form XML/ZIP"
     },
 
     "filter": {

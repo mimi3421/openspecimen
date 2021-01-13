@@ -1,12 +1,14 @@
 package com.krishagni.catissueplus.core.de.services.impl;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -103,6 +105,7 @@ import edu.common.dynamicextensions.napi.FileControlValue;
 import edu.common.dynamicextensions.napi.FormData;
 import edu.common.dynamicextensions.napi.FormDataManager;
 import edu.common.dynamicextensions.napi.FormEventsNotifier;
+import edu.common.dynamicextensions.nutility.ContainerParser;
 import edu.common.dynamicextensions.nutility.ContainerPropsParser;
 import edu.common.dynamicextensions.nutility.FileUploadMgr;
 import krishagni.catissueplus.beans.FormContextBean;
@@ -225,6 +228,44 @@ public class FormServiceImpl implements FormService, InitializingBean {
 	public ResponseEvent<Container> getFormDefinition(RequestEvent<Long> req) {
 		Container form = getContainer(req.getPayload(), null);
 		return ResponseEvent.response(form);
+	}
+
+	@Override
+	@PlusTransactional
+	public ResponseEvent<FormSummary> importForm(RequestEvent<String> req) {
+		try {
+			AccessCtrlMgr.getInstance().ensureFormUpdateRights();
+
+			//
+			// The input directory layout
+			//   form-dir (created from zip)
+			//       |____ form1.xml
+			//       |____ pvs
+			//
+			File inputDir = new File(req.getPayload());
+			String formXml = Arrays.stream(inputDir.list((dir, name) -> name.endsWith(".xml")))
+				.sorted(Comparator.naturalOrder())
+				.findFirst().orElse(null);
+			if (StringUtils.isBlank(formXml)) {
+				return ResponseEvent.response(null);
+			}
+
+			String formXmlPath = new File(inputDir, formXml).getAbsolutePath();
+			String pvsDirPath = new File(inputDir, "pvs").getAbsolutePath();
+
+			Container parsedForm = new ContainerParser(formXmlPath, pvsDirPath).parse();
+			Long formId = Container.createContainer(getUserContext(), parsedForm, true);
+
+			FormSummary result = new FormSummary();
+			result.setFormId(formId);
+			result.setName(parsedForm.getName());
+			result.setCaption(parsedForm.getCaption());
+			return ResponseEvent.response(result);
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
+		} catch (Exception e) {
+			return ResponseEvent.serverError(e);
+		}
 	}
 
 	@Override
