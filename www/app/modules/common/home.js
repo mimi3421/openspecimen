@@ -69,7 +69,8 @@ angular.module('openspecimen')
       }
 
       if (opts.newTab) {
-        link.attr('target', '_blank');
+        link.attr('target', '_blank')
+          .attr('rel', 'noopener');
       }
 
       if (type == 'card') {

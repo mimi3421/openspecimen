@@ -30,7 +30,7 @@ angular.module('openspecimen')
       scope: {},
       replace: true,
       link : linker,
-      template: '<a ng-if="link" ng-href="{{$parent.link}}" target="_blank">' +
+      template: '<a ng-if="link" ng-href="{{$parent.link}}" target="_blank" rel="noopener">' +
                 '  <span class="fa fa-question-circle"></span>' +
                 '  <span translate="common.buttons.help">Help</span>' +
                 '</a>'
