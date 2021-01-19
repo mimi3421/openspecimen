@@ -1,7 +1,7 @@
 
 angular.module('os.biospecimen.cp.specimens', ['os.biospecimen.models'])
   .controller('CpSpecimensCtrl', function(
-    $scope, $state, $stateParams, $timeout, $modal,
+    $scope, $state, $stateParams, $timeout, $modal, $injector,
     cp, events, specimenRequirements, aliquotQtyReq,
     Specimen, SpecimenRequirement, PvManager, Alerts, Util) {
 
@@ -114,7 +114,7 @@ angular.module('os.biospecimen.cp.specimens', ['os.biospecimen.models'])
       $scope.spmnLabelAutoPrintModes = [];
       PvManager.loadPvs('specimen-label-auto-print-modes').then(
         function(pvs) {
-          if ($scope.cp.spmnLabelPrePrintMode != 'NONE') {
+          if ($scope.cp.spmnLabelPrePrintMode != 'NONE' || $injector.has('Supply')) {
             $scope.spmnLabelAutoPrintModes = pvs;
           } else {
             $scope.spmnLabelAutoPrintModes = pvs.filter(

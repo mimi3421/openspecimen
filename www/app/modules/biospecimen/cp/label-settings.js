@@ -1,6 +1,6 @@
 
 angular.module('os.biospecimen.cp')
-  .controller('CpLabelSettingsCtrl', function($scope, $translate, cp, PvManager) {
+  .controller('CpLabelSettingsCtrl', function($scope, $translate, $injector, cp, PvManager) {
 
     function init() {
       $scope.settingCtx = {
@@ -53,7 +53,10 @@ angular.module('os.biospecimen.cp')
     }
 
     function onPrePrintModeChange() {
-      $scope.settingCtx.prePrintDisabled = ($scope.settingCtx.cp.spmnLabelPrePrintMode == 'NONE');
+      $scope.settingCtx.prePrintDisabled = (
+        $scope.settingCtx.cp.spmnLabelPrePrintMode == 'NONE' &&
+        !$injector.has('Supply')
+      );
 
       loadLabelAutoPrintModes();
       if ($scope.settingCtx.prePrintDisabled) {
@@ -72,7 +75,7 @@ angular.module('os.biospecimen.cp')
 
       PvManager.loadPvs('specimen-label-auto-print-modes').then(
         function(pvs) {
-          if ($scope.settingCtx.cp.spmnLabelPrePrintMode != 'NONE') {
+          if ($scope.settingCtx.cp.spmnLabelPrePrintMode != 'NONE' || $injector.has('Supply')) {
             $scope.settingCtx.spmnLabelAutoPrintModes = pvs;
           } else {
             $scope.settingCtx.spmnLabelAutoPrintModes = pvs.filter(
