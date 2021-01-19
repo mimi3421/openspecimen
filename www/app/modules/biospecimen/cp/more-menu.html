@@ -1,12 +1,13 @@
-<div ng-if="cpsCtx.cpCreateAllowed || cpsCtx.participantImportAllowed || cpsCtx.visitSpecimenImportAllowed"
-  dropdown class="os-inline-btn">
+<button class="default" ui-sref="cp-groups-list">
+  <span translate="cp_groups.list">Collection Protocol Groups</span>
+</button>
 
+<div os-show-if-menu-items-present dropdown class="os-inline-btn">
   <button class="default dropdown-toggle">
-    <span translate="common.buttons.import">Import</span>
+    <span translate="common.buttons.more">More</span>
     <span class="fa fa-caret-down"></span>
   </button>
-
-  <ul class="dropdown-menu dropdown-menu-left">
+  <ul class="dropdown-menu">
     <li ng-if="cpsCtx.cpCreateAllowed">
       <a ui-sref="cp-import">
         <span class="fa fa-upload"></span>
@@ -27,15 +28,20 @@
         <span translate="bulk_imports.view_jobs">View Past Imports</span>
       </a>
     </li>
+
+    <li class="divider"
+      ng-if="cpsCtx.cpCreateAllowed || cpsCtx.participantImportAllowed || cpsCtx.visitSpecimenImportAllowed">
+    </li>
+
+    <li ng-if="cpsCtx.participantExportAllowed || cpsCtx.visitSpecimenExportAllowed">
+      <a ui-sref="export-multi-cp-objs">
+        <span class="fa fa-download"></span>
+        <span translate="common.buttons.export">Export</span>
+      </a>
+    </li>
+
+    <li class="divider" ng-if="cpsCtx.participantExportAllowed || cpsCtx.visitSpecimenExportAllowed"></li>
+
+    <os-plugin-hooks view-name="'cp-list'" sec-name="'more-menu'"></os-plugin-hooks>
   </ul>
 </div>
-
-<button class="default" ui-sref="export-multi-cp-objs"
-  ng-if="cpsCtx.participantExportAllowed || cpsCtx.visitSpecimenExportAllowed">
-  <span class="fa fa-download"></span>
-  <span translate="common.buttons.export">Export</span>
-</button>
-
-<button class="default" ui-sref="cp-groups-list">
-  <span translate="cp_groups.list">Collection Protocol Groups</span>
-</button>
