@@ -69,6 +69,8 @@ public enum CpErrorCode implements ErrorCode {
 
 	INVALID_SOP_DOC,
 
+	INVALID_LABEL_SEQ_KEY,
+
 	INVALID_VISIT_COLL_MODE,
 
 	INVALID_VISIT_NAME_PRINT_MODE,

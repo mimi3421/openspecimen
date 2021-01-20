@@ -60,6 +60,11 @@ public class CollectionProtocol extends BaseExtensionEntity {
 		ALL_SPMNS
 	}
 
+	public enum LabelSequenceKey {
+		ID,
+		LABEL
+	};
+
 	public static final String EXTN = "CollectionProtocolExtension";
 
 	private static final String ENTITY_NAME = "collection_protocol";
@@ -127,6 +132,8 @@ public class CollectionProtocol extends BaseExtensionEntity {
 	private String containerSelectionStrategy;
 
 	private Boolean aliquotsInSameContainer;
+
+	private LabelSequenceKey labelSequenceKey = LabelSequenceKey.ID;
 
 	private VisitCollectionMode visitCollectionMode = VisitCollectionMode.ALL_SPMNS;
 
@@ -433,6 +440,14 @@ public class CollectionProtocol extends BaseExtensionEntity {
 		this.aliquotsInSameContainer = aliquotsInSameContainer;
 	}
 
+	public LabelSequenceKey getLabelSequenceKey() {
+		return labelSequenceKey;
+	}
+
+	public void setLabelSequenceKey(LabelSequenceKey labelSequenceKey) {
+		this.labelSequenceKey = labelSequenceKey;
+	}
+
 	public VisitCollectionMode getVisitCollectionMode() {
 		return visitCollectionMode == null ? VisitCollectionMode.ALL_SPMNS : visitCollectionMode;
 	}
@@ -609,6 +624,7 @@ public class CollectionProtocol extends BaseExtensionEntity {
 		setCloseParentSpecimens(cp.isCloseParentSpecimens());
 		setContainerSelectionStrategy(cp.getContainerSelectionStrategy());
 		setAliquotsInSameContainer(cp.getAliquotsInSameContainer());
+		setLabelSequenceKey(cp.getLabelSequenceKey());
 		setVisitCollectionMode(cp.getVisitCollectionMode());
 		setVisitNamePrintMode(cp.getVisitNamePrintMode());
 		setVisitNamePrintCopies(cp.getVisitNamePrintCopies());
@@ -654,6 +670,7 @@ public class CollectionProtocol extends BaseExtensionEntity {
 		cp.setBulkPartRegEnabled(isBulkPartRegEnabled());
 		cp.setBarcodingEnabled(isBarcodingEnabled());
 		cp.setCloseParentSpecimens(isCloseParentSpecimens());
+		cp.setLabelSequenceKey(getLabelSequenceKey());
 		cp.setVisitCollectionMode(getVisitCollectionMode());
 		cp.setVisitNamePrintMode(getVisitNamePrintMode());
 		cp.setVisitNamePrintCopies(getVisitNamePrintCopies());

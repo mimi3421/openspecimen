@@ -135,6 +135,9 @@
   <include file="db/7.2/seed-data.xml"/>
   <include file="db/7.2/config.xml"/>
 
+  <include file="db/8.0/schema.xml"/>
+  <include file="db/8.0/audit.xml"/>
+
   <!-- Views are created always at the last -->
   <include file="db/views.xml"/>
 </databaseChangeLog>

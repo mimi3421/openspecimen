@@ -397,6 +397,12 @@
       "NONE": "None"
     },
 
+    "label_seq_key": "Label Sequence Key",
+    "label_seq_keys": {
+      "ID": "Record IDs",
+      "LABEL": "Record Names/Labels"
+    },
+
     "cpe_point_units_abbr": {
       "DAYS": "D",
       "WEEKS": "W",

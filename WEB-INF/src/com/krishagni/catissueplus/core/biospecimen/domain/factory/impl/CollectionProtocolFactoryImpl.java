@@ -329,6 +329,16 @@ public class CollectionProtocolFactoryImpl implements CollectionProtocolFactory 
 		result.setDerivativeLabelFormat(labelFmt);
 		
 		result.setManualSpecLabelEnabled(input.getManualSpecLabelEnabled());
+
+		if (StringUtils.isBlank(input.getLabelSequenceKey())) {
+			result.setLabelSequenceKey(CollectionProtocol.LabelSequenceKey.ID);
+		} else {
+			try {
+				result.setLabelSequenceKey(CollectionProtocol.LabelSequenceKey.valueOf(input.getLabelSequenceKey()));
+			} catch (IllegalArgumentException iae) {
+				ose.addError(CpErrorCode.INVALID_LABEL_SEQ_KEY, input.getLabelSequenceKey());
+			}
+		}
 	}
 	
 	private String ensureValidLabelFmt(String labelFmt, ErrorCode error, OpenSpecimenException ose) {

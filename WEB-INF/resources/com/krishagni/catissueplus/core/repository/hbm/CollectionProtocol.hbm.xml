@@ -71,6 +71,13 @@
 
     <property name="aliquotsInSameContainer" column="ALIQUOTS_IN_SAME_CONT"/>
 
+    <property name="labelSequenceKey" column="LABEL_SEQ_KEY">
+      <type name="org.hibernate.type.EnumType">
+        <param name="enumClass">com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol$LabelSequenceKey</param>
+        <param name="type">12</param>
+      </type>
+    </property>
+
     <property name="visitCollectionMode" column="VISIT_COLLECTION_MODE">
       <type name="org.hibernate.type.EnumType">
         <param name="enumClass">com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol$VisitCollectionMode</param>

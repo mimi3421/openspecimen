@@ -127,6 +127,11 @@
       <caption>#getMessage("cp_manual_spmn_label_enabled")</caption>
       <attribute>manualSpecLabelEnabled</attribute>
     </field>
+
+    <field>
+      <caption>#getMessage("cp_label_seq_key")</caption>
+      <attribute>labelSequenceKey</attribute>
+    </field>
     
     <field>
       <caption>#getMessage("cp_spmn_label_pre_print_mode")</caption>

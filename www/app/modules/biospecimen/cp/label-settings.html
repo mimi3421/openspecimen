@@ -99,6 +99,11 @@
             <span class="value value-md">{{settingCtx.cp.specimenBarcodeFmt | osNoValue}}</span>
           </li>
 
+          <li class="item">
+            <strong class="key key-sm" translate="cp.label_seq_key">Label Sequence Key</strong>
+            <span class="value value-md">{{'cp.label_seq_keys.' + settingCtx.cp.labelSequenceKey | translate}}</span>
+          </li>
+
           <li class="item" ng-show="!cp.specimenCentric">
             <strong class="key key-sm" translate="cp.on_visit_completion">On Visit Completion</strong>
             <span class="value value-md" ng-switch on="settingCtx.cp.visitCollectionMode">
@@ -322,6 +327,22 @@
           <input name="specimenBarcodeFmt" type="text" ng-model="settingCtx.cp.specimenBarcodeFmt"
             class="form-control" placeholder="{{'cp.specimen_barcode_fmt' | translate}}">
           <div os-field-error field="lsForm.specimenBarcodeFmt"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="control-label col-xs-3">
+          <span translate="cp.label_seq_key">Label Sequence Key</span>
+        </label>
+        <div class="col-xs-6">
+          <label class="radio-inline">
+            <input type="radio" name="labelSeqKey" ng-model="settingCtx.cp.labelSequenceKey" ng-value="'ID'">
+            <span translate="cp.label_seq_keys.ID">Record Identifier</span>
+          </label>
+          <label class="radio-inline">
+            <input type="radio" name="labelSeqKey" ng-model="settingCtx.cp.labelSequenceKey" ng-value="'LABEL'">
+            <span translate="cp.label_seq_keys.LABEL">Record Label</span>
+          </label>
         </div>
       </div>
 
