@@ -1,5 +1,7 @@
 package com.krishagni.catissueplus.core.biospecimen.label.specimen;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 
 public class ParentSpecimenLabelToken extends AbstractSpecimenLabelToken { 
@@ -10,10 +12,6 @@ public class ParentSpecimenLabelToken extends AbstractSpecimenLabelToken {
 	
 	@Override
 	public String getLabel(Specimen specimen) {
-		if (specimen.getParentSpecimen() == null) {
-			return "";
-		}
-		
-		return specimen.getParentSpecimen().getLabel();
+		return specimen.getParentSpecimen() == null ? StringUtils.EMPTY : specimen.getParentSpecimen().getLabel();
 	}
 }

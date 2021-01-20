@@ -33,7 +33,7 @@ public class PpidYocUniqueIdLabelToken extends AbstractUniqueIdToken<Specimen> {
 			cal.setTime(specimen.getCreatedOn());
 		}
 
-		String ppid = specimen.getVisit().getRegistration().getPpid();
+		String ppid = specimen.getRegistration().getPpid();
 		int yoc = cal.get(Calendar.YEAR);
 		String key = ppid + "_" + yoc;
 		return daoFactory.getUniqueIdGenerator().getUniqueId(name, key);

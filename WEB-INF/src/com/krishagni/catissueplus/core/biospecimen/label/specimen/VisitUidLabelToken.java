@@ -16,6 +16,13 @@ public class VisitUidLabelToken extends AbstractUniqueIdToken<Specimen> {
 
 	@Override
 	public Number getUniqueId(Specimen specimen, String... args) {
-		return daoFactory.getUniqueIdGenerator().getUniqueId(name, specimen.getVisit().getId().toString());
+		String key = null;
+		if (specimen.getCollectionProtocol().useLabelsAsSequenceKey()) {
+			key = specimen.getCpId() + "_" + specimen.getVisit().getName();
+		} else {
+			key = specimen.getVisit().getId().toString();
+		}
+
+		return daoFactory.getUniqueIdGenerator().getUniqueId(name, key);
 	}
 }

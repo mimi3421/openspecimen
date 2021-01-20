@@ -39,7 +39,8 @@ public class SpecimenTypeAbbrUniqueIdLabelToken extends AbstractUniqueIdToken<Sp
 
 	@Override
 	public Number getUniqueId(Specimen specimen, String... args) {
-		Long groupId = null;
+		boolean useLabels = specimen.getCollectionProtocol().useLabelsAsSequenceKey();
+		String groupId = null;
 		String keyType;
 
 		String arg = getArg(2, args);
@@ -50,24 +51,44 @@ public class SpecimenTypeAbbrUniqueIdLabelToken extends AbstractUniqueIdToken<Sp
 		arg = arg.trim();
 		switch (arg) {
 			case "registration":
-				groupId = specimen.getRegistration().getId();
 				keyType = "CPR_" + getName();
+				if (useLabels) {
+					groupId = specimen.getCpId() + "_" + specimen.getRegistration().getPpid();
+				} else {
+					groupId = specimen.getRegistration().getId().toString();
+				}
 				break;
 
 			case "parent_specimen":
-				groupId = specimen.getParentSpecimen() != null ? specimen.getParentSpecimen().getId() : specimen.getId();
 				keyType = "PARENT_SPMN_" + getName();
+				if (specimen.getParentSpecimen() != null) {
+					if (useLabels) {
+						groupId = specimen.getCpId() + "_" + specimen.getParentSpecimen().getLabel();
+					} else {
+						groupId = specimen.getParentSpecimen().getId().toString();
+					}
+				} else {
+					groupId = useLabels ? specimen.getLabel() : specimen.getId().toString();
+				}
 				break;
 
 			case "primary_specimen":
-				groupId = specimen.getPrimarySpecimen().getId();
 				keyType = "PRIMARY_SPMN_" + getName();
+				if (useLabels) {
+					groupId = specimen.getCpId() + "_" + specimen.getPrimarySpecimen().getLabel();
+				} else {
+					groupId = specimen.getPrimarySpecimen().getId().toString();
+				}
 				break;
 
 			case "visit":
 			default:
-				groupId = specimen.getVisit().getId();
 				keyType = "VISIT_" + getName();
+				if (useLabels) {
+					groupId = specimen.getCpId() + "_" + specimen.getVisit().getName();
+				} else {
+					groupId = specimen.getVisit().getId().toString();
+				}
 				break;
 		}
 

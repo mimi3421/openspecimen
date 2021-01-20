@@ -11,6 +11,13 @@ public class RegistrationGreekLetterSequence extends AbstractGreekLetterSequence
 
 	@Override
 	protected Integer getSequence(Specimen spmn) {
-		return getUniqueId(spmn.getRegistration().getId().toString());
+		String key = null;
+		if (spmn.getCollectionProtocol().useLabelsAsSequenceKey()) {
+			key = spmn.getCpId() + "_" + spmn.getRegistration().getPpid();
+		} else {
+			key = spmn.getRegistration().getId().toString();
+		}
+
+		return getUniqueId(key);
 	}
 }

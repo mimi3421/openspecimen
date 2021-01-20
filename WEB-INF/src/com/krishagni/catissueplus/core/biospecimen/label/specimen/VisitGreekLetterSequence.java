@@ -11,6 +11,13 @@ public class VisitGreekLetterSequence extends AbstractGreekLetterSequenceToken<S
 
 	@Override
 	protected Integer getSequence(Specimen spmn) {
-		return getUniqueId(spmn.getVisit().getId().toString());
+		String key = null;
+		if (spmn.getCollectionProtocol().useLabelsAsSequenceKey()) {
+			key = spmn.getCpId() + "_" + spmn.getVisit().getName();
+		} else {
+			key = spmn.getVisit().getId().toString();
+		}
+
+		return getUniqueId(key);
 	}
 }

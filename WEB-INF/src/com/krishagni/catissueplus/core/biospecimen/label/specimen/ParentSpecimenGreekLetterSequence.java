@@ -11,6 +11,15 @@ public class ParentSpecimenGreekLetterSequence extends AbstractGreekLetterSequen
 
 	@Override
 	protected Integer getSequence(Specimen spmn) {
-		return getUniqueId(spmn.getParentSpecimen() != null ? spmn.getParentSpecimen().getId().toString() : null);
+		String id = null;
+		if (spmn.getParentSpecimen() != null) {
+			if (spmn.getCollectionProtocol().useLabelsAsSequenceKey()) {
+				id = spmn.getCpId() + "_" + spmn.getParentSpecimen().getLabel();
+			} else {
+				id = spmn.getParentSpecimen().getId().toString();
+			}
+		}
+
+		return getUniqueId(id);
 	}
 }

@@ -17,7 +17,14 @@ public class VisitSpecPathStatusLabelToken extends AbstractUniqueIdToken<Specime
 
 	@Override
 	public Number getUniqueId(Specimen specimen, String... args) {
-		String key = specimen.getVisit().getId().toString() + "_" + specimen.getPathologicalStatus().getId().toString();
+		String visitId = null;
+		if (specimen.getCollectionProtocol().useLabelsAsSequenceKey()) {
+			visitId = specimen.getCpId() + "_" + specimen.getVisit().getName();
+		} else {
+			visitId = specimen.getVisit().getId().toString();
+		}
+
+		String key = visitId + "_" + specimen.getPathologicalStatus().getId().toString();
 		Long uniqueId = daoFactory.getUniqueIdGenerator().getUniqueId(name, key);
 		return uniqueId == 1L && !eqArg("output_one", 1, args) ? -1 : uniqueId;
 	}

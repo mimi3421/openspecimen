@@ -17,7 +17,7 @@ public class PpidUniqueIdLabelToken extends AbstractUniqueIdToken<Specimen> {
 
 	@Override
 	public Number getUniqueId(Specimen specimen, String... args) {
-		String ppid = specimen.getVisit().getRegistration().getPpid();
+		String ppid = specimen.getRegistration().getPpid();
 		return daoFactory.getUniqueIdGenerator().getUniqueId(name, ppid);
 	}
 }

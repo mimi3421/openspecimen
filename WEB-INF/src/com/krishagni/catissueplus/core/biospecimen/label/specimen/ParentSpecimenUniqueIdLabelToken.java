@@ -21,7 +21,13 @@ public class ParentSpecimenUniqueIdLabelToken extends AbstractUniqueIdToken<Spec
 			return null;
 		}
 
-		String pidStr = specimen.getParentSpecimen().getId().toString();
+		String pidStr = null;
+		if (specimen.getCollectionProtocol().useLabelsAsSequenceKey()) {
+			pidStr = specimen.getCpId() + "_" + specimen.getParentSpecimen().getLabel();
+		} else {
+			pidStr = specimen.getParentSpecimen().getId().toString();
+		}
+
 		return daoFactory.getUniqueIdGenerator().getUniqueId(name, pidStr);
 	}
 }

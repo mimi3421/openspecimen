@@ -27,7 +27,7 @@ public class PpidSpecTypeLabelToken extends AbstractUniqueIdToken<Specimen> {
 
 	@Override
 	public Number getUniqueId(Specimen specimen, String... args) {
-		String ppid = specimen.getVisit().getRegistration().getPpid();
+		String ppid = specimen.getRegistration().getPpid();
 		String key = ppid + "_" + specimen.getSpecimenType().getId().toString();
 		Long uniqueId = daoFactory.getUniqueIdGenerator().getUniqueId(name, key);
 		return uniqueId == 1L && !eqArg("output_one", 1, args) ? -1 : uniqueId;

@@ -9,12 +9,6 @@ public class PrimarySpecimenLabelToken extends AbstractSpecimenLabelToken {
 
 	@Override
 	public String getLabel(Specimen specimen) {
-		String label = specimen.getLabel();
-		while (specimen.getParentSpecimen() != null) {
-			specimen = specimen.getParentSpecimen();
-			label = specimen.getLabel();
-		}
-
-		return label;
+		return specimen.getPrimarySpecimen().getLabel();
 	}
 }

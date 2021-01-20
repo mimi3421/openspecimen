@@ -448,6 +448,10 @@ public class CollectionProtocol extends BaseExtensionEntity {
 		this.labelSequenceKey = labelSequenceKey;
 	}
 
+	public boolean useLabelsAsSequenceKey() {
+		return getLabelSequenceKey() == LabelSequenceKey.LABEL;
+	}
+
 	public VisitCollectionMode getVisitCollectionMode() {
 		return visitCollectionMode == null ? VisitCollectionMode.ALL_SPMNS : visitCollectionMode;
 	}

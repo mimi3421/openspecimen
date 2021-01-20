@@ -34,7 +34,13 @@ public class ParentSpecimenCounterLabelToken extends AbstractSpecimenLabelToken 
 			matchIdx = matcher.start(0);
 		}
 
-		String pidStr = specimen.getParentSpecimen().getId().toString();
+		String pidStr = null;
+		if (specimen.getCollectionProtocol().useLabelsAsSequenceKey()) {
+			pidStr = specimen.getCpId() + "_" + specimen.getParentSpecimen().getLabel();
+		} else {
+			pidStr = specimen.getParentSpecimen().getId().toString();
+		}
+
 		String uniqueId = daoFactory.getUniqueIdGenerator().getUniqueId(name, pidStr, Long.parseLong(counter)).toString();
 		if (uniqueId.length() < counter.length()) {
 			uniqueId = StringUtils.leftPad(uniqueId, counter.length(), "0");
