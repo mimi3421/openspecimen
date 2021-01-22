@@ -13,6 +13,13 @@
         <span ng-if="!!form.id">{{form.caption}}</span>
       </h3>
     </div>
+    <div class="os-page-header-actions">
+      <a class="btn btn-primary" ui-sref="form-preview({formId: form.id})"
+        target="_blank" rel="noopener" ng-if="!!form.id">
+        <span class="fa fa-eye"></span>
+        <span translate="form.preview">Preview</span>
+      </a>
+    </div>
   </div>
 
   <div class="os-form-designer-container">

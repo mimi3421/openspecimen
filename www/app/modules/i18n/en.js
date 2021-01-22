@@ -1804,6 +1804,8 @@
     "empty_list": "No forms to show!",
     "import_form": "Import Form",
     "def_file_zip": "Form XML",
+    "preview": "Preview",
+    "preview_form": "Preview: {{caption}}",
 
     "tooltip": {
       "add": "Click to add new Form",

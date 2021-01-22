@@ -49,6 +49,7 @@ edu.common.de.RangeValidator = function(field, dataEl, params) {
     }
 
     var number = Number(val);
+    edu.common.de.Utility.unHighlightError(field.inputEl);
     if ($.isNumeric(params.min) && number < Number(params.min)) {
       edu.common.de.Utility.highlightError(
         field.inputEl,
@@ -62,7 +63,6 @@ edu.common.de.RangeValidator = function(field, dataEl, params) {
       );
       return false;
     } else {
-      edu.common.de.Utility.unHighlightError(field.inputEl);
       return true;
     }
   };

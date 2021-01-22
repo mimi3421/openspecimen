@@ -46,5 +46,16 @@ angular.module('os.administrative.form',
         controller: 'FormImportCtrl',
         parent: 'form-root'
       })
+      .state('form-preview', {
+        url: '/form-preview/:formId',
+        templateUrl: 'modules/administrative/form/preview.html',
+        controller: 'FormPreviewCtrl',
+        resolve: {
+          formDef: function($stateParams, Form) {
+            return Form.getDefinition($stateParams.formId);
+          }
+        },
+        parent: 'form-root'
+      });
   });
 

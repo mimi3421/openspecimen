@@ -25,7 +25,6 @@ angular.module('os.administrative.form.addedit', ['os.administrative.models'])
       $timeout(
         function() {
           $scope.form = evt.data;
-          $scope.form.id = -1;
         }
       );
     }
