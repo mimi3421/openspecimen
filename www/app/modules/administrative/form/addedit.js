@@ -22,6 +22,11 @@ angular.module('os.administrative.form.addedit', ['os.administrative.models'])
         return;
       }
 
+      if (evt.data == 'done') {
+        $state.go('form-list');
+        return;
+      }
+
       $timeout(
         function() {
           $scope.form = evt.data;
