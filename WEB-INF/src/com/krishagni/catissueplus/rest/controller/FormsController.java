@@ -36,6 +36,7 @@ import com.krishagni.catissueplus.core.common.events.BulkDeleteEntityOp;
 import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
+import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.catissueplus.core.de.events.FormContextDetail;
 import com.krishagni.catissueplus.core.de.events.FormDataDetail;
 import com.krishagni.catissueplus.core.de.events.FormFieldSummary;
@@ -53,13 +54,11 @@ import com.krishagni.catissueplus.core.de.services.FormService;
 import edu.common.dynamicextensions.domain.nui.Container;
 import edu.common.dynamicextensions.domain.nui.PermissibleValue;
 import edu.common.dynamicextensions.napi.FormData;
-import edu.common.dynamicextensions.ndao.TransactionManager;
 import edu.common.dynamicextensions.nutility.ContainerJsonSerializer;
 import edu.common.dynamicextensions.nutility.ContainerSerializer;
 import edu.common.dynamicextensions.nutility.FormDefinitionExporter;
 import edu.common.dynamicextensions.nutility.IoUtil;
 import edu.common.dynamicextensions.util.ZipUtility;
-import edu.wustl.dynamicextensions.formdesigner.utility.Utility;
 
 
 @Controller
@@ -412,7 +411,7 @@ public class FormsController {
 
 				ZipUtility.extractZipToDestination(file.getInputStream(), tmpDir.getAbsolutePath());
 			} else {
-				Utility.downloadFile(file.getInputStream(), tmpDir.getAbsolutePath(), "forms.xml", false);
+				Utility.downloadFile(file.getInputStream(), tmpDir.getAbsolutePath(), "forms.xml");
 			}
 
 			return ResponseEvent.unwrap(formSvc.importForm(RequestEvent.wrap(tmpDir.getAbsolutePath())));

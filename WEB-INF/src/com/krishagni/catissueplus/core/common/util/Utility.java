@@ -339,6 +339,24 @@ public class Utility {
 		}
 	}
 
+	public static void downloadFile(InputStream in, String dir, String filename) {
+		File dirFile = new File(dir);
+		if (!dirFile.exists()) {
+			dirFile.mkdirs();
+		}
+
+		File outFile = new File(dirFile, filename);
+		OutputStream out = null;
+		try {
+			out = new FileOutputStream(outFile);
+			IOUtils.copy(in, out);
+		} catch (Exception e) {
+			throw OpenSpecimenException.serverError(e);
+		} finally {
+			IOUtils.closeQuietly(out);
+		}
+	}
+
 	public static String getContentType(String filename) {
 		if (fileTypesMap == null) {
 			synchronized (Utility.class) {

@@ -21,7 +21,9 @@ public enum CommonErrorCode implements ErrorCode {
 
 	CUSTOM_FIELD_NAME_REQ,
 
-	INVALID_TZ;
+	INVALID_TZ,
+
+	FORM_ERROR;
 
 	@Override
 	public String code() {

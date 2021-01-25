@@ -14,23 +14,16 @@ import org.springframework.transaction.PlatformTransactionManager;
 import com.krishagni.catissueplus.core.common.service.ConfigChangeListener;
 import com.krishagni.catissueplus.core.common.service.ConfigurationService;
 import com.krishagni.catissueplus.core.common.util.Utility;
-import com.krishagni.catissueplus.core.de.UserContextImpl;
 import com.krishagni.catissueplus.core.de.ui.PvControlFactory;
-import com.krishagni.catissueplus.core.de.ui.PvFieldMapper;
 import com.krishagni.catissueplus.core.de.ui.SiteControlFactory;
-import com.krishagni.catissueplus.core.de.ui.SiteFieldMapper;
 import com.krishagni.catissueplus.core.de.ui.StorageContainerControlFactory;
-import com.krishagni.catissueplus.core.de.ui.StorageContainerMapper;
 import com.krishagni.catissueplus.core.de.ui.UserControlFactory;
-import com.krishagni.catissueplus.core.de.ui.UserFieldMapper;
 
 import edu.common.dynamicextensions.domain.nui.factory.ControlManager;
 import edu.common.dynamicextensions.napi.FormDataFilter;
 import edu.common.dynamicextensions.napi.FormDataManager;
 import edu.common.dynamicextensions.nutility.DeConfiguration;
 import edu.common.dynamicextensions.query.PathConfig;
-import edu.wustl.dynamicextensions.formdesigner.mapper.ControlMapper;
-import edu.wustl.dynamicextensions.formdesigner.usercontext.CSDProperties;
 
 public class DeInitializer implements InitializingBean {
 	private static final String QUERY_PATH_CFG = "/com/krishagni/catissueplus/core/de/query/paths.xml";
@@ -89,8 +82,6 @@ public class DeInitializer implements InitializingBean {
 			}
 		}
 		
-		CSDProperties.getInstance().setUserContextProvider(new UserContextImpl());
-
 		DeConfiguration.getInstance()
 			.dataSource(dataSource, transactionManager)
 			.fileUploadDir(dir)
@@ -98,16 +89,9 @@ public class DeInitializer implements InitializingBean {
 			.timeFormat(timeFormat);
 
 		ControlManager.getInstance().registerFactory(UserControlFactory.getInstance());			
-		ControlMapper.getInstance().registerControlMapper("userField", new UserFieldMapper());
-		
 		ControlManager.getInstance().registerFactory(StorageContainerControlFactory.getInstance());
-		ControlMapper.getInstance().registerControlMapper("storageContainer", new StorageContainerMapper());
-		
 		ControlManager.getInstance().registerFactory(SiteControlFactory.getInstance());
-		ControlMapper.getInstance().registerControlMapper("siteField", new SiteFieldMapper());
-
 		ControlManager.getInstance().registerFactory(PvControlFactory.getInstance());
-		ControlMapper.getInstance().registerControlMapper("pvField", new PvFieldMapper());
 
 		InputStream in = null;
 		try {

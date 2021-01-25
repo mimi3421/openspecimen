@@ -39,6 +39,8 @@ import com.krishagni.catissueplus.core.common.util.ConfigUtil;
 import com.krishagni.catissueplus.core.common.util.EmailUtil;
 import com.krishagni.catissueplus.core.common.util.UnhandledExceptionUtil;
 
+import edu.common.dynamicextensions.napi.FormException;
+
 @Aspect
 public class TransactionalInterceptor {
 	private static final Log logger = LogFactory.getLog(TransactionalInterceptor.class);
@@ -90,6 +92,9 @@ public class TransactionalInterceptor {
 				if (ose.getErrorType() == ErrorType.USER_ERROR) {
 					throw ose;
 				}
+			} else if (t instanceof FormException) {
+				FormException fe = (FormException) t;
+				throw OpenSpecimenException.userError(CommonErrorCode.FORM_ERROR, fe.getError());
 			}
 
 			logger.error("Error doing work inside " + pjp.getSignature(), t);
@@ -128,6 +133,9 @@ public class TransactionalInterceptor {
 				} catch (OpenSpecimenException ose) {
 					status.setRollbackOnly();
 					throw ose;
+				} catch (FormException fe) {
+					status.setRollbackOnly();
+					throw OpenSpecimenException.userError(CommonErrorCode.FORM_ERROR, fe.getError());
 				} catch (Throwable t) {
 					logger.error("Error doing work inside " + pjp.getSignature(), t);
 					status.setRollbackOnly();
