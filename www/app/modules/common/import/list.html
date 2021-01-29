@@ -73,7 +73,9 @@
                   <span>#{{importJob.id}}</span> 
                   <span translate="bulk_imports.import_types.{{importJob.type}}"></span>
                   <span ng-switch on="importJob.name != 'extensions'">
-                    <span ng-switch-when="true" translate="bulk_imports.object_types.{{importJob.name}}"></span>
+                    <span ng-switch-when="true">
+                      <span>{{'bulk_imports.object_types.' + importJob.name | translate: importJob}}</span>
+                    </span>
                     <span ng-switch-when="false"> {{'bulk_imports.extension_name' | translate: importJob}} </span> 
                   </span>
                 </a>

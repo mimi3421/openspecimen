@@ -27,7 +27,9 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.krishagni.catissueplus.core.administrative.domain.FormDataSavedEvent;
+import com.krishagni.catissueplus.core.administrative.domain.Institute;
 import com.krishagni.catissueplus.core.administrative.domain.User;
+import com.krishagni.catissueplus.core.administrative.domain.factory.UserErrorCode;
 import com.krishagni.catissueplus.core.administrative.repository.FormListCriteria;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolGroup;
@@ -131,7 +133,7 @@ public class FormServiceImpl implements FormService, InitializingBean {
 	
 	private static Map<String, String> customFieldEntities = new HashMap<>();
 
-	private static Map<String, Function<Long, Boolean>> entityAccessCheckers = new HashMap<>();
+	private Map<String, Function<Long, Boolean>> entityAccessCheckers = new HashMap<>();
 
 	static {
 		staticExtendedForms.add(PARTICIPANT_FORM);
@@ -184,6 +186,21 @@ public class FormServiceImpl implements FormService, InitializingBean {
 	public void afterPropertiesSet() throws Exception {
 		FormEventsNotifier.getInstance().addListener(new SystemFormUpdatePreventer(formDao));
 		exportSvc.registerObjectsGenerator("extensions", this::getFormRecordsGenerator);
+		exportSvc.registerObjectsGenerator("userExtensions", this::getFormRecordsGenerator);
+
+		entityAccessCheckers.put(
+			"User",
+			(entityId) -> {
+				if (AuthUtil.getCurrentUser().isAdmin()) {
+					return true;
+				}
+
+				Institute institute = AuthUtil.getCurrentUserInstitute();
+				return entityId != -1L &&
+					institute.getId().equals(entityId) &&
+					AuthUtil.getCurrentUser().isInstituteAdmin();
+			}
+		);
 	}
 
 	@Override
@@ -998,6 +1015,14 @@ public class FormServiceImpl implements FormService, InitializingBean {
 
 		Long cpId = input.getCollectionProtocol() != null ? input.getCollectionProtocol().getId() : -1L;
 		FormContextBean fc = formDao.getAbsFormContext(input.getFormId(), cpId, input.getLevel());
+		if (fc != null && fc.getDeletedOn() == null) {
+			fc.setMultiRecord(input.isMultiRecord());
+			fc.setSortOrder(input.getSortOrder());
+			input.setFormCtxtId(fc.getIdentifier());
+			notifyContextSaved(fc);
+			return fc;
+		}
+
 		if (cpId == -1L) {
 			if (fc == null) {
 				fc = addFormContext0(input);
@@ -1131,6 +1156,14 @@ public class FormServiceImpl implements FormService, InitializingBean {
 				specimen.setUpdated(true);
 				collOrRecvEvent = new SpecimenSavedEvent(specimen);
 			}
+		} else if (entityType.equals("User")) {
+			User user = daoFactory.getUserDao().getById(objectId);
+			if (user == null) {
+				throw OpenSpecimenException.userError(UserErrorCode.NOT_FOUND, objectId);
+			}
+
+			AccessCtrlMgr.getInstance().ensureUpdateUserRights(user);
+			object = user;
 		}
 
 		formData.setRecordId(recordId);
@@ -1290,6 +1323,8 @@ public class FormServiceImpl implements FormService, InitializingBean {
 			allowPhiAccess = AccessCtrlMgr.getInstance().ensureReadVisitRights(objectId, true);
 		} else if (entityType.equals(SPECIMEN_FORM) || entityType.equals(SPECIMEN_EVENT_FORM) || Specimen.EXTN.equals(entityType)) {
 			allowPhiAccess = AccessCtrlMgr.getInstance().ensureReadSpecimenRights(objectId, true);
+		} else {
+			allowPhiAccess = true;
 		}
 
 		return allowPhiAccess;
@@ -1475,6 +1510,8 @@ public class FormServiceImpl implements FormService, InitializingBean {
 
 			private Long cpId;
 
+			private Long entityId;
+
 			private Set<SiteCpPair> siteCps;
 
 			private int startAt;
@@ -1505,6 +1542,8 @@ public class FormServiceImpl implements FormService, InitializingBean {
 					recordsFn = this::getVisitFormRecords;
 				} else if (entityType.equals("Specimen") || entityType.equals("SpecimenEvent")) {
 					recordsFn = this::getSpmnFormRecords;
+				} else if (entityType.equals("User")) {
+					recordsFn = this::getUserFormRecords;
 				}
 
 				List<Map<String, Object>> records = null;
@@ -1540,6 +1579,15 @@ public class FormServiceImpl implements FormService, InitializingBean {
 					}
 				}
 
+				String entityIdStr = params.get("entityId");
+				if (StringUtils.isNotBlank(entityIdStr)) {
+					try {
+						entityId = Long.parseLong(entityIdStr);
+					} catch (Exception e) {
+						logger.error("Invalid entity ID: " + entityIdStr, e);
+					}
+				}
+
 				boolean allowed = false;
 				if (entityType.equals("Participant") || entityType.equals("CommonParticipant")) {
 					if (cpId != null && cpId != -1L) {
@@ -1565,6 +1613,18 @@ public class FormServiceImpl implements FormService, InitializingBean {
 					} else {
 						siteCps = AccessCtrlMgr.getInstance().getSiteCps(Resource.SPECIMEN, Operation.EXIM);
 						allowed = (siteCps == null || !siteCps.isEmpty());
+					}
+				} else if (entityType.equals("User")) {
+					if (entityId != null && entityId != -1L) {
+						if (AuthUtil.isAdmin()) {
+							allowed = true;
+						} else if (AuthUtil.isInstituteAdmin() && AuthUtil.getCurrentUserInstitute().getId().equals(entityId)) {
+							allowed = true;
+						} else {
+							allowed = false;
+						}
+					} else {
+						allowed = AuthUtil.isAdmin();
 					}
 				}
 
@@ -1654,6 +1714,38 @@ public class FormServiceImpl implements FormService, InitializingBean {
 						formData.put("cpShortTitle", specimen.getCollectionProtocol().getShortTitle());
 						formData.put("specimenLabel", specimen.getLabel());
 						formData.put("barcode", specimen.getBarcode());
+						formData.put("formValueMap", valueMap);
+						return formData;
+					}
+				);
+			}
+
+			private List<Map<String, Object>> getUserFormRecords(ExportJob job) {
+				return getRecords(
+					job,
+					"emailIds",
+					(emailIds) -> daoFactory.getUserDao().getFormRecords(entityId, form.getId(), emailIds, startAt, 100),
+					"userId",
+					(userId) -> daoFactory.getUserDao().getById(userId),
+					(user) -> {
+						try {
+							AccessCtrlMgr.getInstance().ensureUpdateUserRights((User) user);
+							return true;
+						} catch (OpenSpecimenException ose) {
+							if (ose.containsError(RbacErrorCode.ACCESS_DENIED)) {
+								return false;
+							}
+
+							throw ose;
+						}
+					},
+					(userFormValueMap) -> {
+						User user = (User) userFormValueMap.first();
+						Map<String, Object> valueMap = userFormValueMap.second();
+
+						Map<String, Object> formData = new HashMap<>();
+						formData.put("recordId", valueMap.get("id"));
+						formData.put("emailAddress", user.getEmailAddress());
 						formData.put("formValueMap", valueMap);
 						return formData;
 					}

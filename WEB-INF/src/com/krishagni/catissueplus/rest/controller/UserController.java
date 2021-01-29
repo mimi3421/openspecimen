@@ -37,6 +37,10 @@ import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.catissueplus.core.common.util.Status;
+import com.krishagni.catissueplus.core.de.events.EntityFormRecords;
+import com.krishagni.catissueplus.core.de.events.FormCtxtSummary;
+import com.krishagni.catissueplus.core.de.events.FormRecordsList;
+import com.krishagni.catissueplus.core.de.events.GetEntityFormRecordsOp;
 import com.krishagni.rbac.events.SubjectRoleDetail;
 
 @Controller
@@ -410,5 +414,35 @@ public class UserController {
 		ResponseEvent<Boolean> resp = userService.broadcastAnnouncement(new RequestEvent<>(detail));
 		resp.throwErrorIfUnsuccessful();
 		return resp.getPayload();
+	}
+
+	@RequestMapping(method = RequestMethod.GET, value = "/{id}/forms")
+	@ResponseBody
+	@ResponseStatus(HttpStatus.OK)
+	public List<FormCtxtSummary> getForms(@PathVariable Long id) {
+		return ResponseEvent.unwrap(userService.getForms(RequestEvent.wrap(id)));
+	}
+
+	@RequestMapping(method = RequestMethod.GET, value="/{id}/form-records")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public List<FormRecordsList> getFormRecords(@PathVariable("id") Long userId) {
+		return ResponseEvent.unwrap(userService.getAllFormRecords(RequestEvent.wrap(userId)));
+	}
+
+	@RequestMapping(method = RequestMethod.GET, value = "/{id}/forms/{formCtxtId}/records")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public EntityFormRecords getFormRecords(
+		@PathVariable("id")
+		Long userId,
+
+		@PathVariable("formCtxtId")
+		Long formCtxtId) {
+
+		GetEntityFormRecordsOp op = new GetEntityFormRecordsOp();
+		op.setEntityId(userId);
+		op.setFormCtxtId(formCtxtId);
+		return  ResponseEvent.unwrap(userService.getFormRecords(RequestEvent.wrap(op)));
 	}
 }

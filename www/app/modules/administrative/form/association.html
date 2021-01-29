@@ -1,6 +1,6 @@
 <div ng-if="view == 'show_contexts'" class="os-form-association os-no-label-form">
   <div class="os-modal-header">
-    <h4>{{form.caption}}</h4>
+    <span class="title">{{form.caption}}</span>
   </div>
 
   <div class="os-modal-body">
@@ -16,7 +16,7 @@
                 <span translate="form.level">Level</span>
               </th>
               <th class="col col-xs-5">
-                <span translate="form.collection_protocol">Collection Protocol</span>
+                <span translate="form.group">Group</span>
               </th>
               <th class="col col-xs-2">
                 <span>&nbsp;</span>
@@ -35,7 +35,8 @@
                 <span>{{ctxt.level.caption}}</span>
               </td>
               <td class="col col-xs-5">
-                <span>{{ctxt.collectionProtocol.shortTitle}}</span>
+                <span ng-show="!!ctxt.entityName">{{ctxt.entityName}}</span>
+                <span ng-show="!ctxt.entityName">{{ctxt.collectionProtocol.shortTitle}}</span>
               </td>
               <td class="col col-xs-2">
                 <span class="btn-group btn-group-xs" ng-if="!ctxt.sysForm && ctxt.level.allowEdits !== false">
@@ -58,16 +59,36 @@
       <os-select ng-model="cpFormCtxt.selectedEntity" list="extnEntities" display-prop="caption"
         placeholder="{{'form.select_level' | translate }}" append-to-body="true">
       </os-select>
-      <div class="checkbox" ng-show="cpFormCtxt.selectedEntity && !cpFormCtxt.selectedEntity.allCps && currentUser.admin">
+
+      <div class="checkbox" ng-show="cpFormCtxt.selectedEntity &&
+        !cpFormCtxt.selectedEntity.allCps && currentUser.admin">
         <label>
           <input type="checkbox" ng-checked="cpFormCtxt.allProtocols" ng-model="cpFormCtxt.allProtocols"/> 
           <span translate="form.all_cps">All Present and Future Collection Protocols</span>
         </label>
       </div>
+
+      <div ng-if="cpFormCtxt.selectedEntity.name == 'User'">
+        <div ng-if="currentUser.admin">
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" ng-checked="cpFormCtxt.allInstitutes" ng-model="cpFormCtxt.allInstitutes"/>
+              <span translate="form.all_institutes">All Present and Future Institutes</span>
+            </label>
+          </div>
+
+          <os-select multiple ng-model="cpFormCtxt.institutes" list="institutes" display-prop="name"
+            placeholder="{{'form.select_institutes' | translate}}" append-to-body="true" refresh="loadInstitutes"
+            ng-show="!cpFormCtxt.allInstitutes">
+          </os-select>
+        </div>
+      </div>
+
       <os-select multiple ng-model="cpFormCtxt.selectedCps" list="cpList" display-prop="shortTitle"
         placeholder="{{'form.select_cps' | translate}}" name="cps" append-to-body="true" 
         ng-show="!cpFormCtxt.allProtocols && cpFormCtxt.selectedEntity && !cpFormCtxt.selectedEntity.allCps">
       </os-select>
+
       <div class="checkbox" ng-show="cpFormCtxt.selectedEntity && cpFormCtxt.selectedEntity.multipleRecs != false">
         <label>
           <input type="checkbox" ng-checked="cpFormCtxt.isMultiRecord" ng-model="cpFormCtxt.isMultiRecord"/>
@@ -92,7 +113,7 @@
 
 <div ng-if="view == 'confirm_remove'">
   <div class="os-modal-header">
-    <h4>{{form.caption}}</h4>
+    <div class="title">{{form.caption}}</div>
   </div>
   
   <div class="os-modal-body">
@@ -110,7 +131,7 @@
 
 <div ng-if="view == 'edit_context'">
   <div class="os-modal-header">
-    <h4>{{form.caption}}</h4>
+    <div class="title">{{form.caption}}</div>
   </div>
 
   <div class="os-modal-body">

@@ -14,8 +14,23 @@ angular.module('os.biospecimen.models.form', ['os.common.models'])
     function updateFormContext() {
       var form = this.form;
       var formCtxts = [];
-      for (var i = 0; i < this.cpIds.length; ++i) {
-        formCtxts.push({formId: form.$id(), collectionProtocol: {id: this.cpIds[i]}, level: this.entity, multiRecord: this.isMultiRecord});
+      for (var i = 0; i < (this.cpIds || []).length; ++i) {
+        formCtxts.push({
+            formId: form.$id(),
+            collectionProtocol: {id: this.cpIds[i]},
+            level: this.entity,
+            multiRecord: this.isMultiRecord
+        });
+      }
+
+      for (var j = 0; j < (this.entityIds || []).length; ++j) {
+        formCtxts.push({
+          formId: form.$id(),
+          collectionProtocol: {id: -1},
+          entityId: this.entityIds[j],
+          level: this.entity,
+          multiRecord: this.isMultiRecord
+        });
       }
 
       return $http.put(form.FormContextModel.url(), formCtxts).then(form.FormContextModel.modelRespTransform);
@@ -23,7 +38,7 @@ angular.module('os.biospecimen.models.form', ['os.common.models'])
 
     function removeFormContext() {
       var form = this.form;
-      var param = {params: {cpId: this.cpId, entityType: this.entityType}}
+      var param = {params: {cpId: this.cpId, entityId: this.entityId, entityType: this.entityType}}
 
       return $http.delete(form.FormContextModel.url(), param).then(form.FormContextModel.noTransform);
     }
@@ -60,8 +75,9 @@ angular.module('os.biospecimen.models.form', ['os.common.models'])
       );
     };
 
-    Form.listForms = function(formType) {
-      return $http.get(Form.url(), {params: {formType: formType}}).then(
+    Form.listForms = function(formType, params) {
+      var qp = angular.extend({formType: formType}, params || {});
+      return $http.get(Form.url(), {params: qp}).then(
         function(result) {
           return result.data.map(function(form) {
             form.id = form.formId;

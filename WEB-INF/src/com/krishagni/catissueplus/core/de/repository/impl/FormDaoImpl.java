@@ -967,6 +967,15 @@ public class FormDaoImpl extends AbstractDao<FormContextBean> implements FormDao
 			);
 		}
 
+		if (CollectionUtils.isNotEmpty(crit.entityIds())) {
+			query.add(
+				Restrictions.or(
+					Restrictions.eq("fc.entityId", -1L),
+					Restrictions.in("fc.entityId", crit.entityIds())
+				)
+			);
+		}
+
 		if (CollectionUtils.isNotEmpty(crit.names())) {
 			query.add(Restrictions.in("form.name", crit.names()));
 		}

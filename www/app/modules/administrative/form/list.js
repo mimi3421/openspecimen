@@ -1,7 +1,7 @@
 
 angular.module('os.administrative.form.list', ['os.administrative.models'])
   .controller('FormListCtrl', function(
-    $scope, $state, $modal, $translate, Form, FormEntityReg, ApiUrls,
+    $scope, $state, $modal, $translate, currentUser, Form, FormEntityReg, ApiUrls,
     CollectionProtocol, Util, DeleteUtil, Alerts, ListPagerOpts, CheckList) {
 
     var cpListQ = undefined;
@@ -142,6 +142,10 @@ angular.module('os.administrative.form.list', ['os.administrative.models'])
 
               entities: function(FormEntityReg) {
                 return FormEntityReg.getEntities();
+              },
+
+              currentUser: function() {
+                return currentUser;
               }
             }
           });

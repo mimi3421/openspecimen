@@ -64,6 +64,12 @@ import com.krishagni.catissueplus.core.common.util.MessageUtil;
 import com.krishagni.catissueplus.core.common.util.NotifUtil;
 import com.krishagni.catissueplus.core.common.util.Status;
 import com.krishagni.catissueplus.core.common.util.Utility;
+import com.krishagni.catissueplus.core.de.events.EntityFormRecords;
+import com.krishagni.catissueplus.core.de.events.FormCtxtSummary;
+import com.krishagni.catissueplus.core.de.events.FormRecordsList;
+import com.krishagni.catissueplus.core.de.events.GetEntityFormRecordsOp;
+import com.krishagni.catissueplus.core.de.events.GetFormRecordsListOp;
+import com.krishagni.catissueplus.core.de.services.FormService;
 import com.krishagni.catissueplus.core.exporter.domain.ExportJob;
 import com.krishagni.catissueplus.core.exporter.services.ExportService;
 import com.krishagni.rbac.events.SubjectRoleDetail;
@@ -121,6 +127,8 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 
 	private ExportService exportSvc;
 
+	private FormService formSvc;
+
 	public void setDaoFactory(DaoFactory daoFactory) {
 		this.daoFactory = daoFactory;
 	}
@@ -139,6 +147,10 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 
 	public void setExportSvc(ExportService exportSvc) {
 		this.exportSvc = exportSvc;
+	}
+
+	public void setFormSvc(FormService formSvc) {
+		this.formSvc = formSvc;
 	}
 
 	@Override
@@ -595,6 +607,52 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 		}
 	}
 
+	@Override
+	@PlusTransactional
+	public ResponseEvent<List<FormCtxtSummary>> getForms(RequestEvent<Long> req) {
+		try {
+			User user = getUser(req.getPayload(), null);
+			AccessCtrlMgr.getInstance().ensureUpdateUserRights(user);
+			return ResponseEvent.response(daoFactory.getUserDao().getForms(user.getId()));
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
+		} catch (Exception e) {
+			return ResponseEvent.serverError(e);
+		}
+	}
+
+	@Override
+	@PlusTransactional
+	public ResponseEvent<EntityFormRecords> getFormRecords(RequestEvent<GetEntityFormRecordsOp> req) {
+		try {
+			GetEntityFormRecordsOp op = req.getPayload();
+			User user = getUser(op.getEntityId(), null);
+			AccessCtrlMgr.getInstance().ensureUpdateUserRights(user);
+			return formSvc.getEntityFormRecords(req);
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
+		} catch (Exception e) {
+			return ResponseEvent.serverError(e);
+		}
+	}
+
+	@Override
+	@PlusTransactional
+	public ResponseEvent<List<FormRecordsList>> getAllFormRecords(RequestEvent<Long> req) {
+		try {
+			User user = getUser(req.getPayload(), null);
+			AccessCtrlMgr.getInstance().ensureUpdateUserRights(user);
+
+			GetFormRecordsListOp op = new GetFormRecordsListOp();
+			op.setObjectId(user.getId());
+			op.setEntityType("User");
+			return formSvc.getFormRecords(RequestEvent.wrap(op));
+		} catch (OpenSpecimenException ose) {
+			return ResponseEvent.error(ose);
+		} catch (Exception e) {
+			return ResponseEvent.serverError(e);
+		}
+	}
 
 	@Override
 	public String getObjectName() {

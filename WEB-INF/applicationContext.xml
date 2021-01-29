@@ -312,6 +312,7 @@
     <property name="emailService" ref="emailService"/>
     <property name="rbacSvc" ref="rbacSvc"/>
     <property name="exportSvc" ref="exportSvc"/>
+    <property name="formSvc" ref="formSvc"/>
   </bean>
 
   <bean id="domainFact" class="com.krishagni.catissueplus.core.auth.domain.factory.impl.DomainRegistrationFactoryImpl">
@@ -1134,6 +1135,11 @@
             <property name="schemaResource"  value="com/krishagni/catissueplus/core/biospecimen/schema/cp.xml"/>
           </bean>
         </entry>
+        <entry key="userExtensions">
+          <bean class="com.krishagni.catissueplus.core.de.services.impl.ExtensionSchemaBuilder">
+            <property name="formDao" ref="formDao"/>
+          </bean>
+        </entry>
       </map>
     </property>
   </bean>
@@ -1162,6 +1168,15 @@
         <entry key="userRoles">
           <bean id="userRolesImporter" class="com.krishagni.rbac.service.impl.SubjectRolesImporter">
             <property name="rbacSvc" ref="rbacSvc"/>
+          </bean>
+        </entry>
+
+        <entry key="userExtensions">
+          <bean id="extensionImporter" class="com.krishagni.catissueplus.core.de.services.impl.ExtensionsImporter">
+            <property name="formSvc" ref="formSvc"/>
+            <property name="formDao" ref="formDao"/>
+            <property name="daoFactory" ref="biospecimenDaoFactory"/>
+            <property name="specimenResolver" ref="specimenResolver"/>
           </bean>
         </entry>
 

@@ -44,6 +44,9 @@ public class InstitutesController {
 	@ResponseBody
 	@ResponseStatus(HttpStatus.OK)
 	public List<InstituteDetail> getInstitutes(
+		@RequestParam(value = "id", required = false)
+		List<Long> ids,
+
 		@RequestParam(value = "startAt", required = false, defaultValue = "0")
 		int startAt,
 
@@ -60,11 +63,12 @@ public class InstitutesController {
 		boolean includeStats) {
 
 		InstituteListCriteria crit = new InstituteListCriteria()
-				.query(name)
-				.exactMatch(exactMatch)
-				.startAt(startAt)
-				.maxResults(maxResults)
-				.includeStat(includeStats);
+			.ids(ids)
+			.query(name)
+			.exactMatch(exactMatch)
+			.startAt(startAt)
+			.maxResults(maxResults)
+			.includeStat(includeStats);
 
 		RequestEvent<InstituteListCriteria> req = new RequestEvent<InstituteListCriteria>(crit);
 		ResponseEvent<List<InstituteDetail>> resp = instituteSvc.getInstitutes(req);
@@ -77,10 +81,13 @@ public class InstitutesController {
 	@ResponseBody
 	@ResponseStatus(HttpStatus.OK)
 	public Map<String, Long> getInstitutesCount(
+		@RequestParam(value = "id", required = false)
+		List<Long> ids,
+
 		@RequestParam(value = "name", required = false)
 		String name) {
 
-		RequestEvent<InstituteListCriteria> req = new RequestEvent<>(new InstituteListCriteria().query(name));
+		RequestEvent<InstituteListCriteria> req = RequestEvent.wrap(new InstituteListCriteria().ids(ids).query(name));
 		ResponseEvent<Long> resp = instituteSvc.getInstitutesCount(req);
 		resp.throwErrorIfUnsuccessful();
 

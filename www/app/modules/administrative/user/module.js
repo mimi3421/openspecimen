@@ -24,6 +24,8 @@ angular.module('os.administrative.user',
             deleteOpts: {resource: 'User', operations: ['Delete']},
             importOpts: {resource: 'User', operations: ['Export Import']}
           }
+
+          $scope.extnState = 'user-detail.forms.';
         },
         parent: 'signed-in'
       })
@@ -91,20 +93,55 @@ angular.module('os.administrative.user',
         templateUrl: 'modules/common/import/add.html',
         controller: 'ImportObjectCtrl',
         resolve: {
-          importDetail: function($stateParams) {
+          forms: function($stateParams, currentUser, Form, Alerts) {
+            if ($stateParams.objectType != 'extensions') {
+              return [];
+            }
+
+            var entityId = currentUser.admin ? undefined : currentUser.instituteId;
+            return Form.listForms('User', {entityId: entityId}).then(
+              function(forms) {
+                if (forms.length > 0) {
+                  return forms;
+                }
+
+                Alerts.error('user.no_forms');
+                throw 'No user forms';
+              }
+            );
+          },
+          importDetail: function($stateParams, forms, currentUser) {
             var objectType = $stateParams.objectType;
             var title = undefined;
+            var types = [];
             if (objectType == 'user') {
               title = 'user.bulk_import_users';
             } else if (objectType == 'userRoles') {
               title = 'user.bulk_import_user_roles';
+            } else if (objectType == 'extensions') {
+              var entityId = currentUser.admin ? -1 : currentUser.instituteId;
+              title = 'user.bulk_import_user_forms';
+              types = forms.map(
+                function(form) {
+                  return {
+                    type: 'userExtensions',
+                    title: form.caption,
+                    params: {
+                      entityType: 'User',
+                      entityId: entityId,
+                      formName: form.name
+                    }
+                  };
+                }
+              );
             }
 
             return {
               breadcrumbs: [{state: 'user-list', title: 'user.list'}],
               objectType: objectType,
               title: title,
-              onSuccess: {state: 'user-import-jobs'}
+              onSuccess: {state: 'user-import-jobs'},
+              types: types
             };
           }
         },
@@ -119,8 +156,84 @@ angular.module('os.administrative.user',
             return {
               breadcrumbs: [{state: 'user-list', title: 'user.list'}],
               title: 'user.bulk_import_jobs',
-              objectTypes: ['user', 'userRoles']
+              objectTypes: ['user', 'userRoles', 'userExtensions']
             }
+          }
+        },
+        parent: 'user-root'
+      })
+      .state('user-export-forms', {
+        url: '/users-export-forms',
+        templateUrl: 'modules/common/export/add.html',
+        controller: 'AddEditExportJobCtrl',
+        resolve: {
+          users: function(ItemsHolder) {
+            var users = ItemsHolder.getItems('users');
+            ItemsHolder.setItems('users', undefined);
+            if (users == undefined) {
+              return [];
+            }
+
+            return users;
+          },
+
+          forms: function(currentUser, users, Form) {
+            var entityId = currentUser.admin ? undefined : currentUser.instituteId;
+            if (entityId == undefined) {
+              var instituteId = users.length > 0 ? users[0].instituteId : -1;
+              for (var i = 0; i < users.length; ++i) {
+                if (users[i].instituteId != instituteId) {
+                  instituteId = -1;
+                  break;
+                }
+              }
+
+              if (instituteId > 0) {
+                entityId = instituteId;
+              }
+            }
+
+            return Form.listForms('User', {entityId: entityId}).then(
+              function(forms) {
+                if (forms.length > 0) {
+                  return forms;
+                }
+
+                Alerts.error('user.no_forms');
+                throw 'No user forms';
+              }
+            );
+          },
+
+          exportDetail: function(forms, currentUser, users) {
+            var entityId = currentUser.admin ? -1 : currentUser.instituteId;
+            var input = undefined;
+            if (users.length > 0) {
+              input = {var: 'emailIds', varName: 'user.email_ids', varDesc: 'user.email_ids_csv'};
+            }
+
+            var types = forms.map(
+              function(form) {
+                return {
+                  type: 'userExtensions',
+                  '$$input': input,
+                  title: form.caption,
+                  params: { entityType: 'User', entityId: entityId, formName: form.name }
+                };
+              }
+            );
+
+            return {
+              breadcrumbs: [{state: 'user-list', title: 'user.list'}],
+              title: 'user.export_user_forms',
+              type: undefined,
+              inputCsv: users.map(function(u) { return u.emailAddress }).join(','),
+              onSuccess: {state: 'user-list'},
+              types: types,
+              params: {
+                entityId: entityId
+              }
+            };
           }
         },
         parent: 'user-root'
@@ -140,6 +253,56 @@ angular.module('os.administrative.user',
         url: '/overview',
         templateUrl: 'modules/administrative/user/overview.html',
         parent: 'user-detail'
+      })
+      .state('user-detail.forms', {
+        url: '/forms',
+        template: '<div ui-view></div>',
+        controller: function($scope, user, forms, records, ExtensionsUtil) {
+          $scope.extnOpts = {
+            update: $scope.userResource.updateOpts,
+            isEntityActive: user.activityStatus == 'Active',
+            entity: user
+          }
+
+          $scope.object = user;
+          ExtensionsUtil.linkFormRecords(forms, records);
+        },
+        resolve: {
+          forms: function(user) {
+            return user.getForms();
+          },
+          records: function(user) {
+            return user.getRecords();
+          },
+          viewOpts: function() {
+            return {
+              goBackFn: null,
+              showSaveNext: true
+            };
+          }
+        },
+        abstract: true,
+        parent: 'user-detail'
+      })
+      .state('user-detail.forms.list', {
+        url: '/list?formId&formCtxtId&recordId',
+        templateUrl: 'modules/biospecimen/extensions/list.html',
+        controller: 'FormsListCtrl',
+        parent: 'user-detail.forms'
+      })
+      .state('user-detail.forms.addedit', {
+        url: '/addedit?formId&recordId&formCtxId',
+        templateUrl: 'modules/biospecimen/extensions/addedit.html',
+        resolve: {
+          formDef: function($stateParams, Form) {
+            return Form.getDefinition($stateParams.formId);
+          },
+          postSaveFilters: function() {
+            return [];
+          }
+        },
+        controller: 'FormRecordAddEditCtrl',
+        parent: 'user-detail.forms'
       })
       .state('user-detail.roles', {
         url: '/roles',

@@ -1,5 +1,7 @@
 angular.module('os.administrative.form.formctxts', ['os.administrative.models'])
-  .controller('FormCtxtsCtrl', function($scope, $modalInstance, $translate, args, cpList, entities, Alerts) {
+  .controller('FormCtxtsCtrl', function(
+    $scope, $modalInstance, $translate,
+    args, cpList, entities, currentUser, Alerts, Institute) {
 
     var reload = false;
 
@@ -8,6 +10,7 @@ angular.module('os.administrative.form.formctxts', ['os.administrative.models'])
       $scope.extnEntities = entities.filter(function(e) { return e.allowEdits !== false; });
       $scope.form = args.form;
       $scope.cpList = cpList;
+      $scope.institutes = [];
 
       var cpLevels = [
         'Participant', 'ParticipantExtension', 'SpecimenCollectionGroup', 'VisitExtension',
@@ -15,6 +18,7 @@ angular.module('os.administrative.form.formctxts', ['os.administrative.models'])
       ]
 
       var formCtxts = $scope.cpFormCtxts = args.formCtxts;
+      var instituteIds = [];
       angular.forEach(formCtxts,
         function(fc) {
           var cpLevel = cpLevels.indexOf(fc.level) != -1;
@@ -22,6 +26,10 @@ angular.module('os.administrative.form.formctxts', ['os.administrative.models'])
             fc.collectionProtocol.shortTitle = $translate.instant('form.all');
           } else if (!cpLevel) {
             fc.collectionProtocol.shortTitle = $translate.instant('form.na');
+          }
+
+          if (fc.level == 'User' && fc.entityId > 0 && instituteIds.indexOf(fc.entityId) == -1) {
+            instituteIds.push(fc.entityId);
           }
 
           for (var i = 0; i < entities.length; i++) {
@@ -34,12 +42,42 @@ angular.module('os.administrative.form.formctxts', ['os.administrative.models'])
         }
       );
 
+      if (instituteIds.length > 0) {
+        Institute.query({id: instituteIds, maxResults: 10000}).then(
+          function(institutes) {
+            var institutesMap = {};
+            angular.forEach(institutes,
+              function(institute) {
+                institutesMap[institute.id] = institute.name;
+              }
+            );
+
+            angular.forEach(formCtxts,
+              function(fc) {
+                if (fc.level.name == 'User') {
+                  fc.entityName = institutesMap[fc.entityId];
+                }
+              }
+            );
+          }
+        );
+      }
+
       $scope.cpFormCtxt = {
         allProtocols: false,
         isMultiRecord: false,
         selectedCps: [],
         selectedEntity: undefined
       }
+    }
+
+
+    $scope.loadInstitutes = function(searchTerm) {
+      Institute.query({name: searchTerm}).then(
+        function(institutes) {
+          $scope.institutes = institutes;
+        }
+      );
     }
 
     $scope.enableAttach = function(formCtxt) {
@@ -56,8 +94,21 @@ angular.module('os.administrative.form.formctxts', ['os.administrative.models'])
 
     $scope.attach = function(formCtxt) {
       var cpIds = [];
+      var entityIds = [];
       if (formCtxt.allProtocols || formCtxt.selectedEntity.allCps) {
-        cpIds = [-1];
+        if (formCtxt.selectedEntity.name == 'User') {
+          if (!currentUser.admin) {
+            entityIds = [currentUser.instituteId];
+          } else if (formCtxt.allInstitutes) {
+            entityIds = [-1];
+          } else {
+            for (var i = 0; i < formCtxt.institutes.length; ++i) {
+              entityIds.push(formCtxt.institutes[i].id);
+            }
+          }
+        } else {
+          cpIds = [-1];
+        }
       } else {
         for (var i = 0; i < formCtxt.selectedCps.length; ++i) {
           cpIds.push(formCtxt.selectedCps[i].id);
@@ -72,6 +123,7 @@ angular.module('os.administrative.form.formctxts', ['os.administrative.models'])
       var formContext = {
         form: $scope.form,
         cpIds: cpIds,
+        entityIds: entityIds,
         entity: formCtxt.selectedEntity.name,
         isMultiRecord: multipleRecs
       }
@@ -92,8 +144,14 @@ angular.module('os.administrative.form.formctxts', ['os.administrative.models'])
 
     $scope.removeCtx = function() {
       var cpId = $scope.removeCtxData.ctx.collectionProtocol.id || -1;
+      var entityId = $scope.removeCtxData.ctx.entityId;
       var entity = $scope.removeCtxData.ctx.level;
-      var formContext = $scope.form.newFormContext({form: $scope.form, cpId: cpId, entityType: entity.name});
+      var formContext = $scope.form.newFormContext({
+        form: $scope.form,
+        cpId: cpId,
+        entityId: entityId,
+        entityType: entity.name
+      });
 
       formContext.$remove().then(
         function() {
@@ -117,10 +175,19 @@ angular.module('os.administrative.form.formctxts', ['os.administrative.models'])
     }
 
     $scope.editCtx = function() {
+      var cpIds = [];
+      var entityIds = [];
+      if ($scope.editCtxData.ctx.level.name == 'User') {
+        entityIds = [$scope.editCtxData.ctx.entityId || - 1];
+      } else {
+        cpIds = [$scope.editCtxData.ctx.collectionProtocol.id || -1];
+      }
+
       var fc = $scope.form.newFormContext({
         form: $scope.form,
-        cpIds: [$scope.editCtxData.ctx.collectionProtocol.id || -1],
+        cpIds: cpIds,
         entity: $scope.editCtxData.ctx.level.name,
+        entityIds: entityIds,
         isMultiRecord: $scope.editCtxData.ctx.multiRecord
       });
 

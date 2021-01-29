@@ -214,5 +214,11 @@ angular.module('os.administrative.user.list', ['os.administrative.models'])
       exportRecords('userRoles');
     }
 
+    $scope.exportUserForms = function() {
+      var users = $scope.ctx.checkList.getSelectedItems();
+      ItemsHolder.setItems('users', users);
+      $state.go('user-export-forms');
+    }
+
     init();
   });

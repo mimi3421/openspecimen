@@ -4,9 +4,6 @@ package com.krishagni.catissueplus.core.administrative.services;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.saml.userdetails.SAMLUserDetailsService;
-
 import com.krishagni.catissueplus.core.administrative.domain.UserUiState;
 import com.krishagni.catissueplus.core.administrative.events.AnnouncementDetail;
 import com.krishagni.catissueplus.core.administrative.events.InstituteDetail;
@@ -19,6 +16,10 @@ import com.krishagni.catissueplus.core.common.events.DependentEntityDetail;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
+import com.krishagni.catissueplus.core.de.events.EntityFormRecords;
+import com.krishagni.catissueplus.core.de.events.FormCtxtSummary;
+import com.krishagni.catissueplus.core.de.events.FormRecordsList;
+import com.krishagni.catissueplus.core.de.events.GetEntityFormRecordsOp;
 import com.krishagni.rbac.events.SubjectRoleDetail;
 
 public interface UserService {
@@ -57,4 +58,19 @@ public interface UserService {
 	public ResponseEvent<InstituteDetail> getInstitute(RequestEvent<Long> req);
 
 	public ResponseEvent<Boolean> broadcastAnnouncement(RequestEvent<AnnouncementDetail> req);
+
+	//
+	// Returns list of forms for data entry given the user ID.
+	//
+	ResponseEvent<List<FormCtxtSummary>> getForms(RequestEvent<Long> req);
+
+	//
+	// Returns list of records of a given form for a given user.
+	//
+	ResponseEvent<EntityFormRecords> getFormRecords(RequestEvent<GetEntityFormRecordsOp> req);
+
+	//
+	// Returns list of records of all forms for a given user.
+	//
+	ResponseEvent<List<FormRecordsList>> getAllFormRecords(RequestEvent<Long> req);
 }

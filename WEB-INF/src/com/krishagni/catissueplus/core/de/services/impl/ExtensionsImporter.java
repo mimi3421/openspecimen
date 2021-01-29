@@ -11,6 +11,8 @@ import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import com.krishagni.catissueplus.core.administrative.domain.User;
+import com.krishagni.catissueplus.core.administrative.domain.factory.UserErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
@@ -21,6 +23,7 @@ import com.krishagni.catissueplus.core.biospecimen.domain.factory.VisitErrorCode
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.biospecimen.services.SpecimenResolver;
 import com.krishagni.catissueplus.core.common.errors.ActivityStatusErrorCode;
+import com.krishagni.catissueplus.core.common.errors.CommonErrorCode;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
 import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
@@ -41,6 +44,7 @@ import edu.common.dynamicextensions.domain.nui.SignatureControl;
 import edu.common.dynamicextensions.domain.nui.SubFormControl;
 import edu.common.dynamicextensions.napi.FormData;
 import edu.common.dynamicextensions.nutility.FileUploadMgr;
+import krishagni.catissueplus.beans.FormContextBean;
 
 public class ExtensionsImporter implements ObjectImporter<Map<String, Object>, Map<String, Object>> {
 	
@@ -105,6 +109,7 @@ public class ExtensionsImporter implements ObjectImporter<Map<String, Object>, M
 		String entityType = params.get("entityType");
 		Long objectId = null;
 		CollectionProtocol cp = null;
+		Long entityId = null;
 
 		if (entityType.equals("Participant") || entityType.equals("CommonParticipant")) {
 			String cpShortTitle = (String)extnObj.get("cpShortTitle");
@@ -145,6 +150,19 @@ public class ExtensionsImporter implements ObjectImporter<Map<String, Object>, M
 			Specimen specimen = specimenResolver.getSpecimen(null, cpShortTitle, label, barcode);
 			objectId = specimen.getId();
 			cp = specimen.getCollectionProtocol();
+		} else if (entityType.equals("User")) {
+			String emailId = (String) extnObj.get("emailAddress");
+			if (StringUtils.isBlank(emailId)) {
+				return ResponseEvent.userError(UserErrorCode.EMAIL_REQUIRED);
+			}
+
+			User user = daoFactory.getUserDao().getUserByEmailAddress(emailId);
+			if (user == null) {
+				return ResponseEvent.userError(UserErrorCode.NOT_FOUND, emailId);
+			}
+
+			objectId = user.getId();
+			entityId = user.getInstitute().getId();
 		}
 
 		String formName = params.get("formName");
@@ -152,10 +170,20 @@ public class ExtensionsImporter implements ObjectImporter<Map<String, Object>, M
 		if (form == null) {
 			return ResponseEvent.userError(FormErrorCode.NOT_FOUND, formName, 1);
 		}
-		
-		Long formCtxId = formDao.getFormCtxtId(form.getId(), entityType, cp.getId());
-		if (formCtxId == null) {
-			return ResponseEvent.userError(FormErrorCode.NO_ASSOCIATION, cp.getShortTitle(), form.getCaption());
+
+		Long formCtxId = null;
+		if (entityType.equals("User")) {
+			FormContextBean fc  = formDao.getFormContext(false, "User", entityId, form.getId());
+			if (fc == null) {
+				return ResponseEvent.userError(CommonErrorCode.INVALID_INPUT, "Form is not associated at users level for the institute: " + entityId);
+			}
+
+			formCtxId = fc.getIdentifier();
+		} else {
+			formCtxId = formDao.getFormCtxtId(form.getId(), entityType, cp.getId());
+			if (formCtxId == null) {
+				return ResponseEvent.userError(FormErrorCode.NO_ASSOCIATION, cp.getShortTitle(), form.getCaption());
+			}
 		}
 		
 		Map<String, Object> appData = new HashMap<>();

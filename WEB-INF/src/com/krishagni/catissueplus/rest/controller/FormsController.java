@@ -80,6 +80,9 @@ public class FormsController {
 		@RequestParam(value = "cpId", required = false)
 		List<Long> cpIds,
 
+		@RequestParam(value = "entityId", required = false)
+		List<Long> entityIds,
+
 		@RequestParam(value = "formType", required = false)
 		List<String> formTypes,
 
@@ -98,6 +101,7 @@ public class FormsController {
 		FormListCriteria crit = new FormListCriteria()
 			.query(name)
 			.cpIds(cpIds)
+			.entityIds(entityIds)
 			.entityTypes(formTypes)
 			.excludeSysForm(excludeSysForms)
 			.includeStat(includeStat)
@@ -119,6 +123,9 @@ public class FormsController {
 		@RequestParam(value = "cpId", required = false)
 		List<Long> cpIds,
 
+		@RequestParam(value = "entityId", required = false)
+		List<Long> entityIds,
+
 		@RequestParam(value="formType", required = false)
 		List<String> formTypes,
 
@@ -128,6 +135,7 @@ public class FormsController {
 		FormListCriteria crit = new FormListCriteria()
 			.query(name)
 			.cpIds(cpIds)
+			.entityIds(entityIds)
 			.entityTypes(formTypes)
 			.excludeSysForm(excludeSysForms);
 		
@@ -340,12 +348,16 @@ public class FormsController {
 		String entityType,
 			
 		@RequestParam(value = "cpId")
-		Long cpId) {
+		Long cpId,
+
+		@RequestParam(value = "entityId", required = false)
+		Long entityId) {
 		
 		RemoveFormContextOp op = new RemoveFormContextOp();
 		op.setCpId(cpId);
 		op.setFormId(formId);
 		op.setEntityType(entityType);
+		op.setEntityId(entityId);
 		op.setRemoveType(RemoveType.SOFT_REMOVE);
 		return Collections.singletonMap("status", ResponseEvent.unwrap(formSvc.removeFormContext(RequestEvent.wrap(op))));
     }

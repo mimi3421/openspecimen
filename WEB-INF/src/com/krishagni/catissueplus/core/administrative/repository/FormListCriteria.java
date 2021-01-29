@@ -19,6 +19,8 @@ public class FormListCriteria extends AbstractListCriteria<FormListCriteria> {
 
 	private Set<SiteCpPair> siteCps;
 
+	private List<Long> entityIds;
+
 	@Override
 	public FormListCriteria self() {
 		return this;
@@ -75,6 +77,15 @@ public class FormListCriteria extends AbstractListCriteria<FormListCriteria> {
 
 	public FormListCriteria siteCps(Set<SiteCpPair> siteCps) {
 		this.siteCps = siteCps;
+		return self();
+	}
+
+	public List<Long> entityIds() {
+		return entityIds;
+	}
+
+	public FormListCriteria entityIds(List<Long> entityIds) {
+		this.entityIds = entityIds;
 		return self();
 	}
 }

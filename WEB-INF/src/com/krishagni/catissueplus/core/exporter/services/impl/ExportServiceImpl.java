@@ -706,7 +706,7 @@ public class ExportServiceImpl implements ExportService {
 		if (job.getName().equals(EXTENSIONS)) {
 			entityName = job.getParams().get("formName") + " (" + job.getParams().get("entityType") + ")";
 		} else {
-			entityName = getMsg("export_entities_" + job.getName());
+			entityName = getMsg("export_entities_" + job.getName(), job.param("formName"));
 		}
 
 		return entityName;

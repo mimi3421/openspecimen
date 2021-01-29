@@ -1113,7 +1113,8 @@ public class ImportServiceImpl implements ImportService, ApplicationListener<Con
 			if (job.getName().equals(EXTENSIONS)) {
 				entityName = job.getParams().get("formName") + " (" + job.getParams().get("entityType") + ")";
 			} else {
-				entityName = getMsg("bulk_import_entities_" + job.getName());
+				String formName = job.getParams() != null ? job.getParams().get("formName") : null;
+				entityName = getMsg("bulk_import_entities_" + job.getName(), formName);
 			}
 
 			return entityName;

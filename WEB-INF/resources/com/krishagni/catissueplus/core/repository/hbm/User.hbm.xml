@@ -197,5 +197,65 @@
       where
         u.emailAddress in (:emailIds)
     </query>
+
+    <sql-query name="getForms">
+      <return-scalar column="formCtxtId" type="long"/>
+      <return-scalar column="formId" type="long"/>
+      <return-scalar column="formName" type="string"/>
+      <return-scalar column="formCaption" type="string"/>
+      <return-scalar column="entityId" type="long"/>
+      <return-scalar column="entityType" type="string"/>
+      <return-scalar column="creationTime" type="timestamp"/>
+      <return-scalar column="modificationTime" type="timestamp"/>
+      <return-scalar column="userId" type="long"/>
+      <return-scalar column="userFirstName" type="string"/>
+      <return-scalar column="userLastName" type="string"/>
+      <return-scalar column="multirecord" type="boolean"/>
+      <return-scalar column="sysForm" type="boolean"/>
+      <return-scalar column="recordCnt" type="integer"/>
+
+      select
+        fc.identifier as formCtxtId, fc.container_id as formId, c.name as formName, c.caption as formCaption,
+        fc.entity_id as entityId, fc.entity_type as entityType, c.create_time as creationTime,
+        case when c.last_modify_time is null then c.create_time else c.last_modify_time end as modificationTime,
+        u.identifier as userId, u.first_name as userFirstName, u.last_name as userLastName,
+        fc.is_multirecord as multirecord, fc.is_sys_form as sysForm,
+        count(r.identifier) as recordCnt
+      from
+        catissue_form_context fc
+        inner join dyextn_containers c on c.identifier = fc.container_id
+        inner join catissue_user u on u.identifier = c.created_by
+        left join catissue_user usrEntity on usrEntity.institute_id = fc.entity_id
+        left join catissue_form_record_entry r
+          on r.form_ctxt_id = fc.identifier and r.object_id = :userId and r.activity_status = 'ACTIVE'
+      where
+        c.deleted_on is null and
+        fc.deleted_on is null and
+        fc.entity_type = 'User' and (usrEntity.identifier = :userId or fc.entity_id = -1)
+      group by
+        fc.identifier, fc.container_id, c.name, c.caption, fc.entity_id, fc.entity_type,
+        c.create_time, c.last_modify_time, u.identifier, u.first_name, u.last_name,
+        fc.is_multirecord, fc.is_sys_form
+    </sql-query>
+
+    <sql-query name="getFormRecords">
+      select
+        institute.identifier as instituteId, institute.name as instituteName,
+        user.identifier as userId, user.email_address as emailId, re.record_id as recordId
+      from
+        catissue_user user
+        inner join catissue_institution institute on institute.identifier = user.institute_id
+        inner join catissue_form_context fc on (fc.entity_id = institute.identifier or fc.entity_id = -1) and fc.entity_type = 'User'
+        inner join catissue_form_record_entry re on re.form_ctxt_id = fc.identifier and re.object_id = user.identifier
+      where
+        user.activity_status != 'Disabled' and
+        institute.activity_status != 'Disabled' and
+        fc.deleted_on is null and
+        re.activity_status = 'ACTIVE' and
+        fc.container_id = :formId
+      order by
+        user.identifier, re.record_id
+    </sql-query>
+
   </class>
 </hibernate-mapping>

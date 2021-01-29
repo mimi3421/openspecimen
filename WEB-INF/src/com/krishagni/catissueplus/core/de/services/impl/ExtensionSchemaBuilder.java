@@ -108,6 +108,8 @@ public class ExtensionSchemaBuilder implements ObjectSchemaBuilder {
 			fields.add(getField("cpShortTitle", "CP Short Title"));
 			fields.add(getField("specimenLabel", "Specimen Label"));
 			fields.add(getField("barcode", "Barcode"));
+		} else if (entityType.equals("User")) {
+			fields.add(getField("emailAddress", "Email Address"));
 		}
 		
 		fields.add(getField("activityStatus", "Activity Status"));

@@ -1,6 +1,6 @@
 
 angular.module('os.administrative.models.user', ['os.common.models'])
-  .factory('User', function(osModel, $http, $translate, ApiUtil) {
+  .factory('User', function(osModel, $http, $translate, Form, ApiUtil) {
     var User =
       osModel(
         'users',
@@ -92,6 +92,15 @@ angular.module('os.administrative.models.user', ['os.common.models'])
       }
 
       return false;
+    }
+
+    User.prototype.getForms = function(params) {
+      return Form.listFor(User.url(), this.$id(), params);
+    }
+
+    User.prototype.getRecords = function() {
+      var url = User.url() + this.$id() + '/form-records';
+      return Form.listRecords(url);
     }
 
     User.sendPasswordResetLink = function(user) {

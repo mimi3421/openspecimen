@@ -136,6 +136,12 @@
           </a>
         </li>
         <li>
+          <a ui-sref="user-import({objectType: 'extensions'})">
+            <span class="fa fa-files-o"></span>
+            <span translate="user.menu.forms">Forms</span>
+          </a>
+        </li>
+        <li>
           <a ui-sref="user-import-jobs">
             <span class="fa fa-list-alt"></span>
             <span translate="bulk_imports.view_jobs">View Jobs</span>
@@ -160,6 +166,12 @@
           <a ng-click="exportUserRoles()">
             <span class="fa fa-lock"></span>
             <span translate="user.user_roles">User Roles</span>
+          </a>
+        </li>
+        <li>
+          <a ui-sref="user-export-forms">
+            <span class="fa fa-files-o"></span>
+            <span translate="user.menu.forms">Forms</span>
           </a>
         </li>
       </ul>
@@ -243,6 +255,12 @@
           <a ng-click="exportUserRoles()">
             <span class="fa fa-lock"></span>
             <span translate="user.user_roles">User Roles</span>
+          </a>
+        </li>
+        <li>
+          <a ng-click="exportUserForms()">
+            <span class="fa fa-files-o"></span>
+            <span translate="user.menu.forms">Forms</span>
           </a>
         </li>
       </ul>

@@ -1318,6 +1318,9 @@
     "empty_list": "No users to show!",
     "loading_list": "Loading users, please wait for a moment...",
     "disable_notifs": "Disable Notifications?",
+    "no_forms": "No user forms",
+    "email_ids": "Email Addresses",
+    "email_ids_csv": "Comma separated list of users' email addresses",
 
     "confirm_institute_update_title": "Update Institute?",
     "confirm_institute_update_q": "Changing the institute will remove all the site specific roles assigned to the {{count > 1 ? 'users' : 'user'}}. Are you sure you want to proceed?",
@@ -1329,8 +1332,10 @@
     "user_roles": "User Roles",
     "bulk_import_users": "Import Users",
     "bulk_import_user_roles": "Import User Roles",
+    "bulk_import_user_forms": "Import User Forms",
     "bulk_import_jobs": "Import Users Job List",
     "bulk_update_users": "Bulk Update Users",
+    "export_user_forms": "Export User Forms",
 
     "role": {
        "roles": "Roles",
@@ -1381,7 +1386,8 @@
       
     "menu": {
       "overview": "Overview",
-      "roles": "Roles"
+      "roles": "Roles",
+      "forms": "Forms"
     },
     
     "types": {
@@ -1784,9 +1790,12 @@
     "single_record": "Single Record",
     "collection_protocol": "Collection Protocol",
     "level": "Level",
+    "group": "Group",
     "multiple_records_allowed": "Multiple records allowed",
     "all_cps": "All Present and Future Collection Protocols",
     "select_cps": "Select One or More Collection Protocols",
+    "all_institutes": "All Present and Future Institutes",
+    "select_institutes": "Select One or More Institutes",
     "select_level": "Select Level",
     "attach_form": "Attach Form",
     "attached": "Form successfully attached!",
@@ -2121,7 +2130,8 @@
     "dp_extension": "Distribution Protocol Custom Fields",
     "dp_req_extension": "DP Requirement Custom Fields",
     "order_extension": "Order Custom Fields",
-    "container_extension": "Container Custom Fields"
+    "container_extension": "Container Custom Fields",
+    "user": "User Forms"
   },
 
   "bulk_imports": {
@@ -2170,6 +2180,7 @@
     "object_types": {
       "user": "Users",
       "userRoles": "User Roles",
+      "userExtensions": "{{params.formName}}",
       "institute": "Institutes",
       "site": "Sites",
       "storageContainer": "Containers",

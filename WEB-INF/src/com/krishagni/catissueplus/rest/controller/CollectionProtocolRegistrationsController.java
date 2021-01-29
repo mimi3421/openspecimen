@@ -287,8 +287,12 @@ public class CollectionProtocolRegistrationsController {
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}/forms/{formCtxtId}/records")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
-	public EntityFormRecords getFormRecords(@PathVariable("id") Long cprId,
-			@PathVariable("formCtxtId") Long formCtxtId) { // TODO: Remove
+	public EntityFormRecords getFormRecords(
+		@PathVariable("id")
+		Long cprId,
+
+		@PathVariable("formCtxtId")
+		Long formCtxtId) {
 
 		GetEntityFormRecordsOp opDetail = new GetEntityFormRecordsOp();
 		opDetail.setEntityId(cprId);

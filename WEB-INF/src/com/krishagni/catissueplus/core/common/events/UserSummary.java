@@ -10,10 +10,12 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.common.util.Utility;
 
 @JsonFilter("withoutId")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserSummary implements Serializable {
 	
 	private static final long serialVersionUID = -8113791999197573026L;
@@ -31,6 +33,8 @@ public class UserSummary implements Serializable {
 	private String domain;
 	
 	private String emailAddress;
+
+	private Long instituteId;
 
 	private String instituteName;
 
@@ -102,6 +106,14 @@ public class UserSummary implements Serializable {
 
 	public void setEmailAddress(String emailAddress) {
 		this.emailAddress = emailAddress;
+	}
+
+	public Long getInstituteId() {
+		return instituteId;
+	}
+
+	public void setInstituteId(Long instituteId) {
+		this.instituteId = instituteId;
 	}
 
 	public String getInstituteName() {
@@ -201,6 +213,7 @@ public class UserSummary implements Serializable {
 		result.setActivityStatus(user.getActivityStatus());
 
 		if (user.getInstitute() != null) {
+			result.setInstituteId(user.getInstitute().getId());
 			result.setInstituteName(user.getInstitute().getName());
 		}
 
