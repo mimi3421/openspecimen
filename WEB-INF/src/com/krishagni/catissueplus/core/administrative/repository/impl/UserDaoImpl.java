@@ -14,6 +14,8 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.criterion.DetachedCriteria;
@@ -41,6 +43,8 @@ import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.catissueplus.core.de.events.FormCtxtSummary;
 
 public class UserDaoImpl extends AbstractDao<User> implements UserDao {
+
+	private static final Log logger = LogFactory.getLog(UserDaoImpl.class);
 	
 	@Override
 	public Class<?> getType() {
@@ -279,6 +283,7 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 			query.setParameterList("emailIds", emailIds);
 		}
 
+		logger.info("Executing the query: " + sql + "\n;" + query.getQueryString());
 		return ((List<Object[]>)query.list()).stream()
 			.map(
 				(row) -> {
