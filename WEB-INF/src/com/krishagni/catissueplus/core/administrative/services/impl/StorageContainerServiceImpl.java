@@ -1608,8 +1608,6 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 		}
 	}
 
-
-
 	private QueryDataExportResult exportResult(final StorageContainer container, SavedQuery query) {
 		Filter filter = new Filter();
 		filter.setField("Specimen.specimenPosition.allAncestors.ancestorId");
