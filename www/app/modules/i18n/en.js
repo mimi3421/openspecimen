@@ -98,6 +98,9 @@
     "clear_field_values_q": "Clear Field Values?",
     "confirm_clear_field_values": "One or more fields values are blank. Are you sure you want to proceed with clearing values of such fields?",
     "select_field": "Select Field",
+    "select_widgets": "Select Widgets",
+    "widget": "Widget",
+    "width": "Width",
 
     "interval_units": {
       "DAYS": "Days",
@@ -169,7 +172,8 @@
       "hide_activity": "Hide Activity",
       "patient_mode": "Patient Mode",
       "refresh": "Refresh",
-      "dismiss": "Dismiss"
+      "dismiss": "Dismiss",
+      "settings": "Settings"
     }
   },
 

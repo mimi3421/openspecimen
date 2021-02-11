@@ -33,6 +33,8 @@ public abstract class AbstractListCriteria<T extends ListCriteria<T>> implements
 
 	private boolean asc = true;
 
+	private boolean orderByStarred;
+
 	@Override
 	public Long lastId() {
 		return lastId;
@@ -167,6 +169,15 @@ public abstract class AbstractListCriteria<T extends ListCriteria<T>> implements
 
 	public T asc(boolean asc) {
 		this.asc = asc;
+		return self();
+	}
+
+	public boolean orderByStarred() {
+		return orderByStarred;
+	}
+
+	public T orderByStarred(boolean orderByStarred) {
+		this.orderByStarred = orderByStarred;
 		return self();
 	}
 	

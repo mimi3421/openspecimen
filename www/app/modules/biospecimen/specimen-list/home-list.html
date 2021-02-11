@@ -1,0 +1,14 @@
+
+<div ng-controller="HomeSpecimenListCtrl">
+  <table class="os-table">
+    <tbody class="os-table-body">
+      <tr class="row" ng-repeat="list in lists">
+        <td class="col">
+          <a ui-sref="specimen-list({listId: list.id})">
+            <span>{{list.name}}</span>
+          </a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

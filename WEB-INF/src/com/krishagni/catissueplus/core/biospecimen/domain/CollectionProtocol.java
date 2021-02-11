@@ -161,6 +161,8 @@ public class CollectionProtocol extends BaseExtensionEntity {
 
 	private Set<DistributionProtocol> distributionProtocols = new HashSet<>();
 
+	private Set<User> starred = new HashSet<>();
+
 	private Long catalogId;
 
 	public static String getEntityName() {
@@ -589,6 +591,15 @@ public class CollectionProtocol extends BaseExtensionEntity {
 
 	public void setDistributionProtocols(Set<DistributionProtocol> distributionProtocols) {
 		this.distributionProtocols = distributionProtocols;
+	}
+
+	@NotAudited
+	public Set<User> getStarred() {
+		return starred;
+	}
+
+	public void setStarred(Set<User> starred) {
+		this.starred = starred;
 	}
 
 	public Long getCatalogId() {

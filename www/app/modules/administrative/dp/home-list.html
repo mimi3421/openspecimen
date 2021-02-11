@@ -1,0 +1,13 @@
+<div ng-controller="HomeDpListCtrl">
+  <table class="os-table">
+    <tbody class="os-table-body">
+      <tr class="row" ng-repeat="dp in dps">
+        <td class="col">
+          <a ui-sref="dp-detail.overview({dpId: dp.id})">
+            <span>{{dp.shortTitle}}</span>
+          </a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

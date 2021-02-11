@@ -1,0 +1,17 @@
+<div class="os-home-widgets">
+  <div class="os-home-widget col-{{widget.width}}" ng-repeat="widget in widgets">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <span translate="{{widget.title}}"></span>
+        <span class="os-btns right">
+          <a class="btn btn-xs btn-default" ui-sref="{{widget.detailedList}}">
+            <span class="fa fa-expand"></span>
+          </a>
+        </span>
+      </div>
+      <div class="panel-body">
+        <span ng-include="widget.template"></span>
+      </div>
+    </div>
+  </div>
+</div>

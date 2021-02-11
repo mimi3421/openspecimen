@@ -116,7 +116,7 @@
       <filter name="activeEntity"/>
     </set>
 
-    <set name="coordinators" table="CATISSUE_COLL_COORDINATORS" inverse="false" cascade="none" sort="unsorted">
+    <set name="coordinators" table="CATISSUE_COLL_COORDINATORS" cascade="none">
       <key column="COLLECTION_PROTOCOL_ID"/>
       <many-to-many class="com.krishagni.catissueplus.core.administrative.domain.User" column="USER_ID"/>
     </set>
@@ -132,13 +132,13 @@
       <filter name="activeEntity"/>
     </set>
     
-    <set name="collectionProtocolRegistrations" inverse="false" cascade="none">
+    <set name="collectionProtocolRegistrations" cascade="none">
       <key column="COLLECTION_PROTOCOL_ID"/>
       <one-to-many class="com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration"/>
       <filter name="activeEntity"/>
     </set>
     
-    <set name="storageContainers" table="OS_STOR_CONTAINER_CPS" inverse="false">
+    <set name="storageContainers" table="OS_STOR_CONTAINER_CPS">
       <key column="CP_ID"/>
       <many-to-many class="com.krishagni.catissueplus.core.administrative.domain.StorageContainer" column="STORAGE_CONTAINER_ID">
         <filter name="activeEntity" condition="activity_status != 'Disabled'"/>
@@ -150,6 +150,11 @@
       <many-to-many class="com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol" column="DP_ID">
         <filter name="activeEntity" condition="activity_status != 'Disabled'"/>
       </many-to-many>
+    </set>
+
+    <set name="starred" table="OS_STARRED_CPS_VIEW">
+      <key column="CP_ID"/>
+      <many-to-many class="com.krishagni.catissueplus.core.administrative.domain.User" column="USER_ID"/>
     </set>
     
     <filter name="activeEntity"/>

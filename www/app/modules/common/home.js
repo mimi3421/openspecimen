@@ -1,8 +1,10 @@
 angular.module('openspecimen')
-  .factory('HomePageSvc', function($q, $translate) {
+  .factory('HomePageSvc', function($q, $translate, AuthorizationService) {
     var pageCards = [];
 
     var sorted = false;
+
+    var widgets = [];
 
     function registerCards(cards) {
       angular.forEach(cards, registerCard);
@@ -105,12 +107,43 @@ angular.module('openspecimen')
       );
     }
 
+    function registerUserWidgets(inputWidgets) {
+      angular.forEach(inputWidgets, registerUserWidget);
+    }
+
+    function registerUserWidget(inputWidget) {
+      widgets.push(inputWidget);
+    }
+
+    function getUserWidgets() {
+      var user = AuthorizationService.currentUser();
+      return widgets.filter(
+        function(widget) {
+          if (widget.showIf == 'institute-admin') {
+            return user.admin || user.instituteAdmin;
+          } else if (widget.showIf == 'admin') {
+            return user.admin;
+          } else if (widget.showIf) {
+            return AuthorizationService.isAllowed(widget.showIf);
+          } else {
+            return true;
+          }
+        }
+      );
+    }
+
     return {
       registerCard: registerCard,
 
       registerCards: registerCards,
 
-      renderElements: renderElements
+      renderElements: renderElements,
+
+      registerUserWidget: registerUserWidget,
+
+      registerUserWidgets: registerUserWidgets,
+
+      getUserWidgets: getUserWidgets
     }
   })
 
@@ -155,6 +188,154 @@ angular.module('openspecimen')
         );
       }
     }
+  })
+
+  .directive('osUserHomePageItems', function() {
+    return {
+      restrict: 'E',
+
+      replace: true,
+
+      templateUrl: 'modules/common/user-home-page-items.html',
+
+      scope: {
+        widgets: '='
+      },
+
+      link: function(scope, element, attrs) {
+      }
+    }
+  })
+
+  .controller('HomePageCtrl', function(
+    $scope, $state, $window, $rootScope, $modal, $timeout,
+    userUiState, User, HomePageSvc) {
+
+    function init() {
+      var allWidgets = HomePageSvc.getUserWidgets();
+      $scope.showWidgets = true;
+      $scope.showSettings = allWidgets.length > 0;
+      $scope.widgets = filterWidgets(allWidgets);
+
+      var localStore = $window.localStorage;
+      if (!localStore['osReqState']) {
+        return;
+      }
+
+      var reqState = JSON.parse(localStore['osReqState']);
+      if (reqState.name != $rootScope.state.name) {
+        delete localStore['osReqState'];
+        $state.go(reqState.name, reqState.params);
+      }
+    }
+
+    function filterWidgets(allWidgets) {
+      if (!userUiState.widgets) {
+        return angular.copy(allWidgets);
+      }
+
+      var wmap = {};
+      var widgets = [];
+      angular.forEach(allWidgets, function(w) { wmap[w.name] = w; });
+      angular.forEach(userUiState.widgets || [],
+        function(uw) {
+          if (!wmap[uw.name]) {
+            return;
+          }
+
+          var widget = angular.copy(wmap[uw.name]);
+          angular.extend(uw, angular.extend(widget, uw));
+          uw.selected = true;
+          widgets.push(uw);
+        }
+      );
+
+      return widgets;
+    }
+
+    $scope.openSettings = function() {
+      $modal.open({
+        templateUrl: 'modules/common/user-home-page-settings.html',
+        controller: function($scope, $modalInstance, userWidgets, widgets) {
+          var wmap = {};
+          angular.forEach(widgets,
+            function(w) {
+              wmap[w.name] = w;
+              w.selected = !userWidgets;
+            }
+          );
+
+          userWidgets = userWidgets || [];
+          angular.forEach(userWidgets,
+            function(uw) {
+              if (wmap[uw.name]) {
+                angular.extend(uw, angular.extend(wmap[uw.name], uw));
+              }
+
+              delete wmap[uw.name];
+            }
+          );
+
+          angular.forEach(widgets,
+            function(w) {
+              if (wmap[w.name]) {
+                userWidgets.push(w);
+              }
+            }
+          );
+
+          var sctx = $scope.sctx = {
+            display: true,
+            widgets: userWidgets,
+            widths: [1, 2, 3, 4, 5, 6],
+            sortOpts: {
+              handle: '.handle',
+              stop: function(event, ui) {
+                sctx.display = false;
+                $timeout(function() { sctx.display = true; });
+              }
+            }
+          }
+
+          $scope.save = function() {
+            var selectedWidgets = sctx.widgets.filter(
+              function(widget) {
+                return widget.selected;
+              }
+            );
+
+            var toSave = selectedWidgets.map(function(w) { return {name: w.name, width: w.width}; });
+            User.saveUiState({widgets: toSave}).then(
+              function() {
+                $modalInstance.close(selectedWidgets);
+              }
+            );
+          }
+
+          $scope.cancel = function() {
+            $modalInstance.dismiss('cancel');
+          }
+        },
+        resolve: {
+          userWidgets: function() {
+            return userUiState.widgets && angular.copy(userUiState.widgets);
+          },
+
+          widgets: function() {
+            return angular.copy(HomePageSvc.getUserWidgets());
+          }
+        }
+      }).result.then(
+        function(selectedWidgets) {
+          $scope.showWidgets = false;
+          $scope.widgets = userUiState.widgets = selectedWidgets;
+          $timeout(function() { $scope.showWidgets = selectedWidgets.length > 0; });
+        }
+      );
+    }
+
+    init();
+
   })
 
   .run(function(HomePageSvc) {
@@ -288,6 +469,74 @@ angular.module('openspecimen')
           icon: 'fa fa-wrench',
           title: 'menu.settings',
           description: 'menu.settings_desc'
+        }
+      ]
+    );
+
+    HomePageSvc.registerUserWidgets(
+      [
+        {
+          showIf: {resource: 'CollectionProtocol', operations: ['Read']},
+          name: 'collection-protocols',
+          detailedList: 'cp-list',
+          title: 'menu.collection_protocols',
+          description: 'menu.cp_desc',
+          template: 'modules/biospecimen/cp/home-list.html',
+          width: 2
+        },
+        {
+          showIf: {resources: ['Specimen', 'PrimarySpecimen'], operations: ['Read']},
+          name: 'specimen-lists',
+          detailedList: 'specimen-lists',
+          title: 'menu.specimen_lists',
+          description: 'menu.specimen_lists_desc',
+          template: 'modules/biospecimen/specimen-list/home-list.html',
+          width: 2
+        },
+        {
+          showIf: {resource: 'StorageContainer', operations: ['Read']},
+          name: 'container-list',
+          detailedList: 'container-list',
+          title: 'menu.containers',
+          description: 'menu.containers_desc',
+          template: 'modules/administrative/container/home-list.html',
+          width: 2
+        },
+        {
+          showIf: {resource: 'Query', operations: ['Read']},
+          name: 'query-list',
+          detailedList: 'query-list',
+          title: 'menu.queries',
+          description: 'menu.queries_desc',
+          template: 'modules/query/home-list.html',
+          width: 6
+        },
+        {
+          showIf: {resource: 'DistributionProtocol', operations: ['Read']},
+          name: 'dp-list',
+          detailedList: 'dp-list',
+          title: 'menu.distribution_protocols',
+          description: 'menu.dp_desc',
+          template: 'modules/administrative/dp/home-list.html',
+          width: 2
+        },
+        {
+          showIf: {resource: 'Order', operations: ['Read']},
+          name: 'order-list',
+          detailedList: 'order-list',
+          title: 'menu.distribution_orders',
+          description: 'menu.distribution_orders_desc',
+          template: 'modules/administrative/order/home-list.html',
+          width: 2
+        },
+        {
+          showIf: {resource: 'ShippingAndTracking', operations: ['Read']},
+          name: 'shipment-list',
+          detailedList: 'shipment-list',
+          title: 'menu.shipping_and_tracking',
+          description: 'menu.shipping_and_tracking_desc',
+          template: 'modules/administrative/shipment/home-list.html',
+          width: 2
         }
       ]
     );

@@ -103,18 +103,7 @@ osApp.config(function(
       .state('home', {
         url: '/home',
         templateUrl: 'modules/common/home.html',
-        controller: function($window, $rootScope, $state) {
-          var localStore = $window.localStorage;
-          if (!localStore['osReqState']) {
-            return;
-          }
-
-          var reqState = JSON.parse(localStore['osReqState']);
-          if (reqState.name != $rootScope.state.name) {
-            delete localStore['osReqState'];
-            $state.go(reqState.name, reqState.params);
-          }
-        },
+        controller: 'HomePageCtrl',
         parent: 'signed-in'
       })
       .state('admin-view', {

@@ -22,6 +22,7 @@ import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
+import org.hibernate.sql.JoinType;
 
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolEvent;
@@ -34,20 +35,21 @@ import com.krishagni.catissueplus.core.biospecimen.repository.CpListCriteria;
 import com.krishagni.catissueplus.core.common.access.SiteCpPair;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
 import com.krishagni.catissueplus.core.common.repository.AbstractDao;
+import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.catissueplus.core.common.util.Status;
 
 public class CollectionProtocolDaoImpl extends AbstractDao<CollectionProtocol> implements CollectionProtocolDao {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<CollectionProtocolSummary> getCollectionProtocols(CpListCriteria cpCriteria) {
+	public List<CollectionProtocolSummary> getCollectionProtocols(CpListCriteria crit) {
 		List<CollectionProtocolSummary> cpList = new ArrayList<>();
 		Map<Long, CollectionProtocolSummary> cpMap = new HashMap<>();
 		
-		boolean includePi = cpCriteria.includePi();
-		boolean includeStats = cpCriteria.includeStat();		
+		boolean includePi = crit.includePi();
+		boolean includeStats = crit.includeStat();
 		
-		List<Object[]> rows = getCpList(cpCriteria);
+		List<Object[]> rows = getCpList(crit);
 		for (Object[] row : rows) {
 			CollectionProtocolSummary cp = getCp(row, includePi);
 			if (includeStats) {
@@ -363,20 +365,27 @@ public class CollectionProtocolDaoImpl extends AbstractDao<CollectionProtocol> i
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<Object[]> getCpList(CpListCriteria cpCriteria) {
-		return addProjections(getCpQuery(cpCriteria), cpCriteria)
-				.setMaxResults(cpCriteria.maxResults())
+	private List<Object[]> getCpList(CpListCriteria crit) {
+		Criteria query = getCpQuery(crit);
+		if (crit.orderByStarred() && AuthUtil.getCurrentUser() != null) {
+			Long userId = AuthUtil.getCurrentUser().getId();
+			query.createAlias("starred", "starred", JoinType.LEFT_OUTER_JOIN, Restrictions.eq("starred.id", userId))
+				.addOrder(isOracle() ? Order.asc("starred.id") : Order.desc("starred.id"));
+		}
+
+		return addProjections(query, crit)
+				.setMaxResults(crit.maxResults())
 				.addOrder(Order.asc("shortTitle"))
 				.list();
 	}
 	
-	private Criteria getCpQuery(CpListCriteria cpCriteria) {
-		Criteria query = sessionFactory.getCurrentSession().createCriteria(CollectionProtocol.class)
-				.setFirstResult(cpCriteria.startAt())
+	private Criteria getCpQuery(CpListCriteria crit) {
+		Criteria query = getCurrentSession().createCriteria(CollectionProtocol.class)
+				.setFirstResult(crit.startAt())
 				.add(Restrictions.ne("activityStatus", Status.ACTIVITY_STATUS_DISABLED.getStatus()))
 				.createAlias("principalInvestigator", "pi");
 		
-		return addSearchConditions(query, cpCriteria);
+		return addSearchConditions(query, crit);
 	}
 
 	private Criteria addSearchConditions(Criteria query, CpListCriteria crit) {
@@ -428,7 +437,7 @@ public class CollectionProtocolDaoImpl extends AbstractDao<CollectionProtocol> i
 		return query;
 	}
 	
-	private Criteria addProjections(Criteria query, CpListCriteria cpCriteria) {
+	private Criteria addProjections(Criteria query, CpListCriteria crit) {
 		ProjectionList projs = Projections.projectionList();
 		query.setProjection(projs);
 		
@@ -442,11 +451,15 @@ public class CollectionProtocolDaoImpl extends AbstractDao<CollectionProtocol> i
 		projs.add(Projections.property("specimenCentric"));
 		projs.add(Projections.property("catalogId"));
 
-		if (cpCriteria.includePi()) {
+		if (crit.includePi()) {
 			projs.add(Projections.property("pi.id"));
 			projs.add(Projections.property("pi.firstName"));
 			projs.add(Projections.property("pi.lastName"));
 			projs.add(Projections.property("pi.loginName"));
+		}
+
+		if (crit.orderByStarred() && AuthUtil.getCurrentUser() != null) {
+			projs.add(Projections.property("starred.id"));
 		}
 
 		return query;

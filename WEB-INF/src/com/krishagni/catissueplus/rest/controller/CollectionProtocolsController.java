@@ -116,7 +116,10 @@ public class CollectionProtocolsController {
 			int maxResults,
 			
 			@RequestParam(value = "detailedList", required = false, defaultValue = "false") 
-			boolean detailedList) {
+			boolean detailedList,
+
+			@RequestParam(value = "orderByStarred", required = false, defaultValue = "false")
+			boolean orderByStarred) {
 		
 		CpListCriteria crit = new CpListCriteria()
 			.query(searchStr)
@@ -127,6 +130,7 @@ public class CollectionProtocolsController {
 			.instituteId(instituteId)
 			.includePi(detailedList)
 			.includeStat(detailedList)
+			.orderByStarred(orderByStarred)
 			.startAt(startAt)
 			.maxResults(maxResults);
 
