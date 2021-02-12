@@ -113,6 +113,13 @@ angular.module('os.biospecimen.participant')
         });
       }
 
+      if (cp.id == -1) {
+        importTypes.push({
+          group: group, type: 'containerSpecimen', title: 'specimens.container_specimens',
+          showImportType: false, importType: 'UPDATE'
+        });
+      }
+
       importTypes.push({
         group: group, type: 'specimenDisposal', title: 'participant.specimen_disposal',
         showImportType: false, importType    : 'UPDATE'

@@ -4,4 +4,5 @@ import com.krishagni.catissueplus.core.administrative.domain.StorageContainerPos
 import com.krishagni.catissueplus.core.common.repository.Dao;
 
 public interface StorageContainerPositionDao extends Dao<StorageContainerPosition> {
+	Long getSpecimenIdByPosition(Long containerId, String row, String column);
 }

@@ -30,5 +30,16 @@
     <many-to-one name="occupyingSpecimen" column="OCCUPYING_SPECIMEN_ID" unique="true" cascade="save-update"/>
 
     <many-to-one name="occupyingContainer" column="OCCUPYING_CONTAINER_ID" unique="true"/>
+
+    <sql-query name="getSpecimenIdByPosition">
+      select
+        occupying_specimen_id
+      from
+        os_container_positions
+      where
+        storage_container_id = :containerId and
+        pos_two_str = :rowLabel and
+        pos_one_str = :colLabel
+    </sql-query>
   </class>
 </hibernate-mapping>

@@ -1046,6 +1046,7 @@
         <value>com/krishagni/catissueplus/core/biospecimen/schema/cpr-multiple.xml</value>
         <value>com/krishagni/catissueplus/core/biospecimen/schema/participant.xml</value>
         <value>com/krishagni/catissueplus/core/biospecimen/schema/specimen-disposal.xml</value>
+        <value>com/krishagni/catissueplus/core/biospecimen/schema/container-specimen.xml</value>
       </list>
     </property>
 
@@ -1309,6 +1310,13 @@
         <entry key="specimenDisposal">
           <bean class="com.krishagni.catissueplus.core.biospecimen.services.impl.SpecimenDisposalImporter">
             <property name="specimenSvc" ref="specimenSvc"/>
+          </bean>
+        </entry>
+
+        <entry key="containerSpecimen">
+          <bean class="com.krishagni.catissueplus.core.biospecimen.services.impl.ContainerSpecimensImporter">
+            <property name="daoFactory" ref="biospecimenDaoFactory"/>
+            <property name="spmnSvc" ref="specimenSvc"/>
           </bean>
         </entry>
         

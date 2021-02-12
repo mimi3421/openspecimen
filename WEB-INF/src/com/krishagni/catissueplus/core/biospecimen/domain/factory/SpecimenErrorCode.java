@@ -126,7 +126,13 @@ public enum SpecimenErrorCode implements ErrorCode {
 
 	VISIT_CHG_NOT_ALLOWED,
 
-	LABELS_SRCH_LIMIT_MAXED;
+	LABELS_SRCH_LIMIT_MAXED,
+
+	LOC_NOT_SPECIFIED,
+
+	NO_SPMN_AT_LOC,
+
+	DIMLESS_CONTAINER;
 
 	public String code() {
 		return "SPECIMEN_" + this.name();
