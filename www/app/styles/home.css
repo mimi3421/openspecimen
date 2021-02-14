@@ -117,13 +117,41 @@
 }
 
 .os-home-widgets .os-home-widget input {
-  margin-top: -2px;
   padding: 0px;
   background: transparent;
 }
 
 .os-home-widgets .os-home-widget input:focus {
   background: transparent!important;
+}
+
+.os-home-widgets .os-home-widget .os-card {
+  height: 100%;
+  width: 100%;
+  margin: 0px;
+  padding: 0px 15px;
+}
+
+.os-home-widgets .os-home-widget .os-card .title {
+  margin: 15px 0px;
+  height: 35px;
+}
+
+.os-home-widgets .os-home-widget .os-card .title h5 {
+  display:inline-block;
+  color: inherit;
+  float: left;
+}
+
+.os-home-widgets .os-home-widget .os-card .title .btns {
+  padding-top: 7px;
+  float: right;
+}
+
+.os-home-widgets .os-home-widget .os-card .content {
+  height: 340px;
+  overflow-y: auto;
+  margin-bottom: 20px;
 }
 
 .os-home-widgets-settings .os-table.bulk-edit .os-checkbox {
