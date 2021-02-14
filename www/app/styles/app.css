@@ -1522,10 +1522,9 @@ form .form-group:empty {
 }
 
 /* Fancy scrollbar */
-
 .os-fancy-scroll::-webkit-scrollbar {
-  height:12px;
-  width:12px
+  height: 12px;
+  width: 12px
 }
 
 .os-fancy-scroll::-webkit-scrollbar-thumb:vertical,

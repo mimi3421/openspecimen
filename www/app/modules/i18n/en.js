@@ -173,7 +173,7 @@
       "patient_mode": "Patient Mode",
       "refresh": "Refresh",
       "dismiss": "Dismiss",
-      "settings": "Settings"
+      "widgets": "Widgets"
     }
   },
 
