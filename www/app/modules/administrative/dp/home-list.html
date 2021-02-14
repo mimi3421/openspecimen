@@ -1,7 +1,7 @@
-<div ng-controller="HomeDpListCtrl">
+<div ng-controller="HomeDpListCtrl" ng-init="init(opts)">
   <table class="os-table">
     <tbody class="os-table-body">
-      <tr class="row" ng-repeat="dp in dps">
+      <tr class="row" ng-repeat="dp in ctx.dps">
         <td class="col">
           <a ui-sref="dp-detail.overview({dpId: dp.id})">
             <span>{{dp.shortTitle}}</span>

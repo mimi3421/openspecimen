@@ -1,14 +1,32 @@
 
 angular.module('os.biospecimen.specimenlist')
   .controller('HomeSpecimenListCtrl', function($scope, SpecimenList) {
-    function init() {
-      $scope.lists = [];
-      SpecimenList.query({includeStats: false}).then(
+    var ctx;
+
+    function init(opts) {
+      ctx = $scope.ctx = {
+        defList: undefined,
+        lists: []
+      };
+
+      $scope.$watch('opts.searchTerm', function(newVal) { loadLists(newVal); });
+    }
+
+    function loadLists(searchTerm) {
+      if (!searchTerm && ctx.defList) {
+        ctx.lists = ctx.defList;
+        return;
+      }
+
+      SpecimenList.query({includeStats: false, name: searchTerm, orderByStarred: true, maxResults: 25}).then(
         function(lists) {
-          $scope.lists = lists;
+          ctx.lists = lists;
+          if (!searchTerm) {
+            ctx.defList = lists;
+          }
         }
       );
     }
 
-    init();
+    $scope.init = init;
   });

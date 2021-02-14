@@ -1,8 +1,7 @@
-
-<div ng-controller="HomeSpecimenListCtrl">
+<div ng-controller="HomeSpecimenListCtrl" ng-init="init(opts)">
   <table class="os-table">
     <tbody class="os-table-body">
-      <tr class="row" ng-repeat="list in lists">
+      <tr class="row" ng-repeat="list in ctx.lists">
         <td class="col">
           <a ui-sref="specimen-list({listId: list.id})">
             <span>{{list.name}}</span>

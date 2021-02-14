@@ -1,8 +1,7 @@
-
-<div ng-controller="HomeQueryListCtrl">
+<div ng-controller="HomeQueryListCtrl" ng-init="init(opts)">
   <table class="os-table">
     <tbody class="os-table-body">
-      <tr class="row" ng-repeat="query in queries">
+      <tr class="row" ng-repeat="query in ctx.queries">
         <td class="col">
           <a ui-sref="query-results({queryId: query.id})">
             <span>{{query.title}}</span>

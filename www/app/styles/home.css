@@ -116,6 +116,16 @@
   flex: 0 0 100%;
 }
 
+.os-home-widgets .os-home-widget input {
+  margin-top: -2px;
+  padding: 0px;
+  background: transparent;
+}
+
+.os-home-widgets .os-home-widget input:focus {
+  background: transparent!important;
+}
+
 .os-home-widgets-settings .os-table.bulk-edit .os-checkbox {
   top: 4px;
 }

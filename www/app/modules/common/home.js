@@ -203,8 +203,41 @@ angular.module('openspecimen')
       },
 
       link: function(scope, element, attrs) {
+        var ctx = scope.ctx = { }
+        angular.forEach(scope.widgets,
+          function(widget) {
+            ctx[widget.name] = {name: widget.name, searchMode: false, searchTerm: ''};
+          }
+        );
+
+        scope.openSearch = function(widget) {
+          ctx[widget.name].searchMode = true;
+        }
+
+        scope.closeSearch = function(widget) {
+          ctx[widget.name].searchMode = false;
+          ctx[widget.name].searchTerm = '';
+        }
       }
     }
+  })
+
+  .directive('osUserHomePageItemTmpl', function() {
+    return {
+      restrict: 'E',
+
+      replace: true,
+
+      template: '<span ng-include="widget.template"></span>',
+
+      scope: {
+        widget: '=',
+
+        opts: '='
+      },
+
+      link: function() { }
+    };
   })
 
   .controller('HomePageCtrl', function(

@@ -1,16 +1,28 @@
 <div class="os-home-widgets">
   <div class="os-home-widget col-{{widget.width}}" ng-repeat="widget in widgets">
     <div class="panel panel-default">
-      <div class="panel-heading">
+      <div class="panel-heading" ng-if="!ctx[widget.name].searchMode">
         <span translate="{{widget.title}}"></span>
         <span class="os-btns right">
-          <a class="btn btn-xs btn-default" ui-sref="{{widget.detailedList}}">
+          <button class="btn btn-xs default" ng-click="openSearch(widget)">
+            <span class="fa fa-search"></span>
+          </button>
+          <a class="btn btn-xs default" ui-sref="{{widget.detailedList}}">
             <span class="fa fa-expand"></span>
           </a>
         </span>
       </div>
+      <div class="panel-heading" ng-if="ctx[widget.name].searchMode">
+        <div class="os-input-addon-grp">
+          <input type="text" os-md-input os-focus="true" ng-model="ctx[widget.name].searchTerm"
+            ng-model-options='{ debounce: 1000 }'>
+          <button class="btn btn-xs os-input-addon-right" ng-click="closeSearch(widget)">
+            <span class="fa fa-remove"></span>
+          </button>
+        </div>
+      </div>
       <div class="panel-body">
-        <span ng-include="widget.template"></span>
+        <os-user-home-page-item-tmpl widget="widget" opts="ctx[widget.name]"></os-user-home-page-item-tmpl>
       </div>
     </div>
   </div>

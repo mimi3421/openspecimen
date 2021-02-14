@@ -1,8 +1,7 @@
-
-<div ng-controller="HomeCpListCtrl">
+<div ng-controller="HomeCpListCtrl" ng-init="init(opts)">
   <table class="os-table">
     <tbody class="os-table-body">
-      <tr class="row" ng-repeat="cp in cps">
+      <tr class="row" ng-repeat="cp in ctx.cps">
         <td class="col">
           <a ui-sref="cp-summary-view({cpId: cp.id})">
             <span>{{cp.shortTitle}}</span>
