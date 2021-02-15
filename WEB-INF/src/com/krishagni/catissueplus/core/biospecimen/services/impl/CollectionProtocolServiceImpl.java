@@ -64,7 +64,6 @@ import com.krishagni.catissueplus.core.biospecimen.domain.factory.CpErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.CpReportSettingsFactory;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.CpeErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.CpeFactory;
-import com.krishagni.catissueplus.core.biospecimen.domain.factory.CprErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.SpecimenRequirementFactory;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.SrErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.events.CollectionProtocolDetail;
@@ -203,7 +202,21 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 				return ResponseEvent.response(Collections.emptyList());
 			}
 
-			return ResponseEvent.response(daoFactory.getCollectionProtocolDao().getCollectionProtocols(crit));
+			List<CollectionProtocolSummary> cps = new ArrayList<>();
+			if (crit.orderByStarred()) {
+				List<Long> cpIds = daoFactory.getStarredItemDao()
+					.getItemIds(getObjectName(), AuthUtil.getCurrentUser().getId());
+				if (!cpIds.isEmpty()) {
+					crit.ids(cpIds);
+					cps.addAll(daoFactory.getCollectionProtocolDao().getCollectionProtocols(crit));
+					cps.forEach(cp -> cp.setStarred(true));
+					crit.ids(Collections.emptyList()).notInIds(cpIds);
+				}
+			}
+
+			crit.maxResults(crit.maxResults() - cps.size());
+			cps.addAll(daoFactory.getCollectionProtocolDao().getCollectionProtocols(crit));
+			return ResponseEvent.response(cps);
 		} catch (OpenSpecimenException oce) {
 			return ResponseEvent.error(oce);
 		} catch (Exception e) {

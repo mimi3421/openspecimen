@@ -22,7 +22,6 @@ import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
-import org.hibernate.sql.JoinType;
 
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolEvent;
@@ -35,7 +34,6 @@ import com.krishagni.catissueplus.core.biospecimen.repository.CpListCriteria;
 import com.krishagni.catissueplus.core.common.access.SiteCpPair;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
 import com.krishagni.catissueplus.core.common.repository.AbstractDao;
-import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.catissueplus.core.common.util.Status;
 
 public class CollectionProtocolDaoImpl extends AbstractDao<CollectionProtocol> implements CollectionProtocolDao {
@@ -367,12 +365,6 @@ public class CollectionProtocolDaoImpl extends AbstractDao<CollectionProtocol> i
 	@SuppressWarnings("unchecked")
 	private List<Object[]> getCpList(CpListCriteria crit) {
 		Criteria query = getCpQuery(crit);
-		if (crit.orderByStarred() && AuthUtil.getCurrentUser() != null) {
-			Long userId = AuthUtil.getCurrentUser().getId();
-			query.createAlias("starred", "starred", JoinType.LEFT_OUTER_JOIN, Restrictions.eq("starred.id", userId))
-				.addOrder(isOracle() ? Order.asc("starred.id") : Order.desc("starred.id"));
-		}
-
 		return addProjections(query, crit)
 				.setMaxResults(crit.maxResults())
 				.addOrder(Order.asc("shortTitle"))
@@ -434,6 +426,10 @@ public class CollectionProtocolDaoImpl extends AbstractDao<CollectionProtocol> i
 
 		applyIdsFilter(query, "id", crit.ids());
 		addSiteCpsCond(query, crit.siteCps());
+		if (CollectionUtils.isNotEmpty(crit.notInIds())) {
+			query.add(Restrictions.not(Restrictions.in("id", crit.notInIds())));
+		}
+
 		return query;
 	}
 	
@@ -456,10 +452,6 @@ public class CollectionProtocolDaoImpl extends AbstractDao<CollectionProtocol> i
 			projs.add(Projections.property("pi.firstName"));
 			projs.add(Projections.property("pi.lastName"));
 			projs.add(Projections.property("pi.loginName"));
-		}
-
-		if (crit.orderByStarred() && AuthUtil.getCurrentUser() != null) {
-			projs.add(Projections.property("starred.id"));
 		}
 
 		return query;
@@ -485,10 +477,6 @@ public class CollectionProtocolDaoImpl extends AbstractDao<CollectionProtocol> i
 			user.setLastName((String)fields[idx++]);
 			user.setLoginName((String)fields[idx++]);
 			cp.setPrincipalInvestigator(user);
-		}
-
-		if (idx < fields.length) {
-			cp.setStarred(fields[idx++] != null);
 		}
 
 		return cp;
