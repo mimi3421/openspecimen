@@ -3,10 +3,12 @@ package com.krishagni.catissueplus.core.biospecimen.events;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.common.AttributeModifiedSupport;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
 
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class CollectionProtocolSummary extends AttributeModifiedSupport implements Comparable<CollectionProtocolSummary> {
 	private Long id;
 
@@ -33,6 +35,8 @@ public class CollectionProtocolSummary extends AttributeModifiedSupport implemen
 	private Boolean specimenCentric;
 
 	private Long catalogId;
+
+	private Boolean starred;
 
 	public Long getId() {
 		return id;
@@ -136,6 +140,14 @@ public class CollectionProtocolSummary extends AttributeModifiedSupport implemen
 
 	public void setCatalogId(Long catalogId) {
 		this.catalogId = catalogId;
+	}
+
+	public Boolean getStarred() {
+		return starred;
+	}
+
+	public void setStarred(Boolean starred) {
+		this.starred = starred;
 	}
 
 	@Override

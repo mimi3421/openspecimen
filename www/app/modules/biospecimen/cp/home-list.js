@@ -29,4 +29,15 @@ angular.module('os.biospecimen.cp')
     }
 
     $scope.init = init;
+
+    $scope.toggleStar = function(cp) {
+      var q = cp.starred ? cp.unstar() : cp.star();
+      q.then(
+        function(result) {
+          if (result.status == true) {
+            cp.starred = !cp.starred;
+          }
+        }
+      );
+    }
   });

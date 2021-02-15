@@ -486,8 +486,12 @@ public class CollectionProtocolDaoImpl extends AbstractDao<CollectionProtocol> i
 			user.setLoginName((String)fields[idx++]);
 			cp.setPrincipalInvestigator(user);
 		}
-		
-		return cp;		
+
+		if (idx < fields.length) {
+			cp.setStarred(fields[idx++] != null);
+		}
+
+		return cp;
 	}
 
 	private void addSiteCpsCond(Criteria query, Collection<SiteCpPair> siteCps) {
