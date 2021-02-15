@@ -212,6 +212,11 @@ public class DistributionProtocolDaoImpl extends AbstractDao<DistributionProtoco
 		addDistSitesCondition(query, crit);
 		addExpiredDpsCondition(query, crit);
 		addActivityStatusCondition(query, crit);
+
+		if (CollectionUtils.isNotEmpty(crit.notInIds())) {
+			query.add(Restrictions.not(Restrictions.in("id", crit.notInIds())));
+		}
+
 		return query;
 	}
 	

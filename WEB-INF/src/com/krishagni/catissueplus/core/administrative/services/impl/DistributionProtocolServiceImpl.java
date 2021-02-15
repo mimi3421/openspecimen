@@ -68,6 +68,7 @@ import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 import com.krishagni.catissueplus.core.common.service.ConfigurationService;
 import com.krishagni.catissueplus.core.common.service.ObjectAccessor;
+import com.krishagni.catissueplus.core.common.service.StarredItemService;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.catissueplus.core.common.util.CsvFileWriter;
 import com.krishagni.catissueplus.core.common.util.CsvWriter;
@@ -122,6 +123,8 @@ public class DistributionProtocolServiceImpl implements DistributionProtocolServ
 
 	private ExportService exportSvc;
 
+	private StarredItemService starredItemSvc;
+
 	public void setDaoFactory(DaoFactory daoFactory) {
 		this.daoFactory = daoFactory;
 	}
@@ -162,6 +165,10 @@ public class DistributionProtocolServiceImpl implements DistributionProtocolServ
 		this.exportSvc = exportSvc;
 	}
 
+	public void setStarredItemSvc(StarredItemService starredItemSvc) {
+		this.starredItemSvc = starredItemSvc;
+	}
+
 	@Override
 	@PlusTransactional
 	public ResponseEvent<List<DistributionProtocolDetail>> getDistributionProtocols(RequestEvent<DpListCriteria> req) {
@@ -171,13 +178,28 @@ public class DistributionProtocolServiceImpl implements DistributionProtocolServ
 				return ResponseEvent.response(Collections.emptyList());
 			}
 
-			List<DistributionProtocol> dps = daoFactory.getDistributionProtocolDao().getDistributionProtocols(crit);
-			List<DistributionProtocolDetail> result = DistributionProtocolDetail.from(dps);
-			
+			List<DistributionProtocolDetail> result = new ArrayList<>();
+			if (crit.orderByStarred()) {
+				List<Long> dpIds = daoFactory.getStarredItemDao().getItemIds(getObjectName(), AuthUtil.getCurrentUser().getId());
+				if (!dpIds.isEmpty()) {
+					crit.ids(dpIds);
+					List<DistributionProtocol> dps = daoFactory.getDistributionProtocolDao().getDistributionProtocols(crit);
+					result.addAll(DistributionProtocolDetail.from(dps));
+					result.forEach(dp -> dp.setStarred(true));
+					crit.ids(Collections.emptyList()).notInIds(dpIds);
+				}
+			}
+
+			if (result.size() < crit.maxResults()) {
+				crit.maxResults(crit.maxResults() - result.size());
+				List<DistributionProtocol> dps = daoFactory.getDistributionProtocolDao().getDistributionProtocols(crit);
+				result.addAll(DistributionProtocolDetail.from(dps));
+			}
+
 			if (crit.includeStat()) {
 				addDpStats(result);
 			}
-						
+
 			return ResponseEvent.response(result);
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
@@ -564,6 +586,26 @@ public class DistributionProtocolServiceImpl implements DistributionProtocolServ
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {
 			return ResponseEvent.serverError(e);
+		}
+	}
+
+	@Override
+	@PlusTransactional
+	public boolean toggleStarredDp(Long dpId, boolean starred) {
+		try {
+			DistributionProtocol dp = getDistributionProtocol(dpId);
+			AccessCtrlMgr.getInstance().ensureReadDpRights(dp);
+			if (starred) {
+				starredItemSvc.save(getObjectName(), dp.getId());
+			} else {
+				starredItemSvc.delete(getObjectName(), dp.getId());
+			}
+
+			return true;
+		} catch (OpenSpecimenException e) {
+			throw e;
+		} catch (Exception e) {
+			throw OpenSpecimenException.serverError(e);
 		}
 	}
 

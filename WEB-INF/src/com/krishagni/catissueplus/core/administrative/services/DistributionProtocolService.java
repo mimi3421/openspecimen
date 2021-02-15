@@ -64,4 +64,6 @@ public interface DistributionProtocolService {
 	ResponseEvent<DpConsentTierDetail> updateConsentTier(RequestEvent<DpConsentTierDetail> req);
 
 	ResponseEvent<DpConsentTierDetail> deleteConsentTier(RequestEvent<DpConsentTierDetail> req);
+
+	boolean toggleStarredDp(Long dpId, boolean starred);
 }

@@ -14,13 +14,15 @@ angular.module('os.administrative.dp',
       .state('dp-root', {
         abstract: true,
         template: '<div ui-view></div>',
-        controller: function($scope) {
+        controller: function($scope, AuthorizationService) {
           // Distribution Protocol Authorization Options
           $scope.dpResource = {
             createOpts: {resource: 'DistributionProtocol', operations: ['Create']},
             deleteOpts: {resource: 'DistributionProtocol', operations: ['Delete']},
             importOpts: {resource: 'DistributionProtocol', operations: ['Export Import']}
           }
+
+          $scope.dpDeleteAllowed = AuthorizationService.isAllowed($scope.dpResource.deleteOpts);
         },
         parent: 'signed-in'
       })

@@ -87,6 +87,9 @@ public class DistributionProtocolController {
 
 			@RequestParam(value = "excludeExpiredDps", required = false, defaultValue = "false")
 			boolean excludeExpiredDps,
+
+			@RequestParam(value = "orderByStarred", required = false, defaultValue = "false")
+			boolean orderByStarred,
 			
 			@RequestParam(value = "activityStatus", required = false)
 			String activityStatus) {
@@ -103,6 +106,7 @@ public class DistributionProtocolController {
 			.cpShortTitle(cpShortTitle)
 			.includeStat(includeStats)
 			.excludeExpiredDps(excludeExpiredDps)
+			.orderByStarred(orderByStarred)
 			.activityStatus(activityStatus);
 		
 		ResponseEvent<List<DistributionProtocolDetail>> resp = dpSvc.getDistributionProtocols(getRequest(criteria));
@@ -425,6 +429,20 @@ public class DistributionProtocolController {
 		ResponseEvent<DpConsentTierDetail> resp  = dpSvc.deleteConsentTier(getRequest(dpConsent));
 		resp.throwErrorIfUnsuccessful();
 		return resp.getPayload();
+	}
+
+	@RequestMapping(method = RequestMethod.POST, value = "/{id}/labels")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public Map<String, Boolean> addLabel(@PathVariable("id") Long dpId) {
+		return Collections.singletonMap("status", dpSvc.toggleStarredDp(dpId, true));
+	}
+
+	@RequestMapping(method = RequestMethod.DELETE, value = "/{id}/labels")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public Map<String, Boolean> removeLabel(@PathVariable("id") Long dpId) {
+		return Collections.singletonMap("status", dpSvc.toggleStarredDp(dpId, false));
 	}
 
 	private <T> RequestEvent<T> getRequest(T payload) {

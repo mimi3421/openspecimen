@@ -214,8 +214,11 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 				}
 			}
 
-			crit.maxResults(crit.maxResults() - cps.size());
-			cps.addAll(daoFactory.getCollectionProtocolDao().getCollectionProtocols(crit));
+			if (cps.size() < crit.maxResults()) {
+				crit.maxResults(crit.maxResults() - cps.size());
+				cps.addAll(daoFactory.getCollectionProtocolDao().getCollectionProtocols(crit));
+			}
+
 			return ResponseEvent.response(cps);
 		} catch (OpenSpecimenException oce) {
 			return ResponseEvent.error(oce);

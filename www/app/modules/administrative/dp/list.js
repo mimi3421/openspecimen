@@ -8,7 +8,12 @@ angular.module('os.administrative.dp.list', ['os.administrative.models'])
 
     function init() {
       pagerOpts = $scope.pagerOpts = new ListPagerOpts({listSizeGetter: getDpsCount});
-      filterOpts = $scope.dpFilterOpts = Util.filterOpts({includeStats: true, maxResults: pagerOpts.recordsPerPage + 1});
+      filterOpts = $scope.dpFilterOpts = Util.filterOpts({
+        orderByStarred: true,
+        includeStats: true,
+        maxResults: pagerOpts.recordsPerPage + 1
+      });
+
       ctx = $scope.ctx = {
         exportDetail: {objectType: 'distributionProtocol'},
         emptyState: {
@@ -78,6 +83,17 @@ angular.module('os.administrative.dp.list', ['os.administrative.models'])
 
     $scope.pageSizeChanged = function() {
       filterOpts.maxResults = pagerOpts.recordsPerPage + 1;
+    }
+
+    $scope.toggleStar = function(dp) {
+      var q = dp.starred ? dp.unstar() : dp.star();
+      q.then(
+        function(result) {
+          if (result.status == true) {
+            dp.starred = !dp.starred;
+          }
+        }
+      );
     }
 
     init();

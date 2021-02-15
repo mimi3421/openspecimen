@@ -134,12 +134,11 @@ public class SpecimenListServiceImpl implements SpecimenListService, Initializin
 				}
 			}
 
-			if (lists.size() == crit.maxResults()) {
-				return ResponseEvent.response(lists);
+			if (lists.size() < crit.maxResults()) {
+				crit.maxResults(crit.maxResults() - lists.size());
+				lists.addAll(daoFactory.getSpecimenListDao().getSpecimenLists(crit));
 			}
 
-			crit.maxResults(crit.maxResults() - lists.size());
-			lists.addAll(daoFactory.getSpecimenListDao().getSpecimenLists(crit));
 			return ResponseEvent.response(lists);
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);

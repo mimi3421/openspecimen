@@ -94,6 +94,22 @@ angular.module('os.administrative.models.dp', ['os.common.models'])
       );
     }
 
+    DistributionProtocol.prototype.star = function() {
+      return $http.post(DistributionProtocol.url() + this.$id() + '/labels', {}).then(
+        function(resp) {
+          return resp.data;
+        }
+      );
+    }
+
+    DistributionProtocol.prototype.unstar = function() {
+      return $http.delete(DistributionProtocol.url() + this.$id() + '/labels').then(
+        function(resp) {
+          return resp.data;
+        }
+      );
+    }
+
     DistributionProtocol.getOrders = function(params) {
       return $http.get(DistributionProtocol.url() + 'orders', {params: params}).then(
         function(resp) {

@@ -28,4 +28,15 @@ angular.module('os.administrative.dp')
     }
 
     $scope.init = init;
+
+    $scope.toggleStar = function(dp) {
+      var q = dp.starred ? dp.unstar() : dp.star();
+      q.then(
+        function(result) {
+          if (result.status == true) {
+            dp.starred = !dp.starred;
+          }
+        }
+      );
+    }
   });
