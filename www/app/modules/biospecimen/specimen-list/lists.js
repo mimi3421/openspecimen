@@ -28,7 +28,7 @@ angular.module('os.biospecimen.specimenlist')
 
     function loadLists(filterOpts) {
       ctx.emptyState.loading = true;
-      var params = angular.extend({includeStats: true}, filterOpts);
+      var params = angular.extend({includeStats: true, orderByStarred: true}, filterOpts);
       SpecimenList.query(params).then(
         function(lists) {
           setList(lists);
@@ -42,6 +42,17 @@ angular.module('os.biospecimen.specimenlist')
 
     $scope.viewList = function(list) {
       $state.go('specimen-list', {listId: list.id});
+    }
+
+    $scope.toggleStar = function(list) {
+      var q = list.starred ? list.unstar() : list.star();
+      q.then(
+        function(result) {
+          if (result.status == true) {
+            list.starred = !list.starred;
+          }
+        }
+      );
     }
 
     init();

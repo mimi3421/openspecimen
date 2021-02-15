@@ -1,5 +1,9 @@
 package com.krishagni.catissueplus.core.common.repository.impl;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 import com.krishagni.catissueplus.core.common.domain.StarredItem;
@@ -20,5 +24,16 @@ public class StarredItemDaoImpl extends AbstractDao<StarredItem> implements Star
 			.add(Restrictions.eq("si.itemId", itemId))
 			.add(Restrictions.eq("user.id", userId))
 			.uniqueResult();
+	}
+
+	@Override
+	public List<Long> getItemIds(String itemType, Long userId) {
+		List<Object> rows = getCurrentSession().createCriteria(StarredItem.class, "si")
+			.createAlias("si.user", "user")
+			.setProjection(Projections.property("si.itemId"))
+			.add(Restrictions.eq("si.itemType", itemType))
+			.add(Restrictions.eq("user.id", userId))
+			.list();
+		return rows.stream().map(itemId -> ((Number) itemId).longValue()).collect(Collectors.toList());
 	}
 }

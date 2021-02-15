@@ -29,4 +29,15 @@ angular.module('os.biospecimen.specimenlist')
     }
 
     $scope.init = init;
+
+    $scope.toggleStar = function(list) {
+      var q = list.starred ? list.unstar() : list.star();
+      q.then(
+        function(result) {
+          if (result.status == true) {
+            list.starred = !list.starred;
+          }
+        }
+      );
+    }
   });

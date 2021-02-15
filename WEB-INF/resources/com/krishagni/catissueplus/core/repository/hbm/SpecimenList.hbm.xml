@@ -33,7 +33,7 @@
     </set>
     
     <property name="deletedOn" column="DELETED_ON"/>
-    
+
     <query name="getSpecimenListByName">
       from SpecimenList l where l.name = :name
     </query>

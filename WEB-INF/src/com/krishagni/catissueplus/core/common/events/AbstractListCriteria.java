@@ -29,6 +29,8 @@ public abstract class AbstractListCriteria<T extends ListCriteria<T>> implements
 	
 	private List<Long> ids = new ArrayList<>();
 
+	private List<Long> notInIds = new ArrayList<>();
+
 	private String orderBy;
 
 	private boolean asc = true;
@@ -153,6 +155,19 @@ public abstract class AbstractListCriteria<T extends ListCriteria<T>> implements
 		this.ids = ids;
 		return self();
 	}
+
+	@Override
+	public List<Long> notInIds() {
+		return notInIds;
+	}
+
+	@Override
+	@JsonProperty("notInIds")
+	public T notInIds(List<Long> notInIds) {
+		this.notInIds = notInIds;
+		return self();
+	}
+
 
 	public String orderBy() {
 		return orderBy;

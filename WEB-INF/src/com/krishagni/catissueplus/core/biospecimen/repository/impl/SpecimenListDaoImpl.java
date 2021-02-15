@@ -20,6 +20,7 @@ import com.krishagni.catissueplus.core.biospecimen.events.SpecimenListSummary;
 import com.krishagni.catissueplus.core.biospecimen.repository.SpecimenListDao;
 import com.krishagni.catissueplus.core.biospecimen.repository.SpecimenListsCriteria;
 import com.krishagni.catissueplus.core.common.repository.AbstractDao;
+import com.krishagni.catissueplus.core.common.util.AuthUtil;
 
 public class SpecimenListDaoImpl extends AbstractDao<SpecimenList> implements SpecimenListDao {
 
@@ -34,11 +35,10 @@ public class SpecimenListDaoImpl extends AbstractDao<SpecimenList> implements Sp
 		List<SpecimenListSummary> results = new ArrayList<>();
 		Map<Long, SpecimenListSummary> listMap = new HashMap<>();
 
-		Query query = getSpecimenListsQuery(crit, false)
+		List<SpecimenList> lists = (List<SpecimenList>) getSpecimenListsQuery(crit, false)
 			.setFirstResult(crit.startAt())
-			.setMaxResults(crit.maxResults());
-
-		List<SpecimenList> lists = query.list();
+			.setMaxResults(crit.maxResults())
+			.list();
 		for (SpecimenList list : lists) {
 			SpecimenListSummary summary = SpecimenListSummary.fromSpecimenList(list);
 			results.add(summary);
@@ -164,7 +164,7 @@ public class SpecimenListDaoImpl extends AbstractDao<SpecimenList> implements Sp
 	@Override
 	@Deprecated
 	public Map<Long, List<Specimen>> getListCpSpecimens(Long listId) {
-		List<Object[]> rows = sessionFactory.getCurrentSession()
+		List<Object[]> rows = getCurrentSession()
 			.getNamedQuery(GET_LIST_CP_SPECIMENS)
 			.setLong("listId", listId)
 			.list();
@@ -189,7 +189,7 @@ public class SpecimenListDaoImpl extends AbstractDao<SpecimenList> implements Sp
 	@Override
 	@Deprecated
 	public List<Long> getListSpecimensCpIds(Long listId) {
-		return sessionFactory.getCurrentSession().getNamedQuery(GET_LIST_SPMNS_CP_IDS)
+		return getCurrentSession().getNamedQuery(GET_LIST_SPMNS_CP_IDS)
 			.setLong("listId", listId)
 			.list();
 	}
@@ -221,8 +221,11 @@ public class SpecimenListDaoImpl extends AbstractDao<SpecimenList> implements Sp
 			hql.append(" and l.id in (:ids)");
 		}
 
-		hql.append(" order by l.lastUpdatedOn desc");
-		return hql.toString();
+		if (CollectionUtils.isNotEmpty(crit.notInIds())) {
+			hql.append(" and l.id not in (:notInIds)");
+		}
+
+		return hql.append(" order by l.lastUpdatedOn desc").toString();
 	}
 
 	private Query setParams(Query query, SpecimenListsCriteria crit) {
@@ -236,6 +239,10 @@ public class SpecimenListDaoImpl extends AbstractDao<SpecimenList> implements Sp
 
 		if (CollectionUtils.isNotEmpty(crit.ids())) {
 			query.setParameterList("ids", crit.ids());
+		}
+
+		if (CollectionUtils.isNotEmpty(crit.notInIds())) {
+			query.setParameterList("notInIds", crit.notInIds());
 		}
 
 		return query;

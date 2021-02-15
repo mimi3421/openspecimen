@@ -48,6 +48,7 @@ import com.krishagni.catissueplus.core.common.events.RequestEvent;
 import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
 import com.krishagni.catissueplus.core.common.service.ObjectAccessor;
+import com.krishagni.catissueplus.core.common.service.StarredItemService;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.catissueplus.core.common.util.ConfigUtil;
 import com.krishagni.catissueplus.core.common.util.EmailUtil;
@@ -83,6 +84,8 @@ public class SpecimenListServiceImpl implements SpecimenListService, Initializin
 
 	private QueryService querySvc;
 
+	private StarredItemService starredItemSvc;
+
 	public SpecimenListFactory getSpecimenListFactory() {
 		return specimenListFactory;
 	}
@@ -111,12 +114,33 @@ public class SpecimenListServiceImpl implements SpecimenListService, Initializin
 		this.querySvc = querySvc;
 	}
 
+	public void setStarredItemSvc(StarredItemService starredItemSvc) {
+		this.starredItemSvc = starredItemSvc;
+	}
+
 	@Override
 	@PlusTransactional
 	public ResponseEvent<List<SpecimenListSummary>> getSpecimenLists(RequestEvent<SpecimenListsCriteria> req) {
 		try {
+			List<SpecimenListSummary> lists = new ArrayList<>();
 			SpecimenListsCriteria crit = addSpecimenListsCriteria(req.getPayload());
-			return ResponseEvent.response(daoFactory.getSpecimenListDao().getSpecimenLists(crit));
+			if (crit.orderByStarred()) {
+				List<Long> listIds = daoFactory.getStarredItemDao().getItemIds(getObjectName(), AuthUtil.getCurrentUser().getId());
+				if (!listIds.isEmpty()) {
+					crit.ids(listIds);
+					lists = daoFactory.getSpecimenListDao().getSpecimenLists(crit);
+					crit.ids(Collections.emptyList()).notInIds(listIds);
+					lists.forEach(l -> l.setStarred(true));
+				}
+			}
+
+			if (lists.size() == crit.maxResults()) {
+				return ResponseEvent.response(lists);
+			}
+
+			crit.maxResults(crit.maxResults() - lists.size());
+			lists.addAll(daoFactory.getSpecimenListDao().getSpecimenLists(crit));
+			return ResponseEvent.response(lists);
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {
@@ -380,6 +404,27 @@ public class SpecimenListServiceImpl implements SpecimenListService, Initializin
 	@Override
 	public QueryDataExportResult exportSpecimenList(SpecimenListCriteria crit, BiConsumer<QueryResultData, OutputStream> qdConsumer) {
 		return exportSpecimenList0(crit, qdConsumer);
+	}
+
+	@Override
+	@PlusTransactional
+	public boolean toggleStarredSpecimenList(Long listId, boolean starred) {
+		try {
+			SpecimenList list = getSpecimenList(listId, null);
+			if (starred) {
+				starredItemSvc.save(getObjectName(), list.getId());
+			} else {
+				starredItemSvc.delete(getObjectName(), list.getId());
+			}
+
+			return true;
+		} catch (Exception e) {
+			if (e instanceof OpenSpecimenException) {
+				throw e;
+			}
+
+			throw OpenSpecimenException.serverError(e);
+		}
 	}
 
 	@Override

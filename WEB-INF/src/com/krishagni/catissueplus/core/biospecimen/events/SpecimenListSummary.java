@@ -2,12 +2,14 @@ package com.krishagni.catissueplus.core.biospecimen.events;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenList;
 import com.krishagni.catissueplus.core.common.AttributeModifiedSupport;
 import com.krishagni.catissueplus.core.common.ListenAttributeChanges;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
 
 @ListenAttributeChanges
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class SpecimenListSummary extends AttributeModifiedSupport {
 	private Long id;
 	
@@ -24,6 +26,8 @@ public class SpecimenListSummary extends AttributeModifiedSupport {
 	private boolean defaultList;
 
 	private int specimenCount;
+
+	private Boolean starred;
 
 	public Long getId() {
 		return id;
@@ -87,6 +91,14 @@ public class SpecimenListSummary extends AttributeModifiedSupport {
 
 	public void setSpecimenCount(int specimenCount) {
 		this.specimenCount = specimenCount;
+	}
+
+	public Boolean getStarred() {
+		return starred;
+	}
+
+	public void setStarred(Boolean starred) {
+		this.starred = starred;
 	}
 
 	public static SpecimenListSummary fromSpecimenList(SpecimenList list){

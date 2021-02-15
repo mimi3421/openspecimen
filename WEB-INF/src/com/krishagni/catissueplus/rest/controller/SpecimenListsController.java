@@ -56,11 +56,15 @@ public class SpecimenListsController {
 		int maxResults,
 
 		@RequestParam(value = "includeStats", required = false, defaultValue = "false")
-		boolean includeStats) {
+		boolean includeStats,
+
+		@RequestParam(value = "orderByStarred", required = false, defaultValue = "false")
+		boolean orderByStarred) {
 
 		SpecimenListsCriteria crit = new SpecimenListsCriteria()
 			.query(name)
 			.includeStat(includeStats)
+			.orderByStarred(orderByStarred)
 			.startAt(startAt < 0 ? 0 : startAt)
 			.maxResults(maxResults <=0 ? 100 : maxResults);
 		return response(specimenListSvc.getSpecimenLists(request(crit)));
@@ -293,7 +297,21 @@ public class SpecimenListsController {
 		SpecimenListCriteria crit = new SpecimenListCriteria().specimenListId(listId).ids(specimenIds);
 		return response(specimenListSvc.exportSpecimenList(request(crit)));
 	}
-		
+
+	@RequestMapping(method = RequestMethod.POST, value = "/{id}/labels")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public Map<String, Boolean> addLabel(@PathVariable("id") Long listId) {
+		return Collections.singletonMap("status", specimenListSvc.toggleStarredSpecimenList(listId, true));
+	}
+
+	@RequestMapping(method = RequestMethod.DELETE, value = "/{id}/labels")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public Map<String, Boolean> removeLabel(@PathVariable("id") Long listId) {
+		return Collections.singletonMap("status", specimenListSvc.toggleStarredSpecimenList(listId, false));
+	}
+
 	private <T> RequestEvent<T> request(T payload) {
 		return new RequestEvent<>(payload);
 	}

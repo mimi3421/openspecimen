@@ -52,4 +52,6 @@ public interface SpecimenListService {
 	// Used for internal consumption purpose.
 	//
 	QueryDataExportResult exportSpecimenList(SpecimenListCriteria crit, BiConsumer<QueryResultData, OutputStream> rptConsumer);
+
+	boolean toggleStarredSpecimenList(Long listId, boolean starred);
 }

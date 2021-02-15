@@ -38,4 +38,8 @@ public interface ListCriteria<T extends ListCriteria<T>> {
 	public List<Long> ids();
 	
 	public T ids(List<Long> ids);
+
+	public List<Long> notInIds();
+
+	public T notInIds(List<Long> notInIds);
 }

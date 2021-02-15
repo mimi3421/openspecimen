@@ -90,5 +90,21 @@ angular.module('os.biospecimen.models.specimenlist', ['os.common.models'])
       );
     }
 
+    SpecimenList.prototype.star = function() {
+      return $http.post(SpecimenList.url() + this.$id() + '/labels', {}).then(
+        function(resp) {
+          return resp.data;
+        }
+      );
+    }
+
+    SpecimenList.prototype.unstar = function() {
+      return $http.delete(SpecimenList.url() + this.$id() + '/labels').then(
+        function(resp) {
+          return resp.data;
+        }
+      );
+    }
+
     return SpecimenList;
   });
