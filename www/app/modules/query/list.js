@@ -5,7 +5,7 @@ angular.module('os.query.list', ['os.query.models'])
     Util, SavedQuery, QueryFolder, Alerts) {
 
     function init() {
-      $scope.filterOpts = Util.filterOpts({searchString: ''});
+      $scope.filterOpts = Util.filterOpts({searchString: '', orderByStarred: true});
       $scope.queryList = [];
       $scope.selectedQueries = [];
       $scope.folders = {
@@ -185,6 +185,17 @@ angular.module('os.query.list', ['os.query.models'])
           }
         }
       });
+    }
+
+    $scope.toggleStar = function(query) {
+      var q = query.starred ? query.unstar() : query.star();
+      q.then(
+        function(result) {
+          if (result.status == true) {
+            query.starred = !query.starred;
+          }
+        }
+      );
     }
 
     init();

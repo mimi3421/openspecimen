@@ -60,6 +60,7 @@ import com.krishagni.catissueplus.core.common.events.UserSummary;
 import com.krishagni.catissueplus.core.common.service.ConfigChangeListener;
 import com.krishagni.catissueplus.core.common.service.ConfigurationService;
 import com.krishagni.catissueplus.core.common.service.EmailService;
+import com.krishagni.catissueplus.core.common.service.StarredItemService;
 import com.krishagni.catissueplus.core.common.service.TemplateService;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.catissueplus.core.common.util.ConfigUtil;
@@ -157,6 +158,8 @@ public class QueryServiceImpl implements QueryService {
 
 	private ConfigurationService cfgService;
 
+	private StarredItemService starredItemSvc;
+
 	private int maxConcurrentQueries = DEF_MAX_CONCURRENT_QUERIES;
 
 	private int maxRecsInMemory = DEF_MAX_RECS_IN_MEM;
@@ -220,6 +223,10 @@ public class QueryServiceImpl implements QueryService {
 		});
 	}
 
+	public void setStarredItemSvc(StarredItemService starredItemSvc) {
+		this.starredItemSvc = starredItemSvc;
+	}
+
 	@Override
 	@PlusTransactional
 	public ResponseEvent<SavedQueriesList> getSavedQueries(RequestEvent<ListSavedQueriesCriteria> req) {
@@ -232,11 +239,26 @@ public class QueryServiceImpl implements QueryService {
 			}
 
 			crit.userId(AuthUtil.getCurrentUser().getId());
-			List<SavedQuerySummary> queries = daoFactory.getSavedQueryDao().getQueries(crit);
+
+			List<SavedQuerySummary> queries = new ArrayList<>();
+			if (crit.orderByStarred()) {
+				List<Long> queryIds = starredItemSvc.getItemIds(getObjectName(), AuthUtil.getCurrentUser().getId());
+				if (!queryIds.isEmpty()) {
+					crit.ids(queryIds);
+					queries.addAll(daoFactory.getSavedQueryDao().getQueries(crit));
+					queries.forEach(q -> q.setStarred(true));
+					crit.ids(Collections.emptyList()).notInIds(queryIds);
+				}
+			}
+
+			if (queries.size() < crit.maxResults()) {
+				crit.maxResults(crit.maxResults() - queries.size());
+				queries.addAll(daoFactory.getSavedQueryDao().getQueries(crit));
+			}
 
 			Long count = null;
 			if (crit.countReq()) {
-				count = daoFactory.getSavedQueryDao().getQueriesCount(crit);
+				count = daoFactory.getSavedQueryDao().getQueriesCount(crit.ids(null).notInIds(null));
 			}
 
 			return ResponseEvent.response(SavedQueriesList.create(queries, count));
@@ -940,6 +962,35 @@ public class QueryServiceImpl implements QueryService {
 		if (!querySpaceProviders.contains(qsProvider)) {
 			querySpaceProviders.add(qsProvider);
 		}
+	}
+
+	@Override
+	@PlusTransactional
+	public boolean toggleStarredQuery(Long queryId, boolean starred) {
+		try {
+			ensureReadRights();
+
+			SavedQuery query = daoFactory.getSavedQueryDao().getQuery(queryId);
+			if (query == null) {
+				throw OpenSpecimenException.userError(SavedQueryErrorCode.NOT_FOUND, queryId);
+			}
+
+			if (starred) {
+				starredItemSvc.save(getObjectName(), queryId);
+			} else {
+				starredItemSvc.delete(getObjectName(), queryId);
+			}
+
+			return true;
+		} catch (OpenSpecimenException e) {
+			throw e;
+		} catch (Exception e) {
+			throw OpenSpecimenException.serverError(e);
+		}
+	}
+
+	private String getObjectName() {
+		return "saved_query";
 	}
 
 	private SavedQuery getSavedQuery(SavedQueryDetail detail) {

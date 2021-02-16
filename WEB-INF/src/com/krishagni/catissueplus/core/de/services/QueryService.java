@@ -108,4 +108,6 @@ public interface QueryService {
 	String insertCustomQueryForms(String dirName) ;
 
 	void registerQuerySpaceProvider(QuerySpaceProvider qsProvider);
+
+	boolean toggleStarredQuery(Long queryId, boolean starred);
 }

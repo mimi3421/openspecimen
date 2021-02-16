@@ -1,5 +1,7 @@
 package com.krishagni.catissueplus.core.common.service.impl;
 
+import java.util.List;
+
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.common.domain.StarredItem;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
@@ -45,6 +47,11 @@ public class StarredItemServiceImpl implements StarredItemService {
 		} catch (Exception e) {
 			throw OpenSpecimenException.serverError(e);
 		}
+	}
+
+	@Override
+	public List<Long> getItemIds(String itemType, Long userId) {
+		return daoFactory.getStarredItemDao().getItemIds(itemType, userId);
 	}
 
 	private StarredItem getItem(String itemType, Long itemId) {

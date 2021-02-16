@@ -29,4 +29,15 @@ angular.module('os.query')
     }
 
     $scope.init = init;
+
+    $scope.toggleStar = function(query) {
+      var q = query.starred ? query.unstar() : query.star();
+      q.then(
+        function(result) {
+          if (result.status == true) {
+            query.starred = !query.starred;
+          }
+        }
+      );
+    }
   });

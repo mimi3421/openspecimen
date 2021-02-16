@@ -74,7 +74,7 @@
   <div class="os-table os-table-hover" overflow="auto" ng-if="queryList.queries.length > 0">
     <div class="os-table-head">
       <div class="row">
-        <div class="col col-xs-6" style="padding-left: 20px;" translate="queries.title">
+        <div class="col col-xs-6" style="padding-left: 40px;" translate="queries.title">
           Title
         </div>
         <div class="col col-xs-3" translate="queries.created_by">
@@ -91,8 +91,14 @@
         ng-class="{selected: query.selected}" os-row-click="viewResults(query)">
         <div class="col col-xs-6">
           <div class="clearfix">
-            <div class="pull-left os-query-select-cb os-click-esc">
-              <os-checkbox ng-change="toggleQuerySelect(query)" ng-model="query.selected"></os-checkbox>
+            <div class="pull-left os-click-esc">
+              <div class="os-query-select-cb">
+                <os-checkbox ng-change="toggleQuerySelect(query)" ng-model="query.selected"></os-checkbox>
+              </div>
+              <span class="os-starred-item fa"
+                ng-class="{true: 'fa-star starred', false: 'fa-star-o'}[query.starred == true]"
+                ng-click="toggleStar(query)">
+              </span>
             </div>
             <div class="pull-left" style="padding-left: 12px;">
               <a ui-sref="query-results({queryId: query.id})" title="{{'queries.tooltip.view_records' | translate}}">

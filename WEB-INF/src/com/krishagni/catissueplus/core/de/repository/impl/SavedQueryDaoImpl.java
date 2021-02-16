@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
@@ -23,8 +24,6 @@ import com.krishagni.catissueplus.core.de.domain.SavedQuery;
 import com.krishagni.catissueplus.core.de.events.ListSavedQueriesCriteria;
 import com.krishagni.catissueplus.core.de.events.SavedQuerySummary;
 import com.krishagni.catissueplus.core.de.repository.SavedQueryDao;
-
-import org.springframework.util.CollectionUtils;
 
 public class SavedQueryDaoImpl extends AbstractDao<SavedQuery> implements SavedQueryDao {
 
@@ -227,6 +226,15 @@ public class SavedQueryDaoImpl extends AbstractDao<SavedQuery> implements SavedQ
 
 		addCpCondition(query, crit.cpId());
 		addSearchConditions(query, crit.query());
+
+		if (CollectionUtils.isNotEmpty(crit.ids())) {
+			query.add(Restrictions.in("s.id", crit.ids()));
+		}
+
+		if (CollectionUtils.isNotEmpty(crit.notInIds())) {
+			query.add(Restrictions.not(Restrictions.in("s.id", crit.notInIds())));
+		}
+
 		return addActiveCpGroupCond(query);
 	}
 

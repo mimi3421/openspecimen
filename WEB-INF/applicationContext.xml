@@ -511,6 +511,7 @@
     <property name="emailService" ref="emailService"/>
     <property name="templateService" ref="templateService"/>
     <property name="cfgService" ref="cfgSvc"/>
+    <property name="starredItemSvc" ref="starredItemSvc"/>
   </bean>
 
   <bean id="reportSettingsFact" class="com.krishagni.catissueplus.core.biospecimen.domain.factory.impl.CpReportSettingsFactoryImpl">

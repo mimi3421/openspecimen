@@ -2,9 +2,11 @@ package com.krishagni.catissueplus.core.de.events;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
 import com.krishagni.catissueplus.core.de.domain.SavedQuery;
 
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class SavedQuerySummary {
 
 	private Long id;
@@ -16,6 +18,8 @@ public class SavedQuerySummary {
 	private UserSummary lastModifiedBy;
 	
 	private Date lastModifiedOn;
+
+	private Boolean starred;
 	
 	public Long getId() {
 		return id;
@@ -56,7 +60,15 @@ public class SavedQuerySummary {
 	public void setLastModifiedOn(Date lastModifiedOn) {
 		this.lastModifiedOn = lastModifiedOn;
 	}
-	
+
+	public Boolean getStarred() {
+		return starred;
+	}
+
+	public void setStarred(Boolean starred) {
+		this.starred = starred;
+	}
+
 	public static SavedQuerySummary fromSavedQuery(SavedQuery savedQuery) {
 		if (savedQuery == null) {
 			return null;
