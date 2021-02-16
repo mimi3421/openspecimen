@@ -35,6 +35,7 @@ import com.krishagni.catissueplus.core.administrative.domain.ContainerStoreList;
 import com.krishagni.catissueplus.core.administrative.domain.ContainerStoreList.Op;
 import com.krishagni.catissueplus.core.administrative.domain.ContainerStoreListItem;
 import com.krishagni.catissueplus.core.administrative.domain.ContainerType;
+import com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol;
 import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainer;
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainerPosition;
@@ -97,6 +98,7 @@ import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 import com.krishagni.catissueplus.core.common.service.LabelGenerator;
 import com.krishagni.catissueplus.core.common.service.LabelPrinter;
 import com.krishagni.catissueplus.core.common.service.ObjectAccessor;
+import com.krishagni.catissueplus.core.common.service.StarredItemService;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.catissueplus.core.common.util.ConfigUtil;
 import com.krishagni.catissueplus.core.common.util.CsvFileWriter;
@@ -149,6 +151,8 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 	private LabelPrinter<StorageContainer> labelPrinter;
 
 	private ThreadPoolTaskExecutor taskExecutor;
+
+	private StarredItemService starredItemSvc;
 
 	public DaoFactory getDaoFactory() {
 		return daoFactory;
@@ -218,13 +222,35 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 		this.taskExecutor = taskExecutor;
 	}
 
+	public void setStarredItemSvc(StarredItemService starredItemSvc) {
+		this.starredItemSvc = starredItemSvc;
+	}
+
 	@Override
 	@PlusTransactional
 	public ResponseEvent<List<StorageContainerSummary>> getStorageContainers(RequestEvent<StorageContainerListCriteria> req) {
 		try {			
 			StorageContainerListCriteria crit = addContainerListCriteria(req.getPayload());
-			List<StorageContainer> containers = daoFactory.getStorageContainerDao().getStorageContainers(crit);
-			List<StorageContainerSummary> result = StorageContainerSummary.from(containers, crit.includeChildren());
+
+			List<StorageContainerSummary> result = new ArrayList<>();
+			if (crit.orderByStarred()) {
+				List<Long> containerIds = daoFactory.getStarredItemDao()
+					.getItemIds(getObjectName(), AuthUtil.getCurrentUser().getId());
+				if (!containerIds.isEmpty()) {
+					crit.ids(containerIds);
+					List<StorageContainer> containers = daoFactory.getStorageContainerDao().getStorageContainers(crit);
+					result.addAll(StorageContainerSummary.from(containers, crit.includeChildren()));
+					result.forEach(c -> c.setStarred(true));
+					crit.ids(Collections.emptyList()).notInIds(containerIds);
+				}
+			}
+
+			if (result.size() < crit.maxResults()) {
+				crit.maxResults(crit.maxResults() - result.size());
+				List<StorageContainer> containers = daoFactory.getStorageContainerDao().getStorageContainers(crit);
+				result.addAll(StorageContainerSummary.from(containers, crit.includeChildren()));
+			}
+
 			setStoredSpecimensCount(crit, result);
 			return ResponseEvent.response(result);
 		} catch (OpenSpecimenException ose) {
@@ -1003,6 +1029,26 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 		StorageContainer container = containerFactory.createStorageContainer(detail);
 		daoFactory.getStorageContainerDao().saveOrUpdate(container, true);
 		return container;
+	}
+
+	@Override
+	@PlusTransactional
+	public boolean toggleStarredContainer(Long containerId, boolean starred) {
+		try {
+			StorageContainer container = getContainer(containerId, null);
+			AccessCtrlMgr.getInstance().ensureReadContainerRights(container);
+			if (starred) {
+				starredItemSvc.save(getObjectName(), container.getId());
+			} else {
+				starredItemSvc.delete(getObjectName(), container.getId());
+			}
+
+			return true;
+		} catch (OpenSpecimenException e) {
+			throw e;
+		} catch (Exception e) {
+			throw OpenSpecimenException.serverError(e);
+		}
 	}
 
 	@Override

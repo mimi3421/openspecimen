@@ -158,6 +158,22 @@ angular.module('os.common.models', [])
         return value;
       }
 
+      Model.prototype.star = function() {
+        return $http.post(url + this.id + '/labels', {}).then(
+          function(resp) {
+            return resp.data;
+          }
+        );
+      }
+
+      Model.prototype.unstar = function() {
+        return $http.delete(url + this.id + '/labels').then(
+          function(resp) {
+            return resp.data;
+          }
+        );
+      }
+
       Model.getCount = function(reqParams) {
         return $http.get(url + 'count', {params: reqParams}).then(Model.noTransform);
       }

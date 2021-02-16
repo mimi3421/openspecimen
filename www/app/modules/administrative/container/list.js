@@ -6,6 +6,7 @@ angular.module('os.administrative.container.list', ['os.administrative.models'])
     function init() {
       pagerOpts = $scope.pagerOpts = new ListPagerOpts({listSizeGetter: getContainersCount});
       filterOpts = $scope.containerFilterOpts = Util.filterOpts({
+        orderByStarred: true,
         maxResults: pagerOpts.recordsPerPage + 1,
         includeStats: true,
         topLevelContainers: true
@@ -76,6 +77,17 @@ angular.module('os.administrative.container.list', ['os.administrative.models'])
 
     $scope.pageSizeChanged = function() {
       filterOpts.maxResults = pagerOpts.recordsPerPage + 1;
+    }
+
+    $scope.toggleStar = function(container) {
+      var q = container.starred ? container.unstar() : container.star();
+      q.then(
+        function(result) {
+          if (result.status == true) {
+            container.starred = !container.starred;
+          }
+        }
+      );
     }
 
     init();

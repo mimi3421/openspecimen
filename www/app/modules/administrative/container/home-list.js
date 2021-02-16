@@ -28,4 +28,15 @@ angular.module('os.administrative.container')
     }
 
     $scope.init = init;
+
+    $scope.toggleStar = function(container) {
+      var q = container.starred ? container.unstar() : container.star();
+      q.then(
+        function(result) {
+          if (result.status == true) {
+            container.starred = !container.starred;
+          }
+        }
+      );
+    }
   });

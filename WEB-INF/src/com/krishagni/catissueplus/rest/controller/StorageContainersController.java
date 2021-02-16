@@ -124,7 +124,10 @@ public class StorageContainersController {
 		boolean hierarchical,
 
 		@RequestParam(value = "includeStats", required = false, defaultValue = "false")
-		boolean includeStats) {
+		boolean includeStats,
+
+		@RequestParam(value = "orderByStarred", required = false, defaultValue = "false")
+		Boolean orderByStarred) {
 		
 		StorageContainerListCriteria crit = new StorageContainerListCriteria()
 			.query(name)
@@ -144,7 +147,8 @@ public class StorageContainersController {
 			.storeSpecimensEnabled(storeSpecimensEnabled)
 			.usageMode(usageMode)
 			.hierarchical(hierarchical)
-			.includeStat(includeStats);
+			.includeStat(includeStats)
+			.orderByStarred(orderByStarred);
 					
 		RequestEvent<StorageContainerListCriteria> req = new RequestEvent<>(crit);
 		ResponseEvent<List<StorageContainerSummary>> resp = storageContainerSvc.getStorageContainers(req);
@@ -782,6 +786,20 @@ public class StorageContainersController {
 		ResponseEvent<List<StorageLocationSummary>> resp = storageContainerSvc.getVacantPositions(req);
 		resp.throwErrorIfUnsuccessful();
 		return resp.getPayload();
+	}
+
+	@RequestMapping(method = RequestMethod.POST, value = "/{id}/labels")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public Map<String, Boolean> addLabel(@PathVariable("id") Long containerId) {
+		return Collections.singletonMap("status", storageContainerSvc.toggleStarredContainer(containerId, true));
+	}
+
+	@RequestMapping(method = RequestMethod.DELETE, value = "/{id}/labels")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public Map<String, Boolean> removeLabel(@PathVariable("id") Long containerId) {
+		return Collections.singletonMap("status", storageContainerSvc.toggleStarredContainer(containerId, false));
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value="/extension-form")

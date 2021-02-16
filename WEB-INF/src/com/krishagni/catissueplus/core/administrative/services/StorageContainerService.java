@@ -136,4 +136,6 @@ public interface StorageContainerService {
 	StorageContainer createStorageContainer(StorageContainer base, StorageContainerDetail input);
 
 	StorageContainer createSiteContainer(Long siteId, String siteName);
+
+	boolean toggleStarredContainer(Long containerId, boolean starred);
 }

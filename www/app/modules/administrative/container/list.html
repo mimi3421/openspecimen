@@ -35,11 +35,12 @@
     <table class="os-table os-table-hover">
       <thead class="os-table-head">
         <tr class="row">
-          <th show-if-allowed="containerResource.deleteOpts" class="col os-click-esc">
-            <div class="os-select-specimen-cb">
+          <th class="col os-click-esc" style="width: 50px;">
+            <div class="os-select-specimen-cb" ng-if="containerResource.deleteAllowed">
               <os-checkbox ng-change="ctx.checkList.toggleSelectAll()" ng-model="ctx.checkList.allSelected">
               </os-checkbox>
             </div>
+            <span>&nbsp;</span>
           </th>
           <th class="col">
             <span translate="container.name">Name</span>
@@ -72,12 +73,16 @@
         </tr>
 
         <tr class="row" ng-repeat="container in ctx.containerList" os-row-click="showContainerDetail(container)">
-          <td show-if-allowed="containerResource.deleteOpts" class="col os-click-esc">
-            <div class="os-select-specimen-cb">
+          <td class="col os-click-esc">
+            <div class="os-select-specimen-cb" ng-if="containerResource.deleteAllowed">
               <os-checkbox ng-change="ctx.checkList.toggleSelectItem($index)"
                 ng-model="ctx.checkList.items[$index].selected">
               </os-checkbox>
             </div>
+            <span class="os-starred-item fa"
+              ng-class="{true: 'fa-star starred', false: 'fa-star-o'}[container.starred == true]"
+              ng-click="toggleStar(container)">
+            </span>
           </td>
           <td class="col">
             <span class="fa fa-truck" ng-if="container.usedFor == 'DISTRIBUTION'"></span>

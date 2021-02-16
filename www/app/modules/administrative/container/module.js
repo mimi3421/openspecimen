@@ -17,13 +17,14 @@ angular.module('os.administrative.container',
       .state('container-root', {
         abstract: true,
         template: '<div ui-view></div>',
-        controller: function($scope) {
+        controller: function($scope, AuthorizationService) {
           // Storage Container Authorization Options
           $scope.containerResource = {
             createOpts: {resource: 'StorageContainer', operations: ['Create']},
             updateOpts: {resource: 'StorageContainer', operations: ['Update']},
             deleteOpts: {resource: 'StorageContainer', operations: ['Delete']},
-            importOpts: {resource: 'StorageContainer', operations: ['Export Import']}
+            importOpts: {resource: 'StorageContainer', operations: ['Export Import']},
+            deleteAllowed: AuthorizationService.isAllowed({resource: 'StorageContainer', operations: ['Delete']})
           }
         },
         parent: 'signed-in'

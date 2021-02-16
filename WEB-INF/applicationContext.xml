@@ -630,6 +630,7 @@
     <property name="exportSvc" ref="exportSvc"/>
     <property name="labelPrinter" ref="defaultContainerLabelPrinter"/>
     <property name="taskExecutor" ref="taskExecutor"/>
+    <property name="starredItemSvc" ref="starredItemSvc"/>
   </bean>
 
   <bean id="containerTypeFactory" class="com.krishagni.catissueplus.core.administrative.domain.factory.impl.ContainerTypeFactoryImpl">
