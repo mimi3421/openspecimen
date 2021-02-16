@@ -8,7 +8,7 @@
             <a class="btn btn-xs default" ng-click="openSearch(widget)">
               <span class="fa fa-search"></span>
             </a>
-            <a class="btn btn-xs default" ui-sref="{{widget.detailedList}}">
+            <a class="btn btn-xs default" ui-sref="{{widget.detailedList}}" ng-if="!!widget.detailedList">
               <span class="fa fa-expand"></span>
             </a>
           </span>
