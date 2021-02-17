@@ -548,6 +548,7 @@ public class UserServiceImpl implements UserService, ObjectAccessor, Initializin
 		}
 
 		uiState.getState().putAll(req.getPayload());
+		uiState.getState().remove("authToken");
 		daoFactory.getUserDao().saveUiState(uiState);
 		return ResponseEvent.response(uiState);
 	}

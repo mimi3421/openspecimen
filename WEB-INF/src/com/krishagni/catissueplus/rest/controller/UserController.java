@@ -387,11 +387,11 @@ public class UserController {
 		}
 
 		Map<String, Object> state = new HashMap<>();
-		state.put("authToken", authToken);
 		if (resp.getPayload() != null) {
 			state.putAll(resp.getPayload().getState());
 		}
 
+		state.put("authToken", authToken);
 		return state;
 	}
 
