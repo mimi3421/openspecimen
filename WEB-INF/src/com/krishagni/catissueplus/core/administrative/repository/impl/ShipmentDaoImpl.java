@@ -1,6 +1,7 @@
 package com.krishagni.catissueplus.core.administrative.repository.impl;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -105,40 +106,37 @@ public class ShipmentDaoImpl extends AbstractDao<Shipment> implements ShipmentDa
 	public List<ShipmentSpecimen> getShipmentSpecimens(ShipmentItemsListCriteria crit) {
 		Criteria query = getCurrentSession().createCriteria(ShipmentSpecimen.class, "ss")
 			.createAlias("ss.shipment", "s")
+			.createAlias("ss.specimen", "spmn")
 			.add(Restrictions.eq("s.id", crit.shipmentId()));
 
 		if (crit.containerId() != null) {
-			query.createAlias("ss.specimen", "spmn")
-				.createAlias("spmn.position", "pos")
+			query.createAlias("spmn.position", "pos")
 				.createAlias("pos.container", "box")
 				.createAlias("box.ancestorContainers", "container")
 				.add(Restrictions.eq("container.id", crit.containerId()));
 		}
 
+		List<Long> orderBySpmnIds = null;
 		if (StringUtils.isNotBlank(crit.orderBy())) {
 			switch (crit.orderBy()) {
 				case "label":
-					query.createAlias("ss.specimen", "spmn")
-						.addOrder(crit.asc() ? Order.asc("spmn.label") : Order.desc("spmn.label"));
+					query.addOrder(crit.asc() ? Order.asc("spmn.label") : Order.desc("spmn.label"));
 					break;
 
 				case "ppid":
-					query.createAlias("ss.specimen", "spmn")
-						.createAlias("spmn.visit", "visit")
+					query.createAlias("spmn.visit", "visit")
 						.createAlias("visit.registration", "cpr")
 						.addOrder(crit.asc() ? Order.asc("cpr.ppid") : Order.desc("cpr.ppid"));
 					break;
 
 				case "cp":
-					query.createAlias("ss.specimen", "spmn")
-						.createAlias("spmn.collectionProtocol", "cp")
+					query.createAlias("spmn.collectionProtocol", "cp")
 						.addOrder(crit.asc() ? Order.asc("cp.shortTitle") : Order.desc("cp.shortTitle"));
 					break;
 
 				case "location":
 					if (crit.containerId() == null) {
-						query.createAlias("ss.specimen", "spmn")
-							.createAlias("spmn.position", "pos", JoinType.LEFT_OUTER_JOIN)
+						query.createAlias("spmn.position", "pos", JoinType.LEFT_OUTER_JOIN)
 							.createAlias("pos.container", "box", JoinType.LEFT_OUTER_JOIN);
 					}
 
@@ -146,7 +144,27 @@ public class ShipmentDaoImpl extends AbstractDao<Shipment> implements ShipmentDa
 						.addOrder(crit.asc() ? Order.asc("pos.posTwoOrdinal") : Order.desc("pos.posOneOrdinal"))
 						.addOrder(crit.asc() ? Order.asc("pos.posOneOrdinal") : Order.desc("pos.posOneOrdinal"));
 					break;
+
+				case "externalId":
+					orderBySpmnIds = getSpecimenIdsOrderedByExtId(
+						crit.shipmentId(),
+						crit.asc() ? "asc" : "desc",
+						crit.startAt(),
+						crit.maxResults());
+					if (orderBySpmnIds.isEmpty()) {
+						return Collections.emptyList();
+					}
+
+					applyIdsFilter(query, "spmn.id", orderBySpmnIds);
+					break;
 			}
+		}
+
+		if (orderBySpmnIds != null) {
+			List<ShipmentSpecimen> specimens = query.list();
+			List<Long> spmnIdsOrder = orderBySpmnIds;
+			specimens.sort((ss1, ss2) -> spmnIdsOrder.indexOf(ss1.getSpecimen().getId()) - spmnIdsOrder.indexOf(ss2.getSpecimen().getId()));
+			return specimens;
 		}
 
 		return query.addOrder(Order.asc("ss.id"))
@@ -273,6 +291,20 @@ public class ShipmentDaoImpl extends AbstractDao<Shipment> implements ShipmentDa
 
 		return result;
 	}
+
+	private List<Long> getSpecimenIdsOrderedByExtId(Long shipmentId, String sortOrder, int startAt, int maxResults) {
+		String sql = String.format(
+			isMySQL() ? GET_SPMN_IDS_ORD_BY_EXT_ID_MYSQL : GET_SPMN_IDS_ORD_BY_EXT_ID_ORA,
+			sortOrder, sortOrder, sortOrder, sortOrder
+		);
+
+		List<Object[]> specimenIds = getCurrentSession().createSQLQuery(sql)
+			.setParameter("shipmentId", shipmentId)
+			.setFirstResult(startAt)
+			.setMaxResults(maxResults)
+			.list();
+		return specimenIds.stream().map(r -> ((Number) r[0]).longValue()).collect(Collectors.toList());
+	}
 	
 	private static final String FQN = Shipment.class.getName();
 	
@@ -283,4 +315,46 @@ public class ShipmentDaoImpl extends AbstractDao<Shipment> implements ShipmentDa
 	private static final String GET_SPECIMENS_COUNT = FQN + ".getSpecimensCount";
 
 	private static final String GET_SPECIMENS_COUNT_BY_CONT = FQN + ".getSpecimensCountByContainer";
+
+	private static final String GET_SPMN_IDS_ORD_BY_EXT_ID_MYSQL =
+		"select " +
+		"  s.identifier, group_concat(e.value order by e.value %s) " +
+		"from " +
+		"  catissue_specimen s " +
+		"  left join os_spmn_external_ids e on e.specimen_id = s.identifier " +
+		"where " +
+		"  s.identifier in ( " +
+		"    select " +
+		"      specimen_id " +
+		"    from " +
+		"      os_shipment_specimens " +
+		"    where " +
+		"      shipment_id = :shipmentId " +
+		"  ) " +
+		"group by " +
+		"  s.identifier " +
+		"order by " +
+		"  group_concat(e.value order by e.value %s) %s," +
+		"  s.identifier %s";
+
+	private static final String GET_SPMN_IDS_ORD_BY_EXT_ID_ORA =
+		"select " +
+		"  s.identifier, listagg(e.value, ',') within group (order by e.value %s) " +
+		"from " +
+		"  catissue_specimen s " +
+		"  left join os_spmn_external_ids e on e.specimen_id = s.identifier " +
+		"where " +
+		"  s.identifier in ( " +
+		"    select " +
+		"      specimen_id " +
+		"    from " +
+		"      os_shipment_specimens " +
+		"    where " +
+		"      shipment_id = :shipmentId " +
+		"  ) " +
+		"group by " +
+		"  s.identifier " +
+		"order by " +
+		"  listagg(e.value, ',') within group (order by e.value %s) %s," +
+		"  s.identifier %s";
 }

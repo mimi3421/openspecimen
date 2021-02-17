@@ -10,8 +10,11 @@
                 ng-class="{'asc': 'fa-long-arrow-up', 'desc': 'fa-long-arrow-down'}[ctx.direction]">
               </span>
             </th>
-            <th class="col os-mw-140" ng-if="ctx.hasExtId">
+            <th class="col os-mw-140 os-pointer-cursor" ng-if="ctx.hasExtId" ng-click="sortBy('externalId')">
               <span translate="specimens.external_id">External ID</span>
+              <span ng-show="ctx.orderBy == 'externalId'" class="fa"
+                ng-class="{'asc': 'fa-long-arrow-up', 'desc': 'fa-long-arrow-down'}[ctx.direction]">
+              </span>
             </th>
             <th class="col os-mw-140">
               <span translate="specimens.description">Description</span>
