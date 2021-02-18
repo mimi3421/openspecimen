@@ -206,20 +206,40 @@
     <table class="os-table bulk-edit" ng-if="shipment.shipmentSpmns.length > 0">
       <thead class="os-table-head">
         <tr class="row">
-          <th class="col os-mw-140">
+          <th class="col os-mw-140"
+            ng-class="{'os-pointer-cursor': ctx.state == 'RECV_SHIPMENT' || ctx.state == 'RECV_EDIT'}"
+            ng-click="sortBy('label')">
             <span translate="specimens.label">Label</span>
+            <span ng-show="ctx.orderBy == 'label'" class="fa"
+              ng-class="{'asc': 'fa-long-arrow-up', 'desc': 'fa-long-arrow-down'}[ctx.direction]">
+            </span>
           </th>
-          <th class="col os-mw-140" ng-if="ctx.hasExtId">
+          <th class="col os-mw-140"
+            ng-class="{'os-pointer-cursor': ctx.state == 'RECV_SHIPMENT' || ctx.state == 'RECV_EDIT'}"
+            ng-click="sortBy('externalId')" ng-if="ctx.hasExtId">
             <span translate="specimens.external_id">External ID</span>
+            <span ng-show="ctx.orderBy == 'externalId'" class="fa"
+              ng-class="{'asc': 'fa-long-arrow-up', 'desc': 'fa-long-arrow-down'}[ctx.direction]">
+            </span>
           </th>
           <th class="col os-mw-140">
             <span translate="specimens.description">Description</span>
           </th>
-          <th class="col os-mw-140">
+          <th class="col os-mw-140"
+            ng-class="{'os-pointer-cursor': ctx.state == 'RECV_SHIPMENT' || ctx.state == 'RECV_EDIT'}"
+            ng-click="sortBy('cp')">
             <span translate="specimens.cp">Collection Protocol</span>
+            <span ng-show="ctx.orderBy == 'cp'" class="fa"
+              ng-class="{'asc': 'fa-long-arrow-up', 'desc': 'fa-long-arrow-down'}[ctx.direction]">
+            </span>
           </th>
-          <th class="col os-mw-140" ng-if="ctx.hasPpid">
+          <th class="col os-mw-140"
+            ng-class="{'os-pointer-cursor': ctx.state == 'RECV_SHIPMENT' || ctx.state == 'RECV_EDIT'}"
+            ng-click="sortBy('ppid')" ng-if="ctx.hasPpid">
             <span translate="specimens.ppid">PPID</span>
+            <span ng-show="ctx.orderBy == 'ppid'" class="fa"
+              ng-class="{'asc': 'fa-long-arrow-up', 'desc': 'fa-long-arrow-down'}[ctx.direction]">
+            </span>
           </th>
           <th class="col os-mw-100">
             <span translate="specimens.qty">Quantity</span>

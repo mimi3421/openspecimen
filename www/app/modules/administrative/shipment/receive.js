@@ -1,11 +1,15 @@
 angular.module('os.administrative.shipment.receive', ['os.administrative.models'])
   .controller('ShipmentReceiveCtrl', function(
-    $scope, $state, shipment, shipmentItems, isSpmnRelabelingAllowed, ShipmentUtil, Specimen, Container) {
+    $scope, $state, $filter, shipment, shipmentItems, isSpmnRelabelingAllowed, ShipmentUtil, Specimen, Container) {
+
+    var ctx;
 
     function init() {
-      $scope.ctx = {
+      ctx = $scope.ctx = {
         relabelSpmns: isSpmnRelabelingAllowed,
-        state: shipment.status == 'Shipped' ? 'RECV_SHIPMENT' : 'RECV_EDIT'
+        state: shipment.status == 'Shipped' ? 'RECV_SHIPMENT' : 'RECV_EDIT',
+        orderBy: '',
+        direction: ''
       };
 
       var attrs = getItemAttrs();
@@ -89,6 +93,50 @@ angular.module('os.administrative.shipment.receive', ['os.administrative.models'
       angular.forEach(shipment[attrs.collName],
         function(item) {
           item.receivedQuality = quality;
+        }
+      );
+    }
+
+    function strCmp(s1, s2) {
+      s1 = (s1 || '').toUpperCase();
+      s2 = (s2 || '').toUpperCase();
+      return s1 < s2 ? -1 : (s1 > s2 ? 1 : 0);
+    }
+
+    $scope.sortBy = function(attr) {
+      ctx.direction = (attr == ctx.orderBy) ? (ctx.direction == 'asc' ? 'desc' : 'asc') : 'asc'
+      ctx.orderBy = attr;
+
+      var cmpFn;
+      if (ctx.orderBy == 'label') {
+        cmpFn = function(ss1, ss2) {
+          return strCmp(ss1.specimen.label, ss2.specimen.label);
+        }
+      } else if (ctx.orderBy == 'externalId') {
+        cmpFn = function(ss1, ss2) {
+          return strCmp(
+            $filter('osNameValueText')(ss1.specimen.externalIds),
+            $filter('osNameValueText')(ss2.specimen.externalIds)
+          );
+        }
+      } else if (ctx.orderBy == 'cp') {
+        cmpFn = function(ss1, ss2) {
+          return strCmp(ss1.specimen.cpShortTitle, ss2.specimen.cpShortTitle);
+        }
+      } else if (ctx.orderBy == 'ppid') {
+        cmpFn = function(ss1, ss2) {
+          return strCmp(ss1.specimen.ppid, ss2.specimen.ppid);
+        }
+      } else {
+        cmpFn = function(ss1, ss2) {
+          return ss1.specimen.id - ss2.specimen.id;
+        }
+      }
+
+      shipment.shipmentSpmns.sort(
+        function(ss1, ss2) {
+          var factor = ctx.direction == 'desc' ? -1 : 1;
+          return factor * cmpFn(ss1, ss2);
         }
       );
     }
