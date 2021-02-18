@@ -74,7 +74,9 @@ public class ContainerSpecimensImporter implements ObjectImporter<ContainerSpeci
 			} else if (StringUtils.isNotBlank(location.getBarcode())) {
 				String barcode = location.getBarcode().toLowerCase();
 				String name = barcodeToName.get().get(barcode);
-				if (name == null && !barcodeToName.get().containsKey(barcode)) {
+				if (name != null) {
+					container = containersByName.get().get(name);
+				} else if (!barcodeToName.get().containsKey(barcode)) {
 					container = daoFactory.getStorageContainerDao().getByBarcode(location.getBarcode());
 					barcodeToName.get().put(barcode, container != null ? container.getName().toLowerCase() : null);
 					containersByName.get().put(container.getName().toLowerCase(), container);
