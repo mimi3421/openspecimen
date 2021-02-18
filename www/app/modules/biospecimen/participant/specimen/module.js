@@ -310,17 +310,11 @@ angular.module('os.biospecimen.specimen',
       .state('specimen-detail.event-overview', {
         url: '/event-overview?formId&recordId',
         templateUrl: 'modules/biospecimen/participant/specimen/event-overview.html',
-        controller: function($scope, event, specimen, ExtensionsUtil) {
-          var editableEvents = [
-            'SpecimenCollectionEvent',
-            'SpecimenReceivedEvent',
-            'SpecimenTransferEvent'
-          ];
-
+        controller: function($scope, event, specimen, ExtensionsUtil, SpecimenEvent) {
           $scope.event = event;
           event.osEntity = specimen;
           event.isDeletable = (event.appData.sysForm != 'true' && event.appData.sysForm != true);
-          event.isEditable = event.isDeletable || editableEvents.indexOf(event.name) != -1;
+          event.isEditable = event.isDeletable || SpecimenEvent.isEditable(event.name);
 
           $scope.deleteEvent = function(event) {
             var record = {recordId: event.id, formId: event.containerId, formCaption: event.name};

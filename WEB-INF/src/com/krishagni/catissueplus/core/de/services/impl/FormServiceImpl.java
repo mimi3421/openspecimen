@@ -135,7 +135,7 @@ public class FormServiceImpl implements FormService, InitializingBean {
 
 	private Map<String, Function<Long, Boolean>> entityAccessCheckers = new HashMap<>();
 
-	private static Map<String, List<String>> editableEvents = new HashMap<>();
+	private static Map<String, List<String>> editableEvents;
 
 	static {
 		staticExtendedForms.add(PARTICIPANT_FORM);
@@ -147,9 +147,13 @@ public class FormServiceImpl implements FormService, InitializingBean {
 		customFieldEntities.put(SCG_FORM, Visit.EXTN);
 		customFieldEntities.put(SPECIMEN_FORM, Specimen.EXTN);
 
-		editableEvents.put(
-			"SpecimenTransferEvent", Arrays.asList("user", "time", "comments")
-		);
+		editableEvents = new HashMap<String, List<String>>() {
+			{
+				put("SpecimenDisposalEvent", Arrays.asList("reason", "user", "time", "comments"));
+				put("SpecimenTransferEvent", Arrays.asList("user", "time", "comments"));
+
+			}
+		};
 	}
 
 	private FormDao formDao;

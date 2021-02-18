@@ -15,6 +15,7 @@ angular.module('os.biospecimen.models.specimenevent', ['os.common.models'])
     var editableEvents = [
       'SpecimenCollectionEvent',
       'SpecimenReceivedEvent',
+      'SpecimenDisposalEvent',
       'SpecimenTransferEvent'
     ];
 
