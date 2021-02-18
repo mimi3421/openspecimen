@@ -105,7 +105,7 @@ public class ContainerSpecimensImporter implements ObjectImporter<ContainerSpeci
 				return ResponseEvent.userError(SpecimenErrorCode.LOC_NOT_SPECIFIED);
 			}
 
-			if (container.areValidPositions(column, row)) {
+			if (!container.areValidPositions(column, row)) {
 				return ResponseEvent.userError(StorageContainerErrorCode.INV_POS, container.getName(), column, row);
 			}
 
