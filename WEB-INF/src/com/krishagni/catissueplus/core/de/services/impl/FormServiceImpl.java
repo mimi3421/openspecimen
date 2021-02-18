@@ -135,6 +135,8 @@ public class FormServiceImpl implements FormService, InitializingBean {
 
 	private Map<String, Function<Long, Boolean>> entityAccessCheckers = new HashMap<>();
 
+	private static Map<String, List<String>> editableEvents = new HashMap<>();
+
 	static {
 		staticExtendedForms.add(PARTICIPANT_FORM);
 		staticExtendedForms.add(SCG_FORM);
@@ -144,6 +146,10 @@ public class FormServiceImpl implements FormService, InitializingBean {
 		customFieldEntities.put(PARTICIPANT_FORM, Participant.EXTN);
 		customFieldEntities.put(SCG_FORM, Visit.EXTN);
 		customFieldEntities.put(SPECIMEN_FORM, Specimen.EXTN);
+
+		editableEvents.put(
+			"SpecimenTransferEvent", Arrays.asList("user", "time", "comments")
+		);
 	}
 
 	private FormDao formDao;
@@ -1108,11 +1114,29 @@ public class FormServiceImpl implements FormService, InitializingBean {
 
 		FormContextBean formContext = formContexts.get(0);
 		Container form = formData.getContainer();
-		if (formContext.isSysForm() && !isCollectionOrReceivedEvent(form)) {
-			throw OpenSpecimenException.userError(FormErrorCode.SYS_REC_EDIT_NOT_ALLOWED);
+		boolean isInsert = (recordId == null);
+		if (!isInsert && formContext.isSysForm()) {
+			if (isEditableEvent(form)) {
+				List<String> fields = getEditableFields(form);
+				isPartial = true;
+
+				FormData allowed = new FormData(form);
+				allowed.setRecordId(formData.getRecordId());
+				allowed.setParentRecordId(formData.getParentRecordId());
+				allowed.setAppData(formData.getAppData());
+				for (String field : fields) {
+					ControlValue cv = formData.getFieldValue(field);
+					if (cv != null) {
+						allowed.addFieldValue(cv);
+					}
+				}
+
+				formData = allowed;
+			} else if (!isCollectionOrReceivedEvent(form)) {
+				throw OpenSpecimenException.userError(FormErrorCode.SYS_REC_EDIT_NOT_ALLOWED);
+			}
 		}
 
-		boolean isInsert = (recordId == null);
 		if (!isInsert && isPartial) {
 			FormData existing = formDataMgr.getFormData(formData.getContainer(), formData.getRecordId());
 			formData = updateFormData(existing, formData);
@@ -1212,6 +1236,24 @@ public class FormServiceImpl implements FormService, InitializingBean {
 
 	private boolean isCollectionOrReceivedEvent(String name) {
 		return name.equals("SpecimenCollectionEvent") || name.equals("SpecimenReceivedEvent");
+	}
+
+	private boolean isEditableEvent(Container form) {
+		return isEditableEvent(form.getName());
+	}
+
+	private boolean isEditableEvent(String name) {
+		List<String> fields = editableEvents.get(name);
+		return fields != null && !fields.isEmpty();
+	}
+
+	private List<String> getEditableFields(Container form) {
+		return getEditableFields(form.getName());
+	}
+
+	private List<String> getEditableFields(String name) {
+		List<String> fields = editableEvents.get(name);
+		return fields != null ? fields : Collections.emptyList();
 	}
 
 	private UserContext getUserContext() {

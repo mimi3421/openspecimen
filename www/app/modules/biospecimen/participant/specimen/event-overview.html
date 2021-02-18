@@ -21,7 +21,8 @@
               <span translate="common.buttons.delete">Delete</span>
             </button>
             <button class="btn btn-default"
-              ng-show="event.appData.multiRecord == 'true' || event.appData.multiRecord == true"
+              ng-show="event.appData.sysForm != 'true' && event.appData.sysForm != true &&
+                (event.appData.multiRecord == 'true' || event.appData.multiRecord == true)"
               ui-sref="specimen-detail.extensions.addedit({spe: true, formId: event.containerId,
                 formCtxId: event.appData.formCtxtId})">
               <span class="fa fa-plus"></span>

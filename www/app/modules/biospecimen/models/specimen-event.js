@@ -11,6 +11,19 @@ angular.module('os.biospecimen.models.specimenevent', ['os.common.models'])
       'SpecimenReturnEvent',
       'SpecimenChildrenEvent'
     ];
+
+    var editableEvents = [
+      'SpecimenCollectionEvent',
+      'SpecimenReceivedEvent',
+      'SpecimenTransferEvent'
+    ];
+
+    var disabledFields = {
+      'SpecimenTransferEvent': [
+        'fromContainer', 'fromRow', 'fromCol', 'fromDimensionTwo', 'fromDimensionOne', 'fromPosition',
+        'toContainer', 'toRow', 'toCol', 'toDimensionTwo', 'toDimensionOne', 'toPosition'
+      ]
+    }
     
     SpecimenEvent.getEvents = function() {
       return new CollectionProtocol({id: -1}).getForms(['SpecimenEvent']);
@@ -28,6 +41,14 @@ angular.module('os.biospecimen.models.specimenevent', ['os.common.models'])
 
     SpecimenEvent.isSysEvent = function(eventName) {
       return sysEvents.indexOf(eventName) != -1;
+    }
+
+    SpecimenEvent.isEditable = function(eventName) {
+      return editableEvents.indexOf(eventName) != -1;
+    }
+
+    SpecimenEvent.getDisabledFields = function(eventName) {
+      return disabledFields[eventName] || [];
     }
     
     return SpecimenEvent;

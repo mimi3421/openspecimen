@@ -258,7 +258,8 @@ angular.module('os.biospecimen.specimen',
             return {
               goBackFn: goBackFn,
               showSaveNext: $stateParams.spe != 'true',
-              showActionBtns: !SpecimenEvent.isSysEvent(formDef.name)
+              showActionBtns: !SpecimenEvent.isSysEvent(formDef.name) || SpecimenEvent.isEditable(formDef.name),
+              disabledFields: SpecimenEvent.getDisabledFields(formDef.name)
             };
           }
         },
@@ -310,11 +311,16 @@ angular.module('os.biospecimen.specimen',
         url: '/event-overview?formId&recordId',
         templateUrl: 'modules/biospecimen/participant/specimen/event-overview.html',
         controller: function($scope, event, specimen, ExtensionsUtil) {
+          var editableEvents = [
+            'SpecimenCollectionEvent',
+            'SpecimenReceivedEvent',
+            'SpecimenTransferEvent'
+          ];
+
           $scope.event = event;
           event.osEntity = specimen;
           event.isDeletable = (event.appData.sysForm != 'true' && event.appData.sysForm != true);
-          event.isEditable = event.isDeletable ||
-            (['SpecimenCollectionEvent', 'SpecimenReceivedEvent'].indexOf(event.name) != -1);
+          event.isEditable = event.isDeletable || editableEvents.indexOf(event.name) != -1;
 
           $scope.deleteEvent = function(event) {
             var record = {recordId: event.id, formId: event.containerId, formCaption: event.name};

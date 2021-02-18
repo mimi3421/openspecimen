@@ -24,6 +24,7 @@ angular.module('os.biospecimen.extensions.addedit-record', [])
         objectId: $scope.object.id,
         showActionBtns: viewOpts.showActionBtns == false ? false : true,
         showSaveNext: viewOpts.showSaveNext && !!nextForm,
+        disableFields: viewOpts.disabledFields || [],
 
         onSave: function(formData, next) {
           angular.forEach(postSaveFilters, function(filter) {
