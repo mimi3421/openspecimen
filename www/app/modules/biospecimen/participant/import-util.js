@@ -127,7 +127,35 @@ angular.module('os.biospecimen.participant')
 
       addPluginTypes(importTypes, group, 'Specimen');
       addForms(importTypes, group, 'Specimen', entityForms['Specimen']);
-      return addForms(importTypes, group, 'SpecimenEvent', entityForms['SpecimenEvent']);
+      addForms(importTypes, group, 'SpecimenEvent', entityForms['SpecimenEvent']);
+      return addEventTypes(cp, importTypes, group);
+    }
+
+    function addEventTypes(cp, importTypes, group) {
+      if (cp.id != -1) {
+        return;
+      }
+
+      var events = [
+        'containerTransferEvent', 'specimenDisposalEvent',
+        'specimenReservedEvent', 'specimenReservationCancelEvent',
+        'specimenReturnEvent', 'specimenTransferEvent'
+      ];
+
+      angular.forEach(events,
+        function(event) {
+          importTypes.push({
+            group: group,
+            type: event,
+            title: 'bulk_imports.object_types.' + event,
+            showImportType: false,
+            importType: 'UPDATE',
+            params: {}
+          });
+        }
+      );
+
+      return importTypes;
     }
 
     function getImportDetail(cp, allowedEntityTypes, forms) {

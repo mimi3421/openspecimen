@@ -3,9 +3,12 @@ package com.krishagni.catissueplus.core.biospecimen.events;
 import java.util.Date;
 
 import com.krishagni.catissueplus.core.biospecimen.domain.SpecimenEvent;
+import com.krishagni.catissueplus.core.common.AttributeModifiedSupport;
+import com.krishagni.catissueplus.core.common.ListenAttributeChanges;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
 
-public class SpecimenEventDetail {
+@ListenAttributeChanges
+public class SpecimenEventDetail extends AttributeModifiedSupport {
 	private Long id;
 	
 	private Date time;
@@ -17,6 +20,8 @@ public class SpecimenEventDetail {
 	private String specimenLabel;
 	
 	private Long specimenId;
+
+	private String reason;
 
 	public Long getId() {
 		return id;
@@ -64,6 +69,14 @@ public class SpecimenEventDetail {
 
 	public void setSpecimenId(Long specimenId) {
 		this.specimenId = specimenId;
+	}
+
+	public String getReason() {
+		return reason;
+	}
+
+	public void setReason(String reason) {
+		this.reason = reason;
 	}
 
 	public static void fromTo(SpecimenEvent se, SpecimenEventDetail detail) {

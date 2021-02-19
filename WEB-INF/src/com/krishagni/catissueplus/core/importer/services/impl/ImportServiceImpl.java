@@ -956,6 +956,7 @@ public class ImportServiceImpl implements ImportService, ApplicationListener<Con
 			try {
 				ImportObjectDetail<Object> detail = new ImportObjectDetail<>();
 				detail.setId(job.getId().toString());
+				detail.setObjectName(job.getName());
 				detail.setCreate(job.getType() == Type.CREATE);
 				detail.setObject(object);
 				detail.setParams(params);

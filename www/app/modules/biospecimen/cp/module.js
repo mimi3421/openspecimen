@@ -181,7 +181,9 @@ angular.module('os.biospecimen.cp',
             var objectTypes = [
               'cprMultiple', 'otherCpr', 'cpr', 'participant', 'consent', 'econsentsDocumentResponse',
               'visit', 'specimen', 'specimenDerivative', 'specimenAliquot',
-              'masterSpecimen', 'containerSpecimen', 'specimenDisposal', 'extensions'
+              'masterSpecimen', 'containerSpecimen', 'specimenDisposal', 'extensions',
+              'containerTransferEvent', 'specimenDisposalEvent', 'specimenReservedEvent',
+              'specimenReservationCancelEvent', 'specimenReturnEvent', 'specimenTransferEvent'
             ];
 
             return {

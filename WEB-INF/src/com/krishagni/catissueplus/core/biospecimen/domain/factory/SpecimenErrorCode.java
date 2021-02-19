@@ -132,7 +132,11 @@ public enum SpecimenErrorCode implements ErrorCode {
 
 	NO_SPMN_AT_LOC,
 
-	DIMLESS_CONTAINER;
+	DIMLESS_CONTAINER,
+
+	EVT_ID_REQ,
+
+	INV_EVT_ID;
 
 	public String code() {
 		return "SPECIMEN_" + this.name();

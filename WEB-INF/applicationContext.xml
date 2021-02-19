@@ -1051,6 +1051,12 @@
         <value>com/krishagni/catissueplus/core/biospecimen/schema/participant.xml</value>
         <value>com/krishagni/catissueplus/core/biospecimen/schema/specimen-disposal.xml</value>
         <value>com/krishagni/catissueplus/core/biospecimen/schema/container-specimen.xml</value>
+        <value>com/krishagni/catissueplus/core/biospecimen/schema/cancel-reservation-event.xml</value>
+        <value>com/krishagni/catissueplus/core/biospecimen/schema/container-transfer-event.xml</value>
+        <value>com/krishagni/catissueplus/core/biospecimen/schema/disposal-event.xml</value>
+        <value>com/krishagni/catissueplus/core/biospecimen/schema/reserved-event.xml</value>
+        <value>com/krishagni/catissueplus/core/biospecimen/schema/return-event.xml</value>
+        <value>com/krishagni/catissueplus/core/biospecimen/schema/transfer-event.xml</value>
       </list>
     </property>
 
@@ -1147,6 +1153,11 @@
         </entry>
       </map>
     </property>
+  </bean>
+
+  <bean id="bulkEventsUpdater" class="com.krishagni.catissueplus.core.biospecimen.services.impl.SpecimenEventUpdater">
+    <property name="sessionFactory" ref="sessionFactory"/>
+    <property name="daoFactory" ref="biospecimenDaoFactory"/>
   </bean>
 
   <bean id="objectImporterFactory" class="com.krishagni.catissueplus.core.importer.services.impl.ObjectImporterFactoryImpl">
@@ -1323,7 +1334,14 @@
             <property name="spmnSvc" ref="specimenSvc"/>
           </bean>
         </entry>
-        
+
+        <entry key="specimenReservationCancelEvent" value-ref="bulkEventsUpdater" />
+        <entry key="containerTransferEvent" value-ref="bulkEventsUpdater" />
+        <entry key="specimenDisposalEvent" value-ref="bulkEventsUpdater" />
+        <entry key="specimenReservedEvent" value-ref="bulkEventsUpdater" />
+        <entry key="specimenReturnEvent" value-ref="bulkEventsUpdater" />
+        <entry key="specimenTransferEvent" value-ref="bulkEventsUpdater" />
+
         <entry key="extensions">
           <bean id="extensionImporter" class="com.krishagni.catissueplus.core.de.services.impl.ExtensionsImporter">
             <property name="formSvc" ref="formSvc"/>
