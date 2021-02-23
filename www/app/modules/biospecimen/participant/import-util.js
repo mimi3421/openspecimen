@@ -133,7 +133,7 @@ angular.module('os.biospecimen.participant')
 
     function addEventTypes(cp, importTypes, group) {
       if (cp.id != -1) {
-        return;
+        return importTypes;
       }
 
       var events = [
