@@ -358,6 +358,12 @@ public class Participant extends BaseExtensionEntity {
 		return cpId;
 	}
 
+	public Set<Long> getRegisteredCpIds() {
+		return Utility.nullSafeStream(getCprs())
+			.map(cpr -> cpr.getCollectionProtocol().getId())
+			.collect(Collectors.toSet());
+	}
+
 	public List<ParticipantMedicalIdentifier> getPmisOrderedById() {
 		return getPmis().stream()
 			.sorted((p1, p2) -> ObjectUtils.compare(p1.getId(), p2.getId()))

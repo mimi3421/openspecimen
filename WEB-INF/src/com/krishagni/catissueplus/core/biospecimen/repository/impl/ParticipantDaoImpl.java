@@ -84,14 +84,14 @@ public class ParticipantDaoImpl extends AbstractDao<Participant> implements Part
 	
 	@Override
 	public boolean isUidUnique(String uid) {
-		Query query = sessionFactory.getCurrentSession().getNamedQuery(GET_PARTICIPANT_ID_BY_UID);
+		Query query = getCurrentSession().getNamedQuery(GET_PARTICIPANT_ID_BY_UID);
 		query.setString("uid", uid.toLowerCase());
 		return query.list().isEmpty();
 	}
 
 	@Override
 	public boolean isPmiUnique(String siteName, String mrn) {
-		Query query = sessionFactory.getCurrentSession().getNamedQuery(GET_PMI_ID_BY_SITE_MRN);
+		Query query = getCurrentSession().getNamedQuery(GET_PMI_ID_BY_SITE_MRN);
 		query.setString("siteName", siteName.toLowerCase());
 		query.setString("mrn", mrn.toLowerCase());
 		return query.list().isEmpty();

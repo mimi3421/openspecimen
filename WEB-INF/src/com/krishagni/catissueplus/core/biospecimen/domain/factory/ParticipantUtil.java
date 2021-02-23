@@ -53,11 +53,13 @@ public class ParticipantUtil {
 
 	public static boolean ensureUniquePmis(DaoFactory daoFactory, List<PmiDetail> pmis, Participant participant, OpenSpecimenException ose) {
 		List<Long> participantIds = daoFactory.getParticipantDao().getParticipantIdsByPmis(pmis);
+
 		if (CollectionUtils.isEmpty(participantIds)) { 
 			// no one own these pmis yet
 			return true;
 		}
-		
+
+		// TODO: Should we need to automatically link to the existing participant
 		if (participant.getId() == null) { // create mode
 			ose.addError(ParticipantErrorCode.DUP_MRN);
 			return false;

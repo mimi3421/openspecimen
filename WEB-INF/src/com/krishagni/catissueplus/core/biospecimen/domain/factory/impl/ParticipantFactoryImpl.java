@@ -262,16 +262,16 @@ public class ParticipantFactoryImpl implements ParticipantFactory {
 			return;
 		}
 
-		if (partial) {
-			boolean unique = ParticipantUtil.ensureUniquePmis(
-					daoFactory, 
-					detail.getPmis(), 
-					participant, 
-					oce);
-			if (!unique) {
-				return;
-			}
-		}
+//		if (partial) {
+//			boolean unique = ParticipantUtil.ensureUniquePmis(
+//					daoFactory,
+//					detail.getPmis(),
+//					participant,
+//					oce);
+//			if (!unique) {
+//				return;
+//			}
+//		}
 		
 		Set<ParticipantMedicalIdentifier> newPmis = new HashSet<>();
 		if (CollectionUtils.isEmpty(detail.getPmis())) {

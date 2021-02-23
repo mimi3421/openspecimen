@@ -17,6 +17,8 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.InitializingBean;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.administrative.domain.factory.SiteErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.ConfigParams;
@@ -189,24 +191,31 @@ public class ParticipantServiceImpl implements ParticipantService, ObjectAccesso
 	}
 	
 	public Participant createParticipant(Participant participant) {
-		participant = getParticipantToUse(participant, participant.getPmis());
+		Participant participantToUse = getParticipantToUse(participant, participant.getPmis());
+		if (participantToUse != participant && participantToUse.getId() != null) {
+			// sourced from the local database because ID is not null
+			if (participantToUse.getRegisteredCpIds().contains(participant.getCpId())) {
+				// already part of the CP - why create again?
+				throw OpenSpecimenException.userError(ParticipantErrorCode.DUP_MRN);
+			}
+		} else {
+			// sourced from external database
+			OpenSpecimenException ose = new OpenSpecimenException(ErrorType.USER_ERROR);
+			ParticipantUtil.ensureUniqueUid(daoFactory, participantToUse.getUid(), ose);
+			ParticipantUtil.ensureUniquePmis(daoFactory, PmiDetail.from(participantToUse.getPmis(), false), participant, ose);
+			ParticipantUtil.ensureUniqueEmpi(daoFactory, participant.getEmpi(), ose);
+			ose.checkAndThrow();
+		}
 
-		OpenSpecimenException ose = new OpenSpecimenException(ErrorType.USER_ERROR);
-		ParticipantUtil.ensureUniqueUid(daoFactory, participant.getUid(), ose);
-		ParticipantUtil.ensureUniquePmis(daoFactory, PmiDetail.from(participant.getPmis(), false), participant, ose);
-		ParticipantUtil.ensureUniqueEmpi(daoFactory, participant.getEmpi(), ose);
-
-		ose.checkAndThrow();
-
-		participant.setEmpiIfEmpty();
-		daoFactory.getParticipantDao().saveOrUpdate(participant, true);
-		participant.addOrUpdateExtension();
-		return participant;
+		participantToUse.setEmpiIfEmpty();
+		daoFactory.getParticipantDao().saveOrUpdate(participantToUse, true);
+		participantToUse.addOrUpdateExtension();
+		return participantToUse;
 	}
 
 	public void updateParticipant(Participant existing, Participant newParticipant) {
-		ParticipantUtil.ensureLockedFieldsAreUntouched(existing, newParticipant);
 		newParticipant = getParticipantToUse(newParticipant, getNewlyAddedPmis(existing, newParticipant));
+		ParticipantUtil.ensureLockedFieldsAreUntouched(existing, newParticipant);
 
 		OpenSpecimenException ose = new OpenSpecimenException(ErrorType.USER_ERROR);
 
@@ -224,7 +233,6 @@ public class ParticipantServiceImpl implements ParticipantService, ObjectAccesso
 		} else if (generator == null && StringUtils.isNotBlank(newEmpi) && !newEmpi.equals(existingEmpi)) {
 			ParticipantUtil.ensureUniqueEmpi(daoFactory, newEmpi, ose);
 		}
-
 
 		List<PmiDetail> pmis = PmiDetail.from(newParticipant.getPmis(), false);
 		ParticipantUtil.ensureUniquePmis(daoFactory, pmis, existing, ose);
@@ -293,7 +301,8 @@ public class ParticipantServiceImpl implements ParticipantService, ObjectAccesso
 			if (!blankEmpi) {
 				result = daoFactory.getParticipantDao().getByEmpi(detail.getEmpi());
 			}
-			
+
+			// TODO: Suspicious check
 			if (blankEmpi || (result == null && !forUpdate)) {
 				result = getByPmis(detail);
 			}
@@ -423,8 +432,15 @@ public class ParticipantServiceImpl implements ParticipantService, ObjectAccesso
 		}
 
 		List<PmiDetail> searchPmis = PmiDetail.from(lookupPmis, false);
-		List<StagedParticipant> participants = daoFactory.getStagedParticipantDao().getByPmis(searchPmis);
-		if (participants.isEmpty()) {
+		List<Participant> participants = daoFactory.getParticipantDao().getByPmis(searchPmis);
+		if (participants.size() > 1) {
+			throw OpenSpecimenException.userError(ParticipantErrorCode.MRN_DIFF, PmiDetail.toString(searchPmis));
+		} else if (participants.size() == 1) {
+			return getMatchedParticipant(participants.get(0), participant);
+		}
+
+		List<StagedParticipant> stagedParticipants = daoFactory.getStagedParticipantDao().getByPmis(searchPmis);
+		if (stagedParticipants.isEmpty()) {
 			if (lookupPmis.stream().anyMatch(pmi -> getExternalSourceSites().contains(pmi.getSite()))) {
 				throw OpenSpecimenException.userError(ParticipantErrorCode.STAGED_NOT_FOUND, PmiDetail.toString(searchPmis));
 			}
@@ -434,10 +450,28 @@ public class ParticipantServiceImpl implements ParticipantService, ObjectAccesso
 			throw OpenSpecimenException.userError(ParticipantErrorCode.MRN_DIFF, PmiDetail.toString(searchPmis));
 		}
 
-		ParticipantDetail match = StagedParticipantDetail.from(participants.get(0));
-		match.setCpId(participant.getCpId());
-		match.setExtensionDetail(ExtensionDetail.from(participant.getExtension(), false));
-		return participantFactory.createParticipant(participant, match);
+		Participant matched = participantFactory.createParticipant(StagedParticipantDetail.from(stagedParticipants.get(0)));
+		return getMatchedParticipant(matched, participant);
+	}
+
+	//
+	// The idea is to reconstruct the matched participant with the details of the input participant and
+	// ensure the locked fields are untouched.
+	//
+	private Participant getMatchedParticipant(Participant matched, Participant input) {
+		matched.setCpId(input.getCpId());
+		Participant reInput = participantFactory.createParticipant(matched, getReInput(input));
+		ParticipantUtil.ensureLockedFieldsAreUntouched(matched, reInput);
+		matched.update(reInput);
+		return matched;
+	}
+
+	private ParticipantDetail getReInput(Participant input) {
+		Map<String, Object> attrs = new ObjectMapper().convertValue(
+			ParticipantDetail.from(input, false),
+			new TypeReference<HashMap<String, Object>>() {}
+		);
+		return new ObjectMapper().convertValue(attrs, ParticipantDetail.class);
 	}
 
 	private List<ParticipantMedicalIdentifier> getNewlyAddedPmis(Participant existing, Participant newParticipant) {
