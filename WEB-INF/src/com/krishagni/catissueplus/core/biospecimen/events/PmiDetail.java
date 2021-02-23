@@ -2,7 +2,9 @@
 package com.krishagni.catissueplus.core.biospecimen.events;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -54,5 +56,18 @@ public class PmiDetail {
 
 	public static String toString(Collection<PmiDetail> pmis) {
 		return Utility.nullSafeStream(pmis).map(PmiDetail::toString).collect(Collectors.joining(", "));
+	}
+
+	public static Map<String, String> toMap(List<PmiDetail> pmis) {
+		Map<String, String> result = new HashMap<>();
+		for (PmiDetail pmi : pmis) {
+			if (StringUtils.isBlank(pmi.getSiteName())) {
+				continue;
+			}
+
+			result.put(pmi.getSiteName().toLowerCase(), pmi.getMrn() != null ? pmi.getMrn().toLowerCase() : null);
+		}
+
+		return result;
 	}
 }

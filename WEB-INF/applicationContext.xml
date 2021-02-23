@@ -222,9 +222,17 @@
     <property name="formSvc" ref="formSvc"/>
     <property name="cpSvc" ref="cpSvc"/>
   </bean>
-  
+
+  <bean id="participantLookupFactory" class="com.krishagni.catissueplus.core.biospecimen.domain.factory.impl.ParticipantLookupFactoryImpl">
+    <property name="defaultParticipantLookupFlow" ref="defaultParticipantLookupFlow"/>
+    <property name="cfgSvc" ref="cfgSvc"/>
+  </bean>
+
   <bean id="participantFactory" class="com.krishagni.catissueplus.core.biospecimen.domain.factory.impl.ParticipantFactoryImpl">
     <property name="daoFactory" ref="biospecimenDaoFactory"/>
+    <property name="transactionManager" ref="transactionManager"/>
+    <property name="lookupFactory" ref="participantLookupFactory"/>
+    <property name="cfgSvc" ref="cfgSvc"/>
   </bean>
 
   <bean id="specimenFactory" class="com.krishagni.catissueplus.core.biospecimen.domain.factory.impl.SpecimenFactoryImpl">
@@ -251,8 +259,7 @@
   <bean id="participantSvc" class="com.krishagni.catissueplus.core.biospecimen.services.impl.ParticipantServiceImpl">
     <property name="daoFactory" ref="biospecimenDaoFactory"/>
     <property name="participantFactory" ref="participantFactory"/>
-    <property name="defaultParticipantLookupFlow" ref="defaultParticipantLookupFlow"/>
-    <property name="cfgSvc" ref="cfgSvc"/>
+    <property name="lookupFactory" ref="participantLookupFactory"/>
   </bean>
 
   <bean id="stagedParticipantSvc" class="com.krishagni.catissueplus.core.biospecimen.services.impl.StagedParticipantServiceImpl">

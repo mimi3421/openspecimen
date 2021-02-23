@@ -7,12 +7,14 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.BeanUtils;
 
 import com.krishagni.catissueplus.core.biospecimen.ConfigParams;
 import com.krishagni.catissueplus.core.biospecimen.WorkflowUtil;
 import com.krishagni.catissueplus.core.biospecimen.domain.CpWorkflowConfig;
 import com.krishagni.catissueplus.core.biospecimen.domain.Participant;
 import com.krishagni.catissueplus.core.biospecimen.events.PmiDetail;
+import com.krishagni.catissueplus.core.biospecimen.matching.ParticipantLookupLogic;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.common.OpenSpecimenAppCtxProvider;
 import com.krishagni.catissueplus.core.common.errors.ErrorCode;
@@ -114,27 +116,33 @@ public class ParticipantUtil {
 			return;
 		}
 
-		List<String> lockedFields = Collections.emptyList();
-		CpWorkflowConfig.Workflow workflow = WorkflowUtil.getInstance().getSysWorkflow(LOCKED_FIELDS);
-		if (workflow != null && workflow.getData() != null) {
-			Map<String, Object> participantWfData = (Map<String, Object>)workflow.getData().get("participant");
-			if (participantWfData != null && participantWfData.get(existing.getSource()) instanceof List) {
-				lockedFields = (List<String>)participantWfData.get(existing.getSource());
-			}
-		}
-
-		lockedFields = lockedFields.stream()
-			.filter(field -> field.startsWith(PART_FIELD_PREFIX))
-			.map(field -> field.substring(PART_FIELD_PREFIX.length()))
-			.collect(Collectors.toList());
-
-		List<String> diff = Utility.diff(existing, newParticipant, lockedFields);
+		List<String> diff = Utility.diff(existing, newParticipant, getLockedFields(existing.getSource()));
 		if (!diff.isEmpty()) {
 			String errFields = diff.stream().map(f -> PART_FIELD_PREFIX + f).collect(Collectors.joining(", "));
 			throw OpenSpecimenException.userError(ParticipantErrorCode.LF_UPDATE_NOT_ALLOWED, errFields);
 		}
 	}
-	
+
+	public static List<String> getLockedFields(String source) {
+		if (StringUtils.isBlank(source)) {
+			return Collections.emptyList();
+		}
+
+		List<String> lockedFields = Collections.emptyList();
+		CpWorkflowConfig.Workflow workflow = WorkflowUtil.getInstance().getSysWorkflow(LOCKED_FIELDS);
+		if (workflow != null && workflow.getData() != null) {
+			Map<String, Object> wfData = (Map<String, Object>)workflow.getData().get("participant");
+			if (wfData != null && wfData.get(source) instanceof List) {
+				lockedFields = (List<String>)wfData.get(source);
+			}
+		}
+
+		return lockedFields.stream()
+			.filter(field -> field.startsWith(PART_FIELD_PREFIX))
+			.map(field -> field.substring(PART_FIELD_PREFIX.length()))
+			.collect(Collectors.toList());
+	}
+
 	private static boolean isValidInput(String input, String patternCfg, String validatorCfg, ErrorCode error, OpenSpecimenException ose) {
 		String pattern = ConfigUtil.getInstance().getStrSetting(ConfigParams.MODULE, patternCfg, null);
 		

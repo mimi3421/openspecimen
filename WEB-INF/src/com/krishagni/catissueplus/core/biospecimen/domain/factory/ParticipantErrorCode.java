@@ -52,7 +52,11 @@ public enum ParticipantErrorCode implements ErrorCode {
 
 	STAGED_ID_REQ,
 
-	STAGED_NOT_FOUND;
+	STAGED_NOT_FOUND,
+
+	MULTI_MATCHES,
+
+	NO_MRN_MATCH;
 
 	public String code() {
 		return "PARTICIPANT_" + this.name();

@@ -3,71 +3,279 @@ package com.krishagni.catissueplus.core.biospecimen.domain.factory.impl;
 
 import static com.krishagni.catissueplus.core.common.PvAttributes.*;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.krishagni.catissueplus.core.administrative.domain.PermissibleValue;
 import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.administrative.domain.factory.SiteErrorCode;
+import com.krishagni.catissueplus.core.biospecimen.ConfigParams;
 import com.krishagni.catissueplus.core.biospecimen.domain.Participant;
 import com.krishagni.catissueplus.core.biospecimen.domain.ParticipantMedicalIdentifier;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.ParticipantErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.ParticipantFactory;
+import com.krishagni.catissueplus.core.biospecimen.domain.factory.ParticipantLookupFactory;
 import com.krishagni.catissueplus.core.biospecimen.domain.factory.ParticipantUtil;
+import com.krishagni.catissueplus.core.biospecimen.events.MatchedParticipant;
 import com.krishagni.catissueplus.core.biospecimen.events.ParticipantDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.PmiDetail;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.common.errors.ActivityStatusErrorCode;
+import com.krishagni.catissueplus.core.common.errors.CommonErrorCode;
 import com.krishagni.catissueplus.core.common.errors.ErrorCode;
 import com.krishagni.catissueplus.core.common.errors.ErrorType;
 import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
+import com.krishagni.catissueplus.core.common.service.ConfigurationService;
 import com.krishagni.catissueplus.core.common.util.ConfigUtil;
 import com.krishagni.catissueplus.core.common.util.Status;
 import com.krishagni.catissueplus.core.common.util.Utility;
 import com.krishagni.catissueplus.core.de.domain.DeObject;
+import com.krishagni.catissueplus.core.de.events.ExtensionDetail;
 
+public class ParticipantFactoryImpl implements ParticipantFactory, InitializingBean {
+	private static final Log logger = LogFactory.getLog(ParticipantFactoryImpl.class);
 
-public class ParticipantFactoryImpl implements ParticipantFactory {
 	private static final String DEAD_STATUS = "Dead";
 
+	private Set<Site> externalSourceSites;
+
+	private TransactionTemplate newTxTmpl;
+
 	private DaoFactory daoFactory;
-	
+
+	private ParticipantLookupFactory lookupFactory;
+
+	private ConfigurationService cfgSvc;
+
+	public void setTransactionManager(PlatformTransactionManager txnMgr) {
+		this.newTxTmpl = new TransactionTemplate(txnMgr);
+		this.newTxTmpl.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+	}
+
 	public void setDaoFactory(DaoFactory daoFactory) {
 		this.daoFactory = daoFactory;
 	}
 
+	public void setLookupFactory(ParticipantLookupFactory lookupFactory) {
+		this.lookupFactory = lookupFactory;
+	}
+
+	public void setCfgSvc(ConfigurationService cfgSvc) {
+		this.cfgSvc = cfgSvc;
+	}
+
 	@Override
-	public Participant createParticipant(ParticipantDetail detail) {		
+	public Participant createParticipant(ParticipantDetail input) {
 		Participant participant = new Participant();
+		copyMatchedParticipantFields(null, input);
 		
 		OpenSpecimenException ose = new OpenSpecimenException(ErrorType.USER_ERROR);
-		setParticipantAttrs(detail, participant, false, ose);
+		setParticipantAttrs(input, participant, false, ose);
 		
 		ose.checkAndThrow();
 		return participant;
 	}
 	
 	@Override
-	public Participant createParticipant(Participant existing, ParticipantDetail detail) {
-		existing.setCpId(detail.getCpId());
+	public Participant createParticipant(Participant existing, ParticipantDetail input) {
+		existing.setCpId(input.getCpId());
+		Long matchedId = copyMatchedParticipantFields(existing, input);
 
 		Participant participant = new Participant();
 		BeanUtils.copyProperties(existing, participant, "cprs", "source");
-		
+		if (matchedId != null) {
+			participant.setId(matchedId);
+		}
+
 		OpenSpecimenException ose = new OpenSpecimenException(ErrorType.USER_ERROR);
-		setParticipantAttrs(detail, participant, true, ose);
-		
+		setParticipantAttrs(input, participant, true, ose);
+
 		ose.checkAndThrow();
 		return participant;
-		
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		cfgSvc.registerChangeListener(
+			ConfigParams.MODULE,
+			(name, value) -> {
+				if (StringUtils.isBlank(name) || ConfigParams.EXT_PARTICIPANT_SITES.equals(name)) {
+					externalSourceSites = null;
+				}
+			}
+		);
+	}
+
+	private Long copyMatchedParticipantFields(Participant existing, ParticipantDetail input) {
+		ParticipantDetail match = lookup(input);
+		if (match == null) {
+			return null;
+		}
+
+		input.setId(match.getId());
+		match.setCpId(input.getCpId());
+		if (!StringUtils.equalsIgnoreCase(input.getSource(), match.getSource())) {
+			Participant p = existing != null ? existing : new Participant();
+			p.setCpId(input.getCpId());
+			if (p.getCpId() != null) {
+				match.setExtensionDetail(ExtensionDetail.from(p.getExtension(), false));
+			}
+
+			copyLockedFields(match, input);
+		}
+
+		return match.getId();
+	}
+
+	private ParticipantDetail lookup(ParticipantDetail input) {
+		return newTxTmpl.execute(
+			new TransactionCallback<ParticipantDetail>() {
+				@Override
+				public ParticipantDetail doInTransaction(TransactionStatus transactionStatus) {
+					List<MatchedParticipant> matches = lookupFactory.getLookupLogic().getMatchingParticipants(input);
+					if (matches.size() > 1) {
+						throw OpenSpecimenException.userError(ParticipantErrorCode.MULTI_MATCHES);
+					}
+
+					if (CollectionUtils.isNotEmpty(input.getPmis())) {
+						ensureExtSourceMrnMatch(input, !matches.isEmpty() ? matches.get(0) : null);
+					}
+
+					if (matches.isEmpty()) {
+						return null;
+					}
+
+					MatchedParticipant match = matches.get(0);
+					if (Collections.disjoint(match.getMatchedAttrs(), Arrays.asList("empi", "uid", "pmi"))) {
+						return null;
+					}
+
+					return match.getParticipant();
+				}
+			}
+		);
+	}
+
+	private void copyLockedFields(ParticipantDetail match, ParticipantDetail input) {
+		List<String> lockedFields = ParticipantUtil.getLockedFields(match.getSource());
+		if (lockedFields.isEmpty()) {
+			return;
+		}
+
+		if (match.getExtensionDetail() == null) {
+			match.setExtensionDetail(new ExtensionDetail());
+		}
+
+		if (input.getExtensionDetail() == null) {
+			input.setExtensionDetail(match.getExtensionDetail());
+		}
+
+		Map<String, Object> matchExtnAttrsMap = match.getExtensionDetail().getAttrsMap();
+		Map<String, Object> inputExtnAttrsMap = input.getExtensionDetail().getAttrsMap();
+		for (String field : lockedFields) {
+			try {
+				if (!field.startsWith("extensionDetail.attrsMap")) {
+					PropertyUtils.setProperty(input, field, PropertyUtils.getProperty(match, field));
+				} else {
+					String extnAttr = field.substring("extensionDetail.attrsMap.".length());
+					inputExtnAttrsMap.put(extnAttr, matchExtnAttrsMap.get(extnAttr));
+				}
+			} catch (Exception e) {
+				logger.error("Error copying the field: " + field + ". Error: " + e.getMessage(), e);
+				throw OpenSpecimenException.userError(CommonErrorCode.INVALID_INPUT, "Invalid locked field name: " + field + ". Error: " + e.getMessage());
+			}
+		}
+
+		if (!inputExtnAttrsMap.isEmpty()) {
+			input.getExtensionDetail().setAttrsMap(inputExtnAttrsMap);
+		}
+	}
+
+	private void ensureExtSourceMrnMatch(ParticipantDetail input, MatchedParticipant match) {
+		Set<String> names = getExternalSourceSites().stream()
+			.map(s -> s.getName().toLowerCase())
+			.collect(Collectors.toSet());
+		if (names.isEmpty()) {
+			// no external sources configured
+			return;
+		}
+
+		boolean hasExtSite = input.getPmis().stream()
+			.anyMatch(pmi ->
+				StringUtils.isNotBlank(pmi.getSiteName()) &&
+				StringUtils.isNotBlank(pmi.getMrn()) &&
+				names.contains(pmi.getSiteName().toLowerCase())
+			);
+		if (!hasExtSite) {
+			// none of the input MRNs are of external sources
+			return;
+		}
+
+		if (match == null || !match.getMatchedAttrs().contains("pmi")) {
+			throw OpenSpecimenException.userError(ParticipantErrorCode.NO_MRN_MATCH, PmiDetail.toString(input.getPmis()));
+		}
+
+		Map<String, String> mrns = PmiDetail.toMap(match.getParticipant().getPmis());
+		boolean hasMatch = input.getPmis().stream()
+			.anyMatch(pmi ->
+				StringUtils.isNotBlank(pmi.getSiteName()) &&
+				names.contains(pmi.getSiteName().toLowerCase()) &&
+				StringUtils.isNotBlank(pmi.getMrn()) &&
+				pmi.getMrn().toLowerCase().equals(mrns.get(pmi.getSiteName().toLowerCase()))
+			);
+
+		if (!hasMatch) {
+			throw OpenSpecimenException.userError(ParticipantErrorCode.NO_MRN_MATCH, PmiDetail.toString(input.getPmis()));
+		}
+	}
+
+	private Set<Site> getExternalSourceSites() {
+		if (externalSourceSites != null) {
+			return externalSourceSites;
+		}
+
+		String sitesStr = ConfigUtil.getInstance().getStrSetting(ConfigParams.MODULE, ConfigParams.EXT_PARTICIPANT_SITES, "");
+		List<String> sitesList = Utility.csvToStringList(sitesStr);
+
+		externalSourceSites = new HashSet<>();
+		for (String inputSite : sitesList) {
+			Site site = null;
+			if (StringUtils.isNumeric(inputSite)) {
+				site = daoFactory.getSiteDao().getById(Long.parseLong(inputSite));
+			} else {
+				site = daoFactory.getSiteDao().getSiteByName(inputSite);
+			}
+
+			if (site == null) {
+				logger.error("External source site not found. Key = " + inputSite);
+				throw OpenSpecimenException.userError(SiteErrorCode.NOT_FOUND, inputSite);
+			}
+
+			externalSourceSites.add(site);
+		}
+
+		return externalSourceSites;
 	}
 	
 	private void setParticipantAttrs(ParticipantDetail detail, Participant participant, boolean partial, OpenSpecimenException ose) {
