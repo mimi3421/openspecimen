@@ -3119,7 +3119,11 @@
       "recs_to_display": "Records to Display",
       "hundred": "100",
       "two_hundred": "200",
-      "five_hundred": "500"
+      "five_hundred": "500",
+      "custom": "Custom",
+      "custom_page_size": "Custom value",
+      "invalid_page_size": "Records to display cannot be 0 or less than 0!",
+      "confirm_large_page_size": "Choosing a larger value for records to display can make the UI app run slower or unresponsive. Do you still want to proceed ahead with your selection?"
     },
 
     "new_stuff": {

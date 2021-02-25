@@ -82,7 +82,7 @@ angular.module('openspecimen')
     }
   })
 
-  .directive('osListPageSize', function() {
+  .directive('osListPageSize', function(Alerts, Util) {
     return {
       restrict: 'E',
 
@@ -97,7 +97,12 @@ angular.module('openspecimen')
       },
 
       link: function(scope, element, attrs) {
-        scope.pageSizeChanged = function(newPageSize) {
+        var pctx = scope.pctx = {
+          enableCustomPageSize: false,
+          customPageSize: 100
+        };
+
+        var pageSizeChanged = scope.pageSizeChanged = function(newPageSize) {
           var opts = scope.opts;
           if (!opts || opts.recordsPerPage == newPageSize) {
             return;
@@ -106,6 +111,32 @@ angular.module('openspecimen')
           opts.recordsPerPage = newPageSize;
           opts.$$pageSizeChanged = 2; // +1 for recordsPerPage and +1 for currentRecsPerPage
           scope.onChange({recordsPerPage: newPageSize});
+        }
+
+        scope.changePageSize = function() {
+          var opts = scope.opts;
+          if (+pctx.customPageSize == opts.recordsPerPage) {
+            return;
+          }
+
+          if (!pctx.customPageSize || pctx.customPageSize <= 0) {
+            Alerts.error('list_pager.invalid_page_size');
+            return;
+          }
+
+          if (pctx.customPageSize > 500) {
+            Util.showConfirm({
+              title: 'common.warning',
+              confirmMsg: 'list_pager.confirm_large_page_size',
+              ok: function() {
+                pageSizeChanged(+pctx.customPageSize);
+              },
+              cancel: function() {
+              }
+            });
+          } else {
+            pageSizeChanged(+pctx.customPageSize);
+          }
         }
       }
     }
