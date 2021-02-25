@@ -3,6 +3,7 @@ package com.krishagni.catissueplus.core.administrative.repository.impl;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -227,7 +228,10 @@ public class PermissibleValueDaoImpl extends AbstractDao<PermissibleValue> imple
 	private Criteria getPvQuery(ListPvCriteria crit) {
 		Criteria query = getCurrentSession().createCriteria(PermissibleValue.class);
 		if (crit.values() != null) {
-			query.add(Restrictions.in("value", crit.values()));
+			List<String> values = crit.values().stream().filter(StringUtils::isNotBlank).collect(Collectors.toList());
+			if (!values.isEmpty()) {
+				query.add(Restrictions.in("value", values));
+			}
 		}
 
 		if (StringUtils.isNotBlank(crit.parentAttribute()) || StringUtils.isNotBlank(crit.parentValue())) {

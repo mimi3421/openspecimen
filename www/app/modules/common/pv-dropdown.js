@@ -129,6 +129,13 @@ angular.module('openspecimen')
       }
 
       //
+      // Bug OPSMN-5500: Presence of comma in the value makes the API controller believe
+      // that the value is made up of 2 PVs. To avoid this, adding an empty string.
+      // This prevents the aforementioned behaviour of the API controller
+      //
+      selValues.push('');
+
+      //
       // selected value is not in list;
       // initiate search to retrieve it from backend
       //
