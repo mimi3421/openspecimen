@@ -15,7 +15,7 @@ Standalone install on Windows 10 in console
 
 2. Environment
 
-   ```{bash}
+   ```bash
    set PATH={..}\server\gradle-6.8.3\bin;{..}\node-v14.16.0-win-x64\node_modules\.bin;{..}\Git\bin;{..}\Java\jdk1.8.0_241\bin;{..}\mysql-8.0.23-winx64\bin;{..}\node-v14.16.0-win-x64
    
    set JAVA_HOME={..}\Java\jdk1.8.0_241
@@ -28,9 +28,9 @@ Standalone install on Windows 10 in console
 
 3. Initialize mysql
 
-   1. Create my.ini in {..}\mysql-8.0.23-winx64
+   1. Create my.ini in {..}/mysql-8.0.23-winx64
 
-      ```{ini}
+      ```ini
       #https://dev.mysql.com/doc/refman/8.0/en/option-files.html
       [mysqld]
       port=3306
@@ -55,14 +55,14 @@ Standalone install on Windows 10 in console
       
    2. Initialization
 
-      ```{bash}
+      ```bash
       mysqld --initialize --console
       # Markdown the original random root password from the output
       ```
 
    3. Create database
 
-      ```{sql}
+      ```sql
       # Use heidisql or other mysql client to create databse and user, change root password to PASSWORD
       # DROP DATABASE openspecimen
       CREATE DATABASE openspecimen
@@ -71,7 +71,7 @@ Standalone install on Windows 10 in console
 4. Prepare tomcat
 
    1. Create openspecimen.properties in ${TOMCAT_HOME}/conf
-      ```{ini}
+      ```ini
       #######################################################################
       # Windows users, please note the directories should be separated using 
       # forward slashes as in below example:
@@ -117,7 +117,7 @@ Standalone install on Windows 10 in console
       ```
    3. Add lines in ${TOMCAT_HOME}/conf/context.xml inside \<Context\>. Must use root user or user with SUPER privilege if binary logging is enabled in mysql.
 
-      ```{xml}
+      ```xml
       <Resource name="jdbc/openspecimen" auth="Container" type="javax.sql.DataSource"
             maxTotal="100" maxIdle="30" maxWaitMillis="10000"
             username="root" password="PASSWORD"
@@ -137,34 +137,34 @@ Standalone install on Windows 10 in console
 
    2. Set npm mirrors if needed
 
-      ```{bash}
+      ```bash
       npm config set registry https://registry.npm.taobao.org
       # npm config get registry # Check if success
       ```
 
    3. Install module 
 
-      ```
+      ```bash
       pushd {..}\openspecimen-8.0.b1\www
       npm install bower
       npm install grunt-cli 
       ```
 
-   4. Add {..}\node_modules\.bin to PATH
+   4. Add {..}/node_modules/.bin to PATH
 
 6. Prepare openspecimen compile
       
 
    1. Edit {..}/openspecimen-8.0.b1/build.properties
 
-      ```{ini}
+      ```ini
       app_home={..}/apache-tomcat-9.0.37
       ```
 
 
    3. Add mirrors of maven if needed in {..}/openspecimen-8.0.b1/build.gradle
 
-      ```{java}
+      ```java
       repositories {
           maven {
             url 'https://maven.aliyun.com/repository/public/'
@@ -175,7 +175,7 @@ Standalone install on Windows 10 in console
 
    5. Comple everything with gradle
 
-      ```{bash}
+      ```bash
       pushd {..}\openspecimen-8.0.b1\www
       
       # grunt must be installed locally
@@ -200,18 +200,18 @@ Standalone install on Windows 10 in console
 
 7. Start the daemon
 
-   1. Set the port in {..}\apache-tomcat-9.0.37\conf\server.xml . The default is 8080
+   1. Set the port in {..}/apache-tomcat-9.0.37/conf/server.xml . The default is 8080
 
-      ```{xml}
+      ```xml
       <Connector port="8080" protocol="HTTP/1.1"
                      connectionTimeout="20000"
                      redirectPort="8443" />
       ```
 
 
-   2. Add tomcat-user：{..}\apache-tomcat-9.0.37\conf\tomcat-users.xml
+   2. Add tomcat-user：{..}/apache-tomcat-9.0.37/conf/tomcat-users.xml
 
-      ```{xml}
+      ```xml
       <tomcat-users>
       
       ...
@@ -226,7 +226,7 @@ Standalone install on Windows 10 in console
 
    3. Start standalone
 
-      ```{bash}
+      ```bash
       mysqld --standalone --console
       {..}\apache-tomcat-9.0.37\bin\catalina.bat start
       ```
@@ -238,6 +238,7 @@ Standalone install on Windows 10 in console
       # Check app status, username tomcat password tomcat
       http://localhost:8080/manager/html
       # The site, username admin password Login@123
+      http://localhost:8080/openspecimen
       ```
 
 
