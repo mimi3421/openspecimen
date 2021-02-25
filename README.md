@@ -5,12 +5,13 @@ Standalone install on Windows 10 in console
 
 1. Download files
 
-   1. https://git-scm.com/download/win # git
+   1. https://git-scm.com/download/win
    2. https://tomcat.apache.org/download-80.cgi # 9.0.37
    3. https://dev.mysql.com/downloads/mysql/ # 8.0.23
    4. https://downloads.gradle-dn.com/distributions/gradle-4.10.2-bin.zip # MUST BE VERSION 4.x
    5. https://dev.mysql.com/downloads/connector/j/ # MUST BE 8.0.20 if mysql version is 8.0.23, copy mysql-connector-java-8.0.20.jar to {..}/apache-tomcat-9.0.37/lib
    6. https://nodejs.org/en/download/ # 14.16.0
+   7. https://github.com/mimi3421/openspecimen/releases # release v8.0.b1
 
 2. Environment
 
