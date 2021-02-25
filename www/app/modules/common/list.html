@@ -30,14 +30,14 @@
           </th>
         </tr>
       </thead>
-      <tbody class="os-table-body" ng-if="!ctx.data.rows || ctx.data.rows.length == 0">
+      <tbody class="os-table-body" ng-if="!ctx.data.rows || ctx.data.rows.length == 0 || ctx.emptyState.loading"">
         <tr class="row">
           <td colspan="100%">
             <os-empty-list state="ctx.emptyState"></os-empty-list>
           </td>
         </tr>
       </tbody>
-      <tbody class="os-table-body" ng-if="ctx.data.rows.length > 0">
+      <tbody class="os-table-body" ng-if="ctx.data.rows.length > 0 && !ctx.emptyState.loading">
         <tr class="row" ng-repeat="row in ctx.data.rows track by $index" os-row-click="showItem({row: row})">
           <td class="col os-click-esc" ng-if="enableSelection == 'true' || enableSelection == true ||
             starItems == 'true' || starItems == true">
